@@ -1,0 +1,84 @@
+#! /bin/bash
+# Part of the culibs project, <http://www.eideticdew.org/culibs/>.
+# Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+set -e
+
+self_dir="`dirname $0`"
+skel_dir="$self_dir/skel"
+newline='\n'
+year=`date +%Y`
+comment='#'
+
+die()
+{
+    echo 1>&2 "$*"
+    exit 2
+}
+
+subst()
+{
+    local self_absdir="`cd $self_dir; pwd`"
+    local tmp="`dirname $path`"
+    local abspath="`cd $tmp; pwd`/`basename $path`"
+    local relpath="${abspath#$self_absdir/}"
+    local module_reldir="`dirname $relpath`"
+    local header_idr="`echo ${relpath%.[hc]} | tr '/.' '_'`"
+    local module_idr="`echo ${module_reldir} | tr '/.' '_'`"
+    local ppname="`echo ${header_idr} | tr '[a-z]' '[A-Z]'`"
+    local begin_include_guard="#ifndef ${ppname}_H$newline#define ${ppname}_H"
+    local end_include_guard="#endif"
+    local header_relpath="${relpath%.[hc]}.h"
+    sed \
+	-e "s|^#|$comment|g" \
+	-e "s|@YEAR@|$year|g" \
+	-e "s|@BEGIN_INCLUDE_GUARD@|$begin_include_guard|g" \
+	-e "s|@END_INCLUDE_GUARD@|$end_include_guard|g" \
+	-e "s|@POINT@||g" \
+	-e "s|@module_idr@|${module_idr}|g" \
+	-e "s|@header_idr@|${header_idr}|g" \
+	-e "s|@PPNAME@|${ppname}|g" \
+	-e "s|@header_relpath@|$header_relpath|g" \
+	-e "s|@module_reldir@|$module_reldir|g" \
+	$1 >$2
+}
+
+for path in $*; do
+    ext="${path##*.}"
+    if [[ -z "$ext" ]]; then
+	die "$path has no extension"
+    fi
+    if [[ -e $path ]]; then
+	echo "$path already exists"
+    elif [[ -e $skel_dir/template.$ext ]]; then
+	subst $skel_dir/template.$ext $path
+    else
+	case $ext in
+	    pl|sh|cuex-ot)
+		comment='#'
+		subst $skel_dir/template.x $path
+		;;
+	    ac|m4)
+		comment='dnl'
+		subst $skel_dir/template.x $path
+		;;
+	    *)
+		die "Unknown file extension $ext."
+		;;
+	esac
+    fi
+done

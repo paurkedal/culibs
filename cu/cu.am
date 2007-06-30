@@ -1,0 +1,104 @@
+if enable_cu
+
+cu_headers = \
+	cu/algo.h \
+	cu/clos.h \
+	cu/conf.h \
+	cu/cstr.h \
+	cu/debug.h \
+	cu/diag.h \
+	cu/dlink.h \
+	cu/dyn.h \
+	cu/fwd.h \
+	cu/hash.h \
+	cu/hcobj.h \
+	cu/hcons.h \
+	cu/idr.h \
+	cu/inherit.h \
+	cu/init.h \
+	cu/int.h \
+	cu/memory.h \
+	cu/rarex.h \
+	cu/scratch.h \
+	cu/sref.h \
+	cu/str.h \
+	cu/test.h \
+	cu/thread.h \
+	cu/tstate.h \
+	cu/util.h \
+	cu/va_ref.h \
+	cu/wordarr.h
+
+nodist_cu_headers = \
+	cu/conf_ac.h
+
+cu_sources = \
+	cu/cstr.c \
+	cu/debug.c \
+	cu/diag.c \
+	cu/dyn.c \
+	cu/hash.c \
+	cu/idr.c \
+	cu/init.c \
+	cu/int.c \
+	cu/memory.c \
+	cu/rarex.c \
+	cu/scratch.c \
+	cu/sref.c \
+	cu/str.c \
+	cu/test.c \
+	cu/thread.c \
+	cu/tstate.c
+
+if enable_gc_disclaim
+    cu_headers += cu/hcons_rn.h
+    cu_sources += cu/hcons_rn.c cu/obj_mlc.c
+else
+    cu_headers += cu/hcons_wp.h
+    cu_sources += cu/hcons_wp.c
+endif
+
+if enable_clos_i386
+    cu_headers += cu/i386/clos.h
+else
+    cu_headers += cu/generic/clos.h
+endif
+
+
+cu_check_programs = \
+	cu/clos_b0 \
+	cu/clos_t0 \
+	cu/cstr_t0 \
+	cu/idr_t0 \
+	cu/int_t0 \
+	cu/thread_t0 \
+	cu/rarex_t0
+cu_norun_check_programs = \
+	cu/int_b0 \
+	cu/hcons_b0
+
+cu_doxyfiles = \
+	cu/clos.doxy
+
+cu_clos_b0_SOURCES = cu/clos_b0.c
+cu_clos_b0_LDADD = libcubase.la
+cu_clos_t0_SOURCES = cu/clos_t0.c
+cu_clos_t0_LDADD = libcubase.la
+cu_cstr_t0_SOURCES = cu/cstr_t0.c
+cu_cstr_t0_LDADD = libcubase.la
+# cu_dyn_t0_SOURCES = cu/dyn_t0.c
+# cu_dyn_t0_LDADD = libcubase.la
+cu_hcons_b0_SOURCES = cu/hcons_b0.c
+cu_hcons_b0_LDADD = libcubase.la
+cu_idr_t0_SOURCES = cu/idr_t0.c
+cu_idr_t0_LDADD = libcubase.la
+cu_int_b0_SOURCES = cu/int_b0.c
+cu_int_b0_LDADD = libcubase.la
+cu_int_t0_SOURCES = cu/int_t0.c
+cu_int_t0_LDADD = libcubase.la
+cu_thread_t0_SOURCES = cu/thread_t0.c
+cu_thread_t0_LDADD = libcubase.la
+cu_rarex_t0_SOURCES = cu/rarex_t0.c
+cu_rarex_t0_LDADD = libcubase.la
+
+endif

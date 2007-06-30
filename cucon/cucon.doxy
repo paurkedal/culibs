@@ -1,0 +1,10 @@
+/*!
+\defgroup cucon_linear_mod Lists, Stacks, and Arrays
+\ingroup cucon_mod
+
+\defgroup cucon_maps_and_sets_mod Trees, Maps, and Sets
+\ingroup cucon_mod
+
+\defgroup cucon_misc_mod Miscellaneous
+\ingroup cucon_mod
+*/

@@ -1,0 +1,128 @@
+#! /usr/bin/env perl
+# Part of the culibs project, <http://www.eideticdew.org/culibs/>.
+# Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+use strict;
+use Pod::Usage;
+use Getopt::Long;
+
+my $out_h;
+my $out_c;
+my $out_base;
+my $guard;
+my $prefix;
+GetOptions(
+    "out-h=s" => \$out_h,
+    "out-c=s" => \$out_c,
+    "b|out-base=s" => \$out_base,
+    "p|prefix=s" => \$prefix,
+) or pod2usage(2);
+pod2usage("Need either option --out-base or options --out-h and --out-c.")
+    unless $out_h and $out_c or $out_base;
+pod2usage("Option --prefix is required")
+    unless $prefix;
+$out_h = $out_base.".h" unless $out_h;
+$out_c = $out_base.".c" unless $out_c;
+(my $ucprefix = $prefix) =~ tr/[a-z]/[A-Z]/;
+$guard = $ucprefix."_H" unless $guard;
+
+my %fnset;
+while (<>) {
+    if (/^cuflow_cached_e?(dcl|def)\s*\(\s*(\w+)\s*,/) {
+	$fnset{$2} = 1;
+    }
+}
+
+open OUT_H, ">$out_h" or die "Could not create $out_h";
+open OUT_C, ">$out_c" or die "Could not create $out_c";
+
+print OUT_H <<__end__;
+/* This is a generated file. */
+
+#ifndef $guard
+#define $guard
+#include <cuflow/cache.h>
+
+CU_BEGIN_DECLARATIONS
+
+extern struct cuflow_cache_s ${prefix}_cache;
+
+/* Call this at program startup to initialise the cache. */
+void ${prefix}_init(cuflow_cacheconf_t conf);
+
+#define ${prefix}_call(PFX, key) \\
+    (PFX##_obj_t *)cuflow_cache_call( \\
+	\&${prefix}_cache, \\
+	CUFLOW_FNCODE(PFX##_index, \\
+		      sizeof(struct PFX##_key_s)/sizeof(cu_word_t)), \\
+	(cuflow_cacheobj_t)(1? (key) : (PFX##_key_t *)NULL))
+
+__end__
+
+print OUT_C <<__end__;
+/* This is a generated file. */
+
+#include <cuflow/cache.h>
+
+__end__
+
+for my $fn (sort(keys %fnset)) {
+    print OUT_C "cuflow_cacheobj_t ${fn}_fn(cuflow_cacheobj_t);\n";
+}
+print OUT_C <<__end__;
+
+static cuflow_cacheobj_t (*cachetab[])(cuflow_cacheobj_t) = {
+__end__
+
+my $index = 0;
+for my $fn (sort(keys %fnset)) {
+    print OUT_H "#define ${fn}_index $index\n";
+    print OUT_C "    ${fn}_fn,\n";
+    ++$index;
+}
+print OUT_C <<__end__;
+};
+
+struct cuflow_cache_s ${prefix}_cache;
+
+void
+${prefix}_init(cuflow_cacheconf_t conf)
+{
+    cuflow_cache_cct(\&${prefix}_cache, conf, cachetab);
+}
+__end__
+
+print OUT_H <<__end__;
+
+CU_END_DECLARATIONS
+
+#endif
+__end__
+
+close OUT_H;
+close OUT_C;
+
+__END__
+=head1 NAME
+
+cuflow_cachetab -- create cache initialisation code
+
+=head1 SYNOPSIS
+
+ cuflow_cachetab -p PREFIX -b OUTPUT_BASE INPUT_FILES...
+
+ cuflow_cachetab -p PREFIX --out-h OUTPUT_HEADER --out-c OUTPUT_SOURCE INPUT_FILES...
+

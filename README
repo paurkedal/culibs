@@ -1,0 +1,51 @@
+Garbage Collected C Libraries
+
+    For elaborate documentation, see http://www.eideticdew.org/culibs/.
+
+    This source code contains several C libraries.  It is split into
+    modules, where each module roughly corresponds to one libary:
+
+	cu	Common infrastructure
+	cucon	Containers and algorithms
+	cugra	Graphs and graph algorithms
+	cuex	Expression trees and related algorithms
+	cudyn	Dynamically typed objects.  Coupled with cuex.
+	cuos	OS interface (file system, sub-processes, etc.)
+
+
+Compiling and Installing
+
+    In addition to a POSIX system library with librt support, you need:
+      * The Boehm-Demers-Weiser Conservative Garbage Collector
+      * libatomic_ops
+      * libffi (at least for now)
+      * buddy  (at least for now)
+    Optionally, the following may be used
+      * libunwind (for debugging stack trace)
+
+    In the simplest case,
+
+	./configure [OPTIONS]
+	make
+	make install
+	make install-doc  # Optional, installs same docs as on above URL
+
+    See INSTALL for more info.
+
+
+Copiling and Linking against the Modules
+
+    These libraries use pkg-config.
+
+    Using Autoconf, add
+
+	PKG_CHECK_MODULES(CULIBS, modules)
+
+    to your configure.ac, where modules is the desired set of modules to
+    link against.  Then refer to $CULIBS_CFLAGS and $CULIBS_LIBS in your
+    Makefile.in or Makefile.am.
+
+    You can also build directly from the command line with
+
+	gcc -c `pkg-config --cflags modules` ...	# compile
+	gcc -o prg `pkg-config --libs modules` ...	# link

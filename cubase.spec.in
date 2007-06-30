@@ -1,0 +1,55 @@
+Summary: Containers Libary for Garbage Collected C
+Name: cubase
+Version: @PACKAGE_VERSION@
+Release: 1
+Source0: culibs-%{version}.tar.bz2
+License: GPL
+Group: System/Libraries
+Requires: gc
+Conflicts: culibs
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRequires: gc-disclaim-devel libatomic_ops-devel
+
+%package devel
+Summary: Containers Library for Garbage Collected C
+Group: Development/Libraries/C and C++
+Requires: cubase = %{version}
+
+%description
+This is the base part of culibs.
+
+%description devel
+This is the base part of culibs.
+
+%prep
+%setup -q -n culibs-%{version}
+
+%build
+%configure --enable-modules=cubase
+make
+
+%install
+test "%{buildroot}" != / && rm -rf "%{buildroot}"
+make install DESTDIR="%{buildroot}"
+
+%clean
+test "%{buildroot}" != / && rm -rf "%{buildroot}"
+
+%post -p /sbin/ldconfig
+%pre -p /sbin/ldconfig
+
+%files
+%defattr(-,root,root)
+%_libdir/libcubase-%{version}.so
+
+%files devel
+%_libdir/libcubase.so
+%_libdir/libcubase.la
+%_libdir/libcubase.a
+%_libdir/pkgconfig/cubase.pc
+%_libdir/pkgconfig/cu.pc
+%_libdir/pkgconfig/cucon.pc
+%_includedir/culibs-%{version}
+%_bindir/sedi
+%_bindir/cuset
+%_datadir/aclocal/cu_useful.m4

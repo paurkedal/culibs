@@ -1,0 +1,15 @@
+PACKAGE_NAME=@PACKAGE_NAME@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+bindir=@bindir@
+cuex_otab=${bindir}/cuex-otab
+
+Name: cuex
+Description: Collected C: Expression Processing (cuex)
+Version: ${PACKAGE_VERSION}
+Requires: cubase
+Libs: -L${libdir} -lcuex
+Cflags: -I${includedir}/${PACKAGE_NAME}-${PACKAGE_VERSION}

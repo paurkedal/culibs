@@ -1,0 +1,213 @@
+#! /usr/bin/env perl
+# Part of the culibs project, <http://www.eideticdew.org/culibs/>.
+# Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+use strict;
+use Pod::Usage;
+use Getopt::Long;
+use Term::ANSIColor qw(colored);
+
+sub shell_quote($) {
+    my ($name) = @_;
+    $name =~ s/(["\$\\`])/\\\1/g;
+    return '"'.$name.'"';
+}
+
+my $SED = 'sed';
+my $DIFF = 'diff';
+
+my $script;
+my $script_file;
+my $suffix;
+my $verbose = 0;
+my $flag_i = '-i';
+my $no_diff = 0;
+my $pretend = 0;
+
+my @sed_opts;
+my @diff_opts;
+my $have_spec = 0;
+GetOptions(
+    "n|quiet|silent" => sub { push(@sed_opts, "-n"); },
+    "e|expression=s" => sub {
+	push(@sed_opts, "-s".shell_quote($_[1]));
+	$have_spec = 1;
+    },
+    "f|file=s" => sub {
+	push(@sed_opts, "-f".shell_quote($_[1]));
+	$have_spec = 1;
+    },
+    "i|in-place=s" => sub { $flag_i = "-i".shell_quote($_[1]); },
+    "l|line-length=i" => sub { push(@sed_opts, "-l$_[1]"); },
+    "posix" => sub { push(@sed_opts, "--posix"); },
+    "r" => sub { push(@sed_opts, "-r"); },
+#    "s" => sub {},
+#    "u" => sub { push(@sed_opts, "-u"); },
+
+    "b" => sub { push(@diff_opts, "-b"); },
+    "B" => sub { push(@diff_opts, "-B"); },
+    "c" => sub { push(@diff_opts, "-c"); },
+    "C" => sub { push(@diff_opts, "-C".shell_quote($_[1])); },
+    "u" => sub { push(@diff_opts, "-u"); },
+    "y" => sub { push(@diff_opts, "-y"); },
+
+    "no-diff" => \$no_diff,
+    "pretend" => \$pretend,
+
+    "help" => sub { pod2usage(0); }
+    # "version"
+) or pod2usage("Bad options.");
+push(@sed_opts, shell_quote(shift @ARGV)) unless $have_spec;
+
+exit $? unless system("$SED @sed_opts /dev/null /dev/null") == 0;
+$, = ' ';
+my @changed_files;
+foreach my $file (@ARGV) {
+    next unless -r $file;
+    my $qfile = shell_quote $file;
+    my $cmd = "$SED @sed_opts $qfile | $DIFF @diff_opts -L $qfile $qfile -";
+    print STDERR "$cmd\n" if $verbose;
+    open DIFF, "$cmd |" or die;
+    my $done_header = 0;
+    while (<DIFF>) {
+	if (!$done_header) {
+	    $done_header = 1;
+	    print colored ['blue', 'bold'], "=== $file\n";
+	    push(@changed_files, $file);
+	}
+	if (not $no_diff) {
+	    my $color;
+	    if (s/^---//) { print colored ['blue'], '---'; }
+	    elsif (s/^< //) { print colored ['red'], '< '; }
+	    elsif (s/^> //) { print colored ['green'], '> '; }
+	    else { print colored ['blue'], $_; $_ = ''; }
+	    print;
+	}
+    }
+    close DIFF;
+}
+
+exit 0 if $pretend;
+if (not @changed_files) {
+    print STDERR "Substitutions have no effect.\n";
+    exit 0;
+}
+print colored ['bold'], "\nApply? (y/n) ";
+my $reply = readline STDIN; chomp($reply);
+if ($reply ne 'y' and $reply ne 'yes') {
+    print STDERR "CANCELED\n";
+    exit 0;
+}
+
+foreach (@changed_files) {
+    my $cmd = "$SED @sed_opts $flag_i $_";
+    if ($verbose) {
+	print STDERR "$cmd\n" if $verbose;
+    } else {
+	print STDERR "Patching $_\n";
+    }
+    system($cmd) == 0 or die "Failed to patch $_";
+}
+
+
+__END__
+
+=head1 NAME
+
+sedi - A 'sed -i' wrapper which shows you changes before modifying files
+
+=head1 SYNOPSIS
+
+ sedi [SED_OPTIONS] FILE...
+
+
+=head2 Options
+
+=over 8
+
+=item --no-diff
+
+Don't print diffs, just show which files will be changed.
+
+=item --pretend
+
+Don't change anything, just print what will be done.
+
+=back
+
+
+=head2 sed-Options
+
+The following options are passed to sed(1).
+
+=over 8
+
+=item -n, --quite, --silent
+
+Passed to sed.
+
+=item -e, --expression=EXPR
+
+Passed to sed.
+
+=item -f, --file=FILE
+
+Passed to sed.
+
+=item -i, --in-place=FILE
+
+Passed to sed.  If not given, C<-i> is passed without argument.
+
+=item -l, --line-length=LENGTH
+
+Passed to sed.
+
+=item --posix
+
+Passed to sed.
+
+=item -r
+
+Passed to sed.
+
+=back
+
+
+=head2 diff-Options
+
+The following options are passed to the diff(1) command which is used to
+display the changes.
+
+=over 8
+
+=item -b, -B, -c, -C LINES, -u, -y
+
+Passed to diff.
+
+=back
+
+=head1 DESCRIPTION
+
+This takes arguments like C<sed>, and investigates what C<sed> will do to the
+given files.  If some files will be changed, it prints a diff-formatted
+specification to stdout and asks you before applying the changes.
+
+The C<-i> option is always implied, but you can give it explicitely to specify
+an extension for backup files.
+
+=head1 SEE ALSO
+
+sed(1)

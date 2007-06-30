@@ -1,0 +1,68 @@
+body {
+	background-color: #ffffff;
+	color: black;
+	margin: 0;
+	margin-left: 8mm; margin-right: 8mm;
+	text-align: justify;
+}
+a:link, a:visited, a:focus {
+	color: #224466;
+	text-decoration: underline;
+}
+a:hover {
+	color: #224466;
+	background-color: #eeddcc;
+	text-decoration: underline;
+}
+body h2 {
+	background-color: #ffddaa;
+	border-top: solid 1px #ccaa77;    /* OBS: IE has a very funny idea */
+	border-bottom: solid 1px #ccaa77; /* of "thin" */
+	margin-left: -8mm; margin-right: -8mm;
+	padding-left: 8mm; padding-right: 8mm;
+	padding-top: 1px; padding-bottom: 1px;
+	margin-top: 1em; margin-bottom: 1em;
+	width: 100%;
+}
+
+ul { list-style: square; }
+
+ul.crumbs {
+	margin: 0;
+	margin-left: -8mm; margin-right: -8mm;
+	padding-top: 1mm;
+	padding-bottom: 1mm;
+	padding-left: 8mm;
+	padding-right: 8mm;
+}
+ul.crumbs li {
+	display: inline;
+	margin: 0;
+	padding: 1px;
+	padding-left: 0;
+	padding-right: 0;
+}
+ul.crumbs li:first-child:before { content: ""; }
+ul.crumbs li + li:before { content: " / "; color: white; }
+ul.crumbs, address {
+	background-color: #224466;
+	color: white;
+}
+ul.crumbs a:link,    address a:link,
+ul.crumbs a:visited, address a:visited {
+	color: #eeeeee;
+}
+ul.crumbs a:hover,   address a:hover {
+	background-color: #446688;
+}
+address {
+	padding-left: 8mm; padding-right: 8mm;
+	margin: 0;
+	margin-left: -8mm; margin-right: -8mm;
+	margin-top: 0.7em;
+	padding-bottom: 1mm;
+	padding-top: 1mm;
+}
+
+dl.file-comments dt { font-family: monospace; font-weight: bold; }
+dl.file-comments dd + dt { margin-top: 1.2em; }

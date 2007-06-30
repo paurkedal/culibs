@@ -1,0 +1,35 @@
+Definition (file name terms).  A file name is a string with the
+following additional semantics.  The set of maximum substrings which
+do not contain "/" are called components.  "/" refers to the root
+directory, and "." refers to the current directory; all other file
+names have
+
+  A0. If there are more than one component, an empty first
+  component refers to the root directory.
+
+  A1. Any non-first component "" and any component "." if not the
+  only component can be removed without changing the meaning of the
+  name.
+
+  A2. A component different from "", "." and ".."  followed by ".."
+  can be eliminated along with the ".." with no effect on the *
+  meaning.
+
+Definition (file name).  A file name is a string with the following
+additional constraints.  The set of maximum substrings which do not
+contain "/" are called components.  The components "", "." and ".."
+are special.  For notational convenience, let '(c[0], ..., c[n-1])'
+denote the file name with components 'c[0], ..., c[n-1]'.  If 's'
+is a non-empty sequence of file name components, and 't' is a
+possibly empty such sequence, and 'c' is a non‐special component,
+then
+
+  A0. (s, "", t) ≡ (s, ".", t) ≡ (s, t)
+
+  A1. ("", s) ≡ (r, s), where 'r' is the root directory.
+
+  A2. (s, c, "..") ≡ s
+
+is optionally prefixed by "/" and followed by substrings, called
+components, which are separated by "/" and do not themselves
+contain "/".

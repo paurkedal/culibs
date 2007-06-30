@@ -1,0 +1,45 @@
+doc_extra_dist = \
+	doc/cuhtml.css \
+	doc/cudoxy.css \
+	doc/culibs_footer.html \
+	doc/culibs_header.html \
+	doc/bdwgc-rn.html
+
+all_doxyfiles = $(built_doxyfiles) $(doxyfiles) $(nobase_culibs_HEADERS)
+
+.PHONY: install-doc install-doc-dirs
+.PHONY: install-doc-css install-doc-html install-doc-doxy
+install-doc-dirs:
+	$(mkinstalldirs) $(DESTDIR)$(htmldir)
+install-doc-css: install-doc-dirs doc/cudoxy.css doc/cucommon.css
+	install -m644 doc/cudoxy.css doc/cucommon.css \
+		$(DESTDIR)$(htmldir)/
+install-doc: install-doc-css install-doc-html install-doc-doxy
+install-doc-doxy: Doxyfile $(all_doxyfiles) doc/fixed_footer.html
+	@echo "Creating Doxyfile.install"
+	@input=; \
+	for x in $(all_doxyfiles); do \
+	    [ -e "$$x" ] || x="$(srcdir)/$$x"; \
+	    input="$$input $$x"; \
+	done; \
+	sed \
+	    -e "s|^OUTPUT_DIRECTORY *=.*|OUTPUT_DIRECTORY = $(DESTDIR)$(pkgdocdir)|" \
+	    -e "s|^INPUT *=.*|INPUT =$$input|" \
+	    Doxyfile >Doxyfile.install
+	doxygen Doxyfile.install
+install-doc-link: install-doc-dirs
+	rm -f $(DESTDIR)$(docdir)/$(PACKAGE_NAME)
+	ln -sf $(PACKAGE_NAME)-$(PACKAGE_VERSION) $(DESTDIR)$(docdir)/$(PACKAGE_NAME)
+install-doc-html:
+	install -m644 $(srcdir)/doc/bdwgc-rn.html $(DESTDIR)$(htmldir)/
+
+doc/fixed_footer.html: doc/culibs_footer.html
+	$(mkinstalldirs) doc
+	sed "s|@DATE@|`date -I`|g" $< >$@ || { rm -f $@; false; }
+
+doc/%.css: doc/%.css.m4 $(top_srcdir)/doc/styledefs.m4
+	$(mkinstalldirs) `dirname $@`
+	m4 -Dsrcdir=$(srcdir) $< >$@ || { rm -f $@; false; }
+
+# install-data-local: install-doc
+

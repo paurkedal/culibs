@@ -1,0 +1,11 @@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+top_builddir=@abs_top_builddir@
+top_srcdir=@abs_top_srcdir@
+
+Name: cuflow
+Description: Collected C: Serialisation, Transport, and Storage (cuflow)
+Version: ${PACKAGE_VERSION}
+Requires: cubase
+Libs: ${top_builddir}/libcuflow.la @LIBRT_LIBS@

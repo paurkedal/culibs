@@ -1,0 +1,13 @@
+PACKAGE_NAME=@PACKAGE_NAME@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: custo
+Description: Collected C: Serialisation, Transport, and Storage (custo)
+Version: ${PACKAGE_VERSION}
+Requires: cubase
+Libs: -L${libdir} -lcusto
+Cflags: -I${includedir}/${PACKAGE_NAME}-${PACKAGE_VERSION}

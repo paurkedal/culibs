@@ -1,0 +1,142 @@
+if enable_cucon
+
+cucon_headers = \
+	cucon/fwd.h \
+	cucon/algo_colour.h \
+	cucon/arr.h \
+	cucon/bitvect.h \
+	cucon/digraph.h \
+	cucon/frame.h \
+	cucon/hmap.h \
+	cucon/hset.h \
+	cucon/layout.h \
+	cucon/list.h \
+	cucon/logchain.h \
+	cucon/parr.h \
+	cucon/pcmap.h \
+	cucon/pmap.h \
+	cucon/po.h \
+	cucon/priq.h \
+	cucon/pritree.h \
+	cucon/pset.h \
+	cucon/queue.h \
+	cucon/rbmap.h \
+	cucon/rbset.h \
+	cucon/rbtree.h \
+	cucon/rpmap.h \
+	cucon/slink.h \
+	cucon/stack.h \
+	cucon/umap.h \
+	cucon/uset.h \
+	cucon/ucmap.h \
+	cucon/ucset.h
+
+cucon_sources = \
+	cucon/init.c \
+	cucon/arr.c \
+	cucon/bitvect.c \
+	cucon/digraph.c \
+	cucon/frame.c \
+	cucon/hmap.c \
+	cucon/hset.c \
+	cucon/layout.c \
+	cucon/list.c \
+	cucon/logchain.c \
+	cucon/umap.c \
+	cucon/parr.c \
+	cucon/po.c \
+	cucon/priq.c \
+	cucon/pritree.c \
+	cucon/queue.c \
+	cucon/rbmap.c \
+	cucon/rbset.c \
+	cucon/rbtree.c \
+	cucon/rpmap.c \
+	cucon/slink.c \
+	cucon/stack.c \
+	cucon/ucmap.c \
+	cucon/ucset.c
+
+cucon_doxyfiles = \
+	cucon/cucon.doxy \
+	cucon/po.doxy
+
+cucon_check_programs = \
+	cucon/bitvect_t0 \
+	cucon/frame_t0 \
+	cucon/hset_t0 \
+	cucon/layout_t0 \
+	cucon/list_t1 \
+	cucon/logchain_t0 \
+	cucon/parr_t0 \
+	cucon/pmap_b0 \
+	cucon/pmap_t0 \
+	cucon/po_b0 \
+	cucon/po_t0 \
+	cucon/po_t1 \
+	cucon/priq_t0 \
+	cucon/pritree_t0 \
+	cucon/queue_t0 \
+	cucon/rbmap_t0 \
+	cucon/rbtree_t0 \
+	cucon/rbtree_t1 \
+	cucon/stack_t0 \
+	cucon/ucmap_b0 \
+	cucon/ucset_b0 \
+	cucon/ucset_t0
+
+cucon_norun_check_programs =
+
+cucon_bitvect_t0_SOURCES = cucon/bitvect_t0.c
+cucon_bitvect_t0_LDADD = libcubase.la
+cucon_frame_t0_SOURCES = cucon/frame_t0.c
+cucon_frame_t0_LDADD = libcubase.la
+cucon_hset_t0_SOURCES = cucon/hset_t0.c
+cucon_hset_t0_LDADD = libcubase.la
+cucon_layout_t0_SOURCES = cucon/layout_t0.c
+cucon_layout_t0_LDADD = libcubase.la
+cucon_list_t1_SOURCES = cucon/list_t1.c
+cucon_list_t1_LDADD = libcubase.la
+cucon_logchain_t0_SOURCES = cucon/logchain_t0.c
+cucon_logchain_t0_LDADD = libcubase.la
+cucon_parr_t0_SOURCES = cucon/parr_t0.c
+cucon_parr_t0_LDADD = libcubase.la
+cucon_pmap_b0_SOURCES = cucon/pmap_b0.c
+cucon_pmap_b0_LDADD = libcubase.la
+cucon_pmap_t0_SOURCES = cucon/pmap_t0.c
+cucon_pmap_t0_LDADD = libcubase.la
+cucon_po_b0_SOURCES = cucon/po_b0.c
+cucon_po_b0_LDADD = libcubase.la
+cucon_po_t0_SOURCES = cucon/po_t0.c
+cucon_po_t0_LDADD = libcubase.la
+cucon_po_t1_SOURCES = cucon/po_t1.c
+cucon_po_t1_LDADD = libcubase.la
+cucon_priq_t0_SOURCES = cucon/priq_t0.c
+cucon_priq_t0_LDADD = libcubase.la
+cucon_pritree_t0_SOURCES = cucon/pritree_t0.c
+cucon_pritree_t0_LDADD = libcubase.la
+cucon_queue_t0_SOURCES = cucon/queue_t0.c
+cucon_queue_t0_LDADD = libcubase.la
+cucon_rbmap_t0_SOURCES = cucon/rbmap_t0.c
+cucon_rbmap_t0_LDADD = libcubase.la
+cucon_rbtree_t0_SOURCES = cucon/rbtree_t0.c
+cucon_rbtree_t0_LDADD = libcubase.la
+cucon_rbtree_t1_SOURCES = cucon/rbtree_t1.c
+cucon_rbtree_t1_LDADD = libcubase.la
+cucon_stack_t0_SOURCES = cucon/stack_t0.c
+cucon_stack_t0_LDADD = libcubase.la
+cucon_ucmap_b0_SOURCES = cucon/ucmap_b0.c
+cucon_ucmap_b0_LDADD = libcubase.la
+cucon_ucset_b0_SOURCES = cucon/ucset_b0.c
+cucon_ucset_b0_LDADD = libcubase.la
+cucon_ucset_t0_SOURCES = cucon/ucset_t0.c
+cucon_ucset_t0_LDADD = libcubase.la
+
+bin_PROGRAMS += cucon/cuset
+cucon_cuset_SOURCES = cucon/cuset.c
+cucon_cuset_LDADD = libcubase.la
+
+endif
+
+EXTRA_DIST += \
+	cucon/graph_algo.c

@@ -1,0 +1,75 @@
+# -*- RPM-SPEC -*-
+%define enable_doc 0
+Summary: Containers and Convenience Interfaces for Garbage Collected C
+Name: @PACKAGE_NAME@
+Version: @PACKAGE_VERSION@
+Release: 1
+Source0: %{name}-%{version}.tar.bz2
+License: GPL
+Group: System/Libraries
+Requires: gc libffi
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
+BuildRequires: libffi-devel gc-disclaim-devel libatomic_ops-devel buddy-devel
+
+%package devel
+Summary: Garbage Collected C Libraries
+Group: Development/Libraries/C and C++
+Requires: culibs = %{version}
+
+%description
+Common containers and some less common containes designed for garbage
+collection.  It includes a string type; list types; several hash map
+and set types, one with weak keys; a red-black tree type; a priority
+queue type; graph types; a partial order map type; and more.  It also
+includes architecture-independent binary IO and some convenient
+interfaces to the system.  It uses the Boehm-Wieser-Demers conservative
+collector.
+
+%description devel
+Common containers and some less common containes designed for garbage
+collection.  It includes a string type; list types; several hash map
+and set types, one with weak keys; a red-black tree type; a priority
+queue type; graph types; a partial order map type; and more.  It also
+includes architecture-independent binary IO and some convenient
+interfaces to the system.  It uses the Boehm-Wieser-Demers conservative
+collector.
+
+%prep
+%setup -q
+
+%build
+export PKG_CONFIG_PATH=/usr/lib/pkgconfig
+%configure
+make
+
+%install
+test "%{buildroot}" != / && rm -rf "%{buildroot}"
+make install DESTDIR="%{buildroot}"
+%if %{enable_doc}
+make install-doc DESTDIR="%{buildroot}"
+%endif
+
+%clean
+test "%{buildroot}" != / && rm -rf "%{buildroot}"
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
+
+%files
+%defattr(-,root,root,-)
+%_libdir/libcu*-%{version}.so
+
+%files devel
+%defattr(-,root,root,-)
+%_libdir/libcu*.la
+%_libdir/libcu*[a-z].so
+%_libdir/libcu*.a
+%_libdir/pkgconfig/cu*.pc
+%_datadir/aclocal/cu_useful.m4
+%_includedir/culibs-%{version}
+%_bindir/cuex-otab
+%_bindir/cuset
+%_bindir/sedi
+%if %{enable_doc}
+%doc %_docdir/%{name}-%{version}/html
+%endif

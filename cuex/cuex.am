@@ -1,0 +1,139 @@
+if enable_cuex
+
+cuex_headers = \
+	cuex/fwd.h \
+	cuex/algo.h \
+	cuex/aci.h \
+	cuex/acidefs.h \
+	cuex/binding.h \
+	cuex/dunion.h \
+	cuex/ex.h \
+	cuex/fpvar.h \
+	cuex/ftype.h \
+	cuex/misc.h \
+	cuex/monoid.h \
+	cuex/opn.h \
+	cuex/opntpl.h \
+	cuex/oprinfo.h \
+	cuex/print.h \
+	cuex/pvar.h \
+	cuex/qcode.h \
+	cuex/recursion.h \
+	cuex/sig.h \
+	cuex/subst.h \
+	cuex/ssfn.h \
+	cuex/tpvar.h \
+	cuex/tuple.h \
+	cuex/tvar.h \
+	cuex/type.h \
+	cuex/var.h
+cuex_built_headers = \
+	cuex/oprdefs.h
+noinst_HEADERS += \
+	cuex/aci_priv.h \
+	cuex/opr_priv.h \
+	cuex/otab.h
+
+cuex_sources = \
+	cuex/algo.c \
+	cuex/aci.c \
+	cuex/aci_algo.c \
+	cuex/binding.c \
+	cuex/dunion.c \
+	cuex/ex.c \
+	cuex/fpvar.c \
+	cuex/ftype.c \
+	cuex/foldinert.c \
+	cuex/hopcroft.c \
+	cuex/init.c \
+	cuex/misc.c \
+	cuex/monoid.c \
+	cuex/opntpl.c \
+	cuex/opn.c \
+	cuex/oprinfo.c \
+	cuex/optimal_fold.c \
+	cuex/print.c \
+	cuex/pvar.c \
+	cuex/recursion.c \
+	cuex/sig.c \
+	cuex/subst.c \
+	cuex/subst_algo.c \
+	cuex/subst_rec.c \
+	cuex/ssfn.c \
+	cuex/tpvar.c \
+	cuex/tuple.c \
+	cuex/tvar.c \
+	cuex/type.c \
+	cuex/unfolded_fv_sets.c
+
+cuex_built_sources = \
+	cuex/oprdefs.c
+
+cuex_built_doxyfiles = \
+	cuex/oprdefs.h
+cuex_doxyfiles = \
+	cuex/cuex.doxy
+
+bin_PROGRAMS += \
+	cuex/cuex-otab
+
+cuex_cuex_otab_SOURCES = cuex/otab.c cuex/cuex-otab.y
+if enable_cucon	
+cuex_cuex_otab_LDADD = libcubase.la
+else
+cuex_cuex_otab_LDADD = $(CUCON_LIBS)
+endif
+# The above switch is needed due to dependency tracking.
+
+%.h %.c: %.otab $(top_builddir)/cuex/cuex-otab
+	$(top_builddir)/cuex/cuex-otab -o $* $<
+
+cuex_check_programs = \
+	cuex/aci_t0 \
+	cuex/algo_t0 \
+	cuex/binding_t0 \
+	cuex/hopcroft_t0 \
+	cuex/monoid_t0 \
+	cuex/opn_t0 \
+	cuex/sig_t0 \
+	cuex/subst_t0 \
+	cuex/subst_algo_t0 \
+	cuex/ssfn_t0 \
+	cuex/unfolded_fv_sets_t0 \
+	cuex/var_t0
+
+cuex_norun_check_programs = \
+	cuex/aci_b0
+
+cuex_aci_b0_SOURCES = cuex/aci_b0.c
+cuex_aci_b0_LDADD = libcuex.la -lm
+cuex_aci_t0_SOURCES = cuex/aci_t0.c
+cuex_aci_t0_LDADD = libcuex.la
+cuex_algo_t0_SOURCES = cuex/algo_t0.c
+cuex_algo_t0_LDADD = libcuex.la
+cuex_binding_t0_SOURCES = cuex/binding_t0.c
+cuex_binding_t0_LDADD = libcuex.la
+cuex_unfolded_fv_sets_t0_SOURCES = cuex/unfolded_fv_sets_t0.c
+cuex_unfolded_fv_sets_t0_LDADD = libcuex.la
+cuex_hopcroft_t0_SOURCES = cuex/hopcroft_t0.c
+cuex_hopcroft_t0_LDADD = libcuex.la
+cuex_monoid_t0_SOURCES = cuex/monoid_t0.c
+cuex_monoid_t0_LDADD = libcuex.la
+cuex_opn_t0_SOURCES = cuex/opn_t0.c
+cuex_opn_t0_LDADD = libcuex.la -lm
+cuex_sig_t0_SOURCES = cuex/sig_t0.c
+cuex_sig_t0_LDADD = libcuex.la
+cuex_ssfn_t0_SOURCES = cuex/ssfn_t0.c
+cuex_ssfn_t0_LDADD = libcuex.la
+cuex_subst_t0_SOURCES = cuex/subst_t0.c
+cuex_subst_t0_LDADD = libcuex.la
+cuex_subst_algo_t0_SOURCES = cuex/subst_algo_t0.c
+cuex_subst_algo_t0_LDADD = libcuex.la
+cuex_var_t0_SOURCES = cuex/var_t0.c
+cuex_var_t0_LDADD = libcuex.la
+
+endif
+
+EXTRA_DIST += \
+	cuex/cuex.am \
+	cuex/cuex_otcomp

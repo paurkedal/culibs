@@ -1,0 +1,189 @@
+/*!\mainpage Garbage Collected C Libraries
+
+\section synopsis Synopsis
+
+This is a reference manual for the culibs, which is a set of libraries of
+basic (strings, containers) as well as more special-purpose (expressions)
+types and functions.  It uses the
+<a href="http://www.hpl.hp.com/personal/Hans_Boehm/gc/">Boehm-Demers-Weiser
+Conservative Garbage Collector</a> for all dynamically allocated memory
+which is returned to the client.
+
+The libraries are separated into modules, which are the basis for organising
+the documentation.  So, a good starting point is the “Modules” section.  You
+can completely ignore the “Data Structures” section, since all structure
+members are to be considered internal.  Also, all identifiers which starts
+with <tt>cu*P_</tt> are internal.
+
+\subsection why_gc Why Garbage Collection?
+
+General considerations on garbage collection for C are covered in
+<a href="http://www.hpl.hp.com/personal/Hans_Boehm/gc/issues.html">Advantages
+and Disadvantages of Conservative Garbage Collection</a>.  Of particular
+interest here is the use in the expression library.  Expressions are big trees
+of small objects.  This is a case when garbage collection performs best, esp
+if reference-counting is the alternative.  Garbage collection also allows
+hash-consing, which is used here for expressions.
+
+\subsection top_modules Toplevel Modules
+
+<ul>
+  <li>\ref cu_mod</li>
+  <li>\ref cucon_mod</li>
+  <li>\ref cugra_mod</li>
+  <li>\ref cudyn_mod</li>
+  <li>\ref cuex_mod</li>
+  <li>\ref cuos_mod</li>
+</ul>
+
+\subsection status Status
+
+This is still <b>preview</b>/<b>alpha</b>, esp. since some parts are still
+subject to API changes.
+
+<ul>
+  <li>The most stable parts are cu and cucon.</li>
+
+  <li>The typeing for aggregates defined in cudyn is subject to removal, and
+  the whole namespace may be merged into cuex.</li>
+
+  <li>Some of the cuex API is still in flux.  The type expressions are work in
+  progress, including some predefined operators.  Need a good way to annotate
+  expressions.  The tree-node cache area will be reconsidered.  Handling of
+  recursive trees are subject to change.</li>
+</ul>
+
+If you wish to use some of these libraries, feel free to contact me.
+
+
+\section compiling Compiling and Linking Against the Libraries
+
+The libraries ship with a pkg-config specification for each module.
+So, if you use Autoconf, add
+
+<pre>
+PKG_CHECK_MODULES(CULIBS, \e modules)
+</pre>
+
+where \e modules is a list of the modules you want to use, and
+refer to <tt>\$(CULIBS_CFLAGS)</tt> and <tt>\$(CULIBS_LIBS)</tt> in
+your makefiles.
+
+If you don't use Autoconf, you can obtain the flags to pass to the
+compiler with the \c pkg-config command, e.g.
+
+<pre>
+gcc `pkg-config --cflags cu cucon cuos` -c test.c
+gcc `pkg-config --libs cu cucon cuos` -o test test.o
+</pre>
+
+
+\section obtain Getting the Libraries
+
+\subsection download Download
+
+In the <a href="/download/">download directory</a> you will find
+
+<ul>
+  <li>Source tarballs named culibs-*.tar.bz2</li>
+  <li>Patches to the garbage collector named bdwgc-rn-*.patch.  This is not
+    required, but recommended if you need good performance in the
+    expression library.
+    <ul>
+      <li>gc-<i>DATE</i>-disclaim-<i>PATCHVERSION</i>.patch applies to a
+        CVS snapshot of the given date</li>
+      <li>gc-<i>VERSION</i>-disclaim-<i>PATCHVERSION</i>.patch applies to
+        GC releases.</li>
+      <li><a href="bdwgc-rn.html">Comment on the patch.</a></li>
+    </ul>
+    If you don't find a patch that matches the GC version you want to use, 
+    try the closest before and after the date.
+  </li>
+</ul>
+
+\subsection installing Build and Install
+
+You will need (the development packages for)
+
+<ul>
+  <li>
+the <a href="http://www.hpl.hp.com/personal/Hans_Boehm/gc/">
+Boehm-Demers-Weiser Conservative Garbage Collector</a>
+If you intend to do any serious work with expressions (\ref cuex_mod "cuex"
+and \ref cudyn_mod "cudyn" modules), consider recompiling the collector with
+the reclaim notification patch mentioned above.
+This will significantly speed up hash-consing, but it is not strictly
+required.</li>
+  <li>
+<a href="http://www.hpl.hp.com/research/linux/atomic_ops/index.php4">
+libatomic_ops</a>.  This comes bundled with gc-7.0(alpha?), but if you
+install it in advace, gc will use the installed one.</li>
+  <li><tt>libffi</tt>. This is part of
+<a href="http://gcc.gnu.org/">GCC</a>, but it is not installed by
+default.  Check if your distribution has it, it will save you some work.
+Also, there is an <a href="http://sources.redhat.com/libffi/">
+older separate version</a> which works on <tt>x86</tt>, but not on
+<tt>x86_64</tt>.
+  </li>
+</ul>
+
+From the unpacked source directory:
+
+<pre>
+./configure
+make all install
+</pre>
+
+\subsection packaging Packaging
+
+If you are a package manager use <tt>make install DESTDIR=\e destdir</tt>
+to install into a temporary location \e destdir.  With
+
+<pre>
+./configure --prefix=/usr
+make
+make install DESTDIR=\e destdir
+</pre>
+
+files will be installed under
+
+<ul>
+  <li><tt><i>destdir</i>/usr/include/culibs-\@VERSION\@</tt></li>
+  <li><tt><i>destdir</i>/usr/lib/libcu*.la</tt></li>
+  <li><tt><i>destdir</i>/usr/lib/libcu*.so*</tt></li>
+  <li><tt><i>destdir</i>/usr/lib/libcu*.a</tt> if configured with --enable-static</li>
+  <li><tt><i>destdir</i>/usr/lib/pkgconfig/cu*.pc</tt></li>
+</ul>
+
+but you should check in case this document is out of date.
+
+*/
+
+/*!\defgroup cu_mod cu: Common Infrastructure
+ * Part of <tt>libcubase.la</tt>. */
+
+/*!\defgroup cucon_mod cucon: Containers
+ * Part of <tt>libcubase.la</tt>. */
+
+/*!\defgroup cugra_mod cugra: A Small Graph Library */
+
+/*!\defgroup cuos_mod cuos: Interface to the Operating System */
+
+/*!\defgroup cuflow_mod cuflow: Control Flow */
+
+/*!\defgroup cudyn_mod cudyn: Dynmaically Typed Objects
+ * Part of <tt>libcuex.la</tt>.
+ *
+ * \note
+ * The typing infrastructure for aggregates will be obsoleted by the use of
+ * expression treees (in cuex).  As a consquence, there will be litte left in
+ * this namespace.  Therefore, this module may be merged into cuex, implying
+ * systematic name changes.
+ */
+
+/*!\defgroup cuex_mod cuex: Expressions
+ * Part of <tt>libcuex.la</tt>.
+ *
+ * \note
+ * Some of the APIs are unstable.
+ */

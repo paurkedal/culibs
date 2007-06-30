@@ -1,0 +1,19 @@
+if enable_custo
+
+custo_headers = \
+	custo/binary_io.h
+
+libcusto_la_SOURCES = \
+	custo/binary_io.c
+
+custo_check_programs = \
+	custo/binary_io_t0
+
+custo_norun_check_programs =
+
+custo_binary_io_t0_SOURCES = custo/binary_io_t0.c
+custo_binary_io_t0_LDADD = libcusto.la
+
+endif
+
+EXTRA_DIST += custo/custo.am

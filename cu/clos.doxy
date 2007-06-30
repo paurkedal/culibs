@@ -1,0 +1,300 @@
+
+/*!\defgroup cu_clos_h cu/clos.h: Closures
+ * @{\ingroup cu_mod
+ *
+ * This submodule implements a efficient and partly type-safe encapsulation
+ * of closures.  The capsule contains a function pointer and an optional
+ * context.  This achieves two goals.  It standardises the idiom
+ * of passing a function pointer and a <tt>void *</tt> of client data
+ * to functions, and it allows passing functions without the client
+ * data to the same function.
+ *
+ * \note With a little knowledge of the architecture it is possible to
+ * encapsulate a closure as a normal function pointer.  This is
+ * done in <tt>cu/i386/clos.h</tt>.  However, that seems to be highly
+ * inefficient, maybe because the processor must jump outside the text
+ * section of the program.  Therefore, this platform-independent
+ * implementation is used, even if it is less convenient.
+ *
+ * The closures are implemented mostly with macros and some
+ * type hacks, so here is a usage-based documentation instead of the
+ * usual function-centered documentation.
+ *
+ * \section clos_clptr Closure Pointers
+ *
+ * A closure pointer (clop) is the modified function pointer type, where the
+ * closure data structure is abstracted out.  A clop \e f is declared with
+ * \code
+ * cu_clop(f, result_t, arg1_t, arg2_t, ..., argN_t);
+ * cu_clop0(f, result_t);  // if no arguments
+ * \endcode
+ * The special 0-argument form is needed due to limitations of the
+ * preprocessor.  The closure is called with
+ * \code
+ * result = cu_call(f, x1, ..., xN);
+ * result = cu_call0(f);  // if no arguments
+ * \endcode
+ *
+ * \subsection clos_clptr_examples Examples
+ *
+ * As a callback for buffered reading, the type \c reader_t defined as
+ * \code
+ * typedef cu_clop(reader_t, ssize_t, void *buf, ssize_t len);
+ * \endcode
+ * may be handy.  A function to iterate over the character sequence
+ * produced by such a function may look like this:
+ * \code
+ * void reader_iter(reader_t reader, cu_clop(cb, void, char ch))
+ * {
+ *     char buf[512];
+ *     ssize_t n_read;
+ *     while ((n_read = cu_call(reader, buf, 512)) > 0) {
+ *         size_t i;
+ *         for (i = 0; i < n_read; ++i)
+ *             cu_call(cb, buf[i]);
+ *     }
+ * }
+ * \endcode
+ *
+ * A global variable,
+ * \code
+ * extern cu_clop(global_error_handler, void, char const *msg);
+ * \endcode
+ * To call this, use
+ * \code
+ * cu_call(global_error_handler, "Some message");
+ * \endcode
+ *
+ * \section clos_clos Creating and Using Closures
+ *
+ * In my experience, the most useful way to create closure pointers
+ * is from a static definition with closure data.  This is done with
+ * \code
+ * cu_clos_def(PREFIX,
+ *             cu_prot(result_t, arg1_t arg1, ..., argn_t argn),
+ *     ( local0_t local_var_0;      // This is the body of a struct
+ *       local1_t local_var_1;      // definition which is typedef'ed as
+ *       ... ))                     // PREFIX_t.
+ * {
+ *     cu_clos_self(PREFIX);  // Declare and set the self variable.
+ *     // Function definition.  The special variable self is a
+ *     // pointer to the closure struct data, so here you can
+ *     // use self->local_var_0, etc.
+ * }
+ * \endcode
+ * which creates the type \c PREFIX_t which is a typedef for
+ * a structure with the given local variables.  An instance of the
+ * closure can now be declared as <tt>PREFIX_t clos</tt>,
+ * local variables assigned with <tt>clos.local_var_n = ...</tt>,
+ * and the closure referred to by <tt>PREFIX_prep(&clos)</tt> which
+ * returns a <tt>cu_clop(, result_t, arg1_t, ..., argn_t)</tt> pointer.
+ * <tt>PREFIX_prep</tt> will also initialise the function pointer which is
+ * hidden at the start of <tt>PREFIX_t</tt>.
+ *
+ * For closures taking no arguments, use \c cu_prot0 instead of
+ * \c cu_prot above.
+ *
+ * \subsection clos_clos_example Examples
+ * The following function sums up the value slots of a \c cucon_pmap_t,
+ * assuming they contain inlined \c double values:
+ * \code
+ * cu_clos_def(sum_callback,
+ *             cu_prot(void, void const *key, void *value),
+ *     ( double sum; ))
+ * {
+ *     cu_clos_self(sum_callback);
+ *     self->sum += *(double *)value;
+ * }
+ *
+ * double
+ * sum_double_valued_pmap(cucon_pmap_t pmap)
+ * {
+ *     sum_callback_t cb;
+ *     cb.sum = 0.0;
+ *     cucon_pmap_iter_mem(pmap, sum_callback_prep(&cb));
+ *     return cb.sum;
+ * }
+ * \endcode
+ * If you want to return the closure from the function it is created
+ * you better allocate it dynamically:
+ * \code
+ * typedef int cu_clptr0(counter_t)();
+ *
+ * cu_clos_def(counter_callback,
+ *     ( int value; ))
+ * {
+ *     cu_clos_self(counter_callback);
+ *     return self->value++;
+ * }
+ *
+ * counter_t
+ * make_counter(int start)
+ * {
+ *     counter_callback_t *cb = cu_gnew(counter_callback_t);
+ *     cb->value = start;
+ *     return counter_callback_prep(cb);
+ * }
+ * \endcode
+ * The counter can now be used as
+ * \code
+ * counter_t cnt = make_counter(10);
+ * int i = cu_call0(cnt);   // i = 10
+ * int j = cu_call0(cnt);   // j = 11
+ * \endcode
+ *
+ * \section clos_func Wrapping Normal Functions
+ *
+ * \todo Write this.
+ *
+ *
+ * \section Summary
+ *
+ * <b>Closure pointers</b>:
+ * \code
+ * cu_clop(CLOSURE_POINTER, RESULT_TYPE, ARG1_TYPE, ..., ARGn_TYPE);
+ * cu_clop(CLOSURE_POINTER, RESULT_TYPE);
+ * RESULT_TYPE result = cu_call(CLOSURE_POINTER, ARG1, ..., ARGn);
+ * RESULT_TYPE result = cu_call0(CLOSURE_POINTER);
+ * \endcode
+ *
+ * <b>Real closures</b>:  Define in static file scope with
+ * \code
+ * cu_clos_def(CLOS_NAME,
+ *             cu_prot(RESULT_TYPE, ARG1_TYPE a1, ..., ARGn_TYPE am),
+ *     ( LOCAL_VAR1_TYPE V1;
+ *       ...;
+ *       LOCAL_VARm_TYPE Vm; ))
+ * {
+ *     cu_clos_self(CLOS_NAME);
+ *     FUNCTION_BODY
+ * }
+ * \endcode
+ * Use cu_prot0(RESULT_TYPE) for empty argument list.
+ * This can be converted to a closure pointer using the pattern
+ * \code
+ * CLOS_NAME_t CLOS;                  // type defined by cu_clos_def
+ * CLOS.V1 = ...;   // initialise variables
+ * ...;
+ * CLOS.Vm = ...;
+ * CLOSURE_POINTER = CLOS_NAME_prep(&CLOS);
+ * \endcode
+ *
+ * <b>Function adapters</b>: TODO
+ *
+ * \section Debugging
+ *
+ * The extensive use of macros can make errors uninformative.  Things to
+ * check:
+ * <ul>
+ *   <li>
+ *     If there is a syntax error referring to the return type of a
+ *     prototype (cu_prot, cu_clop, etc), check that <tt>cu/clos.h</tt>
+ *     is included and that the macros are spelled correctly.
+ *   </li>
+ *   <li>
+ *     If the compiler complains at the end of the file, check that
+ *     all uses of \ref cu_clos_def ends in a double parenthesis before
+ *     the function body, one for end of local closure variables and one
+ *     for the end of the macro call.
+ *   </li>
+ * </ul>
+ */
+
+/*!Starts the definition of a closure.  It is followed by the actual function
+ * body. */
+#define cu_clos_def(PREFIX, PROTOTYPE, LOCAL_VARIABLES) ...
+
+/*!Use this in the start of a closure body to declare and assign a variable
+ * \e self as a pointer to a struct containing the local variables of the
+ * current closure. */
+#define cu_clos_self(PREFIX) ...
+
+/*!Creates a closure pointer from a closure struct pointer.  In the
+ * process, the private field of \a clos is initialised.  Here CLOS is the
+ * prefix given as the first argument of the \ref cu_clos_def definition. */
+CLOS_clop_t CLOS_prep(CLOS_t *clos);
+
+/*!Returns the closure pointer of \a clos assuming it has been prepared in
+ * advance with \ref CLOS_prep.  Here CLOS is the prefix given as the first
+ * argument of a \ref cu_clos_def definition. */
+CLOS_clop_t CLOS_ref(CLOS_t *clos);
+
+/*!A typedef like this is emitted by the invocation of \a cu_clos_def with a
+ * prefix CLOS.  YOUR_FIELDS is the last argument to \a cu_clos_def. */
+typedef struct { PRIVATE_DATA; YOUR_FIELDS; } CLOS_t;
+
+/*!A typedef emitted by the invocation of \a cu_clos_def with prefix CLOS.
+ * This is the closure pointer type. */
+typedef IMPLEMENTATION_DEFINED CLOS_clop_t;
+
+/*!Calls \a clop with arguments \a args.  If there are no argumets, use
+ * \ref cu_call0 instead. */
+#define cu_call(clop, args...) ...
+
+/*!Calls \a clop with no arguments. */
+#define cu_call0(clop) ...
+
+/*!This is used in some contexts to group macro arguments which specifies a
+ * prototype.  It is needed when a variable-sized argument sequence is not at
+ * the end of a macro call, such as with \ref cu_clos_def.  Use \ref cu_prot0
+ * if there are no arguments. */
+#define cu_prot(result_type, arg_decl_list...) ...
+
+/*!A 0-argument variant of \ref cu_prot. */
+#define cu_prot0(result_type) ...
+
+/*!Expands to a declaration of \a clop as a closure pointer with result type
+ * \a result_type and argument declarations \a arg_decl_list which may
+ * optionally contain argument names.  Use \ref cu_clop0 if \e N is 0.
+ * You can add linkage or \c typedef in front of this declaration.
+ * When used in a cast, you can drop the \a clop, but leaving the comma, e g
+ * <tt>(cu_clop(, void *, void *))equal</tt>. */
+#define cu_clop(clop, result_type, arg_decl_list...) ...
+
+/*!A 0-argument variant of \a cu_clop. */
+#define cu_clop0(clop, result_type) ...
+
+/*!A dedicated invalid closure pointer.  Can not be called.  Preferably use
+ * \ref cu_clop_is_null rather than \c == or \c != to check if a closure
+ * pointer holds this value. */
+#define cu_clop_null ...
+
+/*!Check if \a clop is the dedicated invalid closure pointer. */
+#define cu_clop_is_null(clop) ...
+
+/*!Declare a static clop pointer and initialise it with a function definition
+ * whose body follow this macro invocation.  Example:
+ * \code
+ * cu_clop_def(dump_int, void, int x)
+ * {
+ *     printf("%d\n", x);
+ * }
+ *
+ * void
+ * dump_umap_keys(cucon_umap_t map)
+ * {
+ *     cucon_umap_iter_keys(map, dump_int);
+ * }
+ * \endcode
+ * \see \ref cu_clos_def if you need closure context data
+ * \see \ref cu_clop_def0 for a 0-argument variant
+ */
+#define cu_clop_def(clop, result_type, arg_decl_list...)
+
+/*!A 0-argument variant of \ref cu_clop_def. */
+#define cu_clop_def0(clop, result_type)
+
+/*!A variant of \ref cu_clop_def which exports \a clop.  Most useful if you
+ * also put a corresponding forward declaration in your header file:
+ * \code
+ * extern cu_clop(clop, result_type, arg_decl_list...)
+ * \endcode
+ */
+#define cu_clop_edef(clop, result_type, arg_decl_list...)
+
+/*!A 0-argument version of \ref cu_clop_edef. */
+#define cu_clop_edef0(clop, result_type)
+
+/*!@}*/
+/* vim: ft=c
+ */

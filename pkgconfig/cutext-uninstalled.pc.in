@@ -1,0 +1,12 @@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+top_builddir=@abs_top_builddir@
+top_srcdir=@abs_top_srcdir@
+
+Name: cutext
+Description: Collected C: Text Processing (cutext)
+Version: ${PACKAGE_VERSION}
+Requires: cubase
+Libs: ${top_builddir}/libcutext.la
+Cflags: -I${top_builddir} -I${top_srcdir}

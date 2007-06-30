@@ -1,0 +1,108 @@
+if enable_cuflow
+
+cuflow_headers = \
+	cuflow/fwd.h \
+	cuflow/errors.h \
+	cuflow/except.h \
+	cuflow/gflexq.h \
+	cuflow/gworkq.h \
+	cuflow/promise.h \
+	cuflow/wind.h \
+	cuflow/workq.h
+
+cuflow_sources = \
+	cuflow/init.c \
+	cuflow/errors.c \
+	cuflow/gworkq.c \
+	cuflow/promise.c \
+	cuflow/workq.c
+
+if wind_variant_is_setjmp
+cuflow_headers += cuflow/wind_setjmp.h
+cuflow_sources += cuflow/wind_setjmp.c
+endif
+if wind_variant_is_unw
+cuflow_headers += cuflow/wind_unw.h
+cuflow_sources += cuflow/wind_unw.c
+endif
+
+cuflow_check_programs = \
+	cuflow/gworkq_t0 \
+	cuflow/promise_t0 \
+	cuflow/wind_t0
+
+cuflow_norun_check_programs = \
+	cuflow/stack_t0
+
+if enable_experimental
+cuflow_headers += \
+	cuflow/cache.h \
+	cuflow/cacheconf.h \
+	cuflow/cached.h \
+	cuflow/cdisj.h \
+	cuflow/cont.h \
+	cuflow/cont_common.h \
+	cuflow/sched.h \
+	cuflow/time.h \
+	cuflow/timespec.h \
+	cuflow/tstate.h \
+	cuflow/wheel.h \
+	cuflow/workers.h
+cuflow_sources += \
+	cuflow/cache.c \
+	cuflow/cached.c \
+	cuflow/cdisj.c \
+	cuflow/cont.c \
+	cuflow/cont_common.c \
+	cuflow/sched.c \
+	cuflow/time.c \
+	cuflow/tstate.c \
+	cuflow/wheel_ts.c \
+	cuflow/workers.c
+cuflow_check_programs += \
+	cuflow/cache_t0 \
+	cuflow/cache_b0 \
+	cuflow/cached_t0 \
+	cuflow/cached_b0 \
+	cuflow/cont_t0 \
+	cuflow/cont_t1 \
+	cuflow/sched_b0 \
+	cuflow/workers_t0
+
+cuflow_cache_t0_SOURCES = cuflow/cache_t0.c
+nodist_cuflow_cache_t0_SOURCES = cuflow/cache_t0_tab.c
+cuflow_cache_t0_LDADD = libcuflow.la
+cuflow_cache_b0_SOURCES = cuflow/cache_b0.c
+nodist_cuflow_cache_b0_SOURCES = cuflow/cache_b0_tab.c
+cuflow_cache_b0_LDADD = libcuflow.la
+cuflow_cached_t0_SOURCES = cuflow/cached_t0.c
+cuflow_cached_t0_LDADD = libcuflow.la
+cuflow_cached_b0_SOURCES = cuflow/cached_b0.c
+cuflow_cached_b0_LDADD = libcuflow.la
+cuflow_sched_b0_SOURCES = cuflow/sched_b0.c
+cuflow_sched_b0_LDADD = libcuflow.la
+cuflow_workers_t0_SOURCES = cuflow/workers_t0.c
+cuflow_workers_t0_LDADD = libcuflow.la
+BUILT_SOURCES += \
+	cuflow/cache_t0_tab.h cuflow/cache_t0_tab.c \
+	cuflow/cache_b0_tab.h cuflow/cache_b0_tab.c
+endif
+
+cuflow_cont_t0_SOURCES = cuflow/cont_t0.c
+cuflow_cont_t0_LDADD = libcuflow.la
+cuflow_cont_t1_SOURCES = cuflow/cont_t1.c
+cuflow_cont_t1_LDADD = libcuflow.la
+cuflow_gworkq_t0_SOURCES = cuflow/gworkq_t0.c
+cuflow_gworkq_t0_LDADD = libcuflow.la
+cuflow_promise_t0_SOURCES = cuflow/promise_t0.c
+cuflow_promise_t0_LDADD = libcuflow.la
+cuflow_stack_t0_SOURCES = cuflow/stack_t0.c
+cuflow_stack_t0_LDADD = libcuflow.la
+cuflow_wind_t0_SOURCES = cuflow/wind_t0.c
+cuflow_wind_t0_LDADD = libcuflow.la
+
+cachetab = $(top_srcdir)/bin/cuflow_cachetab
+cuflow/%_tab.c cuflow/%_tab.h: cuflow/%.c $(cachetab)
+	$(cachetab) -p testcache $< -b cuflow/$*_tab
+
+endif

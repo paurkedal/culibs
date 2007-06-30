@@ -1,0 +1,55 @@
+if enable_cutext
+
+cutext_headers = \
+	cutext/buffer.h \
+	cutext/fwd.h \
+	cutext/src.h \
+	cutext/ucs4.h \
+	cutext/ucs4ctype.h \
+	cutext/ucs4src.h
+
+libcutext_la_SOURCES = \
+	cutext/chenc_conv.c \
+	cutext/buffer.c \
+	cutext/src.c \
+	cutext/ucs4.c \
+	cutext/ucs4ctype.c \
+	cutext/ucs4ctype_tbl.c \
+	cutext/ucs4src.c
+
+cutext_check_programs =
+
+cutext_norun_check_programs = \
+	cutext/src_t0 \
+	cutext/ucs4src_t0
+
+cutext_check_ldadd = libcutext.la libcubase.la
+cutext_src_t0_SOURCES = cutext/src_t0.c
+cutext_src_t0_LDADD = $(cutext_check_ldadd)
+cutext_ucs4src_t0_SOURCES = cutext/ucs4src_t0.c
+cutext_ucs4src_t0_LDADD = $(cutext_check_ldadd)
+
+cutext/chenc_conv.c: cutext/chenc_conv.tab cutext/mk_str_enum_conv
+	(   echo '#include <cutext/fwd.h>'; \
+	    cutext/mk_str_enum_conv $< \
+		-t cutext_chenc_t \
+		-d cutext_chenc_unknown \
+		-f cutext_chenc_from_cstr \
+		-g cutext_chenc_to_cstr ) >$@
+
+cutext/ucs4ctype_tbl.c: $(srcdir)/cutext/UnicodeData.txt cutext/mk_ucs4ctype_tbl.pl
+	perl $(srcdir)/cutext/mk_ucs4ctype_tbl.pl <$< >$@
+$(srcdir)/cutext/UnicodeData.txt:
+	$(srcdir)/cutext/fetch_unicode_data.sh --ask
+
+endif enable_cutext
+
+EXTRA_DIST += \
+	cutext/cutext.am \
+	cutext/chenc_conv.tab \
+	cutext/mk_str_enum_conv.c \
+	cutext/mk_ucs4ctype_tbl.pl \
+	cutext/UnicodeData.txt
+CLEANFILES += \
+	cutext/chenc_conv.c \
+	cutext/mk_str_enum_conv

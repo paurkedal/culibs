@@ -1,0 +1,41 @@
+/*!\addtogroup cucon_po_h
+ * @{
+ * This file implements a strict parital order (<i>E</i>, ≺), that is
+ * a relation ≺ (precedes) over elements of <i>E</i> where
+ * <ul>
+ *   <li>∀(<i>x</i> ∈ <i>E</i>) ¬ <i>x</i> ≺ <i>x</i> (irreflexive)</li>
+ *   <li>∀(<i>x</i>, <i>y</i> ∈ <i>E</i>)
+ *     ¬ <i>x</i> ≺ <i>y</i> ∨ ¬ <i>y</i> ≺ <i>x</i> (antisymmetric)</li>
+ *   <li>∀(<i>x</i>, <i>y</i>, <i>z</i> ∈ <i>E</i>)
+ *     <i>x</i> ≺ <i>y</i> ∧ <i>y</i> ≺ <i>z</i> ⇒ <i>x</i> ≺ <i>z</i>
+ *     (transitive)</li>
+ * </ul> 
+ * <i>E</i> contains at least two elements, the bottom ⊥ and top ⊤ such that
+ * ∀(<i>x</i> ∈ <i>E</i>) ⊥ ≺ x ≺ ⊤.
+ * This implementation allows growing the partial order by inserting
+ * elements with variable sized value stots, and forcing constraints of
+ * the form <i>x</i> ≺ <i>y</i>.
+ *
+ * Using pointer equality = over elements, we can define the relation
+ * ≼ (precedes or equal to) by
+ * ∀(<i>x</i>, <i>y</i> ∈ <i>E</i>) x ≼ y ⇔ x ≺ y ∨ x = y, which satisfies
+ * <ul>
+ *   <li>∀(<i>x</i> ∈ <i>E</i>) <i>x</i> ≼ <i>x</i> (reflexive)</li>
+ *   <li>∀(<i>x</i>, <i>y</i> ∈ <i>E</i>)
+ *     <i>x</i> ≼ <i>y</i> ∧ <i>y</i> ≼ <i>x</i> ⇒ <i>x</i> = <i>y</i>
+ *     (antisymmetric)</li>
+ *   <li>∀(<i>x</i>, <i>y</i>, <i>z</i> ∈ <i>E</i>)
+ *     <i>x</i> ≼ <i>y</i> ∧ <i>y</i> ≼ <i>z</i> ⇒ <i>x</i> ≼ <i>z</i>
+ *     (transitive)</li>
+ * </ul>
+ * This gives the parital order (<i>E</i>, ≼).  However, constraints
+ * of the form <i>x</i> ≼ <i>y</i> can produce equality constraints due to the
+ * antisymmetry rule,
+ * so forcing such constraints is not possible in an implementation with
+ * trivial equality.
+ *
+ * \todo Adding a function to replace a closed range of elements with
+ * a single element will allow a partial order to be implemented in terms of
+ * this implementation.
+ * @}
+ */

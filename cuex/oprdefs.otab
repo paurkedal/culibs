@@ -1,0 +1,115 @@
+# Part of the culibs project, <http://www.eideticdew.org/culibs/>.
+# Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+provide "cuex/oprdefs.otab"
+
+range cuex_og_all = __all[0 .! 0x10000]
+#    implicit attr cuex_oa_mubind : 1 bit "cu_bool_t"
+
+range cuex_og_regular	= cuex_og_all[0x0000 .! 0x4000]
+range cuex_og_aci	= cuex_og_all[0x6000 .! 0x6100]
+range cuex_og_monoid	= cuex_og_all[0x6100 .! 0x6800] # 0x70 operators
+    attr cuex_oa_monoid_depth : 4 bits "unsigned int"
+range cuex_og_semilattice = cuex_og_all[0x6800 .! 0x7000]
+    attr cuex_oa_semilattice_prefix : 6 bits "unsigned int" # 0x20 operators
+range cuex_og_hole	= cuex_og_all[0x7000 .! 0x7800] # 1 operator
+    attr cuex_oa_hole_index : 11 bits
+range cuex_og_binder	= cuex_og_all[0x7f00 .! 0x8000]
+
+range cuex_og_metaregular = cuex_og_regular[0x3fe0 .! 0x4000]
+range cuex_og_metamonoid = cuex_og_monoid[0x68 .! 0x70]
+
+# range cuex_og_mbinder	= cuex_og_all[0x7100 .! 0x8000]
+#     attr cuex_oa_mbind_count : 6 bits "int"
+range cuex_og_scoping	= cuex_og_all[0x4200 .! 0x4210]
+range cuex_og_ta	= cuex_og_all[0x4210 .! 0x4220]
+
+reserve cuex_og_regular		[0x000 .! 0x020]
+reserve cuex_og_aci		[0x000 .! 0x010]
+reserve cuex_og_monoid		[0x000 .! 0x010]
+reserve cuex_og_semilattice	[0x000 .! 0x008]
+reserve cuex_og_hole		[0 .! 1]
+reserve cuex_og_binder		[0x000 .! 0x010]
+reserve cuex_og_scoping		[0x000 .! 0x010]
+reserve cuex_og_ta		[0x000 .! 0x010]
+
+reserve cuex_og_metaregular	[0x00 .! 0x10]
+reserve cuex_og_metamonoid	[0x00 .! 0x04]
+
+# Basic regular operators
+o/0 cuex_o0_null	: cuex_og_regular
+o/0 cuex_o0_unkonwn	: cuex_og_regular
+o/1 cuex_o1_ident	: cuex_og_regular
+
+# Old scoping operators
+o/2 cuex_o2_lambda	: cuex_og_scoping
+o/3 cuex_o3_lambda_ta	: cuex_og_scoping
+o/2 cuex_o2_forall	: cuex_og_scoping
+o/3 cuex_o3_forall	: cuex_og_scoping
+o/2 cuex_o2_exists	: cuex_og_scoping
+o/3 cuex_o3_exists	: cuex_og_scoping
+o/3 cuex_o3_let		: cuex_og_scoping
+# no letself : scoping
+
+# Old misc
+o/1 cuex_o1_subst_block	: cuex_og_regular
+o/2 cuex_o2_apply	: cuex_og_regular
+o/0 cuex_o2m_tuple	: cuex_og_monoid
+o/r cuex_oR_tuple	: cuex_og_regular
+o/2 cuex_o2_rbind	: cuex_og_regular
+o/3 cuex_o3_if		: cuex_og_regular
+o/2 cuex_o2_gprod	: cuex_og_regular
+o/2 cuex_o2_gexpt	: cuex_og_regular
+o/2 cuex_o2_farrow	: cuex_og_regular
+o/2 cuex_o2_farrow_native:cuex_og_regular
+o/1 cuex_o1_ptr_to	: cuex_og_regular
+o/3 cuex_o3aci_prod	: cuex_og_aci
+o/4c cuex_o4aci_sigprod	: cuex_og_aci
+o/2c cuex_o2_sigbase	: cuex_og_regular
+o/1 cuex_o1_singleton	: cuex_og_regular
+o/1 cuex_o1_vtable_slots: cuex_og_regular
+o/4 cuex_o4aci_structjoin:cuex_og_aci
+o/4 cuex_o4aci_dunion	: cuex_og_aci
+o/3 cuex_o3aci_setjoin	: cuex_og_aci
+
+# group ta
+o/2 cuex_o2_ident_ta	: cuex_og_ta
+o/3 cuex_o3_load_ta	: cuex_og_ta
+o/r cuex_oR_call_ta	: cuex_og_ta
+
+# New binding operators
+o/0 cuex_o0_hole	: cuex_og_hole
+o/2 cuex_o2_mupath	: cuex_og_hole
+o/1 cuex_o1_mu		: cuex_og_binder
+o/1 cuex_o1_lambda	: cuex_og_binder
+
+# Not part of expression at hand, but used by algorithms during processing.
+o/2 cuex_o2_internal0	: cuex_og_metaregular # Not visible outside a package.
+o/0 cuex_o0_metanull	: cuex_og_metaregular
+o/0 cuex_o0_metaidr0	: cuex_og_metaregular
+o/1 cuex_o1_metaident	: cuex_og_metaregular
+o/1 cuex_o1_metatag0	: cuex_og_metaregular
+o/1 cuex_o1_metatag1	: cuex_og_metaregular
+o/2 cuex_o2_metapair	: cuex_og_metaregular
+o/0 cuex_o2m_metatuple	: cuex_og_metamonoid
+
+option c_prologue =
+    "#include <cuex/opr_priv.h>\n"
+option h_prologue =
+    "/*!\\defgroup cuex_oprdefs_h cuex/oprdefs.h: Operator Definitions\n"
+    " *@{\\ingroup cuex_mod */\n"
+option h_epilogue =
+    "/*!@}*/\n"

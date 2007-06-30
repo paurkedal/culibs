@@ -1,0 +1,8 @@
+digraph deps {
+    rankdir=BT;
+    cucon->cu;
+    cugra->cucon;
+    cuos->cucon;
+    cutext->cucon;
+    cuex->cugra;
+};

@@ -1,0 +1,12 @@
+PACKAGE_NAME=@PACKAGE_NAME@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: cubase
+Description: Collected C: Base Library (cu, cucon, cuflow, cuos)
+Version: ${PACKAGE_VERSION}
+Libs: -L${libdir} -lcubase @BDWGC_LIBS@
+Cflags: -I${includedir}/${PACKAGE_NAME}-${PACKAGE_VERSION} @BDWGC_CFLAGS@

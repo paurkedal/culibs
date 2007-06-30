@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>culibs: The Reclaim Notification Patch</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="cucommon.css"/>
+  </head>
+<body>
+<ul class="crumbs">
+  <li><a href="/culibs">culibs</a></li>
+  <li>Reclaim Notification</li>
+</ul>
+
+<h1>The Reclaim Notification Patch</h1>
+
+<p>
+These are rather technical notes about a patch to the
+<a href="http://www.hpl.hp.com/personal/Hans_Boehm/gc/">
+Boehm-Demers-Weiser Conservative Garbage Collector</a> which adds a feature
+which in lack of a better name I call “reclaim notification”.  This is a
+low-level feature which is aimed to support efficient hash-consing and
+finalisation.</p>
+
+<h2>The Issues</h2>
+
+<p>First off, it should be noted that the performance finalisation is
+usually a non-issue if recommendations for their use is followed.  The main
+use of finalisation is to free up non-critical resources.  (Critical
+resources should be explicitely managed, since finalisation is not
+guaranteed.)  Since such resources are typically few compared to the
+abundance of system memory, the overhead of finalisation is small.  So why
+bother?</p>
+
+<p>My interest in this stems from a more exotic use of the collector,
+hash-consing, which I think should be considered a third kind of GC-related
+mechanism in addition to finalisation and weak pointers.  Hash-consing is a
+technique that allows sharing of objects constructed independently but which
+happens to be identical.  In addition to reducing memory overhead in
+applications where such sharing is likely, it also means equality over
+complex expression trees reduces to a simple pointer comparison.  The
+technique can be used for expression trees, as exemplified by the <a
+href="http://www.cwi.nl/projects/MetaEnv/aterm/">ATerm</a> tree-handling
+library which implements its own garbage collector, and my own <tt>cuex</tt>
+library of <a href="/culibs">culibs</a> which uses the Boehm-Demers-Weiser
+collector.</p>
+
+<p>The current implementation handles weak pointers and schedules
+finalisation at the end of a collection, when the mark-bits are at a
+consistent state.  The actual finalisation happens later, but if the number
+of finalisers are comparable to the number of heap objects, there is still a
+significant overhead at this critical phase when threads cannot use the
+collector.  There is also a significant time and memory overhead when
+finalisation is used extensively for small objects.  In heavy
+tree-processing application, the main part of the memory may be such small
+objects.</p>
+
+
+<h2>A Solution</h2>
+
+<p>The two things we want to accomplish is</p>
+<ul>
+  <li>Implement a mechanism to support finalisation and hash-consing entirely
+  outside the critical point where the collector marks are consistent.</li>
+  <li>Reduce time and memory overhead.</li>
+</ul>
+<p>Roughly one phase of garbage collection is</p>
+<ul>
+  <li>Follow the root set and recursively mark all accessible objects.
+  Recursivity is handled by pushing objects on a stack, and iteratively
+  marking objects on the stack and pushing links.</li>
+
+  <li>Do a final mark from dirty pages, with world stopped.</li>
+
+  <li>When there is nothing more to mark, lock the collector.  Marks are now
+  consistent.</li>
+
+  <li>Walk through finalisers, schedule them and mark accessible objects.
+  Also, make disappearing links disappear.</li>
+
+  <li>Unlock the collector.</li>
+
+  <li>Process finalisation in parallel (preferred), or trigger them from
+  allocation functions.  After each finaliser is run, remove it so that the
+  finalised object can be collected on the next phase.</li>
+</ul>
+<p>The proposed solution is to add a light-weight low-level feature upon
+which finalisation and hash-consing can be implemented:</p>
+<ul>
+  <li>Add the following properties for objects kinds:
+    <ul>
+      <li>A flag which indicates that all objects of this kind shall be
+      followed during the mark phase, even if they are not themself marked,
+      essentially treating them as a root set.  This may be needed for
+      finalisation, but not for hash-consing.</li>
+
+      <li>Add a callback, the reclaim notifier, that is guaranteed to be
+      called for objects of this kind after the word has be started and
+      before the object is reclaimed.  The callback is allowed to resurrect
+      the object, as indicated by its return code.  This latter added to
+      avoid having to check the mark-bit of objects upon hash-consing, since
+      this operation can be slow when not done is bulk.</li>
+    </ul>
+  </li>
+
+  <li>The mark phase is extended to support the follow-unconditionally
+  flag.</li>
+
+  <li>I suggest one of the following two methods for running reclaim
+  notifiers
+    <ul>
+      <li><b>Simple</b>.  Call the notifiers when a heap block is reclaimed.
+      This has the disadvantage that the notifiers are called from threads
+      allocating memory, potentially introducing concurrency issues for
+      finalisers.  With a bit of care, this can be gracefully handled for
+      hash-consing.  The general rule is:  Don't allocate memory while
+      holding a lock that the finaliser may hold.</li>
+
+      <li><b>Proper</b>.  Schedule blocks of kinds with reclaim notifiers
+      for traversal in a dedicated finalisation thread.  Each block is
+      marked so that their objects can not be reclaimed before the finaliser
+      thread is done with it.  Some care must be taken so that the finaliser
+      thread does not lag behind the other threads.  Finalisers can now
+      safely allocate memory and share locks with allocating threads.</li>
+    </ul>
+  </li>
+</ul>
+<p>What we gain from this:</p>
+<ul>
+  <li>There is no per-finaliser or per-hash-cons work to do in the
+  stopped-world state.</li>
+
+  <li>Objects with finalisers can be reclaimed in the same collection that
+  they become reclaimable.  The hash-consing implemenation in culibs still
+  needs an extra collection.</li>
+
+  <li>The memory overhead per finaliser is only what is needed to store the
+  finaliser.  Normally single pointer to either a function or a closure
+  struct should suffice.</li>
+
+  <li>Languages which use vtables or similar per-class finalisers can write
+  a reclaim notifier which calls the appropriate vtable entry.  Thus, there
+  is no additional per-object overhead for finalisation.</li>
+
+  <li>Hash-consing doesn't require per-object finalisers, either.  Thus, the
+  memory overhead is only that of the hash-table, which includes a
+  chain-link within the object itself.</li>
+</ul>
+<p>Limitations:</p>
+<ul>
+  <li>Objects with finalisers must be of suitable GC-kind and must include
+  information about the finaliser for the corresponding reclaim notifier.
+  Thus, it's not possible to register these finalisers on object allocated
+  with the default kinds.
+  I suspect the common case is to register finalisers in connection with
+  allocation.</li>
+
+  <li>I'm not sure this is feasible for disappearing links.  That could be
+  investigated, but I'd suggest using the existing scheme.</li>
+
+  <li>One inconvenient technicality is that the reclaim notifier must be
+  able to distinguish an object which is part of a free-link from a live
+  object.
+  My suggestion is to store an odd number in the first word of the object.
+  This is where the collector stores the free-link next-pointer, so it will
+  always be even for a free-linked object.
+  In case of finalisers, this word can be used to store the address of the
+  finaliser closure, adding one byte to its address.
+  Alternatively, the fact that the rest of free-linked objects is cleared
+  can be utilised.
+  The high-level finalisation interface in the patch hides this detail from
+  the end-user.
+  Better solutions for handling this are welcome.</li>
+</ul>
+
+<h2>The Patch</h2>
+
+<p>In the following is a summary of what the patch does.  To make sence of
+it, you should have the sources to the collector, and the patch itself,
+which is found in the <a href="/download/">download directory</a>.
+<i>Update:</i> The patch is now named
+<tt>gc-<i>GC_VERSION</i>-disclaim-<i>PATCH_VERSION</i>.patch</tt>.
+</p>
+
+<h3>Extension to Object Kinds and Heap Block Headers</h3>
+
+<p>Reclaim notification can be enabled for user-defined object-kinds.  Most
+importantly, the callback is registered along with closure data.  In
+addition there is a flag to follow pointers from unmarked objects in
+associated heap blocks during the mark phase.  The latter is optional and
+prevents collection of objects reachable from reclaim notifiers.</p>
+
+<p>The patch also includes a default kind for finalisable objects.
+A debug-enabled version should be added if this patch is accepted by the GC
+developers.</p>
+
+<dl class="file-comments">
+  <dt>include/gc_mark.h</dt>
+  <dt>finalized_mlc.c</dt>
+  <dd>
+    <dl>
+      <dt>GC_register_reclaim_notifier</dt>
+      <dt>GC_register_reclaim_notifier_inner</dt>
+	<dd>The low-level interface.</dd>
+    </dl>
+  </dd>
+  <dt>include/private/gc_priv.h</dt>
+  <dd>
+    <dl>
+      <dt>HAS_RECLAIM_NOTIFIER</dt>
+      <dt>MARK_UNCONDITIONALLY</dt>
+      <dd>
+	Heap block flags to accelerate the new object-kind properties below.
+      </dd>
+      <dt>ok_mark_unconditionally</dt>
+      <dd>
+	Added object kind attribute for marking for unmarked objects.
+      </dd>
+      <dt>ok_reclaim_notifier_proc</dt>
+      <dt>ok_reclaim_notifier_cd</dt>
+      <dd>
+	The callback for kinds with reclaim notification.
+      </dd>
+    </dl>
+  </dd>
+  <dt>allchblk.c</dt>
+  <dd>
+    Propagate HAS_RECLAIM_NOTIFIER and MARK_UNCONDITIONALLY to block
+    headers.
+  </dd>
+  <dt>misc.c</dt>
+  <dd>
+    Initialise the new fields of object kinds.
+  </dd>
+</dl>
+
+
+<h3>The Essential Algorithm Changes</h3>
+
+<p>This part of the patch makes sure reclaim notifiers are called before
+objects of the associated kinds are reclaimed.  The notifiers are allowed to
+resurrect objects.</p>
+
+<p>I found it necessary to support resurrection to support hash-consing,
+because of the late callback to the notifier.
+Since the notifiers are not called while the world is stopped, they can not
+remove unmarked objects from the hash-consing hash-table in time.
+That is, during the time between the world is stopped and the time objects
+are reclaimed, the application may receive potentially recycleable objects.
+The notifier detects this case and prevents these object from being
+reclaimed.</p>
+
+<dl class="file-comments">
+  <dt>mark.c</dt>
+  <dd>
+    <dl>
+      <dt>GC_push_unconditionally</dt>
+      <dd>
+	Added a function which marks from all objects, marked or not.
+      </dd>
+
+      <dt>GC_block_was_dirty</dt>
+      <dd>
+	Call GC_push_unconditionally if HARK_UNCONDITIONALLY was set.  Note
+	that the changes above and below has no effect by itself, it's just
+	a move of GC_push_marked so that the MARK_UNCONDITIONALLY case does
+	not call it.
+      </dd>
+    </dl>
+  </dd>
+
+  <dt>reclaim.c</dt>
+  <dd>
+    <dl>
+      <dt>GC_block_empty</dt>
+      <dd>
+	We can not give up a block before reclaim notifiers are run.  The
+	current patch simply reports objects as non-empty if reclaim
+	notification is enabled.  This must be done properly.
+      </dd>
+      <dt>GC_reclaim_with_notifiers</dt>
+      <dd>
+	This is a version of GC_reclaim_clear which also calls reclaim
+	notifiers.
+      </dd>
+      <dt>GC_reclaim_generic</dt>
+      <dd>
+	Call GC_reclaim_with_notifiers for small objects where applicable.
+      </dd>
+      <dt>GC_reclaim_block</dt>
+      <dd>
+	Call reclaim notifiers for big objects where applicable.
+      </dd>
+    </dl>
+  </dd>
+</dl>
+
+
+<h3>Support for Finalization</h3>
+
+<dl class="file-comments">
+  <dt>include/private/thread_local_alloc.h</dt>
+  <dt>thread_local_alloc.c</dt>
+  <dd>
+    Declare and initialise finalized_freelists.
+  </dd>
+
+  <dt>include/gc_finalized.h</dt>
+  <dt>finalized_mlc.c</dt>
+  <dd>
+    This defines an "finalized" object kind, except
+    GC_register_reclaim_notifier was put here to reduce the changes to
+    existing files.
+  </dd>
+</dl>
+
+<h3>Build Infrastructure and Test Case</h3>
+
+<p>In addition to the above there are two test cases and miscellaneous
+changes to the build files.</p>
+
+<address>
+Last updated 2006-11-17 by
+<a href="http://www.nordita.dk/people/people.php?cn=Petter+Urkedal">
+Petter Urkedal</a>.
+</address>
+</body>
+</html>

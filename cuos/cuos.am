@@ -1,0 +1,23 @@
+if enable_cuos
+
+cuos_headers = \
+	cuos/process.h \
+	cuos/path.h \
+	cuos/fs.h \
+	cuos/time.h
+
+cuos_sources = \
+	cuos/process.c \
+	cuos/path.c \
+	cuos/fs.c \
+	cuos/time.c
+
+cuos_check_programs =
+
+cuos_norun_check_programs = \
+	cuos/fs_t0
+
+cuos_fs_t0_SOURCES = cuos/fs_t0.c
+cuos_fs_t0_LDADD = libcuos.la
+
+endif

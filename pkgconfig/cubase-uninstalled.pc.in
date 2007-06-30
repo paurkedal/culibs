@@ -1,0 +1,11 @@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+top_builddir=@abs_top_builddir@
+top_srcdir=@abs_top_srcdir@
+
+Name: cubase
+Description: Collected C: Base Library (cu, cucon, cuflow, cuos)
+Version: ${PACKAGE_VERSION}
+Libs: ${top_builddir}/libcubase.la
+Cflags: -I${top_builddir} -I${top_srcdir}

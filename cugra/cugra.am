@@ -1,0 +1,25 @@
+if enable_cugra
+
+cugra_headers = \
+	cugra/fwd.h \
+	cugra/bdd_buddy.h \
+	cugra/graph.h \
+	cugra/graph_algo.h
+
+cugra_sources = \
+	cugra/bdd_buddy.c \
+	cugra/graph.c \
+	cugra/graph_algo.c \
+	cugra/graph_io.c \
+	cugra/graph_mfvs.c \
+	cugra/graph_msc.c \
+	cugra/graph_shortpath.c \
+	cugra/init.c
+
+cugra_check_programs = \
+	cugra/graph_t0
+
+cugra_graph_t0_SOURCES = cugra/graph_t0.c
+cugra_graph_t0_LDADD = libcugra.la
+
+endif
