@@ -1,0 +1,17 @@
+CALLBACK(ccf_char_t)
+CALLBACK(ccf_uchar_t)
+CALLBACK(ccf_schar_t)
+CALLBACK(ccf_short_t)
+CALLBACK(ccf_ushort_t)
+CALLBACK(ccf_int_t)
+CALLBACK(ccf_uint_t)
+CALLBACK(ccf_long_t)
+CALLBACK(ccf_ulong_t)
+
+CALLBACK(ccf_float_t)
+CALLBACK(ccf_double_t)
+CALLBACK(ccf_ldouble_t)
+
+CALLBACK(ccf_ptr_t)
+CALLBACK(ccf_fn_ptr_t)
+CALLBACK(ccf_closure_t)

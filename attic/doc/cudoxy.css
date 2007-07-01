@@ -1,0 +1,198 @@
+body {
+	background-color: white;
+	color: black;
+	margin-top: 4mm;
+	margin-bottom: 0;
+	margin-left: 8mm;
+	margin-right: 8mm;
+}
+a:link,    div.qindex a:link,
+a:visited, div.qindex a:visited,
+a:hover,   div.qindex a:hover,
+a:active,  div.qindex a:active {
+	color: #224466;
+	text-decoration: underline;
+}
+a:hover,  div.qindex a:hover,
+a:active, div.qindex a:active {
+	color: #224466;
+	background-color: #eeddcc;
+	text-decoration: underline;
+}
+
+div.qindex {
+	background-color: #ffffff;
+	border: none;
+}
+div.tabs {
+	font-size: 80%;
+	display: float;
+	float: right;
+	margin: 4mm;
+	margin-right: 0;
+	margin-top: 0;
+	padding: 2mm;
+}
+div.tabs:before {
+	content: "Sections";
+	font-size: large;
+	font-weight: bold;
+	margin: 0;
+	padding: 0;
+}
+div.tabs, address {
+	color: white;
+	background-color: #224466;
+}
+div.tabs a:link,    address a:link,
+div.tabs a:visited, address a:visited {
+	color: white;
+}
+div.tabs a:hover,   address a:hover {
+	color: white;
+	background-color: #446688;
+}
+address {
+	margin-left: -8mm;
+	margin-right: -8mm;
+	margin-bottom: 0;
+	margin-top: 0.7em;
+	padding-left: 8mm;
+	padding-right: 8mm;
+	padding-bottom: 1mm;
+	padding-top: 1mm;
+}
+
+div.tabs ul {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	margin-top: 3mm;
+}
+div.tabs li {
+	padding: 0;
+	margin: 0;
+	margin-top: 1mm;
+	margin-bottom: 1mm;
+	font-size: larger;
+}
+
+h1 {
+	text-align: center;
+}
+h2 {
+	margin-left: -8mm;
+	margin-right: -8mm;
+	padding-left: 8mm;
+	padding-right: 8mm;
+	background-color: #ffddaa;
+	border-top: solid 1px #ccaa77;
+	border-bottom: solid 1px #ccaa77;
+	width: 100%;
+}
+
+a, div.qindex a {
+	color: black;
+	text-decoration: none;
+}
+
+hr {
+	display: none;
+}
+p, li {
+	text-align: justify;
+}
+li {
+	list-style: square;
+}
+
+
+/* Doxygen-Specific Tags
+ * --------------------- */
+
+td.memItemLeft, td.memItemRight {
+	background-color: white;
+	border: none;
+}
+
+table.mdTable {
+	width: 100%;
+	margin-top: 3mm;
+	margin-bottom: 0;
+	margin-left: 0;
+	border: none;
+	background-color: white;
+}
+td.mdRow, td.md, td.mdname, td.mdname1 {
+	border: none;
+	background-color: inherit;
+	padding: 0;
+}
+td.mdRow {
+	padding-left: 3mm;
+}
+td.mdname em, td.mdname1 em {
+	color: black;
+	font-weight: normal;
+}
+table.mdTable + table {
+	margin-left: 5mm;
+}
+td.memItemRight a.el:first-child {
+	font-weight: bold;
+}
+
+div.fragment {
+	margin-top: 2mm;
+	margin-bottom: 2mm;
+	margin-left: 5mm;
+	margin-right: 5mm;
+	padding: 0;
+}
+pre.fragment {
+	background-color: #ffffee;
+	border: thin solid #cccccc;
+	padding: 1mm;
+}
+
+td.indexkey, td.indexvalue {
+	background-color: #ffffff;
+}
+/* div.memitem
+ *   div.memproto
+ *     table.memname
+ *       tr
+ *         td.memname
+ *         td.paramtype
+ *         td.paramname
+ *       tr
+ *         td.memkey
+ *         td.paramtype
+ *         td.paramname
+ * div.memdoc
+ *
+ * Not used: .memtemplate, .memnav */
+table.memname {
+	border-top: solid 1px #224466;
+	border-left: solid 1mm #224466;
+	margin-left: -3mm;  padding-left: 2mm;
+	margin-right: -3mm; padding-right: 3mm;
+	font-family: monospace;
+	background-color: #ddeeff;
+	width: 100%;
+}
+td.memname, td.memkey {
+	padding-left: 0; padding-right: 0;
+	margin-left: 0; padding-left: 0;
+	white-space: nowrap;
+}
+td.paramtype {
+	padding-left: 0; padding-right: 0;
+	margin-left: 0; padding-left: 0;
+	white-space: nowrap;
+	font-family: monospace;
+}
+.memdoc {
+	margin-top: 0.6em;
+	margin-bottom: 1.6em;
+}

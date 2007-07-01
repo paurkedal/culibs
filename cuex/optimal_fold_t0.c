@@ -155,41 +155,46 @@ cuex_t
 random_expr(int depth, int *size_limit)
 {
     cuex_t e;
-    cuex_t e_arr[2];
     cuex_meta_t opr;
     int i, r;
     cu_bool_t wrap_mu;
-    switch (*size_limit > 1? lrand48() % (4 + !!depth) : 0) {
-	case 0:
-	    return cuex_var_new_e();
-	case 1:
-	    opr = CUEX_O1_SINGLETON;
-	    break;
-	case 2:
-	    opr = CUEX_O2_GPROD;
-	    break;
-	case 3:
-#if 1
-	    --*size_limit;
-	    return cuex_o1_lambda(random_expr(depth + 1, size_limit));
-#else
-	    opr = CUEX_O3_IF;
-	    break;
-#endif
-	case 4:
-	    return cuex_hole(lrand48() % depth);
+    unsigned long sel_minor, sel_kind;
+
+    if (*size_limit <= 1)
+	return cuex_var_new_e();
+
+    sel_minor = lrand48();
+    sel_kind = sel_minor & 3;
+    sel_minor >>= 2;
+
+    if (sel_kind == 0 && depth)
+	return cuex_hole(sel_minor % depth);
+    else if (sel_kind == 1) {
+	--*size_limit;
+	return cuex_o1_lambda(random_expr(depth + 1, size_limit));
     }
-    --*size_limit;
-    wrap_mu = lrand48() % 2;
-    if (wrap_mu)
-	++depth;
-    r = cuex_opr_r(opr);
-    for (i = 0; i < r; ++i)
-	e_arr[i] = random_expr(depth, size_limit);
-    e = cuex_opn_by_arr(opr, e_arr);
-    if (wrap_mu)
-	e = cuex_o1_mu(e);
-    return e;
+    else {
+	cuex_t e_arr[3];
+	static const cuex_meta_t opr_choices[] = {
+	    CUEX_O0_NULL,	CUEX_O0_UNKNOWN,
+	    CUEX_O1_IDENT,	CUEX_O1_SINGLETON,
+	    CUEX_O2_GPROD,	CUEX_O2_APPLY,
+	    CUEX_O3_IF,		CUEX_O3_IF
+	};
+	wrap_mu = sel_minor & 1;
+	sel_minor >>= 1;
+	opr = opr_choices[sel_minor % 8];
+	--*size_limit;
+	if (wrap_mu)
+	    ++depth;
+	r = cuex_opr_r(opr);
+	for (i = 0; i < r; ++i)
+	    e_arr[i] = random_expr(depth, size_limit);
+	e = cuex_opn_by_arr(opr, e_arr);
+	if (wrap_mu)
+	    e = cuex_o1_mu(e);
+	return e;
+    }
 }
 
 cuex_t
@@ -221,7 +226,7 @@ test(struct run_stats_s *stats_arr)
     static int run = 0;
     cuex_t e, ep, epp, eppp, eT;
     cu_bool_t are_eq;
-    int size_limit = 10;
+    int size_limit = 20;
     int n, plot_bin;
     size_t eT_size, epp_size;
     cuex_stats_t stats;

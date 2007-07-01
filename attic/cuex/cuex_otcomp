@@ -1,0 +1,348 @@
+#!/usr/bin/env perl
+use strict;
+use Getopt::Long;
+use Pod::Usage;
+
+my $impl_path = 0;
+my $header_path = 0;
+my $base_path = 0;
+my $include_path = 0;
+GetOptions(
+    'out-h=s' => \$header_path,
+    'out-c=s' => \$impl_path,
+    'out-base=s' => \$base_path)
+    or pod2usage(2);
+pod2usage(2) unless $#ARGV == 0;
+my $input_path = $ARGV[0];
+# ($dir, $base_path) = $input_path =~ /(.+\/)?(.+)\.cuex-ot/;
+die "Missing output path options"
+    unless $header_path and $impl_path or $base_path;
+$header_path = "$base_path.h" unless $header_path;
+$impl_path = "$base_path.c" unless $impl_path;
+
+print "$input_path --> $header_path, $impl_path\n";
+
+my $doc_path = "$base_path.doxy";
+my $prefix = "";
+my $opr_prefix = "";
+my $ctor_prefix = "";
+my $index_start = 1;
+my $index_end = -1;
+my $max_arity = 0;
+my @index_arr;
+my $aci_index;
+my $prologs_done = 0;
+my $top_blurb = "/* !! This file is generated from $base_path.cuex-ot !!\n *\n";
+my $make_doc_file = 0; # unimplemented
+my %property;
+my @property_defaults;
+my %group;
+my @impl_include_list;
+my @header_include_list;
+
+open INPUT, "$input_path" or die "Could not open $input_path";
+open HEADER, ">$header_path" or die "Could not create $header_path";
+open IMPL, ">$impl_path" or die "Could not create $impl_path";
+if ($make_doc_file) {
+    open DOC, ">$doc_path" or die "Could not create $doc_path";
+}
+
+sub make_prologs()
+{
+    $prologs_done = 1;
+    die "missing prefix option" unless $prefix;
+    $opr_prefix = "${prefix}opr_" unless $opr_prefix;
+    $ctor_prefix = "${prefix}o" unless $ctor_prefix;
+    $include_path = $header_path unless $include_path;
+    my $pptoken = uc "${prefix}H";
+    $top_blurb .= " */\n\n";
+    print HEADER $top_blurb;
+    print IMPL $top_blurb;
+    print DOC $top_blurb if $make_doc_file;
+    $top_blurb = 0;
+    print HEADER "#ifndef $pptoken\n#define $pptoken\n\n";
+    print HEADER "#include <cuex/ex.h>\n";
+    print HEADER "#include <cuex/oprinfo.h>\n";
+    print HEADER "#include <$_>\n" foreach @header_include_list;
+#    print HEADER "\nextern struct cuex_oprinfo_s ${prefix}oprinfo_arr[];\n\n";
+    print IMPL "#include <cuex/oprinfo.h>\n";
+    print IMPL "#include <$include_path>\n";
+    print IMPL "#include <cuex/aci.h>\n";
+    print IMPL "#include <$_>\n" foreach @impl_include_list;
+    print IMPL "\nstatic struct cuex_oprinfo_s ${prefix}oprinfo_arr[] = {\n";
+}
+sub make_epilogs()
+{
+    print HEADER "#endif\n";
+    print IMPL "\t{ CUCON_UMAP_NODE_INIT(0), NULL, 0, NULL }\n};\n";
+    print IMPL "\n/* NB! The library must call this upon init. */\n";
+    print IMPL "void ${prefix}opr_init(void)\n{\n",
+	       "\tcuex_oprinfo_register(${prefix}oprinfo_arr);\n}\n";
+    print STDERR "info: Generating $header_path and $impl_path.\n",
+		 "info: Remember to call 'void ${prefix}opr_init(void)' before using the operators.\n";
+}
+
+sub set_index($)
+{
+    my ($i) = @_;
+    foreach (@index_arr) {
+	die "Index $i already in use." if $i < $_;
+	$_ = $i;
+    }
+    $index_start = $i;
+}
+sub sync_index()
+{
+    my $max = $index_start;
+    foreach (@index_arr) {
+	$max = $_ if $_ > $max;
+    }
+    set_index($max);
+    return $max;
+}
+sub get_multiary_index()
+{
+    my $max = $index_start;
+    foreach (@index_arr) {
+	$max = $_ if $_ > $max;
+    }
+    set_index($max + 1);
+    return $max;
+}
+
+my $current_group = '';
+my $opr = '';
+my $r = 0;
+my $have_cache = 0;
+my $flags = '0';
+my $doc = '';
+my $toplevel_doc = 0;
+
+sub entry()
+{
+    if ($toplevel_doc) {
+	print HEADER "$toplevel_doc */\n";
+	$toplevel_doc = 0;
+    }
+    if ($opr) {
+	make_prologs unless $prologs_done;
+	my ($with_ctor, $csize, $ctor);
+	if ($have_cache) {
+	    $with_ctor = "_with_ctor";
+	    $csize = "${opr_prefix}${opr}_${r}_cache_size";
+	    $ctor = "${opr_prefix}${opr}_${r}_cache_cct";
+	} else {
+	    $with_ctor = "";
+	    $csize = 0;
+	    $ctor = "NULL";
+	}
+	print HEADER "$doc */\n" if $doc;
+	if ($r =~ /^[0-9]+$/) {
+	    $index_arr[$r] = $index_start unless $index_arr[$r];
+	    print HEADER "#define ${opr_prefix}${opr}_$r ",
+				  "cuex_opr$with_ctor($index_arr[$r], $r)\n";
+	    ++$index_arr[$r];
+	    $max_arity = $r if $r > $max_arity;
+	    print IMPL "\t{ CUCON_UMAP_NODE_INIT(${opr_prefix}${opr}_$r), ",
+		       "\"${opr}_$r\", $csize, $ctor, $flags },\n";
+	}
+	elsif ($r =~ /^r$/) {
+	    my $i = get_multiary_index;
+	    print HEADER "#define ${opr_prefix}${opr}_r(r) ",
+				  "cuex_opr$with_ctor($i, r)\n";
+	    print HEADER "/*!True iff \\a opr is \\ref ${opr_prefix}${opr}_r(\\e r) of any arity \\e r. */\n";
+	    print HEADER "#define ${opr_prefix}is_${opr}(opr) ",
+				  "(cuex_opr_index(opr) == $i)\n";
+	    print IMPL "\t{ CUCON_UMAP_NODE_INIT(${opr_prefix}${opr}_r(0)), ",
+		       "\"${opr}_$r\", $csize, $ctor, $flags },\n";
+	}
+	elsif ($r =~ /^2a$/) {
+	    my $i = get_multiary_index;
+	    print HEADER "#define ${opr_prefix}${opr}_$r ",
+				  "cuex_opr$with_ctor($i, 0)\n";
+	    print IMPL "\t{ CUCON_UMAP_NODE_INIT(${opr_prefix}${opr}_$r), ",
+		       "\"${opr}_$r\", $csize, $ctor, $flags },\n";
+	}
+	elsif (my ($nv) = $r =~ /^2aci([0-9]+)$/) {
+	    $aci_index = $index_start unless $aci_index;
+	    die "Element arity must be at least one" if $nv < 1;
+	    print HEADER "#define ${opr_prefix}${opr}_$r ",
+				  "cuex_aci_opr$with_ctor($aci_index, $nv)\n";
+	    print HEADER "/*!The operator of the identity element of ",
+			 "\\ref ${opr_prefix}${opr}_$r. */\n";
+	    print HEADER "#define ${opr_prefix}${opr}_0aci0 ",
+				  "cuex_aci_identity_opr($aci_index)\n";
+	    ++$aci_index;
+	    print IMPL "\t{ CUCON_UMAP_NODE_INIT(${opr_prefix}${opr}_$r), ",
+		       "\"${opr}_$r\", $csize, $ctor, $flags },\n";
+	}
+	else {
+	    die "Invalid arity $r";
+	}
+    }
+    elsif ($current_group) {
+	${$group{$current_group}}{doc} = $doc;
+    }
+    elsif ($doc) {
+	print HEADER "$doc*/\n";
+    }
+    $current_group = 0;
+    $opr = 0;
+    $doc = "";
+}
+
+my $done_definitions = 0;
+sub finish_definitions()
+{
+    die "Multiple 'finish_definitions'" if $done_definitions;
+    sync_index;
+    if ($index_end > 0) {
+	my $have_error = 0;
+	if ($index_start > $index_end) {
+	    print STDERR "$0: Indices ends at $index_start but ";
+	    print STDERR "limit is $index_end.\n";
+	    $have_error = 1;
+	}
+	if ($aci_index > $index_end) {
+	    print STDERR "$0: ACI indices ends at $aci_index but ";
+	    print STDERR "limit is $index_end.\n";
+	    $have_error = 1;
+	}
+	exit 2 if $have_error;
+    }
+    $done_definitions = 1;
+    foreach (keys %group) {
+	print HEADER "\n";
+	print HEADER "${$group{$_}}{doc}*/\n" if ${$group{$_}}{doc};
+	print HEADER "CU_SINLINE cu_bool_t ${opr_prefix}is_$_(cuex_meta_t opr)\n{\n";
+	print HEADER "    cuex_meta_t i = cuex_opr_index(opr);\n";
+	print HEADER "    return ";
+	print HEADER ${$group{$_}}{start};
+	print HEADER " <= i && i < ";
+	print HEADER ${$group{$_}}{end};
+	print HEADER ";\n}\n\n";
+    }
+    %group = {};
+    for (my $r = 0; $r <= $max_arity; ++$r) {
+	print HEADER "/*!Returns <tt>cuex_opn(${opr_prefix}<i>NAME</i>_$r";
+	for (my $i = 0; $i < $r; ++$i) {
+	    print HEADER ", x$i";
+	}
+	print HEADER ")</tt>.\n * "
+	    ."This is a convenient and arity-safe way to apply operators "
+	    ."from the\n * <tt>${prefix}</tt> namespace. */\n";
+	print HEADER "#define ${ctor_prefix}$r(NAME";
+	for (my $i = 0; $i < $r; ++$i) {
+	    print HEADER ", x$i";
+	}
+	print HEADER ") cuex_opn(${opr_prefix}##NAME##_$r";
+	for (my $i = 0; $i < $r; ++$i) {
+	    print HEADER ", x$i"
+	}
+	print HEADER ")\n";
+    }
+}
+
+while (<INPUT>) {
+    if (/^\s*#\s(.*)/) {
+	if ($top_blurb) {
+	    $top_blurb .= " * $1\n";
+	}
+    }
+    elsif (/^\s*$/) {
+    }
+    elsif (/^\s*o\s+(\w+)\/(\w+)\s*$/) {
+	entry;
+	$opr = $1;
+	$r = $2;
+	$have_cache = 0;
+    }
+    elsif (/^\s*o\s+(\w+)\/(\w+)\s+cache\s*/) {
+	entry;
+	$opr = $1;
+	$r = $2;
+	$have_cache = 1;
+    }
+    elsif (/^\s+##\s*(.*)/) {
+	if ($doc) {
+	    $doc .= "\n * $1";
+	} else {
+	    $doc = $1;
+	    if ($doc =~ s/^\(([^()]+)\)//) {
+		my $s = $1;
+		$s =~ s/,/, \\e/g;
+		$doc = "\\b operands: (\\e $s)\\n $doc";
+	    }
+	    $doc = "/*!$doc";
+	}
+    }
+    elsif (/^##\s*(.*)/) {
+	if ($toplevel_doc) {
+	    $toplevel_doc .= " * $1\n";
+	}
+	else {
+	    entry;
+	    $toplevel_doc = "/*!$1\n";
+	}
+    }
+    elsif (/propetry\s+(.+)\s+(\w+)\s*=\s*(.+)$/) {
+	$property{$2} = [$#property_defaults, $1];
+	$property_defaults[$#property_defaults+1] = $3;
+    }
+    elsif (/^\s*group\s+(\w+)\s*$/) {
+	entry;
+	$current_group = $1;
+	${$group{$1}}{start} = sync_index;
+    }
+    elsif (/^\s*endgroup\s+(\w+)\s*$/) {
+	entry;
+	${$group{$1}}{end} = sync_index;
+    }
+    elsif (/^\s*finish_definitions\s*$/) {
+	entry;
+	finish_definitions;
+    }
+    elsif (/^\s*cinclude\s+(.+)$/) {
+	push(@impl_include_list, $1);
+    }
+    elsif (/^\s*hinclude\s+(.+)$/) {
+	push(@header_include_list, $1);
+    }
+    elsif (/^(\w+)\s*=\s*(\w+)\s$/) {
+	entry;
+	if	($1 eq "prefix")	{ $prefix = $2; }
+	elsif	($1 eq "index_start")	{ $index_start = $2; }
+	elsif	($1 eq "index_end")	{ $index_end = $2; }
+	elsif	($1 eq "index")		{ set_index($2); }
+	elsif	($1 eq "include_path")	{ $include_path = $2; }
+	else { die "Bad option $1"; }
+    }
+    else {
+	die "Syntax error";
+    }
+}
+entry;
+finish_definitions unless $done_definitions;
+make_epilogs;
+
+
+__END__
+
+=head1 NAME
+
+cuex_otcomp - Compile operator tables to source code
+
+=head1 SYNOPSIS
+
+    cuex_otcomp INPUT_FILE --out-h=PATH --out-c=PATH
+    cuex_otcomp INPUT_FILE --out-base=BASE_FOR_PATH
+
+=head1 DESCRIPTION
+
+Options:
+
+    --out-h=PATH	Gives path of output header file.
+    --out-c=PATH	Gives path of output source file.
+    --out-base=BASE_FOR_PATH
+			Gives path of output files without extensions.
+

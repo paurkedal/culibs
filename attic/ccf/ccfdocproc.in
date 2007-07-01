@@ -1,0 +1,71 @@
+#! /bin/bash
+
+xsltproc=@xsltproc@
+docbook_to_man_xsl=@docbook_to_man_xsl@
+docbook_to_html_xsl=@docbook_to_html_xsl@
+docbook_to_xhtml_xsl=@docbook_to_xhtml_xsl@
+docbook_to_fo_xsl=@docbook_to_fo_xsl@
+
+usage()
+{
+    if (($# > 0)); then
+	echo $*
+	echo "Try $0 --help"
+	exit 1
+    else
+	cat <<EOF
+usage:	$0 -B \$backend \$file...
+
+where:	\$backend	-- output format { "html", "man" }
+	\$file...	-- one or more input files
+EOF
+	exit 0
+    fi
+}
+
+fail()
+{
+    echo 1>&2 "$0: $*"
+    exit 1
+}
+
+arg_count=0
+unset args
+while (($# > 0)); do
+    case $1 in
+	--help)
+	    usage
+	    ;;
+	-B)
+	    (($# > 1)) || usage "missing option to -B"
+	    shift
+	    backend=$1
+	    ;;
+	-*)
+	    usage "unknown option $1"
+	    ;;
+	*)
+	    args[arg_count++]=$1
+	    ;;
+    esac
+    shift
+done
+
+case $backend in
+    html)
+	test -n "$docbook_to_html_xsl" || fail "Missing stylesheet for HTML."
+	$xsltproc $docbook_to_html_xsl "${args[@]}"
+	;;
+    xhtml)
+	test -n "$docbook_to_xhtml_xsl" || fail "Missing stylesheet for XHTML."
+	$xsltproc $docbook_to_xhtml_xsl "${args[@]}"
+	;;
+    fo)
+	test -n "$docbook_to_fo_xsl" || fail "Missing stylesheet for XSL-FO."
+	$xsltproc $docbook_to_fo_xsl "${args[@]}"
+	;;
+    man)
+	test -n "$docbook_to_man_xsl" || fail "Missing stylesheet for manpages."
+	$xsltproc $docbook_to_man_xsl "${args[@]}"
+	;;
+esac

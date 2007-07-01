@@ -1,0 +1,78 @@
+IGNORE THIS DOCUMENT unless you are curious about the x86-specific
+implementation of closures.  The generic closure-implementation is
+faster than the hacks described here.
+
+
+Porting of closures (clos.h)
+============================
+
+To accelerate the clos.h facility on a specific platform, you can write
+a low-level version for it.
+
+You need to know a bit of how the calling convention works on the
+processor you want to port to, and a bit of its instruction set,
+though you get away with disassembling code produced by a C compiler.
+Since most processors have similar functionality and calling
+conventions, I describe the IA32 implementation here; a similar
+technique is probably possible in most cases.
+
+When a function is called, the arguments are placed on the stack,
+along with the return address.  The IA32 stack layout is
+
+     SP+0x00  return address
+     SP+0x04  first argument
+     ...
+
+where the upper entry is the last one pushed onto the stack.  (The
+stack grows upwards.)  The layout with the return address closest to
+SP and arguments following in the same order they appear in the
+prototype is probably very general, since other layouts makes it
+harder to implement varargs.  For stacks growing downwards, just
+negate the offsets.
+
+Now, the trick is to insert some instructions above the closure data
+which, when called, calls the actual function, and makes it possible
+to determine the location of the closure data from inside that
+function.  The solution for IA32 is remarkably simple,
+
+0xbfffccf0:	call   0x8048340 <target_function>
+0xbfffccf5:	ret
+0xbfffcd00:	(closure data goes here)
+
+Right after target_function is called, the stack frame will be
+
+    SP+0x00  return address to trampoline (0xbfffccf5)
+    SP+0x04  original return address (first arg)
+    SP+0x08  original first arg (now second arg)
+    ...
+
+So, all we have to do is adjust the prototype to
+
+    result_t target_function(void *original_return, ARGS...);
+
+Even though we do not have the return address to the trampoline
+expliciely in the arguments, &original_return points to SP+0x04, so
+*((void **)&original_return - 1) points into the trampoline.  This has
+to be shifted by -5 bytes to get the address of the whole closure
+including the trampoline.  Cf. the definition of ccf_clvar in
+ccf/IA32/clos.h.
+
+To find out the actual bytes that needs to be stored above the closure
+data, write the instructions into an assembler, with a placeholder
+value for the destination address.  Here,
+
+trampoline:
+	call $0xffffff
+	ret
+closuredata:
+
+will do.  Also make a dummy main.c so that you can compile the two
+files into a binary.  Open the program in a debugger and dump the
+bytes from trampoline to closuredata.  Now write the
+
+    void ccf_cct(TRAMPOLINE ptr, void (*fn)());
+
+function (or macro) which writes in the bytes, but replaces the 0xff's
+with the address.  Note that the call-address should most likely be
+relative to the location just passed the call statement, and be aware
+of the byte order.  Cf. the macro ccf_clos_cct in ccf/IA32/clos.h.

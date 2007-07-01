@@ -1,0 +1,17 @@
+ccfdocproc=$(top_builddir)/ccfdocproc
+%.man_stamp: %.xml
+if enable_docs
+	$(SHELL) $(ccfdocproc) -B man $<
+	touch $@
+else
+	echo 1>&2 "Can not make $@, documentation disabled."
+	exit 1
+endif
+
+%.html:	%.xml
+if enable_docs
+	$(SHELL) $(ccfdocproc) -B html $< >$@ || rm -f $@
+else
+	echo 1>&2 "Can not make $@, documentatino disabled."
+	exit 1
+endif

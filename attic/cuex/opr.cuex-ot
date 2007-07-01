@@ -1,0 +1,166 @@
+# Copyright 2005  Petter Urkedal
+#
+# This file is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This file is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+# All generated C names will have this prefix.
+prefix = cuex_
+
+# Operator indices starts here.  The ACI operators will start at
+# index_start + CUEX_ACI_OPR_START.
+index_start = 0
+
+# This is optional. It indicates the mimimum first free index. It can be used
+# to indicate to other projects the range of indices we have reserved. An
+# error will be issued if we use more indices than fits from index_start
+# to exclusive index_end.
+index_end = 256
+
+# The implementation must include a header which declares the operator
+# constructors.
+cinclude cuex/opr_priv.h
+
+# Documentation comments are prefixed with ##. They are used to generate
+# Doxygen compatible documentation in the generated source.
+## \defgroup cuex_opr_h cuex/opr.h: Operator Definitions
+## @{\ingroup cuex_mod
+
+# Likewise, an indented ## comment after a definition will produce a
+# documentation comment attached to the corresponding definition.
+o null/0
+	## Operator of the null-expression
+o unknown/0
+	## Operator of the expression representing unknown/uspecified
+o ident/1
+	## Identity operator.
+
+
+# Scope Generating Operators
+# ==========================
+#
+# Operators from 32 to 64 are scoping operators, where the first operand
+# contains the variable to be scoped.  This allows some algorithms to
+# handle these expressions correctly.  Make space for some client
+# definitions.
+index = 32
+group scoping
+	## True iff the operator is a scoping operator.  Such an operator
+	## is assumed to have a variable as the first operand, which will
+	## be locally bound in the remaining operands.
+
+o lambda/2
+	## Lambda abstraction.
+o lambda_ta/3
+	## Lambda abstraction with type annotation.  The type of the full
+	## lamda expression (not just the result) is stored in the last
+	## operand.
+o forall/2
+	## Universal quantisation.
+o forall/3
+	## Universal quantisation over given domain.
+o exists/2
+	## Existential quantisation.
+o exists/3
+	## Existential quantisation over given domain.
+o let/3
+	## Bind a variable to an expression in a block.
+	## E.g. \code let x = sin φ in x⋅x\endcode
+o letself/2
+	## Bind a variable to an expression in the expression self.
+
+# End of scoping operators.
+index = 64
+endgroup scoping
+
+
+# Misc
+# ====
+
+o subst_block/1
+	## Internal use.  Used in substitutions to block variables from
+	## binding.
+o apply/2
+	## Function or constructor application.
+o tuple/2a
+	## An associative operator which combines two objects
+	## \e x ∈ \e T and \e y ∈ \e U into (\e x, \e y) ∈ \e T × \e U.
+o tuple/r
+	## A n-ary version of tuple/2a.
+o rbind/2
+	## Represents a recursive expression, where the LHS is a
+	## \ref cuex_opr_tuple_r of mutually recursive terms which by this
+	## construct are bound to rvars with indices corresponding to the
+	## component number both on the LHS and RHS.  The RHS is the value
+	## of the whole expression.
+
+o if/3
+	## An if-then-else conditional expression.
+
+
+# General and Type Algebra
+# ========================
+
+o gprod/2
+	## A general product operator.
+	## Used for direct product of types, in which case it is
+	## non-associative.
+o gexpt/2
+	## A general exponentiation operator.
+	## Used for direct exponents of types.
+o farrow/2
+	## Function type arrow, similar to set exponent written reversly
+o farrow_native/2
+	## Function type arrow with indication of native C ABI.
+o ptr_to/1
+	## A pointer type.
+o prod/2aci1
+	## Associative, commutative and idempotent product operator.
+o sigprod/2aci2 cache
+	## An operator which combines labelled types or signatures into
+	## signatures.  Let's call it a signature direct product.
+o sigbase/2 cache
+	## Inject the LHS signature into the RHS signature so that the
+	## layout of the LHS is intact.  A lookup will search both
+	## operands recursively.  Thus, several base signatures can be
+	## injected into the same signature by right-associated application
+	## of sigbase/2, e.g.
+	## (sigbase base_sig_0 (sigbase base_sig_1 target_sig)).  The client
+	## must make sure to canonically order the bases according to
+	## their type if equality is needed for signatures.
+o singleton/1
+	## Expresses the singleton set of the operand.  This can be used as
+	## a type, which will have zero size and 1 bit alignment.
+o vtable_slots/1
+o structjoin/2aci2
+	## Joins components of a structure expression.
+o dunion/2aci2		cache
+	## Discriminate union of labelled types.
+o setjoin/2aci1
+	## An operator whose generators are singular sets, and which
+	## join is unions of sets.
+
+group ta
+o ident_ta/2
+	## (type, expr)
+	## A type annotation
+o load_ta/3
+	## (type, idr, struct)
+o call_ta/r
+	## (type, fn, args...)
+endgroup ta
+
+finish_definitions
+
+## @}

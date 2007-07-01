@@ -238,6 +238,7 @@ cu_err_invalid_arg(char const *function, int argnum, char const *argname,
     abort();
 }
 
+#ifndef CU_NDEBUG
 void
 cu_debug_enable_key(char const *key)
 {
@@ -249,6 +250,7 @@ cu_debug_disable_key(char const *key)
 {
     cucon_hset_erase(&debug_keys, (char *)key);
 }
+#endif
 
 void
 cuP_debug_init()

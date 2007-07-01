@@ -43,8 +43,6 @@ cuex_sources = \
 	cuex/ex.c \
 	cuex/fpvar.c \
 	cuex/ftype.c \
-	cuex/foldinert.c \
-	cuex/hopcroft.c \
 	cuex/init.c \
 	cuex/misc.c \
 	cuex/monoid.c \
@@ -92,7 +90,7 @@ cuex_check_programs = \
 	cuex/aci_t0 \
 	cuex/algo_t0 \
 	cuex/binding_t0 \
-	cuex/hopcroft_t0 \
+	cuex/optimal_fold_t0 \
 	cuex/monoid_t0 \
 	cuex/opn_t0 \
 	cuex/sig_t0 \
@@ -115,8 +113,8 @@ cuex_binding_t0_SOURCES = cuex/binding_t0.c
 cuex_binding_t0_LDADD = libcuex.la
 cuex_unfolded_fv_sets_t0_SOURCES = cuex/unfolded_fv_sets_t0.c
 cuex_unfolded_fv_sets_t0_LDADD = libcuex.la
-cuex_hopcroft_t0_SOURCES = cuex/hopcroft_t0.c
-cuex_hopcroft_t0_LDADD = libcuex.la
+cuex_optimal_fold_t0_SOURCES = cuex/optimal_fold_t0.c
+cuex_optimal_fold_t0_LDADD = libcuex.la
 cuex_monoid_t0_SOURCES = cuex/monoid_t0.c
 cuex_monoid_t0_LDADD = libcuex.la
 cuex_opn_t0_SOURCES = cuex/opn_t0.c
