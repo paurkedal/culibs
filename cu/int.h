@@ -43,6 +43,14 @@ CU_BEGIN_DECLARATIONS
 #  error Unexpected CUCONF_SIZEOF_LONG
 #endif
 
+#if CU_WORD_SIZE == 4
+#  define CUP_WORD_NAME(prefix, name) prefix##uint32_##name
+#elif CU_WORD_SIZE == 8
+#  define CUP_WORD_NAME(prefix, name) prefix##uint64_##name
+#else
+#  error Unexpected CU_WORD_SIZE
+#endif
+
 /*!The larger or \a x and \a y. */
 CU_SINLINE int cu_int_max(int x, int y) { return x > y? x : y; }
 
@@ -85,7 +93,7 @@ CU_SINLINE unsigned int cu_uint_ceil_div(unsigned int x, unsigned int y)
 CU_SINLINE unsigned long cu_ulong_ceil_div(unsigned long x, unsigned long y)
 { return (x + y - 1)/y; }
 
-/*!Returns a bitmask the uppermost non-zero bit in \a x and downwards. */
+/*!Returns a bitmask from the uppermost non-zero bit in \a x and downwards. */
 uint_fast8_t cu_uint8_dcover(uint_fast8_t x) CU_ATTR_PURE;
 
 /*!\copydoc cu_uint8_dcover */
@@ -105,6 +113,10 @@ CU_SINLINE unsigned int cu_uint_dcover(unsigned int x)
 CU_SINLINE unsigned long cu_ulong_dcover(unsigned long x)
 { return CUP_ULONG_NAME(cu_,dcover)(x); }
 
+/*!\copydoc cu_uint8_dcover */
+CU_SINLINE cu_word_t cu_word_dcover(cu_word_t x)
+{ return CUP_WORD_NAME(cu_,dcover)(x); }
+
 /*!Returns a bitmask from the lowermost non-zero bit in \a x and upwards. */
 CU_SINLINE unsigned int
 cu_uint_ucover(unsigned int x) { return x | ~(x - 1); }
@@ -112,6 +124,10 @@ cu_uint_ucover(unsigned int x) { return x | ~(x - 1); }
 /*!\copydoc cu_uint_ucover */
 CU_SINLINE unsigned long
 cu_ulong_ucover(unsigned long x) { return x | ~(x - 1L); }
+
+/*!\copydoc cu_uint_ucover */
+CU_SINLINE cu_word_t
+cu_word_ucover(unsigned long x) { return x | ~(x - CU_WORD_C(1)); }
 
 
 /*!A bitmask which covers the lowermost continuous zeros of \a x. */
@@ -156,6 +172,11 @@ cu_uint_exp2_ceil_log2(unsigned int x)
 CU_SINLINE unsigned long
 cu_ulong_exp2_ceil_log2(unsigned long x)
 { return cu_ulong_dcover(x - 1L) + 1L; }
+
+/*!\copydoc cu_uint8_exp2_ceil_log2 */
+CU_SINLINE cu_word_t
+cu_word_exp2_ceil_log2(cu_word_t x)
+{ return cu_word_dcover(x - CU_WORD_C(1)) + CU_WORD_C(1); }
 
 
 /*!Returns the number of bits in \a x which are set. */

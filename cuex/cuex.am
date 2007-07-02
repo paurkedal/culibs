@@ -5,6 +5,7 @@ cuex_headers = \
 	cuex/algo.h \
 	cuex/aci.h \
 	cuex/acidefs.h \
+	cuex/assoc.h \
 	cuex/binding.h \
 	cuex/dunion.h \
 	cuex/ex.h \
@@ -38,6 +39,7 @@ cuex_sources = \
 	cuex/algo.c \
 	cuex/aci.c \
 	cuex/aci_algo.c \
+	cuex/assoc.c \
 	cuex/binding.c \
 	cuex/dunion.c \
 	cuex/ex.c \
@@ -89,6 +91,7 @@ endif
 cuex_check_programs = \
 	cuex/aci_t0 \
 	cuex/algo_t0 \
+	cuex/assoc_t0 \
 	cuex/binding_t0 \
 	cuex/optimal_fold_t0 \
 	cuex/monoid_t0 \
@@ -109,6 +112,8 @@ cuex_aci_t0_SOURCES = cuex/aci_t0.c
 cuex_aci_t0_LDADD = libcuex.la
 cuex_algo_t0_SOURCES = cuex/algo_t0.c
 cuex_algo_t0_LDADD = libcuex.la
+cuex_assoc_t0_SOURCES = cuex/assoc_t0.c
+cuex_assoc_t0_LDADD = libcuex.la
 cuex_binding_t0_SOURCES = cuex/binding_t0.c
 cuex_binding_t0_LDADD = libcuex.la
 cuex_unfolded_fv_sets_t0_SOURCES = cuex/unfolded_fv_sets_t0.c

@@ -82,6 +82,8 @@ int cuex_max_binding_depth(cuex_t e);
  * passed for \a max_binding_depth, otherwise pass -1.  */
 cucon_pmap_t cuex_unfolded_fv_sets(cuex_t e, int max_binding_depth);
 
+#define CUEX_BI_SIFI_FLAG_PRUNE 1
+
 void cuex_bi_sifi_indexing_accu(cuex_t e, unsigned int flags,
 				cucon_pmap_t accu);
 

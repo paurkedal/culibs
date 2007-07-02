@@ -118,6 +118,8 @@ cuex_print_ex(cuex_t ex, FILE *out)
 			case cuex_qcode_n:
 			    prefix = "n";
 			    break;
+			default:
+			    cu_debug_unreachable();
 		    }
 		if (cuex_is_ivarmeta(meta))
 		    fprintf(out, "%s%d", prefix, cuex_varmeta_index(meta));
