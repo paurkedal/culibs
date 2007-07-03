@@ -21,48 +21,55 @@
 #include <cuex/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuex_assoc_h cuex/assoc.h:
- *@{\ingroup cuex_mod */
-
-typedef struct cuex_assoc_s *cuex_assoc_t;
+/*!\defgroup cuex_assoc_h cuex/assoc.h: Association from expression properties to full expression
+ *@{\ingroup cuex_mod
+ *
+ * This is a low-level inferface for implementing semilattices, sets, maps, and
+ * other collections of expressions which are keyed on a word computed form the
+ * expressions.
+ */
 
 extern cuex_t cuexP_assoc_empty;
-extern cudyn_stdtype_t cuexP_assoc_type;
 
-struct cuex_assoc_s
-{
-    CU_HCOBJ
-    cu_word_t center;
-    cuex_t left, right;
-};
-
-CU_SINLINE cuex_assoc_t
+/*!An empty container. */
+CU_SINLINE cuex_t
 cuex_assoc_empty()
 { return cuexP_assoc_empty; }
 
-CU_SINLINE cu_bool_t
-cuex_is_assoc(cuex_t assoc)
-{
-    cuex_meta_t meta = cuex_meta(assoc);
-    return (cuex_meta_is_opr(meta) && cuex_opr_r(meta) > 1)
-	|| meta == cudyn_stdtype_to_meta(cuexP_assoc_type);
-}
-
+/*!True iff \a assoc is the empty container. */
 CU_SINLINE cu_bool_t
 cuex_assoc_is_empty(cuex_t assoc)
 {
     return assoc == cuexP_assoc_empty;
 }
 
+/*!Find \a find_key in \a assoc, assuming \a assoc is keyed by \a get_key.
+ * Returns the matching element, i.e. the element \e e such that
+ * <tt>cu_call(get_key, e)</tt> equals \a find_key.  Returns \c NULL if no such
+ * element exists.
+ * \pre \a assoc must be consistently keyed according to \a get_key. */
 cuex_t cuex_assoc_find(cu_clop(get_key, cu_word_t, cuex_t),
 		       cuex_t assoc, cu_word_t find_key);
+
+/*!If the key of \a insert_value is not already in \a assoc, returns the result
+ * of inserting \a insert_value into \a assoc, else returns \a assoc.
+ * \pre \a assoc must be consistently keyed according to \a get_key. */
 cuex_t cuex_assoc_insert(cu_clop(get_key, cu_word_t, cuex_t),
 			 cuex_t assoc, cuex_t insert_value);
+
+/*!If \a erase_key is in \a assoc, returns \a assoc with the value correspoding
+ * to \a erase_key erased, otherwise returns \a assoc. */
 cuex_t cuex_assoc_erase(cu_clop(get_key, cu_word_t, cuex_t),
 			cuex_t assoc, cu_word_t erase_key);
+
 //cuex_t cuex_assoc_union(cuex_t assoc0, cuex_t assoc1);
 //cuex_t cuex_assoc_isecn(cuex_t assoc0, cuex_t assoc1);
+
+/*!Call \a fn with each value in \a assoc. */
 void cuex_assoc_iter(cuex_t assoc, cu_clop(fn, void, cuex_t));
+
+/*!Returns the conjunction af \a fn applied to all keys in \a assoc.  Stops as
+ * soon as \a fn returns false. */
 cu_bool_t cuex_assoc_conj(cuex_t assoc, cu_clop(fn, cu_bool_t, cuex_t));
 
 /*!@}*/

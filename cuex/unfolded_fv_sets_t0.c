@@ -43,7 +43,7 @@ test(cuex_t e)
     ubi = cuex_unfolded_fv_sets(e, depth);
     cucon_pmap_iter_mem(ubi, show_bi);
 
-    cu_fprintf(stdout, "Foldinert: %!\n", cuex_foldinert_rebind(e, depth));
+//    cu_fprintf(stdout, "Foldinert: %!\n", cuex_foldinert_rebind(e, depth));
 }
 
 #define M cuex_o1_mu

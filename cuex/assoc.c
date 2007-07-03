@@ -21,6 +21,15 @@
 #include <cudyn/properties.h>
 #include <cu/int.h>
 
+typedef struct cuex_assoc_s *cuex_assoc_t;
+
+struct cuex_assoc_s
+{
+    CU_HCOBJ
+    cu_word_t center;
+    cuex_t left, right;
+};
+
 cuex_t cuexP_assoc_empty;
 cudyn_stdtype_t cuexP_assoc_type;
 
@@ -28,6 +37,9 @@ cudyn_stdtype_t cuexP_assoc_type;
 #define PAIR_CENTER(left, right) \
     pair_center((cu_word_t)(left), (cu_word_t)(right))
 #define ASSOC_META cudyn_stdtype_to_meta(cuexP_assoc_type)
+
+/* Anything goes, since singletons are represented as-is. */
+#define cuex_is_assoc(ex) cu_true
 
 CU_SINLINE cu_word_t
 pair_center(cu_word_t left, cu_word_t right)
