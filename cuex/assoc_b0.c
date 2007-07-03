@@ -18,11 +18,6 @@
 #include <cuex/assoc.h>
 #include <cuex/oprdefs.h>
 #include <cudyn/misc.h>
-#include <cu/test.h>
-#include <cucon/pset.h>
-
-//#define o2_tuple(x, y) cuex_opn(CUEX_OR_TUPLE(2), x, y)
-#define o2_tuple(x, y) cuex_o2_apply(x, y)
 
 cu_clop_def(opn0word, cu_word_t, cuex_t e)
 {
@@ -30,39 +25,33 @@ cu_clop_def(opn0word, cu_word_t, cuex_t e)
 }
 
 void
-test(int N, cu_bool_t print)
+bench(int N, int R)
 {
-    struct cucon_pset_s keys;
-    int i;
     cuex_t e = cuex_assoc_empty();
-
-    cucon_pset_cct(&keys);
-    for (i = 0; i < N; ++i) {
-	cuex_t key;
-	cuex_t val;
-	cuex_t ep;
-	key = cudyn_uint(lrand48() % (i + 1));
-	val = o2_tuple(key, key);
-	ep = cuex_assoc_insert(opn0word, e, val);
-	if (cucon_pset_insert(&keys, val)) {
-	    cu_test_assert(e != ep);
-	    cu_test_assert(cuex_assoc_erase(opn0word, ep, (cu_word_t)key) == e);
-	}
-	else
-	    cu_test_assert(e == ep);
-	cu_test_assert(cuex_assoc_find(opn0word, ep, (cu_word_t)key) == val);
-	if (print)
-	    cu_fprintf(stdout, "%! ∪ {%!}\n  = %!\n", e, val, ep);
-	e = ep;
-    }
+    clock_t t_insert, t_erase;
+    int i;
+    for (i = 0; i < N; ++i)
+	e = cuex_assoc_insert(opn0word, e, cuex_o2_apply(cudyn_int(i), cuex_o0_null()));
+    t_insert = -clock();
+    for (i = 0; i < R; ++i)
+	cuex_assoc_insert(opn0word, e, cuex_o2_apply(cudyn_int(i + N), cuex_o0_null()));
+    t_insert += clock();
+    t_erase = -clock();
+    for (i = 0; i < R; ++i)
+	cuex_assoc_erase(opn0word, e, (cu_word_t)cudyn_int(i % N));
+    t_erase += clock();
+    printf("%d %lg %lg\n", N,
+	   t_insert/((double)CLOCKS_PER_SEC*R),
+	   t_erase/((double)CLOCKS_PER_SEC*R));
 }
 
-int
-main()
+int main()
 {
-    int i;
+    double i, z = 1.0;
     cuex_init();
-    for (i = 1; i < 100000; i *= 2)
-	test(i, i < 16);
-    return 2*!!cu_test_bug_count();
+    for (i = 2.0; i < 40000; i *= 1.4142) {
+	bench(i, 80000/z);
+	z += 0.5;
+    }
+    return 0;
 }

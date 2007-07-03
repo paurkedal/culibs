@@ -92,6 +92,7 @@ cuex_check_programs = \
 	cuex/aci_t0 \
 	cuex/algo_t0 \
 	cuex/assoc_t0 \
+	cuex/assoc_b0 \
 	cuex/binding_t0 \
 	cuex/optimal_fold_t0 \
 	cuex/monoid_t0 \
@@ -114,6 +115,8 @@ cuex_algo_t0_SOURCES = cuex/algo_t0.c
 cuex_algo_t0_LDADD = libcuex.la
 cuex_assoc_t0_SOURCES = cuex/assoc_t0.c
 cuex_assoc_t0_LDADD = libcuex.la
+cuex_assoc_b0_SOURCES = cuex/assoc_b0.c
+cuex_assoc_b0_LDADD = libcuex.la
 cuex_binding_t0_SOURCES = cuex/binding_t0.c
 cuex_binding_t0_LDADD = libcuex.la
 cuex_unfolded_fv_sets_t0_SOURCES = cuex/unfolded_fv_sets_t0.c

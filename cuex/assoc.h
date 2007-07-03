@@ -54,11 +54,16 @@ cuex_assoc_is_empty(cuex_t assoc)
     return assoc == cuexP_assoc_empty;
 }
 
-cuex_t cuex_assoc_find(cuex_t assoc, cuex_t key);
-cuex_t cuex_assoc_insert(cuex_t assoc, cuex_t value);
-cuex_t cuex_assoc_erase(cuex_t assoc, cuex_t key);
+cuex_t cuex_assoc_find(cu_clop(get_key, cu_word_t, cuex_t),
+		       cuex_t assoc, cu_word_t find_key);
+cuex_t cuex_assoc_insert(cu_clop(get_key, cu_word_t, cuex_t),
+			 cuex_t assoc, cuex_t insert_value);
+cuex_t cuex_assoc_erase(cu_clop(get_key, cu_word_t, cuex_t),
+			cuex_t assoc, cu_word_t erase_key);
 //cuex_t cuex_assoc_union(cuex_t assoc0, cuex_t assoc1);
 //cuex_t cuex_assoc_isecn(cuex_t assoc0, cuex_t assoc1);
+void cuex_assoc_iter(cuex_t assoc, cu_clop(fn, void, cuex_t));
+cu_bool_t cuex_assoc_conj(cuex_t assoc, cu_clop(fn, cu_bool_t, cuex_t));
 
 /*!@}*/
 CU_END_DECLARATIONS

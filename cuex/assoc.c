@@ -27,16 +27,7 @@ cudyn_stdtype_t cuexP_assoc_type;
 #define ASSOC ((cuex_assoc_t)(assoc))
 #define PAIR_CENTER(left, right) \
     pair_center((cu_word_t)(left), (cu_word_t)(right))
-
-CU_SINLINE cu_word_t
-assoc_center(cuex_t assoc)
-{
-    cuex_meta_t meta = cuex_meta(assoc);
-    if (cuex_meta_is_opr(meta))
-	return cuex_opn_at(assoc, 0);
-    else
-	return ASSOC->center;
-}
+#define ASSOC_META cudyn_stdtype_to_meta(cuexP_assoc_type)
 
 CU_SINLINE cu_word_t
 pair_center(cu_word_t left, cu_word_t right)
@@ -64,8 +55,6 @@ static cuex_assoc_t
 node_new(cu_word_t center, cuex_t left, cuex_t right)
 {
     struct cuex_assoc_s tpl;
-    cu_debug_assert(assoc_center(left) < center);
-    cu_debug_assert(center <= assoc_center(right));
     tpl.center = center;
     tpl.left = left;
     tpl.right = right;
@@ -74,7 +63,7 @@ node_new(cu_word_t center, cuex_t left, cuex_t right)
 }
 
 cuex_t
-cuex_assoc_find(cuex_t assoc, cuex_t key)
+cuex_assoc_find(cu_clop(get_key, cu_word_t, cuex_t), cuex_t assoc, cu_word_t key)
 {
     cuex_meta_t assoc_meta;
     if (!cuex_is_assoc(assoc))
@@ -83,7 +72,7 @@ tail_call:
     assoc_meta = cuex_meta(assoc);
     if (cuex_meta_is_opr(assoc_meta)) {
 	cu_debug_assert(cuex_opr_r(assoc_meta) >= 1);
-	if (cuex_opn_at(assoc, 0) == key)
+	if (cu_call(get_key, assoc) == key)
 	    return assoc;
 	else
 	    return NULL;
@@ -98,7 +87,7 @@ tail_call:
 		goto tail_call;
 	    }
 	} else {
-	    if ((cu_word_t)key > center_to_max(center))
+	    if (key > center_to_max(center))
 		return NULL;
 	    else {
 		assoc = ASSOC->right;
@@ -109,15 +98,15 @@ tail_call:
 }
 
 static cuex_t
-assoc_insert(cuex_t assoc, cuex_t value)
+assoc_insert(cu_clop(get_key, cu_word_t, cuex_t), cuex_t assoc, cuex_t value)
 {
-    cuex_t value_key = cuex_opn_at(value, 0);
+    cu_word_t value_key = cu_call(get_key, value);
     cuex_meta_t assoc_meta;
     assoc_meta = cuex_meta(assoc);
     if (cuex_meta_is_opr(assoc_meta)) {
-	cuex_t assoc_key;
+	cu_word_t assoc_key;
 	cu_debug_assert(cuex_opr_r(assoc_meta) >= 1);
-	assoc_key = cuex_opn_at(assoc, 0);
+	assoc_key = cu_call(get_key, assoc);
 	if (value_key == assoc_key)
 	    return assoc;
 	else if (value_key < assoc_key)
@@ -133,7 +122,7 @@ assoc_insert(cuex_t assoc, cuex_t value)
 		return node_new(PAIR_CENTER(value_key, center), value, assoc);
 	    else
 		return node_new(center,
-				assoc_insert(ASSOC->left, value),
+				assoc_insert(get_key, ASSOC->left, value),
 				ASSOC->right);
 	} else {
 	    if ((cu_word_t)value_key > center_to_max(center))
@@ -141,13 +130,14 @@ assoc_insert(cuex_t assoc, cuex_t value)
 	    else
 		return node_new(center,
 				ASSOC->left,
-				assoc_insert(ASSOC->right, value));
+				assoc_insert(get_key, ASSOC->right, value));
 	}
     }
 }
 
 cuex_t
-cuex_assoc_insert(cuex_t assoc, cuex_t value)
+cuex_assoc_insert(cu_clop(get_key, cu_word_t, cuex_t),
+		  cuex_t assoc, cuex_t value)
 {
     cuex_meta_t value_meta = cuex_meta(value);
     if (!cuex_is_assoc(assoc))
@@ -159,18 +149,18 @@ cuex_assoc_insert(cuex_t assoc, cuex_t value)
 		"least one operand.");
     if (assoc == cuexP_assoc_empty)
 	return value;
-    return assoc_insert(assoc, value);
+    return assoc_insert(get_key, assoc, value);
 }
 
 static cuex_t
-assoc_erase(cuex_t assoc, cuex_t key)
+assoc_erase(cu_clop(get_key, cu_word_t, cuex_t), cuex_t assoc, cu_word_t key)
 {
     cuex_meta_t assoc_meta;
     assoc_meta = cuex_meta(assoc);
     if (cuex_meta_is_opr(assoc_meta)) {
-	cuex_t assoc_key;
+	cu_word_t assoc_key;
 	cu_debug_assert(cuex_opr_r(assoc_meta) >= 1);
-	assoc_key = cuex_opn_at(assoc, 0);
+	assoc_key = cu_call(get_key, assoc);
 	if (key == assoc_key)
 	    return NULL;
 	else
@@ -183,7 +173,7 @@ assoc_erase(cuex_t assoc, cuex_t key)
 	    if ((cu_word_t)key < center_to_min(center))
 		return assoc;
 	    else {
-		cuex_t new_left = assoc_erase(ASSOC->left, key);
+		cuex_t new_left = assoc_erase(get_key, ASSOC->left, key);
 		if (new_left == NULL)
 		    return ASSOC->right;
 		else
@@ -193,7 +183,7 @@ assoc_erase(cuex_t assoc, cuex_t key)
 	    if ((cu_word_t)key > center_to_max(center))
 		return assoc;
 	    else {
-		cuex_t new_right = assoc_erase(ASSOC->right, key);
+		cuex_t new_right = assoc_erase(get_key, ASSOC->right, key);
 		if (new_right == NULL)
 		    return ASSOC->left;
 		else
@@ -204,14 +194,14 @@ assoc_erase(cuex_t assoc, cuex_t key)
 }
 
 cuex_t
-cuex_assoc_erase(cuex_t assoc, cuex_t key)
+cuex_assoc_erase(cu_clop(get_key, cu_word_t, cuex_t), cuex_t assoc, cu_word_t key)
 {
     cuex_t res;
     if (!cuex_is_assoc(assoc))
 	cu_bugf("First argument of cuex_assoc_erase must be an association.");
     if (assoc == cuexP_assoc_empty)
 	return assoc;
-    res = assoc_erase(assoc, key);
+    res = assoc_erase(get_key, assoc, key);
     if (res == NULL)
 	return cuexP_assoc_empty;
     else
@@ -224,14 +214,12 @@ assoc_iter(cuex_t assoc, cu_clop(fn, void, cuex_t))
     cuex_meta_t assoc_meta;
 tail_call:
     assoc_meta = cuex_meta(assoc);
-    if (cuex_meta_is_opr(assoc_meta))
-	cu_call(fn, assoc);
-    else {
-	cu_debug_assert(assoc_meta == cudyn_stdtype_to_meta(cuexP_assoc_type));
+    if (assoc_meta == ASSOC_META) {
 	assoc_iter(ASSOC->left, fn);
 	assoc = ASSOC->right;
 	goto tail_call;
-    }
+    } else
+	cu_call(fn, assoc);
 }
 
 void
@@ -241,7 +229,32 @@ cuex_assoc_iter(cuex_t assoc, cu_clop(fn, void, cuex_t))
 	cu_bugf("First argument to cuex_assoc_iter must be an association.");
     if (assoc == cuexP_assoc_empty)
 	return;
-    return assoc_iter(assoc, fn);
+    assoc_iter(assoc, fn);
+}
+
+static cu_bool_t
+assoc_conj(cuex_t assoc, cu_clop(fn, cu_bool_t, cuex_t))
+{
+    cuex_meta_t assoc_meta;
+tail_call:
+    assoc_meta = cuex_meta(assoc);
+    if (assoc_meta == ASSOC_META) {
+	if (!assoc_conj(ASSOC->left, fn))
+	    return cu_false;
+	assoc = ASSOC->right;
+	goto tail_call;
+    } else
+	return cu_call(fn, assoc);
+}
+
+cu_bool_t
+cuex_assoc_conj(cuex_t assoc, cu_clop(fn, cu_bool_t, cuex_t))
+{
+    if (!cuex_is_assoc(assoc))
+	cu_bugf("First argument to cuex_assoc_conj must be an association.");
+    if (assoc == cuexP_assoc_empty)
+	return cu_true;
+    return assoc_conj(assoc, fn);
 }
 
 cu_clos_def(assoc_print_elt, cu_prot(void, cuex_t elt),
@@ -250,7 +263,7 @@ cu_clos_def(assoc_print_elt, cu_prot(void, cuex_t elt),
     cu_clos_self(assoc_print_elt);
     if (self->index++ != 0)
 	fputs(", ", self->out);
-    cu_fprintf(self->out, "%! ↦ %!", cuex_opn_at(elt, 0), elt);
+    cu_fprintf(self->out, "%!", elt);
 }
 
 void
