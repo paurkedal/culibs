@@ -57,12 +57,54 @@ test(int N, cu_bool_t print)
     }
 }
 
+void
+test_union_isecn(int N, cu_bool_t print)
+{
+    int i;
+    cuex_t e0 = cuex_assoc_empty();
+    cuex_t e1 = cuex_assoc_empty();
+    cuex_t eU = cuex_assoc_empty();
+    cuex_t eI = cuex_assoc_empty();
+    for (i = 0; i < N; ++i) {
+	unsigned int r = lrand48();
+	cuex_t key = cudyn_uint((r >> 3) % N);
+	cuex_t val = o2_tuple(key, key);
+	eU = cuex_assoc_insert(opn0word, eU, val);
+	switch (r & 7) {
+	    case 0: case 1: case 2:
+		e0 = cuex_assoc_insert(opn0word, e0, val);
+		if (cuex_assoc_find(opn0word, e1, (cu_word_t)key))
+		    eI = cuex_assoc_insert(opn0word, eI, val);
+		break;
+	    case 3: case 4: case 5:
+		e1 = cuex_assoc_insert(opn0word, e1, val);
+		if (cuex_assoc_find(opn0word, e0, (cu_word_t)key))
+		    eI = cuex_assoc_insert(opn0word, eI, val);
+		break;
+	    case 6: case 7:
+		e0 = cuex_assoc_insert(opn0word, e0, val);
+		e1 = cuex_assoc_insert(opn0word, e1, val);
+		eI = cuex_assoc_insert(opn0word, eI, val);
+		break;
+	}
+    }
+    if (print)
+	cu_fprintf(stdout, ":== LHS: %!\n    RHS: %!\n  union: %!\n  isecn: %!\n",
+		   e0, e1, eU, eI);
+    cu_test_assert(cuex_assoc_union(opn0word, e0, e1) == eU);
+    cu_test_assert(cuex_assoc_isecn(opn0word, e0, e1) == eI);
+}
+
 int
 main()
 {
     int i;
     cuex_init();
+    printf("Testing insert, erase, and find.\n");
     for (i = 1; i < 100000; i *= 2)
 	test(i, i < 16);
+    printf("Testing union and intersection.\n");
+    for (i = 0; i < 600; ++i)
+	test_union_isecn(i, i < 8);
     return 2*!!cu_test_bug_count();
 }

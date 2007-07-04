@@ -62,8 +62,16 @@ cuex_t cuex_assoc_insert(cu_clop(get_key, cu_word_t, cuex_t),
 cuex_t cuex_assoc_erase(cu_clop(get_key, cu_word_t, cuex_t),
 			cuex_t assoc, cu_word_t erase_key);
 
-//cuex_t cuex_assoc_union(cuex_t assoc0, cuex_t assoc1);
-//cuex_t cuex_assoc_isecn(cuex_t assoc0, cuex_t assoc1);
+/*!Returns the union of \a assoc0 and \a assoc1, considering two elements equal
+ * if the corresponding values returned by \a get_key are equal. */
+cuex_t cuex_assoc_union(cu_clop(get_key, cu_word_t, cuex_t),
+			cuex_t assoc0, cuex_t assoc1);
+
+/*!Returns the intersection of \a assoc0 and \a assoc1, considering two
+ * elements equal if the corresponding values returned by \a get_key are
+ * equal. */
+cuex_t cuex_assoc_isecn(cu_clop(get_key, cu_word_t, cuex_t),
+			cuex_t assoc0, cuex_t assoc1);
 
 /*!Call \a fn with each value in \a assoc. */
 void cuex_assoc_iter(cuex_t assoc, cu_clop(fn, void, cuex_t));
