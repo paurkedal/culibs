@@ -82,15 +82,13 @@ cuex_assoc_find(cu_clop(get_key, cu_word_t, cuex_t), cuex_t assoc, cu_word_t key
 	cu_bugf("First argument to cuex_assoc_find must be an association.");
 tail_call:
     assoc_meta = cuex_meta(assoc);
-    if (cuex_meta_is_opr(assoc_meta)) {
-	cu_debug_assert(cuex_opr_r(assoc_meta) >= 1);
+    if (assoc_meta != ASSOC_META) {
 	if (cu_call(get_key, assoc) == key)
 	    return assoc;
 	else
 	    return NULL;
     } else {
 	cu_word_t center = ASSOC->center;
-	cu_debug_assert(assoc_meta == cudyn_stdtype_to_meta(cuexP_assoc_type));
 	if ((cu_word_t)key < center) {
 	    if ((cu_word_t)key < center_to_min(center))
 		return NULL;
@@ -115,9 +113,8 @@ assoc_insert(cu_clop(get_key, cu_word_t, cuex_t), cuex_t assoc, cuex_t value)
     cu_word_t value_key = cu_call(get_key, value);
     cuex_meta_t assoc_meta;
     assoc_meta = cuex_meta(assoc);
-    if (cuex_meta_is_opr(assoc_meta)) {
+    if (assoc_meta != ASSOC_META) {
 	cu_word_t assoc_key;
-	cu_debug_assert(cuex_opr_r(assoc_meta) >= 1);
 	assoc_key = cu_call(get_key, assoc);
 	if (value_key == assoc_key)
 	    return assoc;
@@ -126,9 +123,7 @@ assoc_insert(cu_clop(get_key, cu_word_t, cuex_t), cuex_t assoc, cuex_t value)
 	else
 	    return node_new(PAIR_CENTER(assoc_key, value_key), assoc, value);
     } else {
-	cu_word_t center;
-	cu_debug_assert(assoc_meta == cudyn_stdtype_to_meta(cuexP_assoc_type));
-	center = ASSOC->center;
+	cu_word_t center = ASSOC->center;
 	if ((cu_word_t)value_key < center) {
 	    if ((cu_word_t)value_key < center_to_min(center))
 		return node_new(PAIR_CENTER(value_key, center), value, assoc);
@@ -154,11 +149,6 @@ cuex_assoc_insert(cu_clop(get_key, cu_word_t, cuex_t),
     cuex_meta_t value_meta = cuex_meta(value);
     if (!cuex_is_assoc(assoc))
 	cu_bugf("First argument to cuex_assoc_insert must be an association.");
-    if (!cuex_meta_is_opr(value_meta))
-	cu_bugf("Second argument to cuex_assoc_insert must be an operation.");
-    if (cuex_opr_r(value_meta) < 1)
-	cu_bugf("Second argument to cuex_assoc_insert must have at "
-		"least one operand.");
     if (assoc == cuexP_assoc_empty)
 	return value;
     return assoc_insert(get_key, assoc, value);
@@ -169,18 +159,15 @@ assoc_erase(cu_clop(get_key, cu_word_t, cuex_t), cuex_t assoc, cu_word_t key)
 {
     cuex_meta_t assoc_meta;
     assoc_meta = cuex_meta(assoc);
-    if (cuex_meta_is_opr(assoc_meta)) {
+    if (assoc_meta != ASSOC_META) {
 	cu_word_t assoc_key;
-	cu_debug_assert(cuex_opr_r(assoc_meta) >= 1);
 	assoc_key = cu_call(get_key, assoc);
 	if (key == assoc_key)
 	    return NULL;
 	else
 	    return assoc;
     } else {
-	cu_word_t center;
-	cu_debug_assert(assoc_meta == cudyn_stdtype_to_meta(cuexP_assoc_type));
-	center = ASSOC->center;
+	cu_word_t center = ASSOC->center;
 	if ((cu_word_t)key < center) {
 	    if ((cu_word_t)key < center_to_min(center))
 		return assoc;
