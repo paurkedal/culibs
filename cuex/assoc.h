@@ -80,6 +80,21 @@ void cuex_assoc_iter(cuex_t assoc, cu_clop(fn, void, cuex_t));
  * soon as \a fn returns false. */
 cu_bool_t cuex_assoc_conj(cuex_t assoc, cu_clop(fn, cu_bool_t, cuex_t));
 
+/*!Returns the image of \a assoc under \a fn.  Note that \a get_key is only
+ * used for building the result, and may in fact be different from the \a
+ * get_key which was used to build \a assoc (thus its order in the argument
+ * list).  If \a fn leaves the key of its argument unchanged, see \ref
+ * cuex_assoc_isokey_image for a faster alternative. */
+cuex_t cuex_assoc_image(cuex_t assoc, cu_clop(fn, cuex_t, cuex_t),
+			cu_clop(get_key, cu_word_t, cuex_t));
+
+/*!Returns the image of \a assoc under \a fn assuming \a fn does not change the
+ * key of it's argument.  The key referred to is the result of the \e get_key
+ * used to build the container \ref cuex_assoc_insert, so the condition is that
+ * \e get_key(\a fn(\e e)) = \e get_key(\e e) for all elements \e e in \a
+ * assoc.  If this condition is not met see \ref cuex_assoc_image. */
+cuex_t cuex_assoc_isokey_image(cuex_t assoc, cu_clop(fn, cuex_t, cuex_t));
+
 /*!@}*/
 CU_END_DECLARATIONS
 

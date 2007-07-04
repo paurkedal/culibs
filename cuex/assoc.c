@@ -388,6 +388,59 @@ cuex_assoc_conj(cuex_t assoc, cu_clop(fn, cu_bool_t, cuex_t))
     return assoc_conj(assoc, fn);
 }
 
+static void
+assoc_image(cuex_t assoc, cu_clop(fn, cuex_t, cuex_t),
+	    cu_clop(get_key, cu_word_t, cuex_t), cuex_t *accu)
+{
+    cuex_meta_t assoc_meta;
+tail_call:
+    assoc_meta = cuex_meta(assoc);
+    if (assoc_meta == ASSOC_META) {
+	assoc_image(ASSOC->left, fn, get_key, accu);
+	assoc = ASSOC->right;
+	goto tail_call;
+    } else {
+	cuex_t e = cu_call(fn, assoc);
+	if (!*accu)
+	    *accu = e;
+	else
+	    *accu = assoc_insert(get_key, *accu, e);
+    }
+}
+
+cuex_t
+cuex_assoc_image(cuex_t assoc, cu_clop(fn, cuex_t, cuex_t),
+		 cu_clop(get_key, cu_word_t, cuex_t))
+{
+    cuex_t accu;
+    if (cuex_assoc_is_empty(assoc))
+	return assoc;
+    accu = NULL;
+    assoc_image(assoc, fn, get_key, &accu);
+    return accu;
+}
+
+static cuex_t
+assoc_isokey_image(cuex_t assoc, cu_clop(fn, cuex_t, cuex_t))
+{
+    cuex_meta_t assoc_meta = cuex_meta(assoc);
+    if (assoc_meta == ASSOC_META)
+	return node_new(ASSOC->centre,
+			assoc_isokey_image(ASSOC->left, fn),
+			assoc_isokey_image(ASSOC->right, fn));
+    else
+	return cu_call(fn, assoc);
+}
+
+cuex_t
+cuex_assoc_isokey_image(cuex_t assoc, cu_clop(fn, cuex_t, cuex_t))
+{
+    if (assoc == cuexP_assoc_empty)
+	return assoc;
+    else
+	return assoc_isokey_image(assoc, fn);
+}
+
 cu_clos_def(assoc_print_elt, cu_prot(void, cuex_t elt),
     (FILE *out; int index;))
 {
