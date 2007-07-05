@@ -101,10 +101,23 @@ test_union_isecn(int N, cu_bool_t print)
 		   e0, e1, eU, eI);
     cu_test_assert(cuex_assoc_union(opn0word, e0, e1) == eU);
     cu_test_assert(cuex_assoc_isecn(opn0word, e0, e1) == eI);
+
+    /* Images */
     img0 = cuex_assoc_image(e0, incr1, opn0word);
     img1 = cuex_assoc_isokey_image(e1, incr1);
     imgU = cuex_assoc_isokey_image(eU, incr1);
     cu_test_assert(cuex_assoc_union(opn0word, img0, img1) == imgU);
+
+    /* Ordering relations. */
+    cu_test_assert(cuex_assoc_subseteq(opn0word, e0, eU));
+    if (e0 != eU) {
+	cu_test_assert(!cuex_assoc_subseteq(opn0word, eU, e0));
+	cu_test_assert(cuex_assoc_order(opn0word, e0, eU) == cu_order_lt);
+	cu_test_assert(cuex_assoc_order(opn0word, eU, e0) == cu_order_gt);
+    }
+    if (e0 != e1)
+	cu_test_assert(cuex_assoc_subseteq(opn0word, e0, e1)
+		       == (cuex_assoc_order(opn0word, e0, e1) == cu_order_lt));
 }
 
 int

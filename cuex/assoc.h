@@ -19,6 +19,7 @@
 #define CUEX_ASSOC_H
 
 #include <cuex/fwd.h>
+#include <cu/algo.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_assoc_h cuex/assoc.h: Association from expression properties to full expression
@@ -66,6 +67,16 @@ cuex_t cuex_assoc_erase(cu_clop(get_key, cu_word_t, cuex_t),
  * if the corresponding values returned by \a get_key are equal. */
 cuex_t cuex_assoc_union(cu_clop(get_key, cu_word_t, cuex_t),
 			cuex_t assoc0, cuex_t assoc1);
+
+/*!True iff \a assoc0 ⊆ \a assoc1 where elements are considered equal iff their
+ * \a get_key values are equal. */
+cu_bool_t cuex_assoc_subseteq(cu_clop(get_key, cu_word_t, cuex_t),
+			      cuex_t assoc0, cuex_t assoc1);
+
+/*!Returns the ordering of \a assoc0 and \a assoc1, where elements are
+ * considered equal iff their \a get_key values are equal. */
+cu_order_t cuex_assoc_order(cu_clop(get_key, cu_word_t, cuex_t),
+			    cuex_t assoc0, cuex_t assoc1);
 
 /*!Returns the intersection of \a assoc0 and \a assoc1, considering two
  * elements equal if the corresponding values returned by \a get_key are

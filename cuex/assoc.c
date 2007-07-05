@@ -20,6 +20,7 @@
 #include <cudyn/prop.h>
 #include <cudyn/properties.h>
 #include <cu/int.h>
+#include <cu/algo.h>
 
 typedef struct cuex_assoc_s *cuex_assoc_t;
 
@@ -233,7 +234,7 @@ assoc_union(cu_clop(get_key, cu_word_t, cuex_t), cuex_t assoc0, cuex_t assoc1)
 		if (max0 < min1)		/* [---] [---] */
 		    return node_new(pair_centre(centre0, centre1),
 				    assoc0, assoc1);
-		else			/* [[---]---] */
+		else				/* [[---]---] */
 		    return node_new(centre1,
 				    assoc_union(get_key, assoc0, ASSOC1->left),
 				    ASSOC1->right);
@@ -303,7 +304,7 @@ assoc_isecn(cu_clop(get_key, cu_word_t, cuex_t), cuex_t assoc0, cuex_t assoc1)
 		cu_word_t min1 = centre_to_min(centre1);
 		if (max0 < min1)		/* [---] [---] */
 		    return NULL;
-		else			/* [[---]---] */
+		else				/* [[---]---] */
 		    return assoc_isecn(get_key, assoc0, ASSOC1->left);
 	    }
 	    else				/* [---[---]] */
@@ -337,6 +338,147 @@ cuex_assoc_isecn(cu_clop(get_key, cu_word_t, cuex_t),
     if (!e)
 	e = cuex_assoc_empty();
     return e;
+}
+
+static cu_bool_t
+assoc_subseteq(cu_clop(get_key, cu_word_t, cuex_t), cuex_t assoc0, cuex_t assoc1)
+{
+    cuex_meta_t meta0, meta1;
+    if (assoc0 == assoc1)
+	return cu_true;
+    meta0 = cuex_meta(assoc0);
+    meta1 = cuex_meta(assoc1);
+    if (meta0 != ASSOC_META)
+	return cuex_assoc_find(get_key, assoc1, cu_call(get_key, assoc0))
+	    != NULL;
+    else if (meta1 != ASSOC_META)
+	return cu_false;
+    else {
+	cu_word_t centre0 = ASSOC0->centre;
+	cu_word_t centre1 = ASSOC1->centre;
+	if (centre0 == centre1) {
+	    if (!assoc_subseteq(get_key, ASSOC0->left, ASSOC1->left))
+		return cu_false;
+	    else
+		return assoc_subseteq(get_key, ASSOC0->right, ASSOC1->right);
+	} else if (centre0 < centre1) {
+	    cu_word_t min1 = centre_to_min(centre1);
+	    if (min1 < centre0)		/* [[0]1---] */
+		return assoc_subseteq(get_key, assoc0, ASSOC1->left);
+	    else
+		return cu_false;
+	} else { /* centre1 < centre0 */
+	    cu_word_t max1 = centre_to_max(centre1);
+	    if (max1 > centre0)		/* [---1[0]] */
+		return assoc_subseteq(get_key, assoc0, ASSOC1->right);
+	    else
+		return cu_false;
+	}
+    }
+}
+
+static cu_order_t
+assoc_order(cu_clop(get_key, cu_word_t, cuex_t),
+	    cuex_t assoc0, cuex_t assoc1)
+{
+    cuex_meta_t meta0, meta1;
+    if (assoc0 == assoc1)
+	return cu_order_eq;
+    meta0 = cuex_meta(assoc0);
+    meta1 = cuex_meta(assoc1);
+    if (meta0 != ASSOC_META) {
+	if (cuex_assoc_find(get_key, assoc1, cu_call(get_key, assoc0)))
+	    return cu_order_lt;
+	else
+	    return cu_order_none;
+    } else if (meta1 != ASSOC_META) {
+	if (cuex_assoc_find(get_key, assoc0, cu_call(get_key, assoc1)))
+	    return cu_order_gt;
+	else
+	    return cu_order_none;
+    } else {
+	cu_word_t centre0 = ASSOC0->centre;
+	cu_word_t centre1 = ASSOC1->centre;
+	if (centre0 == centre1) {
+	    cu_order_t left_order, right_order;
+	    left_order = assoc_order(get_key, ASSOC0->left, ASSOC1->left);
+	    if (left_order == cu_order_none)
+		return cu_order_none;
+	    right_order = assoc_order(get_key, ASSOC0->right, ASSOC1->right);
+	    if (left_order == right_order)
+		return left_order;
+	    else if (left_order == cu_order_eq)
+		return right_order;
+	    else if (right_order == cu_order_eq)
+		return left_order;
+	    else
+		return cu_order_none;
+	} else if (centre0 < centre1) {
+	    cu_word_t max0 = centre_to_max(centre0);
+	    if (max0 < centre1) {
+		cu_word_t min1 = centre_to_min(centre1);
+		if (max0 < min1)	/* [---] [---] */
+		    return cu_order_none;
+		else {			/* [[---]---] */
+		    if (assoc_subseteq(get_key, assoc0, ASSOC1->left))
+			return cu_order_lt;
+		    else
+			return cu_order_none;
+		}
+	    } else {			/* [---[---]] */
+		if (assoc_subseteq(get_key, assoc1, ASSOC0->right))
+		    return cu_order_gt;
+		else
+		    return cu_order_none;
+	    }
+	} else { /* centre1 < centre0 */
+	    cu_word_t max1 = centre_to_max(centre1);
+	    if (max1 < centre0) {
+		cu_word_t min0 = centre_to_min(centre0);
+		if (max1 < min0)
+		    return cu_order_none;
+		else {
+		    if (assoc_subseteq(get_key, assoc1, ASSOC0->left))
+			return cu_order_gt;
+		    else
+			return cu_order_none;
+		}
+	    } else {
+		if (assoc_subseteq(get_key, assoc0, ASSOC1->right))
+		    return cu_order_lt;
+		else
+		    return cu_order_none;
+	    }
+	}
+    }
+}
+
+cu_bool_t
+cuex_assoc_subseteq(cu_clop(get_key, cu_word_t, cuex_t),
+		    cuex_t assoc0, cuex_t assoc1)
+{
+    if (assoc0 == assoc1)
+	return cu_true;
+    else if (cuex_assoc_is_empty(assoc0))
+	return cu_true;
+    else if (cuex_assoc_is_empty(assoc1))
+	return cu_false;
+    else
+	return assoc_subseteq(get_key, assoc0, assoc1);
+}
+
+cu_order_t
+cuex_assoc_order(cu_clop(get_key, cu_word_t, cuex_t),
+		 cuex_t assoc0, cuex_t assoc1)
+{
+    if (assoc0 == assoc1)
+	return cu_order_eq;
+    else if (cuex_assoc_is_empty(assoc0))
+	return cu_order_lt;
+    else if (cuex_assoc_is_empty(assoc1))
+	return cu_order_gt;
+    else
+	return assoc_order(get_key, assoc0, assoc1);
 }
 
 static void
@@ -446,7 +588,7 @@ cu_clos_def(assoc_print_elt, cu_prot(void, cuex_t elt),
 {
     cu_clos_self(assoc_print_elt);
     if (self->index++ != 0)
-	fputs(", ", self->out);
+	fputs(" ∧ ", self->out);
     cu_fprintf(self->out, "%!", elt);
 }
 
@@ -456,9 +598,13 @@ assoc_print(void *obj, FILE *out)
     assoc_print_elt_t cb;
     cb.out = out;
     cb.index = 0;
-    fputc('{', out);
-    cuex_assoc_iter(obj, assoc_print_elt_prep(&cb));
-    fputc('}', out);
+    if (obj == cuexP_assoc_empty)
+	fputs("⊤", out);
+    else {
+	fputc('(', out);
+	cuex_assoc_iter(obj, assoc_print_elt_prep(&cb));
+	fputc(')', out);
+    }
 }
 
 void
