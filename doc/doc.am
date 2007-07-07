@@ -1,3 +1,4 @@
+if enable_doc
 doc_extra_dist = \
 	doc/cuhtml.css \
 	doc/cudoxy.css \
@@ -7,8 +8,6 @@ doc_extra_dist = \
 
 all_doxyfiles = $(built_doxyfiles) $(doxyfiles) $(nobase_culibs_HEADERS)
 
-.PHONY: install-doc install-doc-dirs
-.PHONY: install-doc-css install-doc-html install-doc-doxy
 install-doc-dirs:
 	$(mkinstalldirs) $(DESTDIR)$(htmldir)
 install-doc-css: install-doc-dirs doc/cudoxy.css doc/cucommon.css
@@ -43,4 +42,9 @@ doc/%.css: doc/%.css.m4 $(top_srcdir)/doc/styledefs.m4
 	m4 -Dsrcdir=$(srcdir) $< >$@ || { rm -f $@; false; }
 
 # install-data-local: install-doc
+endif
 
+EXTRA_DIST += $(doxyfiles) $(doc_extra_dist)
+
+.PHONY: install-doc install-doc-dirs
+.PHONY: install-doc-css install-doc-html install-doc-doxy

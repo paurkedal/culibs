@@ -44,7 +44,9 @@ cuex_ftype_apply_argtuple(cuex_t ftype, cuex_t arg_tuple)
 	if (cuex_meta(ftype) == CUEX_O2_FARROW) {
 	    cuex_t param_type = cuex_opn_at(ftype, 0);
 	    cuex_t arg_type = cuex_typeof(cuex_opn_at(arg_tuple, i));
-	    cu_debug_assert(param_type == arg_type);
+	    if (param_type != arg_type)
+		cu_bugf("Argument type %! does not match parameter type %!.",
+			arg_type, param_type);
 	    ftype = cuex_opn_at(ftype, 1);
 	}
 	else

@@ -61,8 +61,8 @@ cudyn_prop_condset_ptr(cudyn_prop_t key, cuex_t ex, void *value)
 void
 cudyn_prop_define_ptr(cudyn_prop_t key, cuex_t ex, void *value)
 {
-    cu_bool_t res = cudyn_prop_condset_ptr(key, ex, value);
-    cu_debug_assert(res);
+    if (!cudyn_prop_condset_ptr(key, ex, value))
+	cu_bugf("Re-definition of property on %!.", ex);
 }
 
 void *

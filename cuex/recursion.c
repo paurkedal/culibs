@@ -45,7 +45,6 @@ mu_unfold(cuex_t e, int l_top, cuex_t e_top)
 cuex_t
 cuex_mu_unfold(cuex_t e)
 {
-    cuex_meta_t e_meta = cuex_meta(e);
-    cu_debug_assert(e_meta == CUEX_O1_MU);
+    cu_debug_assert(cuex_meta(e) == CUEX_O1_MU);
     return mu_unfold(cuex_opn_at(e, 0), 0, e);
 }

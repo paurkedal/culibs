@@ -119,7 +119,7 @@ cuflowP_wheel_call_sub1(cu_clop0(fn, void), AO_t *cdisj)
 #endif
 }
 
-cu_clop_def0(cuflowP_wheel_run, void)
+cu_clop_def(cuflowP_wheel_run, void, cu_bool_t is_global)
 {
     if (cu_expect_false(AO_fetch_and_sub1(&wheel_nready) == 1))
 	cuflow_workers_decr_pending();

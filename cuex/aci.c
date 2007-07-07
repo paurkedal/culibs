@@ -16,7 +16,9 @@
  */
 
 #define ACI_SPILL_LINKS 0
-#define CUEX_ACI_DEBUG_SELF 1
+#ifndef NDEBUG
+#  define CUEX_ACI_DEBUG_SELF 1
+#endif
 
 #include <cuex/aci_priv.h>
 #include <cu/algo.h>

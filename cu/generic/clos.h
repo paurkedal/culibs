@@ -81,7 +81,7 @@ CU_BEGIN_DECLARATIONS
 	(res_t (*)alops##append(argl, void *))PFX##_fn			\
     };									\
     linkage cuP_clop(PFX, res_t, alops, argl) = cuP_clos_ref(&PFX##__clos); \
-    cuP_clos_fun(PFX, res_t, alops, argl)
+    linkage cuP_clos_fun(PFX, res_t, alops, argl)
 #define cu_clop_def(clop, res_t, argl...)				\
     cuP_clop_def(clop, static, res_t, cuPP_argl_, (argl))
 #define cu_clop_def0(clop, res_t)					\

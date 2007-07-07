@@ -50,7 +50,7 @@ cuconf_get_bool(char const *name)
     return v && (strcmp(v, "true") == 0 || strcmp(v, "yes") == 0);
 }
 
-void *
+static void *
 null_thread_proc(void *a)
 {
     return a;

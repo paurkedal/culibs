@@ -36,7 +36,7 @@
 /* MT.  It is assumed that other threads do not modifying the string
  * when it is used.  Some of the non-mutating algorithms may still
  * reuse the capacity of a string, thus mutating it.  This is done
- * with chi_str_grab_cap, which is the only function which may modify
+ * with cu_str_grab_cap, which is the only function which may modify
  * a shared string.  If the grab is successful the available storage
  * may be used.  Thus a function which is non-mutating for a string
  * argument, can only change that argument by setting cap to 0.
@@ -45,7 +45,7 @@
  * fetch-and-clear operation for the processor. */
 #if 1
 size_t
-chi_str_grab_cap(cu_str_t str)
+cu_str_grab_cap(cu_str_t str)
 {
     static cu_mutex_t mutex = CU_MUTEX_INITIALISER;
     size_t cap;
@@ -56,7 +56,7 @@ chi_str_grab_cap(cu_str_t str)
     return cap;
 }
 #else
-#define chi_str_grab_cap(str) 0
+#define cu_str_grab_cap(str) 0
 #endif
 
 void
@@ -354,7 +354,7 @@ cu_str_cct_str_cstr(cu_str_t str, cu_str_t x, char const *y)
     size_t n_y = strlen(y);
     size_t n_str = x->len + n_y;
     str->len = n_str;
-    if (n_str > x->cap || n_str > (str->cap = chi_str_grab_cap(x))) {
+    if (n_str > x->cap || n_str > (str->cap = cu_str_grab_cap(x))) {
 	str->arr = cu_galloc(sizeof(char)*(n_str + 1));
 	str->cap = n_str + 1;
 	memcpy(str->arr, x->arr, x->len);
@@ -420,7 +420,7 @@ cu_str_cct_str_char(cu_str_t str, cu_str_t x, char c)
 {
     size_t n = x->len + 1;
     str->len = n;
-    if (n > x->cap || n > (str->cap = chi_str_grab_cap(x))) {
+    if (n > x->cap || n > (str->cap = cu_str_grab_cap(x))) {
 	str->arr = cu_galloc(sizeof(char)*n);
 	str->cap = n;
 	memcpy(str->arr, x->arr, n - 1);
@@ -616,7 +616,7 @@ cu_str_erase_substr(cu_str_t dst, size_t pos, size_t len)
 char const *
 cu_str_to_cstr(cu_str_t src)
 {
-    if (src->cap > src->len && chi_str_grab_cap(src)) {
+    if (src->cap > src->len && cu_str_grab_cap(src)) {
 	src->arr[src->len] = 0;
 	src->cap = 0;
 	return src->arr;

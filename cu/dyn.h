@@ -279,7 +279,7 @@ CU_SINLINE cu_bool_t cudyn_hctype_is_stdtype(cudyn_hctype_t hctype)
 #define cudyn_stdtype_to_meta(stdtype) \
     cudyn_type_to_meta(cudyn_stdtype_to_type(stdtype))
 
-cudyn_stdtype_t cudynP_stdtype_type;
+extern cudyn_stdtype_t cudynP_stdtype_type;
 #define cudyn_stdtype_type() cudyn_stdtype_to_type(cudynP_stdtype_type)
 
 /* Create a type with standard method slots. */

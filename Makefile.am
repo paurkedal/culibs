@@ -205,11 +205,15 @@ $(tagsdir)/TAGS.culibs: $(DIST_SOURCES)
         fi
 tags: $(tagsdir)/TAGS.culibs
 
+check-export: tools/check-export.pl all
+	$<
+
 
 # Documentation
 # =============
 
-if enable_doc
 include doc/doc.am
-EXTRA_DIST += $(doxyfiles) $(doc_extra_dist)
-endif
+
+# Phony-Declarations of Extra targets
+#
+.PHONY: check-export

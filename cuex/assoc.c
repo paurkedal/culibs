@@ -592,7 +592,7 @@ cu_clos_def(assoc_print_elt, cu_prot(void, cuex_t elt),
     cu_fprintf(self->out, "%!", elt);
 }
 
-void
+static void
 assoc_print(void *obj, FILE *out)
 {
     assoc_print_elt_t cb;

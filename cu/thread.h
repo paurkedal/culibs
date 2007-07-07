@@ -137,7 +137,7 @@ cu_mutex_unlock(pthread_mutex_t *m)
  * =================== */
 
 #define cuP_PMUTEX_CNT 512
-cu_mutex_t cuP_pmutex_arr[cuP_PMUTEX_CNT];
+extern cu_mutex_t cuP_pmutex_arr[cuP_PMUTEX_CNT];
 
 CU_SINLINE cu_mutex_t *cu_pmutex_mutex(void *ptr)
 { return &cuP_pmutex_arr[cu_hash_mix((cu_hash_t)ptr) % cuP_PMUTEX_CNT]; }

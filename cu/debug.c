@@ -204,7 +204,7 @@ cu_debug_trap()
 
 
 
-struct cucon_hset_s debug_keys;
+static struct cucon_hset_s debug_keys;
 
 cu_bool_t
 (cu_debug_key)(char const *key)

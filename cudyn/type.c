@@ -195,7 +195,7 @@ tuptype_finish_sigprod_glck(cudyn_tuptype_t t, cuex_t ex, cucon_layout_t lyo)
 	return NULL;
 }
 
-void
+static void
 tuptype_cct_glck(cudyn_tuptype_t t, cuex_t ex)
 {
     cucon_layout_t lyo;
