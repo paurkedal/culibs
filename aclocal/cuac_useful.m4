@@ -15,3 +15,12 @@ AC_DEFUN([CUAC_WITH_ENVVAR],
     $3
     $1="${$1_save}"
   ])
+
+dnl CUAC_WITH_SAVED_ENV([VAR0, VAR1, ...], [BODY])
+dnl     Runs BODY and then restores the listed environment variables to
+dnl     their value before entering of BODY.
+AC_DEFUN([CUAC_WITH_SAVED_ENV],
+  [ m4_foreach([_var], [$1], [__saved_[]_var="$_var";])
+    $2
+    m4_foreach([_var], [$1], [_var="$__saved_[]_var";])
+  ])

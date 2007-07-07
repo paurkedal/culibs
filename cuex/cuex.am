@@ -58,7 +58,6 @@ cuex_sources = \
 	cuex/sig.c \
 	cuex/subst.c \
 	cuex/subst_algo.c \
-	cuex/subst_rec.c \
 	cuex/ssfn.c \
 	cuex/tpvar.c \
 	cuex/tuple.c \
@@ -76,6 +75,10 @@ cuex_doxyfiles = \
 
 bin_PROGRAMS += \
 	cuex/cuex-otab
+
+if have_buddy
+cuex_sources += cuex/subst_rec.c
+endif
 
 cuex_cuex_otab_SOURCES = cuex/otab.c cuex/cuex-otab.y
 if enable_cucon	

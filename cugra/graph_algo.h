@@ -59,8 +59,11 @@ void cugra_identify_MSC(cugra_graph_t G, cucon_stack_t KV, cucon_pmap_t M);
  * push them onto \a KG. */
 void cugra_move_MSC_subgraphs(cugra_graph_t G, cucon_stack_t KG);
 
-/*!Inserts a minimum feedback vertex set of \a G into \a V. */
+#ifdef CUCON_HAVE_BUDDY
+/*!Inserts a minimum feedback vertex set of \a G into \a V.  Only available if
+ * culibs is linked with BuDDY. */
 void cugra_MFVS(cugra_graph_t G, cucon_pset_t V);
+#endif
 
 /*!Write \a G in Graphviz .dot format to \a fout, with labels for vertices and
  * arcs as given by \a vertex_label and \a arc_label, repectively, unless \ref

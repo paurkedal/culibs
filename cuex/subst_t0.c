@@ -82,6 +82,7 @@ main()
     unify(sig0, v[2], v[0], cu_true);
     cu_test_assert(cuex_subst_lookup(sig0, cuex_var_from_ex(v[1])) == v[3]);
 
+#ifdef CUCONF_HAVE_BUDDY
     /* non-idempotent substitutions */
     sig0 = cuex_subst_new_nonidem(cuex_qcset_uw);
     unify(sig0, v[0], cuex_o2_apply(v[1], v[1]), cu_true);
@@ -98,6 +99,7 @@ main()
     unify(sig0, v[2], cuex_o2_farrow(v[0], v[1]), cu_true);
     cuex_subst_render_idempotent(sig0);
     cuex_subst_dump(sig0, stdout);
+#endif
 
     return !!cu_test_bug_count();
 }

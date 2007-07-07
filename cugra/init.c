@@ -17,13 +17,17 @@
 
 #include <cugra/fwd.h>
 #include <cu/diag.h>
+#ifdef CUCONF_HAVE_BUDDY
 #include <bdd.h>
+#endif
 
+#ifdef CUCONF_HAVE_BUDDY
 static void
 bdd_error(int err)
 {
     cu_bugf("BDD error %s", bdd_errstring(err));
 }
+#endif
 
 void cugraP_graph_init(void);
 
@@ -38,7 +42,9 @@ cugra_init(void)
     cu_init();
     cugraP_graph_init();
 
+#ifdef CUCONF_HAVE_BUDDY
     bdd_init(10000, 1000);
     bdd_error_hook(bdd_error);
     bdd_setcacheratio(10);
+#endif
 }

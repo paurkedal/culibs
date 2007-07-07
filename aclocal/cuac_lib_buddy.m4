@@ -9,9 +9,14 @@ dnl CUAC_LIB_BUDDY(MIN_VERSION, ACTION_IF_FOUND, ACTION_IF_NOT_FOUND)
 dnl
 AC_DEFUN([CUAC_LIB_BUDDY],
   [ AC_MSG_CHECKING([for Buddy binary decisions diagrams])
-    CUAC_WITH_ENVVAR([LIBS], [-lbdd],
-      [ CUAC_WITH_ENVVAR([CPPFLAGS], [$CPPFLAGS $BUDDY_CPPFLAGS],
-	  [ AC_RUN_IFELSE(
+    AC_ARG_WITH([buddy],
+      [ AC_HELP_STRING([--without-buddy], [Disable linking against BuDDY.]) ],
+      [], [with_buddy=check])
+    if test x"$with_buddy" != xno; then
+	CUAC_WITH_SAVED_ENV([LIBS, CPPFLAGS],
+	  [ LIBS="-lbdd"
+	    CPPFLAGS="$CPPFLAGS $BUDDY_CPPFLAGS"
+	    AC_RUN_IFELSE(
 	      [ AC_LANG_SOURCE([[
 #include <bdd.h>
 #include <fdd.h>
@@ -35,15 +40,22 @@ main()
 			  [Define if Buddy library is present.])
 		AC_MSG_RESULT([yes])
 		BUDDY_LIBS="-lbdd"
-		ifelse($2, [], :, $3)
+		ifelse([$2], [], :, [$2])
 	      ], [
 		have_buddy=false
 		AC_MSG_RESULT([no])
-		ifelse($3, [], :, $3)
+		ifelse([$3], [], :, [$3])
+		# If BuDDY was explicitely requested, fail here.
+		if test x"$with_buddy" != xcheck; then
+		    AC_MSG_ERROR([Did not find BuDDY library. You need to install it, or drop the --with-buddy option to configure.])
+		fi
 	      ])
 	  ])
-      ])
-dnl AM_CONDITIONAL([have_buddy], [$have_buddy])
+    else
+	AC_MSG_RESULT([disabled])
+	have_buddy=false
+    fi
+    AM_CONDITIONAL([have_buddy], [$have_buddy])
     AC_SUBST([BUDDY_CPPFLAGS])
     AC_SUBST([BUDDY_LIBS])
   ])

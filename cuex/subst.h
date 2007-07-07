@@ -22,6 +22,7 @@
 #include <cuex/pvar.h>
 #include <cucon/pmap.h>
 #include <cucon/slink.h>
+#include <cu/conf.h>
 #include <stdio.h>
 
 CU_BEGIN_DECLARATIONS
@@ -286,18 +287,21 @@ cuex_var_t cuex_subst_insert_expand(cuex_subst_t dst,
 cuex_subst_t cuex_subst_fragment_project(cuex_subst_t subst,
 					 cucon_pmap_t var_to_var);
 
+#ifdef CUCON_HAVE_BUDDY
 /*!Return an idempotent rewrite of the possibly non-idempotent \a subst.
  * Mutually recursive bindings are replaced by bindings to a top-level \ref
  * CUEX_O2_RBIND where the LHS is a \a CUEX_OR_TUPLE of the old
  * bindings with back-refereces replaced with appropriate \a cuex_rvar_t
  * variables, and the RHS is the \a cuex_rvar_t selecting the appropriate
  * component.
+ * \note Only avaliable if built with BuDDY.
  * \see cuex_subst_mark_min_feedback */
 void cuex_subst_render_idempotent(cuex_subst_t subst);
 
 /*!Mark all \ref cuex_veqv_s "cuex_veqv_t" nodes of \a subst which are part of
  * a minimum feedback variable set.  The marks can be inspected with \ref
  * cuex_veqv_is_feedback.
+ * \note Only available if built with BuDDY.
  * \see cuex_subst_mark_all_feedback
  * \see cuex_subst_render_idempotent */
 cu_bool_t cuex_subst_mark_min_feedback(cuex_subst_t subst);
@@ -306,9 +310,11 @@ cu_bool_t cuex_subst_mark_min_feedback(cuex_subst_t subst);
  * a circular dependency.  Considering \a subst to be a directed graph, this
  * marks all strongly connected nodes.  The marks can be inspected with \ref
  * cuex_veqv_is_feedback.
+ * \note Only available if built with BuDDY.
  * \see cuex_subst_mark_min_feedback
  * \see cuex_subst_render_idempotent */
 cu_bool_t cuex_subst_mark_all_feedback(cuex_subst_t subst);
+#endif
 
 /*!@}*/
 CU_END_DECLARATIONS
