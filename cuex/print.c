@@ -61,7 +61,9 @@ varindex(cuex_t var)
 static void
 cuex_print_ex(cuex_t ex, FILE *out)
 {
-    cuex_meta_t meta = cuex_meta(ex);
+    cuex_meta_t meta;
+    cu_debug_assert(ex != NULL);
+    meta = cuex_meta(ex);
     switch (cuex_meta_kind(meta)) {
 	    cuex_oprinfo_t oi;
 	    int i, r;
@@ -134,7 +136,10 @@ cuex_print_ex(cuex_t ex, FILE *out)
 cu_clop_def(format_expression, void, cu_str_t fmt, cu_va_ref_t va, FILE *out)
 {
     cuex_t ex = cu_va_ref_arg(va, cuex_t);
-    cuex_print_ex(ex, out);
+    if (!ex)
+	fputs("NULL", out);
+    else
+	cuex_print_ex(ex, out);
 }
 
 static cuex_t

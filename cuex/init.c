@@ -21,7 +21,7 @@
 #include <cuex/tpvar.h>
 
 void cudynP_init(void);
-void cuexP_assoc_init(void);
+void cuexP_atree_init(void);
 void cuexP_ex_init(void);
 void cuexP_misc_init(void);
 void cuexP_sig_init(void);
@@ -47,7 +47,7 @@ cuex_init()
     cuexP_ex_init();
     cuex_oprdefs_init();
     cuexP_misc_init();
-    cuexP_assoc_init();
+    cuexP_atree_init();
     cuexP_sig_init();
     cuexP_type_init();
     cuexP_print_init();

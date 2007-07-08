@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cuex/assoc.h>
+#include <cuex/atree.h>
 #include <cuex/oprdefs.h>
 #include <cudyn/misc.h>
 
@@ -27,18 +27,18 @@ cu_clop_def(opn0word, cu_word_t, cuex_t e)
 void
 bench(int N, int R)
 {
-    cuex_t e = cuex_assoc_empty();
+    cuex_t e = cuex_atree_empty();
     clock_t t_insert, t_erase;
     int i;
     for (i = 0; i < N; ++i)
-	e = cuex_assoc_insert(opn0word, e, cuex_o2_apply(cudyn_int(i), cuex_o0_null()));
+	e = cuex_atree_insert(opn0word, e, cuex_o2_apply(cudyn_int(i), cuex_o0_null()));
     t_insert = -clock();
     for (i = 0; i < R; ++i)
-	cuex_assoc_insert(opn0word, e, cuex_o2_apply(cudyn_int(i + N), cuex_o0_null()));
+	cuex_atree_insert(opn0word, e, cuex_o2_apply(cudyn_int(i + N), cuex_o0_null()));
     t_insert += clock();
     t_erase = -clock();
     for (i = 0; i < R; ++i)
-	cuex_assoc_erase(opn0word, e, (cu_word_t)cudyn_int(i % N));
+	cuex_atree_erase(opn0word, e, (cu_word_t)cudyn_int(i % N));
     t_erase += clock();
     printf("%d %lg %lg\n", N,
 	   t_insert/((double)CLOCKS_PER_SEC*R),
