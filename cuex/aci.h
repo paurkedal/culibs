@@ -26,6 +26,13 @@
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_aci_h cuex/aci.h: Acceletation of Associative, Commutative and Idempotent Operations
  * @{\ingroup cuex_mod
+ *
+ * \deprecated This implementation has an untracked strict-aliasing bug which
+ * shows up with -fstrict-aliasing recent GCC versions.  Due to the unnecessary
+ * high complexity this pure expression-based implementation, it will be
+ * replaced by interfaces based on the much simpler (non-expression) \ref
+ * cuex_atree_h "cuex/atree.h" container.
+ *
  * The ACI-operators, here denoted by ∨ (join), fulfill
  * <ul>
  *   <li>associative: x ∨ (y ∨ z) = (x ∨ y) ∨ z</li>

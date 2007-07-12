@@ -125,15 +125,15 @@ cuex_t
 cuex_atree_left_union(cu_clop(get_key, cu_word_t, cuex_t),
 		      cuex_t tree0, cuex_t tree1);
 
-/*!As \ref cuex_atree_union, but merge any duplicate element with \a
+/*!As \ref cuex_atree_left_union, except merge any duplicate element with \a
  * merge_values. */
 cuex_t
 cuex_atree_deep_union(cu_clop(get_key, cu_word_t, cuex_t),
 		      cu_clop(merge, cuex_t, cuex_t leaf0, cuex_t leaf1),
 		      cuex_t tree0, cuex_t tree1);
 
-/*!As \ref cuex_atree_union, except that \a merge_fn only acts on operand \a
- * merge_index of the leaves.
+/*!As \ref cuex_atree_deep_union, except that \a merge_fn only acts on operand
+ * \a merge_index of the leaves.
  * \ingroup cuex_atree_iv_mod */
 cuex_t
 cuex_atree_deep_union_iv(cu_clop(get_key, cu_word_t, cuex_t),
@@ -141,8 +141,8 @@ cuex_atree_deep_union_iv(cu_clop(get_key, cu_word_t, cuex_t),
 			 cu_clop(merge_fn, cuex_t, cuex_t val0, cuex_t val1),
 			 cuex_t tree0, cuex_t tree1);
 
-/*!As \ref cuex_atree_union, except that \a merge_fn only acts on the second
- * operand of leafs and also receives the first operand (the key).
+/*!As \ref cuex_atree_deep_union, except that \a merge_fn only acts on the
+ * second operand of leafs and also receives the first operand (the key).
  * \ingroup cuex_atree_kv_mod */
 cuex_t
 cuex_atree_deep_union_kv(cu_clop(merge, cuex_t,
