@@ -47,6 +47,8 @@ CU_BEGIN_DECLARATIONS
 #  endif
 #endif
 
+#define cu_noop() ((void)0)
+
 /* Used to prevent warnings when C compiler can not predict
  * initialisation, and informatively to assert the code is ok. May be
  * disabled for slightly more optimal code. */

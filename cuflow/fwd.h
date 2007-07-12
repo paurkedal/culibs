@@ -34,7 +34,6 @@ typedef struct cuflow_promise_s *	cuflow_promise_t;	/* promise.h*/
 typedef struct cuflow_workq_s *		cuflow_workq_t;		/* workq.h */
 
 void cuflow_init(void);
-#define cu_noop() ((void)0)
 
 CU_END_DECLARATIONS
 
