@@ -99,14 +99,14 @@ test_union_isecn(int N, cu_bool_t print)
 	cu_fprintf(stdout,
 		   ":== LHS: %!\n    RHS: %!\n  union: %!\n  isecn: %!\n",
 		   e0, e1, eU, eI);
-    cu_test_assert(cuex_atree_union(opn0word, e0, e1) == eU);
-    cu_test_assert(cuex_atree_isecn(opn0word, e0, e1) == eI);
+    cu_test_assert(cuex_atree_left_union(opn0word, e0, e1) == eU);
+    cu_test_assert(cuex_atree_left_isecn(opn0word, e0, e1) == eI);
 
     /* Images */
     img0 = cuex_atree_image(e0, incr1, opn0word);
     img1 = cuex_atree_isokey_image(e1, incr1);
     imgU = cuex_atree_isokey_image(eU, incr1);
-    cu_test_assert(cuex_atree_union(opn0word, img0, img1) == imgU);
+    cu_test_assert(cuex_atree_left_union(opn0word, img0, img1) == imgU);
 
     /* Ordering relations. */
     cu_test_assert(cuex_atree_subseteq(opn0word, e0, eU));
