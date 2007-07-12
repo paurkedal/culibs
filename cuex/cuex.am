@@ -11,6 +11,7 @@ cuex_headers = \
 	cuex/ex.h \
 	cuex/fpvar.h \
 	cuex/ftype.h \
+	cuex/labelling.h \
 	cuex/misc.h \
 	cuex/monoid.h \
 	cuex/opn.h \
@@ -46,6 +47,7 @@ cuex_sources = \
 	cuex/fpvar.c \
 	cuex/ftype.c \
 	cuex/init.c \
+	cuex/labelling.c \
 	cuex/misc.c \
 	cuex/monoid.c \
 	cuex/opntpl.c \
@@ -97,9 +99,10 @@ cuex_check_programs = \
 	cuex/atree_t0 \
 	cuex/atree_b0 \
 	cuex/binding_t0 \
-	cuex/optimal_fold_t0 \
+	cuex/labelling_t0 \
 	cuex/monoid_t0 \
 	cuex/opn_t0 \
+	cuex/optimal_fold_t0 \
 	cuex/sig_t0 \
 	cuex/subst_t0 \
 	cuex/subst_algo_t0 \
@@ -122,14 +125,14 @@ cuex_atree_b0_SOURCES = cuex/atree_b0.c
 cuex_atree_b0_LDADD = libcuex.la
 cuex_binding_t0_SOURCES = cuex/binding_t0.c
 cuex_binding_t0_LDADD = libcuex.la
-cuex_unfolded_fv_sets_t0_SOURCES = cuex/unfolded_fv_sets_t0.c
-cuex_unfolded_fv_sets_t0_LDADD = libcuex.la
-cuex_optimal_fold_t0_SOURCES = cuex/optimal_fold_t0.c
-cuex_optimal_fold_t0_LDADD = libcuex.la
 cuex_monoid_t0_SOURCES = cuex/monoid_t0.c
 cuex_monoid_t0_LDADD = libcuex.la
+cuex_labelling_t0_SOURCES = cuex/labelling_t0.c
+cuex_labelling_t0_LDADD = libcuex.la
 cuex_opn_t0_SOURCES = cuex/opn_t0.c
 cuex_opn_t0_LDADD = libcuex.la -lm
+cuex_optimal_fold_t0_SOURCES = cuex/optimal_fold_t0.c
+cuex_optimal_fold_t0_LDADD = libcuex.la
 cuex_sig_t0_SOURCES = cuex/sig_t0.c
 cuex_sig_t0_LDADD = libcuex.la
 cuex_ssfn_t0_SOURCES = cuex/ssfn_t0.c
@@ -138,6 +141,8 @@ cuex_subst_t0_SOURCES = cuex/subst_t0.c
 cuex_subst_t0_LDADD = libcuex.la
 cuex_subst_algo_t0_SOURCES = cuex/subst_algo_t0.c
 cuex_subst_algo_t0_LDADD = libcuex.la
+cuex_unfolded_fv_sets_t0_SOURCES = cuex/unfolded_fv_sets_t0.c
+cuex_unfolded_fv_sets_t0_LDADD = libcuex.la
 cuex_var_t0_SOURCES = cuex/var_t0.c
 cuex_var_t0_LDADD = libcuex.la
 
