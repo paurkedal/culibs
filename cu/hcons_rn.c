@@ -22,8 +22,6 @@
 #include <cucon/umap.h>
 #include <inttypes.h>
 
-#ifdef CUCONF_ENABLE_HASHCONS
-
 #define CAP_MIN 2
 #if 1	/* full on average */
 #  define FILL_MIN_NOM 1
@@ -374,5 +372,3 @@ cuP_hcset_init()
     atexit(coll_stats);
 #endif
 }
-
-#endif

@@ -129,9 +129,7 @@ cu_init(void)
 
     cuP_thread_init();
     cuP_tstate_init();
-#   ifdef CUCONF_ENABLE_HASHCONS
-	cuP_hcset_init();
-#   endif
+    cuP_hcset_init();
     cuP_memory_init();
 #   ifdef CUCONF_ENABLE_GC_DISCLAIM
 	cuP_obj_mlc_init();

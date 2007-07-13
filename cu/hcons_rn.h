@@ -64,8 +64,6 @@ CU_BEGIN_DECLARATIONS
  */
 #define CU_HCSET_CNT (1 << CU_HCSET_LOG_CNT)
 
-#ifdef CUCONF_ENABLE_HASHCONS
-
 typedef struct cu_hcset_s *cu_hcset_t;
 struct cu_hcset_s
 {
@@ -288,15 +286,6 @@ cu_hcset_hasheqv_insert_wlck_x(cu_hcset_t hcset, cu_hcobj_t *p,
     CCT;								\
     CU_HC_RETURN(obj);							\
 }
-
-#else /* !CUCONF_ENABLE_HASHCONS */
-
-#define CU_HC_ENTER(obj_t, obj, meta, size, rep_hash, EQ)		\
-    (obj = (obj_t)cuex_oalloc(meta, size))
-#define CU_HC_RETURN(obj)						\
-    return obj
-
-#endif
 
 CU_END_DECLARATIONS
 

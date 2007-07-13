@@ -183,9 +183,7 @@ struct cudyn_type_s
     cuex_t as_expr;
 
     cudyn_typekind_t typekind : 5;
-#ifdef CUCONF_ENABLE_HASHCONS
     cudyn_hcmethod_t members_hcmethod : 2;
-#endif
 };
 #define cuex_meta_is_type(meta) (cuex_meta_kind(meta) == cuex_meta_kind_type)
 
@@ -326,8 +324,6 @@ cuex_oalloc_self_instance(size_t size)
     return p + 1;
 }
 
-//cu_bool_t cu_dyn_ghaveavail_f(size_t size);
-//void cu_dyn_gavail_f(size_t size, size_t cnt);
 void *cuex_oalloc_f(cuex_meta_t meta, size_t size);
 
 #define cudyn_onew(pfx)							\
@@ -367,7 +363,10 @@ cuex_halloc_by_value(cuex_meta_t meta, cu_offset_t value_size, void *value)
  * \a copy_size bytes if constructed, and keyed by \a key_size bytes staring
  * at \a key.  The caller must arrange so that \a copy_size and \a key_size
  * are multiples of <tt>sizeof(cu_word_t)</tt> and \a key is word-aligned.
- * \pre \a key_size ≤ \a copy_size ≤ \a alloc_size - \c CU_HCOBJ_SHIFT */
+ * \pre \a key_size ≤ \a copy_size ≤ \a alloc_size - \c CU_HCOBJ_SHIFT
+ *
+ * \deprecated Support for key size less than value size will be removed.
+ */
 CU_SINLINE void *
 cudyn_halloc_general(cudyn_type_t type, cu_offset_t alloc_size,
 		     cu_offset_t copy_size, cu_offset_t key_size,
@@ -403,6 +402,7 @@ cudyn_halloc_by_value(cudyn_type_t type, cu_offset_t value_size, void *value)
 	cudyn_type_to_meta(prefix##_type()), sizeof(struct prefix##_s),	\
 	CU_MARG(struct prefix##_s *, value)))
 
+/*!\deprecated Support for key size less than value size will be removed. */
 #define cudyn_hnew_general(prefix, key_size, key)			\
     ((struct prefix##_s *)cudyn_halloc_general(				\
 	prefix##_type(), sizeof(struct prefix##_s), key_size, key_size, key))

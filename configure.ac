@@ -128,6 +128,9 @@ if test x"$enable_gc_disclaim" != xno; then
 		  [Define to enable use of disclaim GC patch.])
     else
 	enable_gc_disclaim=no
+	AC_MSG_WARN([Hash-consing will we very slow without the disclaim])
+	AC_MSG_WARN([patch for the garbage collector.  The patch is available at])
+	AC_MSG_WARN([http://www.eideticdew.org/culibs/bdwgc-rn.html.])
     fi
 fi
 AM_CONDITIONAL([enable_gc_disclaim], [test x"$enable_gc_disclaim" != xno])
@@ -284,21 +287,6 @@ AC_SUBST(wind_variant)
 
 AM_CFLAGS="-Wall"
 AC_SUBST(AM_CFLAGS)
-
-# Decide if we do hash-consing
-#
-AC_ARG_ENABLE([hashcons],
-  [ AC_HELP_STRING([--disable-hashcons],
-	[Disable hash construction (unsupported)]) ])
-if test "$enable_hashcons" != no; then
-    AC_DEFINE(CUCONF_ENABLE_HASHCONS, 1, [Use hash construction])
-fi
-
-if test "$enable_hashcons" != no -a "$enable_gc_disclaim" = no; then
-    AC_MSG_WARN([Hash-consing will we very slow without the disclaim])
-    AC_MSG_WARN([patch for the garbage collector.  The patch is available at])
-    AC_MSG_WARN([http://www.eideticdew.org/culibs/bdwgc-rn.html.])
-fi
 
 # For developers
 #
