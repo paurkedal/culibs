@@ -300,113 +300,11 @@ void cudyn_stdtype_cct_hcv(cudyn_stdtype_t, cudyn_typekind_t,
 cudyn_stdtype_t cudyn_stdtype_new_hcv(cu_clop(key_size, size_t, void *));
 
 
-/* Dynamically Typed Objects/Expressions
- * ===================================== */
-
-CU_SINLINE void *
-cuex_oalloc(cuex_meta_t meta, size_t size)
-{
-    cuex_meta_t *p = cu_galloc(size + sizeof(cuex_meta_t));
-    *p = meta + 1;
-    cu_debug_assert(((uintptr_t)*p & 3) != 0);
-    return p + 1;
-}
-
-CU_SINLINE void *
-cudyn_oalloc(cudyn_type_t t, size_t size)
-{ return cuex_oalloc(cudyn_type_to_meta(t), size); }
-
-CU_SINLINE void *
-cuex_oalloc_self_instance(size_t size)
-{
-    cuex_meta_t *p = cu_galloc(size + sizeof(cuex_meta_t));
-    *p = cudyn_type_to_meta((cudyn_type_t)(p + 1)) + 1;
-    return p + 1;
-}
-
-void *cuex_oalloc_f(cuex_meta_t meta, size_t size);
-
-#define cudyn_onew(pfx)							\
-    ((struct pfx##_s *)cuex_oalloc(cudyn_type_to_meta(pfx##_type()),	\
-				   sizeof(struct pfx##_s)))
-#define cudyn_onew_f(pfx)						\
-    ((struct pfx##_s *)cuex_oalloc_f(cudyn_type_to_meta(pfx##_type()),	\
-				     sizeof(struct pfx##_s)))
-
-
 /* Hashconsed Objects
  * ================== */
 
 size_t cuex_key_size(cuex_meta_t meta, void *obj);
 cu_hash_t cuex_key_hash(void *);
-
-void *cuex_halloc_general(cuex_meta_t meta, cu_offset_t alloc_size,
-			  cu_offset_t copy_size, cu_offset_t key_size,
-			  void *key);
-
-CU_SINLINE void *
-cuex_halloc_by_key(cuex_meta_t meta, cu_offset_t key_size, void *key)
-{
-    return cuex_halloc_general(meta, key_size + CU_HCOBJ_SHIFT,
-			       key_size, key_size, key);
-}
-
-CU_SINLINE void *
-cuex_halloc_by_value(cuex_meta_t meta, cu_offset_t value_size, void *value)
-{
-    return cuex_halloc_general(meta, value_size,
-		value_size - CU_HCOBJ_SHIFT, value_size - CU_HCOBJ_SHIFT,
-		value + CU_HCOBJ_SHIFT);
-}
-
-/*!Hashcons an object of \a type, allocating \a alloc_size bytes, initialising
- * \a copy_size bytes if constructed, and keyed by \a key_size bytes staring
- * at \a key.  The caller must arrange so that \a copy_size and \a key_size
- * are multiples of <tt>sizeof(cu_word_t)</tt> and \a key is word-aligned.
- * \pre \a key_size ≤ \a copy_size ≤ \a alloc_size - \c CU_HCOBJ_SHIFT
- *
- * \deprecated Support for key size less than value size will be removed.
- */
-CU_SINLINE void *
-cudyn_halloc_general(cudyn_type_t type, cu_offset_t alloc_size,
-		     cu_offset_t copy_size, cu_offset_t key_size,
-		     void *key)
-{
-    return cuex_halloc_general(cudyn_type_to_meta(type), alloc_size, copy_size,
-			       key_size, key);
-}
-
-/*!Hashcons a fully keyed object of \a type from the \a key_size bytes key
- * starting at \a key.  Note that the object will contain \c CU_HCOBJ_SHIFT
- * bytes of internal storage before the key.
- * The caller must arrange so that \a key_size is a multiple of
- * <tt>sizeof(cu_word_t)</tt>, and \a key is word-aligned. */
-CU_SINLINE void *
-cudyn_halloc_by_key(cudyn_type_t type, cu_offset_t key_size, void *key)
-{ return cuex_halloc_by_key(cudyn_type_to_meta(type), key_size, key); }
-
-/*!Same as \ref cudyn_halloc_by_key, except that \a key_size need not be a
- * multiple of the word size and \a key need not be word aligned. */
-void *cudyn_halloc_by_key_unaligned(cudyn_type_t type,
-				    cu_offset_t key_size, void *key);
-
-/*!Same as \ref cudyn_halloc_by_key except that \a value and \a value_size
- * includes the (uninitialised) \c CU_HCOBJ at the start.  Useful when passing
- * pointers to structures. */
-CU_SINLINE void *
-cudyn_halloc_by_value(cudyn_type_t type, cu_offset_t value_size, void *value)
-{ return cuex_halloc_by_value(cudyn_type_to_meta(type), value_size, value); }
-
-#define cudyn_hnew(prefix, value)					\
-    ((struct prefix##_s *)cuex_halloc_by_value(				\
-	cudyn_type_to_meta(prefix##_type()), sizeof(struct prefix##_s),	\
-	CU_MARG(struct prefix##_s *, value)))
-
-/*!\deprecated Support for key size less than value size will be removed. */
-#define cudyn_hnew_general(prefix, key_size, key)			\
-    ((struct prefix##_s *)cudyn_halloc_general(				\
-	prefix##_type(), sizeof(struct prefix##_s), key_size, key_size, key))
-
 
 
 /* Properties

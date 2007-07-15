@@ -75,6 +75,16 @@ struct cu_hcobj_s
 
 #endif /* !CUCONF_ENABLE_GC_DISCLAIM */
 
+#define CU_HCOBJ_SHIFTW (CU_HCOBJ_SHIFT/CU_WORD_SIZE)
+
+#define CU_HCOBJ_KEY(obj) ((void *)((char *)(obj) + CU_HCOBJ_SHIFT))
+
+#define CU_HCOBJ_KEY_SIZEW(struct_size) \
+    (CUDYN_OBJ_ALLOC_SIZEG(struct_size)*CU_GRAN_SIZEW - 1 - CU_HCOBJ_SHIFTW)
+
+#define CU_HCOBJ_KEY_SIZE(struct_size) \
+    (CU_HCOBJ_KEY_SIZEW(struct_size)*CU_WORD_SIZE)
+
 /*!@}*/
 CU_END_DECLARATIONS
 

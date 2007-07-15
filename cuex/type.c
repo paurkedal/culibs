@@ -18,8 +18,8 @@
 #include <cuex/oprdefs.h>
 #include <cuex/acidefs.h>
 #include <cuex/type.h>
-#include <cuex/sig.h>
 #include <cuex/algo.h>
+#include <cuex/sig.h>
 #include <cuex/tvar.h>
 #include <cudyn/type.h>
 #include <cudyn/misc.h>

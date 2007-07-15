@@ -16,6 +16,7 @@
  */
 
 #include <cu/dyn.h>
+#include <cu/halloc.h>
 #include <stdlib.h>
 
 #define N_ALLOC 0x2000000
@@ -59,10 +60,11 @@ test_hnew_noneq(int alloc_count)
 {
     int i;
     for (i = 0; i < alloc_count; ++i) {
-	struct test_s o;
-	o.arg0 = i;
-	o.arg1 = i;
-	cudyn_hnew(test, &o);
+	cudyn_hctem_decl(test, tem);
+	cudyn_hctem_init(test, tem);
+	cudyn_hctem_get(test, tem)->arg0 = i;
+	cudyn_hctem_get(test, tem)->arg1 = i;
+	cudyn_hctem_new(test, tem);
     }
 }
 
@@ -71,10 +73,11 @@ test_hnew_eq(int alloc_count)
 {
     int i;
     for (i = 0; i < alloc_count; ++i) {
-	struct test_s o;
-	o.arg0 = 0;
-	o.arg1 = 0;
-	cudyn_hnew(test, &o);
+	cudyn_hctem_decl(test, tem);
+	cudyn_hctem_init(test, tem);
+	cudyn_hctem_get(test, tem)->arg0 = 0;
+	cudyn_hctem_get(test, tem)->arg1 = 0;
+	cudyn_hctem_new(test, tem);
     }
 }
 
@@ -113,8 +116,8 @@ thread_main(void *carg)
 static char const *alloc_name_arr[] = {
     "GC_malloc",
     "cu_onew",
-    "cu_hnew (different objects)",
-    "cu_hnew (same objects)",
+    "cudyn_halloc (different objects)",
+    "cudyn_halloc (same objects)",
     "malloc, free",
 };
 

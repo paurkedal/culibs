@@ -19,7 +19,7 @@
 #define CU_WORDARR_H
 
 #include <cu/fwd.h>
-#include <cu/hcons.h>
+#include <cu/halloc.h>
 #include <cu/hash.h>
 
 CU_BEGIN_DECLARATIONS

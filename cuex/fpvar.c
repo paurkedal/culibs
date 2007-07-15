@@ -20,5 +20,5 @@
 cuex_fpvar_t
 cuex_fpvar(int index, cuex_t type)
 {
-    return cuex_halloc_by_key(cuex_fpvarmeta(index), sizeof(cuex_t), &type);
+    return cuexP_halloc(cuex_fpvarmeta(index), sizeof(cuex_t), &type);
 }

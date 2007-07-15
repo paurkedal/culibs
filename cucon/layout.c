@@ -19,6 +19,7 @@
 #include <cu/dyn.h>
 #include <cu/debug.h>
 #include <cu/int.h>
+#include <cu/halloc.h>
 
 #define HASH CU_HASH2
 #define MAX_FREE_WIDTH_OF_ALT0 0
@@ -164,21 +165,25 @@ static cucon_layout_t
 layout_new_raw(cucon_layout_t prefix, cu_word_t alloc_mask,
 	       cu_offset_t bitalign)
 {
-    struct cucon_layout_s lyo_data = { CU_HCOBJ_INIT
-	prefix, alloc_mask, bitalign
-    };
+    cucon_layout_t layout;
+    cudyn_hctem_decl(cucon_layout, tem);
+    cudyn_hctem_init(cucon_layout, tem);
+    layout = cudyn_hctem_get(cucon_layout, tem);
+    layout->prefix = prefix;
+    layout->alloc_mask = alloc_mask;
+    layout->bitalign = bitalign;
     if (prefix) {
-	lyo_data.bitoffset = prefix->bitoffset + sizeof(cu_word_t)*8;
-	lyo_data.max_free_width = max_free_width_of(prefix->max_free_width,
+	layout->bitoffset = prefix->bitoffset + sizeof(cu_word_t)*8;
+	layout->max_free_width = max_free_width_of(prefix->max_free_width,
 						    alloc_mask);
 	if (prefix->bitalign > bitalign)
-	    lyo_data.bitalign = prefix->bitalign;
+	    layout->bitalign = prefix->bitalign;
     }
     else {
-	lyo_data.bitoffset = 0;
-	lyo_data.max_free_width = max_free_width_of(0, alloc_mask);
+	layout->bitoffset = 0;
+	layout->max_free_width = max_free_width_of(0, alloc_mask);
     }
-    return cudyn_hnew(cucon_layout, &lyo_data);
+    return cudyn_hctem_new(cucon_layout, tem);
 }
 
 static cucon_layout_t

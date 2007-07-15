@@ -145,13 +145,13 @@ struct cuex_anode_s
     cuex_t left, right;
 };
 
-cudyn_stdtype_t cuexP_atree_type;
+cudyn_stdtype_t cuexP_anode_type;
 
 #define NODE(tree) ((cuex_atree_t)(tree))
 
 #define PAIR_CENTER(left, right) \
     pair_centre((cu_word_t)(left), (cu_word_t)(right))
-#define anode_meta cudyn_stdtype_to_meta(cuexP_atree_type)
+#define anode_meta cudyn_stdtype_to_meta(cuexP_anode_type)
 
 CU_SINLINE cu_word_t
 pair_centre(cu_word_t left, cu_word_t right)
@@ -178,12 +178,12 @@ centre_to_max(cu_word_t centre)
 static cuex_atree_t
 node_new(cu_word_t centre, cuex_t left, cuex_t right)
 {
-    struct cuex_anode_s tpl;
-    tpl.centre = centre;
-    tpl.left = left;
-    tpl.right = right;
-    return cudyn_halloc_by_value(cudyn_stdtype_to_type(cuexP_atree_type),
-				 sizeof(struct cuex_anode_s), &tpl);
+    cudyn_hctem_decl(cuex_anode, key);
+    cudyn_hctem_init(cuex_anode, key);
+    cudyn_hctem_get(cuex_anode, key)->centre = centre;
+    cudyn_hctem_get(cuex_anode, key)->left = left;
+    cudyn_hctem_get(cuex_anode, key)->right = right;
+    return cudyn_hctem_new(cuex_anode, key);
 }
 
 cuex_t
@@ -1157,9 +1157,9 @@ atree_print(void *obj, FILE *out)
 void
 cuexP_atree_init()
 {
-    cuexP_atree_type = cudyn_stdtype_new_hcs(sizeof(struct cuex_anode_s) -
+    cuexP_anode_type = cudyn_stdtype_new_hcs(sizeof(struct cuex_anode_s) -
 					     CU_HCOBJ_SHIFT);
 
     cudyn_prop_define_ptr(cudyn_raw_print_fn_prop(),
-			  cuexP_atree_type, atree_print);
+			  cuexP_anode_type, atree_print);
 }

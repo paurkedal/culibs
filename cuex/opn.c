@@ -17,7 +17,7 @@
 
 #include <cuex/opn.h>
 #include <cuex/oprinfo.h>
-#include <cu/hcons.h>
+#include <cu/halloc.h>
 
 CU_SINLINE cu_bool_t
 wordaligned_eq(void *arr0, void *arr0_end, void *arr1)
@@ -46,12 +46,10 @@ wordaligned_copy(void *src, void *src_end, void *dst)
 #  error cuex_opn_by_va, and cuex_opn_by_arr.
 #endif
 
-CU_SINLINE void
-opn_cct_cached(cuex_opn_t opn, cuex_oprinfo_t oi,
-	       cuex_t *operand_arr, cuex_t *operand_arr_end)
+cu_clos_def(cct_cached, cu_prot(void, void *e), (cuex_oprinfo_t oi;))
 {
-    wordaligned_copy(operand_arr, operand_arr_end, opn->operand_arr);
-    (*oi->cache_ctor)(opn);
+    cu_clos_self(cct_cached);
+    (*self->oi->cache_ctor)((cuex_opn_t)e);
 }
 
 cuex_opn_t
@@ -60,9 +58,7 @@ cuex_opn(cuex_meta_t opr, ...)
     cu_rank_t N = cuex_opr_r(opr), n;
     size_t key_size = N*sizeof(cuex_t);
     va_list va;
-    cu_hash_t hash;
     cuex_t *operand_arr = cu_salloc(key_size);
-    cuex_t *operand_arr_end = operand_arr + N;
 
     /* TODO: Hack for platforms with stacks growing towards NULL.  Need
      * Autoconf macro. */
@@ -72,20 +68,21 @@ cuex_opn(cuex_meta_t opr, ...)
 	cu_debug_assert(operand_arr[n]);
     }
     va_end(va);
-
-    cu_debug_assert(key_size == cuex_key_size(opr, NULL));
-    hash = cu_hc_key_hash(N, (cu_word_t *)operand_arr, opr);
-    if (!cuex_opr_has_ctor(opr)) {
-	CU_HC(cuex_opn_t, opn, opr, key_size + CU_HCOBJ_SHIFT, hash,
-	      wordaligned_eq(operand_arr, operand_arr_end, opn->operand_arr),
-	      wordaligned_copy(operand_arr, operand_arr_end, opn->operand_arr));
-    }
+    if (!cuex_opr_has_ctor(opr))
+	return cuexP_halloc_raw(
+	    opr,
+	    CUDYN_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	    operand_arr);
     else {
+	cct_cached_t cct;
 	cuex_oprinfo_t oi = cuex_oprinfo(opr);
-	CU_HC(cuex_opn_t, opn, opr,
-	      key_size + CU_HCOBJ_SHIFT + oi->cache_size, hash,
-	      wordaligned_eq(operand_arr, operand_arr_end, opn->operand_arr),
-	      opn_cct_cached(opn, oi, operand_arr, operand_arr_end));
+	cct.oi = oi;
+	return cuexP_halloc_extra_raw(
+	    opr,
+	    CUDYN_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT
+				    + oi->cache_size),
+	    CUDYN_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	    operand_arr, cct_cached_prep(&cct));
     }
 }
 
@@ -94,9 +91,7 @@ cuex_opn_by_valist(cuex_meta_t opr, va_list va)
 {
     cu_rank_t N = cuex_opr_r(opr), n;
     size_t key_size = N*sizeof(cuex_t);
-    cu_hash_t hash;
     cuex_t *operand_arr = cu_salloc(key_size);
-    cuex_t *operand_arr_end = operand_arr + N;
 
     /* TODO: Hack for platforms with stacks growing towards NULL.  Need
      * Autoconf macro. */
@@ -104,44 +99,37 @@ cuex_opn_by_valist(cuex_meta_t opr, va_list va)
 	operand_arr[n] = va_arg(va, cuex_t);
 	cu_debug_assert(operand_arr[n]);
     }
-
-    cu_debug_assert(key_size == cuex_key_size(opr, NULL));
-    hash = cu_hc_key_hash(N, (cu_word_t *)operand_arr, opr);
-    if (!cuex_opr_has_ctor(opr)) {
-	CU_HC(cuex_opn_t, opn, opr, key_size + CU_HCOBJ_SHIFT, hash,
-	      wordaligned_eq(operand_arr, operand_arr_end, opn->operand_arr),
-	      wordaligned_copy(operand_arr, operand_arr_end, opn->operand_arr));
-    }
+    if (!cuex_opr_has_ctor(opr))
+	return cuexP_halloc_raw(
+	    opr,
+	    CUDYN_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	    operand_arr);
     else {
+	cct_cached_t cct;
 	cuex_oprinfo_t oi = cuex_oprinfo(opr);
-	CU_HC(cuex_opn_t, opn, opr,
-	      key_size + CU_HCOBJ_SHIFT + oi->cache_size, hash,
-	      wordaligned_eq(operand_arr, operand_arr_end, opn->operand_arr),
-	      opn_cct_cached(opn, oi, operand_arr, operand_arr_end));
+	cct.oi = oi;
+	return cuexP_halloc_extra_raw(
+	    opr,
+	    CUDYN_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT
+				    + oi->cache_size),
+	    CUDYN_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	    operand_arr, cct_cached_prep(&cct));
     }
 }
 
 cuex_opn_t
-cuex_opn_by_arr(cuex_meta_t opr, void **operand_arr)
+cuexP_opn_by_arr_with_ctor(cuex_meta_t opr, cuex_t *operand_arr)
 {
     cu_rank_t N = cuex_opr_r(opr);
-    size_t key_size = N*sizeof(cuex_t);
-    cu_hash_t hash;
-    cuex_t *operand_arr_end = operand_arr + N;
-
-    hash = cu_hc_key_hash(N, (cu_word_t *)operand_arr, opr);
-    if (!cuex_opr_has_ctor(opr)) {
-	CU_HC(cuex_opn_t, opn, opr, key_size + CU_HCOBJ_SHIFT, hash,
-	      wordaligned_eq(operand_arr, operand_arr_end, opn->operand_arr),
-	      wordaligned_copy(operand_arr, operand_arr_end, opn->operand_arr));
-    }
-    else {
-	cuex_oprinfo_t oi = cuex_oprinfo(opr);
-	CU_HC(cuex_opn_t, opn, opr,
-	      key_size + CU_HCOBJ_SHIFT + oi->cache_size, hash,
-	      wordaligned_eq(operand_arr, operand_arr_end, opn->operand_arr),
-	      opn_cct_cached(opn, oi, operand_arr, operand_arr_end));
-    }
+    cct_cached_t cct;
+    cuex_oprinfo_t oi = cuex_oprinfo(opr);
+    cct.oi = oi;
+    return cuexP_halloc_extra_raw(
+	opr,
+	CUDYN_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT
+				+ oi->cache_size),
+	CUDYN_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	operand_arr, cct_cached_prep(&cct));
 }
 
 cuex_opn_t

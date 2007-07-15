@@ -17,24 +17,27 @@
 
 #define CUDYN_CTOR_C
 #include <cudyn/ctor.h>
-
+#include <cu/halloc.h>
 
 cudyn_ctortype_t
 cudyn_ctortype(cudyn_tuptype_t parttype, cudyn_duntype_t fulltype)
 {
-    struct cudyn_ctortype_s ctortype;
-    cudynP_hctype_cct_hcs(cu_to(cudyn_hctype, &ctortype), NULL,
+    cudyn_ctortype_t ctortype;
+    cudyn_hctem_decl(cudyn_ctortype, key);
+    cudyn_hctem_init(cudyn_ctortype, key);
+    ctortype = cudyn_hctem_get(cudyn_ctortype, key);
+    cudynP_hctype_cct_hcs(cu_to(cudyn_hctype, ctortype), NULL,
 			  cudyn_typekind_ctortype, sizeof(unsigned int));
-    ctortype.fulltype = fulltype;
-    ctortype.parttype = parttype;
-    return cudyn_hnew(cudyn_ctortype, &ctortype);
+    ctortype->fulltype = fulltype;
+    ctortype->parttype = parttype;
+    return cudyn_hctem_new(cudyn_ctortype, key);
 }
 
 cuex_t
 cudyn_ctor(cudyn_ctortype_t type, unsigned int ctor_num)
 {
-    return cudyn_halloc_by_key(cudyn_ctortype_to_type(type),
-				sizeof(unsigned int), &ctor_num);
+    return cudyn_halloc(cudyn_ctortype_to_type(type),
+			sizeof(unsigned int), &ctor_num);
 }
 
 

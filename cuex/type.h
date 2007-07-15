@@ -21,6 +21,7 @@
 #include <cuex/fwd.h>
 #include <cuex/oprdefs.h>
 #include <cudyn/type.h>
+#include <cu/halloc.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_type_h cuex/type.h: Dynamic Type Support
@@ -74,7 +75,7 @@ cuex_of_fnptr(cuex_t t, cu_fnptr_t fn)
 {
     cu_debug_assert(cuex_meta(t) == CUEX_O2_FARROW_NATIVE
 		    || cuex_meta(t) == CUEX_O2_FORALL);
-    return cudyn_halloc_by_key(cudyn_type(t), sizeof(void *), &fn);
+    return cudyn_halloc(cudyn_type(t), sizeof(void *), &fn);
 }
 
 CU_SINLINE cu_bool_t

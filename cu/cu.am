@@ -12,7 +12,7 @@ cu_headers = \
 	cu/fwd.h \
 	cu/hash.h \
 	cu/hcobj.h \
-	cu/hcons.h \
+	cu/halloc.h \
 	cu/idr.h \
 	cu/inherit.h \
 	cu/init.h \
@@ -51,10 +51,9 @@ cu_sources = \
 	cu/tstate.c
 
 if enable_gc_disclaim
-    cu_headers += cu/hcons_rn.h
+    noinst_HEADERS += cu/hcons_rn.h
     cu_sources += cu/hcons_rn.c cu/obj_mlc.c
 else
-    cu_headers += cu/hcons_wp.h
     cu_sources += cu/hcons_wp.c
 endif
 

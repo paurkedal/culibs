@@ -287,7 +287,7 @@ cuex_var_t cuex_subst_insert_expand(cuex_subst_t dst,
 cuex_subst_t cuex_subst_fragment_project(cuex_subst_t subst,
 					 cucon_pmap_t var_to_var);
 
-#ifdef CUCON_HAVE_BUDDY
+#ifdef CUCONF_HAVE_BUDDY
 /*!Return an idempotent rewrite of the possibly non-idempotent \a subst.
  * Mutually recursive bindings are replaced by bindings to a top-level \ref
  * CUEX_O2_RBIND where the LHS is a \a CUEX_OR_TUPLE of the old

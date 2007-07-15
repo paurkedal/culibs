@@ -18,17 +18,19 @@
 #include <cu/dyn.h>
 #include <cu/hash.h>
 #include <cu/algo.h>
+#include <cu/halloc.h>
 #include <cudyn/algo.h>
 
 typedef struct kat_s *kat_t;
-struct kat_s { CU_HCOBJ
+struct kat_s {
+    CU_HCOBJ
     int i;
     void *sub0;
     void *sub1;
 };
 
 cudyn_stdtype_t kat_type_ptr;
-#define kat_type() kat_type_ptr
+#define kat_type() cudyn_stdtype_to_type(kat_type_ptr)
 
 cu_clop_def(kat_eq, cu_bool_t, void *s0, void *s1)
 {
@@ -59,8 +61,12 @@ cu_clop_def(kat_conj, cu_bool_t, void *k, cu_clop(fn, cu_bool_t, void *))
 
 kat_t kat_new(int i, void *sub0, void *sub1)
 {
-    struct kat_s data = { CU_HCOBJ_INIT i, sub0, sub1 };
-    return cudyn_hnew(kat, &data);
+    cudyn_hctem_decl(kat, tem);
+    cudyn_hctem_init(kat, tem);
+    cudyn_hctem_get(kat, tem)->i = i;
+    cudyn_hctem_get(kat, tem)->sub0 = sub0;
+    cudyn_hctem_get(kat, tem)->sub1 = sub1;
+    return cudyn_hctem_new(kat, tem);
 }
 
 cu_clos_def(ff, cu_prot(cu_bool_t, void *k),

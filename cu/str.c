@@ -24,6 +24,7 @@
 #include <cu/diag.h>
 #include <cu/idr.h>
 #include <cu/init.h>
+#include <cu/oalloc.h>
 
 #include <stdlib.h>
 #include <ctype.h>

@@ -19,6 +19,7 @@
 #include <cuex/opn.h>
 #include <cuex/oprdefs.h>
 #include <cuex/atree.h>
+#include <cu/halloc.h>
 #include <cudyn/properties.h>
 
 #define tuple(l, e) cuex_opn(CUEX_OR_TUPLE(2), l, e)
@@ -48,9 +49,10 @@ struct cuex_labelling_s
 static cuex_labelling_t
 labelling(cuex_t atree)
 {
-    struct cuex_labelling_s tpl;
-    tpl.atree = atree;
-    return cudyn_hnew(cuex_labelling, &tpl);
+    cudyn_hctem_decl(cuex_labelling, key);
+    cudyn_hctem_init(cuex_labelling, key);
+    cudyn_hctem_get(cuex_labelling, key)->atree = atree;
+    return cudyn_hctem_new(cuex_labelling, key);
 }
 
 cuex_t

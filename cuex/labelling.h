@@ -26,7 +26,7 @@ CU_BEGIN_DECLARATIONS
 
 extern cudyn_stdtype_t cuexP_labelling_type;
 #define cuex_labelling_meta() cudyn_stdtype_to_meta(cuexP_labelling_type)
-#define cuex_labelling_type() cuexP_labelling_type
+#define cuex_labelling_type() cudyn_stdtype_to_type(cuexP_labelling_type)
 
 /*!True iff \a e is a labelling. */
 CU_SINLINE cu_bool_t

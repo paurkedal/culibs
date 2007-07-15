@@ -16,10 +16,11 @@
  */
 
 #include <cu/dyn.h>
-#include <cu/hcons.h>
+#include <cu/halloc.h>
 #include <cu/memory.h>
 #include <cu/debug.h>
 #include <cu/wordarr.h>
+#include <cu/oalloc.h>
 
 #ifndef NDEBUG
 #  define CUEX_DEBUG_HCONS
@@ -128,7 +129,7 @@ cudyn_stdtype_t
 cudyn_stdtype_new_self_instance(cudyn_typekind_t kind)
 {
     cudyn_stdtype_t type
-	= cuex_oalloc_self_instance(sizeof(struct cudyn_stdtype_s));
+	= cudyn_oalloc_self_instance(sizeof(struct cudyn_stdtype_s));
     cudyn_stdtype_cct(type, kind);
     return type;
 }
@@ -189,52 +190,6 @@ cudyn_stdtype_new_hcv(cu_clop(key_size_fn, size_t, void *))
 
 /* Hashconsed Objects
  * ================== */
-
-void *
-cuex_halloc_general(cuex_meta_t meta,
-		    cu_offset_t alloc_size, cu_offset_t copy_size,
-		    cu_offset_t key_size, void *key)
-{
-    cu_offset_t key_sizew = key_size/sizeof(cu_word_t);
-    cu_hash_t hash = cu_hc_key_hash(key_sizew, key, meta);
-    cu_debug_assert(meta);
-    cu_debug_assert(!cuex_meta_is_type(meta)
-		    || (cudyn_is_type(cudyn_type_from_meta(meta))
-			&& cudyn_type_is_hctype(cudyn_type_from_meta(meta))));
-    cu_debug_assert(key_size % sizeof(cu_word_t) == 0);
-    cu_debug_assert(copy_size % sizeof(cu_word_t) == 0);
-    CU_HC(void *, obj, meta, alloc_size, hash,
-	  cu_wordarr_eq(key_sizew, obj + CU_HCOBJ_SHIFT, key),
-	  ( cu_wordarr_copy(copy_size/sizeof(cu_word_t),
-			    cu_ptr_add(obj, CU_HCOBJ_SHIFT), key)
-#ifdef CUEX_DEBUG_HCONS
-	    , cu_debug_assert(CU_HCOBJ_SHIFT + copy_size <= alloc_size)
-	    , cu_debug_assert(cuex_key_size(meta, obj) == key_size)
-	    , cu_debug_assert(cuex_key_hash(obj) == hash)
-#endif
-	  ));
-}
-
-void *
-cudyn_halloc_by_key_unaligned(cudyn_type_t type,
-			      cu_offset_t key_size, void *key)
-{
-    cu_debug_assert(type && cudyn_is_type(type));
-    cu_debug_assert(cudyn_type_is_hctype(type));
-    if (key_size % sizeof(cu_word_t) != 0
-	    || (uintptr_t)key % sizeof(cu_word_t) != 0) {
-	void *old_key = key;
-	cu_offset_t old_key_size = key_size;
-	key_size = (key_size + sizeof(cu_word_t) - 1)/sizeof(cu_word_t)
-		    *sizeof(cu_word_t);
-	key = cu_salloc(key_size);
-	memcpy(key, old_key, old_key_size);
-	memset(key + old_key_size, 0, key_size - old_key_size);
-    }
-    return cuex_halloc_general(cudyn_type_to_meta(type),
-			       key_size + CU_HCOBJ_SHIFT,
-			       key_size, key_size, key);
-}
 
 size_t
 cuex_key_size(cuex_meta_t meta, void *obj)

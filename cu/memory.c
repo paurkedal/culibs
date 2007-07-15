@@ -21,7 +21,7 @@
 #include <cu/memory.h>
 #include <cu/debug.h>
 #include <cu/tstate.h>
-#include <cu/hcons.h>
+#include <cu/halloc.h>
 #include <cu/util.h>
 
 #include <gc/gc_mark.h>
@@ -45,7 +45,7 @@
 
 static cu_bool_t memory_init_done = 0;
 #if 0
-#ifdef CUCONF_HAVE_GC_DISCLAIM
+#ifdef CUCONF_ENABLE_GC_DISCLAIM
 static int object_kind;
 static void **object_freelist;
 #endif

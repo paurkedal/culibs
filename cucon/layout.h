@@ -37,7 +37,7 @@ struct cucon_layout_s
     cu_offset_t bitoffset;
 };
 extern cudyn_stdtype_t cuconP_layout_type;
-#define cucon_layout_type() cuconP_layout_type
+#define cucon_layout_type() cudyn_stdtype_to_type(cuconP_layout_type)
 
 #define cucon_layout_prefix(oml) ((oml)->prefix)
 #define cucon_layout_bits_alloc_mask(oml) ((oml)->alloc_mask)

@@ -20,9 +20,11 @@
 cuex_tpvar_t
 cuex_tpvar(int index, cu_offset_t width_mask, cuex_t type_class)
 {
-    struct cuex_tpvar_s alpha;
-    alpha.width_mask = width_mask;
-    alpha.type_class = type_class;
-    return cuex_halloc_by_value(cuex_tpvarmeta(index),
-				sizeof(struct cuex_tpvar_s), &alpha);
+    cudyn_hctem_decl(cuex_tpvar, tem);
+    cudyn_hctem_init(cuex_tpvar, tem);
+    cudyn_hctem_get(cuex_tpvar, tem)->width_mask = width_mask;
+    cudyn_hctem_get(cuex_tpvar, tem)->type_class = type_class;
+    return cuexP_halloc(cuex_tpvarmeta(index),
+			CUDYN_HCTEM_KEY_SIZE(cuex_tpvar),
+			cudyn_hctem_key(cuex_tpvar, tem));
 }

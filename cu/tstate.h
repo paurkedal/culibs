@@ -32,15 +32,16 @@ CU_BEGIN_DECLARATIONS
  * \internal */
 
 #if defined(GC_TINY_FREELISTS) && defined(GC_GRANULE_BYTES)
-#   define cuP_FL_GRANULE_SIZE   GC_GRANULE_BYTES
-#   define cuP_FL_CNT            GC_TINY_FREELISTS
+#   define CU_GRAN_SIZE		GC_GRANULE_BYTES
+#   define cuP_FL_CNT		GC_TINY_FREELISTS
 #elif CUCONF_SIZEOF_VOID_P == 4
-#   define cuP_FL_GRANULE_SIZE   8
-#   define cuP_FL_CNT           64
+#   define CU_GRAN_SIZE 8
+#   define cuP_FL_CNT 64
 #elif CUCONF_SIZEOF_VOID_P == 8
-#   define cuP_FL_GRANULE_SIZE  16
-#   define cuP_FL_CNT           48
+#   define CU_GRAN_SIZE 16
+#   define cuP_FL_CNT 48
 #endif
+#define CU_GRAN_SIZEW (CU_GRAN_SIZE/CU_WORD_SIZE)
 
 typedef enum {
     cu_memkind_normal,
@@ -60,7 +61,8 @@ struct cuP_tstate_s
 
     /* cu */
     struct cuP_thread_atexit_node_s *atexit_chain;
-    void *obj_fl_arr[cuP_FL_CNT];
+    void *ord_fl_arr[cuP_FL_CNT];
+    void *unord_fl_arr[cuP_FL_CNT];
     cu_rarex_t *jammed_on_rarex;
     cu_bool_t jammed_on_write;
 

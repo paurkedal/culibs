@@ -41,13 +41,11 @@ struct cudyn_proto_s
     cudyn_type_t res_type;
 
     /* These are not hash consed */
-    AO_t done_cif;
     ffi_cif cif;
-
-    /* Followed by ffi_type args[arity] */
+    /* ffi_type args[arity] */
 };
 #define CUDYN_PROTO_KEY_SIZE \
-	(offsetof(struct cudyn_proto_s, done_cif) - CU_HCOBJ_SHIFT)
+	(offsetof(struct cudyn_proto_s, cif) - CU_HCOBJ_SHIFT)
 
 extern cudyn_stdtype_t cudynP_proto_type;
 

@@ -19,7 +19,11 @@
 #include <cu/dyn.h>
 #include <cu/memory.h>
 #include <cu/int.h>
-#include <cucon/umap.h>
+#include <cu/wordarr.h>
+#include <cu/conf.h>
+#ifdef CUDYN_ENABLE_KEYED_PROP
+#  include <cucon/umap.h>
+#endif
 #include <inttypes.h>
 
 #define CAP_MIN 2
@@ -186,48 +190,6 @@ cu_hcset_adjust(cu_hcset_t hcset)
 #endif
 }
 
-#if CU_HC_ADJUST_IN_INSERT_ERASE
-void *
-cu_hcset_hasheqv_insert_wlck(cu_hcset_t hcset, cu_hcobj_t *p,
-			     cuex_meta_t meta, size_t size, cu_hash_t hash)
-#else
-void *
-cu_hcset_hasheqv_insert_wlck_x(cu_hcset_t hcset, cu_hcobj_t *p,
-			       cuex_meta_t meta, size_t size)
-#endif
-{
-    cu_hcobj_t obj;
-
-#if CU_HC_ADJUST_IN_INSERT_ERASE
-    size_t cnt = hcset->cnt;
-    size_t mask = hcset->mask;
-    if (cnt*FILL_MAX_DENOM > mask*FILL_MAX_NOM) {
-	size_t new_cap = (mask + 1)*2;
-	cu_hcobj_t *new_arr = ARR_ALLOC(sizeof(cu_hcobj_t *)*new_cap);
-	cu_hcset_set_capacity_wlck(hcset, new_cap, new_arr);
-	p = &new_arr[hash & hcset->mask];
-    }
-#endif
-
-    /* The allocation below may trigger cleanup of hashconsed objects which
-     * will be skipped by the reclaim notifier if we hold the same lock.
-     * This wastes a lot of CPU cycles, so if we have low lock granularity,
-     * disable GC. */
-    obj = cuex_oalloc_f(meta, size);
-
-#if CUPRIV_ENABLE_COLL_STATS
-    if (*p)
-	++cuP_coll_cnt;
-    else
-	++cuP_noncoll_cnt;
-#endif
-    obj->hcset_next = ~(AO_t)*p;
-    cu_debug_assert((uintptr_t)obj->hcset_next != 0);
-    *p = obj;
-    ++hcset->cnt;
-    return obj;
-}
-
 CU_SINLINE void
 cu_hcset_hasheqv_erase_wlck(cu_hcset_t hcset, cu_hash_t hash,
 			    cu_hcobj_t obj)
@@ -264,6 +226,118 @@ cu_hcset_hasheqv_erase_wlck(cu_hcset_t hcset, cu_hash_t hash,
 	cu_hcset_set_capacity_wlck(hcset, new_cap, new_arr);
     }
 #endif
+}
+
+#if CU_WORD_SIZE != CUEX_META_SIZE || CU_WORD_SIZE != CUCONF_SIZEOF_VOID_P
+#  error Inconsistent sizes for cu_word_t, cuex_meta_t, and void *
+#endif
+#if 2*CU_WORD_SIZE/CU_GRAN_SIZE*CU_GRAN_SIZE != 2*CU_WORD_SIZE
+#  error Hash-consed object headers are not multiples of granules.
+#endif
+
+/* In the arguments to cuexP_halloc_raw and cudynP_halloc_extra_raw, sizeg is
+ * the full size to be allocated, in granules.  This includes the cuex_meta_t
+ * field in front of the returned pointer. */
+void *
+cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
+{
+    cu_hcobj_t *slot, obj;
+    size_t mask;
+    cu_hash_t hash;
+    cu_hcset_t hcset;
+    size_t sizeg;
+
+    /* The size to allocate in words is 1 + CU_HCOBJ_SHIFTW + key_sizew, then
+     * we add CU_GRAN_SIZEW - 1 for the upwards rounding. */
+    sizeg = (key_sizew + CU_HCOBJ_SHIFTW + CU_GRAN_SIZEW)/CU_GRAN_SIZEW;
+
+    hash = cu_wordarr_hash(key_sizew, key, meta);
+    hcset = cu_hcset(hash);
+    mask = hcset->mask;
+    cu_hcset_lock_write(hcset);
+
+    /* If present, return existing object. */
+    slot = &hcset->arr[hash & hcset->mask];
+    for (obj = *slot; obj; obj = cu_hcset_hasheqv_next(obj)) {
+	if (cuex_meta(obj) == meta
+	    && cu_wordarr_eq(key_sizew, key, CU_HCOBJ_KEY(obj))) {
+	    cu_hcobj_mark_lck(obj);
+	    cu_hcset_unlock_write(hcset);
+	    return obj;
+	}
+    }
+
+    /* Otherwise, insert new object. */
+#if CU_HC_ADJUST_IN_INSERT_ERASE
+    if (hcset->cnt*FILL_MAX_DENOM > mask*FILL_MAX_NOM) {
+	size_t new_cap = (mask + 1)*2;
+	cu_hcobj_t *new_arr = ARR_ALLOC(sizeof(cu_hcobj_t *)*new_cap);
+	cu_hcset_set_capacity_wlck(hcset, new_cap, new_arr);
+	slot = &new_arr[hash & hcset->mask];
+    }
+#endif
+    obj = cuexP_oalloc_unord_fin_raw(meta, sizeg);
+    cu_wordarr_copy(key_sizew, CU_HCOBJ_KEY(obj), key);
+#if CUPRIV_ENABLE_COLL_STATS
+    if (*slot) ++cuP_coll_cnt; else ++cuP_noncoll_cnt;
+#endif
+    obj->hcset_next = ~(AO_t)*slot;
+    cu_debug_assert((uintptr_t)obj->hcset_next != 0);
+    *slot = obj;
+    ++hcset->cnt;
+    cu_hcset_unlock_write(hcset);
+
+    return obj;
+}
+
+void *
+cuexP_halloc_extra_raw(cuex_meta_t meta, size_t sizeg,
+		       size_t key_sizew, void *key,
+		       cu_clop(init_nonkey, void, void *))
+{
+    cu_hcobj_t *slot, obj;
+    size_t mask;
+    cu_hash_t hash;
+    cu_hcset_t hcset;
+
+    hash = cu_hc_key_hash(key_sizew, key, meta);
+    hcset = cu_hcset(hash);
+    mask = hcset->mask;
+    cu_hcset_lock_write(hcset);
+
+    /* If present, return existing object. */
+    slot = &hcset->arr[hash & hcset->mask];
+    for (obj = *slot; obj; obj = cu_hcset_hasheqv_next(obj)) {
+	if (cuex_meta(obj) == meta
+	    && cu_wordarr_eq(key_sizew, key, CU_HCOBJ_KEY(obj))) {
+	    cu_hcobj_mark_lck(obj);
+	    cu_hcset_unlock_write(hcset);
+	    return obj;
+	}
+    }
+
+    /* Otherwise, insert new object. */
+#if CU_HC_ADJUST_IN_INSERT_ERASE
+    if (hcset->cnt*FILL_MAX_DENOM > mask*FILL_MAX_NOM) {
+	size_t new_cap = (mask + 1)*2;
+	cu_hcobj_t *new_arr = ARR_ALLOC(sizeof(cu_hcobj_t *)*new_cap);
+	cu_hcset_set_capacity_wlck(hcset, new_cap, new_arr);
+	slot = &new_arr[hash & hcset->mask];
+    }
+#endif
+    obj = cuexP_oalloc_ord_fin_raw(meta, sizeg);
+    cu_wordarr_copy(key_sizew, CU_HCOBJ_KEY(obj), key);
+    cu_call(init_nonkey, obj);
+#if CUPRIV_ENABLE_COLL_STATS
+    if (*slot) ++cuP_coll_cnt; else ++cuP_noncoll_cnt;
+#endif
+    obj->hcset_next = ~(AO_t)*slot;
+    cu_debug_assert((uintptr_t)obj->hcset_next != 0);
+    *slot = obj;
+    ++hcset->cnt;
+    cu_hcset_unlock_write(hcset);
+
+    return obj;
 }
 
 #ifdef CUDYN_ENABLE_KEYED_PROP

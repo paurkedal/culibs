@@ -17,12 +17,21 @@
 
 #include <cuex/misc.h>
 #include <cu/dyn.h>
+#include <cu/halloc.h>
+
+struct cuex_long_s
+{
+    CU_HCOBJ
+    long i;
+};
 
 cuex_t
 cuex_of_long(long i)
 {
-    return cuex_halloc_by_key(cudyn_stdtype_to_meta(cuexP_long_type),
-			         sizeof(long), &i);
+    cudyn_hctem_decl(cuex_long, key);
+    cudyn_hctem_init(cuex_long, key);
+    cudyn_hctem_get(cuex_long, key)->i = i;
+    return cudyn_hctem_new(cuex_long, key);
 }
 
 cudyn_stdtype_t cuexP_long_type;

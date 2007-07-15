@@ -27,13 +27,13 @@
 #ifdef CUCONF_HAVE_GC_GC_TINY_FL
 #  include <gc/gc_tiny_fl.h>
 #endif
-#if CUCONF_HAVE_GC_DISCLAIM
+#if CUCONF_ENABLE_GC_DISCLAIM
 #  include <gc/gc_disclaim.h>
 #endif
 
 static cu_bool_t done_init = 0;
-int cuP_obj_objkind;
-void **cuP_obj_gfl;
+int cuP_ord_objkind, cuP_unord_objkind;
+void **cuP_ord_gfl, **cuP_unord_gfl;
 
 #define EXTRA_BYTES 0
 
@@ -47,103 +47,65 @@ typedef char *ptr_t;
 #endif
 
 
-#ifdef CUCONF_HAVE_GC_DISCLAIM
+#ifdef CUCONF_ENABLE_GC_DISCLAIM
 
 void GC_generic_malloc_many(size_t, int, void **);
 
-cu_bool_t
-cu_dyn_ghaveavail_f(size_t bytes)
-{
-    size_t granules;
-    cuP_tstate_t st = cuP_tstate();
-    cu_debug_assert(done_init);
-    bytes += sizeof(cuex_meta_t);
-    granules = (bytes + cuP_FL_GRANULE_SIZE - 1 + EXTRA_BYTES)/cuP_FL_GRANULE_SIZE;
-    if (granules >= cuP_FL_CNT)
-	cu_debug_error(
-	    "Use of cu_dyn_ghaveavail_f with too big objects, size = %ld.\n",
-	    bytes);
-    else {
-	void **fl = st->obj_fl_arr + granules;
-	return *fl != NULL;
-    }
-}
-
-void
-cu_dyn_gavail_f(size_t bytes, size_t cnt)
-{
-    size_t granules;
-    cuP_tstate_t st = cuP_tstate();
-    cu_debug_assert(done_init);
-    bytes += sizeof(cuex_meta_t);
-    granules = (bytes + cuP_FL_GRANULE_SIZE - 1 + EXTRA_BYTES)/cuP_FL_GRANULE_SIZE;
-    if (granules >= cuP_FL_CNT)
-	cu_debug_error(
-	    "Use of cu_dyn_gavail_f with too big objects, size = %ld.\n",
-	    bytes);
-    else {
-	void **fl = st->obj_fl_arr + granules;
-	while (cnt) {
-	    if (!*fl) {
-		GC_generic_malloc_many(granules*cuP_FL_GRANULE_SIZE,
-				       cuP_obj_objkind, fl);
-		if (!*fl) {
-		    cu_raise_out_of_memory(bytes);
-		    cu_debug_unreachable();
-		}
-	    }
-	    fl = *fl;
-	    --cnt;
-	}
-    }
-}
-
 void *
-cuex_oalloc_f(cuex_meta_t meta, size_t bytes)
+cuexP_oalloc_ord_fin_raw(cuex_meta_t meta, size_t sizeg)
 {
-    size_t granules;
     void *r;
-    cuP_tstate_t st = cuP_tstate();
-    cu_debug_assert(done_init);
-    cu_debug_assert(!cuex_meta_is_type(meta)
-	    || (cudyn_is_type(cudyn_type_from_meta(meta))
-		&& cudyn_type_is_hctype(cudyn_type_from_meta(meta))));
-    bytes += sizeof(cuex_meta_t);
-    granules = (bytes + cuP_FL_GRANULE_SIZE - 1 + EXTRA_BYTES)
-	     / cuP_FL_GRANULE_SIZE;
-#if USE_GC_INLINE
-    GC_FAST_MALLOC_GRANS(r, granules, st->obj_fl_arr, 0, cuP_obj_objkind,
-			 GC_generic_malloc(bytes, cuP_obj_objkind),
-			 *(cuex_meta_t *)r = meta + 1);
-#else
-    if (granules >= cuP_FL_CNT) {
-	r = GC_generic_malloc(bytes, cuP_obj_objkind);
+    if (sizeg >= cuP_FL_CNT) {
+	r = GC_generic_malloc(sizeg*CU_GRAN_SIZE, cuP_ord_objkind);
 	if (r == NULL) {
-	    cu_raise_out_of_memory(bytes);
+	    cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
 	    cu_debug_unreachable();
 	}
-    }
-    else {
-	void **fl = st->obj_fl_arr + granules;
+    } else {
+	cuP_tstate_t st = cuP_tstate();
+	void **fl = st->ord_fl_arr + sizeg;
 	if (!*fl) {
-	    GC_generic_malloc_many(granules*cuP_FL_GRANULE_SIZE,
-				   cuP_obj_objkind, fl);
+	    GC_generic_malloc_many(sizeg*CU_GRAN_SIZE, cuP_ord_objkind, fl);
 	    if (!*fl) {
-		cu_raise_out_of_memory(bytes);
+		cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
 		cu_debug_unreachable();
 	    }
 	}
 	r = *fl;
 	*fl = *(void **)r;
-	cu_debug_assert(GC_size(r) >= bytes + EXTRA_BYTES);
     }
-#endif
-    cu_debug_assert(GC_base(r) == r);
     *(cuex_meta_t *)r = meta + 1;
     return (cuex_meta_t *)r + 1;
 }
 
-#else /* !CUCONF_HAVE_GC_DISCLAIM */
+void *
+cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
+{
+    void *r;
+    if (sizeg >= cuP_FL_CNT) {
+	r = GC_generic_malloc(sizeg*CU_GRAN_SIZE, cuP_unord_objkind);
+	if (r == NULL) {
+	    cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
+	    cu_debug_unreachable();
+	}
+    } else {
+	cuP_tstate_t st = cuP_tstate();
+	void **fl = st->unord_fl_arr + sizeg;
+	if (!*fl) {
+	    GC_generic_malloc_many(sizeg*CU_GRAN_SIZE, cuP_unord_objkind, fl);
+	    if (!*fl) {
+		cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
+		cu_debug_unreachable();
+	    }
+	}
+	r = *fl;
+	*fl = *(void **)r;
+    }
+    *(cuex_meta_t *)r = meta + 1;
+    return (cuex_meta_t *)r + 1;
+}
+
+#else /* !CUCONF_ENABLE_GC_DISCLAIM */
 
 void cuP_stdobj_finaliser(void *base, void *cd)
 {
@@ -156,17 +118,15 @@ void cuP_stdobj_finaliser(void *base, void *cd)
 	cu_call(t->finalise, base + sizeof(cuex_meta_t));
 }
 
-/* XXX cu_dyn_gavail_f and thread local alloc */
 void *
-cuex_oalloc_f(cuex_meta_t meta, size_t bytes)
+cuexP_oalloc_ord_fin_raw(cuex_meta_t meta, size_t sizeg)
 {
     void *r;
     cu_debug_assert(cuex_meta_is_type(meta));
     cu_debug_assert(cudyn_type_is_stdtype(cudyn_type_from_meta(meta)));
-    bytes += sizeof(cuex_meta_t);
-    r = GC_malloc(bytes);
+    r = GC_malloc(sizeg*CU_GRAN_SIZE);
     if (!r) {
-	cu_raise_out_of_memory(bytes);
+	cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
 	cu_debug_unreachable();
     }
     GC_register_finalizer(r, cuP_stdobj_finaliser, NULL, NULL, NULL);
@@ -174,7 +134,23 @@ cuex_oalloc_f(cuex_meta_t meta, size_t bytes)
     return (cuex_meta_t *)r + 1;
 }
 
-#endif /* !CUCONF_HAVE_GC_DISCLAIM */
+void *
+cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
+{
+    void *r;
+    cu_debug_assert(cuex_meta_is_type(meta));
+    cu_debug_assert(cudyn_type_is_stdtype(cudyn_type_from_meta(meta)));
+    r = GC_malloc(sizeg*CU_GRAN_SIZE);
+    if (!r) {
+	cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
+	cu_debug_unreachable();
+    }
+    GC_register_finalizer_noorder(r, cuP_stdobj_finaliser, NULL, NULL, NULL);
+    *(cuex_meta_t *)r = meta + 1;
+    return (cuex_meta_t *)r + 1;
+}
+
+#endif /* !CUCONF_ENABLE_GC_DISCLAIM */
 
 
 int cuP_hc_disclaim_proc(void *obj, void *null);
@@ -184,20 +160,38 @@ cuP_obj_mlc_init(void)
 {
     cu_debug_assert(!done_init);
 
-#ifdef CUCONF_HAVE_GC_DISCLAIM
-    cuP_obj_gfl = GC_new_free_list();
-    cuP_obj_objkind = GC_new_kind(cuP_obj_gfl, 0 | GC_DS_LENGTH, 1, 1);
+#ifdef CUCONF_ENABLE_GC_DISCLAIM
 
-    /* Last arg 1 to mark from fragments of this kind even unmarked ones. This
-     * is required when using cache regions to prevent the scenario
+    /* Object Kinds for Hash-Consing and Finalisation
+     *
+     * The last argument to GC_register_disclaim_proc determines if the
+     * collector will mark from all fragments of this kind even those which are
+     * themselves unmarked.  Passing non-zero here gives "ordered"
+     * disclaim/finalisation, meaning that objects referred to from a
+     * reclaimable object will not be reclaimable itself before the next GC.
+     *
+     * Ordered disclaim is required when using cache regions on hash-consed
+     * objects to prevent the following scenario:
      *     • fragent F is no longer used and some operands get re-used
      *     • a fragment key-equal to F is constructed, resurrecting F
      *     • F now has wrong cache data. */
-    GC_register_disclaim_proc(cuP_obj_objkind, cuP_hc_disclaim_proc, NULL, 1);
-    /* Trigger some GC init needed for gc-7.0_alpha2 before using
+
+    /* Create the ordered object kind. */
+    cuP_ord_gfl = GC_new_free_list();
+    cuP_ord_objkind = GC_new_kind(cuP_ord_gfl, 0 | GC_DS_LENGTH, 1, 1);
+    GC_register_disclaim_proc(cuP_ord_objkind, cuP_hc_disclaim_proc, NULL, 1);
+
+    /* Create the unordered object kind. */
+    cuP_unord_gfl = GC_new_free_list();
+    cuP_unord_objkind = GC_new_kind(cuP_unord_gfl, 0 | GC_DS_LENGTH, 1, 1);
+    GC_register_disclaim_proc(cuP_unord_objkind, cuP_hc_disclaim_proc, NULL, 0);
+
+    /* Need to trigger some initialisation before using
      * GC_generic_malloc_many. */
-    GC_generic_malloc(1, cuP_obj_objkind);
-#endif /* CUCONF_HAVE_GC_DISCLAIM */
+    GC_generic_malloc(1, cuP_ord_objkind);
+    GC_generic_malloc(1, cuP_unord_objkind);
+
+#endif /* CUCONF_ENABLE_GC_DISCLAIM */
 
     done_init = cu_true;
 }

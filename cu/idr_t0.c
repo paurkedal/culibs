@@ -16,6 +16,7 @@
  */
 
 #include <cu/idr.h>
+#include <cu/test.h>
 #include <stdlib.h>
 
 #define N_IDR 100000
@@ -32,8 +33,9 @@ main()
 	int i = lrand48() % N_IDR;
 	sprintf(buf, "%x", i);
 	idr = cu_idr_by_cstr(buf);
+	cu_test_assert(idr == cu_idr_by_charr(buf, strlen(buf)));
 	if (idr_arr[i])
-	    cu_debug_assert(idr == idr_arr[i]);
+	    cu_test_assert(idr == idr_arr[i]);
 	idr_arr[i] = idr;
     }
     return 0;

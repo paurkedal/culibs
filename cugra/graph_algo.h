@@ -59,7 +59,7 @@ void cugra_identify_MSC(cugra_graph_t G, cucon_stack_t KV, cucon_pmap_t M);
  * push them onto \a KG. */
 void cugra_move_MSC_subgraphs(cugra_graph_t G, cucon_stack_t KG);
 
-#ifdef CUCON_HAVE_BUDDY
+#ifdef CUCONF_HAVE_BUDDY
 /*!Inserts a minimum feedback vertex set of \a G into \a V.  Only available if
  * culibs is linked with BuDDY. */
 void cugra_MFVS(cugra_graph_t G, cucon_pset_t V);

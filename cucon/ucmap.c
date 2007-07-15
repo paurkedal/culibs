@@ -18,6 +18,7 @@
 #include <cucon/ucmap.h>
 #include <cu/memory.h>
 #include <cu/int.h>
+#include <cu/halloc.h>
 #include <inttypes.h>
 
 #if cuconP_UCMAP_EXIST_IN_LEFT
@@ -56,12 +57,13 @@ ucnode_new(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right,
     left = (cucon_ucmap_t)((uintptr_t)left | 1);
 #endif
 #if cuconP_UCMAP_ENABLE_HCONS
-    struct cucon_ucmap_s node;
-    node.key = key;
-    node.left = left;
-    node.right = right;
-    node.value = (uintptr_t)val;
-    return cudyn_hnew(cucon_ucmap, &node);
+    cudyn_hctem_decl(cucon_ucmap, tem);
+    cudyn_hctem_init(cucon_ucmap, tem);
+    cudyn_hctem_get(cucon_ucmap, tem)->key = key;
+    cudyn_hctem_get(cucon_ucmap, tem)->left = left;
+    cudyn_hctem_get(cucon_ucmap, tem)->right = right;
+    cudyn_hctem_get(cucon_ucmap, tem)->value = (uintptr_t)val;
+    return cudyn_hctem_new(cucon_ucmap, tem);
 #else
     cucon_ucmap_t node = cu_gnew(struct cucon_ucmap_s);
     node->key = key;
@@ -76,12 +78,13 @@ CU_SINLINE cucon_ucmap_t
 ucnode_new_noval(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right)
 {
 #if cuconP_UCMAP_ENABLE_HCONS
-    struct cucon_ucmap_s node;
-    node.key = key;
-    node.left = left;
-    node.right = right;
-    node.value = 0;
-    return cudyn_hnew(cucon_ucmap, &node);
+    cudyn_hctem_decl(cucon_ucmap, tem);
+    cudyn_hctem_init(cucon_ucmap, tem);
+    cudyn_hctem_get(cucon_ucmap, tem)->key = key;
+    cudyn_hctem_get(cucon_ucmap, tem)->left = left;
+    cudyn_hctem_get(cucon_ucmap, tem)->right = right;
+    cudyn_hctem_get(cucon_ucmap, tem)->value = 0;
+    return cudyn_hctem_new(cucon_ucmap, tem);
 #else
     cucon_ucmap_t node = cu_gnew(struct cucon_ucmap_s);
     node->key = key;

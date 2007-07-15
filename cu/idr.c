@@ -17,18 +17,20 @@
 
 #include <cu/idr.h>
 #include <cu/util.h>
+#include <cu/halloc.h>
 
 cu_idr_t
 cu_idr_by_cstr(char const *cstr)
 {
     size_t cstr_size = strlen(cstr) + 1;
-    size_t idr_size = sizeof(struct cu_idr_s) + cu_aligned_ceil(cstr_size);
-    cu_idr_t idr = cu_salloc(idr_size);
+    size_t key_size = CU_HCOBJ_KEY_SIZE(sizeof(struct cu_idr_s) + cstr_size);
+    cu_idr_t idr = cu_salloc(key_size + CU_HCOBJ_SHIFT);
     char *a_cstr = (char *)(idr + 1);
-    idr->key_size = idr_size - offsetof(struct cu_idr_s, key_size);
-    *(cu_word_t *)((char *)idr + idr_size - sizeof(cu_word_t)) = 0;
+    idr->key_size = key_size;
     memcpy(a_cstr, cstr, cstr_size);
-    idr = cuex_halloc_by_value(cudyn_type_to_meta(cu_idr_type()), idr_size, idr);
+    memset(a_cstr + cstr_size, 0,
+	   key_size - sizeof(struct cu_idr_s) - cstr_size + CU_HCOBJ_SHIFT);
+    idr = cudyn_halloc(cu_idr_type(), key_size, (char *)idr + CU_HCOBJ_SHIFT);
     return idr;
 }
 
@@ -36,14 +38,14 @@ cu_idr_t
 cu_idr_by_charr(char const *arr, size_t charr_size)
 {
     size_t cstr_size = charr_size + 1;
-    size_t idr_size = sizeof(struct cu_idr_s) + cu_aligned_ceil(cstr_size);
-    cu_idr_t idr = cu_salloc(idr_size);
+    size_t key_size = CU_HCOBJ_KEY_SIZE(sizeof(struct cu_idr_s) + cstr_size);
+    cu_idr_t idr = cu_salloc(key_size + CU_HCOBJ_SHIFT);
     char *a_arr = (char *)(idr + 1);
-    idr->key_size = idr_size - offsetof(struct cu_idr_s, key_size);
-    *(cu_word_t *)((char *)idr + idr_size - sizeof(cu_word_t)) = 0;
+    idr->key_size = key_size;
     memcpy(a_arr, arr, charr_size);
-    a_arr[charr_size] = 0;
-    idr = cuex_halloc_by_value(cudyn_type_to_meta(cu_idr_type()), idr_size, idr);
+    memset(a_arr + charr_size, 0,
+	   key_size - sizeof(struct cu_idr_s) - charr_size + CU_HCOBJ_SHIFT);
+    idr = cudyn_halloc(cu_idr_type(), key_size, (char *)idr + CU_HCOBJ_SHIFT);
     return idr;
 }
 

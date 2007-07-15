@@ -57,6 +57,12 @@ CU_BEGIN_DECLARATIONS
  * key as the first argument and one or two values as the next arguments.
  * \ingroup cuex_atree_h */
 
+extern cudyn_stdtype_t cuexP_anode_type;
+
+CU_SINLINE cudyn_type_t
+cuex_anode_type()
+{ return cudyn_stdtype_to_type(cuexP_anode_type); }
+
 /*!An empty container. */
 CU_SINLINE cuex_t
 cuex_atree_empty()

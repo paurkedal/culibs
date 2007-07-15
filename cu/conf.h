@@ -17,7 +17,7 @@
 
 #include <cu/conf_ac.h>
 #ifdef CUCONF_HAVE_GC_REGISTER_RECLAIM_NOTIFIER
-#  define CUCONF_HAVE_GC_DISCLAIM
+#  define CUCONF_ENABLE_GC_DISCLAIM
 #endif
 #ifdef NDEBUG
 #  define CU_NDEBUG

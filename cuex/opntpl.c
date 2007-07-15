@@ -22,7 +22,7 @@ cuex_opntpl_new(cuex_meta_t opr)
 {
     cu_rank_t r = cuex_opr_r(opr);
     size_t size = cuex_sizeof_opn(r);
-    cuex_opn_t opn = cuex_oalloc(opr, size);
+    cuex_opn_t opn = cuexP_oalloc(opr, size);
     return opn;
 }
 

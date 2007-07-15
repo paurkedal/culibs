@@ -20,6 +20,7 @@
 
 #include <cuex/fwd.h>
 #include <cuex/ex.h>
+#include <cu/halloc.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_opn_h cuex/opn.h: Additional Interface for Operations
@@ -41,10 +42,21 @@ cuex_opn_t cuex_opn(cuex_meta_t opr, /*operand*/...);
 /*!As \ref cuex_opn, but with varargs prepared by caller. */
 cuex_opn_t cuex_opn_by_valist(cuex_meta_t opr, va_list operand_valist);
 
+cuex_opn_t cuexP_opn_by_arr_with_ctor(cuex_meta_t opr, cuex_t *arr);
+
 /*!Create an operation of \a opr applied to \a arr.  The array
  * should contain \c cuex_opr_r(opr) values of dynamically typed objects
  * and operations. */
-cuex_opn_t cuex_opn_by_arr(cuex_meta_t opr, cuex_t *arr);
+CU_SINLINE cuex_opn_t
+cuex_opn_by_arr(cuex_meta_t opr, cuex_t *arr)
+{
+    if (cu_expect_false(cuex_opr_has_ctor(opr)))
+	return cuexP_opn_by_arr_with_ctor(opr, arr);
+    return cuexP_halloc_raw(
+	opr,
+	CUDYN_HCOBJ_KEY_SIZEW(cuex_opr_r(opr)*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	arr);
+}
 
 /*!Returns the arity of the operator of \a opn. */
 CU_SINLINE cu_rank_t cuex_opn_arity(cuex_opn_t opn)

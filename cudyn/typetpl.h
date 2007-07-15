@@ -66,16 +66,15 @@ CU_BEGIN_DECLARATIONS
     cudyn_##NAME(type_t x)						\
     {									\
 	if (sizeof(type_t) >= sizeof(cu_word_t))			\
-	    return cudyn_halloc_by_key(cudyn_##NAME##_type(),		\
-				       sizeof(type_t), &x);		\
+	    return cudyn_halloc(cudyn_##NAME##_type(), sizeof(type_t), &x);\
 	else {								\
 	    struct {							\
 		type_t xp;						\
 		char padding[sizeof(cu_word_t) > sizeof(type_t)		\
 			     ? sizeof(cu_word_t) - sizeof(type_t) : 1]; \
 	    } tpl = { x };						\
-	    return cudyn_halloc_by_key(cudyn_##NAME##_type(),		\
-				       sizeof(cu_word_t), &tpl);	\
+	    return cudyn_halloc(cudyn_##NAME##_type(),			\
+				sizeof(cu_word_t), &tpl);		\
 	}								\
     }									\
 									\
@@ -166,8 +165,8 @@ CU_BEGIN_DECLARATIONS
     cudyn_##NAME##arr(size_t cnt, type_t *arr)				\
     {									\
 	if (sizeof(type_t) >= sizeof(cu_word_t))			\
-	    return cudyn_halloc_by_key(cudyn_##NAME##arr_type(cnt),	\
-					sizeof(type_t)*cnt, arr);	\
+	    return cudyn_halloc(cudyn_##NAME##arr_type(cnt),		\
+				sizeof(type_t)*cnt, arr);		\
 	else								\
 	    cu_bugf("unimplemented");					\
     }									\

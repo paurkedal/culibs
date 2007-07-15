@@ -139,43 +139,48 @@ cudynP_type_ffitype_ciflck(cudyn_type_t type)
 	return &ffi_type_pointer;
 }
 
+cu_clos_def(proto_init_cif, cu_prot(void, void *proto), (int r;))
+{
+    cu_clos_self(proto_init_cif);
+#define proto ((cudyn_proto_t)proto)
+    size_t i;
+    ffi_type **arg_ffi_arr;
+    ffi_type *res_ffi;
+    ffi_status err;
+    arg_ffi_arr = (void *)(proto + 1);
+    ffi_type **arg_ffi_cur = arg_ffi_arr;
+    cu_mutex_lock(&cif_mutex);
+    for (i = 0; i < self->r; ++i) {
+	cudyn_type_t t = cudyn_tuptype_at(proto->arg_type, i);
+	*arg_ffi_cur = cudynP_type_ffitype_ciflck(t);
+    }
+    res_ffi = cudynP_type_ffitype_ciflck(proto->res_type);
+    cu_mutex_unlock(&cif_mutex);
+    err = ffi_prep_cif(&proto->cif, FFI_DEFAULT_ABI,
+		       self->r, res_ffi, arg_ffi_arr);
+    cu_debug_assert(err == FFI_OK);
+#undef proto
+}
+
 cudyn_proto_t
 cudyn_proto_by_tuptype(cudyn_tuptype_t arg_type, cudyn_type_t res_type)
 {
+    proto_init_cif_t init;
     size_t r = cudyn_tuptype_tcomp_cnt(arg_type);
-    struct cudyn_proto_s proto;
-    cudyn_proto_t p;
+    struct cudyn_proto_s key;
+    cudyn_proto_t proto;
     size_t size = sizeof(struct cudyn_proto_s) + r*sizeof(ffi_type *);
-    cudynP_hctype_cct_hcs(cu_to(cudyn_hctype, &proto), NULL,
+    cudynP_hctype_cct_hcs(cu_to(cudyn_hctype, &key), NULL,
 			  cudyn_typekind_proto, sizeof(cu_fnptr_t));
-    proto.arg_type = arg_type;
-    proto.res_type = res_type;
-    p = cudyn_halloc_general(cudyn_proto_type(), size,
-			     CUDYN_PROTO_KEY_SIZE, CUDYN_PROTO_KEY_SIZE,
-			     cu_ptr_add(&proto, CU_HCOBJ_SHIFT));
+    key.arg_type = arg_type;
+    key.res_type = res_type;
+    init.r = r;
+    proto = cudyn_halloc_extra(cudyn_proto_type(), size,
+			       CUDYN_PROTO_KEY_SIZE,
+			       cu_ptr_add(&key, CU_HCOBJ_SHIFT),
+			       proto_init_cif_prep(&init));
 //XXX    cu_debug_assert(r != 0 || cudyn_type_is_sngtype(arg_type));
-    if (!AO_load_acquire_read(&p->done_cif)) {
-	cu_mutex_lock(&cif_mutex);
-	if (!p->done_cif) {
-	    size_t i;
-	    ffi_type **arg_ffi_arr;
-	    ffi_type *res_ffi;
-	    ffi_status err;
-	    p->done_cif = 1;
-	    arg_ffi_arr = (void *)(p + 1);
-	    ffi_type **arg_ffi_cur = arg_ffi_arr;
-	    for (i = 0; i < r; ++i) {
-		cudyn_type_t t = cudyn_tuptype_at(arg_type, i);
-		*arg_ffi_cur = cudynP_type_ffitype_ciflck(t);
-	    }
-	    res_ffi = cudynP_type_ffitype_ciflck(res_type);
-	    err = ffi_prep_cif(&p->cif, FFI_DEFAULT_ABI,
-			       r, res_ffi, arg_ffi_arr);
-	    cu_debug_assert(err == FFI_OK);
-	}
-	cu_mutex_unlock(&cif_mutex);
-    }
-    return p;
+    return proto;
 }
 
 cudyn_proto_t
@@ -268,9 +273,12 @@ cudyn_proto_apply_fn(cudyn_proto_t proto, cu_fnptr_t fn,
     if (cudyn_type_is_inltype(res_type)) {
 	size_t size = cudyn_type_size(res_type);
 	if (cudyn_type_is_hctype(res_type)) {
-	    void *res_data = cu_salloc(size);
+	    void *res_data;
+	    size_t key_sizew = CUDYN_HCOBJ_KEY_SIZEW(size + CU_HCOBJ_SHIFT);
+	    res_data = cu_salloc(key_sizew*CU_WORD_SIZE);
 	    ffi_call(&proto->cif, fn, res_data, ffi_arg_arr);
-	    return cudyn_halloc_by_key_unaligned(res_type, size, res_data);
+	    return cuexP_halloc_raw(cudyn_type_to_meta(res_type),
+				    key_sizew, res_data);
 	}
 	else {
 	    void *res = cudyn_oalloc(res_type, size + CU_OBJ_SHIFT);

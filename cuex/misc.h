@@ -23,7 +23,7 @@
 CU_BEGIN_DECLARATIONS
 
 extern cudyn_stdtype_t cuexP_long_type;
-#define cuex_long_type() cuexP_long_type
+#define cuex_long_type() cudyn_stdtype_to_type(cuexP_long_type)
 
 cuex_t cuex_of_long(long);
 

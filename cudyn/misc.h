@@ -69,7 +69,7 @@ CU_SINLINE cudyn_type_t cudyn_bool_type()
 CU_SINLINE cuex_t cudyn_bool(cu_bool_t x)
 {
     x = !!x;
-    return cudyn_halloc_by_key(cudyn_bool_type(), sizeof(cu_word_t), &x);
+    return cudyn_halloc(cudyn_bool_type(), sizeof(cu_word_t), &x);
 }
 
 CU_SINLINE cu_bool_t cudyn_is_bool(cuex_t ex)
@@ -149,8 +149,7 @@ CUDYN_ETYPEARR_ALIAS(ulong, unsigned long, uint64)
 CU_SINLINE cuex_t
 cudyn_ptr(cudyn_ptrtype_t ptrtype, void *ptr)
 {
-    return cudyn_halloc_by_key(cudyn_ptrtype_to_type(ptrtype),
-				sizeof(void *), &ptr);
+    return cudyn_halloc(cudyn_ptrtype_to_type(ptrtype), sizeof(void *), &ptr);
 }
 
 CU_SINLINE void *
