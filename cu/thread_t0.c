@@ -19,6 +19,7 @@
 #include <cu/clos.h>
 #include <cu/test.h>
 #include <atomic_ops.h>
+#include <unistd.h>
 
 AO_t startup_count = 0;
 AO_t cleanup_count = 0;

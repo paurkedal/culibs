@@ -16,6 +16,7 @@
  */
 
 #include <cuflow/cache.h>
+#include <cuflow/cacheconf.h>
 #include <cuflow/cache_b0_tab.h>
 #include <cuflow/time.h>
 

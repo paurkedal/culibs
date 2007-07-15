@@ -17,6 +17,7 @@
 
 #include <cuflow/cached.h>
 #include <cuflow/tstate.h>
+#include <cuflow/workers.h>
 
 cuflow_cached_sdecl(plus, (int x; int y;), (int z;))
 

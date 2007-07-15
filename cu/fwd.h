@@ -151,6 +151,7 @@ typedef int cu_countdiff_t;
 
 typedef uintptr_t cuex_meta_t;
 #define CUEX_META_C(c) CU_UINTPTR_C(c)
+#define CUEX_META_SIZE CUCONF_SIZEOF_INTPTR_T
 
 
 /* Compound Types

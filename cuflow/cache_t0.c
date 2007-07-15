@@ -17,6 +17,7 @@
 
 #define _POSIX_C_SOURCE 199309
 #include <cuflow/cache.h>
+#include <cuflow/cacheconf.h>
 #include <cuflow/cache_t0_tab.h>
 #include <cuflow/time.h>
 #include <math.h>
