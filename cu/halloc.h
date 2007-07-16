@@ -25,7 +25,7 @@
 
 CU_BEGIN_DECLARATIONS
 
-/*!\defgroup cu_hcons_h cu/halloc.h: Hash-Construction
+/*!\defgroup cu_hcons_h cu/halloc.h: Hash-Consing Allocation
  * @{\ingroup cu_mod */
 
 #define CUDYN_HCOBJ_KEY_SIZEW(struct_size) \
@@ -49,29 +49,30 @@ cudynP_halloc_extra_raw(cudyn_hctype_t type, size_t raw_alloc_sizeg,
 /*!Assuming a declaration of a struct <tt><em>prefix</em>_s</tt> which starts
  * with a \ref CU_HCOBJ statement, this macro returns the key-size to use for
  * hash-consing object of the struct. */
-#define CUDYN_HCTEM_KEY_SIZE(prefix) (sizeof(struct prefix##_s) - CU_HCOBJ_SHIFT)
+#define cudyn_hctem_key_size(prefix) (sizeof(struct prefix##_s) - CU_HCOBJ_SHIFT)
 
 /*!This is part of several high-level hash-cosning macros summarised under \ref
- * cu_hckey_new.
+ * cudyn_hctem_new.
  * This macro emits a declaration of a key-template used for hash-consed
- * allocation.  \a key must be initialised with \ref cu_hckey_init and assigned
- * through the pointer returned by \a cu_hckey_get. */
-#define cudyn_hctem_decl(prefix, key) char key[CUDYN_HCTEM_KEY_SIZE(prefix)]
+ * allocation.  \a key must be initialised with \ref cudyn_hctem_init and
+ * assigned through the pointer returned by \a cudyn_hctem_get. */
+#define cudyn_hctem_decl(prefix, key) char key[cudyn_hctem_key_size(prefix)]
 
 /*!This is part of several high-level hash-consing macros summarised under \ref
- * cu_hckey_new.
+ * cudyn_hctem_new.
  * This macro initialises the template \a key, which must be declared with \ref
- * cu_hckey_decl.  Use this to zero the template before assigning to the
+ * cudyn_hctem_decl.  Use this to zero the template before assigning to the
  * members.  Compiler optimisation typically means only the data which is not
- * subsequently assigned though the \ref cu_hckey_get pointer will be zeroed.
- * In particular, calling \ref cu_hckey_init makes sure that padding at the end
- * of the struct and holes in the struct due to alignment constraints do not
- * contain arbitrary data which would invalidate the hash-consing. */
+ * subsequently assigned though the \ref cudyn_hctem_get pointer will be
+ * zeroed.  In particular, calling \ref cudyn_hctem_init makes sure that
+ * padding at the end of the struct and holes in the struct due to alignment
+ * constraints do not contain arbitrary data which would invalidate the
+ * hash-consing. */
 #define cudyn_hctem_init(prefix, key) \
-    (memset(&(key), 0, CUDYN_HCTEM_KEY_SIZE(prefix)))
+    (memset(&(key), 0, cudyn_hctem_key_size(prefix)))
 
 /*!This is part of several high-level hash-consing macros summarised under \ref
- * cu_hckey_new.
+ * cudyn_hctem_new.
  * Given a prefix and a template variable \a key, returns a pointer to the
  * template struct, which has type <tt><em>prefix</em>_s *</tt>. */
 #define cudyn_hctem_get(prefix, key)					\
@@ -85,9 +86,9 @@ cudynP_halloc_extra_raw(cudyn_hctype_t type, size_t raw_alloc_sizeg,
  * Given previous definition of a <tt>struct <em>prefix</em>_s</tt> and a
  * function <tt><em>prefix</em>_type()</tt> returning the corresponding dynamic
  * type, this macro returns a hash-constructed object from the initialised
- * template \a key.  This macro is used in conjunction with \ref cu_hckey_decl,
- * \ref cu_hckey_init, \ref cu_hckey_get, and it's maybe best understood from
- * an example, here creating a dynamic pair:
+ * template \a key.  This macro is used in conjunction with \ref
+ * cudyn_hctem_decl, \ref cudyn_hctem_init, \ref cudyn_hctem_get, and it's
+ * maybe best understood from an example, here creating a dynamic pair:
  * \code
  * struct pair_s {
  *     CU_HCOBJ
@@ -99,20 +100,20 @@ cudynP_halloc_extra_raw(cudyn_hctype_t type, size_t raw_alloc_sizeg,
  *
  * struct pair_s *pair_new(cuex_t left, cuex_t right)
  * {
- *     cu_hckey_decl(pair, key);
- *     cu_hckey_init(pair, key);
- *     cu_hckey_get(pair, key)->left = left;
- *     cu_hckey_get(pair, key)->right = right;
- *     return cu_hckey_new(pair, key);
+ *     cudyn_hctem_decl(pair, key);
+ *     cudyn_hctem_init(pair, key);
+ *     cudyn_hctem_get(pair, key)->left = left;
+ *     cudyn_hctem_get(pair, key)->right = right;
+ *     return cudyn_hctem_new(pair, key);
  * }
  * \endcode
- * The cu_hckey_* macros only work when following the above naming conventions
+ * The cudyn_hctem_* macros only work when following the above naming conventions
  * for the struct and dynamic-type functions.  Otherwise, use \ref
  * cudyn_halloc.  */
 #define cudyn_hctem_new(prefix, key) \
     ((struct prefix##_s *) \
      cudyn_halloc(prefix##_type(), \
-			 CUDYN_HCTEM_KEY_SIZE(prefix), &(key)))
+			 cudyn_hctem_key_size(prefix), &(key)))
 
 #define cu_hc_key_hash cu_wordarr_hash
 
