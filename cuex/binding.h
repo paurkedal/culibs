@@ -73,7 +73,7 @@ CU_SINLINE cuex_t cuex_bfree_adjusted(cuex_t e, int l_diff)
 int cuex_max_binding_depth(cuex_t e);
 
 /*!Returns a map {\e x → \e S}, where \e x corresponds to a μ-bind
- * subexpression of \a e, and \e S is a \ref cuex_uset_s of the de Bruijn
+ * subexpression of \a e, and \e S is a \ref cucon_uset_s of the de Bruijn
  * indices of the free λ-variables of the body of the μ-bind.  The keys \e x is
  * a list of left-associated \ref CUEX_O2_METAPAIR of all μ-bind expressions
  * down to and including the one \e S applies to.

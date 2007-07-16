@@ -45,7 +45,7 @@ CU_SINLINE cu_bool_t cuex_is_tvarmeta_q(cuex_meta_t meta, cuex_qcode_t qc)
 CU_SINLINE cu_bool_t cuex_is_tvarmeta(cuex_meta_t meta)
 { return cuex_is_varmeta_k(meta, cuex_varkind_tvar); }
 
-
+/*!Typed and type-representing variable type. */
 struct cuex_tvar_s
 {
     cu_inherit (cudyn_type_s);

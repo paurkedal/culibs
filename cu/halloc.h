@@ -148,6 +148,8 @@ cuexP_halloc(cuex_meta_t meta, size_t key_size, void *key)
 			    key);
 }
 
+/*!General hash-consing allocation, allowing more control than \ref
+ * cudyn_hctem_new. */
 CU_SINLINE void *
 cudyn_halloc(cudyn_type_t type, size_t key_size, void *key)
 {
@@ -156,6 +158,10 @@ cudyn_halloc(cudyn_type_t type, size_t key_size, void *key)
 			    key);
 }
 
+/*!General hash-consing allocation with extra non-keyed memory.  This generally
+ * takes more GC cycles to clean up and is therefore more expensive than \ref
+ * cudyn_halloc, but it allows caching computations and associating properties
+ * to live objects. */
 CU_SINLINE void *
 cudyn_halloc_extra(cudyn_type_t type, size_t struct_size,
 		   size_t key_size, void *key,
