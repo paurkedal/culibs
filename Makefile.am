@@ -26,7 +26,7 @@ pkgconfig_DATA =
 noinst_DATA =
 EXTRA_DIST =
 BUILT_SOURCES = cu/conf_ac.h
-CLEANFILES =
+CLEANFILES = cu/conf_ac.h
 
 
 # Per-Module Build Instructions
@@ -44,7 +44,6 @@ if enable_cucon
     dist_bin_SCRIPTS	+= bin/sedi
 endif
 EXTRA_DIST		+= cu/cu.am cucon/cucon.am
-#CLEANFILES		+= cu/conf_ac.h
 
 include cuflow/cuflow.am
 if enable_cuflow
@@ -57,7 +56,6 @@ if enable_cuflow
     noinst_DATA		+= pkgconfig/cuflow-uninstalled.pc
 endif
 EXTRA_DIST		+= cuflow/cuflow.am
-#BUILT_SOURCES		+= $(cuflow_built_sources)
 
 include cugra/cugra.am
 if enable_cugra

@@ -94,7 +94,6 @@ endif
 	$(top_builddir)/cuex/cuex-otab -o $* $<
 
 cuex_check_programs = \
-	cuex/aci_t0 \
 	cuex/algo_t0 \
 	cuex/atree_t0 \
 	cuex/atree_b0 \
@@ -111,7 +110,8 @@ cuex_check_programs = \
 	cuex/var_t0
 
 cuex_norun_check_programs = \
-	cuex/aci_b0
+	cuex/aci_b0 \
+	cuex/aci_t0
 
 cuex_aci_b0_SOURCES = cuex/aci_b0.c
 cuex_aci_b0_LDADD = libcuex.la -lm
@@ -149,5 +149,4 @@ cuex_var_t0_LDADD = libcuex.la
 endif
 
 EXTRA_DIST += \
-	cuex/cuex.am \
-	cuex/cuex_otcomp
+	cuex/cuex.am

@@ -18,6 +18,7 @@ cu_headers = \
 	cu/init.h \
 	cu/int.h \
 	cu/memory.h \
+	cu/oalloc.h \
 	cu/rarex.h \
 	cu/scratch.h \
 	cu/sref.h \
