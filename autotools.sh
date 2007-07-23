@@ -29,7 +29,7 @@ for v in $automake_versions; do
     fi
 done
 
-[[ -d build-aux ]] || mkdir build-aux
+[ -d build-aux ] || mkdir build-aux
 echodo libtoolize --automake --force --copy
 #ACLOCAL_FLAGS="-I . $ACLOCAL_AMFLAGS"
 #export ACLOCAL_FLAGS
