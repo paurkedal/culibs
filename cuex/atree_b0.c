@@ -47,11 +47,14 @@ bench(int N, int R)
 
 int main()
 {
+    clock_t t_tot = -clock();
     double i, z = 1.0;
     cuex_init();
     for (i = 2.0; i < 40000; i *= 1.4142) {
 	bench(i, 80000/z);
 	z += 0.5;
     }
+    t_tot += clock();
+    fprintf(stderr, "Total time: %lg\n", t_tot/(double)CLOCKS_PER_SEC);
     return 0;
 }
