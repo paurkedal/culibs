@@ -6,18 +6,17 @@ body {
 	margin-bottom: 0;
 	margin-top: 0;
 }
-h1, h2, h3, h4, h5, h6 {
+h2, h3, h4, h5, h6 {
 	color: col_dark0;
+	font-weight: bold;
 }
+h2 { border-bottom: solid thin col_dark0; }
 a {
 	color: col_dark1;
 	text-decoration: none;
 }
 a:hover {
 	text-decoration: underline;
-}
-p, li {
-	text-align: justify;
 }
 ul { list-style: square; }
 
@@ -35,6 +34,7 @@ address a, ul.crumbs a {
 	color: white;
 	text-decoration: underline;
 }
+address { margin-top: 6mm; }
 ul.crumbs {
 	margin-top: 0;
 	list-style: none;

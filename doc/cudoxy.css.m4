@@ -10,19 +10,6 @@ body {
 }
 a.anchor { color: inherit; text-decoration: none; }
 td.indexkey a.el { font-weight: bold; }
-dnl a:link,    div.qindex a:link,
-dnl a:visited, div.qindex a:visited,
-dnl a:hover,   div.qindex a:hover,
-dnl a:active,  div.qindex a:active {
-dnl 	color: col_dark0;
-dnl 	text-decoration: underline;
-dnl }
-dnl a:hover,  div.qindex a:hover,
-dnl a:active, div.qindex a:active {
-dnl 	color: col_dark0;
-dnl 	background-color: #eeddcc;
-dnl 	text-decoration: underline;
-dnl }
 h3[align=center] { text-align: left; color: black; margin-bottom: 8mm; }
 h3[align=center]:before { content: "Version "; color: black; }
 
@@ -45,18 +32,15 @@ div.tabs ul {
 }
 div.tabs li {
 	display: inline;
-	padding: 0; /*padding-top: 1mm; padding-bottom: 1mm;*/
-	margin: 0;
+	padding: 0;
 }
-div.tabs li { padding-left: 1px; padding-right: 1px; }
 div.tabs li + li { margin-left: 1em; }
-div.tabs li#current { background-color: col_dark0l; }
+dnl div.tabs li:before { content: "   "; }
+dnl div.tabs li:after { content: "   "; }
+div.tabs li.current { font-weight: bold; }
+div.tabs li.current:before { content: "‹"; }
+div.tabs li.current:after { content: "›"; }
 div.tabs a:link, div.tabs a:visited { color: #eeeeee; }
-
-dnl a, div.qindex a {
-dnl 	color: black;
-dnl 	text-decoration: none;
-dnl }
 
 hr {
 	display: none;
@@ -128,13 +112,15 @@ dnl         td.paramname
 dnl div.memdoc
 dnl
 dnl Not used: .memtemplate, .memnav
-table.memname {
+div.memproto {
 	border-top: solid 1px col_dark0;
 	border-left: solid 1mm col_dark0;
 	margin-left: -3mm;  padding-left: 2mm;
 	margin-right: -3mm; padding-right: 3mm;
-	font-family: monospace;
 	background-color: col_light0;
+}
+table.memname {
+	font-family: monospace;
 	width: 100%;
 }
 td.memname, td.memkey {

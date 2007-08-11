@@ -1,11 +1,11 @@
 /*!\mainpage Garbage Collected C Libraries
 
+\section synopsis Synopsis
+
 \htmlonly
 <a style='display: float; float: right' href='http://gplv3.fsf.org/'>
 <img style='border: none' src='gplv3-127x51.png'></a>
 \endhtmlonly
-
-\section synopsis Synopsis
 
 This is a reference manual for the culibs, which is a set of libraries of
 basic (strings, containers) as well as more special-purpose (expressions)
