@@ -22,7 +22,6 @@
 #include <cudyn/properties.h>
 #include <cudyn/typetpl.h>
 #include <cudyn/type.h>
-#include <cuex/ex.h>
 #include <cu/idr.h>
 #include <stdlib.h>
 #include <stdint.h>

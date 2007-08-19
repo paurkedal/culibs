@@ -18,7 +18,6 @@
 #ifndef CUDYN_PROP_H
 #define CUDYN_PROP_H
 
-#include <cuex/fwd.h>
 #include <cudyn/fwd.h>
 #include <cucon/pmap.h>
 #include <cu/rarex.h>

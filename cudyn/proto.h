@@ -19,7 +19,6 @@
 #define CHI_CFN_H
 
 #include <cudyn/type.h>
-#include <cuex/fwd.h>
 #ifdef CUCONF_HAVE_LIBFFI_FFI_H
 #  include <libffi/ffi.h>
 #else
