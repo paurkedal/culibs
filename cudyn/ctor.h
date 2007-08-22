@@ -24,7 +24,7 @@ CU_BEGIN_DECLARATIONS
 
 struct cudyn_ctortype_s
 {
-    cu_inherit (cudyn_hctype_s);
+    cu_inherit (cudyn_type_s);
     cudyn_duntype_t fulltype;
     cudyn_tuptype_t parttype;
 };
@@ -43,9 +43,8 @@ CU_SINLINE cu_bool_t cudyn_meta_is_ctortype(cuex_meta_t meta)
 CU_SINLINE cu_bool_t cudyn_type_is_ctortype(cudyn_type_t t)
 { return t->typekind == cudyn_typekind_ctortype; }
 
-#define cudyn_ctortype_to_type(t) cu_to2(cudyn_type, cudyn_hctype, t)
-#define cudyn_ctortype_from_type(t) \
-	cu_from2(cudyn_ctortype, cudyn_hctype, cudyn_type, t)
+#define cudyn_ctortype_to_type(t) cu_to(cudyn_type, t)
+#define cudyn_ctortype_from_type(t) cu_from(cudyn_ctortype, cudyn_type, t)
 
 /*!Return the type of a constructor for a partition of type \a parttype
  * of \a restype.

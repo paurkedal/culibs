@@ -36,7 +36,7 @@ CU_BEGIN_DECLARATIONS
 
 struct cudyn_inltype_s
 {
-    cu_inherit (cudyn_hctype_s);
+    cu_inherit (cudyn_type_s);
     AO_t layout;	/* actually cucon_layout_t */
     AO_t ffitype;
 };
@@ -85,9 +85,9 @@ CU_SINLINE cu_bool_t cudyn_type_is_ptrtype(cudyn_type_t t)
 { return cudyn_type_typekind(t) == cudyn_typekind_ptrtype; }
 
 #define cudyn_ptrtype_to_type(t) \
-    cu_to3(cudyn_type, cudyn_hctype, cudyn_inltype, t)
+    cu_to2(cudyn_type, cudyn_inltype, t)
 #define cudyn_ptrtype_from_type(t) \
-    cu_from3(cudyn_ptrtype, cudyn_inltype, cudyn_hctype, cudyn_type, t)
+    cu_from2(cudyn_ptrtype, cudyn_inltype, cudyn_type, t)
 
 /*!Type of pointers to objects of \a deref. */
 cudyn_ptrtype_t cudyn_ptrtype(cuex_t deref);
@@ -117,9 +117,9 @@ CU_SINLINE cu_bool_t cudyn_type_is_elmtype(cudyn_type_t t)
 { return cudyn_type_typekind(t) >= cudyn_typekind_elmtype_MIN; }
 
 #define cudyn_elmtype_to_type(t) \
-    cu_to3(cudyn_type, cudyn_hctype, cudyn_inltype, t)
+    cu_to2(cudyn_type, cudyn_inltype, t)
 #define cudyn_elmtype_from_type(t) \
-    cu_from3(cudyn_elmtype, cudyn_inltype, cudyn_hctype, cudyn_type, t)
+    cu_from2(cudyn_elmtype, cudyn_inltype, cudyn_type, t)
 
 /*!Create a unique elementary type, of which objects are \a size bytes,
  * require \a alignment bytes alignement and FFI type \a ffitype. */
@@ -156,9 +156,9 @@ CU_SINLINE cu_bool_t cudyn_meta_is_arrtype(cuex_meta_t meta)
       && cudyn_type_is_arrtype(cudyn_type_from_meta(meta)); }
 
 #define cudyn_arrtype_to_type(t) \
-    cu_to3(cudyn_type, cudyn_hctype, cudyn_inltype, t)
+    cu_to2(cudyn_type, cudyn_inltype, t)
 #define cudyn_arrtype_from_type(t) \
-    cu_from3(cudyn_arrtype, cudyn_inltype, cudyn_hctype, cudyn_type, t)
+    cu_from2(cudyn_arrtype, cudyn_inltype, cudyn_type, t)
 #define cudyn_arrtype_from_meta(meta) \
     cudyn_arrtype_from_type(cudyn_type_from_meta(meta))
 
@@ -205,9 +205,9 @@ CU_SINLINE cu_bool_t cudyn_type_is_tuptype(cudyn_type_t t)
 { return cudyn_type_typekind(t) == cudyn_typekind_tuptype; }
 
 #define cudyn_tuptype_to_type(t) \
-    cu_to3(cudyn_type, cudyn_hctype, cudyn_inltype, t)
+    cu_to2(cudyn_type, cudyn_inltype, t)
 #define cudyn_tuptype_from_type(t) \
-    cu_from3(cudyn_tuptype, cudyn_inltype, cudyn_hctype, cudyn_type, t)
+    cu_from2(cudyn_tuptype, cudyn_inltype, cudyn_type, t)
 
 cudyn_tuptype_t cudyn_tuptype_glck(cuex_t typeex);
 
@@ -259,9 +259,9 @@ CU_SINLINE cudyn_type_t cudyn_sngtype_type()
 { return cudyn_stdtype_to_type(cudynP_sngtype_type); }
 
 #define cudyn_sngtype_to_type(t) \
-    cu_to3(cudyn_type, cudyn_hctype, cudyn_inltype, t)
+    cu_to2(cudyn_type, cudyn_inltype, t)
 #define cudyn_sngtype_from_type(t) \
-    cu_from3(cudyn_sngtype, cudyn_inltype, cudyn_hctype, cudyn_type, t)
+    cu_from2(cudyn_sngtype, cudyn_inltype, cudyn_type, t)
 
 /*!True iff \a ex is the singular type. */
 CU_SINLINE cu_bool_t cudyn_type_is_sngtype(cudyn_type_t t)
@@ -309,9 +309,9 @@ CU_SINLINE cu_bool_t cudyn_type_is_duntype(cudyn_type_t t)
 { return cudyn_type_typekind(t) == cudyn_typekind_duntype; }
 
 #define cudyn_duntype_to_type(t) \
-    cu_to3(cudyn_type, cudyn_hctype, cudyn_inltype, t)
+    cu_to2(cudyn_type, cudyn_inltype, t)
 #define cudyn_duntype_from_type(t) \
-    cu_from3(cudyn_duntype, cudyn_inltype_s, cudyn_hctype, cudyn_type, t)
+    cu_from2(cudyn_duntype, cudyn_inltype_s, cudyn_type, t)
 
 /*!Return the discriminated union of the partitions formed by joining
  * the keys of \a partmap as discriminators with the values of \a partmap.
@@ -365,8 +365,8 @@ cudyn_type_layout(cudyn_type_t type)
     if (cudyn_type_is_singular(type))
 	return cucon_layout_void();
     else if (cudyn_type_is_nonptr_inltype(type))
-	return (cucon_layout_t)cu_from2(cudyn_inltype, cudyn_hctype,
-					cudyn_type, type)->layout;
+	return (cucon_layout_t)cu_from(cudyn_inltype,
+				       cudyn_type, type)->layout;
     else
 	return cucon_layout_ptr();
 }

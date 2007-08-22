@@ -58,42 +58,42 @@ static cu_clop(stdobj_tran_default_clop,
 	       void *, void *, cu_clop(, void *, void *));
 
 void
-cudynP_hctype_cct_nonhc(cudyn_hctype_t type, cuex_t expr, cudyn_typekind_t kind)
+cudynP_type_cct_nonhc(cudyn_type_t type, cuex_t expr, cudyn_typekind_t kind)
 {
-    cudyn_hctype_to_type(type)->typekind = kind;
-    cudyn_hctype_to_type(type)->members_hcmethod = cudyn_hcmethod_none;
-    cudyn_hctype_to_type(type)->as_expr = expr;
+    type->typekind = kind;
+    type->members_hcmethod = cudyn_hcmethod_none;
+    type->as_expr = expr;
     type->u0.key_size = 0;
 }
 
 void
-cudynP_hctype_cct_hcs(cudyn_hctype_t type, cuex_t expr, cudyn_typekind_t kind,
-		      size_t key_size)
+cudynP_type_cct_hcs(cudyn_type_t type, cuex_t expr, cudyn_typekind_t kind,
+		    size_t key_size)
 {
-    cudyn_hctype_to_type(type)->typekind = kind;
-    cudyn_hctype_to_type(type)->members_hcmethod = cudyn_hcmethod_by_size;
-    cudyn_hctype_to_type(type)->as_expr = expr;
+    type->typekind = kind;
+    type->members_hcmethod = cudyn_hcmethod_by_size;
+    type->as_expr = expr;
     type->u0.key_size = key_size;
 }
 
 void
-cudynP_hctype_cct_hcv(cudyn_hctype_t t, cuex_t expr, cudyn_typekind_t kind,
-		      cu_clop(key_size_fn, size_t, void *))
+cudynP_type_cct_hcv(cudyn_type_t type, cuex_t expr, cudyn_typekind_t kind,
+		    cu_clop(key_size_fn, size_t, void *))
 {
-    cudyn_hctype_to_type(t)->typekind = kind;
-    cudyn_hctype_to_type(t)->members_hcmethod = cudyn_hcmethod_by_size_fn;
-    cudyn_hctype_to_type(t)->as_expr = expr;
-    t->u0.key_size_fn = key_size_fn;
+    type->typekind = kind;
+    type->members_hcmethod = cudyn_hcmethod_by_size_fn;
+    type->as_expr = expr;
+    type->u0.key_size_fn = key_size_fn;
 }
 
 void
-cudynP_hctype_cct_hcf(cudyn_hctype_t t, cuex_t expr, cudyn_typekind_t kind,
-		      cu_clop(key_hash_fn, cu_hash_t, void *))
+cudynP_type_cct_hcf(cudyn_type_t type, cuex_t expr, cudyn_typekind_t kind,
+		    cu_clop(key_hash_fn, cu_hash_t, void *))
 {
-    cudyn_hctype_to_type(t)->typekind = kind;
-    cudyn_hctype_to_type(t)->members_hcmethod = cudyn_hcmethod_by_hash_fn;
-    cudyn_hctype_to_type(t)->as_expr = expr;
-    t->u0.key_hash_fn = key_hash_fn;
+    type->typekind = kind;
+    type->members_hcmethod = cudyn_hcmethod_by_hash_fn;
+    type->as_expr = expr;
+    type->u0.key_hash_fn = key_hash_fn;
 }
 
 
@@ -103,7 +103,7 @@ cudynP_hctype_cct_hcf(cudyn_hctype_t t, cuex_t expr, cudyn_typekind_t kind,
 void
 cudyn_stdtype_cct(cudyn_stdtype_t type, cudyn_typekind_t kind)
 {
-    cudynP_hctype_cct_nonhc(cudyn_stdtype_to_hctype(type), NULL, kind);
+    cudynP_type_cct_nonhc(cudyn_stdtype_to_type(type), NULL, kind);
     type->finalise = cu_clop_null;
     type->conj = stdobj_conj_default_clop;
     type->tran = stdobj_tran_default_clop;
@@ -138,7 +138,7 @@ void
 cudyn_stdtype_cct_hcs(cudyn_stdtype_t type, cudyn_typekind_t kind,
 		      size_t key_size)
 {
-    cudynP_hctype_cct_hcs(cudyn_stdtype_to_hctype(type), NULL, kind, key_size);
+    cudynP_type_cct_hcs(cudyn_stdtype_to_type(type), NULL, kind, key_size);
     type->finalise = cu_clop_null;
     type->conj = stdobj_conj_default_clop;
     type->tran = stdobj_tran_default_clop;
@@ -148,8 +148,7 @@ void
 cudyn_stdtype_cct_hcv(cudyn_stdtype_t type, cudyn_typekind_t kind,
 		      cu_clop(key_size_fn, size_t, void *))
 {
-    cudynP_hctype_cct_hcv(cudyn_stdtype_to_hctype(type), NULL, kind,
-			  key_size_fn);
+    cudynP_type_cct_hcv(cudyn_stdtype_to_type(type), NULL, kind, key_size_fn);
     type->finalise = cu_clop_null;
     type->conj = stdobj_conj_default_clop;
     type->tran = stdobj_tran_default_clop;
@@ -200,11 +199,10 @@ cuex_key_size(cuex_meta_t meta, void *obj)
     case cuex_meta_kind_type:
 	t = cudyn_type_from_meta(meta);
 	if (t->members_hcmethod == cudyn_hcmethod_by_size)
-	    key_size = cudyn_hctype_from_type(t)->u0.key_size;
+	    key_size = t->u0.key_size;
 	else {
 	    cu_debug_assert(t->members_hcmethod == cudyn_hcmethod_by_size_fn);
-	    key_size = cu_call(cudyn_hctype_from_type(t)->u0.key_size_fn,
-			       obj);
+	    key_size = cu_call(t->u0.key_size_fn, obj);
 	}
 	cu_debug_assert(key_size % sizeof(cu_word_t) == 0);
 	break;
@@ -235,16 +233,13 @@ cuex_key_hash(void *obj)
 	    cu_debug_assert(cudyn_is_type(t) && cudyn_type_is_hctype(t));
 	    switch (t->members_hcmethod) {
 		case cudyn_hcmethod_by_size:
-		    key_size = cudyn_hctype_from_type(t)->u0.key_size;
+		    key_size = t->u0.key_size;
 		    break;
 		case cudyn_hcmethod_by_size_fn:
-		    key_size =
-			cu_call(cudyn_hctype_from_type(t)->u0.key_size_fn,
-				obj);
+		    key_size = cu_call(t->u0.key_size_fn, obj);
 		    break;
 		case cudyn_hcmethod_by_hash_fn:
-		    return cu_call(cudyn_hctype_from_type(t)->u0.key_hash_fn,
-				   obj);
+		    return cu_call(t->u0.key_hash_fn, obj);
 		default:
 		    cu_debug_unreachable();
 	    }

@@ -38,11 +38,11 @@ void *cuexP_halloc_extra_raw(cuex_meta_t meta, size_t raw_alloc_sizeg,
 			     size_t key_sizew, void *key,
 			     cu_clop(init_nonkey, void, void *));
 CU_SINLINE void *
-cudynP_halloc_extra_raw(cudyn_hctype_t type, size_t raw_alloc_sizeg,
+cudynP_halloc_extra_raw(cudyn_type_t type, size_t raw_alloc_sizeg,
 			size_t key_sizew, void *key,
 			cu_clop(init_nonkey, void, void *))
 {
-    return cuexP_halloc_extra_raw(cudyn_hctype_to_meta(type), raw_alloc_sizeg,
+    return cuexP_halloc_extra_raw(cudyn_type_to_meta(type), raw_alloc_sizeg,
 				  key_sizew, key, init_nonkey);
 }
 
@@ -168,7 +168,7 @@ cudyn_halloc_extra(cudyn_type_t type, size_t struct_size,
 		   cu_clop(init_nonkey, void, void *obj))
 {
     cu_debug_assert(key_size % CU_WORD_SIZE == 0);
-    return cudynP_halloc_extra_raw(cudyn_hctype_from_type(type),
+    return cudynP_halloc_extra_raw(type,
 				   CUDYN_HCOBJ_ALLOC_SIZEG(struct_size),
 				   CUDYN_HCOBJ_KEY_SIZEW(key_size
 							 + CU_HCOBJ_SHIFT),

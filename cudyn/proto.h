@@ -34,7 +34,7 @@ CU_BEGIN_DECLARATIONS
  * ------------------------ */
 struct cudyn_proto_s
 {
-    cu_inherit (cudyn_hctype_s);
+    cu_inherit (cudyn_type_s);
 
     cudyn_tuptype_t arg_type;
     cudyn_type_t res_type;
@@ -54,11 +54,11 @@ CU_SINLINE cudyn_type_t cudyn_proto_type()
 
 /*!Cast to base struct. */
 CU_SINLINE cudyn_type_t cudyn_proto_to_type(cudyn_proto_t proto)
-{ return cu_to2(cudyn_type, cudyn_hctype, proto); }
+{ return cu_to(cudyn_type, proto); }
 
 /*!Cast from base struct. */
 CU_SINLINE cudyn_proto_t cudyn_proto_from_type(cudyn_type_t t)
-{ return cu_from2(cudyn_proto, cudyn_hctype, cudyn_type, t); }
+{ return cu_from(cudyn_proto, cudyn_type, t); }
 
 /*!True if \a ex points to a prototype. */
 CU_SINLINE cu_bool_t cudyn_is_fn(cuex_t ex)

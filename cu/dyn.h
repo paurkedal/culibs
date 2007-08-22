@@ -133,11 +133,11 @@ cuex_meta(void *obj)
 typedef enum {
     cudyn_typekind_none,
     cudyn_typekind_tvar,
-    cudyn_typekind_stdtype,	/* inherits cudyn_stdtype_s */
-    cudyn_typekind_stdtypeoftypes, /* inherits cudyn_stdtype_s */
-    cudyn_typekind_proto,	/* inherits cudyn_hctype_s */
+    cudyn_typekind_stdtype,		/* Inherits cudyn_stdtype_s. */
+    cudyn_typekind_stdtypeoftypes,	/* Inherits cudyn_stdtype_s. */
+    cudyn_typekind_proto,
     cudyn_typekind_ctortype,
-    cudyn_typekind_by_expr,	/* inherits cudyn_hctype_s */
+    cudyn_typekind_by_expr,
 
     /* inline types */
     cudyn_typekind_ptrtype,
@@ -165,10 +165,10 @@ typedef enum {
 } cudyn_typekind_t;
 
 typedef enum {
-    cudyn_hcmethod_none = 0,	/* not hashconsed */
-    cudyn_hcmethod_by_size,	/* use cudyn_hctype_s.u0.key_size */
-    cudyn_hcmethod_by_size_fn,	/* use cudyn_hctype_s.u0.key_size_fn */
-    cudyn_hcmethod_by_hash_fn	/* use cudyn_hctype_s.u0.key_hash_fn */
+    cudyn_hcmethod_none = 0,	/* Not hashconsed. */
+    cudyn_hcmethod_by_size,	/* Sets cudyn_type_s.u0.key_size */
+    cudyn_hcmethod_by_size_fn,	/* Sets cudyn_type_s.u0.key_size_fn */
+    cudyn_hcmethod_by_hash_fn	/* Sets cudyn_type_s.u0.key_hash_fn */
 } cudyn_hcmethod_t;
 
 struct cudyn_type_s
@@ -178,12 +178,18 @@ struct cudyn_type_s
     /* If non-null, as_expr is the expression-form of the type.  Since
      * it uniquely identifies the type, it is, when present, sufficient for
      * the HC key.
-     * NB! This must be right after CU_HCOBJ, due to cudynP_hctype_cct_hce and
+     * NB! This must be right after CU_HCOBJ, due to cudynP_type_cct_hce and
      * cudyn_type_glck. */
     cuex_t as_expr;
 
     cudyn_typekind_t typekind : 5;
     cudyn_hcmethod_t members_hcmethod : 2;
+
+    union {
+	size_t key_size;
+	cu_clop(key_size_fn, size_t, void *obj);
+	cu_clop(key_hash_fn, cu_hash_t, void *obj);
+    } u0;
 };
 #define cuex_meta_is_type(meta) (cuex_meta_kind(meta) == cuex_meta_kind_type)
 
@@ -225,53 +231,29 @@ CU_SINLINE cu_bool_t cudyn_type_is_proto(cudyn_type_t type)
 CU_SINLINE cu_bool_t cudyn_type_is_typeoftypes(cudyn_type_t type)
 { return type->typekind == cudyn_typekind_stdtypeoftypes; }
 
-struct cudyn_hctype_s
-{
-    cu_inherit (cudyn_type_s);
-    union {
-	size_t key_size;
-	cu_clop(key_size_fn, size_t, void *obj);
-	cu_clop(key_hash_fn, cu_hash_t, void *obj);
-    } u0;
-};
-
-#define cudyn_hctype_to_type(hctype) cu_to(cudyn_type, hctype)
-#define cudyn_hctype_from_type(type) cu_from(cudyn_hctype, cudyn_type, type)
-#define cudyn_hctype_to_meta(hctype) \
-	cudyn_type_to_meta(cudyn_hctype_to_type(hctype))
-#define cudyn_hctype_from_meta(meta) \
-	cudyn_hctype_from_type(cudyn_type_from_meta(meta))
-
-void cudynP_hctype_cct_nonhc(cudyn_hctype_t type, cuex_t as_expr,
-			     cudyn_typekind_t kind);
-void cudynP_hctype_cct_hcs(cudyn_hctype_t type, cuex_t as_expr,
-			   cudyn_typekind_t kind, size_t key_size);
-void cudynP_hctype_cct_hce(cudyn_hctype_t type, cuex_t as_expr,
+void cudynP_type_cct_nonhc(cudyn_type_t type, cuex_t as_expr,
 			   cudyn_typekind_t kind);
-void cudynP_hctype_cct_hcv(cudyn_hctype_t type, cuex_t as_expr,
-			   cudyn_typekind_t kind,
-			   cu_clop(key_size_fn, size_t, void *));
-void cudynP_hctype_cct_hcf(cudyn_hctype_t type, cuex_t as_expr,
-			   cudyn_typekind_t kind,
-			   cu_clop(key_hash_fn, cu_hash_t, void *));
+void cudynP_type_cct_hcs(cudyn_type_t type, cuex_t as_expr,
+			 cudyn_typekind_t kind, size_t key_size);
+void cudynP_type_cct_hce(cudyn_type_t type, cuex_t as_expr,
+			 cudyn_typekind_t kind);
+void cudynP_type_cct_hcv(cudyn_type_t type, cuex_t as_expr,
+			 cudyn_typekind_t kind,
+			 cu_clop(key_size_fn, size_t, void *));
+void cudynP_type_cct_hcf(cudyn_type_t type, cuex_t as_expr,
+			 cudyn_typekind_t kind,
+			 cu_clop(key_hash_fn, cu_hash_t, void *));
 
 struct cudyn_stdtype_s
 {
-    cu_inherit (cudyn_hctype_s);
+    cu_inherit (cudyn_type_s);
     cu_clop(finalise, void, void *);
     cu_clop(conj, cu_bool_t, void *, cu_clop(, cu_bool_t, void *));
     cu_clop(tran, void *, void *, cu_clop(, void *, void *));
 };
 
-CU_SINLINE cu_bool_t cudyn_hctype_is_stdtype(cudyn_hctype_t hctype)
-{ return cudyn_type_is_stdtype(cudyn_hctype_to_type(hctype)); }
-
-#define cudyn_stdtype_to_hctype(stdtype) cu_to(cudyn_hctype, stdtype)
-#define cudyn_stdtype_from_hctype(t) cu_from(cudyn_stdtype, cudyn_hctype, t)
-#define cudyn_stdtype_from_type(type) \
-    cudyn_stdtype_from_hctype(cudyn_hctype_from_type(type))
-#define cudyn_stdtype_to_type(stdtype) \
-    cudyn_hctype_to_type(cudyn_stdtype_to_hctype(stdtype))
+#define cudyn_stdtype_from_type(type) cu_from(cudyn_stdtype, cudyn_type, type)
+#define cudyn_stdtype_to_type(stdtype) cu_to(cudyn_type, stdtype)
 #define cudyn_stdtype_from_meta(meta) \
     cudyn_stdtype_from_type(cudyn_type_from_meta(meta))
 #define cudyn_stdtype_to_meta(stdtype) \

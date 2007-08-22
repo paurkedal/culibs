@@ -159,7 +159,6 @@ typedef uintptr_t cuex_meta_t;
 
 typedef void			*cuex_t;		/* dyn.h */
 typedef struct cuex_opn_s	*cuex_opn_t;		/* dyn.h */
-typedef struct cudyn_hctype_s	*cudyn_hctype_t;	/* dyn.h */
 typedef unsigned int		cudyn_propkey_t;	/* dyn.h */
 typedef struct cudyn_stdtype_s	*cudyn_stdtype_t;	/* dyn.h */
 typedef struct cudyn_type_s	*cudyn_type_t;		/* dyn.h */

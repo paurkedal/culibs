@@ -98,7 +98,7 @@ cudynP_type_ffitype_ciflck(cudyn_type_t type)
 {
     if (cudyn_type_is_nonptr_inltype(type)) {
 	cudyn_inltype_t t;
-	t = cu_from2(cudyn_inltype, cudyn_hctype, cudyn_type, type);
+	t = cu_from(cudyn_inltype, cudyn_type, type);
 	if (!t->ffitype) {
 	    switch (cudyn_type_typekind(type)) {
 		case cudyn_typekind_arrtype:
@@ -170,8 +170,8 @@ cudyn_proto_by_tuptype(cudyn_tuptype_t arg_type, cudyn_type_t res_type)
     struct cudyn_proto_s key;
     cudyn_proto_t proto;
     size_t size = sizeof(struct cudyn_proto_s) + r*sizeof(ffi_type *);
-    cudynP_hctype_cct_hcs(cu_to(cudyn_hctype, &key), NULL,
-			  cudyn_typekind_proto, sizeof(cu_fnptr_t));
+    cudynP_type_cct_hcs(cu_to(cudyn_type, &key), NULL,
+			cudyn_typekind_proto, sizeof(cu_fnptr_t));
     key.arg_type = arg_type;
     key.res_type = res_type;
     init.r = r;
