@@ -33,11 +33,14 @@ abundance of system memory, the overhead of finalisation is small.  So why
 bother?</p>
 
 <p>My interest in this stems from a more exotic use of the collector,
-hash-consing, which I think should be considered a third kind of GC-related
-mechanism in addition to finalisation and weak pointers.  Hash-consing is a
+hash-consing.  This mechanism can be implemented in terms of finalisers or
+int terms of weak-pointers, but since neither is a good fit, it's useful to
+think of hash-consing as an independent mechanism.</p>
+
+<p>Hash-consing is a
 technique that allows sharing of objects constructed independently but which
-happens to be identical.  In addition to reducing memory overhead in
-applications where such sharing is likely, it also means equality over
+happen to be identical.  In addition to reducing memory overhead in
+applications where such sharing is likely, it also means that equality over
 complex expression trees reduces to a simple pointer comparison.  The
 technique can be used for expression trees, as exemplified by the <a
 href="http://www.cwi.nl/projects/MetaEnv/aterm/">ATerm</a> tree-handling
@@ -45,7 +48,7 @@ library which implements its own garbage collector, and my own <tt>cuex</tt>
 library of <a href="/culibs">culibs</a> which uses the Boehm-Demers-Weiser
 collector.</p>
 
-<p>The current implementation handles weak pointers and schedules
+<p>The current libgc implementation handles weak pointers and schedules
 finalisation at the end of a collection, when the mark-bits are at a
 consistent state.  The actual finalisation happens later, but if the number
 of finalisers are comparable to the number of heap objects, there is still a
@@ -320,8 +323,8 @@ reclaimed.</p>
 changes to the build files.</p>
 
 <address>
-Last updated 2006-11-17 by
-<a href="http://www.nordita.dk/people/people.php?cn=Petter+Urkedal">
+Last updated 2007-08-21 by
+<a href="http://www.nbi.ku.dk/side30976.htm?personid=247248&lang=da">
 Petter Urkedal</a>.
 </address>
 </body>
