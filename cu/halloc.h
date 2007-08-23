@@ -115,31 +115,6 @@ cudynP_halloc_extra_raw(cudyn_type_t type, size_t raw_alloc_sizeg,
      cudyn_halloc(prefix##_type(), \
 			 cudyn_hctem_key_size(prefix), &(key)))
 
-#define cu_hc_key_hash cu_wordarr_hash
-
-CU_SINLINE cu_hash_t
-cu_hash_ptr_arr(void **start, void **end)
-{
-    cu_hash_t hash = 0;
-    while (start != end) {
-	hash = cu_hash_mix(hash + (uintptr_t)*start);
-	++start;
-    }
-    return hash;
-}
-
-CU_SINLINE cu_bool_t
-cu_ptr_arr_eq(void **start0, void **end0, void **start1)
-{
-    while (start0 != end0) {
-	if (*start0 != *start1)
-	    return cu_false;
-	++start0;
-	++start1;
-    }
-    return cu_true;
-}
-
 CU_SINLINE void *
 cuexP_halloc(cuex_meta_t meta, size_t key_size, void *key)
 {

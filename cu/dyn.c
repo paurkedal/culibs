@@ -255,7 +255,8 @@ cuex_key_hash(void *obj)
 	default:
 	    cu_debug_unreachable();
     }
-    return cu_hc_key_hash(key_size/sizeof(cu_word_t), obj + CU_HCOBJ_SHIFT, meta);
+    return cu_wordarr_hash(key_size/sizeof(cu_word_t),
+			   obj + CU_HCOBJ_SHIFT, meta);
 }
 
 

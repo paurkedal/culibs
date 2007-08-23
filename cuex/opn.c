@@ -41,11 +41,6 @@ wordaligned_copy(void *src, void *src_end, void *dst)
     }
 }
 
-#if CUCONF_SIZEOF_LONG != CUCONF_SIZEOF_VOID_P
-#  error FIXME calculate correct size for cu_hc_key_hash in cuex_opn,
-#  error cuex_opn_by_va, and cuex_opn_by_arr.
-#endif
-
 cu_clos_def(cct_cached, cu_prot(void, void *e), (cuex_oprinfo_t oi;))
 {
     cu_clos_self(cct_cached);

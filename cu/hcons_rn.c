@@ -300,7 +300,7 @@ cuexP_halloc_extra_raw(cuex_meta_t meta, size_t sizeg,
     cu_hash_t hash;
     cu_hcset_t hcset;
 
-    hash = cu_hc_key_hash(key_sizew, key, meta);
+    hash = cu_wordarr_hash(key_sizew, key, meta);
     hcset = cu_hcset(hash);
     mask = hcset->mask;
     cu_hcset_lock_write(hcset);
