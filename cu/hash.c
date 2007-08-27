@@ -78,6 +78,28 @@ cu_wordarr_hash_bj(size_t count, cu_word_t *arr, cu_hash_t init)
     return c;
 }
 
+cu_hash_t
+cu_1word_hash_bj(cu_word_t d0, cu_hash_t init)
+{
+    uint32_t a, b, c;
+    a = 0xbe5eeded + d0;
+    b = 1;
+    c = init;
+    CU_HASH_BJMIX32_FINAL(a, b, c);
+    return c;
+}
+
+cu_hash_t
+cu_2word_hash_bj(cu_word_t d0, cu_word_t d1, cu_hash_t init)
+{
+    uint32_t a, b, c;
+    a = 0xbe5eeded + d0;
+    b = 2 + d1;
+    c = init;
+    CU_HASH_BJMIX32_FINAL(a, b, c);
+    return c;
+}
+
 #elif CU_WORD_WIDTH == 64
 
 
@@ -125,6 +147,27 @@ cu_wordarr_hash_bj(size_t count, cu_word_t *arr, cu_hash_t init)
 	case 2: b += arr[1];
 	case 1: a += arr[0];
     }
+    CU_HASH_BJMIX64(a, b, c);
+    return c;
+}
+
+cu_hash_t
+cu_1word_hash_bj(cu_word_t d0, cu_hash_t init)
+{
+    a = b = init;
+    c = INT64_C(0x9e3779b97f4a7c1b); /* Added count << 3 where count = 1 */
+    a += d0;
+    CU_HASH_BJMIX64(a, b, c);
+    return c;
+}
+
+cu_hash_t
+cu_2word_hash_bj(cu_word_t d0, cu_word_t d1, cu_hash_t init)
+{
+    a = b = init;
+    c = INT64_C(0x9e3779b97f4a7c23); /* Added count << 3 where count = 2 */
+    b += d1;
+    a += d0;
     CU_HASH_BJMIX64(a, b, c);
     return c;
 }
