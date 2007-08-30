@@ -15,19 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cu/dyn.h>
-
-
-void cudynP_type_init(void);
-void cudynP_properties_init(void);
-void cudynP_proto_init(void);
-void cudynP_misc_init(void);
+void cuooP_properties_init(void);
 
 void
-cudynP_init()
+cuoo_init()
 {
-    cudynP_type_init();
-    cudynP_properties_init();
-    cudynP_proto_init();
-    cudynP_misc_init();
+    cuooP_properties_init();
 }

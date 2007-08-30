@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <cu/clos.h>
 #if CUCON_UCSET_ENABLE_HCONS
-#include <cu/dyn.h>
+#include <cuoo/type.h>
 #endif
 
 CU_BEGIN_DECLARATIONS
@@ -64,9 +64,9 @@ CU_BEGIN_DECLARATIONS
 struct cucon_ucset_s
 {
 #if CUCON_UCSET_ENABLE_HCONS
-    CU_HCOBJ
+    CUOO_HCOBJ
 #else
-    CU_OBJ
+    CUOO_OBJ
 #endif
     uintptr_t key;
     cucon_ucset_t left;
@@ -79,9 +79,9 @@ typedef struct cucon_ucset_leaf_s *cucon_ucset_leaf_t;
 struct cucon_ucset_leaf_s
 {
 #if CUCON_UCSET_ENABLE_HCONS
-    CU_HCOBJ
+    CUOO_HCOBJ
 #else
-    CU_OBJ
+    CUOO_OBJ
 #endif
     uintptr_t key;
     cu_word_t bitset[CUPRIV_UCSET_BITSET_WORDCNT];
@@ -89,12 +89,12 @@ struct cucon_ucset_leaf_s
 #endif
 
 #if CUCON_UCSET_ENABLE_HCONS
-extern cudyn_stdtype_t cuconP_ucset_type;
-CU_SINLINE cudyn_type_t cucon_ucset_type()
-{ return cudyn_stdtype_to_type(cuconP_ucset_type); }
-extern cudyn_stdtype_t cuconP_ucset_leaf_type;
-CU_SINLINE cudyn_type_t cucon_ucset_leaf_type()
-{ return cudyn_stdtype_to_type(cuconP_ucset_leaf_type); }
+extern cuoo_stdtype_t cuconP_ucset_type;
+CU_SINLINE cuoo_type_t cucon_ucset_type()
+{ return cuoo_stdtype_to_type(cuconP_ucset_type); }
+extern cuoo_stdtype_t cuconP_ucset_leaf_type;
+CU_SINLINE cuoo_type_t cucon_ucset_leaf_type()
+{ return cuoo_stdtype_to_type(cuconP_ucset_leaf_type); }
 #endif
 
 /*!Return \a set with \a key inserted. */

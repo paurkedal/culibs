@@ -26,6 +26,7 @@
 
 
 void cucon_init(void);
+void cuoo_init(void);
 void cuP_debug_init(void);
 void cuP_memory_init(void);
 void cuP_obj_mlc_init(void);
@@ -144,6 +145,7 @@ cu_init(void)
 
     /* Submodules */
     cucon_init();
+    cuoo_init();
 
     if ((cstr = getenv("CU_SEED48"))) {
 	long s;

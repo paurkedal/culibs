@@ -21,8 +21,8 @@
 #include <cu/memory.h>
 #include <cu/debug.h>
 #include <cu/tstate.h>
-#include <cu/halloc.h>
 #include <cu/util.h>
+#include <cu/diag.h>
 
 #include <gc/gc_mark.h>
 

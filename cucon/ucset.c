@@ -18,7 +18,7 @@
 #include <cucon/ucset.h>
 #include <cu/memory.h>
 #include <cu/int.h>
-#include <cu/halloc.h>
+#include <cuoo/halloc.h>
 #include <inttypes.h>
 
 CU_SINLINE uintptr_t ucnode_key(cucon_ucset_t node)
@@ -54,12 +54,12 @@ CU_SINLINE cucon_ucset_t
 ucnode_new(uintptr_t key, cucon_ucset_t left, cucon_ucset_t right)
 {
 #if CUCON_UCSET_ENABLE_HCONS
-    cudyn_hctem_decl(cucon_ucset, tem);
-    cudyn_hctem_init(cucon_ucset, tem);
-    cudyn_hctem_get(cucon_ucset, tem)->key = key;
-    cudyn_hctem_get(cucon_ucset, tem)->left = left;
-    cudyn_hctem_get(cucon_ucset, tem)->right = right;
-    return cudyn_hctem_new(cucon_ucset, tem);
+    cuoo_hctem_decl(cucon_ucset, tem);
+    cuoo_hctem_init(cucon_ucset, tem);
+    cuoo_hctem_get(cucon_ucset, tem)->key = key;
+    cuoo_hctem_get(cucon_ucset, tem)->left = left;
+    cuoo_hctem_get(cucon_ucset, tem)->right = right;
+    return cuoo_hctem_new(cucon_ucset, tem);
 #else
     cucon_ucset_t node = cu_gnew(struct cucon_ucset_s);
     node->key = key;
@@ -96,16 +96,16 @@ ucleaf_new(uintptr_t key)
     int i;
 #if CUCON_UCSET_ENABLE_HCONS
     cucon_ucset_leaf_t node;
-    cudyn_hctem_decl(cucon_ucset_leaf, tem);
-    cudyn_hctem_init(cucon_ucset_leaf, tem);
-    node = cudyn_hctem_get(cucon_ucset_leaf, tem);
+    cuoo_hctem_decl(cucon_ucset_leaf, tem);
+    cuoo_hctem_init(cucon_ucset_leaf, tem);
+    node = cuoo_hctem_get(cucon_ucset_leaf, tem);
     node->key = leaf_key(key);
     for (i = 0; i < CUPRIV_UCSET_BITSET_WORDCNT; ++i)
 	node->bitset[i] = 0;
     key &= BITSET_MASK;
     node->bitset[key/(sizeof(cu_word_t)*8)]
 	|= CU_WORD_C(1) << key%(sizeof(cu_word_t)*8);
-    return (cucon_ucset_t)cudyn_hctem_new(cucon_ucset_leaf, tem);
+    return (cucon_ucset_t)cuoo_hctem_new(cucon_ucset_leaf, tem);
 #else
     cucon_ucset_leaf_t node = cu_gnew(struct cucon_ucset_leaf_s);
     node->key = leaf_key(key);
@@ -124,16 +124,16 @@ ucleaf_new_copy(cucon_ucset_t src_node, uintptr_t key)
     int i;
 #if CUCON_UCSET_ENABLE_HCONS
     cucon_ucset_leaf_t node;
-    cudyn_hctem_decl(cucon_ucset_leaf, tem);
-    cudyn_hctem_init(cucon_ucset_leaf, tem);
-    node = cudyn_hctem_get(cucon_ucset_leaf, tem);
+    cuoo_hctem_decl(cucon_ucset_leaf, tem);
+    cuoo_hctem_init(cucon_ucset_leaf, tem);
+    node = cuoo_hctem_get(cucon_ucset_leaf, tem);
     node->key = leaf_key(key);
     for (i = 0; i < CUPRIV_UCSET_BITSET_WORDCNT; ++i)
 	node->bitset[i] = ((cucon_ucset_leaf_t)src_node)->bitset[i];
     key &= BITSET_MASK;
     node->bitset[key/(sizeof(cu_word_t)*8)]
 	|= CU_WORD_C(1) << key%(sizeof(cu_word_t)*8);
-    return (cucon_ucset_t)cudyn_hctem_new(cucon_ucset_leaf, tem);
+    return (cucon_ucset_t)cuoo_hctem_new(cucon_ucset_leaf, tem);
 #else
     cucon_ucset_leaf_t node = cu_gnew(struct cucon_ucset_leaf_s);
     node->key = leaf_key(key);
@@ -376,8 +376,8 @@ cucon_ucset_dump(cucon_ucset_t tree, FILE *out)
 }
 
 #if CUCON_UCSET_ENABLE_HCONS
-cudyn_stdtype_t cuconP_ucset_type;
-cudyn_stdtype_t cuconP_ucset_leaf_type;
+cuoo_stdtype_t cuconP_ucset_type;
+cuoo_stdtype_t cuconP_ucset_leaf_type;
 #endif
 
 void
@@ -385,11 +385,11 @@ cuconP_ucset_init()
 {
 #if CUCON_UCSET_ENABLE_HCONS
     cuconP_ucset_type =
-	cudyn_stdtype_new_hcs(sizeof(struct cucon_ucset_s) - CU_HCOBJ_SHIFT);
+	cuoo_stdtype_new_hcs(sizeof(struct cucon_ucset_s) - CUOO_HCOBJ_SHIFT);
 #  if CUCON_UCSET_ENABLE_BITSET
     cuconP_ucset_leaf_type =
-	cudyn_stdtype_new_hcs(sizeof(struct cucon_ucset_leaf_s)
-			      - CU_HCOBJ_SHIFT);
+	cuoo_stdtype_new_hcs(sizeof(struct cucon_ucset_leaf_s)
+			      - CUOO_HCOBJ_SHIFT);
 #  endif
 #endif
 }

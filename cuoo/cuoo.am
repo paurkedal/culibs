@@ -1,0 +1,39 @@
+cuoo_header = \
+	cuoo/fwd.h \
+	cuoo/compound.h \
+	cuoo/halloc.h \
+	cuoo/hcobj.h \
+	cuoo/meta.h \
+	cuoo/oalloc.h \
+	cuoo/properties.h \
+	cuoo/prop.h \
+	cuoo/support.h \
+	cuoo/type.h
+
+cuoo_sources = \
+	cuoo/init.c \
+	cuoo/properties.c \
+	cuoo/prop.c \
+	cuoo/support.c \
+	cuoo/type.c
+
+if enable_gc_disclaim
+    noinst_HEADERS += cuoo/hcons_rn.h
+    cuoo_sources += cuoo/hcons_rn.c cuoo/obj_mlc.c
+else
+    cuoo_sources += cuoo/hcons_wp.c
+endif
+
+# FIXME
+#cuoo_check_programs = \
+#	cuoo/obj_t0
+
+cuoo_norun_check_programs = \
+	cuoo/hcons_b0
+
+# Unused tests: cuoo/prop_t0.c
+
+cuoo_hcons_b0_SOURCES = cuoo/hcons_b0.c
+cuoo_hcons_b0_LDADD = libcubase.la
+#cuoo_obj_t0_SOURCES = cuoo/obj_t0.c
+#cuoo_obj_t0_LDADD = libcubase.la

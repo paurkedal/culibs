@@ -18,21 +18,21 @@
 #include <cuex/tvar.h>
 
 cuex_tvar_t
-cuex_tvar_new_type(cuex_qcode_t qc, cudyn_type_t type_opt)
+cuex_tvar_new_type(cuex_qcode_t qc, cuoo_type_t type_opt)
 {
     cuex_tvar_t tv;
     tv = cuexP_oalloc(cuex_tvarmeta(qc), sizeof(struct cuex_tvar_s));
-    cudyn_type_cct(cu_to(cudyn_type, tv), NULL, cudyn_typekind_tvar);
+    cuoo_type_cct(cu_to(cuoo_type, tv), NULL, cuoo_typekind_tvar);
     tv->type = (AO_t)type_opt;
     return tv;
 }
 
 cuex_tvar_t
-cuex_tvar_new_obj(cuex_qcode_t qc, cudyn_type_t type_opt)
+cuex_tvar_new_obj(cuex_qcode_t qc, cuoo_type_t type_opt)
 {
     cuex_tvar_t tv;
     tv = cuexP_oalloc(cuex_tvarmeta(qc), sizeof(struct cuex_tvar_s));
-    cudyn_type_cct(cu_to(cudyn_type, tv), NULL, cudyn_typekind_none);
+    cuoo_type_cct(cu_to(cuoo_type, tv), NULL, cuoo_typekind_none);
     tv->type = (AO_t)type_opt;
     return tv;
 }
@@ -44,8 +44,8 @@ cuex_tvar_new_as(cuex_tvar_t v_tpl)
     cuex_tvar_t v;
     cu_debug_assert(cuex_is_tvarmeta(meta));
     v = cuexP_oalloc(meta, sizeof(struct cuex_tvar_s));
-    cudyn_type_cct(cu_to(cudyn_type, v), NULL,
-		   cudyn_type_typekind(cu_to(cudyn_type, v_tpl)));
+    cuoo_type_cct(cu_to(cuoo_type, v), NULL,
+		  cuoo_type_typekind(cu_to(cuoo_type, v_tpl)));
     v->type = v_tpl->type;
     return v;
 }

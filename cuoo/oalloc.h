@@ -18,8 +18,8 @@
 #ifndef CU_OALLOC_H
 #define CU_OALLOC_H
 
-#include <cu/fwd.h>
-#include <cu/dyn.h>
+#include <cuoo/type.h>
+#include <cu/memory.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_oalloc_h cu/oalloc.h:
@@ -27,7 +27,7 @@ CU_BEGIN_DECLARATIONS
 
 #define CUP_OBJ_EXTRA_BYTES 0
 
-#define CUDYN_OBJ_ALLOC_SIZEG(struct_size)					\
+#define CUOO_OBJ_ALLOC_SIZEG(struct_size)					\
     (((struct_size) + sizeof(cuex_meta_t)				\
       + CU_GRAN_SIZE - 1 + CUP_OBJ_EXTRA_BYTES)/CU_GRAN_SIZE)
 
@@ -47,55 +47,55 @@ cuexP_oalloc(cuex_meta_t meta, size_t size)
  * of at least \a size bytes, where the actual object data is stored.  The type
  * information is stored before this pointer. */
 CU_SINLINE void *
-cudyn_oalloc(cudyn_type_t type, size_t size)
+cuoo_oalloc(cuoo_type_t type, size_t size)
 {
     cuex_meta_t *p = cu_galloc(size + sizeof(cuex_meta_t));
-    *p = cudyn_type_to_meta(type) + 1;
+    *p = cuoo_type_to_meta(type) + 1;
     cu_debug_assert(((uintptr_t)*p & 3) != 0);
     return p + 1;
 }
 
-/*!A variant of \ref cudyn_oalloc which sets the type of the returned object to
+/*!A variant of \ref cuoo_oalloc which sets the type of the returned object to
  * the object itself.  The return object must be initialised as a type, which
  * then becomes it's own type. */
 CU_SINLINE void *
-cudyn_oalloc_self_instance(size_t size)
+cuoo_oalloc_self_instance(size_t size)
 {
     cuex_meta_t *p = cu_galloc(size + sizeof(cuex_meta_t));
-    *p = cudyn_type_to_meta((cudyn_type_t)(p + 1)) + 1;
+    *p = cuoo_type_to_meta((cuoo_type_t)(p + 1)) + 1;
     return p + 1;
 }
 
-/*!As \a cudyn_oalloc, except that the finaliser in \a type is run before the
+/*!As \a cuoo_oalloc, except that the finaliser in \a type is run before the
  * object is reclaimed by the garbage collector.  Objects reachable from the
  * finaliser are kept at least until the next GC cycle. */
 CU_SINLINE void *
-cudyn_oalloc_ord_fin(cudyn_type_t type, size_t size)
+cuoo_oalloc_ord_fin(cuoo_type_t type, size_t size)
 {
-    return cuexP_oalloc_ord_fin_raw(cudyn_type_to_meta(type),
-				    CUDYN_OBJ_ALLOC_SIZEG(size));
+    return cuexP_oalloc_ord_fin_raw(cuoo_type_to_meta(type),
+				    CUOO_OBJ_ALLOC_SIZEG(size));
 }
 
-/*!As \a cudyn_oalloc, except that the finaliser in \a type is run before the
+/*!As \a cuoo_oalloc, except that the finaliser in \a type is run before the
  * object is reclaimed by the garbage collector.  Objects reachable from the
  * finaliser may already have been reclaimed when the finaliser is run, and
  * shall therefore not be dereferenced.  If this is not desirable, see \ref
- * cudyn_oalloc_ord_fin. */
+ * cuoo_oalloc_ord_fin. */
 CU_SINLINE void *
-cudyn_oalloc_unord_fin(cudyn_type_t type, size_t size)
+cuoo_oalloc_unord_fin(cuoo_type_t type, size_t size)
 {
-    return cuexP_oalloc_unord_fin_raw(cudyn_type_to_meta(type),
-				      CUDYN_OBJ_ALLOC_SIZEG(size));
+    return cuexP_oalloc_unord_fin_raw(cuoo_type_to_meta(type),
+				      CUOO_OBJ_ALLOC_SIZEG(size));
 }
 
-#define cudyn_onew(prefix)						\
+#define cuoo_onew(prefix)						\
     ((struct prefix##_s *)						\
-     cudyn_oalloc(prefix##_type(), sizeof(struct prefix##_s)))
+     cuoo_oalloc(prefix##_type(), sizeof(struct prefix##_s)))
 
-#define cudyn_onew_ord_fin(prefix)					\
+#define cuoo_onew_ord_fin(prefix)					\
     ((struct prefix##_s *)						\
-     cuexP_oalloc_ord_fin_raw(cudyn_type_to_meta(prefix##_type()),	\
-			      CUDYN_OBJ_ALLOC_SIZEG(sizeof(struct prefix##_s))))
+     cuexP_oalloc_ord_fin_raw(cuoo_type_to_meta(prefix##_type()),	\
+			      CUOO_OBJ_ALLOC_SIZEG(sizeof(struct prefix##_s))))
 
 /*!@}*/
 CU_END_DECLARATIONS

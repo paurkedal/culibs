@@ -17,35 +17,35 @@
 
 #define CUDYN_CTOR_C
 #include <cudyn/ctor.h>
-#include <cu/halloc.h>
+#include <cuoo/halloc.h>
 
 cudyn_ctortype_t
 cudyn_ctortype(cudyn_tuptype_t parttype, cudyn_duntype_t fulltype)
 {
     cudyn_ctortype_t ctortype;
-    cudyn_hctem_decl(cudyn_ctortype, key);
-    cudyn_hctem_init(cudyn_ctortype, key);
-    ctortype = cudyn_hctem_get(cudyn_ctortype, key);
-    cudynP_type_cct_hcs(cu_to(cudyn_type, ctortype), NULL,
-			cudyn_typekind_ctortype, sizeof(unsigned int));
+    cuoo_hctem_decl(cudyn_ctortype, key);
+    cuoo_hctem_init(cudyn_ctortype, key);
+    ctortype = cuoo_hctem_get(cudyn_ctortype, key);
+    cuooP_type_cct_hcs(cu_to(cuoo_type, ctortype), NULL,
+			cuoo_typekind_ctortype, sizeof(unsigned int));
     ctortype->fulltype = fulltype;
     ctortype->parttype = parttype;
-    return cudyn_hctem_new(cudyn_ctortype, key);
+    return cuoo_hctem_new(cudyn_ctortype, key);
 }
 
 cuex_t
 cudyn_ctor(cudyn_ctortype_t type, unsigned int ctor_num)
 {
-    return cudyn_halloc(cudyn_ctortype_to_type(type),
-			sizeof(unsigned int), &ctor_num);
+    return cuoo_halloc(cudyn_ctortype_to_type(type),
+		       sizeof(unsigned int), &ctor_num);
 }
 
 
-cudyn_stdtype_t cudynP_ctortype_type;
+cuoo_stdtype_t cudynP_ctortype_type;
 
 void
 cudyn_ctor_init()
 {
-    cudynP_ctortype_type = cudyn_stdtype_new_hcs(
-	    sizeof(struct cudyn_ctortype_s) - CU_HCOBJ_SHIFT);
+    cudynP_ctortype_type = cuoo_stdtype_new_hcs(
+	    sizeof(struct cudyn_ctortype_s) - CUOO_HCOBJ_SHIFT);
 }

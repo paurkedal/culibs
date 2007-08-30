@@ -22,8 +22,8 @@
 #include <cuex/fwd.h>
 #include <cuex/qcode.h>
 #include <cu/conf.h>
-#include <cu/oalloc.h>
-#include <cu/halloc.h>
+#include <cuoo/oalloc.h>
+#include <cuoo/halloc.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_var_h cuex/var.h: Variables

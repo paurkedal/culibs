@@ -61,14 +61,14 @@ CU_BEGIN_DECLARATIONS
 
 #define cuex_tpvarmeta(index)						\
     cuex_varmeta_kqis(cuex_varkind_tpvar, cuex_qcode_u, 0,		\
-		      (sizeof(struct cuex_tpvar_s) - CU_HCOBJ_SHIFT)	\
+		      (sizeof(struct cuex_tpvar_s) - CUOO_HCOBJ_SHIFT)	\
 		        / sizeof(cu_word_t))
 #define cuex_is_tpvarmeta(meta)						\
     cuex_is_varmeta_k(meta, cuex_varkind_tpvar)
 
 struct cuex_tpvar_s
 {
-    CU_HCOBJ
+    CUOO_HCOBJ
     cu_offset_t width_mask;
     cuex_t type_class;
 };

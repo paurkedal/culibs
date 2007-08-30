@@ -19,32 +19,33 @@
 #define CUDYN_CTOR_H
 
 #include <cudyn/fwd.h>
+#include <cuoo/type.h>
 
 CU_BEGIN_DECLARATIONS
 
 struct cudyn_ctortype_s
 {
-    cu_inherit (cudyn_type_s);
+    cu_inherit (cuoo_type_s);
     cudyn_duntype_t fulltype;
     cudyn_tuptype_t parttype;
 };
 
-extern cudyn_stdtype_t cudynP_ctortype_type;
+extern cuoo_stdtype_t cudynP_ctortype_type;
 
 /*!The type of all constructor types. */
-CU_SINLINE cudyn_type_t cudyn_ctortype_type()
-{ return cudyn_stdtype_to_type(cudynP_ctortype_type); }
+CU_SINLINE cuoo_type_t cudyn_ctortype_type()
+{ return cuoo_stdtype_to_type(cudynP_ctortype_type); }
 
 /*!True iff \a meta is a constructor type. */
 CU_SINLINE cu_bool_t cudyn_meta_is_ctortype(cuex_meta_t meta)
-{ return cudyn_type_to_meta(cudyn_ctortype_type()) == meta; }
+{ return cuoo_type_to_meta(cudyn_ctortype_type()) == meta; }
 
 /*!True iff \a t is a constructor type. */
-CU_SINLINE cu_bool_t cudyn_type_is_ctortype(cudyn_type_t t)
-{ return t->typekind == cudyn_typekind_ctortype; }
+CU_SINLINE cu_bool_t cuoo_type_is_ctortype(cuoo_type_t t)
+{ return t->typekind == cuoo_typekind_ctortype; }
 
-#define cudyn_ctortype_to_type(t) cu_to(cudyn_type, t)
-#define cudyn_ctortype_from_type(t) cu_from(cudyn_ctortype, cudyn_type, t)
+#define cudyn_ctortype_to_type(t) cu_to(cuoo_type, t)
+#define cudyn_ctortype_from_type(t) cu_from(cudyn_ctortype, cuoo_type, t)
 
 /*!Return the type of a constructor for a partition of type \a parttype
  * of \a restype.
@@ -69,12 +70,12 @@ CU_SINLINE cu_bool_t cudyn_is_ctor(cuex_t ex)
 {
     cuex_meta_t meta = cuex_meta(ex);
     return cuex_meta_is_type(meta)
-	&& cudyn_type_is_ctortype(cudyn_type_from_meta(meta));
+	&& cuoo_type_is_ctortype(cuoo_type_from_meta(meta));
 }
 
 /*!The enumerator of \a ctor. */
 CU_SINLINE unsigned int cudyn_ctor_num(cuex_t ctor)
-{ return *((unsigned int *)((void *)ctor + CU_HCOBJ_SHIFT)); }
+{ return *((unsigned int *)((void *)ctor + CUOO_HCOBJ_SHIFT)); }
 
 CU_END_DECLARATIONS
 

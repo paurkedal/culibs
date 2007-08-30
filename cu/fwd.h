@@ -81,16 +81,16 @@ CU_BEGIN_DECLARATIONS
 
 /* The CUCONF_META_IN_OBJECT_STRUCT is not implemented, and may be dropped,
  * but it is still informative to prefix structs with dynamic-typed
- * constructors with CU_OBJ. */
+ * constructors with CUOO_OBJ. */
 #ifdef CUCONF_META_IN_OBJECT_STRUCT
-#  define CU_OBJ cuex_meta_t cuex_meta_field;
-#  define CU_OBJ_SHIFT sizeof(cuex_meta_t)
-#  define CU_OBJ_NEEDED 1
-#  define CU_OBJ_INIT 0
+#  define CUOO_OBJ cuex_meta_t cuex_meta_field;
+#  define CUOO_OBJ_SHIFT sizeof(cuex_meta_t)
+#  define CUOO_OBJ_NEEDED 1
+#  define CUOO_OBJ_INIT 0
 #else
-#  define CU_OBJ
-#  define CU_OBJ_SHIFT 0
-#  define CU_OBJ_INIT
+#  define CUOO_OBJ
+#  define CUOO_OBJ_SHIFT 0
+#  define CUOO_OBJ_INIT
 #endif
 
 
@@ -159,16 +159,16 @@ typedef uintptr_t cuex_meta_t;
 
 typedef void			*cuex_t;		/* dyn.h */
 typedef struct cuex_opn_s	*cuex_opn_t;		/* dyn.h */
-typedef unsigned int		cudyn_propkey_t;	/* dyn.h */
-typedef struct cudyn_stdtype_s	*cudyn_stdtype_t;	/* dyn.h */
-typedef struct cudyn_type_s	*cudyn_type_t;		/* dyn.h */
+typedef unsigned int		cuoo_propkey_t;	/* dyn.h */
+typedef struct cuoo_stdtype_s	*cuoo_stdtype_t;	/* dyn.h */
+typedef struct cuoo_type_s	*cuoo_type_t;		/* dyn.h */
 typedef struct cu_idr_s		*cu_idr_t;		/* idr.h */
 typedef struct cu_sref_s	*cu_sref_t;		/* srcref.h */
 typedef struct cu_str_s		*cu_str_t;		/* str.h */
 
 /* XXX backward */
-#define cudyn_stdtype_t cudyn_stdtype_t
-#define cudyn_type_t cudyn_type_t
+#define cuoo_stdtype_t cuoo_stdtype_t
+#define cuoo_type_t cuoo_type_t
 
 /* Declarations of Some Common Functions
  * ------------------------------------- */

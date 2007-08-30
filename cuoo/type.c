@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cu/dyn.h>
-#include <cu/halloc.h>
+#include <cuoo/type.h>
+#include <cuoo/halloc.h>
+#include <cuoo/oalloc.h>
 #include <cu/memory.h>
 #include <cu/debug.h>
 #include <cu/wordarr.h>
-#include <cu/oalloc.h>
 
 #ifndef NDEBUG
 #  define CUEX_DEBUG_HCONS
@@ -31,10 +31,10 @@
  * ===== */
 
 void
-cudyn_type_cct(cudyn_type_t t, cuex_t expr, cudyn_typekind_t kind)
+cuoo_type_cct(cuoo_type_t t, cuex_t expr, cuoo_typekind_t kind)
 {
     t->typekind = kind;
-    t->members_hcmethod = cudyn_hcmethod_none;
+    t->members_hcmethod = cuoo_hcmethod_none;
     t->as_expr = expr;
 }
 
@@ -58,40 +58,40 @@ static cu_clop(stdobj_tran_default_clop,
 	       void *, void *, cu_clop(, void *, void *));
 
 void
-cudynP_type_cct_nonhc(cudyn_type_t type, cuex_t expr, cudyn_typekind_t kind)
+cuooP_type_cct_nonhc(cuoo_type_t type, cuex_t expr, cuoo_typekind_t kind)
 {
     type->typekind = kind;
-    type->members_hcmethod = cudyn_hcmethod_none;
+    type->members_hcmethod = cuoo_hcmethod_none;
     type->as_expr = expr;
     type->u0.key_size = 0;
 }
 
 void
-cudynP_type_cct_hcs(cudyn_type_t type, cuex_t expr, cudyn_typekind_t kind,
-		    size_t key_size)
+cuooP_type_cct_hcs(cuoo_type_t type, cuex_t expr, cuoo_typekind_t kind,
+		   size_t key_size)
 {
     type->typekind = kind;
-    type->members_hcmethod = cudyn_hcmethod_by_size;
+    type->members_hcmethod = cuoo_hcmethod_by_size;
     type->as_expr = expr;
     type->u0.key_size = key_size;
 }
 
 void
-cudynP_type_cct_hcv(cudyn_type_t type, cuex_t expr, cudyn_typekind_t kind,
-		    cu_clop(key_size_fn, size_t, void *))
+cuooP_type_cct_hcv(cuoo_type_t type, cuex_t expr, cuoo_typekind_t kind,
+		   cu_clop(key_size_fn, size_t, void *))
 {
     type->typekind = kind;
-    type->members_hcmethod = cudyn_hcmethod_by_size_fn;
+    type->members_hcmethod = cuoo_hcmethod_by_size_fn;
     type->as_expr = expr;
     type->u0.key_size_fn = key_size_fn;
 }
 
 void
-cudynP_type_cct_hcf(cudyn_type_t type, cuex_t expr, cudyn_typekind_t kind,
-		    cu_clop(key_hash_fn, cu_hash_t, void *))
+cuooP_type_cct_hcf(cuoo_type_t type, cuex_t expr, cuoo_typekind_t kind,
+		   cu_clop(key_hash_fn, cu_hash_t, void *))
 {
     type->typekind = kind;
-    type->members_hcmethod = cudyn_hcmethod_by_hash_fn;
+    type->members_hcmethod = cuoo_hcmethod_by_hash_fn;
     type->as_expr = expr;
     type->u0.key_hash_fn = key_hash_fn;
 }
@@ -101,88 +101,88 @@ cudynP_type_cct_hcf(cudyn_type_t type, cuex_t expr, cudyn_typekind_t kind,
  * ------------- */
 
 void
-cudyn_stdtype_cct(cudyn_stdtype_t type, cudyn_typekind_t kind)
+cuoo_stdtype_cct(cuoo_stdtype_t type, cuoo_typekind_t kind)
 {
-    cudynP_type_cct_nonhc(cudyn_stdtype_to_type(type), NULL, kind);
+    cuooP_type_cct_nonhc(cuoo_stdtype_to_type(type), NULL, kind);
     type->finalise = cu_clop_null;
     type->conj = stdobj_conj_default_clop;
     type->tran = stdobj_tran_default_clop;
 }
 
-cudyn_stdtype_t
-cudyn_stdtype_new()
+cuoo_stdtype_t
+cuoo_stdtype_new()
 {
-    cudyn_stdtype_t type = cudyn_onew(cudyn_stdtype);
-    cudyn_stdtype_cct(type, cudyn_typekind_stdtype);
+    cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
+    cuoo_stdtype_cct(type, cuoo_typekind_stdtype);
     return type;
 }
 
-cudyn_stdtype_t
-cudyn_stdtypeoftypes_new()
+cuoo_stdtype_t
+cuoo_stdtypeoftypes_new()
 {
-    cudyn_stdtype_t t = cudyn_onew(cudyn_stdtype);
-    cudyn_stdtype_cct(t, cudyn_typekind_stdtypeoftypes);
+    cuoo_stdtype_t t = cuoo_onew(cuoo_stdtype);
+    cuoo_stdtype_cct(t, cuoo_typekind_stdtypeoftypes);
     return t;
 }
 
-cudyn_stdtype_t
-cudyn_stdtype_new_self_instance(cudyn_typekind_t kind)
+cuoo_stdtype_t
+cuoo_stdtype_new_self_instance(cuoo_typekind_t kind)
 {
-    cudyn_stdtype_t type
-	= cudyn_oalloc_self_instance(sizeof(struct cudyn_stdtype_s));
-    cudyn_stdtype_cct(type, kind);
+    cuoo_stdtype_t type
+	= cuoo_oalloc_self_instance(sizeof(struct cuoo_stdtype_s));
+    cuoo_stdtype_cct(type, kind);
     return type;
 }
 
 void
-cudyn_stdtype_cct_hcs(cudyn_stdtype_t type, cudyn_typekind_t kind,
-		      size_t key_size)
+cuoo_stdtype_cct_hcs(cuoo_stdtype_t type, cuoo_typekind_t kind,
+		     size_t key_size)
 {
-    cudynP_type_cct_hcs(cudyn_stdtype_to_type(type), NULL, kind, key_size);
+    cuooP_type_cct_hcs(cuoo_stdtype_to_type(type), NULL, kind, key_size);
     type->finalise = cu_clop_null;
     type->conj = stdobj_conj_default_clop;
     type->tran = stdobj_tran_default_clop;
 }
 
 void
-cudyn_stdtype_cct_hcv(cudyn_stdtype_t type, cudyn_typekind_t kind,
-		      cu_clop(key_size_fn, size_t, void *))
+cuoo_stdtype_cct_hcv(cuoo_stdtype_t type, cuoo_typekind_t kind,
+		     cu_clop(key_size_fn, size_t, void *))
 {
-    cudynP_type_cct_hcv(cudyn_stdtype_to_type(type), NULL, kind, key_size_fn);
+    cuooP_type_cct_hcv(cuoo_stdtype_to_type(type), NULL, kind, key_size_fn);
     type->finalise = cu_clop_null;
     type->conj = stdobj_conj_default_clop;
     type->tran = stdobj_tran_default_clop;
 }
 
-cudyn_stdtype_t
-cudyn_stdtype_new_hcs(size_t key_size)
+cuoo_stdtype_t
+cuoo_stdtype_new_hcs(size_t key_size)
 {
-    cudyn_stdtype_t type = cudyn_onew(cudyn_stdtype);
-    cudyn_stdtype_cct_hcs(type, cudyn_typekind_stdtype, key_size);
+    cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
+    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtype, key_size);
     return type;
 }
 
-cudyn_stdtype_t
-cudyn_stdtypeoftypes_new_hcs(size_t key_size)
+cuoo_stdtype_t
+cuoo_stdtypeoftypes_new_hcs(size_t key_size)
 {
-    cudyn_stdtype_t type = cudyn_onew(cudyn_stdtype);
-    cudyn_stdtype_cct_hcs(type, cudyn_typekind_stdtypeoftypes, key_size);
+    cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
+    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtypeoftypes, key_size);
     return type;
 }
 
-cudyn_stdtype_t
-cudyn_stdtypeoftypes_new_hce(void)
+cuoo_stdtype_t
+cuoo_stdtypeoftypes_new_hce(void)
 {
-    cudyn_stdtype_t type = cudyn_onew(cudyn_stdtype);
-    cudyn_stdtype_cct_hcs(type, cudyn_typekind_stdtypeoftypes, sizeof(cuex_t));
+    cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
+    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtypeoftypes, sizeof(cuex_t));
     return type;
 }
 
-cudyn_stdtype_t
-cudyn_stdtype_new_hcv(cu_clop(key_size_fn, size_t, void *))
+cuoo_stdtype_t
+cuoo_stdtype_new_hcv(cu_clop(key_size_fn, size_t, void *))
 {
-    cudyn_stdtype_t type = cudyn_onew(cudyn_stdtype);
-    cudyn_stdtype_cct_hcv(type, cudyn_typekind_stdtype, key_size_fn);
+    cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
+    cuoo_stdtype_cct_hcv(type, cuoo_typekind_stdtype, key_size_fn);
     return type;
 }
 
@@ -195,13 +195,13 @@ cuex_key_size(cuex_meta_t meta, void *obj)
 {
     cu_hash_t key_size;
     switch (cuex_meta_kind(meta)) {
-	cudyn_type_t t;
+	cuoo_type_t t;
     case cuex_meta_kind_type:
-	t = cudyn_type_from_meta(meta);
-	if (t->members_hcmethod == cudyn_hcmethod_by_size)
+	t = cuoo_type_from_meta(meta);
+	if (t->members_hcmethod == cuoo_hcmethod_by_size)
 	    key_size = t->u0.key_size;
 	else {
-	    cu_debug_assert(t->members_hcmethod == cudyn_hcmethod_by_size_fn);
+	    cu_debug_assert(t->members_hcmethod == cuoo_hcmethod_by_size_fn);
 	    key_size = cu_call(t->u0.key_size_fn, obj);
 	}
 	cu_debug_assert(key_size % sizeof(cu_word_t) == 0);
@@ -227,18 +227,18 @@ cuex_key_hash(void *obj)
     cuex_meta_t meta = cuex_meta(obj);
     size_t key_size;
     switch (cuex_meta_kind(meta)) {
-	    cudyn_type_t t;
+	    cuoo_type_t t;
 	case cuex_meta_kind_type:
-	    t =  cudyn_type_from_meta(meta);
-	    cu_debug_assert(cudyn_is_type(t) && cudyn_type_is_hctype(t));
+	    t =  cuoo_type_from_meta(meta);
+	    cu_debug_assert(cuoo_is_type(t) && cuoo_type_is_hctype(t));
 	    switch (t->members_hcmethod) {
-		case cudyn_hcmethod_by_size:
+		case cuoo_hcmethod_by_size:
 		    key_size = t->u0.key_size;
 		    break;
-		case cudyn_hcmethod_by_size_fn:
+		case cuoo_hcmethod_by_size_fn:
 		    key_size = cu_call(t->u0.key_size_fn, obj);
 		    break;
-		case cudyn_hcmethod_by_hash_fn:
+		case cuoo_hcmethod_by_hash_fn:
 		    return cu_call(t->u0.key_hash_fn, obj);
 		default:
 		    cu_debug_unreachable();
@@ -256,7 +256,7 @@ cuex_key_hash(void *obj)
 	    cu_debug_unreachable();
     }
     return cu_wordarr_hash(key_size/sizeof(cu_word_t),
-			   obj + CU_HCOBJ_SHIFT, meta);
+			   obj + CUOO_HCOBJ_SHIFT, meta);
 }
 
 
@@ -264,53 +264,53 @@ cuex_key_hash(void *obj)
 /* Properties
  * ========== */
 
-#ifdef CUDYN_ENABLE_KEYED_PROP
-pthread_mutex_t cudynP_property_mutex = CU_MUTEX_INITIALISER;
-struct cucon_umap_s cudynP_property_map;
-AO_t cudynP_next_propkey = 1;
+#ifdef CUOO_ENABLE_KEYED_PROP
+pthread_mutex_t cuooP_property_mutex = CU_MUTEX_INITIALISER;
+struct cucon_umap_s cuooP_property_map;
+AO_t cuooP_next_propkey = 1;
 
-cudyn_propkey_t
-cudyn_propkey_create(void)
+cuoo_propkey_t
+cuoo_propkey_create(void)
 {
-    return AO_fetch_and_add1(&cudynP_next_propkey);
+    return AO_fetch_and_add1(&cuooP_next_propkey);
 }
 
 void
-cudyn_prop_set(cuex_t ex, cudyn_propkey_t key, void *val)
+cuoo_prop_set(cuex_t ex, cuoo_propkey_t key, void *val)
 {
     uintptr_t *props;
-    size_t req_size = sizeof(uintptr_t)*cudynP_next_propkey;
+    size_t req_size = sizeof(uintptr_t)*cuooP_next_propkey;
     cu_hcobj_set_has_prop(ex);
-    cu_mutex_lock(&cudynP_property_mutex);
-    if (cucon_umap_insert_mem(&cudynP_property_map, ~(uintptr_t)ex,
+    cu_mutex_lock(&cuooP_property_mutex);
+    if (cucon_umap_insert_mem(&cuooP_property_map, ~(uintptr_t)ex,
 			      req_size, &props)) {
 	memset(props, 0, req_size);
 	props[0] = req_size;
     }
     else if (props[0] <= sizeof(uintptr_t)*key) {
 	uintptr_t *old_props = props;
-	cucon_umap_erase(&cudynP_property_map, ~(uintptr_t)ex);
-	cucon_umap_insert_mem(&cudynP_property_map, ~(uintptr_t)ex,
+	cucon_umap_erase(&cuooP_property_map, ~(uintptr_t)ex);
+	cucon_umap_insert_mem(&cuooP_property_map, ~(uintptr_t)ex,
 			      req_size, &props);
 	memcpy(props, old_props, req_size);
 	props[0] = req_size;
     }
     props[key] = (uintptr_t)val;
-    cu_mutex_unlock(&cudynP_property_mutex);
+    cu_mutex_unlock(&cuooP_property_mutex);
 }
 
 void *
-cudyn_prop_get(cuex_t ex, cudyn_propkey_t key)
+cuoo_prop_get(cuex_t ex, cuoo_propkey_t key)
 {
     void *r;
     uintptr_t *props;
-    cu_mutex_lock(&cudynP_property_mutex);
-    props = cucon_umap_find_mem(&cudynP_property_map, ~(uintptr_t)ex);
+    cu_mutex_lock(&cuooP_property_mutex);
+    props = cucon_umap_find_mem(&cuooP_property_map, ~(uintptr_t)ex);
     if (!props || props[0] <= sizeof(uintptr_t)*key)
 	r = NULL;
     else
 	r = (void *)props[key];
-    cu_mutex_unlock(&cudynP_property_mutex);
+    cu_mutex_unlock(&cuooP_property_mutex);
     return r;
 }
 #endif
@@ -319,7 +319,7 @@ cudyn_prop_get(cuex_t ex, cudyn_propkey_t key)
 /* Init
  * ==== */
 
-cudyn_stdtype_t cudynP_stdtype_type;
+cuoo_stdtype_t cuooP_stdtype_type;
 
 void
 cuP_dyn_init()
@@ -328,9 +328,9 @@ cuP_dyn_init()
     static stdobj_tran_default_t stdobj_tran_default;
     stdobj_conj_default_clop = stdobj_conj_default_prep(&stdobj_conj_default);
     stdobj_tran_default_clop = stdobj_tran_default_prep(&stdobj_tran_default);
-#if CUDYN_ENABLE_KEYED_PROP
-    cucon_umap_cct(&cudynP_property_map);
+#if CUOO_ENABLE_KEYED_PROP
+    cucon_umap_cct(&cuooP_property_map);
 #endif
-    cudynP_stdtype_type =
-	cudyn_stdtype_new_self_instance(cudyn_typekind_stdtypeoftypes);
+    cuooP_stdtype_type =
+	cuoo_stdtype_new_self_instance(cuoo_typekind_stdtypeoftypes);
 }

@@ -18,7 +18,7 @@
 #ifndef CU_IDR_H
 #define CU_IDR_H
 
-#include <cu/dyn.h>
+#include <cuoo/type.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_idr cu/idr.h: Identifiers (Strings with Pointer Equality)
@@ -26,19 +26,19 @@ CU_BEGIN_DECLARATIONS
 
 struct cu_idr_s
 {
-    CU_HCOBJ
+    CUOO_HCOBJ
     size_t key_size;
 };
 
-extern cudyn_stdtype_t cuP_idr_type;
+extern cuoo_stdtype_t cuP_idr_type;
 
 /*!Returns the type descriptor of all \c cu_idr_t objects. */
-CU_SINLINE cudyn_type_t cu_idr_type()
-{ return cudyn_stdtype_to_type(cuP_idr_type); }
+CU_SINLINE cuoo_type_t cu_idr_type()
+{ return cuoo_stdtype_to_type(cuP_idr_type); }
 
 /*!True iff the dynamically typed object at \a dyn is an \c cu_idr_t. */
 CU_SINLINE cu_bool_t cu_is_idr(void *dyn)
-{ return cuex_meta(dyn) == cudyn_type_to_meta(cu_idr_type()); }
+{ return cuex_meta(dyn) == cuoo_type_to_meta(cu_idr_type()); }
 
 /*!Returns the identifier with the name \a cstr.  The result is hashconsed,
  * meaning that two simultaneously live \c cu_idr_t objects constructed

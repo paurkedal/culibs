@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,26 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUEX_MISC_H
-#define CUEX_MISC_H
+#ifndef CUOO_FWD_H
+#define CUOO_FWD_H
 
-#include <cuex/fwd.h>
-#include <cuoo/meta.h>
-#include <cuoo/type.h>
+#include <cu/fwd.h>
 
 CU_BEGIN_DECLARATIONS
+/*!\defgroup cuoo_fwd_h cuoo/fwd.h:
+ *@{\ingroup cuoo_mod */
 
-extern cuoo_stdtype_t cuexP_long_type;
-#define cuex_long_type() cuoo_stdtype_to_type(cuexP_long_type)
+typedef struct cuoo_prop_s		*cuoo_prop_t;
+typedef struct cuoo_intf_compound_s	*cuoo_intf_compound_t;
 
-cuex_t cuex_of_long(long);
+void cuoo_init(void);
 
-CU_SINLINE cu_bool_t cuex_is_long(cuex_t ex)
-{ return cuex_meta(ex) == cuoo_stdtype_to_meta(cuexP_long_type); }
-
-CU_SINLINE long cuex_to_long(cuex_t ex)
-{ return *(long *)((void *)(ex) + CUOO_HCOBJ_SHIFT); }
-
+/*!@}*/
 CU_END_DECLARATIONS
 
 #endif

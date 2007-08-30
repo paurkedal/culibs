@@ -19,7 +19,7 @@
 #define CUDYN_MISC_H
 
 #include <cudyn/fwd.h>
-#include <cudyn/properties.h>
+#include <cuoo/properties.h>
 #include <cudyn/typetpl.h>
 #include <cudyn/type.h>
 #include <cu/idr.h>
@@ -62,20 +62,20 @@ CUDYN_ETYPEARR_DCLN(uint64, uint64_t)
 
 extern cudyn_elmtype_t cudynP_bool_type;
 
-CU_SINLINE cudyn_type_t cudyn_bool_type()
+CU_SINLINE cuoo_type_t cudyn_bool_type()
 { return cudyn_elmtype_to_type(cudynP_bool_type); }
 
 CU_SINLINE cuex_t cudyn_bool(cu_bool_t x)
 {
     x = !!x;
-    return cudyn_halloc(cudyn_bool_type(), sizeof(cu_word_t), &x);
+    return cuoo_halloc(cudyn_bool_type(), sizeof(cu_word_t), &x);
 }
 
 CU_SINLINE cu_bool_t cudyn_is_bool(cuex_t ex)
-{ return cuex_meta(ex) == cudyn_type_to_meta(cudyn_bool_type()); }
+{ return cuex_meta(ex) == cuoo_type_to_meta(cudyn_bool_type()); }
 
 CU_SINLINE cu_bool_t cudyn_to_bool(cuex_t ex)
-{ return *(cu_word_t *)((char *)ex + CU_HCOBJ_SHIFT); }
+{ return *(cu_word_t *)((char *)ex + CUOO_HCOBJ_SHIFT); }
 
 extern cuex_t cudynP_true;
 extern cuex_t cudynP_false;
@@ -148,12 +148,12 @@ CUDYN_ETYPEARR_ALIAS(ulong, unsigned long, uint64)
 CU_SINLINE cuex_t
 cudyn_ptr(cudyn_ptrtype_t ptrtype, void *ptr)
 {
-    return cudyn_halloc(cudyn_ptrtype_to_type(ptrtype), sizeof(void *), &ptr);
+    return cuoo_halloc(cudyn_ptrtype_to_type(ptrtype), sizeof(void *), &ptr);
 }
 
 CU_SINLINE void *
 cudyn_to_ptr(cuex_t e)
-{ return *(void **)((char *)e + CU_HCOBJ_SHIFT); }
+{ return *(void **)((char *)e + CUOO_HCOBJ_SHIFT); }
 
 
 extern cuex_t cudynP_singular_obj;
@@ -170,7 +170,7 @@ CU_SINLINE cu_bool_t cudyn_is_singular_obj(cuex_t obj)
 
 unsigned long cudyn_castget_ulong(cuex_t e);
 
-cuex_t cudyn_load(cudyn_type_t t, void *ptr);
+cuex_t cudyn_load(cuoo_type_t t, void *ptr);
 
 /*!@}*/
 CU_END_DECLARATIONS

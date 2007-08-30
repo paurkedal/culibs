@@ -23,7 +23,7 @@
 #include <stdarg.h>
 #include <cu/fwd.h>
 #include <cu/clos.h>
-#include <cu/dyn.h>
+#include <cuoo/type.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_str cu/str.h: Strings
@@ -31,22 +31,22 @@ CU_BEGIN_DECLARATIONS
 
 struct cu_str_s
 {
-    CU_OBJ
+    CUOO_OBJ
     char *arr;
     size_t len;
     size_t cap;
 };
 
-extern cudyn_stdtype_t cuP_str_type;
+extern cuoo_stdtype_t cuP_str_type;
 
 /*!The dynamic type of \c cu_str_t. */
-CU_SINLINE cudyn_type_t cu_str_type()
-{ return cudyn_stdtype_to_type(cuP_str_type); }
+CU_SINLINE cuoo_type_t cu_str_type()
+{ return cuoo_stdtype_to_type(cuP_str_type); }
 
 /*!True iff \a s is a \c cu_str_t.
  * \pre s is a dynamically typed object. */
 CU_SINLINE cu_bool_t cu_is_str(void *s)
-{ return cuex_meta(s) == cudyn_type_to_meta(cu_str_type()); }
+{ return cuex_meta(s) == cuoo_type_to_meta(cu_str_type()); }
 
 /*!True iff \a str is empty. */
 CU_SINLINE cu_bool_t cu_str_is_empty(cu_str_t str) { return str->len == 0; }

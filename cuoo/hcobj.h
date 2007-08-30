@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CU_HCOBJ_H
-#define CU_HCOBJ_H
+#ifndef CUOO_HCOBJ_H
+#define CUOO_HCOBJ_H
 
 #include <cu/fwd.h>
 #include <cu/conf.h>
@@ -25,11 +25,11 @@
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_hcobj_h cu/hcobj.h: Hash-consed Object Headers
  *@{\ingroup cu_mod
- * This header defines a macro \ref CU_HCOBJ to put right after the opening
+ * This header defines a macro \ref CUOO_HCOBJ to put right after the opening
  * brace of a hash-consed object struct:
  * \code
  * struct my_obj {
- *     CU_HCOBJ
+ *     CUOO_HCOBJ
  *     // key fields
  *     // value fields
  * };
@@ -43,47 +43,49 @@ typedef struct cu_hcobj_s *cu_hcobj_t;
 #ifdef CUCONF_ENABLE_GC_DISCLAIM
 
 #if CUCONF_SIZEOF_LONG > 4
-#  define CU_HC_GENERATION 0
+#  define CUOO_HC_GENERATION 0
 #else
-#  define CU_HC_GENERATION 0
+#  define CUOO_HC_GENERATION 0
 #endif
-#define CU_HCOBJ_NEEDED 1
+#define CUOO_HCOBJ_NEEDED 1
 
 /*!Put this, without semicolon, at the beginning of struct bodies which are
  * used for hash-consed objects. */
-#define CU_HCOBJ CU_OBJ cu_inherit (cu_hcobj_s);
+#define CUOO_HCOBJ CUOO_OBJ cu_inherit (cu_hcobj_s);
 
 /*!The offset of the key-part of hash-consed object struct. */
-#define CU_HCOBJ_SHIFT sizeof(struct cu_hcobj_s)
+#define CUOO_HCOBJ_SHIFT sizeof(struct cu_hcobj_s)
 
-#define CU_HCOBJ_INIT CU_OBJ_INIT { 0 },
+#define CUOO_HCOBJ_INIT CUOO_OBJ_INIT { 0 },
 
-/*!Internal, use the \ref CU_HCOBJ macro instead. */
+/*!Internal, use the \ref CUOO_HCOBJ macro instead. */
 struct cu_hcobj_s
 {
     AO_t hcset_next;
-#if CU_HC_GENERATION
+#if CUOO_HC_GENERATION
     AO_t generation;
 #endif
 };
 
 #else /* !CUCONF_ENABLE_GC_DISCLAIM */
 
-#define CU_HCOBJ
-#define CU_HCOBJ_SHIFT 0
-#define CU_HCOBJ_INIT
+#define CUOO_HCOBJ
+#define CUOO_HCOBJ_SHIFT 0
+#define CUOO_HCOBJ_INIT
 
 #endif /* !CUCONF_ENABLE_GC_DISCLAIM */
 
-#define CU_HCOBJ_SHIFTW (CU_HCOBJ_SHIFT/CU_WORD_SIZE)
+#define CUOO_HCOBJ_SHIFTW (CUOO_HCOBJ_SHIFT/CU_WORD_SIZE)
 
-#define CU_HCOBJ_KEY(obj) ((void *)((char *)(obj) + CU_HCOBJ_SHIFT))
+#define CUOO_HCOBJ_KEY(obj) ((void *)((char *)(obj) + CUOO_HCOBJ_SHIFT))
 
-#define CU_HCOBJ_KEY_SIZEW(struct_size) \
-    (CUDYN_OBJ_ALLOC_SIZEG(struct_size)*CU_GRAN_SIZEW - 1 - CU_HCOBJ_SHIFTW)
+#if 0 /* These were only used in idr.c */
+#define CUOO_HCOBJ_KEY_SIZEW(struct_size) \
+    (CUOO_OBJ_ALLOC_SIZEG(struct_size)*CU_GRAN_SIZEW - 1 - CUOO_HCOBJ_SHIFTW)
 
-#define CU_HCOBJ_KEY_SIZE(struct_size) \
-    (CU_HCOBJ_KEY_SIZEW(struct_size)*CU_WORD_SIZE)
+#define CUOO_HCOBJ_KEY_SIZE(struct_size) \
+    (CUOO_HCOBJ_KEY_SIZEW(struct_size)*CU_WORD_SIZE)
+#endif
 
 /*!@}*/
 CU_END_DECLARATIONS

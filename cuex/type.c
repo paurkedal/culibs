@@ -46,11 +46,11 @@ cuex_type_bitsize(cuex_t type)
 {
     cuex_meta_t meta;
 tailcall:
-    if (cudyn_is_type(type)) {
-	if (cudyn_type_typekind(type) != cudyn_typekind_by_expr)
-	    return cudyn_type_bitsize(type);
+    if (cuoo_is_type(type)) {
+	if (cuoo_type_typekind(type) != cuoo_typekind_by_expr)
+	    return cuoo_type_bitsize(type);
 	else
-	    type = cudyn_type_as_expr(type);
+	    type = cuoo_type_as_expr(type);
     }
 
     meta = cuex_meta(type);
@@ -94,8 +94,8 @@ tailcall:
 cu_offset_t
 cuex_type_bitalign(cuex_t type)
 {
-    if (cudyn_is_type(type))
-	return cudyn_type_bitalign(type);
+    if (cuoo_is_type(type))
+	return cuoo_type_bitalign(type);
     switch (cuex_meta(type)) {
 	case CUEX_O0ACI_SIGPROD:
 	case CUEX_O1_SINGLETON:
@@ -114,7 +114,7 @@ cuex_typeof(cuex_t e)
     cuex_meta_t m = cuex_meta(e);
     switch (cuex_meta_kind(m)) {
 	case cuex_meta_kind_type:
-	    return cudyn_type_from_meta(m);
+	    return cuoo_type_from_meta(m);
 	case cuex_meta_kind_opr:
 	    return cudyn_cuex_type();
 	case cuex_meta_kind_other:

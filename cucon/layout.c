@@ -16,16 +16,15 @@
  */
 
 #include <cucon/layout.h>
-#include <cu/dyn.h>
 #include <cu/debug.h>
 #include <cu/int.h>
-#include <cu/halloc.h>
+#include <cuoo/halloc.h>
 
 #define HASH CU_HASH2
 #define MAX_FREE_WIDTH_OF_ALT0 0
 #define MAX_FREE_WIDTH_OF_ALT1 1  /* best */
 
-cudyn_type_t cucon_layout_meta;
+cuoo_type_t cucon_layout_meta;
 
 #if MAX_FREE_WIDTH_OF_ALT0
 static cu_offset_t
@@ -166,9 +165,9 @@ layout_new_raw(cucon_layout_t prefix, cu_word_t alloc_mask,
 	       cu_offset_t bitalign)
 {
     cucon_layout_t layout;
-    cudyn_hctem_decl(cucon_layout, tem);
-    cudyn_hctem_init(cucon_layout, tem);
-    layout = cudyn_hctem_get(cucon_layout, tem);
+    cuoo_hctem_decl(cucon_layout, tem);
+    cuoo_hctem_init(cucon_layout, tem);
+    layout = cuoo_hctem_get(cucon_layout, tem);
     layout->prefix = prefix;
     layout->alloc_mask = alloc_mask;
     layout->bitalign = bitalign;
@@ -183,7 +182,7 @@ layout_new_raw(cucon_layout_t prefix, cu_word_t alloc_mask,
 	layout->bitoffset = 0;
 	layout->max_free_width = max_free_width_of(0, alloc_mask);
     }
-    return cudyn_hctem_new(cucon_layout, tem);
+    return cuoo_hctem_new(cucon_layout, tem);
 }
 
 static cucon_layout_t
@@ -423,7 +422,7 @@ cucon_layout_dump(cucon_layout_t lyo, FILE *out)
     layout_dump(lyo, out);
 }
 
-cudyn_stdtype_t cuconP_layout_type;
+cuoo_stdtype_t cuconP_layout_type;
 cucon_layout_t cuconP_layout_ptr;
 cucon_layout_t cuconP_layout_void;
 
@@ -432,7 +431,7 @@ cuconP_layout_init()
 {
     cu_offset_t ignore;
     cuconP_layout_type =
-	cudyn_stdtype_new_hcs(sizeof(struct cucon_layout_s) - CU_HCOBJ_SHIFT);
+	cuoo_stdtype_new_hcs(sizeof(struct cucon_layout_s) - CUOO_HCOBJ_SHIFT);
     cuconP_layout_ptr = cucon_layout_pack_bits(NULL,
 					  sizeof(void *)*8,
 					  sizeof(void *)*8, &ignore);

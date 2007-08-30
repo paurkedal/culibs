@@ -64,7 +64,7 @@ char const *cuex_qcode_name(cuex_qcode_t quant);
 
 struct cuex_pvar_s
 {
-    CU_OBJ
+    CUOO_OBJ
     cu_offset_t offset;	/* In bits if 'type' is a bitfield */
     void *module; /* XXX */
     cu_idr_t idr;

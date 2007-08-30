@@ -129,12 +129,12 @@ cuex_t cuex_rightmost_with_meta(cuex_t ex, cuex_meta_t meta);
 /*!The leftmost identifier in \a ex.
  * \pre \a ex must not contain ACI operators. */
 CU_SINLINE cu_idr_t cuex_leftmost_idr(cuex_t ex)
-{ return cuex_leftmost_with_meta(ex, cudyn_type_to_meta(cu_idr_type())); }
+{ return cuex_leftmost_with_meta(ex, cuoo_type_to_meta(cu_idr_type())); }
 
 /*!The rightmost identifier in \a ex.
  * \pre \a ex must not contain ACI operators. */
 CU_SINLINE cu_idr_t cuex_rightmost_idr(cuex_t ex)
-{ return cuex_rightmost_with_meta(ex, cudyn_type_to_meta(cu_idr_type())); }
+{ return cuex_rightmost_with_meta(ex, cuoo_type_to_meta(cu_idr_type())); }
 
 /*!The leftmost variable in \a ex having quantification in \a qcset.
  * \pre \a ex must not contain ACI operators. */

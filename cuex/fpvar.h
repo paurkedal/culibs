@@ -38,7 +38,7 @@ CU_BEGIN_DECLARATIONS
 /*!A formal parameter variable. */
 struct cuex_fpvar_s
 {
-    CU_HCOBJ
+    CUOO_HCOBJ
     cuex_t type;
 };
 

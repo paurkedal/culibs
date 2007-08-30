@@ -8,17 +8,13 @@ cu_headers = \
 	cu/debug.h \
 	cu/diag.h \
 	cu/dlink.h \
-	cu/dyn.h \
 	cu/fwd.h \
 	cu/hash.h \
-	cu/hcobj.h \
-	cu/halloc.h \
 	cu/idr.h \
 	cu/inherit.h \
 	cu/init.h \
 	cu/int.h \
 	cu/memory.h \
-	cu/oalloc.h \
 	cu/rarex.h \
 	cu/scratch.h \
 	cu/sref.h \
@@ -37,7 +33,6 @@ cu_sources = \
 	cu/cstr.c \
 	cu/debug.c \
 	cu/diag.c \
-	cu/dyn.c \
 	cu/hash.c \
 	cu/idr.c \
 	cu/init.c \
@@ -50,13 +45,6 @@ cu_sources = \
 	cu/test.c \
 	cu/thread.c \
 	cu/tstate.c
-
-if enable_gc_disclaim
-    noinst_HEADERS += cu/hcons_rn.h
-    cu_sources += cu/hcons_rn.c cu/obj_mlc.c
-else
-    cu_sources += cu/hcons_wp.c
-endif
 
 if enable_clos_i386
     cu_headers += cu/i386/clos.h
@@ -75,8 +63,7 @@ cu_check_programs = \
 	cu/thread_t0 \
 	cu/rarex_t0
 cu_norun_check_programs = \
-	cu/int_b0 \
-	cu/hcons_b0
+	cu/int_b0
 
 cu_doxyfiles = \
 	cu/clos.doxy
@@ -87,12 +74,8 @@ cu_clos_t0_SOURCES = cu/clos_t0.c
 cu_clos_t0_LDADD = libcubase.la
 cu_cstr_t0_SOURCES = cu/cstr_t0.c
 cu_cstr_t0_LDADD = libcubase.la
-# cu_dyn_t0_SOURCES = cu/dyn_t0.c
-# cu_dyn_t0_LDADD = libcubase.la
 cu_hash_t0_SOURCES = cu/hash_t0.c
 cu_hash_t0_LDADD = libcubase.la
-cu_hcons_b0_SOURCES = cu/hcons_b0.c
-cu_hcons_b0_LDADD = libcubase.la
 cu_idr_t0_SOURCES = cu/idr_t0.c
 cu_idr_t0_LDADD = libcubase.la
 cu_int_b0_SOURCES = cu/int_b0.c

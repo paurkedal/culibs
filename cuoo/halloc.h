@@ -15,145 +15,147 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CU_HCONS_H
-#define CU_HCONS_H
+#ifndef CUOO_HALLOC_H
+#define CUOO_HALLOC_H
 
+#include <cuoo/oalloc.h>
 #include <cu/fwd.h>
 #include <cu/conf.h>
+#include <cu/clos.h>
 #include <cu/wordarr.h>
-#include <cu/oalloc.h>
 
 CU_BEGIN_DECLARATIONS
 
 /*!\defgroup cu_hcons_h cu/halloc.h: Hash-Consing Allocation
  * @{\ingroup cu_mod */
 
-#define CUDYN_HCOBJ_KEY_SIZEW(struct_size) \
-    (((struct_size) + CU_WORD_SIZE - 1 - CU_HCOBJ_SHIFT)/CU_WORD_SIZE)
-#define CUDYN_HCOBJ_ALLOC_SIZEG(struct_size) \
-    CUDYN_OBJ_ALLOC_SIZEG(struct_size)
+#define CUOO_HCOBJ_KEY_SIZEW(struct_size) \
+    (((struct_size) + CU_WORD_SIZE - 1 - CUOO_HCOBJ_SHIFT)/CU_WORD_SIZE)
+#define CUOO_HCOBJ_KEY_SIZE(struct_size) \
+    (CUOO_HCOBJ_KEY_SIZEW(struct_size)*CU_WORD_SIZE)
+#define CUOO_HCOBJ_ALLOC_SIZEG(struct_size) \
+    CUOO_OBJ_ALLOC_SIZEG(struct_size)
 
 void *cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key);
 void *cuexP_halloc_extra_raw(cuex_meta_t meta, size_t raw_alloc_sizeg,
 			     size_t key_sizew, void *key,
 			     cu_clop(init_nonkey, void, void *));
 CU_SINLINE void *
-cudynP_halloc_extra_raw(cudyn_type_t type, size_t raw_alloc_sizeg,
-			size_t key_sizew, void *key,
-			cu_clop(init_nonkey, void, void *))
+cuooP_halloc_extra_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
+		       size_t key_sizew, void *key,
+		       cu_clop(init_nonkey, void, void *))
 {
-    return cuexP_halloc_extra_raw(cudyn_type_to_meta(type), raw_alloc_sizeg,
+    return cuexP_halloc_extra_raw(cuoo_type_to_meta(type), raw_alloc_sizeg,
 				  key_sizew, key, init_nonkey);
 }
 
 /*!Assuming a declaration of a struct <tt><em>prefix</em>_s</tt> which starts
- * with a \ref CU_HCOBJ statement, this macro returns the key-size to use for
+ * with a \ref CUOO_HCOBJ statement, this macro returns the key-size to use for
  * hash-consing object of the struct. */
-#define cudyn_hctem_key_size(prefix) (sizeof(struct prefix##_s) - CU_HCOBJ_SHIFT)
+#define cuoo_hctem_key_size(prefix) (sizeof(struct prefix##_s) - CUOO_HCOBJ_SHIFT)
 
 /*!This is part of several high-level hash-cosning macros summarised under \ref
- * cudyn_hctem_new.
+ * cuoo_hctem_new.
  * This macro emits a declaration of a key-template used for hash-consed
- * allocation.  \a key must be initialised with \ref cudyn_hctem_init and
- * assigned through the pointer returned by \a cudyn_hctem_get. */
-#define cudyn_hctem_decl(prefix, key) char key[cudyn_hctem_key_size(prefix)]
+ * allocation.  \a key must be initialised with \ref cuoo_hctem_init and
+ * assigned through the pointer returned by \a cuoo_hctem_get. */
+#define cuoo_hctem_decl(prefix, key) char key[cuoo_hctem_key_size(prefix)]
 
 /*!This is part of several high-level hash-consing macros summarised under \ref
- * cudyn_hctem_new.
+ * cuoo_hctem_new.
  * This macro initialises the template \a key, which must be declared with \ref
- * cudyn_hctem_decl.  Use this to zero the template before assigning to the
+ * cuoo_hctem_decl.  Use this to zero the template before assigning to the
  * members.  Compiler optimisation typically means only the data which is not
- * subsequently assigned though the \ref cudyn_hctem_get pointer will be
- * zeroed.  In particular, calling \ref cudyn_hctem_init makes sure that
+ * subsequently assigned though the \ref cuoo_hctem_get pointer will be
+ * zeroed.  In particular, calling \ref cuoo_hctem_init makes sure that
  * padding at the end of the struct and holes in the struct due to alignment
  * constraints do not contain arbitrary data which would invalidate the
  * hash-consing. */
-#define cudyn_hctem_init(prefix, key) \
-    (memset(&(key), 0, cudyn_hctem_key_size(prefix)))
+#define cuoo_hctem_init(prefix, key) \
+    (memset(&(key), 0, cuoo_hctem_key_size(prefix)))
 
 /*!This is part of several high-level hash-consing macros summarised under \ref
- * cudyn_hctem_new.
+ * cuoo_hctem_new.
  * Given a prefix and a template variable \a key, returns a pointer to the
  * template struct, which has type <tt><em>prefix</em>_s *</tt>. */
-#define cudyn_hctem_get(prefix, key)					\
-    ((struct prefix##_s *)((char *)(key) - CU_HCOBJ_SHIFT))
+#define cuoo_hctem_get(prefix, key)					\
+    ((struct prefix##_s *)((char *)(key) - CUOO_HCOBJ_SHIFT))
 
-/*!The key address of a template in case you need to use \ref cudyn_halloc or
- * \ref cudyn_halloc_extra instead of cudyn_hctem_new. */
-#define cudyn_hctem_key(prefix, key) (&(key))
+/*!The key address of a template in case you need to use \ref cuoo_halloc or
+ * \ref cuoo_halloc_extra instead of cuoo_hctem_new. */
+#define cuoo_hctem_key(prefix, key) (&(key))
 
 /*!This is part of several high-level hash-consing macros.
  * Given previous definition of a <tt>struct <em>prefix</em>_s</tt> and a
  * function <tt><em>prefix</em>_type()</tt> returning the corresponding dynamic
  * type, this macro returns a hash-constructed object from the initialised
  * template \a key.  This macro is used in conjunction with \ref
- * cudyn_hctem_decl, \ref cudyn_hctem_init, \ref cudyn_hctem_get, and it's
+ * cuoo_hctem_decl, \ref cuoo_hctem_init, \ref cuoo_hctem_get, and it's
  * maybe best understood from an example, here creating a dynamic pair:
  * \code
  * struct pair_s {
- *     CU_HCOBJ
+ *     CUOO_HCOBJ
  *     cuex_t left;
  *     cuex_t right;
  * };
  *
- * cudyn_type_t pair_type();
+ * cuoo_type_t pair_type();
  *
  * struct pair_s *pair_new(cuex_t left, cuex_t right)
  * {
- *     cudyn_hctem_decl(pair, key);
- *     cudyn_hctem_init(pair, key);
- *     cudyn_hctem_get(pair, key)->left = left;
- *     cudyn_hctem_get(pair, key)->right = right;
- *     return cudyn_hctem_new(pair, key);
+ *     cuoo_hctem_decl(pair, key);
+ *     cuoo_hctem_init(pair, key);
+ *     cuoo_hctem_get(pair, key)->left = left;
+ *     cuoo_hctem_get(pair, key)->right = right;
+ *     return cuoo_hctem_new(pair, key);
  * }
  * \endcode
- * The cudyn_hctem_* macros only work when following the above naming conventions
+ * The cuoo_hctem_* macros only work when following the above naming conventions
  * for the struct and dynamic-type functions.  Otherwise, use \ref
- * cudyn_halloc.  */
-#define cudyn_hctem_new(prefix, key) \
+ * cuoo_halloc.  */
+#define cuoo_hctem_new(prefix, key) \
     ((struct prefix##_s *) \
-     cudyn_halloc(prefix##_type(), \
-			 cudyn_hctem_key_size(prefix), &(key)))
+     cuoo_halloc(prefix##_type(), cuoo_hctem_key_size(prefix), &(key)))
 
 CU_SINLINE void *
 cuexP_halloc(cuex_meta_t meta, size_t key_size, void *key)
 {
     return cuexP_halloc_raw(meta,
-			    CUDYN_HCOBJ_KEY_SIZEW(key_size + CU_HCOBJ_SHIFT),
+			    CUOO_HCOBJ_KEY_SIZEW(key_size + CUOO_HCOBJ_SHIFT),
 			    key);
 }
 
 /*!General hash-consing allocation, allowing more control than \ref
- * cudyn_hctem_new. */
+ * cuoo_hctem_new. */
 CU_SINLINE void *
-cudyn_halloc(cudyn_type_t type, size_t key_size, void *key)
+cuoo_halloc(cuoo_type_t type, size_t key_size, void *key)
 {
-    return cuexP_halloc_raw(cudyn_type_to_meta(type),
-			    CUDYN_HCOBJ_KEY_SIZEW(key_size + CU_HCOBJ_SHIFT),
+    return cuexP_halloc_raw(cuoo_type_to_meta(type),
+			    CUOO_HCOBJ_KEY_SIZEW(key_size + CUOO_HCOBJ_SHIFT),
 			    key);
 }
 
 /*!General hash-consing allocation with extra non-keyed memory.  This generally
  * takes more GC cycles to clean up and is therefore more expensive than \ref
- * cudyn_halloc, but it allows caching computations and associating properties
+ * cuoo_halloc, but it allows caching computations and associating properties
  * to live objects. */
 CU_SINLINE void *
-cudyn_halloc_extra(cudyn_type_t type, size_t struct_size,
-		   size_t key_size, void *key,
-		   cu_clop(init_nonkey, void, void *obj))
+cuoo_halloc_extra(cuoo_type_t type, size_t struct_size,
+		  size_t key_size, void *key,
+		  cu_clop(init_nonkey, void, void *obj))
 {
     cu_debug_assert(key_size % CU_WORD_SIZE == 0);
-    return cudynP_halloc_extra_raw(type,
-				   CUDYN_HCOBJ_ALLOC_SIZEG(struct_size),
-				   CUDYN_HCOBJ_KEY_SIZEW(key_size
-							 + CU_HCOBJ_SHIFT),
+    return cuooP_halloc_extra_raw(type,
+				   CUOO_HCOBJ_ALLOC_SIZEG(struct_size),
+				   CUOO_HCOBJ_KEY_SIZEW(key_size
+							 + CUOO_HCOBJ_SHIFT),
 				   key,
 				   init_nonkey);
 }
 
-#define cudyn_hnew_extra(prefix, key_size, key, init_nonkey) \
+#define cuoo_hnew_extra(prefix, key_size, key, init_nonkey) \
     ((struct prefix##_s *) \
-     cudyn_halloc_extra(prefix##_type(), sizeof(struct prefix##_s), \
+     cuoo_halloc_extra(prefix##_type(), sizeof(struct prefix##_s), \
 			key_size, key, init_nonkey))
 
 /*!@}*/

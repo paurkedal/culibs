@@ -17,7 +17,9 @@
 
 #include <cuex/opn.h>
 #include <cuex/oprinfo.h>
-#include <cu/halloc.h>
+#include <cuoo/halloc.h>
+#include <cuoo/intf.h>
+#include <cuoo/compound.h>
 
 CU_SINLINE cu_bool_t
 wordaligned_eq(void *arr0, void *arr0_end, void *arr1)
@@ -66,7 +68,7 @@ cuex_opn(cuex_meta_t opr, ...)
     if (!cuex_opr_has_ctor(opr))
 	return cuexP_halloc_raw(
 	    opr,
-	    CUDYN_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	    CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	    operand_arr);
     else {
 	cct_cached_t cct;
@@ -74,9 +76,9 @@ cuex_opn(cuex_meta_t opr, ...)
 	cct.oi = oi;
 	return cuexP_halloc_extra_raw(
 	    opr,
-	    CUDYN_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT
+	    CUOO_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT
 				    + oi->cache_size),
-	    CUDYN_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	    CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	    operand_arr, cct_cached_prep(&cct));
     }
 }
@@ -97,7 +99,7 @@ cuex_opn_by_valist(cuex_meta_t opr, va_list va)
     if (!cuex_opr_has_ctor(opr))
 	return cuexP_halloc_raw(
 	    opr,
-	    CUDYN_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	    CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	    operand_arr);
     else {
 	cct_cached_t cct;
@@ -105,9 +107,9 @@ cuex_opn_by_valist(cuex_meta_t opr, va_list va)
 	cct.oi = oi;
 	return cuexP_halloc_extra_raw(
 	    opr,
-	    CUDYN_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT
+	    CUOO_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT
 				    + oi->cache_size),
-	    CUDYN_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	    CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	    operand_arr, cct_cached_prep(&cct));
     }
 }
@@ -121,9 +123,9 @@ cuexP_opn_by_arr_with_ctor(cuex_meta_t opr, cuex_t *operand_arr)
     cct.oi = oi;
     return cuexP_halloc_extra_raw(
 	opr,
-	CUDYN_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT
+	CUOO_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT
 				+ oi->cache_size),
-	CUDYN_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	operand_arr, cct_cached_prep(&cct));
 }
 
@@ -145,4 +147,86 @@ cuex_opn2_right(cuex_meta_t opr, cuex_t x, cuex_t y)
 	x = cuex_opn_at(x, 0);
     }
     return cuex_opn(opr, x, y);
+}
+
+
+cu_bool_t
+cuex_conj(cuex_t e, cu_clop(pred, cu_bool_t, cuex_t))
+{
+    cuex_meta_t meta = cuex_meta(e);
+    switch (cuex_meta_kind(meta)) {
+	case cuex_meta_kind_type: {
+	    cuoo_type_t type = cuoo_type_from_meta(meta);
+	    cuoo_intf_compound_t impl;
+	    impl = (cuoo_intf_compound_t)cuoo_type_impl(type,
+							CUOO_INTF_COMPOUND);
+	    if (impl)
+		return impl->conj(impl, pred, e);
+	    else
+		return cu_true;
+	}
+
+	case cuex_meta_kind_opr:
+	    CUEX_OPN_CONJ_RETURN(meta, e, ep, cu_call(pred, ep));
+
+	case cuex_meta_kind_other:
+	    return cu_true;
+
+	default:
+	    cu_debug_unreachable();
+	    return cu_false;
+    }
+}
+
+cuex_t
+cuex_image(cuex_t e, cu_clop(f, cuex_t, cuex_t))
+{
+    cuex_meta_t meta = cuex_meta(e);
+    switch (cuex_meta_kind(meta)) {
+	    void **opd_begin;
+	    void **opd;
+	    void **opd_end;
+	    void *sub;
+	    void **new_arr_begin;
+	    void **new_arr;
+
+	case cuex_meta_kind_type: {
+	    cuoo_type_t type = cuoo_type_from_meta(meta);
+	    cuoo_intf_compound_t impl;
+	    impl = (cuoo_intf_compound_t)cuoo_type_impl(type,
+							CUOO_INTF_COMPOUND);
+	    if (impl)
+		return impl->image(impl, f, e);
+	    else
+		return e;
+	}
+
+	case cuex_meta_kind_opr:
+	    opd = cuex_opn_begin(e);
+	    opd_end = cuex_opn_end(e);
+	    for (;;) {
+		if (opd == opd_end)
+		    return e;
+		sub = cu_call(f, *opd);
+		if (sub != *opd)
+		    break;
+		++opd;
+	    }
+	    opd_begin = cuex_opn_begin(e);
+	    new_arr_begin = cu_salloc(sizeof(void *)*cuex_opn_arity(e));
+	    new_arr = new_arr_begin;
+	    memcpy(new_arr, opd_begin, (char *)opd - (char *)opd_begin);
+	    new_arr += opd - opd_begin;
+	    *new_arr = sub;
+	    while (++opd != opd_end)
+		*++new_arr = cu_call(f, *opd);
+	    return cuex_opn_by_arr(meta, new_arr_begin);
+
+	case cuex_meta_kind_other:
+	    return e;
+
+	default:
+	    cu_debug_unreachable();
+	    return NULL;
+    }
 }

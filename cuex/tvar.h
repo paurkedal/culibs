@@ -48,7 +48,7 @@ CU_SINLINE cu_bool_t cuex_is_tvarmeta(cuex_meta_t meta)
 /*!Typed and type-representing variable type. */
 struct cuex_tvar_s
 {
-    cu_inherit (cudyn_type_s);
+    cu_inherit (cuoo_type_s);
     AO_t type;
 };
 
@@ -58,16 +58,16 @@ CU_SINLINE cu_bool_t cuex_is_tvar(cuex_t ex)
 
 /*!True iff \a tv represents a type. */
 CU_SINLINE cu_bool_t cuex_tvar_is_type(cuex_tvar_t tv)
-{ return cudyn_type_typekind(cu_to(cudyn_type, tv)) != cudyn_typekind_none; }
+{ return cuoo_type_typekind(cu_to(cuoo_type, tv)) != cuoo_typekind_none; }
 
 /*!Cast \a tv to a type. */
-CU_SINLINE cudyn_type_t cuex_tvar_to_type(cuex_tvar_t tv)
-{ return cu_to(cudyn_type, tv); }
+CU_SINLINE cuoo_type_t cuex_tvar_to_type(cuex_tvar_t tv)
+{ return cu_to(cuoo_type, tv); }
 
 /*!Unchecked cast from \a t to a type variable.  Use \ref cuex_is_tvar
  * first. */
-CU_SINLINE cuex_tvar_t cuex_tvar_from_type(cudyn_type_t t)
-{ return cu_from(cuex_tvar, cudyn_type, t); }
+CU_SINLINE cuex_tvar_t cuex_tvar_from_type(cuoo_type_t t)
+{ return cu_from(cuex_tvar, cuoo_type, t); }
 
 /*!Cast \a tv to a variable. */
 CU_SINLINE cuex_var_t cuex_tvar_to_var(cuex_tvar_t tv)
@@ -79,10 +79,10 @@ CU_SINLINE cuex_tvar_t cuex_tvar_from_var(cuex_var_t v)
 { return (cuex_tvar_t)v; }
 
 /*!Create a type variable which represents a type of typeclass \a type. */
-cuex_tvar_t cuex_tvar_new_type(cuex_qcode_t qc, cudyn_type_t type);
+cuex_tvar_t cuex_tvar_new_type(cuex_qcode_t qc, cuoo_type_t type);
 
 /*!Create a variable which represents an object of type \a type. */
-cuex_tvar_t cuex_tvar_new_obj(cuex_qcode_t qc, cudyn_type_t type);
+cuex_tvar_t cuex_tvar_new_obj(cuex_qcode_t qc, cuoo_type_t type);
 
 /*!Create a variable of the same kind, type and quantisation as \a v. */
 cuex_tvar_t cuex_tvar_new_as(cuex_tvar_t v);
@@ -104,8 +104,8 @@ CU_SINLINE cuex_tvar_t cuex_tvar_new_eobj(void)
 { return cuex_tvar_new_obj(cuex_qcode_e, NULL); }
 
 /*!Return the type of \a tv or \c NULL if untyped. */
-CU_SINLINE cudyn_type_t
-cuex_tvar_type(cuex_tvar_t tv) { return (cudyn_type_t)tv->type; }
+CU_SINLINE cuoo_type_t
+cuex_tvar_type(cuex_tvar_t tv) { return (cuoo_type_t)tv->type; }
 
 CU_SINLINE void
 cuex_tvar_set_type(cuex_tvar_t tv, cuex_t type)
@@ -116,12 +116,12 @@ cuex_tvar_set_type(cuex_tvar_t tv, cuex_t type)
 
 /*!Return the type of \a tv, creating a new universal type variable for it if
  * \a tv is untyped. */
-CU_SINLINE cudyn_type_t
+CU_SINLINE cuoo_type_t
 cuex_tvar_force_utype(cuex_tvar_t tv)
 {
     if (!tv->type)
 	AO_compare_and_swap(&tv->type, 0, (AO_t)cuex_tvar_new_utype());
-    return (cudyn_type_t)tv->type;
+    return (cuoo_type_t)tv->type;
 }
 
 /*!@}*/

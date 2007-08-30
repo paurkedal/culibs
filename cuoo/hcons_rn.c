@@ -15,13 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cu/hcons_rn.h>
-#include <cu/dyn.h>
+#include <cuoo/hcons_rn.h>
+#include <cuoo/oalloc.h>
 #include <cu/memory.h>
 #include <cu/int.h>
 #include <cu/wordarr.h>
 #include <cu/conf.h>
-#ifdef CUDYN_ENABLE_KEYED_PROP
+#ifdef CUOO_ENABLE_KEYED_PROP
 #  include <cucon/umap.h>
 #endif
 #include <inttypes.h>
@@ -85,7 +85,7 @@ cu_hcset_set_capacity_wlck(cu_hcset_t hcset, size_t new_cap,
 	    cu_hash_t hash = cuex_key_hash(obj);
 	    cu_hcobj_t *p = &new_arr[hash & new_mask];
 	    cu_debug_assert(GC_base(obj) == (void *)obj - sizeof(cuex_meta_t));
-#if CU_HC_GENERATION || CU_HC_USE_GC_MARK
+#if CUOO_HC_GENERATION || CUOO_HC_USE_GC_MARK
 	    obj->hcset_next = ~(AO_t)*p;
 #else
 	    obj->hcset_next = (obj->hcset_next & 1) | ~((AO_t)*p | 1);
@@ -206,7 +206,7 @@ cu_hcset_hasheqv_erase_wlck(cu_hcset_t hcset, cu_hash_t hash,
 	    cu_debug_assert(obj1);
 	    obj0 = obj1;
 	}
-#if CU_HC_GENERATION || CU_HC_USE_GC_MARK
+#if CUOO_HC_GENERATION || CUOO_HC_USE_GC_MARK
 	obj0->hcset_next = obj1->hcset_next;
 #else
 	cu_debug_assert(((uintptr_t)obj1->hcset_next & 1) == 0);
@@ -216,7 +216,7 @@ cu_hcset_hasheqv_erase_wlck(cu_hcset_t hcset, cu_hash_t hash,
 	cu_debug_assert((uintptr_t)obj0->hcset_next != 0);
     }
     cnt = --hcset->cnt;
-#if CU_HC_ADJUST_IN_INSERT_ERASE
+#if CUOO_HC_ADJUST_IN_INSERT_ERASE
     if (cnt*FILL_MIN_DENOM < hcset->mask*FILL_MIN_NOM
 	&& hcset->mask > CAP_MIN) {
 	size_t new_cap;
@@ -235,7 +235,7 @@ cu_hcset_hasheqv_erase_wlck(cu_hcset_t hcset, cu_hash_t hash,
 #  error Hash-consed object headers are not multiples of granules.
 #endif
 
-/* In the arguments to cuexP_halloc_raw and cudynP_halloc_extra_raw, sizeg is
+/* In the arguments to cuexP_halloc_raw and cuooP_halloc_extra_raw, sizeg is
  * the full size to be allocated, in granules.  This includes the cuex_meta_t
  * field in front of the returned pointer. */
 void *
@@ -247,9 +247,9 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
     cu_hcset_t hcset;
     size_t sizeg;
 
-    /* The size to allocate in words is 1 + CU_HCOBJ_SHIFTW + key_sizew, then
+    /* The size to allocate in words is 1 + CUOO_HCOBJ_SHIFTW + key_sizew, then
      * we add CU_GRAN_SIZEW - 1 for the upwards rounding. */
-    sizeg = (key_sizew + CU_HCOBJ_SHIFTW + CU_GRAN_SIZEW)/CU_GRAN_SIZEW;
+    sizeg = (key_sizew + CUOO_HCOBJ_SHIFTW + CU_GRAN_SIZEW)/CU_GRAN_SIZEW;
 
     hash = cu_wordarr_hash(key_sizew, key, meta);
     hcset = cu_hcset(hash);
@@ -260,7 +260,7 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
     slot = &hcset->arr[hash & hcset->mask];
     for (obj = *slot; obj; obj = cu_hcset_hasheqv_next(obj)) {
 	if (cuex_meta(obj) == meta
-	    && cu_wordarr_eq(key_sizew, key, CU_HCOBJ_KEY(obj))) {
+	    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
 	    cu_hcobj_mark_lck(obj);
 	    cu_hcset_unlock_write(hcset);
 	    return obj;
@@ -268,7 +268,7 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
     }
 
     /* Otherwise, insert new object. */
-#if CU_HC_ADJUST_IN_INSERT_ERASE
+#if CUOO_HC_ADJUST_IN_INSERT_ERASE
     if (hcset->cnt*FILL_MAX_DENOM > mask*FILL_MAX_NOM) {
 	size_t new_cap = (mask + 1)*2;
 	cu_hcobj_t *new_arr = ARR_ALLOC(sizeof(cu_hcobj_t *)*new_cap);
@@ -277,7 +277,7 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
     }
 #endif
     obj = cuexP_oalloc_unord_fin_raw(meta, sizeg);
-    cu_wordarr_copy(key_sizew, CU_HCOBJ_KEY(obj), key);
+    cu_wordarr_copy(key_sizew, CUOO_HCOBJ_KEY(obj), key);
 #if CUPRIV_ENABLE_COLL_STATS
     if (*slot) ++cuP_coll_cnt; else ++cuP_noncoll_cnt;
 #endif
@@ -309,7 +309,7 @@ cuexP_halloc_extra_raw(cuex_meta_t meta, size_t sizeg,
     slot = &hcset->arr[hash & hcset->mask];
     for (obj = *slot; obj; obj = cu_hcset_hasheqv_next(obj)) {
 	if (cuex_meta(obj) == meta
-	    && cu_wordarr_eq(key_sizew, key, CU_HCOBJ_KEY(obj))) {
+	    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
 	    cu_hcobj_mark_lck(obj);
 	    cu_hcset_unlock_write(hcset);
 	    return obj;
@@ -317,7 +317,7 @@ cuexP_halloc_extra_raw(cuex_meta_t meta, size_t sizeg,
     }
 
     /* Otherwise, insert new object. */
-#if CU_HC_ADJUST_IN_INSERT_ERASE
+#if CUOO_HC_ADJUST_IN_INSERT_ERASE
     if (hcset->cnt*FILL_MAX_DENOM > mask*FILL_MAX_NOM) {
 	size_t new_cap = (mask + 1)*2;
 	cu_hcobj_t *new_arr = ARR_ALLOC(sizeof(cu_hcobj_t *)*new_cap);
@@ -326,7 +326,7 @@ cuexP_halloc_extra_raw(cuex_meta_t meta, size_t sizeg,
     }
 #endif
     obj = cuexP_oalloc_ord_fin_raw(meta, sizeg);
-    cu_wordarr_copy(key_sizew, CU_HCOBJ_KEY(obj), key);
+    cu_wordarr_copy(key_sizew, CUOO_HCOBJ_KEY(obj), key);
     cu_call(init_nonkey, obj);
 #if CUPRIV_ENABLE_COLL_STATS
     if (*slot) ++cuP_coll_cnt; else ++cuP_noncoll_cnt;
@@ -340,9 +340,9 @@ cuexP_halloc_extra_raw(cuex_meta_t meta, size_t sizeg,
     return obj;
 }
 
-#ifdef CUDYN_ENABLE_KEYED_PROP
-extern pthread_mutex_t cudynP_property_mutex;
-extern struct cucon_umap_s cudynP_property_map;
+#ifdef CUOO_ENABLE_KEYED_PROP
+extern pthread_mutex_t cuooP_property_mutex;
+extern struct cucon_umap_s cuooP_property_map;
 #endif
 
 int
@@ -356,11 +356,11 @@ cuP_hc_disclaim_proc(void *obj, void *null)
     if (cuex_meta_kind(meta) == cuex_meta_kind_ignore)
 	return 0;
     obj = (cuex_meta_t *)obj + 1;
-#ifdef CUDYN_ENABLE_KEYED_PROP
+#ifdef CUOO_ENABLE_KEYED_PROP
     if (cu_hcobj_has_prop(obj)) {
-	cu_mutex_lock(&cudynP_property_mutex);
-	cucon_umap_erase(&cudynP_property_map, ~(uintptr_t)obj);
-	cu_mutex_unlock(&cudynP_property_mutex);
+	cu_mutex_lock(&cuooP_property_mutex);
+	cucon_umap_erase(&cuooP_property_map, ~(uintptr_t)obj);
+	cu_mutex_unlock(&cuooP_property_mutex);
     }
 #endif
 #if CU_HCSET_CNT > 1
@@ -394,10 +394,10 @@ cuP_hc_disclaim_proc(void *obj, void *null)
 #endif
 #if 0 /* Need finalisers? It's a minor overhead to non-finalised objects. */
     if (cuex_meta_is_type(meta)) {
-	cudyn_type_t t = cudyn_type_from_meta(meta);
-	if (cudyn_type_is_stdtype(t) &&
-		!cu_clop_is_null(cudyn_stdtype_from_type(t)->finalise))
-	    cu_call(cudyn_stdtype_from_type(t)->finalise, obj);
+	cuoo_type_t t = cuoo_type_from_meta(meta);
+	if (cuoo_type_is_stdtype(t) &&
+		!cu_clop_is_null(cuoo_stdtype_from_type(t)->finalise))
+	    cu_call(cuoo_stdtype_from_type(t)->finalise, obj);
     }
 #endif
     return 0;
@@ -405,7 +405,7 @@ cuP_hc_disclaim_proc(void *obj, void *null)
 
 struct cu_hcset_s cuP_hcset[CU_HCSET_CNT];
 
-#if CU_HC_GENERATION
+#if CUOO_HC_GENERATION
 AO_t cuP_hc_generation = 0;
 
 extern void (*GC_start_call_back)(void);
@@ -436,7 +436,7 @@ void
 cuP_hcset_init()
 {
     size_t i;
-#if CU_HC_GENERATION
+#if CUOO_HC_GENERATION
     cuP_old_gc_start_callback = GC_start_call_back;
     GC_start_call_back = cu_gc_start_callback;
 #endif

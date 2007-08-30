@@ -25,9 +25,7 @@
 
 #include <cucon/fwd.h>
 #include <cu/clos.h>
-#ifndef CU_NDEBUG
 #include <stdio.h>
-#endif
 
 CU_BEGIN_DECLARATIONS
 
@@ -70,12 +68,10 @@ CU_SINLINE cu_bool_t cucon_priq_is_empty(cucon_priq_t q)
 /*!Return the number of elements in the queue. */
 CU_SINLINE size_t cucon_priq_count(cucon_priq_t q) { return q->count; }
 
-#ifndef CU_NDEBUG
 /*!Debug dump. */
 void cucon_priq_dump(cucon_priq_t q,
 		     cu_clop(print_key_fn, void, void *key, FILE *out),
 		     FILE *out);
-#endif
 
 /*!@}*/
 CU_END_DECLARATIONS

@@ -15,26 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cudyn/prop.h>
-
+#include <cuoo/prop.h>
+#include <cu/diag.h>
 
 void
-cudyn_prop_cct(cudyn_prop_t prop)
+cuoo_prop_cct(cuoo_prop_t prop)
 {
     cucon_pmap_cct(&prop->pmap);
     cu_rarex_cct(&prop->rarex);
 }
 
-cudyn_prop_t
-cudyn_prop_new()
+cuoo_prop_t
+cuoo_prop_new()
 {
-    cudyn_prop_t prop = cu_gnew(struct cudyn_prop_s);
-    cudyn_prop_cct(prop);
+    cuoo_prop_t prop = cu_gnew(struct cuoo_prop_s);
+    cuoo_prop_cct(prop);
     return prop;
 }
 
 cu_bool_t
-cudyn_prop_replace_ptr(cudyn_prop_t key, cuex_t ex, void *value)
+cuoo_prop_replace_ptr(cuoo_prop_t key, cuex_t ex, void *value)
 {
     cu_bool_t res;
     void **slot;
@@ -46,7 +46,7 @@ cudyn_prop_replace_ptr(cudyn_prop_t key, cuex_t ex, void *value)
 }
 
 cu_bool_t
-cudyn_prop_condset_ptr(cudyn_prop_t key, cuex_t ex, void *value)
+cuoo_prop_condset_ptr(cuoo_prop_t key, cuex_t ex, void *value)
 {
     cu_bool_t res;
     void **slot;
@@ -59,14 +59,14 @@ cudyn_prop_condset_ptr(cudyn_prop_t key, cuex_t ex, void *value)
 }
 
 void
-cudyn_prop_define_ptr(cudyn_prop_t key, cuex_t ex, void *value)
+cuoo_prop_define_ptr(cuoo_prop_t key, cuex_t ex, void *value)
 {
-    if (!cudyn_prop_condset_ptr(key, ex, value))
+    if (!cuoo_prop_condset_ptr(key, ex, value))
 	cu_bugf("Re-definition of property on %!.", ex);
 }
 
 void *
-cudyn_prop_get_ptr(cudyn_prop_t key, cuex_t ex)
+cuoo_prop_get_ptr(cuoo_prop_t key, cuex_t ex)
 {
     void *res;
     cu_rarex_lock_read(&key->rarex);
@@ -76,16 +76,16 @@ cudyn_prop_get_ptr(cudyn_prop_t key, cuex_t ex)
 }
 
 cu_bool_t
-cudyn_prop_set_mem_lock(cudyn_prop_t key, cuex_t ex,
-			size_t size, cu_ptr_ptr_t slot)
+cuoo_prop_set_mem_lock(cuoo_prop_t key, cuex_t ex,
+		       size_t size, cu_ptr_ptr_t slot)
 {
     cu_rarex_lock_write(&key->rarex);
     return cucon_pmap_insert_mem(&key->pmap, ex, size, slot);
 }
 
 cu_bool_t
-cudyn_prop_set_mem_condlock(cudyn_prop_t key, cuex_t ex,
-			    size_t size, cu_ptr_ptr_t slot)
+cuoo_prop_set_mem_condlock(cuoo_prop_t key, cuex_t ex,
+			   size_t size, cu_ptr_ptr_t slot)
 {
     cu_rarex_lock_write(&key->rarex);
     if (cucon_pmap_insert_mem(&key->pmap, ex, size, slot))
@@ -97,14 +97,14 @@ cudyn_prop_set_mem_condlock(cudyn_prop_t key, cuex_t ex,
 }
 
 void *
-cudyn_prop_get_mem_lock(cudyn_prop_t key, cuex_t ex)
+cuoo_prop_get_mem_lock(cuoo_prop_t key, cuex_t ex)
 {
     cu_rarex_lock_read(&key->rarex);
     return cucon_pmap_find_mem(&key->pmap, ex);
 }
 
 void *
-cudyn_prop_get_mem_condlock(cudyn_prop_t key, cuex_t ex)
+cuoo_prop_get_mem_condlock(cuoo_prop_t key, cuex_t ex)
 {
     void *res;
     cu_rarex_lock_read(&key->rarex);

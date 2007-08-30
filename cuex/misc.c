@@ -16,28 +16,27 @@
  */
 
 #include <cuex/misc.h>
-#include <cu/dyn.h>
-#include <cu/halloc.h>
+#include <cuoo/halloc.h>
 
 struct cuex_long_s
 {
-    CU_HCOBJ
+    CUOO_HCOBJ
     long i;
 };
 
 cuex_t
 cuex_of_long(long i)
 {
-    cudyn_hctem_decl(cuex_long, key);
-    cudyn_hctem_init(cuex_long, key);
-    cudyn_hctem_get(cuex_long, key)->i = i;
-    return cudyn_hctem_new(cuex_long, key);
+    cuoo_hctem_decl(cuex_long, key);
+    cuoo_hctem_init(cuex_long, key);
+    cuoo_hctem_get(cuex_long, key)->i = i;
+    return cuoo_hctem_new(cuex_long, key);
 }
 
-cudyn_stdtype_t cuexP_long_type;
+cuoo_stdtype_t cuexP_long_type;
 
 void
 cuexP_misc_init()
 {
-    cuexP_long_type = cudyn_stdtype_new_hcs(sizeof(long));
+    cuexP_long_type = cuoo_stdtype_new_hcs(sizeof(long));
 }

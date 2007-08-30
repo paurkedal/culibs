@@ -19,6 +19,7 @@
 #define CUEX_EX_H
 
 #include <cuex/fwd.h>
+#include <cuoo/meta.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_ex cuex/ex.h: Expressions

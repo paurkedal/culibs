@@ -20,7 +20,7 @@
 
 #include <cuex/fwd.h>
 #include <cuex/ex.h>
-#include <cu/halloc.h>
+#include <cuoo/halloc.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_opn_h cuex/opn.h: Additional Interface for Operations
@@ -28,7 +28,7 @@ CU_BEGIN_DECLARATIONS
 
 struct cuex_opn_s
 {
-    CU_HCOBJ
+    CUOO_HCOBJ
     cuex_t operand_arr[1];
 };
 #define cuex_sizeof_opn(N) \
@@ -54,7 +54,7 @@ cuex_opn_by_arr(cuex_meta_t opr, cuex_t *arr)
 	return cuexP_opn_by_arr_with_ctor(opr, arr);
     return cuexP_halloc_raw(
 	opr,
-	CUDYN_HCOBJ_KEY_SIZEW(cuex_opr_r(opr)*sizeof(cuex_t) + CU_HCOBJ_SHIFT),
+	CUOO_HCOBJ_KEY_SIZEW(cuex_opr_r(opr)*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	arr);
 }
 

@@ -16,6 +16,8 @@
  */
 
 #include <cuex/oprinfo.h>
+#include <cuoo/meta.h>
+#include <cu/diag.h>
 
 static cu_bool_t oprinfo_initialised = cu_false;
 static struct cucon_umap_s oprinfo_map;

@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cuoo/type.h>
+#include <cuoo/oalloc.h>
 #include <cu/weakptr.h>
-#include <cu/dyn.h>
 #include <cu/int.h>
 #include <cu/wordarr.h>
 #include <cu/thread.h>
@@ -211,7 +212,7 @@ halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
 	obj = cu_weakptr_get(&node->obj);
 	if (obj) {
 	    if (cuex_meta(obj) == meta
-		    && cu_wordarr_eq(key_sizew, key, CU_HCOBJ_KEY(obj))) {
+		    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
 		cu_hcset_unlock(&cuP_hcset);
 		return obj;
 	    }
@@ -224,7 +225,7 @@ halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
 	obj = cu_weakptr_get(&link->obj);
 	if (obj) {
 	    if (cuex_meta(obj) == meta
-		    && cu_wordarr_eq(key_sizew, key, CU_HCOBJ_KEY(obj))) {
+		    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
 		cu_hcset_unlock(&cuP_hcset);
 		return obj;
 	    }
@@ -241,7 +242,7 @@ halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
 	obj_link = &link->obj;
 
     obj = cuexP_oalloc(meta, size);
-    cu_wordarr_copy(key_sizew, CU_HCOBJ_KEY(obj), key);
+    cu_wordarr_copy(key_sizew, CUOO_HCOBJ_KEY(obj), key);
     cu_call(init_nonkey, obj);
     cu_weakptr_cct(obj_link, obj);
     ++cuP_hcset.insert_cnt;
@@ -256,7 +257,7 @@ cu_clop_def(init_none, void, void *obj) {}
 void *
 cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
 {
-    return halloc(meta, (key_sizew + CU_HCOBJ_SHIFTW)*CU_WORD_SIZE,
+    return halloc(meta, (key_sizew + CUOO_HCOBJ_SHIFTW)*CU_WORD_SIZE,
 		  key_sizew, key, init_none);
 }
 

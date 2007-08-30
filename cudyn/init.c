@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUDYN_ALGO_H
-#define CUDYN_ALGO_H
+void cudynP_type_init(void);
+void cudynP_proto_init(void);
+void cudynP_misc_init(void);
 
-#include <cudyn/fwd.h>
-
-CU_BEGIN_DECLARATIONS
-
-cu_bool_t cudyn_conj(void *obj, cu_clop(fn, cu_bool_t, void *));
-
-void *cudyn_tran(void *obj, cu_clop(fn, void *, void *));
-
-CU_END_DECLARATIONS
-
-#endif
+void
+cudynP_init()
+{
+    cudynP_type_init();
+    cudynP_proto_init();
+    cudynP_misc_init();
+}

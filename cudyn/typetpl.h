@@ -43,14 +43,14 @@ CU_BEGIN_DECLARATIONS
  *     // If \a e was created with cudyn_<i>NAME</i>(\a x) for some \a x,
  *     // returns \a x, otherwise undefined behaviour.
  *
- *     cudyn_type_t cudyn_<i>NAME</i>_type(void);
+ *     cuoo_type_t cudyn_<i>NAME</i>_type(void);
  *     // Returns the dynamic type of \a type_t.
  * </pre>
  */
 #define CUDYN_ETYPE_DCLN(NAME, type_t)					\
     extern cudyn_elmtype_t cudynP_##NAME##_type;			\
 									\
-    CU_SINLINE cudyn_type_t						\
+    CU_SINLINE cuoo_type_t						\
     cudyn_##NAME##_type()						\
     {									\
 	return cudyn_elmtype_to_type(cudynP_##NAME##_type);		\
@@ -59,21 +59,21 @@ CU_BEGIN_DECLARATIONS
     CU_SINLINE cu_bool_t						\
     cudyn_is_##NAME(cuex_t e)						\
     {									\
-	return cuex_meta(e) == cudyn_type_to_meta(cudyn_##NAME##_type());\
+	return cuex_meta(e) == cuoo_type_to_meta(cudyn_##NAME##_type());\
     }									\
 									\
     CU_SINLINE cuex_t							\
     cudyn_##NAME(type_t x)						\
     {									\
 	if (sizeof(type_t) >= sizeof(cu_word_t))			\
-	    return cudyn_halloc(cudyn_##NAME##_type(), sizeof(type_t), &x);\
+	    return cuoo_halloc(cudyn_##NAME##_type(), sizeof(type_t), &x);\
 	else {								\
 	    struct {							\
 		type_t xp;						\
 		char padding[sizeof(cu_word_t) > sizeof(type_t)		\
 			     ? sizeof(cu_word_t) - sizeof(type_t) : 1]; \
 	    } tpl = { x };						\
-	    return cudyn_halloc(cudyn_##NAME##_type(),			\
+	    return cuoo_halloc(cudyn_##NAME##_type(),			\
 				sizeof(cu_word_t), &tpl);		\
 	}								\
     }									\
@@ -81,7 +81,7 @@ CU_BEGIN_DECLARATIONS
     CU_SINLINE type_t							\
     cudyn_to_##NAME(cuex_t e)						\
     {									\
-	return *(type_t *)((void *)e + CU_HCOBJ_SHIFT);			\
+	return *(type_t *)((void *)e + CUOO_HCOBJ_SHIFT);			\
     }
 
 #define CUDYN_ETYPE_DEFN(NAME, type_t)					\
@@ -90,10 +90,10 @@ CU_BEGIN_DECLARATIONS
 
 #define CUDYN_ETYPE_INIT(NAME, type_t, kind, ffitype)			\
     cudynP_##NAME##_type =						\
-	cudyn_elmtype_new(cudyn_typekind_elmtype_##NAME, sizeof(type_t),\
+	cudyn_elmtype_new(cuoo_typekind_elmtype_##NAME, sizeof(type_t),\
 			  offsetof(struct cudynP_##NAME##_aligntest, x),\
 			  ffitype);					\
-    cudyn_prop_define_ptr(cudyn_raw_c_name_prop(),			\
+    cuoo_prop_define_ptr(cuoo_raw_c_name_prop(),			\
 			  cudynP_##NAME##_type,				\
 			  cu_idr_by_cstr(#type_t));
 
@@ -104,13 +104,13 @@ CU_BEGIN_DECLARATIONS
 
 #define CUDYN_ETYPE_INIT_PRINT(NAME, type_t, kind, ffitype)		\
     CUDYN_ETYPE_INIT(NAME, type_t, kind, ffitype)			\
-    cudyn_prop_condset_ptr(cudyn_raw_print_fn_prop(), cudyn_##NAME##_type(),\
+    cuoo_prop_condset_ptr(cuoo_raw_print_fn_prop(), cudyn_##NAME##_type(),\
 			   &cudynP_##NAME##_print);
 
 /*!Template to set up function aliases for dynamic implemetation of
  * \a type_t with name \a NAME in terms of \a IMPLNAME. */
 #define CUDYN_ETYPE_ALIAS(NAME, type_t, IMPLNAME)			\
-    CU_SINLINE cudyn_type_t cudyn_##NAME##_type()			\
+    CU_SINLINE cuoo_type_t cudyn_##NAME##_type()			\
     { return cudyn_##IMPLNAME##_type(); }				\
     CU_SINLINE cu_bool_t cudyn_is_##NAME(cuex_t e)			\
     { return cudyn_is_##IMPLNAME(e); }					\
@@ -141,12 +141,12 @@ CU_BEGIN_DECLARATIONS
  *     // If \a e was created with cudyn_<i>NAME</i>arr(size, arr) for some
  *     // size and arr, return arr, else undefined behaviour.
  *
- *     cudyn_type_t cudyn_<i>NAME</i>arr_type(size_t \a cnt);
+ *     cuoo_type_t cudyn_<i>NAME</i>arr_type(size_t \a cnt);
  *     // Returns the dynamic type of \a type_t[\a cnt]
  * </pre>
  */
 #define CUDYN_ARRTYPE_DCLN(NAME, type_t)				\
-    CU_SINLINE cudyn_type_t						\
+    CU_SINLINE cuoo_type_t						\
     cudyn_##NAME##arr_type(size_t size)					\
     {									\
 	return cudyn_arrtype_to_type(					\
@@ -165,7 +165,7 @@ CU_BEGIN_DECLARATIONS
     cudyn_##NAME##arr(size_t cnt, type_t *arr)				\
     {									\
 	if (sizeof(type_t) >= sizeof(cu_word_t))			\
-	    return cudyn_halloc(cudyn_##NAME##arr_type(cnt),		\
+	    return cuoo_halloc(cudyn_##NAME##arr_type(cnt),		\
 				sizeof(type_t)*cnt, arr);		\
 	else								\
 	    cu_bugf("unimplemented");					\
@@ -173,7 +173,7 @@ CU_BEGIN_DECLARATIONS
 									\
     CU_SINLINE type_t *							\
     cudyn_##NAME##arr_arr(cuex_t e)					\
-    { return (type_t *)((void *)e + CU_HCOBJ_SHIFT); }			\
+    { return (type_t *)((void *)e + CUOO_HCOBJ_SHIFT); }			\
 									\
     CU_SINLINE type_t							\
     cudyn_##NAME##arr_at(cuex_t e, size_t i)				\
@@ -186,7 +186,7 @@ CU_BEGIN_DECLARATIONS
 	cuex_meta_t meta = cuex_meta(e);				\
 	cudyn_arrtype_t t;						\
 	if (!cuex_meta_is_type(meta)					\
-	    ||!cudyn_type_is_arrtype(cudyn_type_from_meta(meta)))	\
+	    ||!cuoo_type_is_arrtype(cuoo_type_from_meta(meta)))	\
 	    return cudyn_condsize_none;					\
 	t = cudyn_arrtype_from_meta(meta);				\
 	if (cudyn_arrtype_elt_type(t) != cudyn_##NAME##_type())		\
@@ -214,7 +214,7 @@ CU_BEGIN_DECLARATIONS
  * compatible. */
 #define CUDYN_ETYPEARR_ALIAS(NAME, type_t, IMPLNAME)			\
     CUDYN_ETYPE_ALIAS(NAME, type_t, IMPLNAME)				\
-    CU_SINLINE cudyn_type_t cudyn_##NAME##arr_type(size_t cnt)		\
+    CU_SINLINE cuoo_type_t cudyn_##NAME##arr_type(size_t cnt)		\
     { return cudyn_##IMPLNAME##arr_type(cnt); }				\
     CU_SINLINE int cudyn_##NAME##_condsize(cuex_t e)			\
     { return cudyn_##IMPLNAME##arr_condsize(e); }			\

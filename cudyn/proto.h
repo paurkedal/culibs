@@ -34,70 +34,70 @@ CU_BEGIN_DECLARATIONS
  * ------------------------ */
 struct cudyn_proto_s
 {
-    cu_inherit (cudyn_type_s);
+    cu_inherit (cuoo_type_s);
 
     cudyn_tuptype_t arg_type;
-    cudyn_type_t res_type;
+    cuoo_type_t res_type;
 
     /* These are not hash consed */
     ffi_cif cif;
     /* ffi_type args[arity] */
 };
 #define CUDYN_PROTO_KEY_SIZE \
-	(offsetof(struct cudyn_proto_s, cif) - CU_HCOBJ_SHIFT)
+	(offsetof(struct cudyn_proto_s, cif) - CUOO_HCOBJ_SHIFT)
 
-extern cudyn_stdtype_t cudynP_proto_type;
+extern cuoo_stdtype_t cudynP_proto_type;
 
 /*!The type of all prototypes. */
-CU_SINLINE cudyn_type_t cudyn_proto_type()
-{ return cudyn_stdtype_to_type(cudynP_proto_type); }
+CU_SINLINE cuoo_type_t cudyn_proto_type()
+{ return cuoo_stdtype_to_type(cudynP_proto_type); }
 
 /*!Cast to base struct. */
-CU_SINLINE cudyn_type_t cudyn_proto_to_type(cudyn_proto_t proto)
-{ return cu_to(cudyn_type, proto); }
+CU_SINLINE cuoo_type_t cudyn_proto_to_type(cudyn_proto_t proto)
+{ return cu_to(cuoo_type, proto); }
 
 /*!Cast from base struct. */
-CU_SINLINE cudyn_proto_t cudyn_proto_from_type(cudyn_type_t t)
-{ return cu_from(cudyn_proto, cudyn_type, t); }
+CU_SINLINE cudyn_proto_t cudyn_proto_from_type(cuoo_type_t t)
+{ return cu_from(cudyn_proto, cuoo_type, t); }
 
 /*!True if \a ex points to a prototype. */
 CU_SINLINE cu_bool_t cudyn_is_fn(cuex_t ex)
-{ return cuex_meta(ex) == cudyn_type_to_meta(cudyn_proto_type()); }
+{ return cuex_meta(ex) == cuoo_type_to_meta(cudyn_proto_type()); }
 
 /*!Return the prototype for \a arg_type → \a res_type */
 cudyn_proto_t cudyn_proto_by_tuptype(cudyn_tuptype_t arg_type,
-				     cudyn_type_t res_type);
+				     cuoo_type_t res_type);
 
 /*!Constructor of prototypes of any arity.  The varargs are the
- * \c cudyn_type_t for the argument types, followed by that of the result
+ * \c cuoo_type_t for the argument types, followed by that of the result
  * type. */
 cudyn_proto_t cudyn_proto(cu_rank_t r, ...);
 
 /*!Type-safe variant of \ref cudyn_proto. */
 CU_SINLINE cudyn_proto_t
-cudyn_proto_0(cudyn_type_t tR)
+cudyn_proto_0(cuoo_type_t tR)
 { return cudyn_proto(0, tR); }
 
 /*!\copydoc cudyn_proto_0 */
 CU_SINLINE cudyn_proto_t
-cudyn_proto_1(cudyn_type_t t0, cudyn_type_t tR)
+cudyn_proto_1(cuoo_type_t t0, cuoo_type_t tR)
 { return cudyn_proto(1, t0, tR); }
 
 /*!\copydoc cudyn_proto_0 */
 CU_SINLINE cudyn_proto_t
-cudyn_proto_2(cudyn_type_t t0, cudyn_type_t t1, cudyn_type_t tR)
+cudyn_proto_2(cuoo_type_t t0, cuoo_type_t t1, cuoo_type_t tR)
 { return cudyn_proto(2, t0, t1, tR); }
 
 /*!\copydoc cudyn_proto_0 */
 CU_SINLINE cudyn_proto_t
-cudyn_proto_3(cudyn_type_t t0, cudyn_type_t t1, cudyn_type_t t2,
-	      cudyn_type_t tR)
+cudyn_proto_3(cuoo_type_t t0, cuoo_type_t t1, cuoo_type_t t2,
+	      cuoo_type_t tR)
 { return cudyn_proto(3, t0, t1, t2, tR); }
 
 /*!\copydoc cudyn_proto_0 */
 CU_SINLINE cudyn_proto_t
-cudyn_proto_4(cudyn_type_t t0, cudyn_type_t t1, cudyn_type_t t2,
-	      cudyn_type_t t3, cudyn_type_t tR)
+cudyn_proto_4(cuoo_type_t t0, cuoo_type_t t1, cuoo_type_t t2,
+	      cuoo_type_t t3, cuoo_type_t tR)
 { return cudyn_proto(4, t0, t1, t2, t3, tR); }
 
 /*!Return the arity of \a proto. */
@@ -117,12 +117,12 @@ cuex_t cudyn_proto_apply_fn(cudyn_proto_t proto, cu_fnptr_t fn,
 //			     cuex_t *arg_arr);
 
 /*!The type of argument number \a i of \a proto. */
-CU_SINLINE cudyn_type_t
+CU_SINLINE cuoo_type_t
 cudyn_proto_arg_type_at(cudyn_proto_t proto, cu_rank_t i)
 { return cudyn_tuptype_at(proto->arg_type, i); }
 
 /*!The result type part of \a proto. */
-CU_SINLINE cudyn_type_t cudyn_proto_res_type(cudyn_proto_t proto)
+CU_SINLINE cuoo_type_t cudyn_proto_res_type(cudyn_proto_t proto)
 { return proto->res_type; }
 
 /*!@}*/

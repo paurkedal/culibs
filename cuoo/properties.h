@@ -15,43 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUDYN_PROPERTIES_H
-#define CUDYN_PROPERTIES_H
+#ifndef CUOO_PROPERTIES_H
+#define CUOO_PROPERTIES_H
 
-#include <cudyn/fwd.h>
-#include <cudyn/prop.h>
+#include <cuoo/fwd.h>
+#include <cuoo/prop.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cudyn_properties_h cudyn/properties.h: Predefined Properties
- * @{ \ingroup cudyn_mod */
+/*!\defgroup cuoo_properties_h cuoo/properties.h: Predefined Properties
+ * @{ \ingroup cuoo_mod */
 
-extern struct cudyn_prop_s cudynP_raw_c_name_prop;
-extern struct cudyn_prop_s cudynP_sref_prop;
-extern struct cudyn_prop_s cudynP_raw_print_fn_prop;
+extern struct cuoo_prop_s cuooP_raw_c_name_prop;
+extern struct cuoo_prop_s cuooP_sref_prop;
+extern struct cuoo_prop_s cuooP_raw_print_fn_prop;
 
 /* The C name of a type or function, if defined.  Contains only stored
  * names, so it will not synthesise names for constructs such as
  * pointers and prototypes. */
-CU_SINLINE cudyn_prop_t cudyn_raw_c_name_prop()
-{ return &cudynP_raw_c_name_prop; }
+CU_SINLINE cuoo_prop_t cuoo_raw_c_name_prop()
+{ return &cuooP_raw_c_name_prop; }
 
-CU_SINLINE cu_idr_t cudyn_raw_c_name(cuex_t ex)
-{ return cudyn_prop_get_ptr(cudyn_raw_c_name_prop(), ex); }
+CU_SINLINE cu_idr_t cuoo_raw_c_name(cuex_t ex)
+{ return cuoo_prop_get_ptr(cuoo_raw_c_name_prop(), ex); }
 
 /* Source references. */
-CU_SINLINE cudyn_prop_t cudyn_sref_prop()
-{ return &cudynP_sref_prop; }
+CU_SINLINE cuoo_prop_t cuoo_sref_prop()
+{ return &cuooP_sref_prop; }
 
-CU_SINLINE cu_sref_t cudyn_sref(cuex_t ex)
-{ return cudyn_prop_get_ptr(cudyn_sref_prop(), ex); }
+CU_SINLINE cu_sref_t cuoo_sref(cuex_t ex)
+{ return cuoo_prop_get_ptr(cuoo_sref_prop(), ex); }
 
-void cudyn_sref_push(cuex_t ex, cu_sref_t head);
+void cuoo_sref_push(cuex_t ex, cu_sref_t head);
 
 /* Preliminary Printing Support */
-CU_SINLINE cudyn_prop_t cudyn_raw_print_fn_prop()
-{ return &cudynP_raw_print_fn_prop; }
+CU_SINLINE cuoo_prop_t cuoo_raw_print_fn_prop()
+{ return &cuooP_raw_print_fn_prop; }
 
-cu_bool_t cudyn_raw_print(cuex_t ex, FILE *out);
+cu_bool_t cuoo_raw_print(cuex_t ex, FILE *out);
 
 /*!@}*/
 CU_END_DECLARATIONS

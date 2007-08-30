@@ -16,10 +16,10 @@
  */
 
 #include <cucon/layout.h>
+#include <cu/debug.h>
+#include <cu/thread.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
-#include <gc/gc_pthread_redirects.h>
 #include <time.h>
 
 #define THREAD_CNT 5
@@ -173,7 +173,7 @@ main()
 #else
     for (i = 0; i < THREAD_CNT; ++i) {
 	int err;
-	err = GC_pthread_create(&th[i], NULL, test_layout,
+	err = cu_pthread_create(&th[i], NULL, test_layout,
 				(void *)(TEST_CNT/THREAD_CNT));
 	if (err) {
 	    fprintf(stderr, "%s\n", strerror(err));
@@ -181,7 +181,7 @@ main()
 	}
     }
     for (i = 0; i < THREAD_CNT; ++i)
-	GC_pthread_join(th[i], NULL);
+	cu_pthread_join(th[i], NULL);
 #endif
     return 0;
 }

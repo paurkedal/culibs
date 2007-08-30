@@ -17,20 +17,20 @@
 
 #include <cu/idr.h>
 #include <cu/util.h>
-#include <cu/halloc.h>
+#include <cuoo/halloc.h>
 
 cu_idr_t
 cu_idr_by_cstr(char const *cstr)
 {
     size_t cstr_size = strlen(cstr) + 1;
-    size_t key_size = CU_HCOBJ_KEY_SIZE(sizeof(struct cu_idr_s) + cstr_size);
-    cu_idr_t idr = cu_salloc(key_size + CU_HCOBJ_SHIFT);
+    size_t key_size = CUOO_HCOBJ_KEY_SIZE(sizeof(struct cu_idr_s) + cstr_size);
+    cu_idr_t idr = cu_salloc(key_size + CUOO_HCOBJ_SHIFT);
     char *a_cstr = (char *)(idr + 1);
     idr->key_size = key_size;
     memcpy(a_cstr, cstr, cstr_size);
     memset(a_cstr + cstr_size, 0,
-	   key_size - sizeof(struct cu_idr_s) - cstr_size + CU_HCOBJ_SHIFT);
-    idr = cudyn_halloc(cu_idr_type(), key_size, (char *)idr + CU_HCOBJ_SHIFT);
+	   key_size - sizeof(struct cu_idr_s) - cstr_size + CUOO_HCOBJ_SHIFT);
+    idr = cuoo_halloc(cu_idr_type(), key_size, (char *)idr + CUOO_HCOBJ_SHIFT);
     return idr;
 }
 
@@ -38,14 +38,14 @@ cu_idr_t
 cu_idr_by_charr(char const *arr, size_t charr_size)
 {
     size_t cstr_size = charr_size + 1;
-    size_t key_size = CU_HCOBJ_KEY_SIZE(sizeof(struct cu_idr_s) + cstr_size);
-    cu_idr_t idr = cu_salloc(key_size + CU_HCOBJ_SHIFT);
+    size_t key_size = CUOO_HCOBJ_KEY_SIZE(sizeof(struct cu_idr_s) + cstr_size);
+    cu_idr_t idr = cu_salloc(key_size + CUOO_HCOBJ_SHIFT);
     char *a_arr = (char *)(idr + 1);
     idr->key_size = key_size;
     memcpy(a_arr, arr, charr_size);
     memset(a_arr + charr_size, 0,
-	   key_size - sizeof(struct cu_idr_s) - charr_size + CU_HCOBJ_SHIFT);
-    idr = cudyn_halloc(cu_idr_type(), key_size, (char *)idr + CU_HCOBJ_SHIFT);
+	   key_size - sizeof(struct cu_idr_s) - charr_size + CUOO_HCOBJ_SHIFT);
+    idr = cuoo_halloc(cu_idr_type(), key_size, (char *)idr + CUOO_HCOBJ_SHIFT);
     return idr;
 }
 
@@ -65,10 +65,10 @@ cu_clop_def(idr_key_size_clop, size_t, void *idr)
     return ((cu_idr_t)idr)->key_size;
 }
 
-cudyn_stdtype_t cuP_idr_type;
+cuoo_stdtype_t cuP_idr_type;
 
 void
 cuP_idr_init(void)
 {
-    cuP_idr_type = cudyn_stdtype_new_hcv(idr_key_size_clop);
+    cuP_idr_type = cuoo_stdtype_new_hcv(idr_key_size_clop);
 }

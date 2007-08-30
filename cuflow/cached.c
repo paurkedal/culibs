@@ -20,8 +20,8 @@
 #include <cuflow/sched.h>
 #include <cuflow/cdisj.h>
 #include <cuflow/cacheconf.h>
+#include <cuoo/halloc.h>
 #include <cu/thread.h>
-#include <cu/halloc.h>
 
 #define ARG_SIZE_COUNT 8
 #define LOG2_STRIPE_COUNT 5

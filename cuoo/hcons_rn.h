@@ -22,17 +22,17 @@
 #if CUCONF_SIZEOF_LONG > 4
 #  define CU_HCSET_USE_RAREX 0
 #  define CU_HCSET_LOG_CNT 5
-#  define CU_HC_USE_GC_MARK 0
+#  define CUOO_HC_USE_GC_MARK 0
 #else
 #  define CU_HCSET_USE_RAREX 0
 #  define CU_HCSET_LOG_CNT 7
-#  define CU_HC_USE_GC_MARK 0
+#  define CUOO_HC_USE_GC_MARK 0
 #endif
 #define CUPRIV_ENABLE_COLL_STATS 0
-#define CU_HC_ADJUST_IN_INSERT_ERASE 1
+#define CUOO_HC_ADJUST_IN_INSERT_ERASE 1
 
-#include <cu/fwd.h>
-#include <cu/hcobj.h>
+#include <cuoo/fwd.h>
+#include <cuoo/hcobj.h>
 #include <gc/gc_mark.h>
 #include <cu/thread.h>
 #include <cu/memory.h>
@@ -80,7 +80,7 @@ struct cu_hcset_s
 };
 extern struct cu_hcset_s cuP_hcset[CU_HCSET_CNT];
 
-#if CU_HC_GENERATION
+#if CUOO_HC_GENERATION
 
 extern AO_t cuP_hc_generation;
 
@@ -105,7 +105,7 @@ CU_SINLINE cu_bool_t
 cu_hcobj_has_prop(cu_hcobj_t obj)
 { return obj->generation & 1; }
 
-#elif CU_HC_USE_GC_MARK
+#elif CUOO_HC_USE_GC_MARK
 
 int GC_is_marked(void *);
 void GC_set_mark_bit(void *);
@@ -198,7 +198,7 @@ CU_SINLINE cu_bool_t	cu_hcset_try_promote_lock(cu_hcset_t hcset)
 { return cu_true; }
 #endif
 
-#if !CU_HC_ADJUST_IN_INSERT_ERASE
+#if !CUOO_HC_ADJUST_IN_INSERT_ERASE
 void cu_hcset_adjust(cu_hcset_t hcset);
 void cu_hcset_adjust_wlck(cu_hcset_t hcset);
 #endif
@@ -210,7 +210,7 @@ cu_hcset_hasheqv_begin(cu_hcset_t hcset, cu_hash_t hash)
 CU_SINLINE cu_hcobj_t
 cu_hcset_hasheqv_next(cu_hcobj_t obj)
 {
-#if CU_HC_GENERATION || CU_HC_USE_GC_MARK
+#if CUOO_HC_GENERATION || CUOO_HC_USE_GC_MARK
     return (cu_hcobj_t)~obj->hcset_next;
 #else
     return (cu_hcobj_t)~(obj->hcset_next | 3);

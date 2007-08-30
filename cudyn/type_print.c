@@ -21,7 +21,7 @@
 
 cu_clos_def(tuptype_print_elt,
 	    cu_prot(cu_bool_t, cu_idr_t label, cu_offset_t bitoff,
-			       cudyn_type_t t),
+			       cuoo_type_t t),
     ( int i;
       FILE *out; ))
 {
@@ -39,13 +39,13 @@ cu_clos_def(tuptype_print_elt,
 
 
 cu_bool_t
-cudyn_type_print(cudyn_type_t t, FILE *out)
+cuoo_type_print(cuoo_type_t t, FILE *out)
 {
-    if (cudyn_type_is_tuptype(t)) {
+    if (cuoo_type_is_tuptype(t)) {
 	tuptype_print_elt_t cb;
 	cb.i = 0;
 	cb.out = out;
-	fprintf(out, "#[cudyn_tuptype_t size=%ld: ", (long)cudyn_type_size(t));
+	fprintf(out, "#[cudyn_tuptype_t size=%ld: ", (long)cuoo_type_size(t));
 	cudyn_tuptype_conj(cudyn_tuptype_from_type(t),
 			   tuptype_print_elt_prep(&cb));
 	fputc(']', out);

@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,26 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUEX_MISC_H
-#define CUEX_MISC_H
+#ifndef CUOO_INTF_H
+#define CUOO_INTF_H
 
-#include <cuex/fwd.h>
-#include <cuoo/meta.h>
-#include <cuoo/type.h>
+#include <cuoo/fwd.h>
 
 CU_BEGIN_DECLARATIONS
+/*!\defgroup cuoo_intf_h cuoo/intf.h: Interface Numbers
+ *@{\ingroup cuoo_mod */
 
-extern cuoo_stdtype_t cuexP_long_type;
-#define cuex_long_type() cuoo_stdtype_to_type(cuexP_long_type)
+#define CUOO_INTF_COMPOUND	0x10	/* cuoo_compound_t */
+#define CUOO_INTF_PRINTABLE	0x11	/* void (*)(void *, FILE *) */
+#define CUOO_INTF_SERIALISABLE	0x12	/* cuoo_serialisable_t */
+#define CUOO_INTF_NEXTLIB	0x100
 
-cuex_t cuex_of_long(long);
+/* US Spelling */
+#define CUOO_INTF_SERIALIZABLE CUOO_INTF_SERIALISABLE
 
-CU_SINLINE cu_bool_t cuex_is_long(cuex_t ex)
-{ return cuex_meta(ex) == cuoo_stdtype_to_meta(cuexP_long_type); }
-
-CU_SINLINE long cuex_to_long(cuex_t ex)
-{ return *(long *)((void *)(ex) + CUOO_HCOBJ_SHIFT); }
-
+/*!@}*/
 CU_END_DECLARATIONS
 
 #endif

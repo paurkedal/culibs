@@ -19,8 +19,8 @@
 #include <cuex/opn.h>
 #include <cuex/oprdefs.h>
 #include <cuex/atree.h>
-#include <cu/halloc.h>
-#include <cudyn/properties.h>
+#include <cuoo/halloc.h>
+#include <cuoo/properties.h>
 
 #define tuple(l, e) cuex_opn(CUEX_OR_TUPLE(2), l, e)
 
@@ -35,12 +35,12 @@ cu_clop_def(get_key, cu_word_t, cuex_t e)
 #define atree_order(T0, T1) cuex_atree_order(get_key, T0, T1)
 #define atree_subseteq(T0, T1) cuex_atree_subseteq(get_key, T0, T1)
 
-cudyn_stdtype_t cuexP_labelling_type;
+cuoo_stdtype_t cuexP_labelling_type;
 
 typedef struct cuex_labelling_s *cuex_labelling_t;
 struct cuex_labelling_s
 {
-    CU_HCOBJ
+    CUOO_HCOBJ
     cuex_t atree;
 };
 
@@ -49,10 +49,10 @@ struct cuex_labelling_s
 static cuex_labelling_t
 labelling(cuex_t atree)
 {
-    cudyn_hctem_decl(cuex_labelling, key);
-    cudyn_hctem_init(cuex_labelling, key);
-    cudyn_hctem_get(cuex_labelling, key)->atree = atree;
-    return cudyn_hctem_new(cuex_labelling, key);
+    cuoo_hctem_decl(cuex_labelling, key);
+    cuoo_hctem_init(cuex_labelling, key);
+    cuoo_hctem_get(cuex_labelling, key)->atree = atree;
+    return cuoo_hctem_new(cuex_labelling, key);
 }
 
 cuex_t
@@ -253,11 +253,11 @@ void
 cuexP_labelling_init(void)
 {
     cuexP_labelling_type
-	= cudyn_stdtype_new_hcs(sizeof(struct cuex_labelling_s)
-				- CU_HCOBJ_SHIFT);
+	= cuoo_stdtype_new_hcs(sizeof(struct cuex_labelling_s)
+				- CUOO_HCOBJ_SHIFT);
     cuexP_labelling_type->conj = labelling_conj;
     cuexP_labelling_type->tran = labelling_tran;
 
-    cudyn_prop_define_ptr(cudyn_raw_print_fn_prop(),
-			  cuexP_labelling_type, labelling_print);
+    cuoo_prop_define_ptr(cuoo_raw_print_fn_prop(),
+			 cuexP_labelling_type, labelling_print);
 }

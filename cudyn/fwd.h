@@ -18,12 +18,10 @@
 #ifndef CUDYN_FWD_H
 #define CUDYN_FWD_H
 
-#include <cu/dyn.h>
-#include <cudyn/fwd.h>
+#include <cuoo/fwd.h>
 
 CU_BEGIN_DECLARATIONS
 
-typedef struct cudyn_prop_s	*cudyn_prop_t;
 typedef struct cudyn_proto_s	*cudyn_proto_t;
 typedef struct cudyn_arrtype_s	*cudyn_arrtype_t;
 typedef struct cudyn_ctortype_s	*cudyn_ctortype_t;

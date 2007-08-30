@@ -15,22 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cu/dyn.h>
 #include <cu/hash.h>
 #include <cu/algo.h>
-#include <cu/halloc.h>
-#include <cudyn/algo.h>
+#include <cuoo/halloc.h>
+#include <cuoo/type.h>
 
 typedef struct kat_s *kat_t;
 struct kat_s {
-    CU_HCOBJ
+    CUOO_HCOBJ
     int i;
     void *sub0;
     void *sub1;
 };
 
-cudyn_stdtype_t kat_type_ptr;
-#define kat_type() cudyn_stdtype_to_type(kat_type_ptr)
+cuoo_stdtype_t kat_type_ptr;
+#define kat_type() cuoo_stdtype_to_type(kat_type_ptr)
 
 cu_clop_def(kat_eq, cu_bool_t, void *s0, void *s1)
 {
@@ -61,19 +60,19 @@ cu_clop_def(kat_conj, cu_bool_t, void *k, cu_clop(fn, cu_bool_t, void *))
 
 kat_t kat_new(int i, void *sub0, void *sub1)
 {
-    cudyn_hctem_decl(kat, tem);
-    cudyn_hctem_init(kat, tem);
-    cudyn_hctem_get(kat, tem)->i = i;
-    cudyn_hctem_get(kat, tem)->sub0 = sub0;
-    cudyn_hctem_get(kat, tem)->sub1 = sub1;
-    return cudyn_hctem_new(kat, tem);
+    cuoo_hctem_decl(kat, tem);
+    cuoo_hctem_init(kat, tem);
+    cuoo_hctem_get(kat, tem)->i = i;
+    cuoo_hctem_get(kat, tem)->sub0 = sub0;
+    cuoo_hctem_get(kat, tem)->sub1 = sub1;
+    return cuoo_hctem_new(kat, tem);
 }
 
 cu_clos_def(ff, cu_prot(cu_bool_t, void *k),
     (int level;))
 {
     cu_clos_self(ff);
-    if (cudyn_stdtype_from_meta(cuex_meta(k)) == kat_type_ptr)
+    if (cuoo_stdtype_from_meta(cuex_meta(k)) == kat_type_ptr)
 #define k ((kat_t)k)
 	printf("[%d] %d %p %p\n", self->level, k->i, k->sub0, k->sub1);
 #undef k
@@ -90,7 +89,7 @@ submain()
 {
     kat_t k1, k2, k3, k4;
     ff_t ff_c;
-    kat_type_ptr = cudyn_stdtype_new_hcs(sizeof(struct kat_s) - CU_HCOBJ_SHIFT);
+    kat_type_ptr = cuoo_stdtype_new_hcs(sizeof(struct kat_s) - CUOO_HCOBJ_SHIFT);
     kat_type_ptr->conj = kat_conj;
     k1 = kat_new(1, NULL, NULL);
     k2 = kat_new(2, NULL, NULL);

@@ -21,6 +21,7 @@
 #include <cuflow/timespec.h>
 #include <cu/wordarr.h>
 #include <cu/hash.h>
+#include <cu/memory.h>
 #include <math.h>
 
 #define FILL_MIN_NOM 1

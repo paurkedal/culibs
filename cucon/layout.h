@@ -19,9 +19,10 @@
 #define CUCON_LAYOUT_H
 
 #include <cucon/fwd.h>
+#include <cuoo/hcobj.h>
 #include <cu/conf.h>
 #include <cu/inherit.h>
-#include <cu/dyn.h>
+#include <stdio.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_layout cucon/layout.h: Building packed memory layout
@@ -29,15 +30,15 @@ CU_BEGIN_DECLARATIONS
 
 struct cucon_layout_s
 {
-    CU_HCOBJ
+    CUOO_HCOBJ
     cucon_layout_t prefix;
     cu_word_t alloc_mask;	/* alloc_mask == 0 means pointer */
     unsigned short bitalign;
     unsigned short max_free_width;
     cu_offset_t bitoffset;
 };
-extern cudyn_stdtype_t cuconP_layout_type;
-#define cucon_layout_type() cudyn_stdtype_to_type(cuconP_layout_type)
+extern cuoo_stdtype_t cuconP_layout_type;
+#define cucon_layout_type() cuoo_stdtype_to_type(cuconP_layout_type)
 
 #define cucon_layout_prefix(oml) ((oml)->prefix)
 #define cucon_layout_bits_alloc_mask(oml) ((oml)->alloc_mask)

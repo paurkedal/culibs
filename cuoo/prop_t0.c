@@ -19,27 +19,27 @@
 #define DIM 10000
 
 cuex_meta_t opr0;
-cudyn_propkey_t k0, k1;
+cuoo_propkey_t k0, k1;
 
 void
 test_prop()
 {
     cuex_t e0;
-    k0 = cudyn_propkey_create();
+    k0 = cuoo_propkey_create();
     opr0 = cuex_opr(10, 0);
     e0 = cuex_opn(opr0);
-    cudyn_prop_set(e0, k0, &k0);
-    cu_debug_assert(cudyn_prop_get(e0, k0) == &k0);
-    k1 = cudyn_propkey_create();
-    cudyn_prop_set(e0, k1, &k1);
-    cu_debug_assert(cudyn_prop_get(e0, k0) == &k0);
-    cu_debug_assert(cudyn_prop_get(e0, k1) == &k1);
+    cuoo_prop_set(e0, k0, &k0);
+    cu_debug_assert(cuoo_prop_get(e0, k0) == &k0);
+    k1 = cuoo_propkey_create();
+    cuoo_prop_set(e0, k1, &k1);
+    cu_debug_assert(cuoo_prop_get(e0, k0) == &k0);
+    cu_debug_assert(cuoo_prop_get(e0, k1) == &k1);
     GC_gcollect();
-    cu_debug_assert(cudyn_prop_get(e0, k0) == &k0);
-    cu_debug_assert(cudyn_prop_get(e0, k1) == &k1);
+    cu_debug_assert(cuoo_prop_get(e0, k0) == &k0);
+    cu_debug_assert(cuoo_prop_get(e0, k1) == &k1);
     e0 = cuex_opn(opr0);
-    cu_debug_assert(cudyn_prop_get(e0, k0) == &k0);
-    cu_debug_assert(cudyn_prop_get(e0, k1) == &k1);
+    cu_debug_assert(cuoo_prop_get(e0, k0) == &k0);
+    cu_debug_assert(cuoo_prop_get(e0, k1) == &k1);
     e0 = NULL;
 }
 
@@ -48,7 +48,7 @@ set_some_props()
 {
     int i;
     for (i = 1; i <= DIM; ++i)
-	cudyn_prop_set(cuex_opn(cuex_opr(i, 0)), k0, (void *)i);
+	cuoo_prop_set(cuex_opn(cuex_opr(i, 0)), k0, (void *)i);
 }
 
 int
@@ -58,7 +58,7 @@ check_some_props()
     int n_props = 0;
     void *prop;
     for (i = 1; i <= DIM; ++i) {
-	prop = cudyn_prop_get(cuex_opn(cuex_opr(i, 0)), k0);
+	prop = cuoo_prop_get(cuex_opn(cuex_opr(i, 0)), k0);
 	if (prop) {
 	    cu_debug_assert((void *)i == prop);
 	    ++n_props;

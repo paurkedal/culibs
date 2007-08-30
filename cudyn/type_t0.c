@@ -24,10 +24,10 @@
 void
 test_type(cuex_t ex)
 {
-    cudyn_type_t t = cudyn_type(ex);
+    cuoo_type_t t = cuoo_type(ex);
     cu_debug_assert(t);
     cu_fprintf(stdout, "%! ↦ %! (%d bits aligned on %d bits)\n",
-	       ex, t, cudyn_type_bitsize(t), cudyn_type_bitalign(t));
+	       ex, t, cuoo_type_bitsize(t), cuoo_type_bitalign(t));
 }
 
 void

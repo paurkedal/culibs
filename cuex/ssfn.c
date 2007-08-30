@@ -29,7 +29,7 @@
 #include <cucon/slink.h>
 #include <cucon/rbtree.h>
 #include <cucon/list.h>
-#include <cudyn/properties.h>
+#include <cuoo/properties.h>
 #include <string.h>
 #include <assert.h>
 
@@ -819,7 +819,7 @@ tail_rec:
 		}
 
 	    default:
-		cu_errf_at(cudyn_sref(ex),
+		cu_errf_at(cuoo_sref(ex),
 			   "Badly quantified variable %! for pattern.", ex);
 		cu_debug_unreachable();
 		/* XXX at least until there are useful cases which can
@@ -828,7 +828,7 @@ tail_rec:
 	    }
 	}
 	else {
-	    cu_errf_at(cudyn_sref(ex), "‘%!’ is invaild in pattern.", ex);
+	    cu_errf_at(cuoo_sref(ex), "‘%!’ is invaild in pattern.", ex);
 	    return cu_false;
 	}
     }

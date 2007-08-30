@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cu/dyn.h>
-#include <cu/halloc.h>
+#include <cuoo/type.h>
+#include <cuoo/halloc.h>
 #include <stdlib.h>
 
 #define N_ALLOC 0x2000000
@@ -24,14 +24,14 @@
 typedef struct test_s *test_t;
 struct test_s
 {
-    CU_HCOBJ
+    CUOO_HCOBJ
     int arg0;
     int arg1;
 };
 
-cudyn_stdtype_t _test_type;
-CU_SINLINE cudyn_type_t test_type()
-{ return cudyn_stdtype_to_type(_test_type); }
+cuoo_stdtype_t _test_type;
+CU_SINLINE cuoo_type_t test_type()
+{ return cuoo_stdtype_to_type(_test_type); }
 
 void
 test_GC_malloc(int alloc_count)
@@ -49,7 +49,7 @@ test_onew(int alloc_count)
 {
     int i;
     for (i = 0; i < alloc_count; ++i) {
-	test_t o = cudyn_onew(test);
+	test_t o = cuoo_onew(test);
 	o->arg0 = i;
 	o->arg1 = i;
     }
@@ -60,11 +60,11 @@ test_hnew_noneq(int alloc_count)
 {
     int i;
     for (i = 0; i < alloc_count; ++i) {
-	cudyn_hctem_decl(test, tem);
-	cudyn_hctem_init(test, tem);
-	cudyn_hctem_get(test, tem)->arg0 = i;
-	cudyn_hctem_get(test, tem)->arg1 = i;
-	cudyn_hctem_new(test, tem);
+	cuoo_hctem_decl(test, tem);
+	cuoo_hctem_init(test, tem);
+	cuoo_hctem_get(test, tem)->arg0 = i;
+	cuoo_hctem_get(test, tem)->arg1 = i;
+	cuoo_hctem_new(test, tem);
     }
 }
 
@@ -73,11 +73,11 @@ test_hnew_eq(int alloc_count)
 {
     int i;
     for (i = 0; i < alloc_count; ++i) {
-	cudyn_hctem_decl(test, tem);
-	cudyn_hctem_init(test, tem);
-	cudyn_hctem_get(test, tem)->arg0 = 0;
-	cudyn_hctem_get(test, tem)->arg1 = 0;
-	cudyn_hctem_new(test, tem);
+	cuoo_hctem_decl(test, tem);
+	cuoo_hctem_init(test, tem);
+	cuoo_hctem_get(test, tem)->arg0 = 0;
+	cuoo_hctem_get(test, tem)->arg1 = 0;
+	cuoo_hctem_new(test, tem);
     }
 }
 
@@ -116,8 +116,8 @@ thread_main(void *carg)
 static char const *alloc_name_arr[] = {
     "GC_malloc",
     "cu_onew",
-    "cudyn_halloc (different objects)",
-    "cudyn_halloc (same objects)",
+    "cuoo_halloc (different objects)",
+    "cuoo_halloc (same objects)",
     "malloc, free",
 };
 
@@ -163,7 +163,7 @@ main(int argc, char **argv)
 	    break;
     }
 
-    _test_type = cudyn_stdtype_new_hcs(sizeof(struct test_s) - CU_HCOBJ_SHIFT);
+    _test_type = cuoo_stdtype_new_hcs(sizeof(struct test_s) - CUOO_HCOBJ_SHIFT);
     printf("thread_count = %d, alloc_count = %d, alloc_type = %s\n",
 	   thread_count, alloc_count, alloc_name_arr[alloc_type]);
     t = -clock();

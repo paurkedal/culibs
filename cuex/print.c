@@ -23,7 +23,7 @@
 #include <cuex/opn.h>
 #include <cuex/oprinfo.h>
 #include <cuex/dunion.h>
-#include <cudyn/properties.h>
+#include <cuoo/properties.h>
 #include <cucon/pmap.h>
 #include <cucon/pset.h>
 #include <cucon/stack.h>
@@ -86,7 +86,7 @@ cuex_print_ex(cuex_t ex, FILE *out)
 	    fputc(')', out);
 	    break;
 	case cuex_meta_kind_type:
-	    if (!cudyn_raw_print(ex, out))
+	    if (!cuoo_raw_print(ex, out))
 		fprintf(out, "C%p", ex);
 	    break;
 	default:

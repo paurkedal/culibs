@@ -33,17 +33,18 @@ CLEANFILES = cu/conf_ac.h
 #
 
 include cu/cu.am
+include cuoo/cuoo.am
 include cucon/cucon.am
 if enable_cucon
     lib_LTLIBRARIES	+= libcubase.la
     libcubase_la_LIBADD	 = $(BDWGC_LIBS) $(UNWIND_LIBS)
     libcubase_la_LDFLAGS = $(common_ldflags)
-    libcubase_la_SOURCES = $(cu_sources) $(cucon_sources)
+    libcubase_la_SOURCES = $(cu_sources) $(cucon_sources) $(cuoo_sources)
     pkgconfig_DATA	+= pkgconfig/cubase.pc
     noinst_DATA		+= pkgconfig/cubase-uninstalled.pc
     dist_bin_SCRIPTS	+= bin/sedi
 endif
-EXTRA_DIST		+= cu/cu.am cucon/cucon.am
+EXTRA_DIST		+= cu/cu.am cu/cuoo.am cucon/cucon.am
 
 include cuflow/cuflow.am
 if enable_cuflow
@@ -130,6 +131,7 @@ nobase_nodist_culibs_HEADERS = \
 
 check_programs = \
 	$(cu_check_programs) \
+	$(cuoo_check_programs) \
 	$(cucon_check_programs) \
 	$(cugra_check_programs) \
 	$(cuflow_check_programs) \
@@ -141,6 +143,7 @@ check_programs = \
 
 norun_check_programs = \
 	$(cu_norun_check_programs) \
+	$(cuoo_norun_check_programs) \
 	$(cucon_norun_check_programs) \
 	$(cuflow_norun_check_programs) \
 	$(cuos_norun_check_programs) \

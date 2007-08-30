@@ -22,7 +22,7 @@
 #  include <ffi.h>
 #endif
 #include <inttypes.h>
-#include <cudyn/properties.h>
+#include <cuoo/properties.h>
 #include <cu/idr.h>
 #include <cu/str.h>
 #include <cuex/oprinfo.h>
@@ -48,6 +48,81 @@ CUDYN_ETYPEARR_DEFN_PRINT(uint64, uint64_t, "(uint64_t)%"PRIu64)
 #endif
 CUDYN_ETYPEARR_DEFN_PRINT(float, float, "%g")
 CUDYN_ETYPEARR_DEFN_PRINT(double, double, "%lgL")
+
+#if 0
+static cu_word_t
+char_impl(cu_word_t intf, ...)
+{
+    switch (intf) {
+	case CUOO_INTF_PRINT_FN: return cudynP_char_print;
+	default: return NULL;
+    }
+}
+static cu_word_t
+uint8_impl(cu_word_t intf, ...)
+{
+    switch (intf) {
+	case CUOO_INTF_PRINT_FN: return cudynP_uint8_print;
+	default: return NULL;
+    }
+}
+static cu_word_t
+int8_impl(cu_word_t intf, ...)
+{
+    switch (intf) {
+	case CUOO_INTF_PRINT_FN: return cudynP_int8_print;
+	default: return NULL;
+    }
+}
+static cu_word_t
+uint16_impl(cu_word_t intf, ...)
+{
+    switch (intf) {
+	case CUOO_INTF_PRINT_FN: return cudynP_uint16_print;
+	default: return NULL;
+    }
+}
+static cu_word_t
+int16_impl(cu_word_t intf, ...)
+{
+    switch (intf) {
+	case CUOO_INTF_PRINT_FN: return cudynP_int16_print;
+	default: return NULL;
+    }
+}
+static cu_word_t
+uint32_impl(cu_word_t intf, ...)
+{
+    switch (intf) {
+	case CUOO_INTF_PRINT_FN: return cudynP_uint32_print;
+	default: return NULL;
+    }
+}
+static cu_word_t
+int32_impl(cu_word_t intf, ...)
+{
+    switch (intf) {
+	case CUOO_INTF_PRINT_FN: return cudynP_int32_print;
+	default: return NULL;
+    }
+}
+static cu_word_t
+uint64_impl(cu_word_t intf, ...)
+{
+    switch (intf) {
+	case CUOO_INTF_PRINT_FN: return cudynP_uint64_print;
+	default: return NULL;
+    }
+}
+static cu_word_t
+int64_impl(cu_word_t intf, ...)
+{
+    switch (intf) {
+	case CUOO_INTF_PRINT_FN: return cudynP_int64_print;
+	default: return NULL;
+    }
+}
+#endif
 
 cudyn_elmtype_t cudynP_bool_type;
 
@@ -89,7 +164,7 @@ static void cudynP_metaint_print(cuex_t e, FILE *out)
 		(unsigned int)cuex_opr_index(meta),
 	       	(unsigned int)cuex_opr_r(meta));
     else if (cuex_meta_is_type(meta)) {
-	cudyn_type_t type = cudyn_type_from_meta(meta);
+	cuoo_type_t type = cuoo_type_from_meta(meta);
 	cu_fprintf(out, "%!", type);
     }
     else
@@ -101,18 +176,18 @@ cudyn_castget_ulong(cuex_t e)
 {
     cuex_meta_t meta = cuex_meta(e);
     if (cuex_meta_is_type(meta)) {
-	switch (cudyn_type_typekind(cudyn_type_from_meta(meta))) {
-	    case cudyn_typekind_elmtype_uint64:
-	    case cudyn_typekind_elmtype_int64:
+	switch (cuoo_type_typekind(cuoo_type_from_meta(meta))) {
+	    case cuoo_typekind_elmtype_uint64:
+	    case cuoo_typekind_elmtype_int64:
 		return cudyn_to_uint64(e);
-	    case cudyn_typekind_elmtype_uint32:
-	    case cudyn_typekind_elmtype_int32:
+	    case cuoo_typekind_elmtype_uint32:
+	    case cuoo_typekind_elmtype_int32:
 		return cudyn_to_uint32(e);
-	    case cudyn_typekind_elmtype_uint16:
-	    case cudyn_typekind_elmtype_int16:
+	    case cuoo_typekind_elmtype_uint16:
+	    case cuoo_typekind_elmtype_int16:
 		return cudyn_to_uint16(e);
-	    case cudyn_typekind_elmtype_uint8:
-	    case cudyn_typekind_elmtype_int8:
+	    case cuoo_typekind_elmtype_uint8:
+	    case cuoo_typekind_elmtype_int8:
 		return cudyn_to_uint8(e);
 	    default:
 		break;
@@ -122,45 +197,45 @@ cudyn_castget_ulong(cuex_t e)
 }
 
 cuex_t
-cudyn_load(cudyn_type_t t, void *p)
+cudyn_load(cuoo_type_t t, void *p)
 {
-    cudyn_typekind_t typekind = cudyn_type_typekind(t);
+    cuoo_typekind_t typekind = cuoo_type_typekind(t);
     switch (typekind) {
-	case cudyn_typekind_stdtype:
-	case cudyn_typekind_stdtypeoftypes:
-	case cudyn_typekind_tvar:
-	    cu_debug_assert(cuex_meta(p) == cudyn_type_to_meta(t));
+	case cuoo_typekind_stdtype:
+	case cuoo_typekind_stdtypeoftypes:
+	case cuoo_typekind_tvar:
+	    cu_debug_assert(cuex_meta(p) == cuoo_type_to_meta(t));
 	    return p;
-	case cudyn_typekind_ptrtype:
+	case cuoo_typekind_ptrtype:
 	    return cudyn_ptr(cudyn_ptrtype_from_type(t), p);
-	case cudyn_typekind_sngtype:
+	case cuoo_typekind_sngtype:
 	    return cudyn_singular_obj();
 
-	case cudyn_typekind_elmtype_bool:
+	case cuoo_typekind_elmtype_bool:
 	    return cudyn_bool(*(cu_bool_t *)p);
-	case cudyn_typekind_elmtype_uint8:
+	case cuoo_typekind_elmtype_uint8:
 	    return cudyn_uint8(*(uint8_t *)p);
-	case cudyn_typekind_elmtype_int8:
+	case cuoo_typekind_elmtype_int8:
 	    return cudyn_int8(*(int8_t *)p);
-	case cudyn_typekind_elmtype_uint16:
+	case cuoo_typekind_elmtype_uint16:
 	    return cudyn_uint16(*(uint16_t *)p);
-	case cudyn_typekind_elmtype_int16:
+	case cuoo_typekind_elmtype_int16:
 	    return cudyn_int16(*(int16_t *)p);
-	case cudyn_typekind_elmtype_uint32:
+	case cuoo_typekind_elmtype_uint32:
 	    return cudyn_uint32(*(uint32_t *)p);
-	case cudyn_typekind_elmtype_int32:
+	case cuoo_typekind_elmtype_int32:
 	    return cudyn_int32(*(int32_t *)p);
-	case cudyn_typekind_elmtype_uint64:
+	case cuoo_typekind_elmtype_uint64:
 	    return cudyn_uint64(*(uint64_t *)p);
-	case cudyn_typekind_elmtype_int64:
+	case cuoo_typekind_elmtype_int64:
 	    return cudyn_int64(*(int64_t *)p);
-	case cudyn_typekind_elmtype_metaint:
+	case cuoo_typekind_elmtype_metaint:
 	    return cudyn_metaint(*(cuex_meta_t *)p);
-	case cudyn_typekind_elmtype_float:
+	case cuoo_typekind_elmtype_float:
 	    return cudyn_float(*(float *)p);
-	case cudyn_typekind_elmtype_double:
+	case cuoo_typekind_elmtype_double:
 	    return cudyn_double(*(double *)p);
-	case cudyn_typekind_elmtype_char:
+	case cuoo_typekind_elmtype_char:
 	    return cudyn_char(*(char *)p);
 
 	default:
@@ -191,14 +266,14 @@ cudynP_misc_init()
     cudynP_true = cudyn_bool(1);
     cudynP_false = cudyn_bool(0);
 
-    cudynP_singular_obj = cudyn_oalloc(cudyn_singular_type(), 0);
+    cudynP_singular_obj = cuoo_oalloc(cudyn_singular_type(), 0);
 
     CUDYN_ETYPEARR_INIT_PRINT(char, char, SINT, &ffi_type_schar)
 
-    cudyn_prop_condset_ptr(cudyn_raw_print_fn_prop(), cu_str_type(),
-			   cudynP_str_print);
-    cudyn_prop_condset_ptr(cudyn_raw_print_fn_prop(), cu_idr_type(),
-			   cudynP_idr_print);
+    cuoo_prop_condset_ptr(cuoo_raw_print_fn_prop(), cu_str_type(),
+			  cudynP_str_print);
+    cuoo_prop_condset_ptr(cuoo_raw_print_fn_prop(), cu_idr_type(),
+			  cudynP_idr_print);
 
     CUDYN_ETYPEARR_INIT_PRINT(metaint, cuex_meta_t, UINT, &ffi_type_ulong);
 }

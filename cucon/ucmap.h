@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <cu/clos.h>
 #if cuconP_UCMAP_ENABLE_HCONS
-#include <cu/dyn.h>
+#include <cuoo/type.h>
 #endif
 #include <stdint.h>
 #include <limits.h>
@@ -59,9 +59,9 @@ CU_BEGIN_DECLARATIONS
 struct cucon_ucmap_s
 {
 #if cuconP_UCMAP_ENABLE_HCONS
-    CU_HCOBJ
+    CUOO_HCOBJ
 #else
-    CU_OBJ
+    CUOO_OBJ
 #endif
     uintptr_t key;
     cucon_ucmap_t left;
@@ -70,9 +70,9 @@ struct cucon_ucmap_s
 };
 
 #if cuconP_UCMAP_ENABLE_HCONS
-extern cudyn_stdtype_t cuconP_ucmap_type;
-CU_SINLINE cudyn_type_t cucon_ucmap_type()
-{ return cudyn_stdtype_to_type(cuconP_ucmap_type); }
+extern cuoo_stdtype_t cuconP_ucmap_type;
+CU_SINLINE cuoo_type_t cucon_ucmap_type()
+{ return cuoo_stdtype_to_type(cuconP_ucmap_type); }
 #endif
 
 /*!The empty map. */

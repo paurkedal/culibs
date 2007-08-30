@@ -17,7 +17,7 @@
 
 #define USE_GC_INLINE 0
 
-#include <cu/dyn.h>
+#include <cuoo/oalloc.h>
 #include <cu/memory.h>
 #include <cu/tstate.h>
 #include <gc/gc_mark.h>
@@ -110,10 +110,10 @@ cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
 void cuP_stdobj_finaliser(void *base, void *cd)
 {
     cuex_meta_t meta = *(cuex_meta_t *)base - 1;
-    cudyn_stdtype_t t;
+    cuoo_stdtype_t t;
     cu_debug_assert(cuex_meta_is_type(meta) &&
-		    cudyn_type_is_stdtype(cudyn_type_from_meta(meta)));
-    t = cudyn_stdtype_from_meta(meta);
+		    cuoo_type_is_stdtype(cuoo_type_from_meta(meta)));
+    t = cuoo_stdtype_from_meta(meta);
     if (!cu_clop_is_null(t->finalise))
 	cu_call(t->finalise, base + sizeof(cuex_meta_t));
 }
@@ -123,7 +123,7 @@ cuexP_oalloc_ord_fin_raw(cuex_meta_t meta, size_t sizeg)
 {
     void *r;
     cu_debug_assert(cuex_meta_is_type(meta));
-    cu_debug_assert(cudyn_type_is_stdtype(cudyn_type_from_meta(meta)));
+    cu_debug_assert(cuoo_type_is_stdtype(cuoo_type_from_meta(meta)));
     r = GC_malloc(sizeg*CU_GRAN_SIZE);
     if (!r) {
 	cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
@@ -139,7 +139,7 @@ cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
 {
     void *r;
     cu_debug_assert(cuex_meta_is_type(meta));
-    cu_debug_assert(cudyn_type_is_stdtype(cudyn_type_from_meta(meta)));
+    cu_debug_assert(cuoo_type_is_stdtype(cuoo_type_from_meta(meta)));
     r = GC_malloc(sizeg*CU_GRAN_SIZE);
     if (!r) {
 	cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
