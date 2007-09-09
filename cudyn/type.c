@@ -332,6 +332,44 @@ cudyn_tuptype_conj(cudyn_tuptype_t t,
     return cucon_pmap_conj_mem(&t->scomp_map, tuptype_conj_cb_prep(&scb));
 }
 
+cu_clos_def(tuptype_print_elt,
+            cu_prot(cu_bool_t, cu_idr_t label, cu_offset_t bitoff,
+                               cuoo_type_t t),
+    ( int i;
+      FILE *out; ))
+{
+    cu_clos_self(tuptype_print_elt);
+    if (self->i++)
+        fputs(" × ", self->out);
+    if (label) {
+        fputc('~', self->out);
+        fputs(cu_idr_to_cstr(label), self->out);
+    }
+    cu_fprintf(self->out, "@%d:%!", bitoff, t);
+    ++self->i;
+    return cu_true;
+}
+
+void
+cudyn_tuptype_print(void *t, FILE *out)
+{
+    tuptype_print_elt_t cb;
+    cb.i = 0;
+    cb.out = out;
+    fprintf(out, "#[cudyn_tuptype_t size=%ld: ", (long)cuoo_type_size(t));
+    cudyn_tuptype_conj(t, tuptype_print_elt_prep(&cb));
+    fputc(']', out);
+}
+
+static cu_word_t
+tuptype_impl(cu_word_t intf_number, ...)
+{
+    switch (intf_number) {
+	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudyn_tuptype_print;
+	default: return CUOO_IMPL_NONE;
+    }
+}
+
 
 /* Union Types
  * =========== */
@@ -502,7 +540,7 @@ cudynP_type_init()
 	cuoo_impl_none, sizeof(struct cudyn_ptrtype_s) - CUOO_HCOBJ_SHIFT);
     cudynP_elmtype_type = cuoo_stdtypeoftypes_new(cuoo_impl_none);
     cudynP_arrtype_type = cuoo_stdtypeoftypes_new_hce(cuoo_impl_none);
-    cudynP_tuptype_type = cuoo_stdtypeoftypes_new_hce(cuoo_impl_none);
+    cudynP_tuptype_type = cuoo_stdtypeoftypes_new_hce(tuptype_impl);
     cudynP_duntype_type = cuoo_stdtypeoftypes_new_hce(cuoo_impl_none);
     cudynP_sngtype_type = cuoo_stdtypeoftypes_new_hce(cuoo_impl_none);
     cudynP_tup_null = cuex_aci_identity(CUEX_O4ACI_SIGPROD);

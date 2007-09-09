@@ -11,8 +11,7 @@ cudyn_sources = \
 	cudyn/init.c \
 	cudyn/misc.c \
 	cudyn/proto.c \
-	cudyn/type.c \
-	cudyn/type_print.c
+	cudyn/type.c
 
 cudyn_check_programs = \
 	cudyn/misc_t0 \

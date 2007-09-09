@@ -23,8 +23,6 @@
 struct cuoo_prop_s cuooP_raw_c_name_prop;
 struct cuoo_prop_s cuooP_sref_prop;
 
-cu_bool_t cuoo_type_print(cuoo_type_t, FILE *);
-
 void
 cuoo_sref_push(cuex_t ex, cu_sref_t sref)
 {
@@ -48,10 +46,6 @@ cuoo_raw_print(cuex_t ex, FILE *out)
 	    print(ex, out);
 	    return cu_true;
 	}
-#if 0 /* FIXME */
-	if (cuoo_type_is_typeoftypes(type) && cuoo_type_print(ex, out))
-	    return cu_true;
-#endif
     }
     return cu_false;
 }
