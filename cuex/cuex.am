@@ -12,7 +12,6 @@ cuex_headers = \
 	cuex/fpvar.h \
 	cuex/ftype.h \
 	cuex/labelling.h \
-	cuex/misc.h \
 	cuex/monoid.h \
 	cuex/opn.h \
 	cuex/opntpl.h \
@@ -48,7 +47,6 @@ cuex_sources = \
 	cuex/ftype.c \
 	cuex/init.c \
 	cuex/labelling.c \
-	cuex/misc.c \
 	cuex/monoid.c \
 	cuex/opntpl.c \
 	cuex/opn.c \

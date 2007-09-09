@@ -24,6 +24,8 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_fwd_h cuoo/fwd.h: Forward Declarations
  *@{\ingroup cuoo_mod */
 
+typedef cu_word_t (*cuoo_impl_t)(cu_word_t, ...);
+
 typedef struct cuoo_prop_s		*cuoo_prop_t;
 typedef struct cuoo_intf_compound_s	*cuoo_intf_compound_t;
 

@@ -17,6 +17,7 @@
 
 #include <cuoo/type.h>
 #include <cuoo/halloc.h>
+#include <cuoo/intf.h>
 #include <stdlib.h>
 
 #define N_ALLOC 0x2000000
@@ -163,7 +164,8 @@ main(int argc, char **argv)
 	    break;
     }
 
-    _test_type = cuoo_stdtype_new_hcs(sizeof(struct test_s) - CUOO_HCOBJ_SHIFT);
+    _test_type = cuoo_stdtype_new_hcs(
+	cuoo_impl_none, sizeof(struct test_s) - CUOO_HCOBJ_SHIFT);
     printf("thread_count = %d, alloc_count = %d, alloc_type = %s\n",
 	   thread_count, alloc_count, alloc_name_arr[alloc_type]);
     t = -clock();

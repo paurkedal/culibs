@@ -19,6 +19,7 @@
 #include <cu/debug.h>
 #include <cu/int.h>
 #include <cuoo/halloc.h>
+#include <cuoo/intf.h>
 
 #define HASH CU_HASH2
 #define MAX_FREE_WIDTH_OF_ALT0 0
@@ -426,12 +427,22 @@ cuoo_stdtype_t cuconP_layout_type;
 cucon_layout_t cuconP_layout_ptr;
 cucon_layout_t cuconP_layout_void;
 
+static cu_word_t
+layout_impl(cu_word_t intf_number, ...)
+{
+    switch (intf_number) {
+	case CUOO_INTF_PRINT_FN: return (cu_word_t)layout_dump;
+	default: return CUOO_IMPL_NONE;
+    }
+}
+
 void
 cuconP_layout_init()
 {
     cu_offset_t ignore;
     cuconP_layout_type =
-	cuoo_stdtype_new_hcs(sizeof(struct cucon_layout_s) - CUOO_HCOBJ_SHIFT);
+	cuoo_stdtype_new_hcs(layout_impl,
+			     sizeof(struct cucon_layout_s) - CUOO_HCOBJ_SHIFT);
     cuconP_layout_ptr = cucon_layout_pack_bits(NULL,
 					  sizeof(void *)*8,
 					  sizeof(void *)*8, &ignore);

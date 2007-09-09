@@ -18,6 +18,7 @@
 #define CUDYN_CTOR_C
 #include <cudyn/ctor.h>
 #include <cuoo/halloc.h>
+#include <cuoo/intf.h>
 
 cudyn_ctortype_t
 cudyn_ctortype(cudyn_tuptype_t parttype, cudyn_duntype_t fulltype)
@@ -26,8 +27,8 @@ cudyn_ctortype(cudyn_tuptype_t parttype, cudyn_duntype_t fulltype)
     cuoo_hctem_decl(cudyn_ctortype, key);
     cuoo_hctem_init(cudyn_ctortype, key);
     ctortype = cuoo_hctem_get(cudyn_ctortype, key);
-    cuooP_type_cct_hcs(cu_to(cuoo_type, ctortype), NULL,
-			cuoo_typekind_ctortype, sizeof(unsigned int));
+    cuooP_type_cct_hcs(cu_to(cuoo_type, ctortype), cuoo_impl_none, NULL,
+		       cuoo_typekind_ctortype, sizeof(unsigned int));
     ctortype->fulltype = fulltype;
     ctortype->parttype = parttype;
     return cuoo_hctem_new(cudyn_ctortype, key);
@@ -47,5 +48,5 @@ void
 cudyn_ctor_init()
 {
     cudynP_ctortype_type = cuoo_stdtype_new_hcs(
-	    sizeof(struct cudyn_ctortype_s) - CUOO_HCOBJ_SHIFT);
+	cuoo_impl_none, sizeof(struct cudyn_ctortype_s) - CUOO_HCOBJ_SHIFT);
 }

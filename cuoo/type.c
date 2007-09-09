@@ -18,6 +18,7 @@
 #include <cuoo/type.h>
 #include <cuoo/halloc.h>
 #include <cuoo/oalloc.h>
+#include <cuoo/intf.h>
 #include <cu/memory.h>
 #include <cu/debug.h>
 #include <cu/wordarr.h>
@@ -58,39 +59,45 @@ static cu_clop(stdobj_tran_default_clop,
 	       void *, void *, cu_clop(, void *, void *));
 
 void
-cuooP_type_cct_nonhc(cuoo_type_t type, cuex_t expr, cuoo_typekind_t kind)
+cuooP_type_cct_nonhc(cuoo_type_t type, cuoo_impl_t impl, cuex_t expr,
+		     cuoo_typekind_t kind)
 {
     type->typekind = kind;
+    type->impl = impl;
     type->members_hcmethod = cuoo_hcmethod_none;
     type->as_expr = expr;
     type->u0.key_size = 0;
 }
 
 void
-cuooP_type_cct_hcs(cuoo_type_t type, cuex_t expr, cuoo_typekind_t kind,
-		   size_t key_size)
+cuooP_type_cct_hcs(cuoo_type_t type, cuoo_impl_t impl, cuex_t expr,
+		   cuoo_typekind_t kind, size_t key_size)
 {
     type->typekind = kind;
+    type->impl = impl;
     type->members_hcmethod = cuoo_hcmethod_by_size;
     type->as_expr = expr;
     type->u0.key_size = key_size;
 }
 
 void
-cuooP_type_cct_hcv(cuoo_type_t type, cuex_t expr, cuoo_typekind_t kind,
-		   cu_clop(key_size_fn, size_t, void *))
+cuooP_type_cct_hcv(cuoo_type_t type, cuoo_impl_t impl, cuex_t expr,
+		   cuoo_typekind_t kind, cu_clop(key_size_fn, size_t, void *))
 {
     type->typekind = kind;
+    type->impl = impl;
     type->members_hcmethod = cuoo_hcmethod_by_size_fn;
     type->as_expr = expr;
     type->u0.key_size_fn = key_size_fn;
 }
 
 void
-cuooP_type_cct_hcf(cuoo_type_t type, cuex_t expr, cuoo_typekind_t kind,
+cuooP_type_cct_hcf(cuoo_type_t type, cuoo_impl_t impl, cuex_t expr,
+		   cuoo_typekind_t kind,
 		   cu_clop(key_hash_fn, cu_hash_t, void *))
 {
     type->typekind = kind;
+    type->impl = impl;
     type->members_hcmethod = cuoo_hcmethod_by_hash_fn;
     type->as_expr = expr;
     type->u0.key_hash_fn = key_hash_fn;
@@ -101,44 +108,44 @@ cuooP_type_cct_hcf(cuoo_type_t type, cuex_t expr, cuoo_typekind_t kind,
  * ------------- */
 
 void
-cuoo_stdtype_cct(cuoo_stdtype_t type, cuoo_typekind_t kind)
+cuoo_stdtype_cct(cuoo_stdtype_t type, cuoo_typekind_t kind, cuoo_impl_t impl)
 {
-    cuooP_type_cct_nonhc(cuoo_stdtype_to_type(type), NULL, kind);
+    cuooP_type_cct_nonhc(cuoo_stdtype_to_type(type), impl, NULL, kind);
     type->finalise = cu_clop_null;
     type->conj = stdobj_conj_default_clop;
     type->tran = stdobj_tran_default_clop;
 }
 
 cuoo_stdtype_t
-cuoo_stdtype_new()
+cuoo_stdtype_new(cuoo_impl_t impl)
 {
     cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct(type, cuoo_typekind_stdtype);
+    cuoo_stdtype_cct(type, cuoo_typekind_stdtype, impl);
     return type;
 }
 
 cuoo_stdtype_t
-cuoo_stdtypeoftypes_new()
+cuoo_stdtypeoftypes_new(cuoo_impl_t impl)
 {
     cuoo_stdtype_t t = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct(t, cuoo_typekind_stdtypeoftypes);
+    cuoo_stdtype_cct(t, cuoo_typekind_stdtypeoftypes, impl);
     return t;
 }
 
 cuoo_stdtype_t
-cuoo_stdtype_new_self_instance(cuoo_typekind_t kind)
+cuoo_stdtype_new_self_instance(cuoo_typekind_t kind, cuoo_impl_t impl)
 {
     cuoo_stdtype_t type
 	= cuoo_oalloc_self_instance(sizeof(struct cuoo_stdtype_s));
-    cuoo_stdtype_cct(type, kind);
+    cuoo_stdtype_cct(type, kind, impl);
     return type;
 }
 
 void
 cuoo_stdtype_cct_hcs(cuoo_stdtype_t type, cuoo_typekind_t kind,
-		     size_t key_size)
+		     cuoo_impl_t impl, size_t key_size)
 {
-    cuooP_type_cct_hcs(cuoo_stdtype_to_type(type), NULL, kind, key_size);
+    cuooP_type_cct_hcs(cuoo_stdtype_to_type(type), impl, NULL, kind, key_size);
     type->finalise = cu_clop_null;
     type->conj = stdobj_conj_default_clop;
     type->tran = stdobj_tran_default_clop;
@@ -146,43 +153,44 @@ cuoo_stdtype_cct_hcs(cuoo_stdtype_t type, cuoo_typekind_t kind,
 
 void
 cuoo_stdtype_cct_hcv(cuoo_stdtype_t type, cuoo_typekind_t kind,
-		     cu_clop(key_size_fn, size_t, void *))
+		     cuoo_impl_t impl, cu_clop(key_size_fn, size_t, void *))
 {
-    cuooP_type_cct_hcv(cuoo_stdtype_to_type(type), NULL, kind, key_size_fn);
+    cuooP_type_cct_hcv(cuoo_stdtype_to_type(type), impl, NULL, kind, key_size_fn);
     type->finalise = cu_clop_null;
     type->conj = stdobj_conj_default_clop;
     type->tran = stdobj_tran_default_clop;
 }
 
 cuoo_stdtype_t
-cuoo_stdtype_new_hcs(size_t key_size)
+cuoo_stdtype_new_hcs(cuoo_impl_t impl, size_t key_size)
 {
     cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtype, key_size);
+    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtype, impl, key_size);
     return type;
 }
 
 cuoo_stdtype_t
-cuoo_stdtypeoftypes_new_hcs(size_t key_size)
+cuoo_stdtypeoftypes_new_hcs(cuoo_impl_t impl, size_t key_size)
 {
     cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtypeoftypes, key_size);
+    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtypeoftypes, impl, key_size);
     return type;
 }
 
 cuoo_stdtype_t
-cuoo_stdtypeoftypes_new_hce(void)
+cuoo_stdtypeoftypes_new_hce(cuoo_impl_t impl)
 {
     cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtypeoftypes, sizeof(cuex_t));
+    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtypeoftypes,
+			 impl, sizeof(cuex_t));
     return type;
 }
 
 cuoo_stdtype_t
-cuoo_stdtype_new_hcv(cu_clop(key_size_fn, size_t, void *))
+cuoo_stdtype_new_hcv(cuoo_impl_t impl, cu_clop(key_size_fn, size_t, void *))
 {
     cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct_hcv(type, cuoo_typekind_stdtype, key_size_fn);
+    cuoo_stdtype_cct_hcv(type, cuoo_typekind_stdtype, impl, key_size_fn);
     return type;
 }
 
@@ -331,6 +339,6 @@ cuP_dyn_init()
 #if CUOO_ENABLE_KEYED_PROP
     cucon_umap_cct(&cuooP_property_map);
 #endif
-    cuooP_stdtype_type =
-	cuoo_stdtype_new_self_instance(cuoo_typekind_stdtypeoftypes);
+    cuooP_stdtype_type = cuoo_stdtype_new_self_instance(
+	cuoo_typekind_stdtypeoftypes, cuoo_impl_none);
 }

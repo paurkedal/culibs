@@ -27,7 +27,6 @@ CU_BEGIN_DECLARATIONS
 
 extern struct cuoo_prop_s cuooP_raw_c_name_prop;
 extern struct cuoo_prop_s cuooP_sref_prop;
-extern struct cuoo_prop_s cuooP_raw_print_fn_prop;
 
 /* The C name of a type or function, if defined.  Contains only stored
  * names, so it will not synthesise names for constructs such as
@@ -46,10 +45,6 @@ CU_SINLINE cu_sref_t cuoo_sref(cuex_t ex)
 { return cuoo_prop_get_ptr(cuoo_sref_prop(), ex); }
 
 void cuoo_sref_push(cuex_t ex, cu_sref_t head);
-
-/* Preliminary Printing Support */
-CU_SINLINE cuoo_prop_t cuoo_raw_print_fn_prop()
-{ return &cuooP_raw_print_fn_prop; }
 
 cu_bool_t cuoo_raw_print(cuex_t ex, FILE *out);
 

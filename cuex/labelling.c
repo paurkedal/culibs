@@ -21,6 +21,7 @@
 #include <cuex/atree.h>
 #include <cuoo/halloc.h>
 #include <cuoo/properties.h>
+#include <cuoo/intf.h>
 
 #define tuple(l, e) cuex_opn(CUEX_OR_TUPLE(2), l, e)
 
@@ -249,15 +250,20 @@ labelling_print(void *L, FILE *out)
     fputc(')', out);
 }
 
+static cu_word_t
+labelling_impl(cu_word_t intf_number, ...)
+{
+    switch (intf_number) {
+	case CUOO_INTF_PRINT_FN: return (cu_word_t)labelling_print;
+	default: return CUOO_IMPL_NONE;
+    }
+}
+
 void
 cuexP_labelling_init(void)
 {
-    cuexP_labelling_type
-	= cuoo_stdtype_new_hcs(sizeof(struct cuex_labelling_s)
-				- CUOO_HCOBJ_SHIFT);
+    cuexP_labelling_type = cuoo_stdtype_new_hcs(
+	labelling_impl, sizeof(struct cuex_labelling_s) - CUOO_HCOBJ_SHIFT);
     cuexP_labelling_type->conj = labelling_conj;
     cuexP_labelling_type->tran = labelling_tran;
-
-    cuoo_prop_define_ptr(cuoo_raw_print_fn_prop(),
-			 cuexP_labelling_type, labelling_print);
 }

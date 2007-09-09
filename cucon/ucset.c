@@ -19,6 +19,7 @@
 #include <cu/memory.h>
 #include <cu/int.h>
 #include <cuoo/halloc.h>
+#include <cuoo/intf.h>
 #include <inttypes.h>
 
 CU_SINLINE uintptr_t ucnode_key(cucon_ucset_t node)
@@ -375,6 +376,15 @@ cucon_ucset_dump(cucon_ucset_t tree, FILE *out)
     ucset_dump(tree, 2, out);
 }
 
+static cu_word_t
+ucset_impl(cu_word_t intf_number, ...)
+{
+    switch (intf_number) {
+	case CUOO_INTF_PRINT_FN: return (cu_word_t)cucon_ucset_dump;
+	default: return CUOO_IMPL_NONE;
+    }
+}
+
 #if CUCON_UCSET_ENABLE_HCONS
 cuoo_stdtype_t cuconP_ucset_type;
 cuoo_stdtype_t cuconP_ucset_leaf_type;
@@ -384,12 +394,11 @@ void
 cuconP_ucset_init()
 {
 #if CUCON_UCSET_ENABLE_HCONS
-    cuconP_ucset_type =
-	cuoo_stdtype_new_hcs(sizeof(struct cucon_ucset_s) - CUOO_HCOBJ_SHIFT);
+    cuconP_ucset_type = cuoo_stdtype_new_hcs(
+	ucset_impl, sizeof(struct cucon_ucset_s) - CUOO_HCOBJ_SHIFT);
 #  if CUCON_UCSET_ENABLE_BITSET
-    cuconP_ucset_leaf_type =
-	cuoo_stdtype_new_hcs(sizeof(struct cucon_ucset_leaf_s)
-			      - CUOO_HCOBJ_SHIFT);
+    cuconP_ucset_leaf_type = cuoo_stdtype_new_hcs(
+	ucset_impl, sizeof(struct cucon_ucset_leaf_s) - CUOO_HCOBJ_SHIFT);
 #  endif
 #endif
 }

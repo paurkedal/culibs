@@ -139,16 +139,16 @@ CU_SINLINE cu_bool_t cuoo_type_is_proto(cuoo_type_t type)
 CU_SINLINE cu_bool_t cuoo_type_is_typeoftypes(cuoo_type_t type)
 { return type->typekind == cuoo_typekind_stdtypeoftypes; }
 
-void cuooP_type_cct_nonhc(cuoo_type_t type, cuex_t as_expr,
+void cuooP_type_cct_nonhc(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
 			  cuoo_typekind_t kind);
-void cuooP_type_cct_hcs(cuoo_type_t type, cuex_t as_expr,
+void cuooP_type_cct_hcs(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
 			cuoo_typekind_t kind, size_t key_size);
-void cuooP_type_cct_hce(cuoo_type_t type, cuex_t as_expr,
+void cuooP_type_cct_hce(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
 			cuoo_typekind_t kind);
-void cuooP_type_cct_hcv(cuoo_type_t type, cuex_t as_expr,
+void cuooP_type_cct_hcv(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
 			cuoo_typekind_t kind,
 			cu_clop(key_size_fn, size_t, void *));
-void cuooP_type_cct_hcf(cuoo_type_t type, cuex_t as_expr,
+void cuooP_type_cct_hcf(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
 			cuoo_typekind_t kind,
 			cu_clop(key_hash_fn, cu_hash_t, void *));
 
@@ -171,23 +171,32 @@ extern cuoo_stdtype_t cuooP_stdtype_type;
 #define cuoo_stdtype_type() cuoo_stdtype_to_type(cuooP_stdtype_type)
 
 /* Create a type with standard method slots. */
-void cuoo_stdtype_cct(cuoo_stdtype_t, cuoo_typekind_t kind);
-cuoo_stdtype_t cuoo_stdtype_new(void);
-cuoo_stdtype_t cuoo_stdtypeoftypes_new(void);
+void cuoo_stdtype_cct(cuoo_stdtype_t, cuoo_typekind_t kind,
+		      cuoo_impl_t impl);
+
+cuoo_stdtype_t cuoo_stdtype_new(cuoo_impl_t impl);
+
+/* Create a type for hash constructed objects. */
+void cuoo_stdtype_cct_hcs(cuoo_stdtype_t, cuoo_typekind_t,
+			  cuoo_impl_t impl, size_t key_size);
+
+cuoo_stdtype_t cuoo_stdtype_new_hcs(cuoo_impl_t impl, size_t key_size);
+
+/* Create a type for hash constructed objects with variable size. */
+void cuoo_stdtype_cct_hcv(cuoo_stdtype_t, cuoo_typekind_t, cuoo_impl_t impl,
+			  cu_clop(key_size, size_t, void *));
+
+cuoo_stdtype_t cuoo_stdtype_new_hcv(cuoo_impl_t impl,
+				    cu_clop(key_size, size_t, void *));
+
+
+cuoo_stdtype_t cuoo_stdtypeoftypes_new(cuoo_impl_t impl);
 
 /*!A new type of types.  If the instances are hash-consed, the expression
  * for of the type will be used as the key. */
-cuoo_stdtype_t cuoo_stdtypeoftypes_new_hce(void);
+cuoo_stdtype_t cuoo_stdtypeoftypes_new_hce(cuoo_impl_t impl);
 
-/* Create a type for hash constructed objects. */
-void cuoo_stdtype_cct_hcs(cuoo_stdtype_t, cuoo_typekind_t, size_t key_size);
-cuoo_stdtype_t cuoo_stdtype_new_hcs(size_t key_size);
-cuoo_stdtype_t cuoo_stdtypeoftypes_new_hcs(size_t key_size);
-
-/* Create a type for hash constructed objects with variable size. */
-void cuoo_stdtype_cct_hcv(cuoo_stdtype_t, cuoo_typekind_t,
-			  cu_clop(key_size, size_t, void *));
-cuoo_stdtype_t cuoo_stdtype_new_hcv(cu_clop(key_size, size_t, void *));
+cuoo_stdtype_t cuoo_stdtypeoftypes_new_hcs(cuoo_impl_t impl, size_t key_size);
 
 
 /* Hashconsed Objects

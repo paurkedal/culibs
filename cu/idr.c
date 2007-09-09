@@ -18,6 +18,7 @@
 #include <cu/idr.h>
 #include <cu/util.h>
 #include <cuoo/halloc.h>
+#include <cuoo/intf.h>
 
 cu_idr_t
 cu_idr_by_cstr(char const *cstr)
@@ -67,8 +68,24 @@ cu_clop_def(idr_key_size_clop, size_t, void *idr)
 
 cuoo_stdtype_t cuP_idr_type;
 
+static void
+idr_print(void *idr, FILE *out)
+{
+    char const *s = cu_idr_to_cstr(idr);
+    fputs(s, out);
+}
+
+static cu_word_t
+idr_impl(cu_word_t intf_number, ...)
+{
+    switch (intf_number) {
+	case CUOO_INTF_PRINT_FN: return (cu_word_t)idr_print;
+	default: return CUOO_IMPL_NONE;
+    }
+}
+
 void
 cuP_idr_init(void)
 {
-    cuP_idr_type = cuoo_stdtype_new_hcv(idr_key_size_clop);
+    cuP_idr_type = cuoo_stdtype_new_hcv(idr_impl, idr_key_size_clop);
 }

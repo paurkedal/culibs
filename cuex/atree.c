@@ -19,6 +19,7 @@
 #include <cuex/opn.h>
 #include <cuoo/prop.h>
 #include <cuoo/properties.h>
+#include <cuoo/intf.h>
 #include <cu/int.h>
 #include <cu/algo.h>
 
@@ -1154,12 +1155,18 @@ atree_print(void *obj, FILE *out)
     }
 }
 
+static cu_word_t
+atree_impl(cu_word_t intf_number, ...)
+{
+    switch (intf_number) {
+	case CUOO_INTF_PRINT_FN: return (cu_word_t)atree_print;
+	default: return CUOO_IMPL_NONE;
+    }
+}
+
 void
 cuexP_atree_init()
 {
-    cuexP_anode_type = cuoo_stdtype_new_hcs(sizeof(struct cuex_anode_s) -
-					     CUOO_HCOBJ_SHIFT);
-
-    cuoo_prop_define_ptr(cuoo_raw_print_fn_prop(),
-			 cuexP_anode_type, atree_print);
+    cuexP_anode_type = cuoo_stdtype_new_hcs(
+	atree_impl, sizeof(struct cuex_anode_s) - CUOO_HCOBJ_SHIFT);
 }

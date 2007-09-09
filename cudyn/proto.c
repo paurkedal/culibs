@@ -20,6 +20,7 @@
 #include <cudyn/type.h>
 #include <cu/memory.h>
 #include <cucon/layout.h>
+#include <cuoo/intf.h>
 #include <string.h>
 #include <assert.h>
 
@@ -170,8 +171,8 @@ cudyn_proto_by_tuptype(cudyn_tuptype_t arg_type, cuoo_type_t res_type)
     struct cudyn_proto_s key;
     cudyn_proto_t proto;
     size_t size = sizeof(struct cudyn_proto_s) + r*sizeof(ffi_type *);
-    cuooP_type_cct_hcs(cu_to(cuoo_type, &key), NULL,
-			cuoo_typekind_proto, sizeof(cu_fnptr_t));
+    cuooP_type_cct_hcs(cu_to(cuoo_type, &key), cuoo_impl_none, NULL,
+		       cuoo_typekind_proto, sizeof(cu_fnptr_t));
     key.arg_type = arg_type;
     key.res_type = res_type;
     init.r = r;
@@ -299,5 +300,6 @@ cuoo_stdtype_t cudynP_proto_type;
 void
 cudynP_proto_init()
 {
-    cudynP_proto_type = cuoo_stdtype_new_hcs(CUDYN_PROTO_KEY_SIZE);
+    cudynP_proto_type = cuoo_stdtype_new_hcs(cuoo_impl_none,
+					     CUDYN_PROTO_KEY_SIZE);
 }

@@ -81,7 +81,7 @@ CU_BEGIN_DECLARATIONS
     CU_SINLINE type_t							\
     cudyn_to_##NAME(cuex_t e)						\
     {									\
-	return *(type_t *)((void *)e + CUOO_HCOBJ_SHIFT);			\
+	return *(type_t *)((void *)e + CUOO_HCOBJ_SHIFT);		\
     }
 
 #define CUDYN_ETYPE_DEFN(NAME, type_t)					\
@@ -90,9 +90,10 @@ CU_BEGIN_DECLARATIONS
 
 #define CUDYN_ETYPE_INIT(NAME, type_t, kind, ffitype)			\
     cudynP_##NAME##_type =						\
-	cudyn_elmtype_new(cuoo_typekind_elmtype_##NAME, sizeof(type_t),\
+	cudyn_elmtype_new(cuoo_typekind_elmtype_##NAME,			\
+			  cudynP_##NAME##_impl, sizeof(type_t),		\
 			  offsetof(struct cudynP_##NAME##_aligntest, x),\
-			  ffitype);					\
+			  ffitype);		\
     cuoo_prop_define_ptr(cuoo_raw_c_name_prop(),			\
 			  cudynP_##NAME##_type,				\
 			  cu_idr_by_cstr(#type_t));
@@ -101,11 +102,6 @@ CU_BEGIN_DECLARATIONS
     CUDYN_ETYPE_DEFN(NAME, type_t)					\
     static void cudynP_##NAME##_print(cuex_t e, FILE *out)		\
     { fprintf(out, format, cudyn_to_##NAME(e)); }
-
-#define CUDYN_ETYPE_INIT_PRINT(NAME, type_t, kind, ffitype)		\
-    CUDYN_ETYPE_INIT(NAME, type_t, kind, ffitype)			\
-    cuoo_prop_condset_ptr(cuoo_raw_print_fn_prop(), cudyn_##NAME##_type(),\
-			   &cudynP_##NAME##_print);
 
 /*!Template to set up function aliases for dynamic implemetation of
  * \a type_t with name \a NAME in terms of \a IMPLNAME. */
@@ -205,8 +201,6 @@ CU_BEGIN_DECLARATIONS
 #define CUDYN_ETYPEARR_INIT CUDYN_ETYPE_INIT
 
 #define CUDYN_ETYPEARR_DEFN_PRINT CUDYN_ETYPE_DEFN_PRINT
-
-#define CUDYN_ETYPEARR_INIT_PRINT CUDYN_ETYPE_INIT_PRINT
 
 /*!Template to set up function aliases for dynamic implementation of
  * \a type_t with name \a NAME in terms of \a IMPLNAME including array

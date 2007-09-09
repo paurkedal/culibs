@@ -25,6 +25,7 @@
 #include <cu/idr.h>
 #include <cu/init.h>
 #include <cuoo/oalloc.h>
+#include <cuoo/intf.h>
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -915,8 +916,24 @@ cu_clop_edef(cu_str_coll_clop, int, cu_str_t x, cu_str_t y)
 
 cuoo_stdtype_t cuP_str_type;
 
+static void
+str_print(cuex_t ex, FILE *out)
+{
+    char const *s = cu_str_to_cstr(cu_str_quote(ex));
+    fprintf(out, "%s", s);
+}
+
+static cu_word_t
+str_impl(cu_word_t intf_number, ...)
+{
+    switch (intf_number) {
+        case CUOO_INTF_PRINT_FN: return (cu_word_t)str_print;
+        default: return CUOO_IMPL_NONE;
+    }
+}
+
 void
 cuP_str_init(void)
 {
-    cuP_str_type = cuoo_stdtype_new();
+    cuP_str_type = cuoo_stdtype_new(str_impl);
 }

@@ -24,7 +24,6 @@ void cudynP_init(void);
 void cuexP_atree_init(void);
 void cuexP_ex_init(void);
 void cuexP_labelling_init(void);
-void cuexP_misc_init(void);
 void cuexP_sig_init(void);
 void cuexP_type_init(void);
 void cuexP_print_init(void);
@@ -47,7 +46,6 @@ cuex_init()
     cudynP_init();
     cuexP_ex_init();
     cuex_oprdefs_init();
-    cuexP_misc_init();
     cuexP_atree_init();
     cuexP_labelling_init();
     cuexP_sig_init();

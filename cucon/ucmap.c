@@ -19,6 +19,7 @@
 #include <cu/memory.h>
 #include <cu/int.h>
 #include <cuoo/halloc.h>
+#include <cuoo/intf.h>
 #include <inttypes.h>
 
 #if cuconP_UCMAP_EXIST_IN_LEFT
@@ -317,6 +318,15 @@ cucon_ucmap_dump(cucon_ucmap_t tree, FILE *out)
     ucmap_dump(tree, 2, out);
 }
 
+static cu_word_t
+ucmap_impl(cu_word_t intf_number, ...)
+{
+    switch (intf_number) {
+	case CUOO_INTF_PRINT_FN: return (cu_word_t)cucon_ucmap_dump;
+	default: return CUOO_IMPL_NONE;
+    }
+}
+
 #if cuconP_UCMAP_ENABLE_HCONS
 cuoo_stdtype_t cuconP_ucmap_type;
 #endif
@@ -325,8 +335,8 @@ void
 cuconP_ucmap_init()
 {
 #if cuconP_UCMAP_ENABLE_HCONS
-    cuconP_ucmap_type =
-	cuoo_stdtype_new_hcs(sizeof(struct cucon_ucmap_s) - CUOO_HCOBJ_SHIFT);
+    cuconP_ucmap_type = cuoo_stdtype_new_hcs(
+	ucmap_impl, sizeof(struct cucon_ucmap_s) - CUOO_HCOBJ_SHIFT);
 #endif
 }
 

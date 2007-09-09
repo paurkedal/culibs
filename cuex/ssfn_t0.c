@@ -18,7 +18,6 @@
 #include <cuex/ex.h>
 #include <cuex/pvar.h>
 #include <cuex/ssfn.h>
-#include <cuex/misc.h>
 #include <cudyn/misc.h>
 #include <cu/idr.h>
 #include <cucon/list.h>

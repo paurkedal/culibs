@@ -17,11 +17,11 @@
 
 #include <cuoo/properties.h>
 #include <cuoo/type.h>
+#include <cuoo/intf.h>
 #include <cu/sref.h>
 
 struct cuoo_prop_s cuooP_raw_c_name_prop;
 struct cuoo_prop_s cuooP_sref_prop;
-struct cuoo_prop_s cuooP_raw_print_fn_prop;
 
 cu_bool_t cuoo_type_print(cuoo_type_t, FILE *);
 
@@ -43,7 +43,7 @@ cuoo_raw_print(cuex_t ex, FILE *out)
     if (cuex_meta_is_type(meta)) {
 	cuoo_type_t type = cuoo_type_from_meta(meta);
 	void (*print)(void *, FILE *)
-	    = cuoo_prop_get_ptr(&cuooP_raw_print_fn_prop, type);
+	    = (void (*)(void *, FILE *))type->impl(CUOO_INTF_PRINT_FN);
 	if (print) {
 	    print(ex, out);
 	    return cu_true;
@@ -61,5 +61,4 @@ cuooP_properties_init()
 {
     cuoo_prop_cct(&cuooP_raw_c_name_prop);
     cuoo_prop_cct(&cuooP_sref_prop);
-    cuoo_prop_cct(&cuooP_raw_print_fn_prop);
 }

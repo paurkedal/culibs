@@ -3,6 +3,7 @@ cuoo_headers = \
 	cuoo/compound.h \
 	cuoo/halloc.h \
 	cuoo/hcobj.h \
+	cuoo/intf.h \
 	cuoo/meta.h \
 	cuoo/oalloc.h \
 	cuoo/properties.h \
@@ -12,6 +13,7 @@ cuoo_headers = \
 
 cuoo_sources = \
 	cuoo/init.c \
+	cuoo/intf.c \
 	cuoo/properties.c \
 	cuoo/prop.c \
 	cuoo/support.c \

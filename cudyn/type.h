@@ -123,7 +123,7 @@ CU_SINLINE cu_bool_t cuoo_type_is_elmtype(cuoo_type_t t)
 
 /*!Create a unique elementary type, of which objects are \a size bytes,
  * require \a alignment bytes alignement and FFI type \a ffitype. */
-cudyn_elmtype_t cudyn_elmtype_new(cuoo_typekind_t kind,
+cudyn_elmtype_t cudyn_elmtype_new(cuoo_typekind_t kind, cuoo_impl_t impl,
 				  cu_offset_t size, cu_offset_t alignment,
 				  ffi_type *ffitype);
 
