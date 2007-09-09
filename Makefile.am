@@ -118,6 +118,7 @@ EXTRA_DIST		+= cudyn/cudyn.am cudyn/misc.doxy.sh
 
 nobase_culibs_HEADERS = \
 	$(cu_headers) \
+	$(cuoo_headers) \
 	$(cucon_headers) \
 	$(cugra_headers) \
 	$(cuflow_headers) \
@@ -154,6 +155,7 @@ norun_check_programs = \
 
 doxyfiles = doc/main.doxy \
 	$(cu_doxyfiles) \
+	$(cuoo_doxyfiles) \
 	$(cucon_doxyfiles) \
 	$(cuex_doxyfiles)
 built_doxyfiles = \

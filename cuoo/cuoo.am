@@ -1,4 +1,4 @@
-cuoo_header = \
+cuoo_headers = \
 	cuoo/fwd.h \
 	cuoo/compound.h \
 	cuoo/halloc.h \
@@ -23,6 +23,8 @@ if enable_gc_disclaim
 else
     cuoo_sources += cuoo/hcons_wp.c
 endif
+
+cuoo_doxyfiles =
 
 # FIXME
 #cuoo_check_programs = \

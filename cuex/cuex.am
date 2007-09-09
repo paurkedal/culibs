@@ -72,8 +72,8 @@ cuex_built_sources = \
 
 cuex_built_doxyfiles = \
 	cuex/oprdefs.h
-cuex_doxyfiles = \
-	cuex/cuex.doxy
+
+cuex_doxyfiles =
 
 bin_PROGRAMS += \
 	cuex/cuex-otab

@@ -7,12 +7,12 @@ body {
 	margin-top: 0;
 }
 h2, h3, h4, h5, h6 {
-	color: col_dark0;
+	color: COL0_DARK;
 	font-weight: bold;
 }
-h2 { border-bottom: solid thin col_dark0; }
+h2 { border-bottom: solid thin COL0_DARK; }
 a {
-	color: col_dark1;
+	color: COL1_DARK;
 	text-decoration: none;
 }
 a:hover {
@@ -21,7 +21,7 @@ a:hover {
 ul { list-style: square; }
 
 address, ul.crumbs {
-	background-color: col_dark0;
+	background-color: COL0_DARK;
 	color: white;
 	margin-left: -8mm;
 	margin-right: -8mm;
@@ -47,5 +47,26 @@ ul.crumbs li:before {
 }
 ul.crumbs li:first-child:before {
 	content: "";
+}
+table.normal {
+	margin: 0;
+	margin-left: 8mm;
+	margin-right: 8mm;
+	padding: 0;
+	border-collapse: collapse;
+	border: none;
+}
+table.normal tr { margin: 0; padding: 0; }
+table.normal td, table.normal th {
+	margin: 0;
+	padding: 0;
+	padding-left: 1mm;
+	padding-right: 1mm;
+	border: thin solid COL0_MEDI;
+	vertical-align: top;
+}
+table.normal th {
+	background-color: COL0_LIGHT;
+	text-align: left;
 }
 dnl vim: filetype=css

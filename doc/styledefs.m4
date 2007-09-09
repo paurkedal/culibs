@@ -1,5 +1,5 @@
 changecom(/*, */)dnl
-define(`col_dark0', `#2e5566')dnl
-define(`col_dark0l', `#447799')dnl
-define(`col_light0', `#dfe8ef')dnl
-define(`col_dark1', `#990000')dnl
+define(`COL0_DARK', `#2e5566')dnl
+define(`COL0_MEDI', `#6e8894')dnl
+define(`COL0_LIGHT', `#dfe8ef')dnl
+define(`COL1_DARK', `#990000')dnl

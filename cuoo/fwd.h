@@ -21,7 +21,7 @@
 #include <cu/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuoo_fwd_h cuoo/fwd.h:
+/*!\defgroup cuoo_fwd_h cuoo/fwd.h: Forward Declarations
  *@{\ingroup cuoo_mod */
 
 typedef struct cuoo_prop_s		*cuoo_prop_t;

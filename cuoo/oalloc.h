@@ -22,12 +22,12 @@
 #include <cu/memory.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_oalloc_h cu/oalloc.h:
- *@{\ingroup cu_mod */
+/*!\defgroup cuoo_oalloc_h cuoo/oalloc.h: Object Allocation Functions
+ *@{\ingroup cuoo_mod */
 
 #define CUP_OBJ_EXTRA_BYTES 0
 
-#define CUOO_OBJ_ALLOC_SIZEG(struct_size)					\
+#define CUOO_OBJ_ALLOC_SIZEG(struct_size)				\
     (((struct_size) + sizeof(cuex_meta_t)				\
       + CU_GRAN_SIZE - 1 + CUP_OBJ_EXTRA_BYTES)/CU_GRAN_SIZE)
 

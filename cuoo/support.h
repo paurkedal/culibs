@@ -21,7 +21,7 @@
 #include <cuoo/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuoo_support_h cuoo/support.h:
+/*!\defgroup cuoo_support_h cuoo/support.h: Misc Support for Dynamic Objects
  *@{\ingroup cuoo_mod */
 
 cu_hash_t cuoo_obj_hash_1w(void *);

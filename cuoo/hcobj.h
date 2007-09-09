@@ -23,8 +23,8 @@
 #include <atomic_ops.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_hcobj_h cu/hcobj.h: Hash-consed Object Headers
- *@{\ingroup cu_mod
+/*!\defgroup cuoo_hcobj_h cuoo/hcobj.h: Hash-consed Object Headers
+ *@{\ingroup cuoo_mod
  * This header defines a macro \ref CUOO_HCOBJ to put right after the opening
  * brace of a hash-consed object struct:
  * \code

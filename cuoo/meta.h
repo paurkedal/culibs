@@ -21,7 +21,7 @@
 #include <cuoo/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuoo_meta_h cuoo/meta.h:
+/*!\defgroup cuoo_meta_h cuoo/meta.h: Tree Codes
  *@{\ingroup cuoo_mod */
 
 /* Meta Descriptor Format

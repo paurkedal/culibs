@@ -1,6 +1,6 @@
 /*!\mainpage Garbage Collected C Libraries
 
-\section synopsis Synopsis
+\section main_synopsis Synopsis
 
 \htmlonly
 <a style='display: float; float: right' href='http://gplv3.fsf.org/'>
@@ -9,10 +9,10 @@
 
 This is a reference manual for the culibs, which is a set of libraries of
 basic (strings, containers) as well as more special-purpose (expressions)
-types and functions.  It uses the
+types and functions.  A distinguishing feature is that all memory returned
+to the client is allocated with the
 <a href="http://www.hpl.hp.com/personal/Hans_Boehm/gc/">Boehm-Demers-Weiser
-Conservative Garbage Collector</a> for all dynamically allocated memory
-which is returned to the client.
+Conservative Garbage Collector</a>.
 
 The libraries are separated into modules, which are the basis for organising
 the documentation.  So, a good starting point is the “Modules” section.  You
@@ -20,46 +20,101 @@ can completely ignore the “Data Structures” section, since all structure
 members are to be considered internal.  Also, all identifiers which starts
 with <tt>cu*P_</tt> are internal.
 
-\subsection why_gc Why Garbage Collection?
+These libraries are licensed under the GNU General Public License, version 3 or
+later.
+
+\subsection main_why_gc Why Garbage Collection?
 
 General considerations on garbage collection for C are covered in
 <a href="http://www.hpl.hp.com/personal/Hans_Boehm/gc/issues.html">Advantages
-and Disadvantages of Conservative Garbage Collection</a>.  Of particular
-interest here is the use in the expression library.  Expressions are big trees
-of small objects.  This is a case when garbage collection performs best, esp
-if reference-counting is the alternative.  Garbage collection also allows
-hash-consing, which is used here for expressions.
+and Disadvantages of Conservative Garbage Collection</a>.
+Of particular interest here is it's application to the expression library.
+Expressions are big trees of small objects, and this is precisely the case
+where garbage collection excels.
+In addition it allows the use of hash-consing, which is used extensively in the
+expression library.
 
-\subsection top_modules Toplevel Modules
+\section main_top_modules Status of Top-Level Modules
+
+Most of these libraries is still to be considered a <b>preview</b>, since as they
+are subject to API changes.  Roughly the status of various components are
+
+<table class="normal">
+  <tr><th>component</th>	<th>status</th></tr>
+  <tr><td>\ref cu_mod</td>	<td>beta</td></tr>
+  <tr><td>\ref cucon_mod</td>	<td>beta</td></tr>
+  <tr><td>\ref cuos_mod</td>	<td>beta</td></tr>
+  <tr><td>\ref cuoo_mod</td>	<td>unstable API</td></tr>
+  <tr><td>\ref cugra_mod</td>	<td>unstable API</td></tr>
+  <tr><td>\ref cudyn_mod</td>	<td>deprecated, may be removed</td></tr>
+  <tr><td>\ref cuex_mod</td>	<td>unstable API</td></tr>
+  <tr><td>\ref cuflow_mod</td>	<td>experimental</td></tr>
+</table>
+
+\section main_deps Requirements
+
+The author has only tested these libraries on Linux systems.
+The aim is to support modern POSIX systems.
+In addition to the OS libraries, you need
+
+<table class="normal">
+  <tr>
+    <th>libary (components)</th>
+    <th>internal deps</th>
+    <th>external deps</th>
+  </tr>
+  <tr>
+    <td><tt>libcubase.la</tt> (cu, cucon, cuoo)</td>
+    <td></td>
+    <td>libatomic_ops<br>BDW-GC<br>optional: libunwind</td>
+  </tr>
+  <tr>
+    <td><tt>libcuos.la</tt> (cuos)</td>
+    <td><tt>libcubase.la</tt></td>
+    <td></td>
+  <tr>
+    <td><tt>libcuflow.la</tt> (cuflow)</td>
+    <td><tt>libcubase.la</tt></td>
+    <td><tt>librt.so</tt> (system lib)</td>
+  </tr>
+  <tr>
+    <td><tt>libcugra.la</tt> (cugra)</td>
+    <td><tt>libcubase.la</tt></td>
+    <td>optional: BuDDY</td>
+  </tr>
+  <tr>
+    <td><tt>libcuex.la</tt> (cuex, cudyn)</td>
+    <td><tt>libcubase.la</tt><br><tt>libcugra.la</tt></td>
+    <td>libffi</td>
+  </tr>
+</table>
+
+More information about the external libraries:
 
 <ul>
-  <li>\ref cu_mod</li>
-  <li>\ref cucon_mod</li>
-  <li>\ref cugra_mod</li>
-  <li>\ref cudyn_mod</li>
-  <li>\ref cuex_mod</li>
-  <li>\ref cuos_mod</li>
-</ul>
-
-\subsection status Status
-
-This is still <b>preview</b>/<b>alpha</b>, esp. since some parts are still
-subject to API changes.
-
-<ul>
-  <li>The most stable parts are cu and cucon.</li>
-
-  <li>The typeing for aggregates defined in cudyn is subject to removal, and
-  the whole namespace may be merged into cuex.</li>
-
-  <li>Some of the cuex API is still in flux.  The type expressions are work in
-  progress, including some predefined operators.  Need a good way to annotate
-  expressions.  The tree-node cache area will be reconsidered.  Handling of
-  recursive trees are subject to change.</li>
+  <li>
+<a href="http://www.hpl.hp.com/research/linux/atomic_ops/index.php4">
+libatomic_ops</a> comes bundled with gc-7.0, but if you
+install it in advance, gc will use the installed one.</li>
+  <li>
+The <a href="http://www.hpl.hp.com/personal/Hans_Boehm/gc/">
+Boehm-Demers-Weiser Conservative Garbage Collector</a>:
+If you intend to do any serious work with expressions (\ref cuex_mod "cuex"
+and \ref cudyn_mod "cudyn" modules), consider recompiling the collector with
+the disclaim-patch mentioned under \ref main_download.
+This will significantly speed up hash-consing, but it is not strictly
+required.</li>
+  <li><tt>libffi</tt> is part of
+<a href="http://gcc.gnu.org/">GCC</a>, but it is not installed by
+default.  Check if your distribution has it, it will save you some work.
+Also, there is an <a href="http://sources.redhat.com/libffi/">
+older separate version</a> which works on <tt>x86</tt>, but not on
+<tt>x86_64</tt>.
+  </li>
 </ul>
 
 
-\section compiling Compiling and Linking Against the Libraries
+\section main_compiling Compiling and Linking Against the Libraries
 
 The libraries ship with a pkg-config specification for each module.
 So, if you use Autoconf, add
@@ -81,9 +136,9 @@ gcc `pkg-config --libs cu cucon cuos` -o test test.o
 </pre>
 
 
-\section obtain Getting the Libraries
+\section main_obtain Getting the Libraries
 
-\subsection download Download
+\subsection main_download Download
 
 In the <a href="/download/">download directory</a> you will find
 
@@ -104,89 +159,64 @@ In the <a href="/download/">download directory</a> you will find
   </li>
 </ul>
 
-\subsection installing Build and Install
+\subsection main_installing Build and Install
 
-You will need (the development packages for)
-
-<ul>
-  <li>
-the <a href="http://www.hpl.hp.com/personal/Hans_Boehm/gc/">
-Boehm-Demers-Weiser Conservative Garbage Collector</a>
-If you intend to do any serious work with expressions (\ref cuex_mod "cuex"
-and \ref cudyn_mod "cudyn" modules), consider recompiling the collector with
-the reclaim notification patch mentioned above.
-This will significantly speed up hash-consing, but it is not strictly
-required.</li>
-  <li>
-<a href="http://www.hpl.hp.com/research/linux/atomic_ops/index.php4">
-libatomic_ops</a>.  This comes bundled with gc-7.0(alpha?), but if you
-install it in advace, gc will use the installed one.</li>
-  <li><tt>libffi</tt>. This is part of
-<a href="http://gcc.gnu.org/">GCC</a>, but it is not installed by
-default.  Check if your distribution has it, it will save you some work.
-Also, there is an <a href="http://sources.redhat.com/libffi/">
-older separate version</a> which works on <tt>x86</tt>, but not on
-<tt>x86_64</tt>.
-  </li>
-</ul>
-
-From the unpacked source directory:
+After installing the above dependencies, unpack the source tarball, and
+from the top-level directory, type
 
 <pre>
 ./configure
 make all install
 </pre>
 
-\subsection packaging Packaging
-
-If you are a package manager use <tt>make install DESTDIR=\e destdir</tt>
-to install into a temporary location \e destdir.  With
+If you only want to build the base libraries, replace the first command
+with
 
 <pre>
-./configure --prefix=/usr
-make
-make install DESTDIR=\e destdir
+./configure --enable-modules=cu,cucon,cuos
 </pre>
 
-files will be installed under
-
-<ul>
-  <li><tt><i>destdir</i>/usr/include/culibs-\@VERSION\@</tt></li>
-  <li><tt><i>destdir</i>/usr/lib/libcu*.la</tt></li>
-  <li><tt><i>destdir</i>/usr/lib/libcu*.so*</tt></li>
-  <li><tt><i>destdir</i>/usr/lib/libcu*.a</tt> if configured with --enable-static</li>
-  <li><tt><i>destdir</i>/usr/lib/pkgconfig/cu*.pc</tt></li>
-</ul>
-
-but you should check in case this document is out of date.
-
+This will excuse you from installing the extra requirements of the other
+components.
 */
 
 /*!\defgroup cu_mod cu: Common Infrastructure
- * Part of <tt>libcubase.la</tt>. */
+ * This module provieds basic infrastructure used by the other modules.
+ */
 
 /*!\defgroup cucon_mod cucon: Containers
- * Part of <tt>libcubase.la</tt>. */
+ * This module provides various linear, associative, and some specialised
+ * container types.
+ */
 
-/*!\defgroup cugra_mod cugra: A Small Graph Library */
+/*!\defgroup cuoo_mod cuoo: Dynamic Objects and Operations
+ * This module defines a unified format of operations for building expression
+ * trees, and of dynmaically typed objects.
+ * This module also provides hash-consed allocation primitives.
+ * Further support for expression trees are provided by \ref cuex_mod.
+ */
 
-/*!\defgroup cuos_mod cuos: Interface to the Operating System */
+/*!\defgroup cugra_mod cugra: A Small Graph Library
+ * There are many more comprehensive graph libraries available, this is
+ * only to support some graph-based algorithm in \ref cuex_mod.
+ */
+
+/*!\defgroup cuos_mod cuos: Interface to the Operating System
+ */
 
 /*!\defgroup cuflow_mod cuflow: Control Flow */
-
-/*!\defgroup cudyn_mod cudyn: Dynmaically Typed Objects
- * Part of <tt>libcuex.la</tt>.
- *
- * \note
- * The typing infrastructure for aggregates will be obsoleted by the use of
- * expression treees (in cuex).  As a consquence, there will be litte left in
- * this namespace.  Therefore, this module may be merged into cuex, implying
- * systematic name changes.
- */
 
 /*!\defgroup cuex_mod cuex: Expressions
  * Part of <tt>libcuex.la</tt>.
  *
  * \note
  * Some of the APIs are unstable.
+ */
+
+/*!\defgroup cudyn_mod cudyn: Dynamic Typing
+ * \deprecated
+ * The typing infrastructure for aggregates will be obsoleted by the use of
+ * expression trees (in cuex).  As a consquence, there will be little left in
+ * this namespace.  Therefore, this module may be merged into cuex, implying
+ * systematic name changes.
  */

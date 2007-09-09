@@ -26,8 +26,8 @@
 
 CU_BEGIN_DECLARATIONS
 
-/*!\defgroup cu_hcons_h cu/halloc.h: Hash-Consing Allocation
- * @{\ingroup cu_mod */
+/*!\defgroup cuoo_hcons_h cuoo/halloc.h: Hash-Consing Allocation
+ * @{\ingroup cuoo_mod */
 
 #define CUOO_HCOBJ_KEY_SIZEW(struct_size) \
     (((struct_size) + CU_WORD_SIZE - 1 - CUOO_HCOBJ_SHIFT)/CU_WORD_SIZE)

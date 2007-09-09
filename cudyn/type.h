@@ -31,7 +31,7 @@
 #endif
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuoo_type_h cudyn/type.h: Dynamic Types
+/*!\defgroup cudyn_type_h cudyn/type.h: Dynamic Types
  * @{ \ingroup cudyn_mod */
 
 struct cudyn_inltype_s

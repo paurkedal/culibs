@@ -22,7 +22,7 @@ div.qindex {
 div.tabs {
 	margin: 0;  margin-left: -8mm; margin-right: -8mm;
 	padding: 0; padding-left: 8mm; padding-right: 8mm;
-	background-color: col_dark0;
+	background-color: COL0_DARK;
 	color: white;
 }
 div.tabs ul {
@@ -113,11 +113,11 @@ dnl div.memdoc
 dnl
 dnl Not used: .memtemplate, .memnav
 div.memproto {
-	border-top: solid 1px col_dark0;
-	border-left: solid 1mm col_dark0;
+	border-top: solid 1px COL0_DARK;
+	border-left: solid 1mm COL0_DARK;
 	margin-left: -3mm;  padding-left: 2mm;
 	margin-right: -3mm; padding-right: 3mm;
-	background-color: col_light0;
+	background-color: COL0_LIGHT;
 }
 table.memname {
 	font-family: monospace;
