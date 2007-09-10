@@ -20,7 +20,6 @@
 
 #include <cuoo/hcobj.h>
 #include <cuoo/meta.h>
-#include <cu/fwd.h>
 #include <cu/thread.h>
 #include <cu/inherit.h>
 #include <cu/conf.h>

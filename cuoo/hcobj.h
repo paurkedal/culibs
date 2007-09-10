@@ -18,7 +18,7 @@
 #ifndef CUOO_HCOBJ_H
 #define CUOO_HCOBJ_H
 
-#include <cu/fwd.h>
+#include <cuoo/fwd.h>
 #include <cu/conf.h>
 #include <atomic_ops.h>
 

@@ -26,6 +26,7 @@ CU_BEGIN_DECLARATIONS
 
 typedef struct cuex_fpvar_s	*cuex_fpvar_t;		/* fpvar.h */
 typedef struct cuex_gvar_s	*cuex_gvar_t;		/* gvar.h */
+typedef struct cuex_opn_s	*cuex_opn_t;		/* opn.h */
 typedef struct cuex_oprinfo_s	*cuex_oprinfo_t;	/* oprinfo.h */
 typedef struct cuex_pvar_s	*cuex_pvar_t;		/* pvar.h */
 typedef struct cuex_subst_s	*cuex_subst_t;		/* subst.h */

@@ -79,20 +79,6 @@ CU_BEGIN_DECLARATIONS
 #define cu_expect_false(e) cu_expect(e, cu_false)
 #define cu_expect_true(e) cu_expect(e, cu_true)
 
-/* The CUCONF_META_IN_OBJECT_STRUCT is not implemented, and may be dropped,
- * but it is still informative to prefix structs with dynamic-typed
- * constructors with CUOO_OBJ. */
-#ifdef CUCONF_META_IN_OBJECT_STRUCT
-#  define CUOO_OBJ cuex_meta_t cuex_meta_field;
-#  define CUOO_OBJ_SHIFT sizeof(cuex_meta_t)
-#  define CUOO_OBJ_NEEDED 1
-#  define CUOO_OBJ_INIT 0
-#else
-#  define CUOO_OBJ
-#  define CUOO_OBJ_SHIFT 0
-#  define CUOO_OBJ_INIT
-#endif
-
 
 /* Scalar Types
  * ------------ */
@@ -149,19 +135,10 @@ typedef unsigned int cu_count_t;
 typedef int cu_countdiff_t;
 #endif
 
-typedef uintptr_t cuex_meta_t;
-#define CUEX_META_C(c) CU_UINTPTR_C(c)
-#define CUEX_META_SIZE CUCONF_SIZEOF_INTPTR_T
-
 
 /* Compound Types
  * -------------- */
 
-typedef void			*cuex_t;		/* dyn.h */
-typedef struct cuex_opn_s	*cuex_opn_t;		/* dyn.h */
-typedef unsigned int		cuoo_propkey_t;	/* dyn.h */
-typedef struct cuoo_stdtype_s	*cuoo_stdtype_t;	/* dyn.h */
-typedef struct cuoo_type_s	*cuoo_type_t;		/* dyn.h */
 typedef struct cu_idr_s		*cu_idr_t;		/* idr.h */
 typedef struct cu_sref_s	*cu_sref_t;		/* srcref.h */
 typedef struct cu_str_s		*cu_str_t;		/* str.h */

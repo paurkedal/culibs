@@ -19,7 +19,6 @@
 #define CUOO_HALLOC_H
 
 #include <cuoo/oalloc.h>
-#include <cu/fwd.h>
 #include <cu/conf.h>
 #include <cu/clos.h>
 #include <cu/wordarr.h>

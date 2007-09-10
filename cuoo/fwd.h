@@ -24,10 +24,31 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_fwd_h cuoo/fwd.h: Forward Declarations
  *@{\ingroup cuoo_mod */
 
-typedef cu_word_t (*cuoo_impl_t)(cu_word_t, ...);
+typedef uintptr_t cuex_meta_t;
+#define CUEX_META_C(c) CU_UINTPTR_C(c)
+#define CUEX_META_SIZE CUCONF_SIZEOF_INTPTR_T
 
-typedef struct cuoo_prop_s		*cuoo_prop_t;
-typedef struct cuoo_intf_compound_s	*cuoo_intf_compound_t;
+/* The CUCONF_META_IN_OBJECT_STRUCT is not implemented, and may be dropped,
+ * but it is still informative to prefix structs with dynamic-typed
+ * constructors with CUOO_OBJ. */
+#ifdef CUCONF_META_IN_OBJECT_STRUCT
+#  define CUOO_OBJ cuex_meta_t cuex_meta_field;
+#  define CUOO_OBJ_SHIFT sizeof(cuex_meta_t)
+#  define CUOO_OBJ_NEEDED 1
+#  define CUOO_OBJ_INIT 0
+#else
+#  define CUOO_OBJ
+#  define CUOO_OBJ_SHIFT 0
+#  define CUOO_OBJ_INIT
+#endif
+
+typedef void			*cuex_t;
+typedef struct cuoo_prop_s	*cuoo_prop_t;		/* prop.h */
+typedef cu_word_t (*cuoo_impl_t)(cu_word_t, ...);	/* type.h */
+typedef unsigned int		cuoo_propkey_t;		/* type.h */
+typedef struct cuoo_stdtype_s	*cuoo_stdtype_t;	/* type.h */
+typedef struct cuoo_type_s	*cuoo_type_t;		/* type.h */
+typedef struct cuoo_intf_compound_s *cuoo_intf_compound_t; /* compound.h */
 
 void cuoo_init(void);
 
