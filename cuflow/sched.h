@@ -66,6 +66,9 @@ cuflow_sched_call(cu_clop0(fn, void), AO_t *cdisj)
     cu_call0(fn);
 }
 
+/*!Same as \ref cuflow_sched_call, except that after \a fn has been called, \a
+ * cdisj will be decremented by one.  Use this variant if you initialise \a
+ * cdisj in advance to the number of pending calls. */
 CU_SINLINE void
 cuflow_sched_call_sub1(cu_clop0(fn, void), AO_t *cdisj)
 {

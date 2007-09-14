@@ -56,8 +56,8 @@ typedef cu_clop(cuflow_promise_initiator_t, void, cuflow_promise_t);
 /*!When this state or a higher state is written to the promise by the client
  * implementation, which may be either the initiator or a job submitted by it,
  * the reference to the work queue will be unlinked from the promise, so that
- * it can be freed by the collector when it becomes empty (though it should
- * probably be empty already). */
+ * it can be freed by the collector when it becomes empty (though it will
+ * usually already be empty). */
 #define cuflow_promise_state_fulfilled 0x8000
 
 struct cuflow_promise_s

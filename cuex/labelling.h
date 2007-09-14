@@ -23,7 +23,7 @@
 #include <cuoo/type.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuex_labelling_h cuex/labelling.h:
+/*!\defgroup cuex_labelling_h cuex/labelling.h: Association from Constants to Expressions
  *@{\ingroup cuex_mod */
 
 extern cuoo_stdtype_t cuexP_labelling_type;
