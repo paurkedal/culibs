@@ -91,7 +91,7 @@ extern pthread_mutex_t cuflowP_g_mutex;
     CONT->up = st->onstack_cont;					\
     CONT->stack_data = 0;
 
-cu_clos_edcl(cuflowP_call_cntn,
+cu_clos_edec(cuflowP_call_cntn,
 	     cu_prot(void, void *arg_ptr),
     ( struct cuflow_continuation_s cont;
       void *result_ptr;

@@ -44,9 +44,9 @@ cu_clos_def(testfn0,
     return i*self->k + j*self->l;
 }
 
-cu_clos_dcl(testfn1,
-	     cu_prot(int, char *s),
-	     (int n;));
+cu_clos_dec(testfn1,
+	    cu_prot(int, char *s),
+	    (int n;));
 
 cu_clos_fun(testfn1, cu_prot(int, char *s))
 {

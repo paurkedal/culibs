@@ -97,8 +97,6 @@ CU_BEGIN_DECLARATIONS
     cuP_clos_ref_cast(proto, cu_clos_ref(clos))
 #define cuP_clos_ref_cast(result_t, alops, argl, fn) ((result_t (*)argl)(fn))
 
-#define cu_clos_from_clptr(clptr) ((void *)(clptr))
-
 #define cuP_clos_formal(clos_s, alops, argl)				\
     alops##prepend(argl, cuP_CLSCT(clos_s) *cuP_dummyarg)
 

@@ -122,7 +122,7 @@ CU_SINLINE cu_bool_t cuex_monoid_it_is_end(cuex_monoid_it_t *it)
  * to the next. */
 cuex_t cuex_monoid_it_read(cuex_monoid_it_t *it);
 
-cu_clos_edcl(cuex_monoid_factor_src,
+cu_clos_edec(cuex_monoid_factor_src,
 	     cu_prot(size_t, cuex_t *buf_arr, size_t buf_size),
     ( struct cuex_monoid_it_s it; ));
 

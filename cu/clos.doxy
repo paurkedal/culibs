@@ -20,7 +20,7 @@
  * type hacks, so here is a usage-based documentation instead of the
  * usual function-centered documentation.
  *
- * \section clos_clptr Closure Pointers
+ * \section clos_clop Closure Pointers
  *
  * A closure pointer (clop) is the modified function pointer type, where the
  * closure data structure is abstracted out.  A clop \e f is declared with
@@ -35,7 +35,7 @@
  * result = cu_call0(f);  // if no arguments
  * \endcode
  *
- * \subsection clos_clptr_examples Examples
+ * \subsection clos_clop_examples Examples
  *
  * As a callback for buffered reading, the type \c reader_t defined as
  * \code
@@ -118,7 +118,7 @@
  * If you want to return the closure from the function it is created
  * you better allocate it dynamically:
  * \code
- * typedef int cu_clptr0(counter_t)();
+ * typedef int cu_clop0(counter_t);
  *
  * cu_clos_def(counter_callback,
  *     ( int value; ))
@@ -200,9 +200,56 @@
  * </ul>
  */
 
-/*!Starts the definition of a closure.  It is followed by the actual function
- * body. */
-#define cu_clos_def(PREFIX, PROTOTYPE, LOCAL_VARIABLES) ...
+/*!Starts the definition of a static closure.  It is followed by the actual
+ * function body in the usual form of a brace-enclosed block.
+ * The \a PROTOTYPE must be specified with \ref cu_prot or \ref cu_prot0, and
+ * must contain parameter names, which are local to the function body.
+ * \a STRUCT_BODY is the body of the closure struct, enclosed in parentheses.
+ * The function body should start with \ref cu_clos_self(\a PREFIX)
+ * declaration, which makes sure a local variable \a self is declared and
+ * initialised to point to the closure struct.
+ *
+ * The following example defines a closure for printing comma-separated
+ * integers.
+ * \code
+ * cu_clos_def(print_int, cu_prot(void, int x), (FILE *out; int done_cnt;))
+ * {
+ *     cu_clos_self(print_int);
+ *     fprintf(self->out, "%s%d", self->done_cnt++ == 0? "" : ", ", x);
+ * }
+ *
+ * int main()
+ * {
+ *     print_int_t f;
+ *     f.out = stdout;
+ *     f.done_cnt = 0;
+ *     cu_call(print_int_prep(&f), 4);
+ *     cu_call(print_int_ref(&f), 5);
+ *     cu_call(print_int_ref(&f), 6);
+ *     fputc('\n', stdout);
+ *     return 0;
+ * }
+ * \endcode
+ */
+#define cu_clos_def(PREFIX, PROTOTYPE, STRUCT_BODY) ...
+
+/*!Forward declaration of a static closure struct.  The arguments are the same
+ * as \ref cu_clos_def, but no function body shall follow.  The function itself
+ * is defined with \ref cu_clos_fun. */
+#define cu_clos_dec(PREFIX, PROTOTYPE, STRUCT_BODY) ...
+
+/*!Define the function body of a closure which was forward declared with \ref
+ * cu_clos_dec.  See \ref cu_clos_def for details on the function body. */
+#define cu_clos_fun(PREFIX, PROTOTYPE)
+
+/*!Forward declaration of an external closure struct.  The arguments are the
+ * same as \ref cu_clos_def, but no function body shall follow.  The function
+ * itself is defined with \ref cu_clos_efun. */
+#define cu_clos_edec(PREFIX, PROTOTYPE, STRUCT_BODY) ...
+
+/*!Provide the function body of a closure which was forward declared with \ref
+ * cu_clos_edec.  See \ref cu_clos_def for details on the function body. */
+#define cu_clos_efun(PREFIX, PROTOTYPE)
 
 /*!Use this in the start of a closure body to declare and assign a variable
  * \e self as a pointer to a struct containing the local variables of the
@@ -247,7 +294,7 @@ typedef IMPLEMENTATION_DEFINED CLOS_clop_t;
  * \a result_type and argument declarations \a arg_decl_list which may
  * optionally contain argument names.  Use \ref cu_clop0 if \e N is 0.
  * You can add linkage or \c typedef in front of this declaration.
- * When used in a cast, you can drop the \a clop, but leaving the comma, e g
+ * When used in a cast, you can drop the \a clop, but leaving the comma, eg
  * <tt>(cu_clop(, void *, void *))equal</tt>. */
 #define cu_clop(clop, result_type, arg_decl_list...) ...
 

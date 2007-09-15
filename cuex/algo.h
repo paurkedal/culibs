@@ -193,12 +193,12 @@ int cuex_free_vars_count(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl);
 cuex_t cuex_outmost_quantify_vars(cuex_meta_t opr, cucon_pset_t vars, cuex_t e);
 
 /* Insert ex into accum and return true. */
-cu_clos_edcl(cuex_pset_curried_insert_ex,
+cu_clos_edec(cuex_pset_curried_insert_ex,
 	     cu_prot(cu_bool_t, cuex_t ex),
     ( cucon_pset_t accu; ));
 
 /* Erase ex from accum and return true. */
-cu_clos_edcl(cuex_pset_curried_erase_ex,
+cu_clos_edec(cuex_pset_curried_erase_ex,
 	     cu_prot(cu_bool_t, cuex_t ex),
     ( cucon_pset_t accu; ));
 

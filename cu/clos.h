@@ -38,31 +38,25 @@ CU_BEGIN_DECLARATIONS
 /* The definition of a variant must provide
  *
  *     cuP_clos_formal(clos_s, alops, argl)
- *	   Return the formal argument list, given
+ *         Expands to the formal argument list, given
  *             'clos_s'	the struct name of the closure
  *             'alops'	the prefix to the argument list macros, either
- *			'cuPP_argl_' or 'cuPP_argl0_'.
+ *                      'cuPP_argl_' or 'cuPP_argl0_'.
  *             'argl'	the formal argument list.
- *
- *     cu_clptr(var)
- *     cu_clptr0(var)
- *     cu_clop_null
- *     cu_clop_is_null(clptr)
- *
- *     cu_call(clptr, args...)
- *     cu_call0(clptr)
- *
  *     cuP_clos_base(clos_s, result_t, alops, argl)
- *     cu_clos_cct(clos, PFX)
+ *     cuP_clos_cct(clos, fn)
  *     cuP_clos_ref(clos)
- *     cu_clos_from_clptr(clptr)
  *     cuP_clos_arg_dcln(clos_s, var)
  *
- *     cu_func_ref(name, proto)
- *     cu_func_decl_e(name, proto)
- *     cu_func_init_e(name, proto)
- *     cu_func_decl(name, proto)
- *     cu_func_init(name, proto)
+ *     cu_clop_null
+ *     cu_clop_is_null(clptr)
+ *     cu_clop_def(clop, res_t, argl...)
+ *     cu_clop_def0(clop, res_t)
+ *     cu_clop_edef(clop, res_t, argl...)
+ *     cu_clop_edef0(clop, res_t)
+ *
+ *     cu_call(clop, args...)
+ *     cu_call0(clop)
  */
 #include <cu/conf.h>
 #define CU_CLOS_VARIANT_GENERIC	1
@@ -113,24 +107,24 @@ CU_BEGIN_DECLARATIONS
 
 /*!Forward declare and define closure struct for a closure with static
  * linkage. */
-#define cu_clos_dcl(PFX, proto, cargs) cuP_clos_decl(PFX, proto, cargs)
-#define cuP_clos_decl(PFX, result_t, alops, argl, cargs)		\
+#define cu_clos_dec(PFX, proto, cargs) cuP_clos_dec(PFX, proto, cargs)
+#define cuP_clos_dec(PFX, result_t, alops, argl, cargs)		\
     cuP_clos_common(PFX, static, result_t, alops, argl, cargs)
 
 /*!Provide the function definition for a closure which was previously
- * declared with \ref cu_clos_dcl. */
+ * declared with \ref cu_clos_dec. */
 #define cu_clos_fun(PFX, proto) cuP_clos_fun(PFX, proto)
 #define cuP_clos_fun(PFX, result_t, alops, argl)			\
     result_t PFX##_fn cuP_clos_formal(PFX##_s, alops, argl)
 
 /*!Forward declare and define closure struct for a closure with extern
  * linkage. */
-#define cu_clos_edcl(PFX, proto, cargs) cuP_clos_edecl(PFX, proto, cargs)
+#define cu_clos_edec(PFX, proto, cargs) cuP_clos_edecl(PFX, proto, cargs)
 #define cuP_clos_edecl(PFX, result_t, alops, argl, cargs)		\
     cuP_clos_common(PFX, extern, result_t, alops, argl, cargs)
 
 /*!Provide the function definition for a closure which was previously
- * declared with \ref cu_clos_edcl. */
+ * declared with \ref cu_clos_edec. */
 #define cu_clos_efun(PFX, proto) cuP_clos_efun(PFX, proto)
 #define cuP_clos_efun(PFX, result_t, alops, argl)			\
     result_t PFX##_fn cuP_clos_formal(PFX##_s, alops, argl)
@@ -138,7 +132,7 @@ CU_BEGIN_DECLARATIONS
 /*!Define a closure (function and struct) with static linkage which has
  * no previous forward declaration. */
 #define cu_clos_def(PFX, proto, cargs)					\
-    cuP_clos_decl(PFX, proto, cargs)					\
+    cuP_clos_dec(PFX, proto, cargs)					\
     cuP_clos_fun(PFX, proto)
 
 #define cu_prot(res_t, argl...) res_t, cuPP_argl_, (argl)

@@ -69,14 +69,13 @@ CU_BEGIN_DECLARATIONS
 #else
 #  define cuP_clos_ref(clos) ((void *)(clos))
 #endif
-#define cu_clos_from_clptr(clptr) ((void *)(clptr))
 
 #define cuP_clos_formal(clos_s, alops, argl) \
 	alops##append(argl, struct clos_s *cuP_clarg)
 #define cuP_clos_arg_dcln(clos_s, var) struct clos_s *var = cuP_clarg
 
 #define cuP_clop_def(PFX, linkage, res_t, alops, argl)			\
-    cuP_clos_decl(PFX, res_t, alops, argl, ())				\
+    cuP_clos_dec(PFX, res_t, alops, argl, ())				\
     static PFX##_t PFX##__clos = {					\
 	(res_t (*)alops##append(argl, void *))PFX##_fn			\
     };									\
@@ -98,13 +97,10 @@ CU_BEGIN_DECLARATIONS
 #define cuP_clop(fn, result_t, alops, argl)			\
     result_t (*const *fn)alops##append(argl, void *)
 #define cu_clop_null (NULL)
-#define cu_clop_is_null(clptr) ((clptr) == NULL)
+#define cu_clop_is_null(clop) ((clop) == NULL)
 
-#define cu_call(clptr, args...) ((**(clptr))(args, (void *)(clptr)))
-#define cu_call0(clptr) ((**(clptr))((void *)(clptr)))
-
-#define cuP_clptr_formal(args...) (args, void *)
-#define cuP_clptr_formal0() (void *)
+#define cu_call(clop, args...) ((**(clop))(args, (void *)(clop)))
+#define cu_call0(clop) ((**(clop))((void *)(clop)))
 
 CU_END_DECLARATIONS
 
