@@ -15,10 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+void cuooP_layout_init(void);
 void cuooP_properties_init(void);
 
 void
 cuoo_init()
 {
+    cuooP_layout_init();
     cuooP_properties_init();
 }

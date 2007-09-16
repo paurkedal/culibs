@@ -4,6 +4,7 @@ cuoo_headers = \
 	cuoo/halloc.h \
 	cuoo/hcobj.h \
 	cuoo/intf.h \
+	cuoo/layout.h \
 	cuoo/meta.h \
 	cuoo/oalloc.h \
 	cuoo/properties.h \
@@ -15,6 +16,7 @@ cuoo_sources = \
 	cuoo/halloc.c \
 	cuoo/init.c \
 	cuoo/intf.c \
+	cuoo/layout.c \
 	cuoo/properties.c \
 	cuoo/prop.c \
 	cuoo/support.c \
@@ -34,11 +36,14 @@ cuoo_doxyfiles =
 #	cuoo/obj_t0
 
 cuoo_norun_check_programs = \
-	cuoo/hcons_b0
+	cuoo/hcons_b0 \
+	cuoo/layout_t0
 
 # Unused tests: cuoo/prop_t0.c
 
 cuoo_hcons_b0_SOURCES = cuoo/hcons_b0.c
 cuoo_hcons_b0_LDADD = libcubase.la
+cuoo_layout_t0_SOURCES = cuoo/layout_t0.c
+cuoo_layout_t0_LDADD = libcubase.la
 #cuoo_obj_t0_SOURCES = cuoo/obj_t0.c
 #cuoo_obj_t0_LDADD = libcubase.la

@@ -43,6 +43,7 @@ typedef uintptr_t cuex_meta_t;
 #endif
 
 typedef void			*cuex_t;
+typedef struct cuoo_layout_s	*cuoo_layout_t;		/* layout.h */
 typedef struct cuoo_prop_s	*cuoo_prop_t;		/* prop.h */
 typedef cu_word_t (*cuoo_impl_t)(cu_word_t, ...);	/* type.h */
 typedef unsigned int		cuoo_propkey_t;		/* type.h */

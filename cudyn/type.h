@@ -19,7 +19,7 @@
 #define CUDYN_TYPE_H
 
 #include <cuoo/type.h>
-#include <cucon/layout.h>
+#include <cuoo/layout.h>
 #include <cucon/pmap.h>
 #include <cucon/ucmap.h>
 #include <cudyn/fwd.h>
@@ -37,7 +37,7 @@ CU_BEGIN_DECLARATIONS
 struct cudyn_inltype_s
 {
     cu_inherit (cuoo_type_s);
-    AO_t layout;	/* actually cucon_layout_t */
+    AO_t layout;	/* actually cuoo_layout_t */
     AO_t ffitype;
 };
 
@@ -359,42 +359,42 @@ cudyn_singular_type()
 }
 
 /*!The memory layout of \a type. */
-CU_SINLINE cucon_layout_t
+CU_SINLINE cuoo_layout_t
 cuoo_type_layout(cuoo_type_t type)
 {
     if (cuoo_type_is_singular(type))
-	return cucon_layout_void();
+	return cuoo_layout_void();
     else if (cuoo_type_is_nonptr_inltype(type))
-	return (cucon_layout_t)cu_from(cudyn_inltype,
+	return (cuoo_layout_t)cu_from(cudyn_inltype,
 				       cuoo_type, type)->layout;
     else
-	return cucon_layout_ptr();
+	return cuoo_layout_ptr();
 }
 
 /*!The size in bits of objects of type \a t. */
 CU_SINLINE size_t
 cuoo_type_bitsize(cuoo_type_t t)
 {
-    return cucon_layout_bitsize(cuoo_type_layout(t));
+    return cuoo_layout_bitsize(cuoo_type_layout(t));
 }
 
 /*!The size of object of type \a t. */
 CU_SINLINE size_t
 cuoo_type_size(cuoo_type_t t)
 {
-    return cucon_layout_size(cuoo_type_layout(t));
+    return cuoo_layout_size(cuoo_type_layout(t));
 }
 
 CU_SINLINE size_t
 cuoo_type_bitalign(cuoo_type_t t)
 {
-    return cucon_layout_bitalign(cuoo_type_layout(t));
+    return cuoo_layout_bitalign(cuoo_type_layout(t));
 }
 
 CU_SINLINE size_t
 cuoo_type_align(cuoo_type_t t)
 {
-    return cucon_layout_align(cuoo_type_layout(t));
+    return cuoo_layout_align(cuoo_type_layout(t));
 }
 
 /*!@}*/

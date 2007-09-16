@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cucon/layout.h>
+#include <cuoo/layout.h>
 #include <cu/debug.h>
 #include <cu/int.h>
 #include <cuoo/halloc.h>
@@ -25,7 +25,7 @@
 #define MAX_FREE_WIDTH_OF_ALT0 0
 #define MAX_FREE_WIDTH_OF_ALT1 1  /* best */
 
-cuoo_type_t cucon_layout_meta;
+cuoo_type_t cuoo_layout_meta;
 
 #if MAX_FREE_WIDTH_OF_ALT0
 static cu_offset_t
@@ -161,14 +161,14 @@ free_width(cu_word_t m)
 }
 #endif
 
-static cucon_layout_t
-layout_new_raw(cucon_layout_t prefix, cu_word_t alloc_mask,
+static cuoo_layout_t
+layout_new_raw(cuoo_layout_t prefix, cu_word_t alloc_mask,
 	       cu_offset_t bitalign)
 {
-    cucon_layout_t layout;
-    cuoo_hctem_decl(cucon_layout, tem);
-    cuoo_hctem_init(cucon_layout, tem);
-    layout = cuoo_hctem_get(cucon_layout, tem);
+    cuoo_layout_t layout;
+    cuoo_hctem_decl(cuoo_layout, tem);
+    cuoo_hctem_init(cuoo_layout, tem);
+    layout = cuoo_hctem_get(cuoo_layout, tem);
     layout->prefix = prefix;
     layout->alloc_mask = alloc_mask;
     layout->bitalign = bitalign;
@@ -183,14 +183,14 @@ layout_new_raw(cucon_layout_t prefix, cu_word_t alloc_mask,
 	layout->bitoffset = 0;
 	layout->max_free_width = max_free_width_of(0, alloc_mask);
     }
-    return cuoo_hctem_new(cucon_layout, tem);
+    return cuoo_hctem_new(cuoo_layout, tem);
 }
 
-static cucon_layout_t
-layout_new_pack(cucon_layout_t lyo, cu_offset_t bitsize, cu_offset_t bitalign,
+static cuoo_layout_t
+layout_new_pack(cuoo_layout_t lyo, cu_offset_t bitsize, cu_offset_t bitalign,
 		cu_offset_t *bitoffset)
 {
-    cucon_layout_t prefix = lyo->prefix;
+    cuoo_layout_t prefix = lyo->prefix;
     if (prefix && bitsize <= prefix->max_free_width) {
 	prefix = layout_new_pack(prefix, bitsize, bitalign,
 				 bitoffset);
@@ -225,23 +225,24 @@ layout_new_pack(cucon_layout_t lyo, cu_offset_t bitsize, cu_offset_t bitalign,
 	switch (bitalign) {
 	    case 1: FIND_OFFSET(1); break;
 	    case 8: FIND_OFFSET(8); break;
-#if CUCONF_WIDTHOF_LONG == 16
+#if CU_WORD_WIDTH == 16
 	    case 16: cu_debug_assert((mask & alloc_mask) == 0); break;
 #else
 	    case 16: FIND_OFFSET(16); break;
-#  if CUCONF_WIDTHOF_LONG == 32
+#  if CU_WORD_WIDTH == 32
 	    case 32: cu_debug_assert((mask & alloc_mask) == 0); break;
 #  else
 	    case 32: FIND_OFFSET(32); break;
-#    if CUCONF_WIDTHOF_LONG == 64 /* for us */
+#    if CU_WORD_WIDTH == 64 /* for us */
 	    case 64: cu_debug_assert((mask & alloc_mask) == 0); break;
 #    else
-#      if CUCONF_WIDTHOF_LONG == 128 /* for our descendants */
+#      if CU_WORD_WIDTH == 128 /* for our descendants */
 	    case 128: cu_debug_assert((mask & alloc_mask) == 0); break;
-#      elif CUCONF_WIDTHOF_LONG < 128
-#	 error "Strange sizeof(long), check configuration."
+#      elif CU_WORD_WIDTH < 128
+#	 error Unexpected CU_WORD_WIDTH, check the configuration.
 #      else
-#	 error "Addressing space for galaxy-sized computers not supported."
+#	 error Word width > 128? Very impressive! This was written in the start
+#        error of the 21st century, we didn't even have 128 bit computers yet.
 #      endif
 #    endif
 #  endif
@@ -260,10 +261,10 @@ layout_new_pack(cucon_layout_t lyo, cu_offset_t bitsize, cu_offset_t bitalign,
     }
 }
 
-cucon_layout_t
-cucon_layout_pack_bits(cucon_layout_t prefix,
-		       cu_offset_t bitsize, cu_offset_t bitalign,
-		       cu_offset_t *bitoffset)
+cuoo_layout_t
+cuoo_layout_pack_bits(cuoo_layout_t prefix,
+		      cu_offset_t bitsize, cu_offset_t bitalign,
+		      cu_offset_t *bitoffset)
 {
     if (bitsize == 0) {
 	*bitoffset = 0;
@@ -273,7 +274,7 @@ cucon_layout_pack_bits(cucon_layout_t prefix,
 	return layout_new_pack(prefix, bitsize, bitalign, bitoffset);
     else {
 	cu_word_t alloc_mask;
-	cucon_layout_t lyo;
+	cuoo_layout_t lyo;
 	while (bitsize > sizeof(cu_word_t)*8) {
 	    prefix = layout_new_raw(prefix, (cu_word_t)-1, bitalign);
 	    bitsize -= sizeof(cu_word_t)*8;
@@ -298,25 +299,25 @@ cucon_layout_pack_bits(cucon_layout_t prefix,
     }
 }
 
-cucon_layout_t
-cucon_layout_product(cucon_layout_t prefix, cucon_layout_t member,
-		     cu_offset_t *bitoffset)
+cuoo_layout_t
+cuoo_layout_product(cuoo_layout_t prefix, cuoo_layout_t member,
+		    cu_offset_t *bitoffset)
 {
     cu_offset_t member_width;
     if (!prefix) {
 	*bitoffset = 0;
 	return member;
     }
-    member_width = cucon_layout_bitsize(member);
+    member_width = cuoo_layout_bitsize(member);
     if (member_width < prefix->max_free_width) {
 	cu_debug_assert(!member->prefix);
-	return cucon_layout_pack_bits(prefix, member_width, member->bitalign,
+	return cuoo_layout_pack_bits(prefix, member_width, member->bitalign,
 				      bitoffset);
     }
     else {
 	cu_offset_t N = member->bitoffset/(sizeof(cu_word_t)*8) + 1;
 	cu_offset_t n = N;
-	cucon_layout_t *memb_arr = cu_salloc(N*sizeof(cucon_layout_t));
+	cuoo_layout_t *memb_arr = cu_salloc(N*sizeof(cuoo_layout_t));
 	while (--n) {
 	    memb_arr[n] = member;
 	    member = member->prefix;
@@ -335,16 +336,16 @@ cucon_layout_product(cucon_layout_t prefix, cucon_layout_t member,
     }
 }
 
-static cucon_layout_t
-layout_union_balanced(cucon_layout_t l0, cucon_layout_t l1)
+static cuoo_layout_t
+layout_union_balanced(cuoo_layout_t l0, cuoo_layout_t l1)
 {
-    cucon_layout_t l0p;
+    cuoo_layout_t l0p;
     cu_offset_t ba;
     if (l0 == l1)
 	return l0;
     l0p = l0->prefix;
     if (l0p) {
-	cucon_layout_t l1p = l1->prefix;
+	cuoo_layout_t l1p = l1->prefix;
 	cu_debug_assert(l1p);
 	l0p = layout_union_balanced(l0p, l1p);
     }
@@ -354,10 +355,10 @@ layout_union_balanced(cucon_layout_t l0, cucon_layout_t l1)
     return layout_new_raw(l0p, l0->alloc_mask | l1->alloc_mask, ba);
 }
 
-static cucon_layout_t
-layout_union_left_heavy(cucon_layout_t l0, cucon_layout_t l1)
+static cuoo_layout_t
+layout_union_left_heavy(cuoo_layout_t l0, cuoo_layout_t l1)
 {
-    cucon_layout_t l0p = l0->prefix;
+    cuoo_layout_t l0p = l0->prefix;
     if (l0p->bitoffset > l1->bitoffset)
 	l0p = layout_union_left_heavy(l0p, l1);
     else
@@ -365,8 +366,8 @@ layout_union_left_heavy(cucon_layout_t l0, cucon_layout_t l1)
     return layout_new_raw(l0p, l0->alloc_mask, l0->bitalign);
 }
 
-cucon_layout_t
-cucon_layout_union(cucon_layout_t l0, cucon_layout_t l1)
+cuoo_layout_t
+cuoo_layout_union(cuoo_layout_t l0, cuoo_layout_t l1)
 {
     if (l0->bitoffset > l1->bitoffset)
 	return layout_union_left_heavy(l0, l1);
@@ -377,7 +378,7 @@ cucon_layout_union(cucon_layout_t l0, cucon_layout_t l1)
 }
 
 cu_offset_t
-cucon_layout_bitsize(cucon_layout_t lyo)
+cuoo_layout_bitsize(cuoo_layout_t lyo)
 {
     if (!lyo)
 	return 0;
@@ -388,7 +389,7 @@ cucon_layout_bitsize(cucon_layout_t lyo)
 }
 
 cu_offset_t
-cucon_layout_size(cucon_layout_t lyo)
+cuoo_layout_size(cuoo_layout_t lyo)
 {
     size_t bitsize;
     if (!lyo)
@@ -401,7 +402,7 @@ cucon_layout_size(cucon_layout_t lyo)
 }
 
 static void
-layout_dump(cucon_layout_t lyo, FILE *out)
+layout_dump(cuoo_layout_t lyo, FILE *out)
 {
     int i;
     if (lyo->prefix)
@@ -417,15 +418,15 @@ layout_dump(cucon_layout_t lyo, FILE *out)
 	    lyo->bitalign, lyo->max_free_width);
 }
 void
-cucon_layout_dump(cucon_layout_t lyo, FILE *out)
+cuoo_layout_dump(cuoo_layout_t lyo, FILE *out)
 {
     fprintf(out, "layout @ %p\n", lyo);
     layout_dump(lyo, out);
 }
 
-cuoo_stdtype_t cuconP_layout_type;
-cucon_layout_t cuconP_layout_ptr;
-cucon_layout_t cuconP_layout_void;
+cuoo_stdtype_t cuooP_layout_type;
+cuoo_layout_t cuooP_layout_ptr;
+cuoo_layout_t cuooP_layout_void;
 
 static cu_word_t
 layout_impl(cu_word_t intf_number, ...)
@@ -437,14 +438,14 @@ layout_impl(cu_word_t intf_number, ...)
 }
 
 void
-cuconP_layout_init()
+cuooP_layout_init()
 {
     cu_offset_t ignore;
-    cuconP_layout_type =
+    cuooP_layout_type =
 	cuoo_stdtype_new_hcs(layout_impl,
-			     sizeof(struct cucon_layout_s) - CUOO_HCOBJ_SHIFT);
-    cuconP_layout_ptr = cucon_layout_pack_bits(NULL,
+			     sizeof(struct cuoo_layout_s) - CUOO_HCOBJ_SHIFT);
+    cuooP_layout_ptr = cuoo_layout_pack_bits(NULL,
 					  sizeof(void *)*8,
 					  sizeof(void *)*8, &ignore);
-    cuconP_layout_void = cucon_layout_pack_bits(NULL, 0, 0, &ignore);
+    cuooP_layout_void = cuoo_layout_pack_bits(NULL, 0, 0, &ignore);
 }

@@ -21,7 +21,6 @@ void cu_init(void);
 void cuconP_logchain_init(void);
 void cuconP_list_init(void);
 void cuconP_pmap_init(void);
-void cuconP_layout_init(void);
 void cuconP_ucset_init(void);
 void cuconP_ucmap_init(void);
 
@@ -34,7 +33,6 @@ cucon_init(void)
     done_init = 1;
 
     cu_init();
-    cuconP_layout_init();
     cuconP_list_init();
     cuconP_logchain_init();
     cuconP_ucset_init();

@@ -18,7 +18,7 @@
 
 #include <cudyn/proto.h>
 #include <cudyn/type.h>
-#include <cucon/layout.h>
+#include <cuoo/layout.h>
 #include <cuoo/intf.h>
 #include <cu/memory.h>
 #include <cu/util.h>
@@ -41,15 +41,15 @@ struct fake_ffi_type_s
 };
 
 static ffi_type *
-layout_ffitype_ciflck(cucon_layout_t lyo)
+layout_ffitype_ciflck(cuoo_layout_t lyo)
 {
     static struct fake_ffi_type_s *prebuilt_arr = NULL;
     static size_t prebuilt_cnt;
-    size_t size = cucon_layout_size(lyo);
-    if (cucon_layout_prefix(lyo)) {
+    size_t size = cuoo_layout_size(lyo);
+    if (cuoo_layout_prefix(lyo)) {
 	size_t cnt = (size + sizeof(long) - 1)/sizeof(long);
 	size_t build_index;
-	cu_debug_assert(cucon_layout_align(lyo) <= sizeof(long));
+	cu_debug_assert(cuoo_layout_align(lyo) <= sizeof(long));
 	if (cnt >= prebuilt_cnt) {
 	    if (!prebuilt_arr) {
 		prebuilt_arr = cu_galloc(sizeof(struct fake_ffi_type_s)*cnt);
@@ -109,7 +109,7 @@ cuooP_type_ffitype_ciflck(cuoo_type_t type)
 		     * ffi_type by setting 'size' and 'alignment', but
 		     * what about 'type'? */
 		    t->ffitype = (AO_t)
-			layout_ffitype_ciflck((cucon_layout_t)t->layout);
+			layout_ffitype_ciflck((cuoo_layout_t)t->layout);
 		    break;
 		case cuoo_typekind_tuptype:
 #if 0 /* only applies if tuptype layout is not packed */
@@ -126,7 +126,7 @@ cuooP_type_ffitype_ciflck(cuoo_type_t type)
 		    t->ffitype = ffitype;
 #endif
 		    t->ffitype = (AO_t)
-			layout_ffitype_ciflck((cucon_layout_t)t->layout);
+			layout_ffitype_ciflck((cuoo_layout_t)t->layout);
 		    break;
 		case cuoo_typekind_duntype:
 		    cu_debug_assert(!"unimplemented");

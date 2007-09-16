@@ -47,7 +47,7 @@ cudyn_ptrtype_from_ex(cuex_t ex)
     cuooP_type_cct_hcs(cu_to2(cuoo_type, cudyn_inltype, type),
 		       cuoo_impl_none, ex,
 		       cuoo_typekind_ptrtype, sizeof(void *));
-    cu_to(cudyn_inltype, type)->layout = (AO_t)cucon_layout_ptr;
+    cu_to(cudyn_inltype, type)->layout = (AO_t)cuoo_layout_ptr;
     cu_to(cudyn_inltype, type)->ffitype = (AO_t)&ffi_type_pointer;
     return cuoo_hctem_new(cudyn_ptrtype, tem);
 }
@@ -65,7 +65,7 @@ cudyn_ptrtype(cuex_t deref)
     cuooP_type_cct_hcs(cu_to2(cuoo_type, cudyn_inltype, type),
 		       cuoo_impl_none, ex,
 		       cuoo_typekind_ptrtype, sizeof(void *));
-    cu_to(cudyn_inltype, type)->layout = (AO_t)cucon_layout_ptr;
+    cu_to(cudyn_inltype, type)->layout = (AO_t)cuoo_layout_ptr;
     cu_to(cudyn_inltype, type)->ffitype = (AO_t)&ffi_type_pointer;
     return cuoo_hctem_new(cudyn_ptrtype, tem);
 }
@@ -85,7 +85,7 @@ cudyn_elmtype_new(cuoo_typekind_t kind, cuoo_impl_t impl,
     cuooP_type_cct_hcs(cu_to2(cuoo_type, cudyn_inltype, t), impl, NULL,
 			kind, wsize);
     cu_to(cudyn_inltype, t)->layout
-	= (AO_t)cucon_layout_pack_bits(NULL, size*8, alignment*8, &bitoffset);
+	= (AO_t)cuoo_layout_pack_bits(NULL, size*8, alignment*8, &bitoffset);
     cu_to(cudyn_inltype, t)->ffitype = (AO_t)ffitype;
     return t;
 }
@@ -100,7 +100,7 @@ cu_clop_def(arrtype_cct_glck, void, void *t)
     cu_offset_t bitoffset;
     size_t elt_bitsize, elt_bitalign;
     size_t arr_bitsize, arr_bitalign;
-    cucon_layout_t lyo, sub_lyo;
+    cuoo_layout_t lyo, sub_lyo;
     cuex_t ex;
 
     ex = cudyn_arrtype_to_type(t)->as_expr;
@@ -112,13 +112,13 @@ cu_clop_def(arrtype_cct_glck, void, void *t)
 	return;
     t->elt_cnt = cudyn_to_int(cuex_opn_at(ex, 1));
     sub_lyo = cuoo_type_layout(t->elt_type);
-    elt_bitsize = cucon_layout_bitsize(sub_lyo);
-    elt_bitalign = cucon_layout_bitalign(sub_lyo);
+    elt_bitsize = cuoo_layout_bitsize(sub_lyo);
+    elt_bitalign = cuoo_layout_bitalign(sub_lyo);
     arr_bitsize = elt_bitsize*t->elt_cnt;
     arr_bitalign = elt_bitalign;
-    lyo = cucon_layout_pack_bits(NULL, arr_bitsize, arr_bitalign, &bitoffset);
+    lyo = cuoo_layout_pack_bits(NULL, arr_bitsize, arr_bitalign, &bitoffset);
     cuooP_type_cct_hcs(cu_to2(cuoo_type, cudyn_inltype, t), cuoo_impl_none, ex,
-		       cuoo_typekind_arrtype, cucon_layout_size(lyo));
+		       cuoo_typekind_arrtype, cuoo_layout_size(lyo));
     AO_store_release_write(&cu_to(cudyn_inltype, t)->layout, (AO_t)lyo);
 #undef t
 }
@@ -147,11 +147,11 @@ cudyn_arrtype(cuoo_type_t elt_type, size_t cnt)
 /* Product Types
  * ============= */
 
-static cucon_layout_t
+static cuoo_layout_t
 tuptype_finish_gprod_glck(cudyn_tuptype_t t, cuex_t ex, int i)
 {
     cuoo_type_t subt;
-    cucon_layout_t lyo;
+    cuoo_layout_t lyo;
     if (cuex_meta(ex) == CUEX_O2_GPROD) {
 	cu_debug_assert(i > 0);
 	subt = cuoo_type_glck(cuex_opn_at(ex, 1));
@@ -161,7 +161,7 @@ tuptype_finish_gprod_glck(cudyn_tuptype_t t, cuex_t ex, int i)
 	if (!lyo)
 	    return NULL;
 	t->tcomp_arr[i].type = subt;
-	return cucon_layout_product(lyo, cuoo_type_layout(subt),
+	return cuoo_layout_product(lyo, cuoo_type_layout(subt),
 				    &t->tcomp_arr[i].bitoffset);
     }
     else {
@@ -177,7 +177,7 @@ tuptype_finish_gprod_glck(cudyn_tuptype_t t, cuex_t ex, int i)
 
 cu_clos_def(tuptype_finish_sigprod_cb,
 	    cu_prot(cu_bool_t, cuex_opn_t e),
-	( cucon_layout_t lyo;
+	( cuoo_layout_t lyo;
 	  cudyn_tuptype_t t; ))
 {
     cu_clos_self(tuptype_finish_sigprod_cb);
@@ -191,13 +191,13 @@ cu_clos_def(tuptype_finish_sigprod_cb,
     if (!subt)
 	return cu_false;
     comp->type = subt;
-    self->lyo = cucon_layout_product(self->lyo, cuoo_type_layout(subt),
+    self->lyo = cuoo_layout_product(self->lyo, cuoo_type_layout(subt),
 				     &comp->bitoffset);
     return cu_true;
 }
 
-static cucon_layout_t
-tuptype_finish_sigprod_glck(cudyn_tuptype_t t, cuex_t ex, cucon_layout_t lyo)
+static cuoo_layout_t
+tuptype_finish_sigprod_glck(cudyn_tuptype_t t, cuex_t ex, cuoo_layout_t lyo)
 {
     tuptype_finish_sigprod_cb_t cb;
     cb.lyo = lyo;
@@ -212,7 +212,7 @@ tuptype_finish_sigprod_glck(cudyn_tuptype_t t, cuex_t ex, cucon_layout_t lyo)
 cu_clop_def(tuptype_cct_glck, void, void *t)
 {
 #define t ((cudyn_tuptype_t)t)
-    cucon_layout_t lyo;
+    cuoo_layout_t lyo;
     cuex_t ex;
 
     ex = cudyn_tuptype_to_type(t)->as_expr;
@@ -264,7 +264,7 @@ cu_clop_def(tuptype_cct_glck, void, void *t)
 	cu_debug_assert(lyo);
     }
     cuooP_type_cct_hcs(cu_to2(cuoo_type, cudyn_inltype, t), cuoo_impl_none, ex,
-		       cuoo_typekind_tuptype, cucon_layout_size(lyo));
+		       cuoo_typekind_tuptype, cuoo_layout_size(lyo));
     AO_store_release_write(&cu_to(cudyn_inltype, t)->layout, (AO_t)lyo);
 #undef t
 }
@@ -376,7 +376,7 @@ tuptype_impl(cu_word_t intf_number, ...)
 
 cu_clos_def(duntype_cct_cb,
 	    cu_prot(cu_bool_t, cuex_opn_t node),
-	( cucon_layout_t lyo;
+	( cuoo_layout_t lyo;
 	  cudyn_cnum_t cnum;
 	  cudyn_duntype_t t; ))
 {
@@ -392,7 +392,7 @@ cu_clos_def(duntype_cct_cb,
     part->type = cuoo_type_glck(typeex);
     if (!part->type)
 	return cu_false;
-    self->lyo = cucon_layout_union(self->lyo, cuoo_type_layout(part->type));
+    self->lyo = cuoo_layout_union(self->lyo, cuoo_type_layout(part->type));
     return cu_true;
 }
 

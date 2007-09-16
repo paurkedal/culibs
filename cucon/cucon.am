@@ -9,7 +9,6 @@ cucon_headers = \
 	cucon/frame.h \
 	cucon/hmap.h \
 	cucon/hset.h \
-	cucon/layout.h \
 	cucon/list.h \
 	cucon/logchain.h \
 	cucon/parr.h \
@@ -39,7 +38,6 @@ cucon_sources = \
 	cucon/frame.c \
 	cucon/hmap.c \
 	cucon/hset.c \
-	cucon/layout.c \
 	cucon/list.c \
 	cucon/logchain.c \
 	cucon/umap.c \
@@ -65,7 +63,6 @@ cucon_check_programs = \
 	cucon/bitvect_t0 \
 	cucon/frame_t0 \
 	cucon/hset_t0 \
-	cucon/layout_t0 \
 	cucon/list_t1 \
 	cucon/logchain_t0 \
 	cucon/parr_t0 \
@@ -93,8 +90,6 @@ cucon_frame_t0_SOURCES = cucon/frame_t0.c
 cucon_frame_t0_LDADD = libcubase.la
 cucon_hset_t0_SOURCES = cucon/hset_t0.c
 cucon_hset_t0_LDADD = libcubase.la
-cucon_layout_t0_SOURCES = cucon/layout_t0.c
-cucon_layout_t0_LDADD = libcubase.la
 cucon_list_t1_SOURCES = cucon/list_t1.c
 cucon_list_t1_LDADD = libcubase.la
 cucon_logchain_t0_SOURCES = cucon/logchain_t0.c
