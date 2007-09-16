@@ -12,6 +12,7 @@ cuoo_headers = \
 	cuoo/type.h
 
 cuoo_sources = \
+	cuoo/halloc.c \
 	cuoo/init.c \
 	cuoo/intf.c \
 	cuoo/properties.c \

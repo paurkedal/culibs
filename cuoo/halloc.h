@@ -47,6 +47,9 @@ cuooP_halloc_extra_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
     return cuexP_halloc_extra_raw(cuoo_type_to_meta(type), raw_alloc_sizeg,
 				  key_sizew, key, init_nonkey);
 }
+void *cuooP_halloc_extra_setao_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
+				   size_t key_sizew, void *key,
+				   cu_offset_t ao_offset, AO_t ao_value);
 
 /*!Assuming a declaration of a struct <tt><em>prefix</em>_s</tt> which starts
  * with a \ref CUOO_HCOBJ statement, this macro returns the key-size to use for
@@ -144,18 +147,33 @@ cuoo_halloc_extra(cuoo_type_t type, size_t struct_size,
 		  cu_clop(init_nonkey, void, void *obj))
 {
     cu_debug_assert(key_size % CU_WORD_SIZE == 0);
-    return cuooP_halloc_extra_raw(type,
-				   CUOO_HCOBJ_ALLOC_SIZEG(struct_size),
-				   CUOO_HCOBJ_KEY_SIZEW(key_size
-							 + CUOO_HCOBJ_SHIFT),
-				   key,
-				   init_nonkey);
+    return cuooP_halloc_extra_raw(
+	type, CUOO_HCOBJ_ALLOC_SIZEG(struct_size),
+	CUOO_HCOBJ_KEY_SIZEW(key_size + CUOO_HCOBJ_SHIFT),
+	key, init_nonkey);
 }
 
 #define cuoo_hnew_extra(prefix, key_size, key, init_nonkey) \
     ((struct prefix##_s *) \
      cuoo_halloc_extra(prefix##_type(), sizeof(struct prefix##_s), \
-			key_size, key, init_nonkey))
+		       key_size, key, init_nonkey))
+
+CU_SINLINE void *
+cuoo_halloc_extra_setao(cuoo_type_t type, size_t struct_size,
+			size_t key_size, void *key,
+			cu_offset_t ao_offset, AO_t ao_value)
+{
+    cu_debug_assert(key_size % CU_WORD_SIZE == 0);
+    return cuooP_halloc_extra_setao_raw(
+	type, CUOO_HCOBJ_ALLOC_SIZEG(struct_size),
+	CUOO_HCOBJ_KEY_SIZEW(key_size + CUOO_HCOBJ_SHIFT),
+	key, ao_offset, ao_value);
+}
+
+#define cuoo_hnew_extra_setao(prefix, key_size, key, ao_offset, ao_value) \
+    ((struct prefix##_s *) \
+     cuoo_halloc_extra_setao(prefix##_type(), sizeof(struct prefix##_s), \
+			     key_size, key, ao_offset, ao_value))
 
 /*!@}*/
 
