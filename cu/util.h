@@ -26,10 +26,22 @@ CU_BEGIN_DECLARATIONS
 
 #define CU_SWAP(value_t, x, y)						\
     do {								\
-	value_t tmp = (x);						\
+	value_t cuL_tmp = (x);						\
 	(x) = (y);							\
-	(y) = tmp;							\
+	(y) = cuL_tmp;							\
     } while (0)
+
+
+/*!Add \a offset bytes to \a ptr independent of its underlying type. */
+#define cu_ptr_add(ptr, offset) ((void *)((char *)(ptr) + (offset)))
+
+/*!Subtract \a offset bytes from \a ptr independent of its underlying type. */
+#define cu_ptr_sub(ptr, offset) ((void *)((char *)(ptr) - (offset)))
+
+/*!Assuming \a ptr points to \a field in \a type, returns a pointer to the
+ * whole \a type.  Uses <tt>offsetof(\a type, \a field)</tt>. */
+#define cu_ptr_context(type, field, ptr) \
+    ((type *)((char *)(ptr) - offsetof(type, field)))
 
 
 /* Alignment

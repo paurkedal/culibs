@@ -18,9 +18,10 @@
 
 #include <cudyn/proto.h>
 #include <cudyn/type.h>
-#include <cu/memory.h>
 #include <cucon/layout.h>
 #include <cuoo/intf.h>
+#include <cu/memory.h>
+#include <cu/util.h>
 #include <string.h>
 #include <assert.h>
 

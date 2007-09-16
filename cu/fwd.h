@@ -54,8 +54,6 @@ CU_BEGIN_DECLARATIONS
  * disabled for slightly more optimal code. */
 #define CU_NOINIT(val) = val
 
-#define cu_ptr_add(ptr, offset) ((void *)((char *)(ptr) + (offset)))
-
 /* Compiler-dependent features.  These have no semantic effect if used
  * correctly, but may give optimalization hints or provide additional
  * debugging.  See GCC info nodes for details. */
