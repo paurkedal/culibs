@@ -32,6 +32,7 @@ cucon_headers = \
 
 cucon_sources = \
 	cucon/init.c \
+	cucon/algo_colour.h \
 	cucon/arr.c \
 	cucon/bitvect.c \
 	cucon/digraph.c \

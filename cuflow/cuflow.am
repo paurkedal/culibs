@@ -43,6 +43,7 @@ cuflow_headers += \
 	cuflow/cont.h \
 	cuflow/cont_common.h \
 	cuflow/sched.h \
+	cuflow/sched_types.h \
 	cuflow/time.h \
 	cuflow/timespec.h \
 	cuflow/tstate.h \

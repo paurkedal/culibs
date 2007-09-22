@@ -44,7 +44,7 @@ if enable_cucon
     noinst_DATA		+= pkgconfig/cubase-uninstalled.pc
     dist_bin_SCRIPTS	+= bin/sedi
 endif
-EXTRA_DIST		+= cu/cu.am cu/cuoo.am cucon/cucon.am
+EXTRA_DIST		+= cu/cu.am cuoo/cuoo.am cucon/cucon.am
 
 include cuflow/cuflow.am
 if enable_cuflow
@@ -171,9 +171,10 @@ TESTS =		 $(check_programs)
 
 EXTRA_DIST += \
 	$(aclocal_SCRIPTS) $(pkgconfig_DATA) \
+	autotools.sh \
 	culibs.spec.in culibs.spec \
 	cubase.spec.in cubase.spec \
-	migration \
+	mkskel skel tools migration \
 	COPYING.Unicode
 
 dist-hook:
@@ -211,6 +212,11 @@ tags: $(tagsdir)/TAGS.culibs
 check-export: tools/check-export.pl all
 	$<
 
+MANIFEST: Makefile
+	@echo Writing $@.
+	@rm -f $@; for f in $(DISTFILES); do echo $$f >>$@; done
+list-unpacked: MANIFEST
+	@$(srcdir)/tools/list-unpacked.pl
 
 # Documentation
 # =============

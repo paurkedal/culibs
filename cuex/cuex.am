@@ -152,4 +152,5 @@ cuex_var_t0_LDADD = libcuex.la
 endif
 
 EXTRA_DIST += \
-	cuex/cuex.am
+	cuex/cuex.am \
+	cuex/oprdefs.otab

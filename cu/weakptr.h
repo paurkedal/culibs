@@ -21,7 +21,7 @@
 #include <cu/memory.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_weakptr_h cu/weakptr.h:
+/*!\defgroup cu_weakptr_h cu/weakptr.h: Weak Pointers
  *@{\ingroup cu_mod */
 
 /*!Construct \a link as a weak pointer to \a ptr.  If \a ptr gets

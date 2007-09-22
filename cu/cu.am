@@ -25,6 +25,7 @@ cu_headers = \
 	cu/tstate.h \
 	cu/util.h \
 	cu/va_ref.h \
+	cu/weakptr.h \
 	cu/wordarr.h
 
 nodist_cu_headers = \

@@ -1,10 +1,13 @@
 if enable_doc
 doc_extra_dist = \
+	doc/cucommon.css.m4 \
 	doc/cuhtml.css \
-	doc/cudoxy.css \
+	doc/cudoxy.css.m4 \
 	doc/culibs_footer.html \
 	doc/culibs_header.html \
-	doc/bdwgc-rn.html
+	doc/bdwgc-rn.html \
+	doc/gplv3-127x51.png \
+	doc/styledefs.m4
 
 all_doxyfiles = $(built_doxyfiles) $(doxyfiles) $(nobase_culibs_HEADERS)
 

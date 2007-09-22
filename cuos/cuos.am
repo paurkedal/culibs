@@ -12,12 +12,18 @@ cuos_sources = \
 	cuos/fs.c \
 	cuos/time.c
 
-cuos_check_programs =
+cuos_check_programs = \
+	cuos/path_t0
 
 cuos_norun_check_programs = \
 	cuos/fs_t0
 
 cuos_fs_t0_SOURCES = cuos/fs_t0.c
 cuos_fs_t0_LDADD = libcuos.la
+cuos_path_t0_SOURCES = cuos/path_t0.c
+cuos_path_t0_LDADD = libcuos.la
+
+EXTRA_DIST += \
+	cuos/path.text
 
 endif

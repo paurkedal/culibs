@@ -169,7 +169,7 @@ CU_BEGIN_DECLARATIONS
 									\
     CU_SINLINE type_t *							\
     cudyn_##NAME##arr_arr(cuex_t e)					\
-    { return (type_t *)((void *)e + CUOO_HCOBJ_SHIFT); }			\
+    { return (type_t *)((void *)e + CUOO_HCOBJ_SHIFT); }		\
 									\
     CU_SINLINE type_t							\
     cudyn_##NAME##arr_at(cuex_t e, size_t i)				\
@@ -182,7 +182,7 @@ CU_BEGIN_DECLARATIONS
 	cuex_meta_t meta = cuex_meta(e);				\
 	cudyn_arrtype_t t;						\
 	if (!cuex_meta_is_type(meta)					\
-	    ||!cuoo_type_is_arrtype(cuoo_type_from_meta(meta)))	\
+	    ||!cuoo_type_is_arrtype(cuoo_type_from_meta(meta)))		\
 	    return cudyn_condsize_none;					\
 	t = cudyn_arrtype_from_meta(meta);				\
 	if (cudyn_arrtype_elt_type(t) != cudyn_##NAME##_type())		\
