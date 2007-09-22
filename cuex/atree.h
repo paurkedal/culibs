@@ -32,16 +32,18 @@ CU_BEGIN_DECLARATIONS
  * computed form the expressions.
  *
  * The internal structure of the tree is hidden.  The leafs of the tree are the
- * inserted expressions.  Most of the functions below takes a \a get_key
- * argument, which when passed a leaf node shall compute a \c cu_word_t typed
- * key.  Since \c cu_word_t is at least the size of pointers, to implement as
- * set, simply cast the value to \c cu_word_t, and to implement a map use a
- * binary operation as leafs, and cast the first operand to \c cu_word_t.
+ * inserted expressions.
+ * Most of the functions below takes a \a get_key argument, which when passed a
+ * leaf node shall compute a \c cu_word_t typed key.
+ * Since \c cu_word_t is at least the size of pointers, to implement a set of
+ * hash-consed objects, cast the leaf value pointer to \c cu_word_t, and to
+ * implement a map, use a binary operation as leafs, and cast the first operand
+ * to \c cu_word_t.
  * The same \a get_key must be used consistently when operating on the same
  * tree, which also means that union and intersections can only be used on
- * trees of the same \a get_key.  A high-level interface will typically embed
- * these trees in a top-level node and either use a fixed \a get_key or one
- * stored on the top-level node.  */
+ * trees of the same \a get_key.
+ * A high-level interface will typically embed these trees in a top-level node
+ * and either use a fixed \a get_key or one stored on the top-level node.  */
 
 /*!\defgroup cuex_atree_iv_mod Indexed Value Variants
  * The following functions are specialised variants of the corresponding
@@ -294,6 +296,16 @@ cuex_t cuex_atree_isokey_image_iv(cuex_t tree, cu_rank_t value_index,
  * \ingroup cuex_atree_kv_mod */
 cuex_t cuex_atree_isokey_image_kv(cuex_t tree,
 				  cu_clop(f, cuex_t, cuex_t key, cuex_t val));
+
+/*!The depth of the deepest tree node of \a tree.  The empty tree and
+ * singletons have depth 0.  A tree node has depth one plus the maximum of the
+ * depths of its branches. */
+int cuex_atree_depth(cuex_t tree);
+
+size_t cuex_atree_itr_size(cuex_t tree);
+void cuex_atree_itr_init(void *itr, cuex_t tree);
+cuex_t cuex_atree_itr_get(void *itr);
+cuex_t cuex_atree_itr_get_at_1(void *itr);
 
 /*!@}*/
 CU_END_DECLARATIONS

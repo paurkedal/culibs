@@ -58,8 +58,20 @@ test(int N, cu_bool_t print)
 	    cu_test_assert(e == ep);
 	cu_test_assert(cuex_atree_find(opn0word, ep, (cu_word_t)key) == val);
 	if (print)
-	    cu_fprintf(stdout, "%! ∪ {%!}\n  = %!\n", e, val, ep);
+	    cu_fprintf(stdout, "%! ∪ {%!}\n  = %! (depth = %d)\n", e, val, ep,
+		       cuex_atree_depth(ep));
 	e = ep;
+    }
+
+    {
+	void *itr = cu_salloc(cuex_atree_itr_size(e));
+	cuex_t ep = cuex_atree_empty();
+	cuex_t val;
+	cuex_atree_itr_init(itr, e);
+	while ((val = cuex_atree_itr_get(itr)))
+	    ep = cuex_atree_insert(opn0word, ep, val);
+	cu_test_assert(cuex_atree_itr_get(itr) == NULL);
+	cu_test_assert(e == ep);
     }
 }
 
@@ -126,6 +138,7 @@ main()
     int i;
     cuex_init();
     printf("Testing insert, erase, and find.\n");
+    test(0, cu_true);
     for (i = 1; i < 80000; i *= 2)
 	test(i, i < 16);
     printf("Testing union, intersection, and image.\n");

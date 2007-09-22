@@ -16,12 +16,13 @@
  */
 
 #include <cuex/labelling.h>
+#include <cuex/intf.h>
+#include <cuex/compound.h>
 #include <cuex/opn.h>
 #include <cuex/oprdefs.h>
 #include <cuex/atree.h>
 #include <cuoo/halloc.h>
 #include <cuoo/properties.h>
-#include <cuoo/intf.h>
 
 #define tuple(l, e) cuex_opn(CUEX_OR_TUPLE(2), l, e)
 
@@ -250,14 +251,166 @@ labelling_print(void *L, FILE *out)
     fputc(')', out);
 }
 
+
+/* == Compound Interface: Iteration == */
+
+static size_t
+labelling_itr_size(cuex_t L)
+{
+    return cuex_atree_itr_size(LABELLING(L)->atree);
+}
+
+static void
+labelling_itr_init(void *itr, cuex_t L)
+{
+    cuex_atree_itr_init(itr, LABELLING(L)->atree);
+}
+static struct cuex_intf_iterable_s labelling_comm_iterable = {
+    .itr_size = labelling_itr_size,
+    .itr_init = labelling_itr_init,
+    .itr_get = cuex_atree_itr_get,
+};
+static struct cuex_intf_iterable_s labelling_ncomm_iterable = {
+    .itr_size = labelling_itr_size,
+    .itr_init = labelling_itr_init,
+    .itr_get = cuex_atree_itr_get_at_1,
+};
+
+
+/* == Compound Interface: Non-commutative == */
+
+struct image_itr_s
+{
+    cuex_t new_atree;
+    cuex_t current_label;
+    /* atree iterator follows */
+};
+#define IMAGE_ITR(itr) ((struct image_itr_s *)(itr))
+#define IMAGE_ITR_ATREE_ITR(itr) \
+    ((void *)((struct image_itr_s *)(itr) + 1))
+static size_t
+image_itr_size(cuex_t L)
+{
+    return sizeof(struct image_itr_s)
+	+ cuex_atree_itr_size(LABELLING(L)->atree);
+}
+static void
+image_itr_init(void *itr, cuex_t L)
+{
+    IMAGE_ITR(itr)->new_atree = cuex_atree_empty();
+    IMAGE_ITR(itr)->current_label = NULL;
+    cuex_atree_itr_init(IMAGE_ITR_ATREE_ITR(itr), LABELLING(L)->atree);
+}
+static cuex_t
+image_itr_get(void *itr)
+{
+    cuex_t leaf = cuex_atree_itr_get(IMAGE_ITR_ATREE_ITR(itr));
+    if (leaf) {
+	IMAGE_ITR(itr)->current_label = cuex_opn_at(leaf, 0);
+	return cuex_opn_at(leaf, 1);
+    }
+    else
+	return NULL;
+}
+static void
+image_itr_put(void *itr, cuex_t elt)
+{
+    cuex_t l = IMAGE_ITR(itr)->current_label;
+#ifndef CU_NDEBUG_CLIENT
+    if (!l)
+	cu_bugf("The put operation on the imageable-interface of a labelling "
+		"does not correspond to a previous get.  Attempted to put "
+		"%! into %!.", elt, IMAGE_ITR(itr)->new_atree);
+    cu_debug_assert(l);
+#endif
+    IMAGE_ITR(itr)->new_atree
+	= atree_insert(IMAGE_ITR(itr)->new_atree, tuple(l, elt));
+#ifndef CU_NDEBUG_CLIENT
+    IMAGE_ITR(itr)->current_label = NULL;
+#endif
+}
+static cuex_t
+image_itr_finish(void *itr)
+{
+    return labelling(IMAGE_ITR(itr)->new_atree);
+}
+static struct cuex_intf_imageable_s labelling_ncomm_imageable = {
+    .itr_size = image_itr_size,
+    .itr_init = image_itr_init,
+    .itr_get = image_itr_get,
+    .itr_put = image_itr_put,
+    .itr_finish = image_itr_finish,
+};
+
+
+/* == Compound Interface: Commutative */
+
+static void
+comm_growable_itr_init_empty(void *itr, cuex_t template_compound)
+{
+    *(cuex_t *)itr = cuex_atree_empty();
+}
+static void
+comm_growable_itr_init_copy(void *itr, cuex_t compound)
+{
+    *(cuex_t *)itr = LABELLING(compound)->atree;
+}
+static void
+comm_growable_itr_put(void *itr, cuex_t member)
+{
+    *(cuex_t *)itr = atree_insert(*(cuex_t *)itr, member);
+}
+static cuex_t
+comm_growable_itr_finish(void *itr)
+{
+    return labelling(*(cuex_t *)itr);
+}
+static struct cuex_intf_growable_s labelling_comm_growable = {
+    .itr_size = sizeof(cuex_t),
+    .itr_init_empty = comm_growable_itr_init_empty,
+    .itr_init_copy = comm_growable_itr_init_copy,
+    .itr_put = comm_growable_itr_put,
+    .itr_finish = comm_growable_itr_finish,
+};
+
+static cuex_t
+comm_find(cuex_t L, cuex_t l)
+{
+    return atree_find(LABELLING(L)->atree, l);
+}
+
+
+/* == Compound Interface == */
+
+static struct cuex_intf_compound_s labelling_compound = {
+    .flags = CUEX_COMPOUNDFLAG_PREFER_NCOMM
+	   | CUEX_COMPOUNDFLAG_FILTERABLE_IMAGE
+	   | CUEX_COMPOUNDFLAG_COMM_IDEMPOTENT,
+    .ncomm_iterable = &labelling_ncomm_iterable,
+    .ncomm_imageable = &labelling_ncomm_imageable,
+    .comm_iterable = &labelling_comm_iterable,
+    .comm_growable = &labelling_comm_growable,
+    .comm_find = comm_find,
+};
+
+
+/* == Implementation Dispatcher == */
+
 static cu_word_t
 labelling_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)labelling_print;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return (cu_word_t)labelling_print;
+	case CUEX_INTF_COMPOUND:
+	    return (cu_word_t)&labelling_compound;
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
+
+
+/* == Initialisation == */
 
 void
 cuexP_labelling_init(void)

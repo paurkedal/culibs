@@ -1131,6 +1131,98 @@ cuex_atree_isokey_image_kv(cuex_t tree,
 	return atree_isokey_image_kv(tree, f);
 }
 
+static int
+atree_depth(cuex_t tree)
+{
+    int max_depth = 0, depth = 0;
+    while (cuex_meta(tree) == anode_meta) {
+	int left_depth;
+	++depth;
+	left_depth = depth + atree_depth(NODE(tree)->left);
+	if (left_depth > max_depth)
+	    max_depth = left_depth;
+	tree = NODE(tree)->right;
+    }
+    return max_depth;
+}
+
+int
+cuex_atree_depth(cuex_t tree)
+{
+    if (cuex_atree_is_empty(tree))
+	return 0;
+    else
+	return atree_depth(tree);
+}
+
+
+/* == Iteration == */
+
+struct atree_itr_s
+{
+    cuex_t *sp;
+    cuex_t stack[1];
+};
+
+size_t
+cuex_atree_itr_size(cuex_t tree)
+{
+    return sizeof(struct atree_itr_s) + cuex_atree_depth(tree)*sizeof(cuex_t);
+}
+
+void
+cuex_atree_itr_init(void *_itr, cuex_t atree)
+{
+#define itr ((struct atree_itr_s *)_itr)
+    itr->stack[0] = NULL;
+    if (cuex_atree_is_empty(atree))
+	itr->sp = &itr->stack[0];
+    else {
+	itr->stack[1] = atree;
+	itr->sp = &itr->stack[1];
+    }
+#undef itr
+}
+
+cuex_t
+cuex_atree_itr_get(void *_itr)
+{
+#define itr ((struct atree_itr_s *)_itr)
+    cuex_t *sp = itr->sp;
+    cuex_t tree = *sp;
+    if (!tree)
+	return NULL;
+    sp--;
+    while (cuex_meta(tree) == anode_meta) {
+	*++sp = NODE(tree)->right;
+	tree = NODE(tree)->left;
+    }
+    itr->sp = sp;
+    return tree;
+#undef itr
+}
+
+cuex_t
+cuex_atree_itr_get_at_1(void *_itr)
+{
+#define itr ((struct atree_itr_s *)_itr)
+    cuex_t *sp = itr->sp;
+    cuex_t tree = *sp;
+    if (!tree)
+	return NULL;
+    sp--;
+    while (cuex_meta(tree) == anode_meta) {
+	*++sp = NODE(tree)->right;
+	tree = NODE(tree)->left;
+    }
+    itr->sp = sp;
+    return cuex_opn_at(tree, 1);
+#undef itr
+}
+
+
+/* == Printing == */
+
 cu_clos_def(atree_print_elt, cu_prot(void, cuex_t elt),
     (FILE *out; int index;))
 {
@@ -1155,6 +1247,9 @@ atree_print(void *obj, FILE *out)
     }
 }
 
+
+/* == Interfaces == */
+
 static cu_word_t
 atree_impl(cu_word_t intf_number, ...)
 {
@@ -1163,6 +1258,9 @@ atree_impl(cu_word_t intf_number, ...)
 	default: return CUOO_IMPL_NONE;
     }
 }
+
+
+/* == Initialisation == */
 
 void
 cuexP_atree_init()

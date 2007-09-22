@@ -16,6 +16,7 @@
  */
 
 #include <cuex/labelling.h>
+#include <cuex/opn.h>
 #include <cudyn/misc.h>
 #include <cu/test.h>
 
@@ -60,10 +61,55 @@ test()
 	       cuex_labelling_left_isecn(L3, LC));
 }
 
+cu_clos_def(ladd, cu_prot(cuex_t, cuex_t e), (int diff;))
+{
+    cu_clos_self(ladd);
+    cu_debug_assert(cudyn_is_int(e));
+    return cudyn_int(cudyn_to_int(e) + self->diff);
+}
+
+cu_clos_def(lsum, cu_prot(cu_bool_t, cuex_t e), (int sum;))
+{
+    cu_clos_self(lsum);
+    cu_debug_assert(cudyn_is_int(e));
+    self->sum += cudyn_to_int(e);
+    return cu_true;
+}
+
+void
+test_image(int N, cu_bool_t print)
+{
+    cuex_t L = cuex_labelling_empty();
+    cuex_t L0;
+    int i;
+    int sum = 0;
+    lsum_t lsum;
+    ladd_t ladd;
+    for (i = 0; i < N; ++i) {
+	char ls[6 + sizeof(int)*3];
+	int j = lrand48();
+	sum += j;
+	sprintf(ls, "label%d", i);
+	L = cuex_labelling_insert(L, cu_idr_by_cstr(ls), cudyn_int(j));
+    }
+    ladd.diff = -60;
+    L0 = cuex_image(L, ladd_prep(&ladd));
+    if (print)
+	cu_fprintf(stdout, "Original: %!\nImage: %!", L, L0);
+    lsum.sum = 0;
+    cuex_conj(L, lsum_prep(&lsum));
+    cu_test_assert(lsum.sum == sum);
+    lsum.sum = 0;
+    cuex_conj(L0, lsum_prep(&lsum));
+    cu_test_assert(lsum.sum == sum - 60*N);
+}
+
 int
 main()
 {
     cuex_init();
     test();
+    test_image(10, cu_true);
+    test_image(1000, cu_false);
     return cu_test_bug_count()? 2 : 0;
 }
