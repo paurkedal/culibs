@@ -17,9 +17,9 @@
 
 #include <cuex/opn.h>
 #include <cuex/oprinfo.h>
+#include <cuex/compound.h>
+#include <cuex/intf.h>
 #include <cuoo/halloc.h>
-#include <cuoo/intf.h>
-#include <cuoo/compound.h>
 
 CU_SINLINE cu_bool_t
 wordaligned_eq(void *arr0, void *arr0_end, void *arr1)
@@ -157,11 +157,11 @@ cuex_conj(cuex_t e, cu_clop(pred, cu_bool_t, cuex_t))
     switch (cuex_meta_kind(meta)) {
 	case cuex_meta_kind_type: {
 	    cuoo_type_t type = cuoo_type_from_meta(meta);
-	    cuoo_intf_compound_t impl;
-	    impl = (cuoo_intf_compound_t)cuoo_type_impl(type,
-							CUOO_INTF_COMPOUND);
+	    cuex_intf_compound_t impl;
+	    impl = (cuex_intf_compound_t)cuoo_type_impl(
+		type, CUEX_INTF_COMPOUND);
 	    if (impl)
-		return impl->conj(impl, pred, e);
+		return cuex_compound_conj(impl, e, pred);
 	    else
 		return cu_true;
 	}
@@ -192,11 +192,11 @@ cuex_image(cuex_t e, cu_clop(f, cuex_t, cuex_t))
 
 	case cuex_meta_kind_type: {
 	    cuoo_type_t type = cuoo_type_from_meta(meta);
-	    cuoo_intf_compound_t impl;
-	    impl = (cuoo_intf_compound_t)cuoo_type_impl(type,
-							CUOO_INTF_COMPOUND);
+	    cuex_intf_compound_t impl;
+	    impl = (cuex_intf_compound_t)cuoo_type_impl(
+		type, CUEX_INTF_COMPOUND);
 	    if (impl)
-		return impl->image(impl, f, e);
+		return cuex_compound_image(impl, e, f);
 	    else
 		return e;
 	}

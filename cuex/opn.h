@@ -21,6 +21,7 @@
 #include <cuex/fwd.h>
 #include <cuex/ex.h>
 #include <cuoo/halloc.h>
+#include <cu/clos.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_opn_h cuex/opn.h: Additional Interface for Operations
@@ -184,6 +185,16 @@ cuex_opn_t cuex_opn2_left(cuex_meta_t opr, cuex_t x, cuex_t y);
  * complexity is linear in the number of top-level \a opr in \a x.
  * \pre \a opr is a binary operator. */
 cuex_opn_t cuex_opn2_right(cuex_meta_t opr, cuex_t x, cuex_t y);
+
+/*!If \a e is an operation or a \ref cuex_compound_h "compound", then iterate
+ * over it as long as \a f returns true, and return true iff it finish.
+ * Otherwise, return true. */
+cu_bool_t cuex_conj(cuex_t e, cu_clop(f, cu_bool_t, cuex_t));
+
+/*!If \a e is an operation or a \ref cuex_compound_h "compound", return the
+ * result of transforming all subexpressions with \a f.
+ * Otherwise, return \a e. */
+cuex_t cuex_image(cuex_t e, cu_clop(f, cuex_t, cuex_t));
 
 /*!@}*/
 CU_END_DECLARATIONS

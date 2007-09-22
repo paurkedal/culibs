@@ -7,10 +7,12 @@ cuex_headers = \
 	cuex/acidefs.h \
 	cuex/atree.h \
 	cuex/binding.h \
+	cuex/compound.h \
 	cuex/dunion.h \
 	cuex/ex.h \
 	cuex/fpvar.h \
 	cuex/ftype.h \
+	cuex/intf.h \
 	cuex/labelling.h \
 	cuex/monoid.h \
 	cuex/opn.h \
@@ -28,8 +30,10 @@ cuex_headers = \
 	cuex/tvar.h \
 	cuex/type.h \
 	cuex/var.h
+
 cuex_built_headers = \
 	cuex/oprdefs.h
+
 noinst_HEADERS += \
 	cuex/aci_priv.h \
 	cuex/opr_priv.h \
@@ -41,6 +45,7 @@ cuex_sources = \
 	cuex/aci_algo.c \
 	cuex/atree.c \
 	cuex/binding.c \
+	cuex/compound.c \
 	cuex/dunion.c \
 	cuex/ex.c \
 	cuex/fpvar.c \

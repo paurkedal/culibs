@@ -49,7 +49,6 @@ typedef cu_word_t (*cuoo_impl_t)(cu_word_t, ...);	/* type.h */
 typedef unsigned int		cuoo_propkey_t;		/* type.h */
 typedef struct cuoo_stdtype_s	*cuoo_stdtype_t;	/* type.h */
 typedef struct cuoo_type_s	*cuoo_type_t;		/* type.h */
-typedef struct cuoo_intf_compound_s *cuoo_intf_compound_t; /* compound.h */
 
 void cuoo_init(void);
 

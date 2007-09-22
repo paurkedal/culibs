@@ -15,31 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUOO_INTF_H
-#define CUOO_INTF_H
+#ifndef CUEX_INTF_H
+#define CUEX_INTF_H
 
-#include <cuoo/fwd.h>
+#include <cuex/fwd.h>
+#include <cuoo/intf.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuoo_intf_h cuoo/intf.h: Interface Numbers
- *@{\ingroup cuoo_mod */
+/*!\defgroup cuex_intf_h cuex/intf.h:
+ *@{\ingroup cuex_mod */
 
-/*!Value returned by interface dispatch functions to indicate that a requested
- * interface has no implementation. */
-#define CUOO_IMPL_NONE		CU_WORD_C(0)
-
-/* The range of interface numbers used culibs. */
-#define CUOO_INTFRANGE_CULIBS_BEGIN	0x00000000
-#define CUOO_INTFRANGE_CULIBS_END	0x00000100
-
-#define CUOO_INTF_SERIALISABLE	0x12	/* cuoo_serialisable_t */
-#define CUOO_INTF_PRINT_FN	0x13	/* void (*)(void *, FILE *) */
-
-/*!An interface dispatch which conistently returns \ref CUOO_IMPL_NONE. */
-cu_word_t cuoo_impl_none(cu_word_t intf_number, ...);
-
-/* US Spelling */
-#define CUOO_INTF_SERIALIZABLE CUOO_INTF_SERIALISABLE
+#define CUEX_INTF_COMPOUND	0x40
 
 /*!@}*/
 CU_END_DECLARATIONS

@@ -1,6 +1,5 @@
 cuoo_headers = \
 	cuoo/fwd.h \
-	cuoo/compound.h \
 	cuoo/halloc.h \
 	cuoo/hcobj.h \
 	cuoo/intf.h \
