@@ -138,3 +138,10 @@ td.paramtype {
 	margin-top: 0.6em;
 	margin-bottom: 1.6em;
 }
+
+dl.see p, dl.see dd {
+	margin-top: 0;
+	margin-bottom: 0;
+	display: list-item;
+	list-style: square;
+}

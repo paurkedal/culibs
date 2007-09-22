@@ -22,8 +22,11 @@
 #include <cuoo/intf.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuex_intf_h cuex/intf.h:
- *@{\ingroup cuex_mod */
+/*!\defgroup cuex_intf_h cuex/intf.h: Interface Numbers
+ *@{\ingroup cuex_mod
+ * \see cuoo_intf_h
+ * \see cuex_compound_h
+ */
 
 #define CUEX_INTF_COMPOUND	0x40
 
