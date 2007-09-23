@@ -68,6 +68,7 @@ typedef struct cuex_intf_iterable_s *cuex_intf_iterable_t;
 typedef struct cuex_intf_imageable_s *cuex_intf_imageable_t;
 typedef struct cuex_intf_growable_s *cuex_intf_growable_t;
 
+/*!Subinterface of \ref cuex_intf_compound_s for iterating over a compound. */
 struct cuex_intf_iterable_s
 {
     size_t (*itr_size)(cuex_t compound);
@@ -75,6 +76,8 @@ struct cuex_intf_iterable_s
     cuex_t (*itr_get)(void *itr);
 };
 
+/*!Subinterface of \ref cuex_intf_compound_s for iteratively constructing the
+ * image of a componud. */
 struct cuex_intf_imageable_s
 {
     unsigned int flags;
@@ -85,6 +88,8 @@ struct cuex_intf_imageable_s
     cuex_t (*itr_finish)(void *itr);
 };
 
+/*!Subinterface of \ref cuex_intf_growable_s for iteratively constructing a
+ * compound. */
 struct cuex_intf_growable_s
 {
     size_t itr_size;
@@ -121,6 +126,7 @@ struct cuex_intf_growable_s
  * calls. */
 #define CUEX_COMPOUNDFLAG_EXPANSIVE_IMAGE 32
 
+/*!Interface for compound expressions. */
 struct cuex_intf_compound_s
 {
     unsigned int flags;
