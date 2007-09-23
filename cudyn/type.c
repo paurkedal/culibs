@@ -94,9 +94,9 @@ cudyn_elmtype_new(cuoo_typekind_t kind, cuoo_impl_t impl,
 /* Array Types
  * =========== */
 
-cu_clop_def(arrtype_cct_glck, void, void *t)
+static void
+arrtype_cct_glck(cudyn_arrtype_t t)
 {
-#define t ((cudyn_arrtype_t)t)
     cu_offset_t bitoffset;
     size_t elt_bitsize, elt_bitalign;
     size_t arr_bitsize, arr_bitalign;
@@ -120,27 +120,31 @@ cu_clop_def(arrtype_cct_glck, void, void *t)
     cuooP_type_cct_hcs(cu_to2(cuoo_type, cudyn_inltype, t), cuoo_impl_none, ex,
 		       cuoo_typekind_arrtype, cuoo_layout_size(lyo));
     AO_store_release_write(&cu_to(cudyn_inltype, t)->layout, (AO_t)lyo);
-#undef t
 }
 
-cudyn_arrtype_t
-cudyn_arrtype_glck(cuex_t ex)
+static cudyn_arrtype_t
+arrtype(cuex_t ex, cu_bool_t have_lock)
 {
     cudyn_arrtype_t t;
-    t = cuoo_hnew_extra(cudyn_arrtype, sizeof(cuex_t), &ex, arrtype_cct_glck);
-    if (!cu_to(cudyn_inltype, t)->layout)
-	return NULL;
+    t = cuoo_hnew_extra_setao(cudyn_arrtype, sizeof(cuex_t), &ex,
+			      offsetof(struct cudyn_inltype_s, layout), 0);
+    if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
+	if (!have_lock)
+	    cu_mutex_lock(&type_glck);
+	if (!cu_to(cudyn_inltype, t)->layout)
+	    arrtype_cct_glck(t);
+	if (!have_lock)
+	    cu_mutex_unlock(&type_glck);
+	if (!cu_to(cudyn_inltype, t)->layout)
+	    return NULL;
+    }
     return t;
 }
 
 cudyn_arrtype_t
 cudyn_arrtype(cuoo_type_t elt_type, size_t cnt)
 {
-    cudyn_arrtype_t t;
-    cu_mutex_lock(&type_glck);
-    t = cudyn_arrtype_glck(cuex_o2_gexpt(elt_type, cudyn_int(cnt)));
-    cu_mutex_unlock(&type_glck);
-    return t;
+    return arrtype(cuex_o2_gexpt(elt_type, cudyn_int(cnt)), cu_false);
 }
 
 
@@ -209,9 +213,9 @@ tuptype_finish_sigprod_glck(cudyn_tuptype_t t, cuex_t ex, cuoo_layout_t lyo)
 	return NULL;
 }
 
-cu_clop_def(tuptype_cct_glck, void, void *t)
+static void
+tuptype_cct_glck(cudyn_tuptype_t t)
 {
-#define t ((cudyn_tuptype_t)t)
     cuoo_layout_t lyo;
     cuex_t ex;
 
@@ -266,34 +270,31 @@ cu_clop_def(tuptype_cct_glck, void, void *t)
     cuooP_type_cct_hcs(cu_to2(cuoo_type, cudyn_inltype, t), cuoo_impl_none, ex,
 		       cuoo_typekind_tuptype, cuoo_layout_size(lyo));
     AO_store_release_write(&cu_to(cudyn_inltype, t)->layout, (AO_t)lyo);
-#undef t
 }
 
-cudyn_tuptype_t
-cudyn_tuptype_glck(cuex_t ex)
+static cudyn_tuptype_t
+tuptype(cuex_t ex, cu_bool_t have_lock)
 {
     cudyn_tuptype_t t;
-    t = cuoo_hnew_extra(cudyn_tuptype, sizeof(cuex_t), &ex, tuptype_cct_glck);
-    if (!cu_to(cudyn_inltype, t)->layout)
-	return NULL;
+    t = cuoo_hnew_extra_setao(cudyn_tuptype, sizeof(cuex_t), &ex,
+			      offsetof(struct cudyn_inltype_s, layout), 0);
+    if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
+	if (!have_lock)
+	    cu_mutex_lock(&type_glck);
+	if (!cu_to(cudyn_inltype, t)->layout)
+	    tuptype_cct_glck(t);
+	if (!have_lock)
+	    cu_mutex_unlock(&type_glck);
+	if (!cu_to(cudyn_inltype, t)->layout)
+	    return NULL;
+    }
     return t;
-}
-
-cu_clop_def(tuptype_cct, void, void *t)
-{
-    cu_mutex_lock(&type_glck);
-    cu_call(tuptype_cct_glck, t);
-    cu_mutex_unlock(&type_glck);
 }
 
 cudyn_tuptype_t
 cudyn_tuptype(cuex_t ex)
 {
-    cudyn_tuptype_t t;
-    t = cuoo_hnew_extra(cudyn_tuptype, sizeof(cuex_t), &ex, tuptype_cct);
-    if (!cu_to(cudyn_inltype, t)->layout)
-	return NULL;
-    return t;
+    return tuptype(ex, cu_false);
 }
 
 cudyn_tuptype_t
@@ -304,7 +305,7 @@ cudyn_tuptype_by_valist(cu_offset_t cnt, va_list vl)
     e = va_arg(vl, cuex_t);
     while (--cnt)
 	e = cuex_o2_gprod(e, va_arg(vl, cuex_t));
-    return cudyn_tuptype(e);
+    return tuptype(e, cu_false);
 }
 
 cu_clos_def(tuptype_conj_cb,
@@ -396,9 +397,9 @@ cu_clos_def(duntype_cct_cb,
     return cu_true;
 }
 
-cu_clop_def(duntype_cct_glck, void, void *duntype)
+static void
+duntype_cct_glck(cudyn_duntype_t duntype)
 {
-#define duntype ((cudyn_duntype_t)duntype)
     duntype_cct_cb_t cb;
     cuex_t ex = cudyn_duntype_to_type(duntype)->as_expr;
     cu_debug_assert(cuex_meta(ex) == CUEX_O4ACI_DUNION);
@@ -413,47 +414,48 @@ cu_clop_def(duntype_cct_glck, void, void *duntype)
 			 cuoo_impl_none, ex, cuoo_typekind_duntype);
     AO_store_release_write(&cu_to(cudyn_inltype, duntype)->layout,
 			   (AO_t)cb.lyo);
-#undef duntype 
+}
+
+static cudyn_duntype_t
+duntype(cuex_t ex, cu_bool_t have_lock)
+{
+    cudyn_duntype_t t;
+    t = cuoo_hnew_extra_setao(cudyn_duntype, sizeof(cuex_t), &ex,
+			      offsetof(struct cudyn_inltype_s, layout), 0);
+    if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
+	if (!have_lock)
+	    cu_mutex_lock(&type_glck);
+	if (!cu_to(cudyn_inltype, t)->layout)
+	    duntype_cct_glck(t);
+	if (!have_lock)
+	    cu_mutex_unlock(&type_glck);
+	if (!cu_to(cudyn_inltype, t)->layout)
+	    return NULL;
+    }
+    return t;
 }
 
 cudyn_duntype_t
-cudyn_duntype_glck(cuex_t ex)
+cudyn_duntype(cuex_t ex)
 {
-    cudyn_duntype_t t;
-    t = cuoo_hnew_extra(cudyn_duntype, sizeof(cuex_t), &ex, duntype_cct_glck);
-    if (!cu_to(cudyn_inltype, t)->layout)
-	return NULL;
-    return t;
+    return duntype(ex, cu_false);
 }
 
 
 /* Singular Types
  * ============== */
 
-cu_clop_def(sngtype_cct_glck, void, void *sngtype)
-{
-#define sngtype ((cudyn_sngtype_t)sngtype)
-    cuex_t ex = cudyn_sngtype_to_type(sngtype)->as_expr;
-    cuooP_type_cct_nonhc(cu_to2(cuoo_type, cudyn_inltype, sngtype),
-			 cuoo_impl_none, ex, cuoo_typekind_sngtype);
-    AO_store_release_write(&cu_to(cudyn_inltype, sngtype)->ffitype,
-			   (AO_t)&ffi_type_void);
-#undef sngtype
-}
-
-cudyn_sngtype_t
-cudyn_sngtype_glck(cuex_t ex)
-{
-    return cuoo_hnew_extra(cudyn_sngtype, sizeof(cuex_t), &ex,
-			   sngtype_cct_glck);
-}
-
-#define sngtype_cct sngtype_cct_glck
-
 cudyn_sngtype_t
 cudyn_sngtype(cuex_t ex)
 {
-    return cuoo_hnew_extra(cudyn_sngtype, sizeof(cuex_t), &ex, sngtype_cct);
+    cudyn_sngtype_t t;
+    cuoo_hctem_decl(cudyn_sngtype, tem);
+    cuoo_hctem_init(cudyn_sngtype, tem);
+    t = cuoo_hctem_get(cudyn_sngtype, tem);
+    cuooP_type_cct_nonhc(cu_to2(cuoo_type, cudyn_inltype, t),
+			 cuoo_impl_none, ex, cuoo_typekind_sngtype);
+    cu_to(cudyn_inltype, t)->ffitype = (AO_t)&ffi_type_void;
+    return cuoo_hctem_new(cudyn_sngtype, tem);
 }
 
 cudyn_sngtype_t
@@ -466,30 +468,34 @@ cudyn_sngtype_of_elt(cuex_t elt)
 /* Generic
  * ======= */
 
-cu_clop_def(type_init_default, void, void *type)
+static cuoo_type_t
+default_type(cuex_t ex)
 {
-#define type ((cuoo_type_t)type)
-    cuex_t ex = type->as_expr;
-    cuooP_type_cct_hcs(type, cuoo_impl_none, ex,
-		       cuoo_typekind_by_expr, cuex_type_size(ex));
-#undef type
+    cuoo_type_t t;
+    t = cuoo_halloc_extra_setao(cuoo_type_type(),
+				sizeof(struct cuoo_type_s) + sizeof(AO_t),
+				sizeof(cuex_t), &ex,
+				sizeof(struct cuoo_type_s), 0);
+    if (!AO_load_acquire_read((AO_t *)(t + 1)))
+	cuooP_type_cct_hcs(t, cuoo_impl_none, ex,
+			   cuoo_typekind_by_expr, cuex_type_size(ex));
+    return t;
 }
 
 cuoo_type_t
-cuoo_type_glck(cuex_t ex)
+dispatch_type(cuex_t ex, cu_bool_t have_lock)
 {
     if (cuoo_is_type(ex))
 	return ex;
     switch (cuex_meta(ex)) {
 	case CUEX_O3ACI_SETJOIN:
-	    return cudyn_sngtype_to_type(cudyn_sngtype_glck(ex));
-	case CUEX_O2_GEXPT:
-	    return cudyn_arrtype_to_type(cudyn_arrtype_glck(ex));
-	case CUEX_O2_GPROD:
-//	case CUEX_O4ACI_SIGPROD:
-	    return cudyn_tuptype_to_type(cudyn_tuptype_glck(ex));
+	    return cudyn_sngtype_to_type(cudyn_sngtype(ex));
 	case CUEX_O4ACI_DUNION:
-	    return cudyn_duntype_to_type(cudyn_duntype_glck(ex));
+	    return cudyn_duntype_to_type(duntype(ex, have_lock));
+	case CUEX_O2_GEXPT:
+	    return cudyn_arrtype_to_type(arrtype(ex, have_lock));
+	case CUEX_O2_GPROD:
+	    return cudyn_tuptype_to_type(tuptype(ex, have_lock));
 	case CUEX_O2_FARROW:
 	case CUEX_O2_FARROW_NATIVE:
 	    /* TODO, for now. */
@@ -499,22 +505,21 @@ cuoo_type_glck(cuex_t ex)
 	    cu_bugf("Invalid or unimplemented type expression.");
 	    return NULL;
 #else
-	    return cuoo_halloc_extra(cuoo_type_type(),
-				     sizeof(struct cuoo_type_s),
-				     sizeof(cuex_t), &ex,
-				     type_init_default);
+	    return default_type(ex);
 #endif
     }
 }
 
 cuoo_type_t
+cuoo_type_glck(cuex_t ex)
+{
+    return dispatch_type(ex, cu_true);
+}
+
+cuoo_type_t
 cuoo_type(cuex_t ex)
 {
-    cuoo_type_t t;
-    cu_mutex_lock(&type_glck);
-    t = cuoo_type_glck(ex);
-    cu_mutex_unlock(&type_glck);
-    return t;
+    return dispatch_type(ex, cu_false);
 }
 
 
