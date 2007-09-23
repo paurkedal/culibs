@@ -9,7 +9,8 @@ $special_allowed_words{$_} = 1 foreach qw(
     _fini
     _init
 );
-my $header = "Disallowed symbols:\n";
+
+my $found_disallowed = 0;
 
 sub check_lib($$)
 {
@@ -23,9 +24,9 @@ sub check_lib($$)
 	    if ($type =~ /[ABDT]/) {
 		if (!($symbol =~ $allowed ||
 		      $special_allowed_words{$symbol})) {
-		    if ($header) {
-			print $header;
-			$header = undef;
+		    if (not $found_disallowed) {
+			$found_disallowed = 1;
+			print "Disallowed symbols:\n";
 		    }
 		    print "\t$lib: $type $symbol\n";
 		}
@@ -35,11 +36,11 @@ sub check_lib($$)
 }
 
 check_lib("libcubase",
-    qr/^(cuconf|CUCONF|cu|CU|cucon|CUCON|cudyn|CUDYN|cuex|CUEX)P?_/);
+    qr/^(cuconf|CUCONF|cu|CU|cuoo|CUOO|cucon|CUCON|cuex|CUEX)P?_/);
 check_lib("libcuex", qr/^(cuex|CUEX|cudyn|CUDYN)P?_/);
 check_lib("libcuos", qr/^(cuos|CUOS)P?_/);
 check_lib("libcuflow", qr/^(cuflow|CUFLOW)P?_/);
 check_lib("libcusto", qr/^(custo|CUSTO)P?_/);
 check_lib("libcugra", qr/^(cugra|CUGRA)P?_/);
 
-exit $header? 0 : 1;
+exit $found_disallowed;

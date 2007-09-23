@@ -283,7 +283,7 @@ test3(int i, int inframe_p)
     printf("\nCall a trival function with CC "
 	   "(gives the size of the big frame).\n");
     cuflow_set_save_current_flow(cuflow_mode_nondet, &flow);
-    cu_call_with_cc(simple, &k, sizeof(k));
+    cuflow_call_with_cc(simple, &k, sizeof(k));
     cuflow_set_current_mode(flow);
     assert(k == 191);
     cuflow_continuation_print_stats();
@@ -292,8 +292,8 @@ test3(int i, int inframe_p)
     cu_call0(test0);
     cuflow_continuation_print_stats();
 
-    printf("\nNow, cu_call_in_root (big frame not copied).\n");
-    cu_call_in_root(test0, cuflow_mode_nondet);
+    printf("\nNow, cuflow_call_in_root (big frame not copied).\n");
+    cuflow_call_in_root(test0, cuflow_mode_nondet);
     cuflow_continuation_print_stats();
 
     printf("\nThen, cu_call_in_frame (big frame copied once).\n");
@@ -316,15 +316,15 @@ cu_clos_def(alt_main,
     printf("\n");
 
     t1 = -clock();
-    cu_call_in_root(test1_prep(&test1_cl), cuflow_mode_nondet);
+    cuflow_call_in_root(test1_prep(&test1_cl), cuflow_mode_nondet);
     t1 += clock();
 
     t1_plain = -clock();
-    cu_call_in_root(test1_plain_prep(&test1_plain_cl), cuflow_mode_nondet);
+    cuflow_call_in_root(test1_plain_prep(&test1_plain_cl), cuflow_mode_nondet);
     t1_plain += clock();
 
     t1_fnl = -clock();
-    cu_call_in_root(test1_fnl_prep(&test1_fnl_cl), cuflow_mode_nondet);
+    cuflow_call_in_root(test1_fnl_prep(&test1_fnl_cl), cuflow_mode_nondet);
     t1_fnl += clock();
 
     it = chi_slist_begin(&test1_cl.lst);
@@ -357,6 +357,6 @@ main()
 {
     alt_main_t alt_main_clos;
     cu_init();
-    cu_call_in_root(alt_main_prep(&alt_main_clos), cuflow_mode_semidet);
+    cuflow_call_in_root(alt_main_prep(&alt_main_clos), cuflow_mode_semidet);
     return 0;
 }

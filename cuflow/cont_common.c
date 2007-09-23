@@ -239,8 +239,8 @@ cuflow_set_cc(cu_clop(*cc_out, void, void *),
 {
     cuflowP_set_cc_t set_cc;
     set_cc.cc_out = cc_out;
-    return cu_call_with_cc(cuflowP_set_cc_prep(&set_cc),
-			   result_ptr, result_size);
+    return cuflow_call_with_cc(cuflowP_set_cc_prep(&set_cc),
+			       result_ptr, result_size);
 }
 
 

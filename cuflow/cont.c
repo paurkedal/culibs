@@ -22,7 +22,7 @@
  * ------------ */
 
 void
-cu_call_in_root(cu_clop0(trunk, void), cuflow_mode_t trunk_flow)
+cuflow_call_in_root(cu_clop0(trunk, void), cuflow_mode_t trunk_flow)
 {
     cuflow_mode_t cur_flow;
     cuflow_tstate_t st = cuflow_tstate();
@@ -56,8 +56,8 @@ cu_call_in_root(cu_clop0(trunk, void), cuflow_mode_t trunk_flow)
     cu_call0(trunk);
 #ifdef CUCONF_ENABLE_FLOW_CHECK
     if (cuflow_tstate_current_flow(st) != trunk_flow)
-	cuflowP_mismatched_flow("trunk called from cu_call_in_root",
-			     trunk_flow);
+	cuflowP_mismatched_flow("trunk called from cuflow_call_in_root",
+				trunk_flow);
 #endif
     cuflow_tstate_set_current_flow(st, cur_flow);
     st->onstack_cont = up;
@@ -146,8 +146,8 @@ cuflow_for_catchers(cu_clop(proc, int, cu_clop(, void, cu_ptr_t)))
 }
 
 int
-cu_call_with_cc(cu_clop(trunk, int, cu_clop(, void, void *), void *),
-		 void *result_ptr, size_t result_size)
+cuflow_call_with_cc(cu_clop(trunk, int, cu_clop(, void, void *), void *),
+		    void *result_ptr, size_t result_size)
 {
     int r;
     cuflow_tstate_t st = cuflow_tstate();
@@ -174,8 +174,8 @@ cu_call_with_cc(cu_clop(trunk, int, cu_clop(, void, void *), void *),
 	r = cu_call(trunk, cuflowP_call_cntn_prep(cntn_clos), result_ptr);
 #ifdef CUCONF_ENABLE_FLOW_CHECK
 	if (cuflow_tstate_current_flow(st) != cur_flow)
-	    cuflowP_mismatched_flow("trunk called from cu_call_with_cc",
-				 cur_flow);
+	    cuflowP_mismatched_flow("trunk called from cuflow_call_with_cc",
+				    cur_flow);
 #endif
     }
     else

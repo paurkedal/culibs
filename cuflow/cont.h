@@ -160,7 +160,7 @@ void	cuflow_set_save_current_flow(cuflow_mode_t newflow, cuflow_mode_t *oldflow)
  * therein is used outside this call.  This also disallows multireturn
  * of 'trunk', so flow is degraded to 'cuflow_mode_det' or
  * 'cuflow_mode_semidet' while evaluating 'trunk'. */
-void cu_call_in_root(cu_clop0(trunk, void), cuflow_mode_t trunk_flow);
+void cuflow_call_in_root(cu_clop0(trunk, void), cuflow_mode_t trunk_flow);
 
 /* Call 'trunk' with a stack break at the call.  This means that the
  * stack above this call is only copied once even if the stack below
@@ -177,16 +177,16 @@ void cuflow_dynamic_wind(cu_clop0(on_entry, void),
 /* Call 'trunk' with the current continuation 'cc'.  This function can
  * return normally or multiple times due to calls to 'cc':
  *
- * (1) If it returns normally, 'cu_call_with_cc' returns the same
+ * (1) If it returns normally, 'cuflow_call_with_cc' returns the same
  * integer.  'res' is the same pointer as 'result_ptr'.
  *
  * (2) When 'cc' is called inside any stack frame with a common root
- * as the caller of 'cu_call_with_cc', 'cc' will copy the object
+ * as the caller of 'cuflow_call_with_cc', 'cc' will copy the object
  * pointed to by 'arg', which is assumed to have size 'result_size',
  * to the location 'result_ptr', and cause a return from
- * 'cu_call_with_cc' with value 'INT_MIN'.  */
+ * 'cuflow_call_with_cc' with value 'INT_MIN'.  */
 int
-cu_call_with_cc(
+cuflow_call_with_cc(
     cu_clop(trunk, int, cu_clop(cc, void, void *arg), void *res),
     void *result_ptr, size_t result_size);
 
