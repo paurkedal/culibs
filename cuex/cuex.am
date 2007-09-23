@@ -154,3 +154,7 @@ endif
 EXTRA_DIST += \
 	cuex/cuex.am \
 	cuex/oprdefs.otab
+
+CLEANFILES += \
+	cuex/oprdefs.h \
+	cuex/oprdefs.c

@@ -28,6 +28,10 @@ CU_BEGIN_DECLARATIONS
  * interface has no implementation. */
 #define CUOO_IMPL_NONE		CU_WORD_C(0)
 
+/*!Value returned by interface dispatch functions which do not return anything
+ * to indicate that the call was recognised and processed. */
+#define CUOO_IMPL_SUCCESS	((cu_word_t)-2)
+
 /* The range of interface numbers used culibs. */
 #define CUOO_INTFRANGE_CULIBS_BEGIN	0x00000000
 #define CUOO_INTFRANGE_CULIBS_END	0x00000100
