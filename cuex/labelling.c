@@ -23,6 +23,7 @@
 #include <cuex/atree.h>
 #include <cuoo/halloc.h>
 #include <cuoo/properties.h>
+#include <cu/ptr_seq.h>
 
 #define tuple(l, e) cuex_opn(CUEX_OR_TUPLE(2), l, e)
 
@@ -254,124 +255,161 @@ labelling_print(void *L, FILE *out)
 
 /* == Compound Interface: Iteration == */
 
-static size_t
-labelling_itr_size(cuex_t L)
+static void *
+ncomm_source_get(cu_ptr_source_t source)
 {
-    return cuex_atree_itr_size(LABELLING(L)->atree);
+    return cuex_atree_itr_get_at_1(source + 1);
 }
 
-static void
-labelling_itr_init(void *itr, cuex_t L)
+static cu_ptr_source_t
+ncomm_source(cuex_intf_compound_t impl, cuex_t L)
 {
-    cuex_atree_itr_init(itr, LABELLING(L)->atree);
+    cu_ptr_source_t source;
+    size_t atree_itr_size = cuex_atree_itr_size(LABELLING(L)->atree);
+    source = cu_galloc(sizeof(struct cu_ptr_source_s) + atree_itr_size);
+    cuex_atree_itr_init(source + 1, LABELLING(L)->atree);
+    cu_ptr_source_init(source, ncomm_source_get);
+    return source;
 }
-static struct cuex_intf_iterable_s labelling_comm_iterable = {
-    .itr_size = labelling_itr_size,
-    .itr_init = labelling_itr_init,
-    .itr_get = cuex_atree_itr_get,
-};
-static struct cuex_intf_iterable_s labelling_ncomm_iterable = {
-    .itr_size = labelling_itr_size,
-    .itr_init = labelling_itr_init,
-    .itr_get = cuex_atree_itr_get_at_1,
-};
+
+static void *
+comm_source_get(cu_ptr_source_t source)
+{
+    return cuex_atree_itr_get(source + 1);
+}
+
+static cu_ptr_source_t
+comm_source(cuex_intf_compound_t impl, cuex_t L)
+{
+    cu_ptr_source_t source;
+    size_t atree_itr_size = cuex_atree_itr_size(LABELLING(L)->atree);
+    source = cu_galloc(sizeof(struct cu_ptr_source_s) + atree_itr_size);
+    cuex_atree_itr_init(source + 1, LABELLING(L)->atree);
+    cu_ptr_source_init(source, comm_source_get);
+    return source;
+}
 
 
 /* == Compound Interface: Non-commutative == */
 
-struct image_itr_s
+typedef struct ncomm_image_junctor_s *ncomm_image_junctor_t;
+struct ncomm_image_junctor_s
 {
+    cu_inherit (cu_ptr_junctor_s);
     cuex_t new_atree;
     cuex_t current_label;
     /* atree iterator follows */
 };
-#define IMAGE_ITR(itr) ((struct image_itr_s *)(itr))
+#define IMAGE_ITR(itr) ((struct ncomm_image_junctor_s *)(itr))
 #define IMAGE_ITR_ATREE_ITR(itr) \
-    ((void *)((struct image_itr_s *)(itr) + 1))
-static size_t
-image_itr_size(cuex_t L)
-{
-    return sizeof(struct image_itr_s)
-	+ cuex_atree_itr_size(LABELLING(L)->atree);
-}
-static void
-image_itr_init(void *itr, cuex_t L)
-{
-    IMAGE_ITR(itr)->new_atree = cuex_atree_empty();
-    IMAGE_ITR(itr)->current_label = NULL;
-    cuex_atree_itr_init(IMAGE_ITR_ATREE_ITR(itr), LABELLING(L)->atree);
-}
+    ((void *)((struct ncomm_image_junctor_s *)(itr) + 1))
+
 static cuex_t
-image_itr_get(void *itr)
+ncomm_image_junctor_get(cu_ptr_source_t source)
 {
-    cuex_t leaf = cuex_atree_itr_get(IMAGE_ITR_ATREE_ITR(itr));
+    ncomm_image_junctor_t self
+	= cu_from3(ncomm_image_junctor,
+		   cu_ptr_junctor, cu_ptr_junction, cu_ptr_source, source);
+    cuex_t leaf = cuex_atree_itr_get(self + 1);
     if (leaf) {
-	IMAGE_ITR(itr)->current_label = cuex_opn_at(leaf, 0);
+	self->current_label = cuex_opn_at(leaf, 0);
 	return cuex_opn_at(leaf, 1);
     }
     else
 	return NULL;
 }
+
 static void
-image_itr_put(void *itr, cuex_t elt)
+ncomm_image_junctor_put(cu_ptr_sink_t sink, void *elt)
 {
-    cuex_t l = IMAGE_ITR(itr)->current_label;
+    ncomm_image_junctor_t self
+	= cu_from3(ncomm_image_junctor,
+		   cu_ptr_junctor, cu_ptr_junction, cu_ptr_sink, sink);
+    cuex_t l = self->current_label;
 #ifndef CU_NDEBUG_CLIENT
     if (!l)
 	cu_bugf("The put operation on the imageable-interface of a labelling "
 		"does not correspond to a previous get.  Attempted to put "
-		"%! into %!.", elt, IMAGE_ITR(itr)->new_atree);
+		"%! into %!.", elt, self->new_atree);
     cu_debug_assert(l);
 #endif
-    IMAGE_ITR(itr)->new_atree
-	= atree_insert(IMAGE_ITR(itr)->new_atree, tuple(l, elt));
+    self->new_atree = atree_insert(self->new_atree, tuple(l, elt));
 #ifndef CU_NDEBUG_CLIENT
-    IMAGE_ITR(itr)->current_label = NULL;
+    self->current_label = NULL;
 #endif
 }
+
 static cuex_t
-image_itr_finish(void *itr)
+ncomm_image_junctor_finish(cu_ptr_junctor_t junctor)
 {
-    return labelling(IMAGE_ITR(itr)->new_atree);
+    ncomm_image_junctor_t self
+	= cu_from(ncomm_image_junctor, cu_ptr_junctor, junctor);
+    return labelling(self->new_atree);
 }
-static struct cuex_intf_imageable_s labelling_ncomm_imageable = {
-    .itr_size = image_itr_size,
-    .itr_init = image_itr_init,
-    .itr_get = image_itr_get,
-    .itr_put = image_itr_put,
-    .itr_finish = image_itr_finish,
-};
+
+static cu_ptr_junctor_t
+ncomm_image_junctor(cuex_intf_compound_t impl, cuex_t L)
+{
+    size_t atree_itr_size = cuex_atree_itr_size(LABELLING(L)->atree);
+    ncomm_image_junctor_t self
+	= cu_galloc(sizeof(struct ncomm_image_junctor_s) + atree_itr_size);
+    cuex_atree_itr_init(self + 1, LABELLING(L)->atree);
+    self->new_atree = cuex_atree_empty();
+    self->current_label = NULL;
+    cu_ptr_junctor_init(cu_to(cu_ptr_junctor, self),
+			ncomm_image_junctor_get,
+			ncomm_image_junctor_put,
+			ncomm_image_junctor_finish);
+    return cu_to(cu_ptr_junctor, self);
+}
 
 
 /* == Compound Interface: Commutative */
 
-static void
-comm_growable_itr_init_empty(void *itr, cuex_t template_compound)
+typedef struct comm_build_sinktor_s *comm_build_sinktor_t;
+struct comm_build_sinktor_s
 {
-    *(cuex_t *)itr = cuex_atree_empty();
-}
-static void
-comm_growable_itr_init_copy(void *itr, cuex_t compound)
-{
-    *(cuex_t *)itr = LABELLING(compound)->atree;
-}
-static void
-comm_growable_itr_put(void *itr, cuex_t member)
-{
-    *(cuex_t *)itr = atree_insert(*(cuex_t *)itr, member);
-}
-static cuex_t
-comm_growable_itr_finish(void *itr)
-{
-    return labelling(*(cuex_t *)itr);
-}
-static struct cuex_intf_growable_s labelling_comm_growable = {
-    .itr_size = sizeof(cuex_t),
-    .itr_init_empty = comm_growable_itr_init_empty,
-    .itr_init_copy = comm_growable_itr_init_copy,
-    .itr_put = comm_growable_itr_put,
-    .itr_finish = comm_growable_itr_finish,
+    cu_inherit (cu_ptr_sinktor_s);
+    cuex_t new_atree;
 };
+
+static void
+comm_build_sinktor_put(cu_ptr_sink_t sink, void *elt)
+{
+    comm_build_sinktor_t self
+	= cu_from2(comm_build_sinktor, cu_ptr_sinktor, cu_ptr_sink, sink);
+    self->new_atree = atree_insert(self->new_atree, elt);
+}
+
+static void *
+comm_build_sinktor_finish(cu_ptr_sinktor_t sinktor)
+{
+    comm_build_sinktor_t self
+	= cu_from(comm_build_sinktor, cu_ptr_sinktor, sinktor);
+    return labelling(self->new_atree);
+}
+
+static cu_ptr_sinktor_t
+comm_build_sinktor(cuex_intf_compound_t impl, cuex_t L)
+{
+    comm_build_sinktor_t self = cu_gnew(struct comm_build_sinktor_s);
+    cu_ptr_sinktor_init(cu_to(cu_ptr_sinktor, self),
+			comm_build_sinktor_put,
+			comm_build_sinktor_finish);
+    self->new_atree = cuex_atree_empty();
+    return cu_to(cu_ptr_sinktor, self);
+}
+
+static cu_ptr_sinktor_t
+comm_union_sinktor(cuex_intf_compound_t impl, cuex_t L)
+{
+    comm_build_sinktor_t self = cu_gnew(struct comm_build_sinktor_s);
+    cu_ptr_sinktor_init(cu_to(cu_ptr_sinktor, self),
+			comm_build_sinktor_put,
+			comm_build_sinktor_finish);
+    self->new_atree = LABELLING(L)->atree;
+    return cu_to(cu_ptr_sinktor, self);
+}
 
 static cuex_t
 comm_find(cuex_t L, cuex_t l)
@@ -386,10 +424,11 @@ static struct cuex_intf_compound_s labelling_compound = {
     .flags = CUEX_COMPOUNDFLAG_PREFER_NCOMM
 	   | CUEX_COMPOUNDFLAG_FILTERABLE_IMAGE
 	   | CUEX_COMPOUNDFLAG_COMM_IDEMPOTENT,
-    .ncomm_iterable = &labelling_ncomm_iterable,
-    .ncomm_imageable = &labelling_ncomm_imageable,
-    .comm_iterable = &labelling_comm_iterable,
-    .comm_growable = &labelling_comm_growable,
+    .ncomm_source = &ncomm_source,
+    .ncomm_image_junctor = &ncomm_image_junctor,
+    .comm_source = &comm_source,
+    .comm_build_sinktor = &comm_build_sinktor,
+    .comm_union_sinktor = &comm_union_sinktor,
     .comm_find = comm_find,
 };
 

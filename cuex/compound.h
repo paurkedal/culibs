@@ -64,40 +64,6 @@ CU_BEGIN_DECLARATIONS
  */
 
 typedef struct cuex_intf_compound_s *cuex_intf_compound_t;
-typedef struct cuex_intf_iterable_s *cuex_intf_iterable_t;
-typedef struct cuex_intf_imageable_s *cuex_intf_imageable_t;
-typedef struct cuex_intf_growable_s *cuex_intf_growable_t;
-
-/*!Subinterface of \ref cuex_intf_compound_s for iterating over a compound. */
-struct cuex_intf_iterable_s
-{
-    size_t (*itr_size)(cuex_t compound);
-    void (*itr_init)(void *itr, cuex_t compound);
-    cuex_t (*itr_get)(void *itr);
-};
-
-/*!Subinterface of \ref cuex_intf_compound_s for iteratively constructing the
- * image of a componud. */
-struct cuex_intf_imageable_s
-{
-    unsigned int flags;
-    size_t (*itr_size)(cuex_t compound);
-    void (*itr_init)(void *itr, cuex_t compound);
-    cuex_t (*itr_get)(void *itr);
-    void (*itr_put)(void *itr, cuex_t member);
-    cuex_t (*itr_finish)(void *itr);
-};
-
-/*!Subinterface of \ref cuex_intf_growable_s for iteratively constructing a
- * compound. */
-struct cuex_intf_growable_s
-{
-    size_t itr_size;
-    void (*itr_init_empty)(void *itr, cuex_t template_compound);
-    void (*itr_init_copy)(void *itr, cuex_t compound);
-    void (*itr_put)(void *itr, cuex_t member);
-    cuex_t (*itr_finish)(void *itr);
-};
 
 /*!Set if the non-commutative interface is preferable when an algorithm
  * supports both.
@@ -130,10 +96,14 @@ struct cuex_intf_growable_s
 struct cuex_intf_compound_s
 {
     unsigned int flags;
-    cuex_intf_iterable_t ncomm_iterable;
-    cuex_intf_imageable_t ncomm_imageable;
-    cuex_intf_iterable_t comm_iterable;
-    cuex_intf_growable_t comm_growable;
+
+    cu_ptr_source_t (*ncomm_source)(cuex_intf_compound_t, cuex_t C);
+    cu_ptr_junctor_t (*ncomm_image_junctor)(cuex_intf_compound_t, cuex_t C);
+
+    cu_ptr_source_t (*comm_source)(cuex_intf_compound_t, cuex_t C);
+    cu_ptr_junctor_t (*comm_image_junctor)(cuex_intf_compound_t, cuex_t C);
+    cu_ptr_sinktor_t (*comm_build_sinktor)(cuex_intf_compound_t, cuex_t C);
+    cu_ptr_sinktor_t (*comm_union_sinktor)(cuex_intf_compound_t, cuex_t C);
     cuex_t (*comm_find)(cuex_t compound, cuex_t member);
 };
 

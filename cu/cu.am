@@ -16,6 +16,7 @@ cu_headers = \
 	cu/init.h \
 	cu/int.h \
 	cu/memory.h \
+	cu/ptr_seq.h \
 	cu/rarex.h \
 	cu/scratch.h \
 	cu/sref.h \

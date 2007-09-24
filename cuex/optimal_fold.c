@@ -180,20 +180,20 @@ strip(cuex_t e)
 }
 
 static void
-link_substate(state_t state, cu_rank_t a, state_t substate)
+link_substate(state_t state, cu_rank_t a, cu_rank_t b, state_t substate)
 {
     cucon_slink_t *invlink;
 
     state->sub[a] = substate;
 
-    /* Insert 'state ∈ Δ a substate' */
-    if (cucon_parr_size(&substate->invtran) <= a)
+    /* Insert 'state ∈ Δ b substate' */
+    if (cucon_parr_size(&substate->invtran) <= b)
 	cucon_parr_resize_exactmax_fill(&substate->invtran,
-					a + 1, NULL);
-    invlink = cucon_parr_ref_at(&substate->invtran, a);
+					b + 1, NULL);
+    invlink = cucon_parr_ref_at(&substate->invtran, b);
     *invlink = cucon_slink_prepend_ptr(*invlink, state);
     cu_dprintf("cuex.optimal_fold", "Inserting %p ∈ Δ %d %p (r_max = %d)",
-	       state, a, substate, cucon_parr_size(&substate->invtran));
+	       state, b, substate, cucon_parr_size(&substate->invtran));
 }
 
 static void
@@ -276,7 +276,7 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 	     * synthetically link the point of reference as a substate. */
 	    state = state_new(1, e);
 	    block_insert_state(lambdavar_block, state);
-	    link_substate(state, 0, sp_ref->state);
+	    link_substate(state, 0, 0, sp_ref->state);
 	    cu_dprintf("cuex.optimal_fold", "Ref λ variable, index=%d; %!",
 		       index, sp_ref->e);
 	    upframe_add_fv(sp, sp_max, index);
@@ -327,7 +327,7 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 						 ekey_to_block, lambdavar_block,
 						 r_max, pending_arr,
 						 mudepth, mupath, fvmap);
-		    link_substate(state, a, substate);
+		    link_substate(state, a, a, substate);
 		}
 	    }
 
@@ -338,6 +338,17 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 		    ekey, cuex_hole(cucon_uset_size(&sp->fvset)));
 	    }
 	}
+#if 0 /* XXX */
+	else if (cuex_meta_is_type(e_meta)) {
+	    cuoo_type_t e_type = cuoo_type_from_meta(e_meta);
+	    cuex_intf_compound_t compound;
+	    cuex_intf_iterable_t iterable;
+	    compound = cuoo_type_impl(e_type, CUEX_INTF_COMPOUND);
+	    if (compound->comm_iterable) {
+		XXX;
+	    }
+	}
+#endif
 
 	/* Locate or create the block */
 	if (cucon_pmap_insert_mem(ekey_to_block, ekey,

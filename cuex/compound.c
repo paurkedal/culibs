@@ -15,16 +15,173 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cudyn/misc.h>
 #include <cuex/compound.h>
+#include <cuex/oprdefs.h>
+#include <cuex/opn.h>
 #include <cu/diag.h>
 #include <cu/memory.h>
+#include <cu/ptr_seq.h>
+
+/* == Commutative from Non-Commutative Source Adaptor == */
+
+typedef struct comm_source_adaptor_s *comm_source_adaptor_t;
+struct comm_source_adaptor_s
+{
+    cu_inherit (cu_ptr_source_s);
+    cu_ptr_source_t subsource;
+    int index;
+};
+
+static void *
+comm_source_adaptor_get(cu_ptr_source_t source)
+{
+    cuex_t ncomm_e;
+    comm_source_adaptor_t self
+	= cu_from(comm_source_adaptor, cu_ptr_source, source);
+    ncomm_e = cu_ptr_source_get(self->subsource);
+    if (ncomm_e)
+	return cuex_o2_metapair(cudyn_int(self->index++), ncomm_e);
+    else
+	return NULL;
+}
+
+static cu_ptr_source_t
+comm_source_adaptor(cuex_intf_compound_t impl, cuex_t C)
+{
+    comm_source_adaptor_t self = cu_gnew(struct comm_source_adaptor_s);
+    cu_ptr_source_init(cu_to(cu_ptr_source, self), comm_source_adaptor_get);
+    self->subsource = impl->ncomm_source(impl, C);
+    self->index = 0;
+    return cu_to(cu_ptr_source, self);
+}
+
+
+/* == Commutative from Non-Commutative Image Junctor Adaptor == */
+
+typedef struct comm_image_junctor_adaptor_s *comm_image_junctor_adaptor_t;
+struct comm_image_junctor_adaptor_s
+{
+    cu_inherit (cu_ptr_junctor_s);
+    cu_ptr_junctor_t subjunctor;
+    int index;
+};
+
+static void *
+comm_image_junctor_adaptor_get(cu_ptr_source_t source)
+{
+    cuex_t ncomm_e;
+    comm_image_junctor_adaptor_t self
+	= cu_from3(comm_image_junctor_adaptor,
+		   cu_ptr_junctor, cu_ptr_junction, cu_ptr_source,
+		   source);
+    ncomm_e = cu_ptr_junctor_get(self->subjunctor);
+    if (ncomm_e)
+	return cuex_o2_metapair(cudyn_int(++self->index), ncomm_e);
+    else
+	return NULL;
+}
+
+static void
+comm_image_junctor_adaptor_put(cu_ptr_sink_t sink, void *elt)
+{
+    cuex_t elt_key, elt_val;
+    cuex_meta_t e_meta = cuex_meta(elt);
+    comm_image_junctor_adaptor_t self
+	= cu_from3(comm_image_junctor_adaptor,
+		   cu_ptr_junctor, cu_ptr_junction, cu_ptr_sink,
+		   sink);
+    cu_debug_assert(cuex_meta_is_opr(e_meta) && cuex_opr_r(e_meta) == 2);
+    elt_key = cuex_opn_at(elt, 0);
+    elt_val = cuex_opn_at(elt, 1);
+    cu_debug_assert(cudyn_is_int(elt_key));
+    cu_debug_assert(cudyn_to_int(elt_key) == self->index);
+    cu_ptr_junctor_put(self->subjunctor, elt_val);
+}
+
+static void *
+comm_image_junctor_adaptor_finish(cu_ptr_junctor_t junctor)
+{
+    comm_image_junctor_adaptor_t self
+	= cu_from(comm_image_junctor_adaptor, cu_ptr_junctor, junctor);
+    return cu_ptr_junctor_finish(self->subjunctor);
+}
+
+static cu_ptr_junctor_t
+comm_image_junctor_adaptor(cuex_intf_compound_t impl, cuex_t C)
+{
+    comm_image_junctor_adaptor_t self
+	= cu_gnew(struct comm_image_junctor_adaptor_s);
+    cu_ptr_junctor_init(cu_to(cu_ptr_junctor, self),
+			comm_image_junctor_adaptor_get,
+			comm_image_junctor_adaptor_put,
+			comm_image_junctor_adaptor_finish);
+    self->subjunctor = impl->ncomm_image_junctor(impl, C);
+    self->index = -1;
+    return cu_to(cu_ptr_junctor, self);
+}
+
+
+/* == Commutative Image Junctor from Build Sinktor Adaptor == */
+
+typedef struct comm_image_from_build_adaptor_s
+	*comm_image_from_build_adaptor_t;
+struct comm_image_from_build_adaptor_s
+{
+    cu_inherit (cu_ptr_junctor_s);
+    cu_ptr_source_t subsource;
+    cu_ptr_sinktor_t subsinktor;
+};
+
+static void *
+comm_image_from_build_adaptor_get(cu_ptr_source_t source)
+{
+    comm_image_from_build_adaptor_t self
+	= cu_from3(comm_image_from_build_adaptor,
+		   cu_ptr_junctor, cu_ptr_junction, cu_ptr_source, source);
+    return cu_ptr_source_get(self->subsource);
+}
+
+static void
+comm_image_from_build_adaptor_put(cu_ptr_sink_t sink, void *elt)
+{
+    comm_image_from_build_adaptor_t self
+	= cu_from3(comm_image_from_build_adaptor,
+		   cu_ptr_junctor, cu_ptr_junction, cu_ptr_sink, sink);
+    cu_ptr_sinktor_put(self->subsinktor, elt);
+}
+
+static void *
+comm_image_from_build_adaptor_finish(cu_ptr_junctor_t junctor)
+{
+    comm_image_from_build_adaptor_t self
+	= cu_from(comm_image_from_build_adaptor, cu_ptr_junctor, junctor);
+    return cu_ptr_sinktor_finish(self->subsinktor);
+}
+
+static cu_ptr_junctor_t
+comm_image_from_build_adaptor(cuex_intf_compound_t impl, cuex_t C)
+{
+    comm_image_from_build_adaptor_t self
+	= cu_gnew(struct comm_image_from_build_adaptor_s);
+    cu_ptr_junctor_init(cu_to(cu_ptr_junctor, self),
+			comm_image_from_build_adaptor_get,
+			comm_image_from_build_adaptor_put,
+			comm_image_from_build_adaptor_finish);
+    self->subsource = impl->comm_source(impl, C);
+    self->subsinktor = impl->comm_build_sinktor(impl, C);
+    return cu_to(cu_ptr_junctor, self);
+}
+
+
+/* == Interface Verification == */
 
 void
 cuex_intf_compound_verify(cuex_intf_compound_t impl)
 {
     unsigned int flags = impl->flags;
-    cu_bool_t has_comm = !!impl->comm_iterable;
-    cu_bool_t has_ncomm = !!impl->ncomm_iterable;
+    cu_bool_t has_comm = !!impl->comm_source;
+    cu_bool_t has_ncomm = !!impl->ncomm_source;
     if (!has_comm && !has_ncomm)
 	cu_bugf("You need to define either non-commutative or "
 		"commutative iteration.");
@@ -47,58 +204,66 @@ cuex_intf_compound_verify(cuex_intf_compound_t impl)
 	    cu_bugf("You must set CUEX_COMPOUNDFLAGS_PREFER_COMM since only "
 		    "commutative iteration view is provided.");
     }
+
+    if (!impl->comm_source) {
+	if (impl->ncomm_source)
+	    impl->comm_source = comm_source_adaptor;
+	else if (cu_true)
+	    cu_bugf("Either ncomm_source or comm_source must be defined.");
+    }
+    if (!impl->comm_image_junctor) {
+	if (impl->comm_source && impl->comm_build_sinktor)
+	    impl->comm_image_junctor = comm_image_from_build_adaptor;
+	else if (impl->ncomm_source && impl->ncomm_image_junctor)
+	    impl->comm_image_junctor = comm_image_junctor_adaptor;
+	else if (cu_false)
+	    cu_bugf("Cannot synthesise comm_image_junctor.");
+    }
 }
 
+
+/* == Algorithms == */
+
 cu_bool_t
-cuex_compound_conj(cuex_intf_compound_t impl, cuex_t compound,
+cuex_compound_conj(cuex_intf_compound_t impl, cuex_t C,
 		   cu_clop(f, cu_bool_t, cuex_t))
 {
-    void *itr;
     cuex_t e;
-    cuex_intf_iterable_t src_impl;
-    if ((impl->flags & CUEX_COMPOUNDFLAG_PREFER_COMM) || !impl->ncomm_iterable)
-	src_impl = impl->comm_iterable;
+    cu_ptr_source_t source;
+    if ((impl->flags & CUEX_COMPOUNDFLAG_PREFER_COMM))
+	source = (*impl->comm_source)(impl, C);
     else
-	src_impl = impl->ncomm_iterable;
-    itr = cu_salloc(src_impl->itr_size(compound));
-    src_impl->itr_init(itr, compound);
-    while ((e = src_impl->itr_get(itr)))
+	source = (*impl->ncomm_source)(impl, C);
+    while ((e = cu_ptr_source_get(source)))
 	if (!cu_call(f, e))
 	    return cu_false;
     return cu_true;
 }
 
 cuex_t
-cuex_compound_image(cuex_intf_compound_t impl, cuex_t compound,
+cuex_compound_image(cuex_intf_compound_t impl, cuex_t C,
 		    cu_clop(f, cuex_t, cuex_t))
 {
     cuex_t e;
-    if ((impl->flags & CUEX_COMPOUNDFLAG_PREFER_COMM)
-	    || !impl->ncomm_imageable) {
-	cuex_intf_iterable_t src_impl = impl->comm_iterable;
-	cuex_intf_growable_t dst_impl = impl->comm_growable;    
-	void *src_itr = cu_salloc(src_impl->itr_size(compound));
-	void *dst_itr = cu_salloc(dst_impl->itr_size);
-	src_impl->itr_init(src_itr, compound);
-	dst_impl->itr_init_empty(dst_itr, compound);
-	while ((e = src_impl->itr_get(src_itr))) {
+    if ((impl->flags & CUEX_COMPOUNDFLAG_PREFER_COMM)) {
+	cu_ptr_source_t source = (*impl->comm_source)(impl, C);
+	cu_ptr_sinktor_t sinktor = (*impl->comm_build_sinktor)(impl, C);
+	while ((e = cu_ptr_source_get(source))) {
 	    e = cu_call(f, e);
 	    if (!e)
 		return NULL;
-	    dst_impl->itr_put(dst_itr, e);
+	    cu_ptr_sinktor_put(sinktor, e);
 	}
-	return dst_impl->itr_finish(dst_itr);
+	return cu_ptr_sinktor_finish(sinktor);
     }
     else {
-	cuex_intf_imageable_t img_impl = impl->ncomm_imageable;
-	void *img_itr = cu_salloc(img_impl->itr_size(compound));
-	img_impl->itr_init(img_itr, compound);
-	while ((e = img_impl->itr_get(img_itr))) {
+	cu_ptr_junctor_t junctor = (*impl->ncomm_image_junctor)(impl, C);
+	while ((e = cu_ptr_junctor_get(junctor))) {
 	    e = cu_call(f, e);
 	    if (!e)
 		return NULL;
-	    img_impl->itr_put(img_itr, e);
+	    cu_ptr_junctor_put(junctor, e);
 	}
-	return img_impl->itr_finish(img_itr);
+	return cu_ptr_junctor_finish(junctor);
     }
 }

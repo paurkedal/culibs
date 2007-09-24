@@ -138,12 +138,14 @@ typedef int cu_countdiff_t;
  * -------------- */
 
 typedef struct cu_idr_s		*cu_idr_t;		/* idr.h */
+typedef struct cu_ptr_source_s	*cu_ptr_source_t;	/* ptr_seq.h */
+typedef struct cu_ptr_sink_s	*cu_ptr_sink_t;		/* ptr_seq.h */
+typedef struct cu_ptr_junction_s*cu_ptr_junction_t;	/* ptr_seq.h */
+typedef struct cu_ptr_sinktor_s *cu_ptr_sinktor_t;	/* ptr_seq.h */
+typedef struct cu_ptr_junctor_s *cu_ptr_junctor_t;	/* ptr_seq.h */
 typedef struct cu_sref_s	*cu_sref_t;		/* srcref.h */
 typedef struct cu_str_s		*cu_str_t;		/* str.h */
 
-/* XXX backward */
-#define cuoo_stdtype_t cuoo_stdtype_t
-#define cuoo_type_t cuoo_type_t
 
 /* Declarations of Some Common Functions
  * ------------------------------------- */
