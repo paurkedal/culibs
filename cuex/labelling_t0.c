@@ -95,7 +95,7 @@ test_image(int N, cu_bool_t print)
     ladd.diff = -60;
     L0 = cuex_image(L, ladd_prep(&ladd));
     if (print)
-	cu_fprintf(stdout, "Original: %!\nImage: %!", L, L0);
+	cu_fprintf(stdout, "Original: %!\n   Image: %!\n", L, L0);
     lsum.sum = 0;
     cuex_conj(L, lsum_prep(&lsum));
     cu_test_assert(lsum.sum == sum);

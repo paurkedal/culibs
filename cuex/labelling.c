@@ -256,36 +256,36 @@ labelling_print(void *L, FILE *out)
 /* == Compound Interface: Iteration == */
 
 static void *
-ncomm_source_get(cu_ptr_source_t source)
+ncomm_iter_source_get(cu_ptr_source_t source)
 {
     return cuex_atree_itr_get_at_1(source + 1);
 }
 
 static cu_ptr_source_t
-ncomm_source(cuex_intf_compound_t impl, cuex_t L)
+ncomm_iter_source(cuex_intf_compound_t impl, cuex_t L)
 {
     cu_ptr_source_t source;
     size_t atree_itr_size = cuex_atree_itr_size(LABELLING(L)->atree);
     source = cu_galloc(sizeof(struct cu_ptr_source_s) + atree_itr_size);
     cuex_atree_itr_init(source + 1, LABELLING(L)->atree);
-    cu_ptr_source_init(source, ncomm_source_get);
+    cu_ptr_source_init(source, ncomm_iter_source_get);
     return source;
 }
 
 static void *
-comm_source_get(cu_ptr_source_t source)
+comm_iter_source_get(cu_ptr_source_t source)
 {
     return cuex_atree_itr_get(source + 1);
 }
 
 static cu_ptr_source_t
-comm_source(cuex_intf_compound_t impl, cuex_t L)
+comm_iter_source(cuex_intf_compound_t impl, cuex_t L)
 {
     cu_ptr_source_t source;
     size_t atree_itr_size = cuex_atree_itr_size(LABELLING(L)->atree);
     source = cu_galloc(sizeof(struct cu_ptr_source_s) + atree_itr_size);
     cuex_atree_itr_init(source + 1, LABELLING(L)->atree);
-    cu_ptr_source_init(source, comm_source_get);
+    cu_ptr_source_init(source, comm_iter_source_get);
     return source;
 }
 
@@ -422,11 +422,11 @@ comm_find(cuex_t L, cuex_t l)
 
 static struct cuex_intf_compound_s labelling_compound = {
     .flags = CUEX_COMPOUNDFLAG_PREFER_NCOMM
-	   | CUEX_COMPOUNDFLAG_FILTERABLE_IMAGE
+	   | CUEX_COMPOUNDFLAG_NCOMM_FILTERABLE_IMAGE
 	   | CUEX_COMPOUNDFLAG_COMM_IDEMPOTENT,
-    .ncomm_source = &ncomm_source,
+    .ncomm_iter_source = &ncomm_iter_source,
     .ncomm_image_junctor = &ncomm_image_junctor,
-    .comm_source = &comm_source,
+    .comm_iter_source = &comm_iter_source,
     .comm_build_sinktor = &comm_build_sinktor,
     .comm_union_sinktor = &comm_union_sinktor,
     .comm_find = comm_find,
@@ -454,6 +454,7 @@ labelling_impl(cu_word_t intf_number, ...)
 void
 cuexP_labelling_init(void)
 {
+    cuex_intf_compound_finish(&labelling_compound);
     cuexP_labelling_type = cuoo_stdtype_new_hcs(
 	labelling_impl, sizeof(struct cuex_labelling_s) - CUOO_HCOBJ_SHIFT);
     cuexP_labelling_type->conj = labelling_conj;

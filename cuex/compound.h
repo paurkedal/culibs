@@ -38,24 +38,6 @@ CU_BEGIN_DECLARATIONS
  * containers.
  * We distinguish between non-commutative and commutative views.  A compound
  * may bind one or both views.
- *
- * The non-commutative view has one \ref cuex_intf_iterable_s interface for
- * iteration, and an optional \ref cuex_intf_imageable_s interface for
- * construction images.
- * The two non-commutative interfaces must yield the exact same sequence of
- * elements.
- * These interfaces are most useful for non-commutative operators and for
- * list-like containers.
- *
- * The commutative view also has one \ref cuex_intf_iterable_s interface for
- * iteration, and an optional \ref cuex_intf_growable_s interface for
- * construction.
- * These interfaces are most useful for commutative operators and for set-like
- * or map-like containers.
- *
- * They same type may bind both non-commutative and commutative interfaces, in
- * which case the set of elements exposed by iteration may be different but
- * must still have a one-to-one correspondence.
  * For example, a map may be an commutative compound of key-value pairs, or a
  * non-commutative compound of just the values where the keys are treated
  * inertly.
@@ -83,33 +65,113 @@ typedef struct cuex_intf_compound_s *cuex_intf_compound_t;
  * interface.  */
 #define CUEX_COMPOUNDFLAG_COMM_IDEMPOTENT 8
 
-/*!Set iff the compound is imageable and it is valid to drop elements during
- * the iteration by omitting some calls to \c itr_put. */
-#define CUEX_COMPOUNDFLAG_FILTERABLE_IMAGE 16
+/*!Set iff \ref cuex_intf_compound_s::ncomm_image_junctor allows dropping
+ * elements by omitting some calls to \ref cu_ptr_junction_put. */
+#define CUEX_COMPOUNDFLAG_NCOMM_FILTERABLE_IMAGE 16
 
-/*!Set iff the compound is imageable and it is valid to add elements during the
- * iteration by calling \c itr_put several more than once between \c itr_get
- * calls. */
-#define CUEX_COMPOUNDFLAG_EXPANSIVE_IMAGE 32
+/*!Set iff \ref cuex_intf_compound_s::comm_image_junctor allows dropping
+ * elements by omitting some calls to \ref cu_ptr_junction_put. */
+#define CUEX_COMPOUNDFLAG_COMM_FILTERABLE_IMAGE 32
 
-/*!Interface for compound expressions. */
+/*!Set iff \ref cuex_intf_compound_s::ncomm_image_junctor allows adding extra
+ * elements by calling \ref cu_ptr_junction_put more than once after a call to
+ * \ref cu_ptr_junction_get. */
+#define CUEX_COMPOUNDFLAG_NCOMM_EXPANSIVE_IMAGE 64
+
+/*!Set iff \ref cuex_intf_compound_s::comm_image_junctor allows adding extra
+ * elements by calling \ref cu_ptr_junction_put more than once after a call to
+ * \ref cu_ptr_junction_get. */
+#define CUEX_COMPOUNDFLAG_COMM_EXPANSIVE_IMAGE 128
+
+/*!Interface for compound expressions.
+ * This struct is meant to be declared with static storage and initialised
+ * using C99 struct member designators and must have static storage so that any
+ * future added fields become \c NULL.
+ * An alternative to using member designators is to provide an initialisation
+ * function.
+ * In any case, \ref cuex_intf_compound_finish must be called on the interface
+ * at some point before the first time it is returned by an interface
+ * dispatcher, so that the implied fields can be computed.
+ * Some valid assignments for the most important members are,
+ *
+ * <table class="normal">
+ *   <tr><th>assigned</th><th>synthesised</th><th>comment</th></tr>
+ *   <tr>
+ *     <td>\ref ncomm_iter_source, \ref ncomm_image_junctor</td>
+ *     <td>\ref comm_iter_source, \ref comm_image_junctor</td>
+ *     <td>A non-commutative compound with an implied commutative view.</td>
+ *   </tr>
+ *   <tr>
+ *     <td>\ref comm_iter_source, \ref comm_image_junctor</td>
+ *     <td></td>
+ *     <td>A purely commutative compound with limited construction.</td>
+ *   </tr>
+ *   <tr>
+ *     <td>\ref comm_iter_source, \ref comm_build_sinktor</td>
+ *     <td>\ref comm_image_junctor (or explicit)</td>
+ *     <td>A purely commutative compound with full construction.</td>
+ *   </tr>
+ *   <tr>
+ *     <td>\ref ncomm_iter_source, \ref ncomm_image_junctor<br>
+ *         \ref comm_iter_source, \ref comm_image_junctor</td>
+ *     <td></td>
+ *     <td>A compound with explicit non-commutative and commutative views.</td>
+ *   </tr>
+ *   <tr>
+ *     <td>\ref ncomm_iter_source, \ref ncomm_image_junctor<br>
+ *         \ref comm_iter_source, \ref comm_build_sinktor</td>
+ *     <td>\ref comm_image_junctor (or explicit)</td>
+ *     <td>A compound with explicit non-commutative and commutative views,
+ *         where the commutative view has full construction.</td>
+ *   </tr>
+ * </table>
+ *
+ * The \ref comm_union_sinktor may optionally be assigned whenever \ref
+ * comm_build_sinktor is defined.
+ */
 struct cuex_intf_compound_s
 {
     unsigned int flags;
 
-    cu_ptr_source_t (*ncomm_source)(cuex_intf_compound_t, cuex_t C);
+    /*!Source sequence of elements for the non-commutative view. This can be
+     * left unassigned for purely commutative compounds.  It will not be
+     * synthesised. */
+    cu_ptr_source_t (*ncomm_iter_source)(cuex_intf_compound_t, cuex_t C);
+
+    /*!Shall return a \ref cu_ptr_seq_h "junctor" which allows the construction
+     * of an image of \a C.  The elements must have the same order as that
+     * returned by \ref ncomm_iter_source.   This may be left unassigned.  If
+     * assigned, then \ref ncomm_iter_source must also be assigned.  */
     cu_ptr_junctor_t (*ncomm_image_junctor)(cuex_intf_compound_t, cuex_t C);
 
-    cu_ptr_source_t (*comm_source)(cuex_intf_compound_t, cuex_t C);
+    /*!Source sequence of elements for the commutative view.  If not assigned,
+     * it will be synthesised from \ref ncomm_iter_source. */
+    cu_ptr_source_t (*comm_iter_source)(cuex_intf_compound_t, cuex_t C);
+
+    /*!Shall return a \ref cu_ptr_seq_h "junctor" which allows the construction
+     * of an image of \a C.  The element order must be the same as that of \ref
+     * comm_iter_source.  This can be synthesised from \ref comm_iter_source
+     * and \ref comm_build_sinktor.  Otherwise, if \ref comm_iter_source is
+     * synthetic, then it can also be synthesised from \ref
+     * ncomm_image_junctor.  Otherwise, no construction is allowed on this
+     * compound.  */
     cu_ptr_junctor_t (*comm_image_junctor)(cuex_intf_compound_t, cuex_t C);
+    
+    /*!Shall return a \ref cu_ptr_seq_h "sinktor" which allows the construction
+     * of a container from scratch, using \a C as a template for any additional
+     * properties. */
     cu_ptr_sinktor_t (*comm_build_sinktor)(cuex_intf_compound_t, cuex_t C);
+
+    /*!Shall return a \ref cu_ptr_seq_h "sinktor" which allows the construction
+     * of a copy of \a C with additional elements put into the sink. */
     cu_ptr_sinktor_t (*comm_union_sinktor)(cuex_intf_compound_t, cuex_t C);
+
     cuex_t (*comm_find)(cuex_t compound, cuex_t member);
 };
 
-/*!Verifies that \a impl has been correctly initialised.  May also provide
- * backwards-compatibility patching and/or signal such cases. */
-void cuex_intf_compound_verify(cuex_intf_compound_t impl);
+/*!Verifies that \a impl has been correctly initialised, and may synthesise
+ * some missing fields as indicated in \ref cuex_intf_compound_s. */
+void cuex_intf_compound_finish(cuex_intf_compound_t impl);
 
 cu_bool_t cuex_compound_conj(cuex_intf_compound_t impl, cuex_t compound,
 			     cu_clop(f, cu_bool_t, cuex_t));
