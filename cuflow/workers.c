@@ -17,6 +17,7 @@
 
 #include <cuflow/workers.h>
 #include <cuflow/sched.h>
+#include <cuflow/timespec.h>
 #include <cucon/priq.h>
 #include <cucon/list.h>
 #include <cu/thread.h>
@@ -57,20 +58,10 @@ AO_t cuflowP_pending_work = 0;
 AO_t cuflowP_workers_waiting_count = 0;
 
 
-CU_SINLINE cu_bool_t
-timespec_before(struct timespec *t0, struct timespec *t1)
-{
-    if (t0->tv_sec < t1->tv_sec)
-	return cu_true;
-    if (t0->tv_sec > t1->tv_sec)
-	return cu_false;
-    return t0->tv_nsec < t1->tv_nsec;
-}
-
 cu_clop_def(atjob_before_clop, cu_bool_t, void *atjob0, void *atjob1)
 {
-    return timespec_before(&((cuflow_atjob_t)atjob0)->t_call,
-			   &((cuflow_atjob_t)atjob1)->t_call);
+    return cuflow_timespec_lt(&((cuflow_atjob_t)atjob0)->t_call,
+			      &((cuflow_atjob_t)atjob1)->t_call);
 }
 
 void
@@ -89,14 +80,14 @@ worker_atrun(cuflow_worker_t worker)
     while (!cucon_priq_is_empty(&work_atq)) {
 	cuflow_atjob_t atjob = cucon_priq_front(&work_atq);
 	cuflow_atjob_t atjob_next;
-	if (timespec_before(&now, &atjob->t_call))
+	if (cuflow_timespec_lt(&now, &atjob->t_call))
 	    break;
 	cucon_priq_pop_front(&work_atq);
 
 	/* Signal more worker threads in case there is more to do right
 	 * away. */
 	atjob_next = cucon_priq_front(&work_atq);
-	if (timespec_before(&now, &atjob_next->t_call))
+	if (cuflow_timespec_lt(&now, &atjob_next->t_call))
 	    pthread_cond_signal(&work_cond);
 
 	cu_mutex_unlock(&work_mutex);
@@ -200,8 +191,12 @@ worker_main(void *worker)
 	    else {
 		cuflow_atjob_t atjob = cucon_priq_front(&work_atq);
 		int err;
+		cu_debug_assert(atjob->t_call.tv_nsec >= 0);
+		cu_debug_assert(atjob->t_call.tv_nsec < 1000000000);
 		err = pthread_cond_timedwait(&work_cond, &work_mutex,
 					     &atjob->t_call);
+		cu_debug_assert(atjob->t_call.tv_nsec >= 0);
+		cu_debug_assert(atjob->t_call.tv_nsec < 1000000000);
 		switch (err) {
 		    case 0:
 			break;
@@ -316,6 +311,7 @@ cuflow_workers_call_at(cu_clop(callback, void, struct timespec *t_now),
     cuflow_atjob_t atjob_prev_head;
 
     cu_debug_assert(atjob->t_call.tv_nsec < 1000000000);
+    cu_debug_assert(atjob->t_call.tv_nsec >= 0);
     memcpy(&atjob->t_call, t_call, sizeof(struct timespec));
     atjob->callback = callback;
 
@@ -329,7 +325,7 @@ cuflow_workers_call_at(cu_clop(callback, void, struct timespec *t_now),
     /* Make sure we have at least one worker which will do the timed job.
      * This worker will signal (from worker_atrun) another worker if there is
      * more work to do right away. */
-    if (!atjob_prev_head || timespec_before(t_call, &atjob_prev_head->t_call))
+    if (!atjob_prev_head || cuflow_timespec_lt(t_call, &atjob_prev_head->t_call))
 	pthread_cond_signal(&work_cond);
 
     cu_mutex_unlock(&work_mutex);
