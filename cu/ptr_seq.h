@@ -256,7 +256,7 @@ void cu_ptr_source_sink_filter(cu_clop(f, cu_bool_t, void *),
 
 /*!Filters from the source to the sink of \a junction with \a f by putting only
  * those which \a f maps to true into the sink. This is equivalent to \ref
- * cu_ptr_source_sink_filter applied to the source and sink parts of \ref
+ * cu_ptr_source_sink_filter applied to the source and sink parts of \a
  * junction. */
 void cu_ptr_junction_filter(cu_clop(f, cu_bool_t, void *),
 			    cu_ptr_junction_t junction);

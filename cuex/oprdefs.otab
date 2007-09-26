@@ -104,6 +104,7 @@ o/1 cuex_o1_metaident	: cuex_og_metaregular
 o/1 cuex_o1_metatag0	: cuex_og_metaregular
 o/1 cuex_o1_metatag1	: cuex_og_metaregular
 o/2 cuex_o2_metapair	: cuex_og_metaregular
+o/2 cuex_o2_metajoin	: cuex_og_metaregular
 o/0 cuex_o2m_metatuple	: cuex_og_metamonoid
 
 option c_prologue =

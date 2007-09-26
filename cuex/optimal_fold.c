@@ -21,12 +21,16 @@
 #include <cucon/pset.h>
 #include <cucon/pmap.h>
 #include <cucon/uset.h>
+#include <cuex/semilattice.h>
 #include <cuex/ex.h>
 #include <cuex/opn.h>
 #include <cuex/oprdefs.h>
 #include <cuex/binding.h>
 #include <cuex/algo.h>
+#include <cuex/compound.h>
+#include <cuex/intf.h>
 #include <cu/inherit.h>
+#include <cu/ptr_seq.h>
 
 typedef struct state_s *state_t;
 typedef struct block_s *block_t;
@@ -228,8 +232,12 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
     state_t state;
     int a, r;
 
-    /* If μ-bind, push stack and proceed with subexpression.  The sp_mu->state
-     * will be set below after it is created. */
+    /* == μ-Bind ==
+     *
+     * If μ-bind, push stack and proceed directly with it's body.  The μ-bind
+     * does not itself contribute as a structural node, so it's state is
+     * identical to the body's state.  Therefore sp_mu->state will be set below
+     * when created. */
     e_meta = cuex_meta(e);
     if (e_meta == CUEX_O1_MU) {
 	sp_mu = --sp;
@@ -251,6 +259,8 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
     if (cuex_meta_is_opr(e_meta) && cuex_og_hole_contains(e_meta)) {
 	int index;
 	initial_frame_t sp_ref;
+
+	/* == λ- and μ-Variables == */
 
 	index = cuex_oa_hole_index(e_meta);
 	sp_ref = sp + index;
@@ -285,21 +295,21 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 	    sp_mu->state = state;
     } else {
 	block_t block;
-	cuex_t ekey;
+	cuex_t ekey = e;
 
-	/* Allocate a new state. */
-	if (cuex_meta_is_opr(e_meta))
-	    r = cuex_opr_r(e_meta);
-	else
-	    r = 0;
-	state = state_new(r, e);
+	/* == Structural Expressions and λ-Bind == */
 
-	/* If we had a surrounding μ-bind, set it's state. */
-	if (sp_mu)
-	    sp_mu->state = state;
-
-	ekey = e;
 	if (cuex_meta_is_opr(e_meta)) {
+
+	    /* Allocate a new state. */
+	    r = cuex_opr_r(e_meta);
+	    state = state_new(r, e);
+
+	    /* If we had a surrounding μ-bind, set it's state. */
+	    if (sp_mu)
+		sp_mu->state = state;
+
+
 	    CUEX_OPN_TRAN(e_meta, ekey, ep, strip(ep));
 
 	    /* If λ-bind, push stack. */
@@ -338,17 +348,58 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 		    ekey, cuex_hole(cucon_uset_size(&sp->fvset)));
 	    }
 	}
-#if 0 /* XXX */
-	else if (cuex_meta_is_type(e_meta)) {
-	    cuoo_type_t e_type = cuoo_type_from_meta(e_meta);
-	    cuex_intf_compound_t compound;
-	    cuex_intf_iterable_t iterable;
-	    compound = cuoo_type_impl(e_type, CUEX_INTF_COMPOUND);
-	    if (compound->comm_iterable) {
-		XXX;
+	else {
+	    state = NULL;
+	    if (cuex_meta_is_type(e_meta)) {
+		cuoo_type_t e_type = cuoo_type_from_meta(e_meta);
+		cuex_intf_compound_t impl;
+		cu_ptr_source_t source;
+		cuex_t ep;
+
+		/* Deal with compounds.  This is analogous to operations,
+		 * except that we use the commutative view in order to avoid
+		 * high arities. */
+		impl = cuoo_type_impl_ptr(e_type, CUEX_INTF_COMPOUND);
+		if (impl) {
+		    r = cuex_compound_size(impl, e);
+
+		    /* Allocate a new state, update any surrounding μ-bind. */
+		    state = state_new(r, e);
+		    if (sp_mu)
+			sp_mu->state = state;
+
+		    /* Process subexpressions. */
+		    source = cuex_compound_comm_iter_source(impl, e);
+		    a = 0;
+		    ekey = cuex_joinlattice_bottom(CUEX_O2_METAJOIN);
+		    while ((ep = cu_ptr_source_get(source))) {
+			cuex_t epp = strip(ep);
+			if (epp != cuex_o0_metanull()) {
+			    ekey = cuex_joinlattice_join(CUEX_O2_METAJOIN,
+							 ekey, epp);
+			    state->sub[a] = NULL;
+			}
+			else {
+			    state_t substate;
+
+			    substate = initial_partition(
+				ep, sp, sp_max, ekey_to_block, lambdavar_block,
+				r_max, pending_arr, mudepth, mupath, fvmap);
+			    /* The back-refereces all gets the same tag (0) since
+			     * we use the commutative view of the compound. */
+			    link_substate(state, a, 0, substate);
+			    ++a;
+			}
+		    }
+		}
+	    }
+	    if (!state) { /* fall-through from above block */
+		/* Allocate a new state, update any surrounding μ-bind. */
+		state = state_new(0, e);
+		if (sp_mu)
+		    sp_mu->state = state;
 	    }
 	}
-#endif
 
 	/* Locate or create the block */
 	if (cucon_pmap_insert_mem(ekey_to_block, ekey,
@@ -489,6 +540,8 @@ reconstruct_binding(block_t block)
 {
     cuex_meta_t e_meta;
     state_t state;
+
+#ifndef CU_NDEBUG
     cu_debug_assert(!cucon_list_is_empty(&block->state_list));
     if (cu_debug_key("cuex.optimal_fold")) {
 	cu_fprintf(stderr, "BLOCK %p\n", block);
@@ -514,6 +567,8 @@ reconstruct_binding(block_t block)
 	}
 	block->target = (block_t)-1;
     }
+#endif
+
     state = state_from_node(cucon_list_begin(&block->state_list));
     e_meta = cuex_meta(state->e);
 
@@ -556,6 +611,7 @@ reconstruct(block_t block, int level)
     if (cuex_meta_is_opr(e_meta)) {
 	cu_rank_t a, r = cuex_opr_r(e_meta);
 	cuex_t *arr;
+
 	if (block->level != -1) {  /* We've crossed a μ-variable */
 	    cu_debug_assert(block->level >= 0 && block->level <= level);
 	    return cuex_hole(level - block->level);
@@ -568,12 +624,14 @@ reconstruct(block_t block, int level)
 	    return cuex_hole(level - block_ref->level - 1);
 	}
 
+	/* Pre: Insert μ-bind */
 	if (block->need_mubind)
 	    ++level;
+
+	/* Process subexpressions. */
 	block->level = level;
 	if (cuex_og_binder_contains(e_meta))
 	    ++level;
-
 	arr = cu_salloc(sizeof(cuex_t)*r);
 	for (a = 0; a < r; ++a) {
 	    if (state->sub[a])
@@ -582,9 +640,51 @@ reconstruct(block_t block, int level)
 		arr[a] = cuex_opn_at(e, a);
 	}
 	e = cuex_opn_by_arr(e_meta, arr);
+	block->level = -1;
+
+	/* Post: Insert μ-bind */
 	if (block->need_mubind)
 	    e = cuex_o1_mu(e);
-	block->level = -1;
+    } else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t type;
+	cuex_intf_compound_t impl;
+
+	type = cuoo_type_from_meta(e_meta);
+	impl = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (impl) {
+	    cu_ptr_junctor_t junctor;
+	    cu_rank_t a;
+	    cuex_t ep;
+
+	    if (block->level != -1) {  /* We've crossed a μ-variable */
+		cu_debug_assert(block->level >= 0 && block->level <= level);
+		return cuex_hole(level - block->level);
+	    }
+
+	    /* Pre: Insert μ-bind */
+	    if (block->need_mubind)
+		++level;
+
+	    /* Process subexpressions. */
+	    block->level = level;
+	    junctor = cuex_compound_comm_image_junctor(impl, e);
+	    a = 0;
+	    while ((ep = cu_ptr_junctor_get(junctor))) {
+		cuex_t epp;
+		if (state->sub[a])
+		    epp = reconstruct(state->sub[a]->block, level);
+		else
+		    epp = ep;
+		cu_ptr_junctor_put(junctor, epp);
+		++a;
+	    }
+	    e = cu_ptr_junctor_finish(junctor);
+	    block->level = -1;
+
+	    /* Post: Insert μ-bind */
+	    if (block->need_mubind)
+		e = cuex_o1_mu(e);
+	}
     } else
 	cu_debug_assert(!block->need_mubind);
     return e;
