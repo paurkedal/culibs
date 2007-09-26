@@ -20,6 +20,7 @@
 
 #include <cu/fwd.h>
 #include <cu/inherit.h>
+#include <cu/clos.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_ptr_seq_h cu/ptr_seq.h: Pointer Sequence Objects
@@ -199,6 +200,63 @@ CU_SINLINE cu_ptr_sink_t
 cu_ptr_junctor_sink(cu_ptr_junctor_t junctor)
 { return cu_to2(cu_ptr_sink, cu_ptr_junction, junctor); }
 
+/*!\defgroup cu_ptr_seq_algo_mod Basic Algorithms
+ *@{*/
+
+/*!Counts the number of remaining elements on \a source, draining it in the
+ * process. Takes time proportional to the count. */
+size_t cu_ptr_source_count(cu_ptr_source_t source);
+
+/*!True iff \a f maps each remaining element of \a source to true. Stops after
+ * the first failure. */
+cu_bool_t cu_ptr_source_forall(cu_clop(f, cu_bool_t, void *),
+			       cu_ptr_source_t source);
+
+/*!True iff \a f maps at least one of the remaining elements to true. Stops
+ * after the first match. */
+cu_bool_t cu_ptr_source_forsome(cu_clop(f, cu_bool_t, void *),
+				cu_ptr_source_t source);
+
+/*!Compares the two sources by applying \a f to each parallel pair of elements
+ * drawn from \a source0 and \a source1.  At the first non-zero return by \a f,
+ * that value is returned.  If both sources are emptied, 0 is returned, if
+ * only \a source0 emptied, -1 is returned, and if only \a source1 is emptied,
+ * 1 is returned. */
+int cu_ptr_source_compare(cu_clop(f, int, void *, void *),
+			  cu_ptr_source_t source0, cu_ptr_source_t source1);
+
+/*!Transfers the remaining elements in \a source to \a sink. */
+void cu_ptr_source_to_sink_short(cu_ptr_source_t source, cu_ptr_sink_t sink);
+
+/*!Transfers the remaining elements of the source of \a junction to its
+ * \a sink. This is equivalent to \ref cu_ptr_source_to_sink_short applied to
+ * the source and sink of \a junction. */
+void cu_ptr_junction_short(cu_ptr_junction_t junction);
+
+/*!Transforms the remaining elements of \a source with \a f and puts them in
+ * order into \a sink. */
+void cu_ptr_source_to_sink_image(cu_clop(f, void *, void *),
+				 cu_ptr_source_t source, cu_ptr_sink_t sink);
+
+/*!Transforms the remaining elements of the source of \a junction with \a f and
+ * puts them in order into the sink of \a junction. This is equivalent to \ref
+ * cu_ptr_source_to_sink_image applied to the source and sink of \a junction. */
+void cu_ptr_junction_image(cu_clop(f, void *, void *),
+			   cu_ptr_junction_t junction);
+
+/*!Filters the elements of \a source, putting those which \a f maps to true
+ * into \a sink. */
+void cu_ptr_source_to_sink_filter(cu_clop(f, cu_bool_t, void *),
+				  cu_ptr_source_t source, cu_ptr_sink_t sink);
+
+/*!Filters from the source to the sink of \a junction with \a f by putting only
+ * those which \a f maps to true into the sink. This is equivalent to \ref
+ * cu_ptr_source_to_sink_filter applied to the source and sink parts of \ref
+ * junction. */
+void cu_ptr_junction_filter(cu_clop(f, cu_bool_t, void *),
+			    cu_ptr_junction_t junction);
+
+/*!@}*/
 /*!@}*/
 CU_END_DECLARATIONS
 

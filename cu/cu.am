@@ -41,6 +41,7 @@ cu_sources = \
 	cu/init.c \
 	cu/int.c \
 	cu/memory.c \
+	cu/ptr_seq.c \
 	cu/rarex.c \
 	cu/scratch.c \
 	cu/sref.c \
