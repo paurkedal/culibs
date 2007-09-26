@@ -66,7 +66,7 @@ cu_ptr_source_compare(cu_clop(f, int, void *, void *),
 }
 
 void
-cu_ptr_source_to_sink_short(cu_ptr_source_t source, cu_ptr_sink_t sink)
+cu_ptr_source_sink_short(cu_ptr_source_t source, cu_ptr_sink_t sink)
 {
     void *elt;
     while ((elt = cu_ptr_source_get(source)))
@@ -82,8 +82,8 @@ cu_ptr_junction_short(cu_ptr_junction_t junction)
 }
 
 void
-cu_ptr_source_to_sink_image(cu_clop(f, void *, void *),
-			    cu_ptr_source_t source, cu_ptr_sink_t sink)
+cu_ptr_source_sink_image(cu_clop(f, void *, void *),
+			 cu_ptr_source_t source, cu_ptr_sink_t sink)
 {
     void *elt;
     while ((elt = cu_ptr_source_get(source)))
@@ -98,9 +98,18 @@ cu_ptr_junction_image(cu_clop(f, void *, void *), cu_ptr_junction_t junction)
 	cu_ptr_junction_put(junction, cu_call(f, elt));
 }
 
+void *
+cu_ptr_junctor_image(cu_clop(f, void *, void *), cu_ptr_junctor_t junctor)
+{
+    void *elt;
+    while ((elt = cu_ptr_junctor_get(junctor)))
+	cu_ptr_junctor_put(junctor, cu_call(f, elt));
+    return cu_ptr_junctor_finish(junctor);
+}
+
 void
-cu_ptr_source_to_sink_filter(cu_clop(f, cu_bool_t, void *),
-			     cu_ptr_source_t source, cu_ptr_sink_t sink)
+cu_ptr_source_sink_filter(cu_clop(f, cu_bool_t, void *),
+			  cu_ptr_source_t source, cu_ptr_sink_t sink)
 {
     void *elt;
     while ((elt = cu_ptr_source_get(source)))
@@ -116,4 +125,14 @@ cu_ptr_junction_filter(cu_clop(f, cu_bool_t, void *),
     while ((elt = cu_ptr_junction_get(junction)))
 	if (cu_call(f, elt))
 	    cu_ptr_junction_put(junction, elt);
+}
+
+void *
+cu_ptr_junctor_filter(cu_clop(f, cu_bool_t, void *), cu_ptr_junctor_t junctor)
+{
+    void *elt;
+    while ((elt = cu_ptr_junctor_get(junctor)))
+	if (cu_call(f, elt))
+	    cu_ptr_junctor_put(junctor, elt);
+    return cu_ptr_junctor_finish(junctor);
 }

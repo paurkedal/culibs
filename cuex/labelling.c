@@ -411,11 +411,13 @@ comm_union_sinktor(cuex_intf_compound_t impl, cuex_t L)
     return cu_to(cu_ptr_sinktor, self);
 }
 
+#if 0
 static cuex_t
 comm_find(cuex_t L, cuex_t l)
 {
     return atree_find(LABELLING(L)->atree, l);
 }
+#endif
 
 
 /* == Compound Interface == */
@@ -429,7 +431,9 @@ static struct cuex_intf_compound_s labelling_compound = {
     .comm_iter_source = &comm_iter_source,
     .comm_build_sinktor = &comm_build_sinktor,
     .comm_union_sinktor = &comm_union_sinktor,
+#if 0
     .comm_find = comm_find,
+#endif
 };
 
 

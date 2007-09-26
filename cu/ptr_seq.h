@@ -226,35 +226,45 @@ int cu_ptr_source_compare(cu_clop(f, int, void *, void *),
 			  cu_ptr_source_t source0, cu_ptr_source_t source1);
 
 /*!Transfers the remaining elements in \a source to \a sink. */
-void cu_ptr_source_to_sink_short(cu_ptr_source_t source, cu_ptr_sink_t sink);
+void cu_ptr_source_sink_short(cu_ptr_source_t source, cu_ptr_sink_t sink);
 
 /*!Transfers the remaining elements of the source of \a junction to its
- * \a sink. This is equivalent to \ref cu_ptr_source_to_sink_short applied to
+ * \a sink. This is equivalent to \ref cu_ptr_source_sink_short applied to
  * the source and sink of \a junction. */
 void cu_ptr_junction_short(cu_ptr_junction_t junction);
 
 /*!Transforms the remaining elements of \a source with \a f and puts them in
  * order into \a sink. */
-void cu_ptr_source_to_sink_image(cu_clop(f, void *, void *),
-				 cu_ptr_source_t source, cu_ptr_sink_t sink);
+void cu_ptr_source_sink_image(cu_clop(f, void *, void *),
+			      cu_ptr_source_t source, cu_ptr_sink_t sink);
 
 /*!Transforms the remaining elements of the source of \a junction with \a f and
  * puts them in order into the sink of \a junction. This is equivalent to \ref
- * cu_ptr_source_to_sink_image applied to the source and sink of \a junction. */
+ * cu_ptr_source_sink_image applied to the source and sink of \a junction. */
 void cu_ptr_junction_image(cu_clop(f, void *, void *),
 			   cu_ptr_junction_t junction);
 
+/*!Same as \ref cu_ptr_junction_image, but also returns the result of calling
+ * \ref cu_ptr_junctor_finish at the end. */
+void *cu_ptr_junctor_image(cu_clop(f, void *, void *),
+			   cu_ptr_junctor_t junctor);
+
 /*!Filters the elements of \a source, putting those which \a f maps to true
  * into \a sink. */
-void cu_ptr_source_to_sink_filter(cu_clop(f, cu_bool_t, void *),
-				  cu_ptr_source_t source, cu_ptr_sink_t sink);
+void cu_ptr_source_sink_filter(cu_clop(f, cu_bool_t, void *),
+			       cu_ptr_source_t source, cu_ptr_sink_t sink);
 
 /*!Filters from the source to the sink of \a junction with \a f by putting only
  * those which \a f maps to true into the sink. This is equivalent to \ref
- * cu_ptr_source_to_sink_filter applied to the source and sink parts of \ref
+ * cu_ptr_source_sink_filter applied to the source and sink parts of \ref
  * junction. */
 void cu_ptr_junction_filter(cu_clop(f, cu_bool_t, void *),
 			    cu_ptr_junction_t junction);
+
+/*!Performs \ref cu_ptr_junction_filter, then returns the result of \ref
+ * cu_ptr_junctor_finish. */
+void *cu_ptr_junctor_filter(cu_clop(f, cu_bool_t, void *),
+			    cu_ptr_junctor_t junctor);
 
 /*!@}*/
 /*!@}*/

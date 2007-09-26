@@ -20,6 +20,7 @@
 #include <cuex/compound.h>
 #include <cuex/intf.h>
 #include <cuoo/halloc.h>
+#include <cu/ptr_seq.h>
 
 CU_SINLINE cu_bool_t
 wordaligned_eq(void *arr0, void *arr0_end, void *arr1)
@@ -160,8 +161,11 @@ cuex_conj(cuex_t e, cu_clop(pred, cu_bool_t, cuex_t))
 	    cuex_intf_compound_t impl;
 	    impl = (cuex_intf_compound_t)cuoo_type_impl(
 		type, CUEX_INTF_COMPOUND);
-	    if (impl)
-		return cuex_compound_conj(impl, e, pred);
+	    if (impl) {
+		cu_ptr_source_t source;
+		source = cuex_compound_pref_iter_source(impl, e);
+		return cu_ptr_source_forall(pred, source);
+	    }
 	    else
 		return cu_true;
 	}
@@ -195,8 +199,11 @@ cuex_image(cuex_t e, cu_clop(f, cuex_t, cuex_t))
 	    cuex_intf_compound_t impl;
 	    impl = (cuex_intf_compound_t)cuoo_type_impl(
 		type, CUEX_INTF_COMPOUND);
-	    if (impl)
-		return cuex_compound_image(impl, e, f);
+	    if (impl) {
+		cu_ptr_junctor_t junctor;
+		junctor = cuex_compound_pref_image_junctor(impl, e);
+		return cu_ptr_junctor_image(f, junctor);
+	    }
 	    else
 		return e;
 	}

@@ -176,6 +176,16 @@ comm_image_from_build_adaptor(cuex_intf_compound_t impl, cuex_t C)
 }
 
 
+/* == Other Defaults == */
+
+static size_t
+compound_size(cuex_intf_compound_t impl, cuex_t C)
+{
+    cu_ptr_source_t source = cuex_compound_pref_iter_source(impl, C);
+    return cu_ptr_source_count(source);
+}
+
+
 /* == Interface Verification == */
 
 void
@@ -260,21 +270,40 @@ cuex_intf_compound_finish(cuex_intf_compound_t impl)
 		impl->flags |= CUEX_COMPOUNDFLAG_COMM_EXPANSIVE_IMAGE;
 	}
     }
+
+    /* Synthesis of various methods. */
+    if (!impl->size)
+	impl->size = compound_size;
 }
 
 
 /* == Algorithms == */
 
+cu_ptr_source_t
+cuex_compound_pref_iter_source(cuex_intf_compound_t impl, cuex_t C)
+{
+    if (impl->flags & CUEX_COMPOUNDFLAG_PREFER_NCOMM)
+	return impl->ncomm_iter_source(impl, C);
+    else
+	return impl->comm_iter_source(impl, C);
+}
+
+cu_ptr_junctor_t
+cuex_compound_pref_image_junctor(cuex_intf_compound_t impl, cuex_t C)
+{
+    if (impl->flags & CUEX_COMPOUNDFLAG_PREFER_NCOMM)
+	return impl->ncomm_image_junctor(impl, C);
+    else
+	return impl->comm_image_junctor(impl, C);
+}
+
+#if 0
 cu_bool_t
 cuex_compound_conj(cuex_intf_compound_t impl, cuex_t C,
 		   cu_clop(f, cu_bool_t, cuex_t))
 {
     cuex_t e;
-    cu_ptr_source_t source;
-    if ((impl->flags & CUEX_COMPOUNDFLAG_PREFER_COMM))
-	source = (*impl->comm_iter_source)(impl, C);
-    else
-	source = (*impl->ncomm_iter_source)(impl, C);
+    cu_ptr_source_t source = cuex_compound_preferred_iter_source(impl, C);
     while ((e = cu_ptr_source_get(source)))
 	if (!cu_call(f, e))
 	    return cu_false;
@@ -308,3 +337,4 @@ cuex_compound_image(cuex_intf_compound_t impl, cuex_t C,
 	return cu_ptr_junctor_finish(junctor);
     }
 }
+#endif

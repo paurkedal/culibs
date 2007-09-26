@@ -119,6 +119,7 @@ CU_SINLINE cuoo_typekind_t cuoo_type_typekind(cuoo_type_t type)
 { return type->typekind; }
 
 #define cuoo_type_impl(type, args...) ((type)->impl(args))
+#define cuoo_type_impl_ptr(type, args...) ((void *)(type)->impl(args))
 
 CU_SINLINE cu_bool_t cuoo_type_is_hctype(cuoo_type_t type)
 { return type->members_hcmethod; }

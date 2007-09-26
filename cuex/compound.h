@@ -166,18 +166,54 @@ struct cuex_intf_compound_s
      * of a copy of \a C with additional elements put into the sink. */
     cu_ptr_sinktor_t (*comm_union_sinktor)(cuex_intf_compound_t, cuex_t C);
 
-    cuex_t (*comm_find)(cuex_t compound, cuex_t member);
+    /*!Shall return the number of elements. This must correspond to the number
+     * of elements provided by \ref ncomm_iter_source and \ref
+     * comm_iter_source. If not defined, it will be synthesised from \ref
+     * comm_iter_source or \ref ncomm_iter_source. */
+    size_t (*size)(cuex_intf_compound_t, cuex_t C);
+
+#if 0
+    cuex_t (*comm_find)(cuex_intf_compound_t, cuex_t C, cuex_t key);
+#endif
 };
 
 /*!Verifies that \a impl has been correctly initialised, and may synthesise
  * some missing fields as indicated in \ref cuex_intf_compound_s. */
 void cuex_intf_compound_finish(cuex_intf_compound_t impl);
 
-cu_bool_t cuex_compound_conj(cuex_intf_compound_t impl, cuex_t compound,
+/*!Returns the number of elements in \a C. */
+CU_SINLINE size_t
+cuex_compound_size(cuex_intf_compound_t impl, cuex_t C)
+{ return impl->size(impl, C); }
+
+/*!Returns a source for iterating through \a C using either non-commutative or
+ * commutative view as preferred by the compound. */
+cu_ptr_source_t
+cuex_compound_pref_iter_source(cuex_intf_compound_t impl, cuex_t C);
+
+/*!Returns a source for iterating through \a C using the commutative view. */
+CU_SINLINE cu_ptr_source_t
+cuex_compound_comm_iter_source(cuex_intf_compound_t impl, cuex_t C)
+{ return impl->comm_iter_source(impl, C); }
+
+/*!Returns a junctor for constructing an image of \a C using either
+ * non-commutative or commutative view as preferred by the compound. */
+cu_ptr_junctor_t
+cuex_compound_pref_image_junctor(cuex_intf_compound_t impl, cuex_t C);
+
+/*!Returns a junctor for constructing an image of \a C using the commutative
+ * view. */
+CU_SINLINE cu_ptr_junctor_t
+cuex_compound_comm_image_junctor(cuex_intf_compound_t impl, cuex_t C)
+{ return impl->comm_image_junctor(impl, C); }
+
+#if 0
+cu_bool_t cuex_compound_conj(cuex_intf_compound_t impl, cuex_t C,
 			     cu_clop(f, cu_bool_t, cuex_t));
 
-cuex_t cuex_compound_image(cuex_intf_compound_t impl, cuex_t compound,
+cuex_t cuex_compound_image(cuex_intf_compound_t impl, cuex_t C,
 			   cu_clop(f, cuex_t, cuex_t));
+#endif
 
 /*!@}*/
 CU_END_DECLARATIONS
