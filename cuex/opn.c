@@ -183,17 +183,10 @@ cuex_conj(cuex_t e, cu_clop(pred, cu_bool_t, cuex_t))
 }
 
 cuex_t
-cuex_image(cuex_t e, cu_clop(f, cuex_t, cuex_t))
+cuex_image(cu_clop(f, cuex_t, cuex_t), cuex_t e)
 {
     cuex_meta_t meta = cuex_meta(e);
     switch (cuex_meta_kind(meta)) {
-	    void **opd_begin;
-	    void **opd;
-	    void **opd_end;
-	    void *sub;
-	    void **new_arr_begin;
-	    void **new_arr;
-
 	case cuex_meta_kind_type: {
 	    cuoo_type_t type = cuoo_type_from_meta(meta);
 	    cuex_intf_compound_t impl;
@@ -209,25 +202,40 @@ cuex_image(cuex_t e, cu_clop(f, cuex_t, cuex_t))
 	}
 
 	case cuex_meta_kind_opr:
-	    opd = cuex_opn_begin(e);
-	    opd_end = cuex_opn_end(e);
-	    for (;;) {
-		if (opd == opd_end)
-		    return e;
-		sub = cu_call(f, *opd);
-		if (sub != *opd)
-		    break;
-		++opd;
+	    CUEX_OPN_TRAN(meta, e, ep, cu_call(f, ep));
+	    return e;
+
+	case cuex_meta_kind_other:
+	    return e;
+
+	default:
+	    cu_debug_unreachable();
+	    return NULL;
+    }
+}
+
+cuex_t
+cuex_image_cfn(cuex_t (*f)(cuex_t), cuex_t e)
+{
+    cuex_meta_t meta = cuex_meta(e);
+    switch (cuex_meta_kind(meta)) {
+	case cuex_meta_kind_type: {
+	    cuoo_type_t type = cuoo_type_from_meta(meta);
+	    cuex_intf_compound_t impl;
+	    impl = (cuex_intf_compound_t)cuoo_type_impl(
+		type, CUEX_INTF_COMPOUND);
+	    if (impl) {
+		cu_ptr_junctor_t junctor;
+		junctor = cuex_compound_pref_image_junctor(impl, e);
+		return cu_ptr_junctor_image_cfn(f, junctor);
 	    }
-	    opd_begin = cuex_opn_begin(e);
-	    new_arr_begin = cu_salloc(sizeof(void *)*cuex_opn_arity(e));
-	    new_arr = new_arr_begin;
-	    memcpy(new_arr, opd_begin, (char *)opd - (char *)opd_begin);
-	    new_arr += opd - opd_begin;
-	    *new_arr = sub;
-	    while (++opd != opd_end)
-		*++new_arr = cu_call(f, *opd);
-	    return cuex_opn_by_arr(meta, new_arr_begin);
+	    else
+		return e;
+	}
+
+	case cuex_meta_kind_opr:
+	    CUEX_OPN_TRAN(meta, e, ep, (*f)(ep));
+	    return e;
 
 	case cuex_meta_kind_other:
 	    return e;

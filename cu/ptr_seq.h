@@ -238,16 +238,29 @@ void cu_ptr_junction_short(cu_ptr_junction_t junction);
 void cu_ptr_source_sink_image(cu_clop(f, void *, void *),
 			      cu_ptr_source_t source, cu_ptr_sink_t sink);
 
+/*!A variant \ref cu_ptr_source_sink_image accepting a contextfree C function
+ * as callback. */
+void cu_ptr_source_sink_image_cfn(void *(*f)(void *),
+				  cu_ptr_source_t source, cu_ptr_sink_t sink);
+
 /*!Transforms the remaining elements of the source of \a junction with \a f and
  * puts them in order into the sink of \a junction. This is equivalent to \ref
  * cu_ptr_source_sink_image applied to the source and sink of \a junction. */
 void cu_ptr_junction_image(cu_clop(f, void *, void *),
 			   cu_ptr_junction_t junction);
 
+/*!A variant \ref cu_ptr_junction_image accepting a contextfree C function as
+ * callback. */
+void cu_ptr_junction_image_cfn(void *(*f)(void *), cu_ptr_junction_t junction);
+
 /*!Same as \ref cu_ptr_junction_image, but also returns the result of calling
  * \ref cu_ptr_junctor_finish at the end. */
 void *cu_ptr_junctor_image(cu_clop(f, void *, void *),
 			   cu_ptr_junctor_t junctor);
+
+/*!A variant \ref cu_ptr_junctor_image accepting a contextfree C function as
+ * callback. */
+void *cu_ptr_junctor_image_cfn(void *(*f)(void *), cu_ptr_junctor_t junctor);
 
 /*!Filters the elements of \a source, putting those which \a f maps to true
  * into \a sink. */

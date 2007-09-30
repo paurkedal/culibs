@@ -91,11 +91,28 @@ cu_ptr_source_sink_image(cu_clop(f, void *, void *),
 }
 
 void
+cu_ptr_source_sink_image_cfn(void *(*f)(void *),
+			     cu_ptr_source_t source, cu_ptr_sink_t sink)
+{
+    void *elt;
+    while ((elt = cu_ptr_source_get(source)))
+	cu_ptr_sink_put(sink, (*f)(elt));
+}
+
+void
 cu_ptr_junction_image(cu_clop(f, void *, void *), cu_ptr_junction_t junction)
 {
     void *elt;
     while ((elt = cu_ptr_junction_get(junction)))
 	cu_ptr_junction_put(junction, cu_call(f, elt));
+}
+
+void
+cu_ptr_junction_image_cfn(void *(*f)(void *), cu_ptr_junction_t junction)
+{
+    void *elt;
+    while ((elt = cu_ptr_junction_get(junction)))
+	cu_ptr_junction_put(junction, (*f)(elt));
 }
 
 void *
@@ -104,6 +121,15 @@ cu_ptr_junctor_image(cu_clop(f, void *, void *), cu_ptr_junctor_t junctor)
     void *elt;
     while ((elt = cu_ptr_junctor_get(junctor)))
 	cu_ptr_junctor_put(junctor, cu_call(f, elt));
+    return cu_ptr_junctor_finish(junctor);
+}
+
+void *
+cu_ptr_junctor_image_cfn(void *(*f)(void *), cu_ptr_junctor_t junctor)
+{
+    void *elt;
+    while ((elt = cu_ptr_junctor_get(junctor)))
+	cu_ptr_junctor_put(junctor, (*f)(elt));
     return cu_ptr_junctor_finish(junctor);
 }
 

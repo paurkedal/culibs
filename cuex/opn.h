@@ -194,7 +194,11 @@ cu_bool_t cuex_conj(cuex_t e, cu_clop(f, cu_bool_t, cuex_t));
 /*!If \a e is an operation or a \ref cuex_compound_h "compound", return the
  * result of transforming all subexpressions with \a f.
  * Otherwise, return \a e. */
-cuex_t cuex_image(cuex_t e, cu_clop(f, cuex_t, cuex_t));
+cuex_t cuex_image(cu_clop(f, cuex_t, cuex_t), cuex_t e);
+
+/*!A variant of \ref cuex_image specialised for a simple C function without
+ * context. */
+cuex_t cuex_image_cfn(cuex_t (*f)(cuex_t), cuex_t e);
 
 /*!@}*/
 CU_END_DECLARATIONS
