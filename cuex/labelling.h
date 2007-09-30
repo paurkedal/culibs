@@ -35,8 +35,14 @@ CU_SINLINE cu_bool_t
 cuex_is_labelling(cuex_t e)
 { return cuex_meta(e) == cuex_labelling_meta(); }
 
+extern cuex_t cuexP_labelling_empty;
+
 /*!The empty labelling. */
-cuex_t cuex_labelling_empty(void);
+CU_SINLINE cuex_t cuex_labelling_empty(void) { return cuexP_labelling_empty; }
+
+/*!True iff \a e is the empty labelling. */
+CU_SINLINE cu_bool_t cuex_is_labelling_empty(cuex_t e)
+{ return e == cuexP_labelling_empty; }
 
 /*!A labelling with a single mapping from \a l to \a e. */
 cuex_t cuex_labelling_singleton(cuex_t l, cuex_t e);
@@ -102,6 +108,15 @@ cuex_labelling_image(cuex_t L, cu_clop(f, cuex_t, cuex_t e));
  * receives the label and the old value and should return the new value. */
 cuex_t
 cuex_labelling_image_kv(cuex_t L, cu_clop(f, cuex_t, cuex_t l, cuex_t e));
+
+cuex_t cuex_labelling_expand_all(cuex_t L);
+cuex_t cuex_labelling_contract_all(cuex_t L);
+
+cu_ptr_source_t cuex_labelling_comm_iter_source(cuex_t L);
+cu_ptr_source_t cuex_labelling_ncomm_iter_source(cuex_t L);
+cu_ptr_junctor_t cuex_labelling_ncomm_image_junctor(cuex_t L);
+cu_ptr_sinktor_t cuex_labelling_comm_build_sinktor(void);
+cu_ptr_sinktor_t cuex_labelling_comm_union_sinktor(cuex_t L);
 
 /*!@}*/
 CU_END_DECLARATIONS

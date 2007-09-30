@@ -77,7 +77,7 @@ cu_clos_def(lsum, cu_prot(cu_bool_t, cuex_t e), (int sum;))
 }
 
 void
-test_image(int N, cu_bool_t print)
+test_image(int N, cu_bool_t do_print)
 {
     cuex_t L = cuex_labelling_empty();
     cuex_t L0;
@@ -93,8 +93,8 @@ test_image(int N, cu_bool_t print)
 	L = cuex_labelling_insert(L, cu_idr_by_cstr(ls), cudyn_int(j));
     }
     ladd.diff = -60;
-    L0 = cuex_image(L, ladd_prep(&ladd));
-    if (print)
+    L0 = cuex_image(ladd_prep(&ladd), L);
+    if (do_print)
 	cu_fprintf(stdout, "Original: %!\n   Image: %!\n", L, L0);
     lsum.sum = 0;
     cuex_conj(L, lsum_prep(&lsum));
@@ -104,6 +104,25 @@ test_image(int N, cu_bool_t print)
     cu_test_assert(lsum.sum == sum - 60*N);
 }
 
+void
+test_expand(int N, cu_bool_t do_print)
+{
+    int n;
+    cuex_t L = cuex_labelling_empty();
+    cuex_t L_e;
+    for (n = 0; n < N; ++n) {
+	char ls[6 + sizeof(int)*3];
+	int j = lrand48();
+	sprintf(ls, "l%d", n);
+	L = cuex_labelling_insert(L, cu_idr_by_cstr(ls), cudyn_int(j));
+    }
+    L_e = cuex_labelling_expand_all(L);
+    if (do_print)
+	cu_fprintf(stdout, "        L = %!\nexpand(L) = %!\n",
+		   L, L_e);
+    cu_test_assert(cuex_labelling_contract_all(L_e) == L);
+}
+
 int
 main()
 {
@@ -111,5 +130,10 @@ main()
     test();
     test_image(10, cu_true);
     test_image(1000, cu_false);
+    test_expand(0, cu_true);
+    test_expand(1, cu_true);
+    test_expand(2, cu_true);
+    test_expand(8, cu_true);
+    test_expand(1000, cu_false);
     return cu_test_bug_count()? 2 : 0;
 }

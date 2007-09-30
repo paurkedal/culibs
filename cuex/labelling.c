@@ -21,14 +21,16 @@
 #include <cuex/opn.h>
 #include <cuex/oprdefs.h>
 #include <cuex/atree.h>
+#include <cuex/monoid.h>
 #include <cuoo/halloc.h>
 #include <cuoo/properties.h>
 #include <cu/ptr_seq.h>
 
-#define tuple(l, e) cuex_opn(CUEX_OR_TUPLE(2), l, e)
-
 cu_clop_def(get_key, cu_word_t, cuex_t e)
 { return (cu_word_t)cuex_opn_at(e, 0); }
+
+cu_clop_def(value_merge, cuex_t, cuex_t e0, cuex_t e1)
+{ return cuex_monoid_product(CUEX_O2M_TUPLE, e0, e1); }
 
 #define atree_find(T, l) cuex_atree_find(get_key, T, (cu_word_t)(l))
 #define atree_insert(T, e) cuex_atree_insert(get_key, T, e)
@@ -58,16 +60,12 @@ labelling(cuex_t atree)
     return cuoo_hctem_new(cuex_labelling, key);
 }
 
-cuex_t
-cuex_labelling_empty(void)
-{
-    return labelling(NULL);
-}
+cuex_t cuexP_labelling_empty;
 
 cuex_t
 cuex_labelling_singleton(cuex_t l, cuex_t e)
 {
-    return labelling(tuple(l, e));
+    return labelling(cuex_o2_label(l, e));
 }
 
 cuex_t
@@ -87,7 +85,7 @@ cuex_labelling_insert(cuex_t L, cuex_t l, cuex_t e)
     if (!cuex_is_labelling(L))
 	cu_bugf("First argument of cuex_labelling_insert must be a "
 		"labelling.");
-    return labelling(atree_insert(LABELLING(L)->atree, tuple(l, e)));
+    return labelling(atree_insert(LABELLING(L)->atree, cuex_o2_label(l, e)));
 }
 
 cuex_t
@@ -119,7 +117,8 @@ cuex_labelling_deep_insert(cu_clop(merge, cuex_t, cuex_t, cuex_t),
     if (!cuex_is_labelling(L))
 	cu_bugf("Second argument of cuex_labelling_insert must be a "
 		"labelling.");
-    return labelling(cuex_atree_deep_insert(get_key, merge, L, tuple(l, e)));
+    return labelling(cuex_atree_deep_insert(get_key, merge, L,
+					    cuex_o2_label(l, e)));
 }
 
 cuex_t
@@ -192,6 +191,9 @@ cuex_labelling_deep_isecn(cu_clop(merge, cuex_t, cuex_t, cuex_t),
 					      LABELLING(L1)->atree));
 }
 
+
+/* == Iterative Functions == */
+
 cu_bool_t
 cuex_labelling_conj_kv(cuex_t L, cu_clop(f, cu_bool_t, cuex_t l, cuex_t e))
 {
@@ -216,15 +218,66 @@ cuex_labelling_image_kv(cuex_t L, cu_clop(f, cuex_t, cuex_t l, cuex_t e))
     return labelling(cuex_atree_isokey_image_kv(LABELLING(L)->atree, f));
 }
 
-cu_clop_def(labelling_conj, cu_bool_t, cuex_t L, cu_clop(f, cu_bool_t, cuex_t))
+
+/* == Expand and Reduce == */
+
+cuex_t
+cuex_labelling_expand_all(cuex_t e)
 {
-    return cuex_atree_conj_iv(LABELLING(L)->atree, 1, f);
+    if (cuex_is_labelling(e)) {
+	cu_ptr_source_t source = cuex_labelling_comm_iter_source(e);
+	cuex_t ep = cu_ptr_source_get(source);
+	if (ep) {
+	    cuex_t r = cuex_labelling_expand_all(ep);
+	    while ((ep = cu_ptr_source_get(source)))
+		r = cuex_monoid_product(CUEX_O2M_TUPLE,
+					r, cuex_labelling_expand_all(ep));
+	    return r;
+	} else
+	    return e;
+    } else
+	return cuex_image_cfn(cuex_labelling_expand_all, e);
 }
 
-cu_clop_def(labelling_tran, cuex_t, cuex_t L, cu_clop(f, cuex_t, cuex_t))
+cuex_t
+cuex_labelling_contract_all(cuex_t e)
 {
-    return labelling(cuex_atree_isokey_image_iv(LABELLING(L)->atree, 1, f));
+    if (cuex_is_monoid_product(CUEX_O2M_TUPLE, e)) {
+	cuex_t ep, L, M;
+	struct cuex_monoid_it_s itr;
+	cuex_monoid_it_cct(&itr, CUEX_O2M_TUPLE, e);
+	L = cuex_labelling_empty();
+	M = cuex_monoid_identity(CUEX_O2M_TUPLE);
+	while ((ep = cuex_monoid_it_read(&itr))) {
+	    cuex_meta_t ep_meta = cuex_meta(ep);
+	    if (ep_meta == CUEX_O2_LABEL) {
+		cuex_t l = cuex_opn_at(ep, 0);
+		cuex_t v = cuex_labelling_contract_all(cuex_opn_at(ep, 1));
+		L = cuex_labelling_insert(L, l, v);
+	    }
+	    else if (cuex_is_labelling(ep))
+		L = cuex_labelling_deep_union(value_merge, L, ep);
+	    else {
+		cuex_t epp = cuex_labelling_contract_all(ep);
+		M = cuex_monoid_product(CUEX_O2M_TUPLE, M, epp);
+	    }
+	}
+	if (cuex_is_labelling_empty(L))
+	    return M;
+	else if (cuex_is_monoid_identity(CUEX_O2M_TUPLE, M))
+	    return L;
+	else
+	    return cuex_monoid_product(CUEX_O2M_TUPLE, M, L);
+    } else if (cuex_meta(e) == CUEX_O2_LABEL) {
+	cuex_t l = cuex_opn_at(e, 0);
+	cuex_t v = cuex_opn_at(e, 1);
+	return cuex_labelling_singleton(l, v);
+    } else
+	return cuex_image_cfn(cuex_labelling_contract_all, e);
 }
+
+
+/* == Print == */
 
 cu_clos_def(labelling_print_elt, cu_prot(void, cuex_t e),
   ( FILE *out;
@@ -272,6 +325,12 @@ ncomm_iter_source(cuex_intf_compound_t impl, cuex_t L)
     return source;
 }
 
+cu_ptr_source_t
+cuex_labelling_ncomm_iter_source(cuex_t L)
+{
+    return ncomm_iter_source(NULL, L);
+}
+
 static void *
 comm_iter_source_get(cu_ptr_source_t source)
 {
@@ -287,6 +346,12 @@ comm_iter_source(cuex_intf_compound_t impl, cuex_t L)
     cuex_atree_itr_init(source + 1, LABELLING(L)->atree);
     cu_ptr_source_init(source, comm_iter_source_get);
     return source;
+}
+
+cu_ptr_source_t
+cuex_labelling_comm_iter_source(cuex_t L)
+{
+    return comm_iter_source(NULL, L);
 }
 
 
@@ -333,7 +398,7 @@ ncomm_image_junctor_put(cu_ptr_sink_t sink, void *elt)
 		"%! into %!.", elt, self->new_atree);
     cu_debug_assert(l);
 #endif
-    self->new_atree = atree_insert(self->new_atree, tuple(l, elt));
+    self->new_atree = atree_insert(self->new_atree, cuex_o2_label(l, elt));
 #ifndef CU_NDEBUG_CLIENT
     self->current_label = NULL;
 #endif
@@ -361,6 +426,12 @@ ncomm_image_junctor(cuex_intf_compound_t impl, cuex_t L)
 			ncomm_image_junctor_put,
 			ncomm_image_junctor_finish);
     return cu_to(cu_ptr_junctor, self);
+}
+
+cu_ptr_junctor_t
+cuex_labelling_ncomm_image_junctor(cuex_t L)
+{
+    return ncomm_image_junctor(NULL, L);
 }
 
 
@@ -410,6 +481,14 @@ comm_union_sinktor(cuex_intf_compound_t impl, cuex_t L)
     self->new_atree = LABELLING(L)->atree;
     return cu_to(cu_ptr_sinktor, self);
 }
+
+cu_ptr_sinktor_t
+cuex_labelling_comm_build_sinktor(void)
+{ return comm_build_sinktor(NULL, NULL); }
+
+cu_ptr_sinktor_t
+cuex_labelling_comm_union_sinktor(cuex_t L)
+{ return comm_union_sinktor(NULL, L); }
 
 #if 0
 static cuex_t
@@ -461,6 +540,5 @@ cuexP_labelling_init(void)
     cuex_intf_compound_finish(&labelling_compound);
     cuexP_labelling_type = cuoo_stdtype_new_hcs(
 	labelling_impl, sizeof(struct cuex_labelling_s) - CUOO_HCOBJ_SHIFT);
-    cuexP_labelling_type->conj = labelling_conj;
-    cuexP_labelling_type->tran = labelling_tran;
+    cuexP_labelling_empty = labelling(NULL);
 }
