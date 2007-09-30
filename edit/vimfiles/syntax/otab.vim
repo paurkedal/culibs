@@ -7,7 +7,8 @@ if exists("b:current_syntax")
     finish
 endif
 
-syn match otabComment /#.*/
+syn match otabComment /#.*/ contains=otabCommentTodo
+syn keyword otabCommentTodo TODO FIXME XXX
 
 syn keyword otabStatement import provide option
 syn keyword otabStatement reserve range skipwhite nextgroup=otabRange
@@ -33,6 +34,7 @@ hi def link otabStatement Statement
 hi def link otabOperator Operator
 hi def link otabNumber Number
 hi def link otabComment Comment
+hi def link otabCommentTodo Todo
 hi def link otabUnit Preproc
 hi def link otabString String
 hi def link otabError Error

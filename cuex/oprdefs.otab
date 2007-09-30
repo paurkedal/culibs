@@ -49,10 +49,68 @@ reserve cuex_og_ta		[0x000 .! 0x010]
 reserve cuex_og_metaregular	[0x00 .! 0x10]
 reserve cuex_og_metamonoid	[0x00 .! 0x04]
 
-# Basic regular operators
+
+# == Meta-Operators ==
+#
+# These are not to be considered part of the expressions being processed, but
+# rather used internally by algorithms during processing.
+o/1 cuex_o1_subst_block	: cuex_og_metaregular
+o/2 cuex_o2_internal0	: cuex_og_metaregular # Not visible outside a package.
+o/0 cuex_o0_metanull	: cuex_og_metaregular
+o/0 cuex_o0_metaidr0	: cuex_og_metaregular
+o/1 cuex_o1_metaident	: cuex_og_metaregular
+o/1 cuex_o1_metatag0	: cuex_og_metaregular
+o/1 cuex_o1_metatag1	: cuex_og_metaregular
+o/2 cuex_o2_metapair	: cuex_og_metaregular
+o/2 cuex_o2_metajoin	: cuex_og_metaregular
+o/0 cuex_o2m_metatuple	: cuex_og_metamonoid
+
+
+# == Binding Operators ==
+
+o/0 cuex_o0_hole	: cuex_og_hole
+o/2 cuex_o2_mupath	: cuex_og_hole
+o/1 cuex_o1_mu		: cuex_og_binder
+o/1 cuex_o1_lambda	: cuex_og_binder
+
+
+# == Basic Regular Operators ==
+
 o/0 cuex_o0_null	: cuex_og_regular
 o/0 cuex_o0_unkonwn	: cuex_og_regular
 o/1 cuex_o1_ident	: cuex_og_regular
+
+
+# == Additional Operators ==
+
+# Monoid
+o/0 cuex_o2m_tuple	: cuex_og_monoid
+
+# Semi-lattice
+o/2 cuex_o2_meet	: cuex_og_regular
+o/2 cuex_o2_join	: cuex_og_regular
+
+# Types and Algebra
+o/2 cuex_o2_gprod	: cuex_og_regular
+o/2 cuex_o2_gexpt	: cuex_og_regular
+o/2 cuex_o2_farrow	: cuex_og_regular
+o/2 cuex_o2_farrow_native:cuex_og_regular
+o/1 cuex_o1_ptr_to	: cuex_og_regular
+
+# Structural
+o/2 cuex_o2_label	: cuex_og_regular
+o/2 cuex_o2_pair	: cuex_og_regular
+
+# Functional and Control
+o/2 cuex_o2_apply	: cuex_og_regular
+o/3 cuex_o3_if		: cuex_og_regular
+
+# Misc
+o/r cuex_oR_tuple	: cuex_og_regular
+o/2 cuex_o2_rbind	: cuex_og_regular
+
+
+# == OLD OPERATORS to be considered for removal ==
 
 # Old scoping operators
 o/2 cuex_o2_lambda	: cuex_og_scoping
@@ -65,17 +123,6 @@ o/3 cuex_o3_let		: cuex_og_scoping
 # no letself : scoping
 
 # Old misc
-o/1 cuex_o1_subst_block	: cuex_og_regular
-o/2 cuex_o2_apply	: cuex_og_regular
-o/0 cuex_o2m_tuple	: cuex_og_monoid
-o/r cuex_oR_tuple	: cuex_og_regular
-o/2 cuex_o2_rbind	: cuex_og_regular
-o/3 cuex_o3_if		: cuex_og_regular
-o/2 cuex_o2_gprod	: cuex_og_regular
-o/2 cuex_o2_gexpt	: cuex_og_regular
-o/2 cuex_o2_farrow	: cuex_og_regular
-o/2 cuex_o2_farrow_native:cuex_og_regular
-o/1 cuex_o1_ptr_to	: cuex_og_regular
 o/3 cuex_o3aci_prod	: cuex_og_aci
 o/4c cuex_o4aci_sigprod	: cuex_og_aci
 o/2c cuex_o2_sigbase	: cuex_og_regular
@@ -90,22 +137,8 @@ o/2 cuex_o2_ident_ta	: cuex_og_ta
 o/3 cuex_o3_load_ta	: cuex_og_ta
 o/r cuex_oR_call_ta	: cuex_og_ta
 
-# New binding operators
-o/0 cuex_o0_hole	: cuex_og_hole
-o/2 cuex_o2_mupath	: cuex_og_hole
-o/1 cuex_o1_mu		: cuex_og_binder
-o/1 cuex_o1_lambda	: cuex_og_binder
 
-# Not part of expression at hand, but used by algorithms during processing.
-o/2 cuex_o2_internal0	: cuex_og_metaregular # Not visible outside a package.
-o/0 cuex_o0_metanull	: cuex_og_metaregular
-o/0 cuex_o0_metaidr0	: cuex_og_metaregular
-o/1 cuex_o1_metaident	: cuex_og_metaregular
-o/1 cuex_o1_metatag0	: cuex_og_metaregular
-o/1 cuex_o1_metatag1	: cuex_og_metaregular
-o/2 cuex_o2_metapair	: cuex_og_metaregular
-o/2 cuex_o2_metajoin	: cuex_og_metaregular
-o/0 cuex_o2m_metatuple	: cuex_og_metamonoid
+# == C Generation Options ==
 
 option c_prologue =
     "#include <cuex/opr_priv.h>\n"

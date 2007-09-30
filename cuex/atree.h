@@ -77,6 +77,22 @@ CU_SINLINE cu_bool_t
 cuex_atree_is_empty(cuex_t tree)
 { return tree == NULL; }
 
+/*!True iff \a tree is a singleton. */
+CU_SINLINE cu_bool_t
+cuex_atree_is_singleton(cuex_t tree)
+{
+    return tree != NULL
+	&& cuex_meta(tree) != cuoo_type_to_meta(cuex_anode_type());
+}
+
+/*!True iff \a tree is te empty tree or a singleton. */
+CU_SINLINE cu_bool_t
+cuex_atree_is_empty_or_singleton(cuex_t tree)
+{
+    return tree == NULL
+	|| cuex_meta(tree) != cuoo_type_to_meta(cuex_anode_type());
+}
+
 /*!Find \a find_key in \a tree, assuming \a tree is keyed by \a get_key.
  * Returns the matching element, i.e. the element \e e such that
  * <tt>cu_call(get_key, e)</tt> equals \a find_key.  Returns \c NULL if no such

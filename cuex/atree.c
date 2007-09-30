@@ -150,7 +150,7 @@ cuoo_stdtype_t cuexP_anode_type;
 
 #define NODE(tree) ((cuex_atree_t)(tree))
 
-#define PAIR_CENTER(left, right) \
+#define PAIR_CENTRE(left, right) \
     pair_centre((cu_word_t)(left), (cu_word_t)(right))
 #define anode_meta cuoo_stdtype_to_meta(cuexP_anode_type)
 
@@ -235,14 +235,14 @@ atree_insert(cu_clop(get_key, cu_word_t, cuex_t),
 	if (value_key == atree_key)
 	    return cu_call(merge_values, tree, value);
 	else if (value_key < atree_key)
-	    return node_new(PAIR_CENTER(value_key, atree_key), value, tree);
+	    return node_new(PAIR_CENTRE(value_key, atree_key), value, tree);
 	else
-	    return node_new(PAIR_CENTER(atree_key, value_key), tree, value);
+	    return node_new(PAIR_CENTRE(atree_key, value_key), tree, value);
     } else {
 	cu_word_t centre = NODE(tree)->centre;
 	if ((cu_word_t)value_key < centre) {
 	    if ((cu_word_t)value_key < centre_to_min(centre))
-		return node_new(PAIR_CENTER(value_key, centre), value, tree);
+		return node_new(PAIR_CENTRE(value_key, centre), value, tree);
 	    else
 		return node_new(centre,
 				atree_insert(get_key, merge_values,
@@ -250,7 +250,7 @@ atree_insert(cu_clop(get_key, cu_word_t, cuex_t),
 				NODE(tree)->right);
 	} else {
 	    if ((cu_word_t)value_key > centre_to_max(centre))
-		return node_new(PAIR_CENTER(centre, value_key), tree, value);
+		return node_new(PAIR_CENTRE(centre, value_key), tree, value);
 	    else
 		return node_new(centre,
 				NODE(tree)->left,
@@ -276,14 +276,14 @@ atree_insert_rev(cu_clop(get_key, cu_word_t, cuex_t),
 	if (value_key == atree_key)
 	    return cu_call(merge_values, value, tree);
 	else if (value_key < atree_key)
-	    return node_new(PAIR_CENTER(value_key, atree_key), value, tree);
+	    return node_new(PAIR_CENTRE(value_key, atree_key), value, tree);
 	else
-	    return node_new(PAIR_CENTER(atree_key, value_key), tree, value);
+	    return node_new(PAIR_CENTRE(atree_key, value_key), tree, value);
     } else {
 	cu_word_t centre = NODE(tree)->centre;
 	if ((cu_word_t)value_key < centre) {
 	    if ((cu_word_t)value_key < centre_to_min(centre))
-		return node_new(PAIR_CENTER(value_key, centre), value, tree);
+		return node_new(PAIR_CENTRE(value_key, centre), value, tree);
 	    else
 		return node_new(centre,
 				atree_insert_rev(get_key, merge_values,
@@ -291,7 +291,7 @@ atree_insert_rev(cu_clop(get_key, cu_word_t, cuex_t),
 				NODE(tree)->right);
 	} else {
 	    if ((cu_word_t)value_key > centre_to_max(centre))
-		return node_new(PAIR_CENTER(centre, value_key), tree, value);
+		return node_new(PAIR_CENTRE(centre, value_key), tree, value);
 	    else
 		return node_new(centre,
 				NODE(tree)->left,

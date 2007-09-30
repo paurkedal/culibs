@@ -17,6 +17,7 @@
 
 #include <cuex/semilattice.h>
 #include <cuex/atree.h>
+#include <cuex/oprinfo.h>
 #include <cuoo/intf.h>
 
 typedef struct cuex_semilattice_s *cuex_semilattice_t;
@@ -48,6 +49,8 @@ cu_clop_def(semilattice_key, cu_word_t, cuex_t e)
 static cuex_t
 sl_new(cuex_meta_t meet, cuex_t atree)
 {
+    if (cuex_atree_is_singleton(atree))
+	return atree;
     cuoo_hctem_decl(cuex_semilattice, tem);
     cuoo_hctem_init(cuex_semilattice, tem);
     cuoo_hctem_get(cuex_semilattice, tem)->meet = meet;
@@ -81,7 +84,7 @@ cuex_meetlattice_meet(cuex_meta_t meet, cuex_t x0, cuex_t x1)
     else if (meta1 == sl_meta && SL(x1)->meet == meet)
 	return sl_new(meet, atree_insert(SL(x1)->atree, x0));
     else
-	return atree_insert(x0, x1);
+	return sl_new(meet, atree_insert(x0, x1));
 }
 
 cuex_t
@@ -100,7 +103,7 @@ cuex_meetlattice_semijoin(cuex_meta_t meet, cuex_t x0, cuex_t x1)
     else if (meta1 == sl_meta && SL(x1)->meet == meet)
 	return sl_new(meet, atree_find(SL(x1)->atree, x0));
     else
-	return sl_new(meet, NULL);
+	return sl_new(meet, cuex_atree_empty());
 }
 
 cu_order_t
@@ -141,10 +144,39 @@ cuex_meetlattice_leq(cuex_meta_t meet, cuex_t x0, cuex_t x1)
 	return cu_false;
 }
 
+cu_clos_def(semilattice_print_elt, cu_prot(void, cuex_t e),
+	    (FILE *out; int index;))
+{
+    cu_clos_self(semilattice_print_elt);
+    if (self->index++)
+	fputs(", ", self->out);
+    cu_fprintf(self->out, "%!", e);
+}
+
+static void
+semilattice_print(cuex_t x, FILE *out)
+{
+    cuex_meta_t opr = SL(x)->meet;
+    cuex_oprinfo_t info = cuex_oprinfo(opr);
+    semilattice_print_elt_t cb;
+    fputc('(', out);
+    if (info)
+	fputs(cuex_oprinfo_name(info), out);
+    else
+	fprintf(out, "__O%d_0x%x", cuex_opr_r(opr), opr);
+    fputs(" {", out);
+    cb.out = out;
+    cb.index = 0;
+    cuex_atree_iter(SL(x)->atree, semilattice_print_elt_prep(&cb));
+    fputs("})", out);
+}
+
 static cu_word_t
 semilattice_dispatch(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
+	case CUOO_INTF_PRINT_FN:
+	    return (cu_word_t)semilattice_print;
 	default:
 	    return CUOO_IMPL_NONE;
     }
