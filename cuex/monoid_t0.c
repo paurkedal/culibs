@@ -52,7 +52,7 @@ main()
     for (i = 1; i < N; ++i) {
 	x = cuex_monoid_product(OPR, x, cudyn_int(i));
 	cu_debug_assert(cuex_is_monoid_product(OPR, x));
-	cu_debug_assert(cuex_monoid_factor_cnt(OPR, x) == i + 1);
+	cu_debug_assert(cuex_monoid_factor_count(OPR, x) == i + 1);
 	cuex_monoid_it_cct(&it, OPR, x);
 	for (j = 0; j <= i; ++j) {
 	    cuex_monoid_it_t it_r;

@@ -75,21 +75,21 @@ CU_SINLINE cu_bool_t cuex_is_monoid_meta(cuex_meta_t meta)
 
 /*!The number of generators in the factorisation of \a x with respect to
  * the operator \a mult. */
-size_t cuex_monoid_factor_cnt(cuex_meta_t mult, cuex_t x);
+size_t cuex_monoid_factor_count(cuex_meta_t mult, cuex_t x);
 
 /*!Factor number \a i (counting from 0) of the factorisation of \a x
  * with respect to \a mult.
- * \pre \a i ≤ \ref cuex_monoid_factor_cnt(\a mult, \a x) */
+ * \pre \a i ≤ \ref cuex_monoid_factor_count(\a mult, \a x) */
 cuex_t cuex_monoid_factor_at(cuex_meta_t mult, cuex_t x, size_t i);
 
 /*!The monoid of the first \a n factors of the factorisation of \a x,
  * considering the operator \a mult.
- * \pre \a n ≤ \ref cuex_monoid_factor_cnt(\a mult, \a x) */
+ * \pre \a n ≤ \ref cuex_monoid_factor_count(\a mult, \a x) */
 cuex_t cuex_monoid_factor_prefix(cuex_meta_t mult, cuex_t x, size_t n);
 
 /*!The monoid of factors \a i inclusive to \a j exclusive of the
  * factorisation of \a x, considering the operator \a mult.
- * \pre \a i ≤ \a j ≤ \ref cuex_monoid_factor_cnt(\a mult, \a x) */
+ * \pre \a i ≤ \a j ≤ \ref cuex_monoid_factor_count(\a mult, \a x) */
 cuex_t cuex_monoid_factor_range(cuex_meta_t mult, cuex_t x, size_t i, size_t j);
 
 
@@ -135,7 +135,7 @@ cu_clos_edec(cuex_monoid_factor_src,
  * when called fills the array at \e buf_arr with up to \e buf_size
  * factors, and returns the actual number filled in.  It returns a
  * short count only when it reaches the end.
- * \pre \a i ≤ j ≤ \ref cuex_monoid_factor_cnt(\a x) */
+ * \pre \a i ≤ j ≤ \ref cuex_monoid_factor_count(\a x) */
 CU_SINLINE void cuex_monoid_factor_src_cct(cuex_monoid_factor_src_t *src,
 					   cuex_meta_t mult, cuex_t x,
 					   size_t i, size_t j)

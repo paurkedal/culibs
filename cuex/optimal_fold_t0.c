@@ -20,7 +20,9 @@
 #include <cuex/opn.h>
 #include <cuex/var.h>
 #include <cuex/recursion.h>
+#include <cuex/labelling.h>
 #include <cuex/print.h>
+#include <cudyn/misc.h>
 #include <cucon/pmap.h>
 #include <cucon/frame.h>
 #include <cu/test.h>
@@ -173,6 +175,19 @@ random_expr(int depth, int *size_limit)
 	--*size_limit;
 	return cuex_o1_lambda(random_expr(depth + 1, size_limit));
     }
+    else if (sel_kind == 2) {
+	e = cuex_labelling_empty();
+	r = 1 << (sel_minor % 3);
+	sel_minor >>= 3;
+	r = (r - 1) & sel_minor;
+	--*size_limit;
+	for (i = 0; i < r; ++i) {
+	    cuex_t l = cudyn_int(i);
+	    cuex_t v = random_expr(depth - 1, size_limit);
+	    e = cuex_labelling_insert(e, l, v);
+	}
+	return e;
+    }
     else {
 	cuex_t e_arr[3];
 	static const cuex_meta_t opr_choices[] = {
@@ -288,7 +303,7 @@ main()
     for (i = 0; i < REPEAT; ++i)
 	test(stats_arr);
 
-    out = fopen("tmp.hopcroft_t0.data", "w");
+    out = fopen("tmp.optimal_fold_t0.data", "w");
     if (out) {
 	for (i = 0; i < PLOT_BIN_COUNT; ++i)
 	    if (stats_arr[i].count)

@@ -109,7 +109,7 @@ cuex_monoid_product(cuex_meta_t mult, cuex_t x, cuex_t y)
 }
 
 size_t
-cuex_monoid_factor_cnt(cuex_meta_t mult, cuex_t x)
+cuex_monoid_factor_count(cuex_meta_t mult, cuex_t x)
 {
     if (cuex_is_monoid_product(mult, x)) {
 	cuex_meta_t meta = cuex_meta(x);
@@ -122,7 +122,7 @@ cuex_monoid_factor_cnt(cuex_meta_t mult, cuex_t x)
 	}
 	--r;
 	return r*(1 << (LOG2_FANOUT*(k - 1)))
-	     + cuex_monoid_factor_cnt(mult, cuex_opn_at(x, r));
+	     + cuex_monoid_factor_count(mult, cuex_opn_at(x, r));
     }
     else
 	return 1;
@@ -196,7 +196,7 @@ cuex_monoid_it_cct(cuex_monoid_it_t *it, cuex_meta_t mult, cuex_t x)
     if (cuex_is_monoid_product(mult, x)) {
 	unsigned int k = cuexP_monoid_meta_depth(cuex_meta(x));
 	cu_debug_assert(k > 0);
-	it->size = cuex_monoid_factor_cnt(mult, x);
+	it->size = cuex_monoid_factor_count(mult, x);
 	while (k) {
 	    it->stack[k] = x;
 	    cu_debug_assert(cuexP_monoid_meta_depth(cuex_meta(x)) == k);
@@ -220,7 +220,7 @@ cuex_monoid_it_cct_at(cuex_monoid_it_t *it,
     if (cuex_is_monoid_product(mult, x)) {
 	unsigned int k = cuexP_monoid_meta_depth(cuex_meta(x));
 	cu_debug_assert(k > 0);
-	it->size = cuex_monoid_factor_cnt(mult, x);
+	it->size = cuex_monoid_factor_count(mult, x);
 	if (i == it->size)
 	    return;
 	cu_debug_assert(i <= it->size);

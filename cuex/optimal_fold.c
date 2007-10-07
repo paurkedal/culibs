@@ -391,6 +391,7 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 			    ++a;
 			}
 		    }
+		    ekey = cuex_o2_metapair(ekey, e_type);
 		}
 	    }
 	    if (!state) { /* fall-through from above block */
