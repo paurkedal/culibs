@@ -16,6 +16,7 @@
  */
 
 #include <cu/ptr_seq.h>
+#include <cu/memory.h>
 
 size_t
 cu_ptr_source_count(cu_ptr_source_t source)
@@ -161,4 +162,98 @@ cu_ptr_junctor_filter(cu_clop(f, cu_bool_t, void *), cu_ptr_junctor_t junctor)
 	if (cu_call(f, elt))
 	    cu_ptr_junctor_put(junctor, elt);
     return cu_ptr_junctor_finish(junctor);
+}
+
+
+/* Adaptor: Junction from Source and Sink */
+
+typedef struct junction_from_source_sink_s *junction_from_source_sink_t;
+struct junction_from_source_sink_s
+{
+    cu_inherit (cu_ptr_junction_s);
+    cu_ptr_source_t source;
+    cu_ptr_sink_t sink;
+};
+
+void *
+junction_from_source_sink_get(cu_ptr_source_t source)
+{
+    junction_from_source_sink_t self;
+    self = cu_from2(junction_from_source_sink,
+		    cu_ptr_junction, cu_ptr_source, source);
+    return cu_ptr_source_get(self->source);
+}
+
+void
+junction_from_source_sink_put(cu_ptr_sink_t sink, void *elt)
+{
+    junction_from_source_sink_t self;
+    self = cu_from2(junction_from_source_sink,
+		    cu_ptr_junction, cu_ptr_sink, sink);
+    return cu_ptr_sink_put(self->sink, elt);
+}
+
+cu_ptr_junction_t
+cu_ptr_junction_from_source_sink(cu_ptr_source_t source, cu_ptr_sink_t sink)
+{
+    junction_from_source_sink_t self;
+    self = cu_gnew(struct junction_from_source_sink_s);
+    cu_ptr_junction_init(cu_to(cu_ptr_junction, self),
+			 junction_from_source_sink_get,
+			 junction_from_source_sink_put);
+    self->source = source;
+    self->sink = sink;
+    return cu_to(cu_ptr_junction, self);
+}
+
+
+/* Adaptor: Junctor from Source and Sinktor */
+
+typedef struct junctor_from_source_sinktor_s *junctor_from_source_sinktor_t;
+struct junctor_from_source_sinktor_s
+{
+    cu_inherit (cu_ptr_junctor_s);
+    cu_ptr_source_t source;
+    cu_ptr_sinktor_t sinktor;
+};
+
+void *
+junctor_from_source_sinktor_get(cu_ptr_source_t source)
+{
+    junctor_from_source_sinktor_t self;
+    self = cu_from3(junctor_from_source_sinktor, cu_ptr_junctor,
+		    cu_ptr_junction, cu_ptr_source, source);
+    return cu_ptr_source_get(self->source);
+}
+
+void
+junctor_from_source_sinktor_put(cu_ptr_sink_t sink, void *elt)
+{
+    junctor_from_source_sinktor_t self;
+    self = cu_from3(junctor_from_source_sinktor, cu_ptr_junctor,
+		    cu_ptr_junction, cu_ptr_sink, sink);
+    return cu_ptr_sinktor_put(self->sinktor, elt);
+}
+
+void *
+junctor_from_source_sinktor_finish(cu_ptr_junctor_t junctor)
+{
+    junctor_from_source_sinktor_t self;
+    self = cu_from(junctor_from_source_sinktor, cu_ptr_junctor, junctor);
+    return cu_ptr_sinktor_finish(self->sinktor);
+}
+
+cu_ptr_junctor_t
+cu_ptr_junctor_from_source_sinktor(cu_ptr_source_t source,
+				   cu_ptr_sinktor_t sinktor)
+{
+    junctor_from_source_sinktor_t self;
+    self = cu_gnew(struct junctor_from_source_sinktor_s);
+    cu_ptr_junctor_init(cu_to(cu_ptr_junctor, self),
+			junctor_from_source_sinktor_get,
+			junctor_from_source_sinktor_put,
+			junctor_from_source_sinktor_finish);
+    self->source = source;
+    self->sinktor = sinktor;
+    return cu_to(cu_ptr_junctor, self);
 }

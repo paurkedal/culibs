@@ -155,6 +155,16 @@ CU_SINLINE cucon_listnode_t cucon_listnode_prev(cucon_listnode_t it)
 void cucon_list_range_iter_mem(cucon_listnode_t, cucon_listnode_t,
 			       cu_clop(proc, void, void *));
 
+/*!A source over values from \a begin up to but not including \a end where
+ * value slot pointers are dereferenced as pointers. */
+cu_ptr_source_t cucon_listrange_source_ptr(cucon_listnode_t begin,
+					   cucon_listnode_t end);
+
+/*!A source over all elements of \a list dereferenced as pointers. */
+CU_SINLINE cu_ptr_source_t cucon_list_source_ptr(cucon_list_t list)
+{ return cucon_listrange_source_ptr(cucon_list_begin(list),
+				    cucon_list_end(list)); }
+
 /*!Insert an element as the first in the list. */
 CU_SINLINE cucon_listnode_t
 cucon_list_prepend_mem(cucon_list_t list, size_t size)

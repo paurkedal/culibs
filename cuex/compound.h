@@ -144,6 +144,8 @@ struct cuex_intf_compound_s
      * assigned, then \ref ncomm_iter_source must also be assigned.  */
     cu_ptr_junctor_t (*ncomm_image_junctor)(cuex_intf_compound_t, cuex_t C);
 
+    cu_ptr_sinktor_t (*ncomm_build_sinktor)(cuex_intf_compound_t, cuex_t C);
+
     /*!Source sequence of elements for the commutative view.  If not assigned,
      * it will be synthesised from \ref ncomm_iter_source. */
     cu_ptr_source_t (*comm_iter_source)(cuex_intf_compound_t, cuex_t C);

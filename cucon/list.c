@@ -18,6 +18,7 @@
 
 #include <cucon/list.h>
 #include <cu/memory.h>
+#include <cu/ptr_seq.h>
 
 struct cucon_list_s cuconP_list_empty;
 
@@ -234,6 +235,37 @@ cucon_list_range_iter_mem(cucon_listnode_t first, cucon_listnode_t last,
 	cu_call(proc, cucon_listnode_mem(first));
 	first = cucon_listnode_next(first);
     }
+}
+
+typedef struct range_source_s *range_source_t;
+struct range_source_s
+{
+    cu_inherit (cu_ptr_source_s);
+    cucon_listnode_t cur;
+    cucon_listnode_t end;
+};
+
+static void *
+range_source_get_ptr(cu_ptr_source_t source)
+{
+    range_source_t self = cu_from(range_source, cu_ptr_source, source);
+    cucon_listnode_t cur = self->cur;
+    if (cur == self->end)
+	return NULL;
+    else {
+	self->cur = cucon_listnode_next(cur);
+	return cucon_listnode_ptr(self->cur);
+    }
+}
+
+cu_ptr_source_t
+cucon_listrange_source_ptr(cucon_listnode_t begin, cucon_listnode_t end)
+{
+    range_source_t self = cu_gnew(struct range_source_s);
+    cu_ptr_source_init(cu_to(cu_ptr_source, self), range_source_get_ptr);
+    self->cur = begin;
+    self->end = end;
+    return cu_to(cu_ptr_source, self);
 }
 
 cucon_listnode_t

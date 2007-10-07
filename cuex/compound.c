@@ -126,53 +126,20 @@ comm_by_ncomm_image_adaptor(cuex_intf_compound_t impl, cuex_t C)
 
 /* == Commutative Image Junctor from Build Sinktor Adaptor == */
 
-typedef struct comm_image_from_build_adaptor_s
-	*comm_image_from_build_adaptor_t;
-struct comm_image_from_build_adaptor_s
-{
-    cu_inherit (cu_ptr_junctor_s);
-    cu_ptr_source_t subsource;
-    cu_ptr_sinktor_t subsinktor;
-};
-
-static void *
-comm_image_from_build_adaptor_get(cu_ptr_source_t source)
-{
-    comm_image_from_build_adaptor_t self
-	= cu_from3(comm_image_from_build_adaptor,
-		   cu_ptr_junctor, cu_ptr_junction, cu_ptr_source, source);
-    return cu_ptr_source_get(self->subsource);
-}
-
-static void
-comm_image_from_build_adaptor_put(cu_ptr_sink_t sink, void *elt)
-{
-    comm_image_from_build_adaptor_t self
-	= cu_from3(comm_image_from_build_adaptor,
-		   cu_ptr_junctor, cu_ptr_junction, cu_ptr_sink, sink);
-    cu_ptr_sinktor_put(self->subsinktor, elt);
-}
-
-static void *
-comm_image_from_build_adaptor_finish(cu_ptr_junctor_t junctor)
-{
-    comm_image_from_build_adaptor_t self
-	= cu_from(comm_image_from_build_adaptor, cu_ptr_junctor, junctor);
-    return cu_ptr_sinktor_finish(self->subsinktor);
-}
-
 static cu_ptr_junctor_t
 comm_image_from_build_adaptor(cuex_intf_compound_t impl, cuex_t C)
 {
-    comm_image_from_build_adaptor_t self
-	= cu_gnew(struct comm_image_from_build_adaptor_s);
-    cu_ptr_junctor_init(cu_to(cu_ptr_junctor, self),
-			comm_image_from_build_adaptor_get,
-			comm_image_from_build_adaptor_put,
-			comm_image_from_build_adaptor_finish);
-    self->subsource = impl->comm_iter_source(impl, C);
-    self->subsinktor = impl->comm_build_sinktor(impl, C);
-    return cu_to(cu_ptr_junctor, self);
+    cu_ptr_source_t source = impl->comm_iter_source(impl, C);
+    cu_ptr_sinktor_t sinktor = impl->comm_build_sinktor(impl, C);
+    return cu_ptr_junctor_from_source_sinktor(source, sinktor);
+}
+
+static cu_ptr_junctor_t
+ncomm_image_from_build_adaptor(cuex_intf_compound_t impl, cuex_t C)
+{
+    cu_ptr_source_t source = impl->ncomm_iter_source(impl, C);
+    cu_ptr_sinktor_t sinktor = impl->ncomm_build_sinktor(impl, C);
+    return cu_ptr_junctor_from_source_sinktor(source, sinktor);
 }
 
 
@@ -222,11 +189,16 @@ cuex_intf_compound_finish(cuex_intf_compound_t impl)
 
     /* Check that any constructing callbacks have a corresponding iteration
      * source. */
-    if (!has_ncomm_iter)
+    if (!has_ncomm_iter) {
 	if (impl->ncomm_image_junctor)
 	    cu_bugf("The non-commutative image junctor (ncomm_image_junctor) "
 		    "must have a corresponding iterator source "
 		    "(ncomm_iter_source).");
+	if (impl->ncomm_build_sinktor)
+	    cu_bugf("The non-commutative build sinktor (ncomm_build_sinktor) "
+		    "must have a corresponding iterator source "
+		    "(ncomm_iter_source).");
+    }
     if (!has_comm_iter) {
 	if (impl->comm_image_junctor)
 	    cu_bugf("The commutative image junctor (comm_image_junctor) "
@@ -240,6 +212,10 @@ cuex_intf_compound_finish(cuex_intf_compound_t impl)
 	    cu_bugf("The commutative union sinktor (comm_union_sinktor) "
 		    "must have a corresponding iterator source ");
     }
+
+    /* Synthesis of non-commutative image junctor */
+    if (!impl->ncomm_image_junctor && impl->ncomm_build_sinktor)
+	impl->ncomm_image_junctor = ncomm_image_from_build_adaptor;
 
     /* Synthesis of commutative view if not present. */
     if (!impl->comm_iter_source) {
@@ -270,6 +246,9 @@ cuex_intf_compound_finish(cuex_intf_compound_t impl)
 		impl->flags |= CUEX_COMPOUNDFLAG_COMM_EXPANSIVE_IMAGE;
 	}
     }
+    /* TODO. Check the consequences of adding ncomm_build_sinktor. Maybe we can
+     * synthesise comm_build_sinktor. The synthetic comm_image_junctor can be
+     * optimised when ncomm_image_junctor is not present. */
 
     /* Synthesis of various methods. */
     if (!impl->size)
