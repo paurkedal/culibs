@@ -20,9 +20,9 @@ range cuex_og_all = __all[0 .! 0x10000]
 #    implicit attr cuex_oa_mubind : 1 bit "cu_bool_t"
 
 range cuex_og_regular	= cuex_og_all[0x0000 .! 0x4000]
-range cuex_og_aci	= cuex_og_all[0x6000 .! 0x6100]
-range cuex_og_monoid	= cuex_og_all[0x6100 .! 0x6800] # 0x70 operators
-    attr cuex_oa_monoid_depth : 4 bits "unsigned int"
+range cuexP_og_ltree	= cuex_og_all[0x6000 .! 0x6200] # 1 operator
+    attr cuexP_oa_ltree_depth : 5 bits "unsigned int"	# 4^32 = 2^64 nodes
+range cuex_og_aci	= cuex_og_all[0x6200 .! 0x6300]
 range cuex_og_semilattice = cuex_og_all[0x6800 .! 0x7000]
     attr cuex_oa_semilattice_prefix : 6 bits "unsigned int" # 0x20 operators
 range cuex_og_hole	= cuex_og_all[0x7000 .! 0x7800] # 1 operator
@@ -30,7 +30,6 @@ range cuex_og_hole	= cuex_og_all[0x7000 .! 0x7800] # 1 operator
 range cuex_og_binder	= cuex_og_all[0x7f00 .! 0x8000]
 
 range cuex_og_metaregular = cuex_og_regular[0x3fe0 .! 0x4000]
-range cuex_og_metamonoid = cuex_og_monoid[0x68 .! 0x70]
 
 # range cuex_og_mbinder	= cuex_og_all[0x7100 .! 0x8000]
 #     attr cuex_oa_mbind_count : 6 bits "int"
@@ -39,7 +38,7 @@ range cuex_og_ta	= cuex_og_all[0x4210 .! 0x4220]
 
 reserve cuex_og_regular		[0x000 .! 0x020]
 reserve cuex_og_aci		[0x000 .! 0x010]
-reserve cuex_og_monoid		[0x000 .! 0x010]
+reserve cuexP_og_ltree		[0x000 .! 0x001]
 reserve cuex_og_semilattice	[0x000 .! 0x008]
 reserve cuex_og_hole		[0 .! 1]
 reserve cuex_og_binder		[0x000 .! 0x010]
@@ -47,7 +46,6 @@ reserve cuex_og_scoping		[0x000 .! 0x010]
 reserve cuex_og_ta		[0x000 .! 0x010]
 
 reserve cuex_og_metaregular	[0x00 .! 0x10]
-reserve cuex_og_metamonoid	[0x00 .! 0x04]
 
 
 # == Meta-Operators ==
@@ -63,7 +61,11 @@ o/1 cuex_o1_metatag0	: cuex_og_metaregular
 o/1 cuex_o1_metatag1	: cuex_og_metaregular
 o/2 cuex_o2_metapair	: cuex_og_metaregular
 o/2 cuex_o2_metajoin	: cuex_og_metaregular
-o/0 cuex_o2m_metatuple	: cuex_og_metamonoid
+
+
+# == Internal ==
+
+o/r cuexP_oR_ltree	: cuexP_og_ltree
 
 
 # == Binding Operators ==
@@ -84,7 +86,7 @@ o/1 cuex_o1_ident	: cuex_og_regular
 # == Additional Operators ==
 
 # Monoid
-o/0 cuex_o2m_tuple	: cuex_og_monoid
+o/0 cuex_o2_tuple	: cuex_og_regular
 
 # Semi-lattice
 o/2 cuex_o2_meet	: cuex_og_regular

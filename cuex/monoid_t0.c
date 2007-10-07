@@ -19,7 +19,7 @@
 #include <cuex/oprdefs.h>
 #include <cudyn/misc.h>
 
-#define OPR CUEX_O2M_TUPLE
+#define OPR CUEX_O2_TUPLE
 
 #define N 500
 
@@ -29,23 +29,23 @@ main()
     cuex_t x;
     int i;
     int j;
-    cuex_monoid_it_t it;
+    cuex_monoid_itr_t it;
     cuex_init();
 
     /* Check simple construction and iteration */
-    cuex_monoid_it_cct(&it, OPR, cudyn_int(0));
-    cu_debug_assert(cuex_monoid_it_read(&it) == cudyn_int(0));
-    cu_debug_assert(cuex_monoid_it_read(&it) == NULL);
+    cuex_monoid_itr_init_full(OPR, &it, cudyn_int(0));
+    cu_debug_assert(cuex_monoid_itr_get(&it) == cudyn_int(0));
+    cu_debug_assert(cuex_monoid_itr_get(&it) == NULL);
     x = cuex_monoid_product(OPR, cudyn_int(0), cudyn_int(1));
-    cuex_monoid_it_cct(&it, OPR, x);
-    cu_debug_assert(cuex_monoid_it_read(&it) == cudyn_int(0));
-    cu_debug_assert(cuex_monoid_it_read(&it) == cudyn_int(1));
-    cu_debug_assert(cuex_monoid_it_read(&it) == NULL);
+    cuex_monoid_itr_init_full(OPR, &it, x);
+    cu_debug_assert(cuex_monoid_itr_get(&it) == cudyn_int(0));
+    cu_debug_assert(cuex_monoid_itr_get(&it) == cudyn_int(1));
+    cu_debug_assert(cuex_monoid_itr_get(&it) == NULL);
 
     /* Check construction and iteration */
     x = cuex_monoid_identity(OPR);
     cu_debug_assert(cuex_is_monoid_identity(OPR, x));
-    cu_debug_assert(cuex_is_monoid_product(OPR, x));
+    cu_debug_assert(cuex_is_monoid(OPR, x));
     x = cuex_monoid_product(OPR, x, cudyn_int(0));
     cu_debug_assert(!cuex_is_monoid_product(OPR, x));
     cu_debug_assert(x == cudyn_int(0));
@@ -53,15 +53,15 @@ main()
 	x = cuex_monoid_product(OPR, x, cudyn_int(i));
 	cu_debug_assert(cuex_is_monoid_product(OPR, x));
 	cu_debug_assert(cuex_monoid_factor_count(OPR, x) == i + 1);
-	cuex_monoid_it_cct(&it, OPR, x);
+	cuex_monoid_itr_init_full(OPR, &it, x);
 	for (j = 0; j <= i; ++j) {
-	    cuex_monoid_it_t it_r;
-	    cu_debug_assert(cuex_monoid_it_read(&it) == cudyn_int(j));
+	    cuex_monoid_itr_t it_r;
+	    cu_debug_assert(cuex_monoid_itr_get(&it) == cudyn_int(j));
 	    cu_debug_assert(cuex_monoid_factor_at(OPR, x, j) == cudyn_int(j));
-	    cuex_monoid_it_cct_at(&it_r, OPR, x, j);
-	    cu_debug_assert(cuex_monoid_it_read(&it_r) == cudyn_int(j));
+	    cuex_monoid_itr_init_slice(OPR, &it_r, x, j, SIZE_MAX);
+	    cu_debug_assert(cuex_monoid_itr_get(&it_r) == cudyn_int(j));
 	}
-	cu_debug_assert(cuex_monoid_it_read(&it) == NULL);
+	cu_debug_assert(cuex_monoid_itr_get(&it) == NULL);
     }
 
     /* Check associativity */
@@ -73,8 +73,8 @@ main()
 	for (i = j; i < N; ++i)
 	    z = cuex_monoid_product(OPR, z, cudyn_int(i));
 	cu_debug_assert(x == cuex_monoid_product(OPR, y, z));
-	cu_debug_assert(cuex_monoid_factor_prefix(OPR, x, j) == y);
-	cu_debug_assert(cuex_monoid_factor_range(OPR, x, j, N) == z);
+	cu_debug_assert(cuex_monoid_factor_slice(OPR, x, 0, j) == y);
+	cu_debug_assert(cuex_monoid_factor_slice(OPR, x, j, N) == z);
     }
 
     return 0;

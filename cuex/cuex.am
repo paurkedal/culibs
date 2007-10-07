@@ -14,6 +14,7 @@ cuex_headers = \
 	cuex/ftype.h \
 	cuex/intf.h \
 	cuex/labelling.h \
+	cuex/ltree.h \
 	cuex/monoid.h \
 	cuex/opn.h \
 	cuex/opntpl.h \
@@ -53,6 +54,7 @@ cuex_sources = \
 	cuex/ftype.c \
 	cuex/init.c \
 	cuex/labelling.c \
+	cuex/ltree.c \
 	cuex/monoid.c \
 	cuex/opntpl.c \
 	cuex/opn.c \

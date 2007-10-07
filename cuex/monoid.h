@@ -21,6 +21,7 @@
 #include <cuex/fwd.h>
 #include <cuex/opn.h>
 #include <cuex/oprdefs.h>
+#include <cuex/ltree.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_monoid_h cuex/monoid.h: Expressions of Associative Operators with Identity
@@ -30,48 +31,75 @@ CU_BEGIN_DECLARATIONS
  * are working with raw expressions, the set of the monoid is not explicit.
  */
 
-/* Representation
- *     operators must be defined with aux = 0 and r = 0
- *     identity element:	aux = 1 and r = 0
- *     non-trivial nodes:	aux ≥ 1 and r = FANOUT
- */
+typedef struct cuex_monoid_s *cuex_monoid_t;
+struct cuex_monoid_s
+{
+    CUOO_HCOBJ
+    cuex_meta_t opr;
+    cuex_t ltree;
+};
 
-#define CUEX_MONOID_OPR_MASK (CUEX_METAKIND_MASK | CUEX_OPR_SELECT_MASK)
-#define CUEX_MONOID_MAXPL_DEPTH (1 << CUEX_OA_MONOID_DEPTH_WIDTH)
+extern cuoo_stdtype_t cuexP_monoid_type;
 
-#define cuexP_monoid_opr(opr, depth, arity) \
-    ((opr) | CUEX_OA_MONOID_DEPTH(depth) | ((arity) << CUEX_OPR_ARITY_SHIFT))
+CU_SINLINE cuoo_type_t
+cuex_monoid_type()
+{ return cuoo_stdtype_to_type(cuexP_monoid_type); }
 
-/*!Internal use. The depth part of \a meta. */
-#define cuexP_monoid_meta_depth(meta) cuex_oa_monoid_depth(meta)
+/*!True iff \a x is a monoid product or a monoid identity element of any
+ * operator.
+ * \see cuex_check_monoid
+ * \see cuex_is_monoid */
+CU_SINLINE cu_bool_t
+cuex_is_any_monoid(cuex_t x)
+{ return cuex_meta(x) == cuoo_type_to_meta(cuex_monoid_type()); }
 
-/*!The operator part of \a meta which should me the meta of a monoid
- * operation. */
-#define cuex_monoid_meta_opr(meta) \
-    cuex_opr_sans_arity(cuex_og_monoid_strip(meta))
+/*!If \a x is a monoid (according to \ref cuex_is_monoid), then set \c *\a
+ * mult_out to the exact operator and return true, else return false.
+ * \see cuex_is_monoid
+ * \see cuex_is_monoid */
+CU_SINLINE cu_bool_t
+cuex_check_monoid(cuex_t x, cuex_meta_t *mult_out)
+{
+    if (cuex_is_any_monoid(x)) {
+	*mult_out = ((cuex_monoid_t)x)->opr;
+	return cu_true;
+    } else
+	return cu_false;
+}
 
 /*!True iff \a x is a non-generator element of the monoid induced by
- * \a mult, including the identity of \a mult. */
-CU_SINLINE cu_bool_t cuex_is_monoid_product(cuex_meta_t mult, cuex_t x)
-{ return cuex_monoid_meta_opr(cuex_meta(x)) == mult; }
+ * \a mult, including the identity of \a mult.
+ * \see cuex_is_monoid
+ * \see cuex_check_monoid */
+CU_SINLINE cu_bool_t
+cuex_is_monoid(cuex_meta_t mult, cuex_t x)
+{ return cuex_is_any_monoid(x) && ((cuex_monoid_t)x)->opr == mult; }
+
+/*!True iff \a x is a monoid product, i.e. having at least two factors. */
+CU_SINLINE cu_bool_t
+cuex_is_monoid_product(cuex_meta_t mult, cuex_t x)
+{ return cuex_is_monoid(mult, x)
+     && !cuex_ltree_is_empty(((cuex_monoid_t)x)->ltree); }
 
 /*!The identity element of the monoid induced by \a mult. */
-CU_SINLINE cuex_opn_t cuex_monoid_identity(cuex_meta_t mult)
-{ return cuex_opn(mult | CUEX_OA_MONOID_DEPTH(1)); }
+cuex_t cuex_monoid_identity(cuex_meta_t mult);
 
 /*!True iff \a x is the identity of the monoid operator \a mult. */
-CU_SINLINE cu_bool_t cuex_is_monoid_identity(cuex_meta_t mult, cuex_t x)
-{ return cuex_meta(x) == (mult | CUEX_OA_MONOID_DEPTH(1)); }
+CU_SINLINE cu_bool_t
+cuex_is_monoid_identity(cuex_meta_t mult, cuex_t x)
+{
+    return cuex_is_monoid(mult, x)
+	&& cuex_ltree_is_empty(((cuex_monoid_t)x)->ltree);
+}
 
 /*!Returns \a x * \a y, where * = \a mult. */
-cuex_opn_t cuex_monoid_product(cuex_meta_t mult, cuex_t x, cuex_t y);
+cuex_t cuex_monoid_product(cuex_meta_t mult, cuex_t x, cuex_t y);
 
-/*!True iff \a meta is the meta of a monoid operation.  Note that this
- * is false for monoid operators as they are defined, but true for the
- * meta of operations which are created with \ref cuex_monoid_identity
- * and \ref cuex_monoid_product and which do not reduce to generators. */
-CU_SINLINE cu_bool_t cuex_is_monoid_meta(cuex_meta_t meta)
-{ return cuex_og_monoid_contains(meta); }
+cuex_t cuex_monoid_product_over_source(cuex_meta_t mult,
+				       cu_ptr_source_t source);
+
+cuex_t cuex_monoid_right_multiply_source(cuex_meta_t mult,
+					 cuex_t x, cu_ptr_source_t source);
 
 /*!The number of generators in the factorisation of \a x with respect to
  * the operator \a mult. */
@@ -82,67 +110,30 @@ size_t cuex_monoid_factor_count(cuex_meta_t mult, cuex_t x);
  * \pre \a i ≤ \ref cuex_monoid_factor_count(\a mult, \a x) */
 cuex_t cuex_monoid_factor_at(cuex_meta_t mult, cuex_t x, size_t i);
 
-/*!The monoid of the first \a n factors of the factorisation of \a x,
- * considering the operator \a mult.
- * \pre \a n ≤ \ref cuex_monoid_factor_count(\a mult, \a x) */
-cuex_t cuex_monoid_factor_prefix(cuex_meta_t mult, cuex_t x, size_t n);
-
 /*!The monoid of factors \a i inclusive to \a j exclusive of the
  * factorisation of \a x, considering the operator \a mult.
  * \pre \a i ≤ \a j ≤ \ref cuex_monoid_factor_count(\a mult, \a x) */
-cuex_t cuex_monoid_factor_range(cuex_meta_t mult, cuex_t x, size_t i, size_t j);
+cuex_t cuex_monoid_factor_slice(cuex_meta_t mult, cuex_t x, size_t i, size_t j);
 
+/* Construct a source for generators \a i inclusive to \a j
+ * exclusive in the factorisation of \a x with respect to \a mult. */
+cu_ptr_source_t cuex_any_monoid_factor_source(cuex_t e, size_t i, size_t j);
 
-struct cuex_monoid_it_s
-{
-    size_t index;
-    size_t size;
-    cuex_meta_t mult;
-    cuex_t stack[CUEX_MONOID_MAXPL_DEPTH];
-};
-typedef struct cuex_monoid_it_s cuex_monoid_it_t;
+struct cuex_monoid_itr_s { struct cuex_ltree_itr_s sub; };
+typedef struct cuex_monoid_itr_s cuex_monoid_itr_t;
 
-/*!Construct \a it as an iterator pointing to the first generator in
- * in the factorisation of \a x with respect to \a mult, and iterating
- * over successive generators. */
-void cuex_monoid_it_cct(cuex_monoid_it_t *it, cuex_meta_t mult, cuex_t x);
+void cuex_monoid_itr_init_full(cuex_meta_t mult,
+			       cuex_monoid_itr_t *itr, cuex_t x);
 
-void cuex_monoid_it_cct_at(cuex_monoid_it_t *it,
-			   cuex_meta_t mult, cuex_t x, size_t i);
+void cuex_monoid_itr_init_slice(cuex_meta_t mult,
+				cuex_monoid_itr_t *itr, cuex_t x,
+				size_t i, size_t j);
 
-void cuex_monoid_it_cct_range(cuex_monoid_it_t *it,
-			      cuex_meta_t mult, cuex_t x, size_t i, size_t j);
+CU_SINLINE cuex_t cuex_monoid_itr_get(cuex_monoid_itr_t *itr)
+{ return cuex_ltree_itr_get(&itr->sub); }
 
-/*!True iff \a it is at the end of its range. */
-CU_SINLINE cu_bool_t cuex_monoid_it_is_end(cuex_monoid_it_t *it)
-{ return it->index == it->size; }
-
-/*!If \a it is at its end, returns \c NULL, else returns the next
- * generator of the monoid factorisation, and advances \a it to point
- * to the next. */
-cuex_t cuex_monoid_it_read(cuex_monoid_it_t *it);
-
-cu_clos_edec(cuex_monoid_factor_src,
-	     cu_prot(size_t, cuex_t *buf_arr, size_t buf_size),
-    ( struct cuex_monoid_it_s it; ));
-
-#if 0
-/* Construct a buffering source for generators \a i inclusive to \a j
- * exclusive in the factorisation of \a x with respect to \a mult.
- * The constructed object \a src is a \c cu_clos.  After costruction
- * \ref cu_clos_ref(\a src) gives a closure pointer of type
- * <pre>size_t cu_clptr(cuex_t *\e buf_arr, size_t \e buf_size)</pre> which
- * when called fills the array at \e buf_arr with up to \e buf_size
- * factors, and returns the actual number filled in.  It returns a
- * short count only when it reaches the end.
- * \pre \a i ≤ j ≤ \ref cuex_monoid_factor_count(\a x) */
-CU_SINLINE void cuex_monoid_factor_src_cct(cuex_monoid_factor_src_t *src,
-					   cuex_meta_t mult, cuex_t x,
-					   size_t i, size_t j)
-{
-    cuex_monoid_it_cct_range(&src->it, mult, x, i, j);
-}
-#endif
+CU_SINLINE cu_bool_t cuex_monoid_itr_is_end(cuex_monoid_itr_t *itr)
+{ return cuex_ltree_itr_is_end(&itr->sub); }
 
 /*!@}*/
 CU_END_DECLARATIONS
