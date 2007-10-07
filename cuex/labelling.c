@@ -30,12 +30,12 @@ cu_clop_def(get_key, cu_word_t, cuex_t e)
 { return (cu_word_t)cuex_opn_at(e, 0); }
 
 cu_clop_def(value_merge, cuex_t, cuex_t e0, cuex_t e1)
-{ return cuex_monoid_product(CUEX_O2M_TUPLE, e0, e1); }
+{ return cuex_monoid_product(CUEX_O2_TUPLE, e0, e1); }
 
 #define atree_find(T, l) cuex_atree_find(get_key, T, (cu_word_t)(l))
 #define atree_insert(T, e) cuex_atree_insert(get_key, T, e)
 #define atree_erase(T, l) cuex_atree_erase(get_key, T, (cu_word_t)(l))
-#define atree_union(T0, T1) cuex_atree_union(get_key, T0, T1)
+#define atree_left_union(T0, T1) cuex_atree_left_union(get_key, T0, T1)
 #define atree_isecn(T0, T1) cuex_atree_isecn(get_key, T0, T1)
 #define atree_order(T0, T1) cuex_atree_order(get_key, T0, T1)
 #define atree_subseteq(T0, T1) cuex_atree_subseteq(get_key, T0, T1)
@@ -230,7 +230,7 @@ cuex_labelling_expand_all(cuex_t e)
 	if (ep) {
 	    cuex_t r = cuex_labelling_expand_all(ep);
 	    while ((ep = cu_ptr_source_get(source)))
-		r = cuex_monoid_product(CUEX_O2M_TUPLE,
+		r = cuex_monoid_product(CUEX_O2_TUPLE,
 					r, cuex_labelling_expand_all(ep));
 	    return r;
 	} else
@@ -242,13 +242,13 @@ cuex_labelling_expand_all(cuex_t e)
 cuex_t
 cuex_labelling_contract_all(cuex_t e)
 {
-    if (cuex_is_monoid_product(CUEX_O2M_TUPLE, e)) {
+    if (cuex_is_monoid(CUEX_O2_TUPLE, e)) {
 	cuex_t ep, L, M;
-	struct cuex_monoid_it_s itr;
-	cuex_monoid_it_cct(&itr, CUEX_O2M_TUPLE, e);
+	struct cuex_monoid_itr_s itr;
+	cuex_monoid_itr_init_full(CUEX_O2_TUPLE, &itr, e);
 	L = cuex_labelling_empty();
-	M = cuex_monoid_identity(CUEX_O2M_TUPLE);
-	while ((ep = cuex_monoid_it_read(&itr))) {
+	M = cuex_monoid_identity(CUEX_O2_TUPLE);
+	while ((ep = cuex_monoid_itr_get(&itr))) {
 	    cuex_meta_t ep_meta = cuex_meta(ep);
 	    if (ep_meta == CUEX_O2_LABEL) {
 		cuex_t l = cuex_opn_at(ep, 0);
@@ -259,15 +259,15 @@ cuex_labelling_contract_all(cuex_t e)
 		L = cuex_labelling_deep_union(value_merge, L, ep);
 	    else {
 		cuex_t epp = cuex_labelling_contract_all(ep);
-		M = cuex_monoid_product(CUEX_O2M_TUPLE, M, epp);
+		M = cuex_monoid_product(CUEX_O2_TUPLE, M, epp);
 	    }
 	}
 	if (cuex_is_labelling_empty(L))
 	    return M;
-	else if (cuex_is_monoid_identity(CUEX_O2M_TUPLE, M))
+	else if (cuex_is_monoid_identity(CUEX_O2_TUPLE, M))
 	    return L;
 	else
-	    return cuex_monoid_product(CUEX_O2M_TUPLE, M, L);
+	    return cuex_monoid_product(CUEX_O2_TUPLE, M, L);
     } else if (cuex_meta(e) == CUEX_O2_LABEL) {
 	cuex_t l = cuex_opn_at(e, 0);
 	cuex_t v = cuex_opn_at(e, 1);
@@ -449,7 +449,14 @@ comm_build_sinktor_put(cu_ptr_sink_t sink, void *elt)
 {
     comm_build_sinktor_t self
 	= cu_from2(comm_build_sinktor, cu_ptr_sinktor, cu_ptr_sink, sink);
-    self->new_atree = atree_insert(self->new_atree, elt);
+    if (cuex_meta(elt) == CUEX_O2_LABEL)
+	self->new_atree = atree_insert(self->new_atree, elt);
+    else if (cuex_is_labelling(elt))
+	self->new_atree
+	    = atree_left_union(self->new_atree, LABELLING(elt)->atree);
+    else
+	cu_bugf("Tried to insert unlabelled element into a "
+		"cuex_labelling_comm_build_sinktor.");
 }
 
 static void *

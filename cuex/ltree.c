@@ -52,8 +52,12 @@ ltree_fresh_source(unsigned int depth, cu_ptr_source_t source)
 	return cu_ptr_source_get(source);
     for (i = 0; i < FANOUT; ++i) {
 	v[i] = ltree_fresh_source(depth - 1, source);
-	if (v[i] == NULL)
-	    break;
+	if (v[i] == NULL) {
+	    if (i == 0)
+		return NULL;
+	    else
+		break;
+	}
     }
     if (i == 1)
 	return v[0];
@@ -201,7 +205,7 @@ cuex_ltree_append_from_source(cuex_t x, cu_ptr_source_t source)
 		    return cuex_opn_by_arr(CUEXP_OXR_LTREE(depth, i), v);
 	    }
 	}
-	x = cuex_opn_by_arr(CUEXP_OXR_LTREE(depth, i), v);
+	x = cuex_opn_by_arr(CUEXP_OXR_LTREE(depth, FANOUT), v);
     }
 }
 
@@ -308,10 +312,39 @@ cuex_ltree_slice(cuex_t x, size_t i, size_t j)
     return ltree_fresh(CUEXP_OA_LTREE_DEPTH_MAXP - 1, &it);
 }
 
+static cu_bool_t
+ltree_forall(cu_clop(fn, cu_bool_t, cuex_t), cuex_t x)
+{
+    cuex_meta_t x_meta;
+    while (cuex_is_oR_ltree(x_meta = cuex_meta(x))) {
+	cu_rank_t i, r = cuex_opr_r(x_meta);
+	cu_debug_assert(r > 0);
+	--r;
+	for (i = 0; i < r; ++i)
+	    if (!ltree_forall(fn, cuex_opn_at(x, i)))
+		return cu_false;
+	x = cuex_opn_at(x, r);
+    }
+    return cu_call(fn, x);
+}
+
+cu_bool_t
+cuex_ltree_forall(cu_clop(fn, cu_bool_t, cuex_t), cuex_t x)
+{
+    if (cuex_ltree_is_empty(x))
+	return cu_true;
+    else if (cuexP_is_ltree_node(x))
+	return ltree_forall(fn, x);
+    else
+	return cu_call(fn, x);
+}
+
 void
 cuex_ltree_itr_init_full(cuex_ltree_itr_t *itr, cuex_t x)
 {
-    if (cuexP_is_ltree_node(x)) {
+    if (cuex_ltree_is_empty(x))
+	itr->i_end = 0;
+    else if (cuexP_is_ltree_node(x)) {
 	unsigned int k = cuexP_oa_ltree_depth(cuex_meta(x));
 	cu_debug_assert(k > 0);
 	itr->i_end = cuex_ltree_size(x);
@@ -332,7 +365,9 @@ void
 cuex_ltree_itr_init_slice(cuex_ltree_itr_t *itr, cuex_t x, size_t i, size_t j)
 {
     itr->i_cur = i;
-    if (cuexP_is_ltree_node(x)) {
+    if (cuex_ltree_is_empty(x))
+	itr->i_end = 0;
+    else if (cuexP_is_ltree_node(x)) {
 	unsigned int k = cuexP_oa_ltree_depth(cuex_meta(x));
 	cu_debug_assert(k > 0);
 	itr->i_end = cuex_ltree_size(x);

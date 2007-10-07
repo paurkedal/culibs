@@ -59,13 +59,13 @@ void cucon_list_swap(cucon_list_t lst0, cucon_list_t lst1);
 
 /*!True iff \a lst is empty. */
 cu_bool_t cucon_list_is_empty(cucon_list_t lst);
-/*!True iff \a lst is empty or singular. */
-cu_bool_t cucon_list_is_empty_or_singular(cucon_list_t lst);
+/*!True iff \a lst is empty or a singleton. */
+cu_bool_t cucon_list_is_empty_or_singleton(cucon_list_t lst);
 /*!True iff \a lst has exactly one element. */
-cu_bool_t cucon_list_is_singular(cucon_list_t lst);
+cu_bool_t cucon_list_is_singleton(cucon_list_t lst);
 
 /*!Return the number of elements in \a lst.  NB: linear complexity, use
- * \c cucon_list_is_empty or \c cucon_list_is_singular whenever possible. */
+ * \c cucon_list_is_empty or \c cucon_list_is_singleton whenever possible. */
 size_t cucon_list_count(cucon_list_t lst);
 
 /*!Return an iterator to the first element of \a lst. */
@@ -249,7 +249,10 @@ CU_SINLINE void cucon_list_pop_back(cucon_list_t list)
 #define cucon_list_it_rprev cucon_listnode_next
 /*!\deprecated Use cucon_listnode_s */
 #define cucon_list_node_s cucon_listnode_s
-
+/*!\deprecated Use cucon_list_is_singleton */
+#define cucon_list_is_singular cucon_list_is_singleton
+/*!\deprecated Use cucon_list_is_empty_or_singleton */
+#define cucon_list_is_empty_or_singular cucon_list_is_empty_or_singleton
 
 /*!@}*/
 CU_END_DECLARATIONS

@@ -56,7 +56,7 @@ CU_SINLINE cuex_t cuex_ltree_empty() { return NULL; }
 CU_SINLINE cu_bool_t cuex_ltree_is_empty(cuex_t tree) { return tree == NULL; }
 
 CU_SINLINE cu_bool_t cuex_ltree_is_singleton(cuex_t tree)
-{ return tree != NULL && cuex_is_oR_ltree(cuex_meta(tree)); }
+{ return tree != NULL && !cuex_is_oR_ltree(cuex_meta(tree)); }
 
 CU_SINLINE cu_bool_t cuexP_is_ltree_node(cuex_t tree)
 { return cuex_is_oR_ltree(cuex_meta(tree)); }
@@ -77,6 +77,10 @@ cuex_t cuex_ltree_slice(cuex_t tree, size_t start, size_t end);
 
 /*!Return the number of elements in \a tree. */
 size_t cuex_ltree_size(cuex_t tree);
+
+/*!Calls \a fn on each element of \a tree sequentially as long as the result is
+ * true, and returns true iff \a fn mapped all elements to true. */
+cu_bool_t cuex_ltree_forall(cu_clop(fn, cu_bool_t, cuex_t), cuex_t tree);
 
 
 /*!Opaque iterator type to be initialised with \ref cuex_ltree_itr_init_full or

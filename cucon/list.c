@@ -254,7 +254,7 @@ range_source_get_ptr(cu_ptr_source_t source)
 	return NULL;
     else {
 	self->cur = cucon_listnode_next(cur);
-	return cucon_listnode_ptr(self->cur);
+	return cucon_listnode_ptr(cur);
     }
 }
 

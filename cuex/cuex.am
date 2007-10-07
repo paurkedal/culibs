@@ -27,6 +27,7 @@ cuex_headers = \
 	cuex/sig.h \
 	cuex/subst.h \
 	cuex/ssfn.h \
+	cuex/test.h \
 	cuex/tpvar.h \
 	cuex/tuple.h \
 	cuex/tvar.h \

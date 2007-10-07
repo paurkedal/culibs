@@ -140,10 +140,14 @@ struct cuex_intf_compound_s
 
     /*!Shall return a \ref cu_ptr_seq_h "junctor" which allows the construction
      * of an image of \a C.  The elements must have the same order as that
-     * returned by \ref ncomm_iter_source.   This may be left unassigned.  If
-     * assigned, then \ref ncomm_iter_source must also be assigned.  */
+     * returned by \ref ncomm_iter_source.   This may be left unassigned, in
+     * which case it will be synthesised if \ref ncomm_build_sinktor is
+     * defined.  If assigned, then \ref ncomm_iter_source must also be
+     * assigned.  */
     cu_ptr_junctor_t (*ncomm_image_junctor)(cuex_intf_compound_t, cuex_t C);
 
+    /*!Shall return a \ref cu_ptr_seq_h "sinktor" to construct a container from
+     * scratch using the non-commutative view. */
     cu_ptr_sinktor_t (*ncomm_build_sinktor)(cuex_intf_compound_t, cuex_t C);
 
     /*!Source sequence of elements for the commutative view.  If not assigned,

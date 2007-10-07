@@ -18,6 +18,7 @@
 #include <cuex/monoid.h>
 #include <cuex/compound.h>
 #include <cuex/intf.h>
+#include <cuex/oprinfo.h>
 #include <cucon/list.h>
 #include <cu/ptr_seq.h>
 
@@ -211,8 +212,12 @@ static void *
 build_sinktor_finish(cu_ptr_sinktor_t sinktor)
 {
     build_sinktor_t self = cu_from(build_sinktor, cu_ptr_sinktor, sinktor);
-    cu_ptr_source_t source = cucon_list_source_ptr(&self->l);
-    return cuex_monoid_product_over_source(self->mult, source);
+    if (cucon_list_is_singleton(&self->l))
+	return cucon_list_front_ptr(&self->l);
+    else {
+	cu_ptr_source_t source = cucon_list_source_ptr(&self->l);
+	return cuex_monoid_product_over_source(self->mult, source);
+    }
 }
 
 static cu_ptr_sinktor_t
@@ -221,9 +226,37 @@ build_sinktor(cuex_intf_compound_t impl, void *tpl)
     build_sinktor_t self = cu_gnew(struct build_sinktor_s);
     cu_ptr_sinktor_init(cu_to(cu_ptr_sinktor, self),
 			build_sinktor_put, build_sinktor_finish);
+    cu_debug_assert(cuex_is_any_monoid(tpl));
     self->mult = MONOID(tpl)->opr;
     cucon_list_cct(&self->l);
     return cu_to(cu_ptr_sinktor, self);
+}
+
+
+/* == Printing == */
+
+cu_clos_def(monoid_print_item, cu_prot(cu_bool_t, cuex_t factor),
+	    (FILE *out; int count;))
+{
+    cu_clos_self(monoid_print_item);
+    if (self->count++)
+	fputs(", ", self->out);
+    cu_fprintf(self->out, "%!", factor);
+    return cu_true;
+}
+
+static void
+monoid_print(void *x, FILE *out)
+{
+    monoid_print_item_t cb;
+    cuex_oprinfo_t oprinfo;
+    cb.out = out;
+    cb.count = 0;
+    oprinfo = cuex_oprinfo(MONOID(x)->opr);
+    cu_debug_assert(oprinfo);
+    fprintf(out, "(%s (", cuex_oprinfo_name(oprinfo));
+    cuex_ltree_forall(monoid_print_item_prep(&cb), MONOID(x)->ltree);
+    fputs("))", out);
 }
 
 
@@ -243,6 +276,8 @@ monoid_dispatch(cu_word_t intf_number, ...)
     switch (intf_number) {
 	case CUEX_INTF_COMPOUND:
 	    return (cu_word_t)&compound_impl;
+	case CUOO_INTF_PRINT_FN:
+	    return (cu_word_t)monoid_print;
 	default:
 	    return CUOO_IMPL_NONE;
     }

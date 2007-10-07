@@ -214,8 +214,11 @@ cuex_intf_compound_finish(cuex_intf_compound_t impl)
     }
 
     /* Synthesis of non-commutative image junctor */
-    if (!impl->ncomm_image_junctor && impl->ncomm_build_sinktor)
+    if (!impl->ncomm_image_junctor && impl->ncomm_build_sinktor) {
 	impl->ncomm_image_junctor = ncomm_image_from_build_adaptor;
+	impl->flags |= CUEX_COMPOUNDFLAG_NCOMM_FILTERABLE_IMAGE
+		     | CUEX_COMPOUNDFLAG_NCOMM_EXPANSIVE_IMAGE;
+    }
 
     /* Synthesis of commutative view if not present. */
     if (!impl->comm_iter_source) {

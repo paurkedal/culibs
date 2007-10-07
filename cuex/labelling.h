@@ -112,10 +112,27 @@ cuex_labelling_image_kv(cuex_t L, cu_clop(f, cuex_t, cuex_t l, cuex_t e));
 cuex_t cuex_labelling_expand_all(cuex_t L);
 cuex_t cuex_labelling_contract_all(cuex_t L);
 
+/*!Returns an iteration source for the unordered sequence.  The implied
+ * sequence are \c CUEX_O2_LABEL nodes. */
 cu_ptr_source_t cuex_labelling_comm_iter_source(cuex_t L);
+
+/*!Returns an iteration source for an ordered sequence of all values mapped by
+ * \a L.  The ordering is given by arbitrary fixing the ordering of the
+ * labels. */
 cu_ptr_source_t cuex_labelling_ncomm_iter_source(cuex_t L);
+
+/*!A junctor for constructing the image of \a L, using the ordered view
+ * corresponding to \a cuex_labelling_comm_iter_source.  For each element
+ * popped from the junctor, at most one must be put back.  The labels of the
+ * resulting labelling is taken from the original. */
 cu_ptr_junctor_t cuex_labelling_ncomm_image_junctor(cuex_t L);
+
+/*!A sinktor for construction a new labelling by unordered insertion of \c
+ * CUEX_O2_LABEL nodes and labellings. */
 cu_ptr_sinktor_t cuex_labelling_comm_build_sinktor(void);
+
+/*!A sinktor for extending a labelling by unordered insertion of \c
+ * CUEX_O2_LABEL nodes and labellings. */
 cu_ptr_sinktor_t cuex_labelling_comm_union_sinktor(cuex_t L);
 
 /*!@}*/
