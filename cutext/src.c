@@ -30,7 +30,7 @@ size_t cutextP_buffer_limit = 1000000;
 void
 cutext_src_cct(cutext_src_t src, cutext_producer_t producer)
 {
-    cutext_buffer_cct(&src->buf, 4096);
+    cu_buffer_init(&src->buf, 4096);
     src->produce = producer;
 }
 
@@ -45,7 +45,7 @@ cutext_src_new(cutext_producer_t producer)
 void
 cutext_src_cct_move(cutext_src_t src_cct, cutext_src_t src_dct)
 {
-    cutext_buffer_cct_move(&src_cct->buf, &src_dct->buf);
+    cu_buffer_init_drop(&src_cct->buf, &src_dct->buf);
     src_cct->produce = src_dct->produce;
     src_dct->produce = cu_clop_null;
 }
@@ -64,11 +64,11 @@ cutextP_src_lookahead(cutext_src_t ibuf, size_t size)
     cutext_status_t r;
     size_t multiplier = 1;
 rec:
-    cutext_buffer_lookahead(&ibuf->buf, size*multiplier);
+    cu_buffer_extend_capacity(&ibuf->buf, size*multiplier);
     r = cu_call(ibuf->produce,
-		 &ibuf->buf.data_end, ibuf->buf.buf_end - ibuf->buf.data_end);
+		 &ibuf->buf.content_end, ibuf->buf.storage_end - ibuf->buf.content_end);
     if (r == cutext_status_buffer_too_small &&
-	&ibuf->buf.data_end - &ibuf->buf.data_start < size) {
+	&ibuf->buf.content_end - &ibuf->buf.content_start < size) {
 	if (multiplier > 1 && multiplier*size > cutextP_buffer_limit) {
 	    cu_errf("Buffer limit exceeded.");
 	    abort();
@@ -147,7 +147,7 @@ cu_clos_def(producer_iconv,
 	if (avail == 0)
 	    return cutext_status_eos;
 	if (iconv(self->cd,
-		  (char **)&self->src->buf.data_start, &avail,
+		  (char **)&self->src->buf.content_start, &avail,
 		  (char **)p, &size)
 	    == (size_t)-1)
 	    switch (errno) {

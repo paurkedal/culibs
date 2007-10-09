@@ -18,9 +18,9 @@
 #ifndef CUTEXT_SRC_H
 #define CUTEXT_SRC_H
 
-#include <cu/fwd.h>
+#include <cutext/fwd.h>
 #include <cu/clos.h>
-#include <cutext/buffer.h>
+#include <cu/buffer.h>
 #include <cu/debug.h>
 
 CU_BEGIN_DECLARATIONS
@@ -29,7 +29,7 @@ typedef cu_clop(cutext_producer_t, cutext_status_t, void **p, size_t size);
 
 struct cutext_src_s
 {
-    struct cutext_buffer_s buf;
+    struct cu_buffer_s buf;
     cutext_producer_t produce;
 };
 
@@ -45,29 +45,29 @@ cutext_status_t cutextP_src_lookahead(cutext_src_t src, size_t size);
 CU_SINLINE cutext_status_t
 cutext_src_lookahead(cutext_src_t src, size_t size)
 {
-    if (src->buf.data_end - src->buf.data_start < size)
+    if (src->buf.content_end - src->buf.content_start < size)
 	return cutextP_src_lookahead(src, size);
     else
 	return cutext_status_ok;
 }
 
 CU_SINLINE void *
-cutext_src_data_start(cutext_src_t src) { return src->buf.data_start; }
+cutext_src_data_start(cutext_src_t src) { return src->buf.content_start; }
 
 CU_SINLINE void *
-cutext_src_data_end(cutext_src_t src) { return src->buf.data_end; }
+cutext_src_data_end(cutext_src_t src) { return src->buf.content_end; }
 
 CU_SINLINE size_t
 cutext_src_data_size(cutext_src_t src)
 {
-    return src->buf.data_end - src->buf.data_start;
+    return src->buf.content_end - src->buf.content_start;
 }
 
 CU_SINLINE void
 cutext_src_advance(cutext_src_t src, size_t size)
 {
-    src->buf.data_start += size;
-    cu_debug_assert(src->buf.data_start <= src->buf.data_end);
+    src->buf.content_start += size;
+    cu_debug_assert(src->buf.content_start <= src->buf.content_end);
 }
 
 cutext_producer_t cutext_producer_new_charr(char const *arr, size_t size);

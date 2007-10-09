@@ -43,9 +43,16 @@ typedef enum {
 #endif
 } cutext_chenc_t;
 
-typedef struct cutext_buffer_s *cutext_buffer_t;
 typedef struct cutext_src_s *cutext_src_t;
 typedef struct cutext_ucs4src_s *cutext_ucs4src_t;
+
+typedef enum {
+    cutext_status_ok,
+    cutext_status_buffer_too_small,
+    cutext_status_eos,
+    cutext_status_sync,
+    cutext_status_error,
+} cutext_status_t;
 
 CU_END_DECLARATIONS
 

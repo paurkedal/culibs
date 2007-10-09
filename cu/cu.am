@@ -2,6 +2,7 @@ if enable_cu
 
 cu_headers = \
 	cu/algo.h \
+	cu/buffer.h \
 	cu/clos.h \
 	cu/conf.h \
 	cu/conf_fixed.h \
@@ -33,6 +34,7 @@ nodist_cu_headers = \
 	cu/conf_ac.h
 
 cu_sources = \
+	cu/buffer.c \
 	cu/cstr.c \
 	cu/debug.c \
 	cu/diag.c \

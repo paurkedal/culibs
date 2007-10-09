@@ -1,7 +1,6 @@
 if enable_cutext
 
 cutext_headers = \
-	cutext/buffer.h \
 	cutext/fwd.h \
 	cutext/src.h \
 	cutext/ucs4.h \
@@ -10,7 +9,6 @@ cutext_headers = \
 
 libcutext_la_SOURCES = \
 	cutext/chenc_conv.c \
-	cutext/buffer.c \
 	cutext/src.c \
 	cutext/ucs4.c \
 	cutext/ucs4ctype.c \

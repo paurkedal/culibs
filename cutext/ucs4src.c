@@ -54,13 +54,13 @@ cutext_ucs4src_scan_str(cutext_ucs4src_t ucs4src,
 	int err;
 	char buf[6];
 	size_t buf_cnt = 6;
-	char *buf_end = buf;
-	err = cutext_ucs4char_to_charr(ch, &buf_end, &buf_cnt);
+	char *storage_end = buf;
+	err = cutext_ucs4char_to_charr(ch, &storage_end, &buf_cnt);
 	if (err) {
 	    cu_errf_at(&ucs4src->srf, "%s", strerror(err));
 	    return NULL;
 	}
-	cu_str_append_charr(str, buf, buf_end - buf);
+	cu_str_append_charr(str, buf, storage_end - buf);
 	cutext_ucs4src_advance(ucs4src, 1);
     }
     return str;
@@ -231,7 +231,7 @@ cutextP_ucs4src_peek_arr(cutext_ucs4src_t ucs4src, size_t size)
 	    cu_debug_unreachable();
 	}
     }
-    return ucs4src->src.buf.data_start;
+    return ucs4src->src.buf.content_start;
 }
 
 void
@@ -266,6 +266,6 @@ cutext_ucs4src_advance(cutext_ucs4src_t ucs4src, size_t size)
 void
 cutextP_ucs4src_terminate(cutext_ucs4src_t ucs4src)
 {
-    cutext_buffer_lookahead(&ucs4src->src.buf, 4);
-    *(cutext_ucs4char_t*)ucs4src->src.buf.data_end = 0;
+    cu_buffer_extend_capacity(&ucs4src->src.buf, 4);
+    *(cutext_ucs4char_t*)ucs4src->src.buf.content_end = 0;
 }

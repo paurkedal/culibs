@@ -102,7 +102,7 @@ cutext_ucs4src_is_eof(cutext_ucs4src_t ucs4src)
 CU_SINLINE cutext_ucs4char_t
 cutext_ucs4src_peek(cutext_ucs4src_t ucs4src)
 {
-    return *(cutext_ucs4char_t *)ucs4src->src.buf.data_start;
+    return *(cutext_ucs4char_t *)ucs4src->src.buf.content_start;
 }
 
 /* Internal */
@@ -117,7 +117,7 @@ cutext_ucs4src_peek_arr(cutext_ucs4src_t ucs4src, size_t size)
     if (size > avail)
 	return cutextP_ucs4src_peek_arr(ucs4src, size);
     else
-	return ucs4src->src.buf.data_start;
+	return ucs4src->src.buf.content_start;
 }
 
 /* Internal */
