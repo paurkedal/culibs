@@ -15,27 +15,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cuoo/halloc.h>
-#include <cuoo/support.h>
-#include <cu/clos.h>
 #include <cu/ptr.h>
-#include <atomic_ops.h>
+#include <cu/test.h>
 
-cu_clos_def(setao_clos, cu_prot(void, void *obj),
-	    ( size_t ao_offset; AO_t ao_value; ))
+int
+main()
 {
-    cu_clos_self(setao_clos);
-    AO_store((AO_t *)cu_ptr_add(obj, self->ao_offset), self->ao_value);
-}
-
-void *
-cuooP_halloc_extra_setao_raw(cuoo_type_t type, size_t struct_size,
-			     size_t key_size, void *key,
-			     cu_offset_t ao_offset, AO_t ao_value)
-{
-    setao_clos_t init;
-    init.ao_offset = ao_offset;
-    init.ao_value = ao_value;
-    return cuooP_halloc_extra_raw(type, struct_size, key_size, key,
-				  setao_clos_prep(&init));
+    int arr[8];
+    int i, j;
+    void *p0, *p1;
+    p0 = arr;
+    for (i = 0; i < 16; ++i) {
+	p1 = cu_ptr_add(p0, i);
+	cu_test_assert(cu_ptr_sub(p1, i) == p0);
+	cu_test_assert(cu_ptr_diff(p1, p0) == i);
+	cu_test_assert(cu_ptr_alignfloor(p1) == cu_ptr_alignfloor(p1));
+	if ((uintptr_t)p1 % CUCONF_MAXALIGN == 0)
+	    cu_test_assert(cu_ptr_alignceil(p1) == cu_ptr_alignfloor(p1));
+	else
+	    cu_test_assert(cu_ptr_diff(cu_ptr_alignceil(p1),
+				       cu_ptr_alignfloor(p1))
+			   == CUCONF_MAXALIGN);
+	for (j = 0; j < 4; ++j) {
+	    cu_test_assert(cu_ptr_mulceil(p1, 1 << j)
+			   == cu_ptr_scal2ceil(p1, j));
+	    cu_test_assert(cu_ptr_mulfloor(p1, 1 << j)
+			   == cu_ptr_scal2floor(p1, j));
+	}
+    }
+    return 0;
 }

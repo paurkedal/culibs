@@ -32,16 +32,6 @@ CU_BEGIN_DECLARATIONS
     } while (0)
 
 
-/*!Add \a offset bytes to \a ptr independent of its underlying type. */
-#define cu_ptr_add(ptr, offset) ((void *)((char *)(ptr) + (offset)))
-
-/*!Subtract \a offset bytes from \a ptr independent of its underlying type. */
-#define cu_ptr_sub(ptr, offset) ((void *)((char *)(ptr) - (offset)))
-
-/*!The difference between \a ptr0 and \a ptr1 in bytes, independent of the
- * underlying types. */
-#define cu_ptr_diff(ptr0, ptr1) ((char *)(ptr0) - (char *)(ptr1))
-
 /*!Assuming \a ptr points to \a field in \a type, returns a pointer to the
  * whole \a type.  Uses <tt>offsetof(\a type, \a field)</tt>. */
 #define cu_ptr_context(type, field, ptr) \

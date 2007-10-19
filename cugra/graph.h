@@ -21,7 +21,7 @@
 #include <cugra/fwd.h>
 #include <cu/clos.h>
 #include <cu/dlink.h>
-#include <cu/util.h>
+#include <cu/ptr.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cugra_graph_h cugra/graph.h: Graph Struct and Primitives

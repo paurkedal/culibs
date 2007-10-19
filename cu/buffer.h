@@ -19,7 +19,7 @@
 #define CU_BUFFER_H
 
 #include <cu/fwd.h>
-#include <cu/util.h>
+#include <cu/ptr.h>
 #include <cu/debug.h>
 
 CU_BEGIN_DECLARATIONS

@@ -20,7 +20,7 @@
 #include <cuoo/hcobj.h>
 #include <cu/hash.h>
 #include <cu/diag.h>
-#include <cu/util.h>
+#include <cu/ptr.h>
 
 
 /* Predefined Hash Functions

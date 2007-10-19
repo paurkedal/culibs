@@ -21,7 +21,7 @@
 #include <cuoo/layout.h>
 #include <cuoo/intf.h>
 #include <cu/memory.h>
-#include <cu/util.h>
+#include <cu/ptr.h>
 #include <string.h>
 #include <assert.h>
 
