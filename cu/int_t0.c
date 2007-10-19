@@ -17,7 +17,8 @@
 
 #include <cu/conf.h>
 #include <cu/int.h>
-#include <assert.h>
+#include <cu/size.h>
+#include <cu/test.h>
 
 int
 ubit(unsigned long n)
@@ -39,6 +40,20 @@ lbit(unsigned long n)
     return -1;
 }
 
+void
+test_size(size_t i)
+{
+    unsigned int b = cu_size_floor_log2(i);
+    unsigned int c = cu_size_ceil_log2(i);
+    size_t j = cu_size_exp2floor(i);
+    size_t jp = (size_t)1 << b;
+    cu_test_assert(j == jp);
+    cu_test_assert(j <= i);
+    cu_test_assert(j > i/2);
+    cu_test_assert((j & (j - 1)) == 0);
+    cu_test_assert((i == j && b == c) || b + 1 == c);
+}
+
 int
 main()
 {
@@ -47,8 +62,18 @@ main()
 	unsigned long j = lrand48();
 	if (j == 0)
 	    continue;
-	assert(ubit(j) == cu_ulong_floor_log2(j));
-	assert(lbit(j) == cu_ulong_log2_lowbit(j));
+	cu_test_assert(ubit(j) == cu_ulong_floor_log2(j));
+	cu_test_assert(lbit(j) == cu_ulong_log2_lowbit(j));
     }
+
+    for (i = 1; i < 1000; ++i)
+	test_size(i);
+    for (i = 0; i < 1000000; ++i)
+	test_size(lrand48());
+    test_size(SIZE_MAX/2 - 1);
+    test_size(SIZE_MAX/2);
+    test_size(SIZE_MAX/2 + 1);
+    /* Last valid: cu_size_ceil_log2 overflows from SIZE_MAX/2 + 2. */
+
     return 0;
 }

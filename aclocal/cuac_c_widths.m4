@@ -32,6 +32,7 @@ int main()
 	    "SIZEOF_SHORT=%d\nWIDTHOF_SHORT=%d\n"
 	    "SIZEOF_INT=%d\nWIDTHOF_INT=%d\n"
 	    "SIZEOF_LONG=%d\nWIDTHOF_LONG=%d\n"
+	    "SIZEOF_SIZE_T=%d\nWIDTHOF_SIZE_T=%d\n"
 	    "SIZEOF_VOID_P=%d\nWIDTHOF_VOID_P=%d\n"
 	    "SIZEOF_INTPTR_T=%d\nWIDTHOF_INTPTR_T=%d\n"
 	    "SIZEOF_FNPTR_T=%d\nWIDTHOF_FNPTR_T=%d\n"
@@ -40,6 +41,7 @@ int main()
 	    sizeof(short), sizeof(short)*8,
 	    sizeof(int), sizeof(int)*8,
 	    sizeof(long), sizeof(long)*8,
+	    sizeof(size_t), sizeof(size_t)*8,
 	    sizeof(void *), sizeof(void *)*8,
 	    sizeof(intptr_t), sizeof(intptr_t)*8,
 	    sizeof(void (*)()), sizeof(void (*)())*8,
@@ -60,6 +62,7 @@ int main()
 	AC_DEFINE_UNQUOTED(SIZEOF_SHORT, $SIZEOF_SHORT, [sizeof(short)])
 	AC_DEFINE_UNQUOTED(SIZEOF_INT, $SIZEOF_INT, [sizeof(int)])
 	AC_DEFINE_UNQUOTED(SIZEOF_LONG, $SIZEOF_LONG, [sizeof(long)])
+	AC_DEFINE_UNQUOTED(SIZEOF_SIZE_T, $SIZEOF_SIZE_T, [sizeof(size_t)])
 	AC_DEFINE_UNQUOTED(SIZEOF_VOID_P, $SIZEOF_VOID_P, [sizeof(void *)])
 	AC_DEFINE_UNQUOTED(SIZEOF_INTPTR_T, $SIZEOF_INTPTR_T, [sizeof(intptr_t)])
 	AC_DEFINE_UNQUOTED(SIZEOF_FNPTR_T, $SIZEOF_FNPTR_T, [sizeof(void (*)())])
@@ -68,6 +71,7 @@ int main()
 	AC_DEFINE_UNQUOTED(WIDTHOF_SHORT, $WIDTHOF_SHORT, [8*sizeof(short)])
 	AC_DEFINE_UNQUOTED(WIDTHOF_INT, $WIDTHOF_INT, [8*sizeof(int)])
 	AC_DEFINE_UNQUOTED(WIDTHOF_LONG, $WIDTHOF_LONG, [8*sizeof(long)])
+	AC_DEFINE_UNQUOTED(WIDTHOF_SIZE_T, $WIDTHOF_SIZE_T, [8*sizeof(size_t)])
 	AC_DEFINE_UNQUOTED(WIDTHOF_VOID_P, $WIDTHOF_VOID_P, [8*sizeof(void *)])
 	AC_DEFINE_UNQUOTED(WIDTHOF_INTPTR_T, $WIDTHOF_INTPTR_T, [8*sizeof(intptr_t)])
 	AC_DEFINE_UNQUOTED(WIDTHOF_FNPTR_T, $WIDTHOF_FNPTR_T, [8*sizeof(void (*)())])

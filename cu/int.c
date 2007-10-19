@@ -16,6 +16,7 @@
  */
 
 #include <cu/int.h>
+#include <cu/size.h>
 #include <cu/debug.h>
 
 /* Tuning Options
@@ -305,3 +306,16 @@ cu_ulong_floor_log2(unsigned long x)
     return CUP_ULONG_NAME(,floor_log2)(x);
 }
 
+unsigned int
+cu_size_floor_log2(size_t x)
+{
+    cu_check_arg(0, x, x > 0);
+    return CUP_SIZE_NAME(,floor_log2)(x);
+}
+
+unsigned int
+cu_size_ceil_log2(size_t x)
+{
+    cu_check_arg(0, x, x > 0);
+    return CUP_SIZE_NAME(,floor_log2)((x << 1) - (size_t)1);
+}
