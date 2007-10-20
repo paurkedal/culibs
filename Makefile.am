@@ -26,7 +26,8 @@ pkgconfig_DATA =
 noinst_DATA =
 EXTRA_DIST =
 BUILT_SOURCES = cu/conf_ac.h
-CLEANFILES = cu/conf_ac.h
+DISTCLEANFILES = cu/conf_ac.h
+CLEANFILES =
 
 
 # Per-Module Build Instructions
@@ -189,14 +190,25 @@ all-local:
 	ln -sf cubase-uninstalled.pc pkgconfig/cu-uninstalled.pc
 	ln -sf cubase-uninstalled.pc pkgconfig/cucon-uninstalled.pc
 	ln -sf cuex-uninstalled.pc pkgconfig/cudyn-uninstalled.pc
+CLEANFILES += \
+	pkgconfig/cu-uninstalled.pc \
+	pkgconfig/cucon-uninstalled.pc \
+	pkgconfig/cudyn-uninstalled.pc
 install-data-local:
-	$(mkinstalldirs) $(DESTDIR)$(pkgconfigdir)
+	$(mkinstalldirs) '$(DESTDIR)$(pkgconfigdir)'
 if enable_cucon
-	ln -sf cubase.pc $(DESTDIR)$(pkgconfigdir)/cu.pc
-	ln -sf cubase.pc $(DESTDIR)$(pkgconfigdir)/cucon.pc
+	ln -sf cubase.pc '$(DESTDIR)$(pkgconfigdir)/cu.pc'
+	ln -sf cubase.pc '$(DESTDIR)$(pkgconfigdir)/cucon.pc'
 endif
 if enable_cuex
-	ln -sf cuex.pc $(DESTDIR)$(pkgconfigdir)/cudyn.pc
+	ln -sf cuex.pc '$(DESTDIR)$(pkgconfigdir)/cudyn.pc'
+endif
+uninstall-local:
+if enable_cucon
+	rm -f '$(DESTDIR)$(pkgconfigdir)/{cu,cucon}.pc'
+endif
+if enable_cuex
+	rm -f '$(DESTDIR)$(pkgconfigdir)/cudyn.pc'
 endif
 
 $(tagsdir)/TAGS.culibs: $(DIST_SOURCES)

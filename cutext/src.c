@@ -140,30 +140,36 @@ cu_clos_def(producer_iconv,
 	      iconv_t cd; ))
 {
     cu_clos_self(producer_iconv);
+    cutext_status_t status = cutext_status_ok;
     while (size > 0) {
 	size_t avail;
+	char *iconv_inbuf, *iconv_outbuf;
 	cutext_src_lookahead(self->src, ICONV_BLOCK_SIZE);
 	avail = cutext_src_data_size(self->src);
 	if (avail == 0)
 	    return cutext_status_eos;
-	if (iconv(self->cd,
-		  (char **)&self->src->buf.content_start, &avail,
-		  (char **)p, &size)
-	    == (size_t)-1)
+	iconv_inbuf = self->src->buf.content_start;
+	iconv_outbuf = *p;
+	if (iconv(self->cd, &iconv_inbuf, &avail, &iconv_outbuf, &size)
+	    == (size_t)-1) {
 	    switch (errno) {
-	    case EILSEQ:
-		cu_errf("Invalid multibyte sequence."); /* XX */
-		return cutext_status_error;
-	    case EINVAL:
-		break;
-	    case E2BIG:
-		cu_debug_assert(size == 0);
-		break;
-	    default:
-		cu_debug_unreachable();
+		case EILSEQ:
+		    cu_errf("Invalid multibyte sequence."); /* XX */
+		    status = cutext_status_error;
+		    break;
+		case EINVAL:
+		    break;
+		case E2BIG:
+		    cu_debug_assert(size == 0);
+		    break;
+		default:
+		    cu_debug_unreachable();
 	    }
+	}
+	self->src->buf.content_start = iconv_inbuf;
+	*p = iconv_outbuf;
     }
-    return cutext_status_ok;
+    return status;
 }
 
 static void

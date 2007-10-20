@@ -192,8 +192,9 @@ cuflowP_save_stack(cuflow_continuation_t cont)
 void
 cuflowP_set_stack_mark(cuflow_continuation_t cont)
 {
-/*     cuflowP_stack_item_t si; */
-    cont->ptr_stack_item = (cuflowP_stack_item_t*)&cont;
+    cuflowP_stack_item_t si;
+    cont->ptr_stack_item = &si;
+    /* cont->ptr_stack_item = (cuflowP_stack_item_t*)&cont; */
 }
 
 void

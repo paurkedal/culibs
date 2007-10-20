@@ -135,17 +135,15 @@ void cucon_parr_fill_all(cucon_parr_t arr, void *ptr);
 void cucon_parr_fill_range(cucon_parr_t arr,
 			   size_t start, size_t end, void *ptr);
 
-/*!A pointer to the start of the internal array.  Note that the returned type
- * is a void pointer which must be converted to the appropriate a pointer to
- * pointer type for iteration.  This is to allow implicit conversion.
+/*!A pointer to the start of the internal array.
  * \see cucon_parr_end */
-CU_SINLINE cu_ptr_ptr_t
+CU_SINLINE void **
 cucon_parr_begin(cucon_parr_t arr)
 { return cucon_arr_begin(&arr->arr); }
 
 /*!A pointer past the end of the internal array.
  * \see cucon_parr_begin */
-CU_SINLINE cu_ptr_ptr_t
+CU_SINLINE void **
 cucon_parr_end(cucon_parr_t arr)
 { return cucon_arr_end(&arr->arr); }
 
