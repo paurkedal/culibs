@@ -79,7 +79,7 @@ o/1 cuex_o1_lambda	: cuex_og_binder
 # == Basic Regular Operators ==
 
 o/0 cuex_o0_null	: cuex_og_regular
-o/0 cuex_o0_unkonwn	: cuex_og_regular
+o/0 cuex_o0_unknown	: cuex_og_regular
 o/1 cuex_o1_ident	: cuex_og_regular
 
 

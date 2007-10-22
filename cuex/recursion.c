@@ -20,6 +20,9 @@
 #include <cuex/oprdefs.h>
 #include <cuex/opn.h>
 #include <cuex/var.h>
+#include <cuex/compound.h>
+#include <cuex/intf.h>
+#include <cu/ptr_seq.h>
 
 static cuex_t
 mu_unfold(cuex_t e, int l_top, cuex_t e_top)
@@ -37,6 +40,19 @@ mu_unfold(cuex_t e, int l_top, cuex_t e_top)
 	    if (cuex_og_binder_contains(e_meta))
 		++l_top;
 	    CUEX_OPN_TRAN(e_meta, e, ep, mu_unfold(ep, l_top, e_top));
+	}
+    } else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(e_meta);
+	cuex_intf_compound_t impl;
+	impl = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (impl) {
+	    cu_ptr_junctor_t ij = cuex_compound_pref_image_junctor(impl, e);
+	    cuex_t ep;
+	    while ((ep = cu_ptr_junctor_get(ij))) {
+		cuex_t epp = mu_unfold(ep, l_top, e_top);
+		cu_ptr_junctor_put(ij, epp);
+	    }
+	    return cu_ptr_junctor_finish(ij);
 	}
     }
     return e;

@@ -19,9 +19,12 @@
 #include <cuex/oprdefs.h>
 #include <cuex/opn.h>
 #include <cuex/var.h>
+#include <cuex/compound.h>
+#include <cuex/intf.h>
 #include <cucon/list.h>
 #include <cucon/pmap.h>
 #include <cu/int.h>
+#include <cu/ptr_seq.h>
 #include <limits.h>
 
 cuex_t
@@ -55,9 +58,20 @@ cuex_max_binding_depth(cuex_t e)
 	if (cuex_og_binder_contains(e_meta))
 	    ++i;
 	return i;
+    } else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(e_meta);
+	cuex_intf_compound_t e_c = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (e_c) {
+	    int i = 0;
+	    cuex_t ep;
+	    cu_ptr_source_t src;
+	    src = cuex_compound_pref_iter_source(e_c, e);
+	    while ((ep = cu_ptr_source_get(src)))
+		i = cu_int_max(i, cuex_max_binding_depth(ep));
+	    return i;
+	}
     }
-    else
-	return 0;
+    return 0;
 }
 
 typedef struct sifi_cr_frame_s *sifi_cr_frame_t;

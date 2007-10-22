@@ -17,6 +17,7 @@
 
 #include <cuex/ex.h>
 #include <cuex/opn.h>
+#include <cuex/oprdefs.h>
 #include <cu/sref.h>
 
 cuex_t cuexP_null;

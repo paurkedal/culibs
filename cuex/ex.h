@@ -46,9 +46,6 @@ CU_BEGIN_DECLARATIONS
  * and shall therefore be used instead of \c NULL in sub-expressions. */
 #define cuex_opr_null	cuex_opr(0, 0)
 
-/*!Placement for an unknown expression. */
-#define CUEX_O0_UNKNOWN cuex_opr(1, 0)
-
 extern cuex_t cuexP_null;
 extern cuex_t cuexP_unknown;
 
@@ -79,7 +76,7 @@ CU_SINLINE cuex_t	cuex_unknown() { return cuexP_unknown; }
 
 /*!True iff \a ex is unknown. */
 CU_SINLINE cu_bool_t	cuex_is_unknown(cuex_t ex)
-{ return cuex_meta(ex) == CUEX_O0_UNKNOWN; }
+{ return ex == cuexP_unknown; }
 
 /*!True iff \a ex0 and \a ex1 are structurally equal.  This is trivial
  * for hash-consed expressions.  (Non-hash-consed expressions are not

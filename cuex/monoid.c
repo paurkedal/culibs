@@ -254,9 +254,9 @@ monoid_print(void *x, FILE *out)
     cb.count = 0;
     oprinfo = cuex_oprinfo(MONOID(x)->opr);
     cu_debug_assert(oprinfo);
-    fprintf(out, "(%s (", cuex_oprinfo_name(oprinfo));
+    fprintf(out, "%s:[", cuex_oprinfo_name(oprinfo));
     cuex_ltree_forall(monoid_print_item_prep(&cb), MONOID(x)->ltree);
-    fputs("))", out);
+    fputs("]", out);
 }
 
 

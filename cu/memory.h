@@ -211,6 +211,11 @@ cu_galloc_au(size_t size)
 /* Other GC facilities
  * ------------------- */
 
+/*!Notify that the pointer \a ptr_lvalue in traceable memory is no longer
+ * needed.  It will be left as a tuning option whether to zero the pointer or
+ * not.  Clients may want to use their own analogous macro for local tuning. */
+#define CU_GWIPE(ptr_lvalue) ((ptr_lvalue) = NULL)
+
 /*!A type which represents a pointer that is hidden to the garbage
  * collector. */
 typedef struct cu_hidden_ptr_s *cu_hidden_ptr_t;
