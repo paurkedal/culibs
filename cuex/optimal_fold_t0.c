@@ -21,12 +21,17 @@
 #include <cuex/var.h>
 #include <cuex/recursion.h>
 #include <cuex/labelling.h>
+#include <cuex/monoid.h>
 #include <cuex/print.h>
+#include <cuex/type.h>
+#include <cuex/compound.h>
+#include <cuex/intf.h>
 #include <cudyn/misc.h>
 #include <cucon/pmap.h>
 #include <cucon/frame.h>
 #include <cu/test.h>
 #include <cu/int.h>
+#include <cu/ptr_seq.h>
 #include <stdlib.h>
 #include <limits.h>
 
@@ -176,15 +181,24 @@ random_expr(int depth, int *size_limit)
 	return cuex_o1_lambda(random_expr(depth + 1, size_limit));
     }
     else if (sel_kind == 2) {
-	e = cuex_labelling_empty();
 	r = 1 << (sel_minor % 3);
 	sel_minor >>= 3;
 	r = (r - 1) & sel_minor;
 	--*size_limit;
-	for (i = 0; i < r; ++i) {
-	    cuex_t l = cudyn_int(i);
-	    cuex_t v = random_expr(depth - 1, size_limit);
-	    e = cuex_labelling_insert(e, l, v);
+	sel_minor >>= 8;
+	if (sel_minor & 1) {
+	    e = cuex_labelling_empty();
+	    for (i = 0; i < r; ++i) {
+		cuex_t l = cudyn_int(i);
+		cuex_t v = random_expr(depth, size_limit);
+		e = cuex_labelling_insert(e, l, v);
+	    }
+	} else {
+	    e = cuex_monoid_identity(CUEX_O2_TUPLE);
+	    for (i = 0; i < r; ++i) {
+		cuex_t v = random_expr(depth, size_limit);
+		e = cuex_monoid_product(CUEX_O2_TUPLE, e, v);
+	    }
 	}
 	return e;
     }
@@ -216,14 +230,31 @@ cuex_t
 unfold_random(cuex_t e, int *n, double x)
 {
     cuex_meta_t e_meta = cuex_meta(e);
-    if (*n > 0 && cuex_meta_is_opr(e_meta)) {
-	if (e_meta == CUEX_O1_MU && drand48() < x) {
-	    e = cuex_mu_unfold(e);
-	    --*n;
+    if (*n > 0) {
+	if (cuex_meta_is_opr(e_meta)) {
+	    if (e_meta == CUEX_O1_MU && drand48() < x) {
+		e = cuex_mu_unfold(e);
+		--*n;
+	    }
+	    else {
+		x /= cuex_opr_r(e_meta);
+		CUEX_OPN_TRAN(e_meta, e, ep, unfold_random(ep, n, x));
+	    }
 	}
-	else {
-	    x /= cuex_opr_r(e_meta);
-	    CUEX_OPN_TRAN(e_meta, e, ep, unfold_random(ep, n, x));
+	else if (cuex_meta_is_type(e_meta)) {
+	    cuoo_type_t type = cuoo_type_from_meta(e_meta);
+	    cuex_intf_compound_t impl;
+	    impl = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	    if (impl) {
+		cu_ptr_junctor_t ij;
+		cuex_t ep;
+		size_t size = impl->size(impl, e);
+		ij = cuex_compound_pref_image_junctor(impl, e);
+		x /= size;
+		while ((ep = cu_ptr_junctor_get(ij)))
+		    cu_ptr_junctor_put(ij, unfold_random(ep, n, x));
+		return cu_ptr_junctor_finish(ij);
+	    }
 	}
     }
     return e;
@@ -247,6 +278,7 @@ test(struct run_stats_s *stats_arr)
     cuex_stats_t stats;
 
     e = random_expr(0, &size_limit);
+    cu_dprintf("cuex.optimal_fold", "== First minimisation (ep) ==");
     ep = MINIMISE(e);
     are_eq = dmu_depth_eq(e, ep);
     if (!are_eq || (VERBOSE && e != ep && run++ < 30))
@@ -273,6 +305,7 @@ test(struct run_stats_s *stats_arr)
 
     plot_bin = epp_size/PLOT_NODECOUNT_GRAN;
     stats_arr[plot_bin].time -= clock();
+    cu_dprintf("cuex.optimal_fold", "== Second minimisation (eppp) ==");
     eppp = MINIMISE(epp);
     stats_arr[plot_bin].time += clock();
     ++stats_arr[plot_bin].count;
@@ -297,7 +330,8 @@ main()
     int i;
     struct run_stats_s stats_arr[PLOT_BIN_COUNT];
     cuex_init();
-    cu_test_on_bug(cu_test_bugaction_exit, 40);
+    //cu_test_on_bug(cu_test_bugaction_exit, 40);
+    cu_test_on_bug(cu_test_bugaction_exit, 8);
 
     memset(stats_arr, 0, sizeof(stats_arr));
     for (i = 0; i < REPEAT; ++i)

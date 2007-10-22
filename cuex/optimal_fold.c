@@ -43,6 +43,7 @@ struct state_s
     block_t block;
     struct cucon_parr_s invtran; /* of cucon_slink_t of state_t */
     cuex_t e;
+    size_t r;
     state_t sub[1];
 };
 
@@ -88,6 +89,7 @@ state_new(int r, cuex_t e)
     cucon_parr_cct_empty(&state->invtran);
     state->e = e;
     state->block = NULL;
+    state->r = r;
     cu_dprintf("cuex.optimal_fold",
 	       "New state %p; r = %d, e = %!", state, r, e);
     return state;
@@ -179,8 +181,12 @@ strip(cuex_t e)
     cuex_meta_t e_meta = cuex_meta(e);
     if (cuex_meta_is_opr(e_meta))
 	return cuex_o0_metanull();
-    else
-	return e;
+    else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(e_meta);
+	if (cuoo_type_impl(type, CUEX_INTF_COMPOUND))
+	    return cuex_o0_metanull();
+    }
+    return e;
 }
 
 static void
@@ -188,6 +194,7 @@ link_substate(state_t state, cu_rank_t a, cu_rank_t b, state_t substate)
 {
     cucon_slink_t *invlink;
 
+    cu_debug_assert(a < state->r);
     state->sub[a] = substate;
 
     /* Insert 'state ∈ Δ b substate' */
@@ -196,8 +203,8 @@ link_substate(state_t state, cu_rank_t a, cu_rank_t b, state_t substate)
 					b + 1, NULL);
     invlink = cucon_parr_ref_at(&substate->invtran, b);
     *invlink = cucon_slink_prepend_ptr(*invlink, state);
-    cu_dprintf("cuex.optimal_fold", "Inserting %p ∈ Δ %d %p (r_max = %d)",
-	       state, b, substate, cucon_parr_size(&substate->invtran));
+    cu_dprintf("cuex.optimal_fold", "Inserting %p ∈ Δ %d %p (a = %d, r_max = %d)",
+	       state, b, substate, a, cucon_parr_size(&substate->invtran));
 }
 
 static void
@@ -355,6 +362,7 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 		cuex_intf_compound_t impl;
 		cu_ptr_source_t source;
 		cuex_t ep;
+		cu_dprintf("cuex.optimal_fold", "Found compound %!.", e);
 
 		/* Deal with compounds.  This is analogous to operations,
 		 * except that we use the commutative view in order to avoid
@@ -370,9 +378,8 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 
 		    /* Process subexpressions. */
 		    source = cuex_compound_comm_iter_source(impl, e);
-		    a = 0;
 		    ekey = cuex_joinlattice_bottom(CUEX_O2_METAJOIN);
-		    while ((ep = cu_ptr_source_get(source))) {
+		    for (a = 0; (ep = cu_ptr_source_get(source)); ++a) {
 			cuex_t epp = strip(ep);
 			if (epp != cuex_o0_metanull()) {
 			    ekey = cuex_joinlattice_join(CUEX_O2_METAJOIN,
@@ -388,9 +395,9 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 			    /* The back-refereces all gets the same tag (0) since
 			     * we use the commutative view of the compound. */
 			    link_substate(state, a, 0, substate);
-			    ++a;
 			}
 		    }
+		    cu_debug_assert(a == r);
 		    ekey = cuex_o2_metapair(ekey, e_type);
 		}
 	    }
@@ -542,6 +549,7 @@ reconstruct_binding(block_t block)
     cuex_meta_t e_meta;
     state_t state;
 
+    /* Debug Output */
 #ifndef CU_NDEBUG
     cu_debug_assert(!cucon_list_is_empty(&block->state_list));
     if (cu_debug_key("cuex.optimal_fold")) {
@@ -551,12 +559,11 @@ reconstruct_binding(block_t block)
 	    for_states_in_block(state, block) {
 		cu_fprintf(stderr, "  STATE %p; %!\n", state, state->e);
 		e_meta = cuex_meta(state->e);
+		r = state->r;
 		if (cuex_og_hole_contains(e_meta))
-		    r = 1;
+		    cu_debug_assert(r == 1);
 		else if (cuex_meta_is_opr(e_meta))
-		    r = cuex_opr_r(e_meta);
-		else
-		    r = 0;
+		    cu_debug_assert(r == cuex_opr_r(e_meta));
 		for (a = 0; a < r; ++a) {
 		    if (state->sub[a])
 			cu_fprintf(stderr, "    SUB %p; block=%p\n",
@@ -587,9 +594,9 @@ reconstruct_binding(block_t block)
 	block->need_mubind = cu_true;
 	return;
     }
-    if (cuex_meta_is_opr(e_meta)) {
-	cu_rank_t a, r;
-	r = cuex_opr_r(e_meta);
+    if (state->r) {
+	size_t a, r;
+	r = state->r;
 	block->level = -2;
 	for (a = 0; a < r; ++a)
 	    if (state->sub[a])
@@ -654,7 +661,7 @@ reconstruct(block_t block, int level)
 	impl = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
 	if (impl) {
 	    cu_ptr_junctor_t junctor;
-	    cu_rank_t a;
+	    size_t a;
 	    cuex_t ep;
 
 	    if (block->level != -1) {  /* We've crossed a μ-variable */
@@ -679,6 +686,7 @@ reconstruct(block_t block, int level)
 		cu_ptr_junctor_put(junctor, epp);
 		++a;
 	    }
+	    cu_debug_assert(a == state->r);
 	    e = cu_ptr_junctor_finish(junctor);
 	    block->level = -1;
 
