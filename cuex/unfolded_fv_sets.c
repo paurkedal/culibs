@@ -19,9 +19,12 @@
 #include <cuex/oprdefs.h>
 #include <cuex/opn.h>
 #include <cuex/monoid.h>
+#include <cuex/compound.h>
+#include <cuex/intf.h>
 #include <cucon/pmap.h>
 #include <cucon/uset.h>
 #include <cucon/slink.h>
+#include <cu/ptr_seq.h>
 
 
 /* Flat binding info
@@ -92,6 +95,16 @@ compute_FBI(cuex_t e, int depth, FBI_t fbi, cucon_pmap_t e_to_fbi)
 	    }
 	}
 	CUEX_OPN_ITER(e_meta, e, ep, compute_FBI(ep, depth, fbi, e_to_fbi));
+    } else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t e_type = cuoo_type_from_meta(e_meta);
+	cuex_intf_compound_t e_c;
+	e_c = cuoo_type_impl_ptr(e_type, CUEX_INTF_COMPOUND);
+	if (e_c) {
+	    cu_ptr_source_t src = cuex_compound_pref_iter_source(e_c, e);
+	    cuex_t ep;
+	    while ((ep = cu_ptr_source_get(src)))
+		compute_FBI(ep, depth, fbi, e_to_fbi);
+	}
     }
 }
 

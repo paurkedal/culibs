@@ -74,7 +74,6 @@ struct block_s
     /* For rebuilding expression. */
     cu_bool_t need_mubind;
     int level;
-    cuex_t e;
 };
 
 CU_SINLINE state_t
@@ -310,12 +309,12 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 
 	    /* Allocate a new state. */
 	    r = cuex_opr_r(e_meta);
+	    cu_debug_assert(r <= r_max);
 	    state = state_new(r, e);
 
 	    /* If we had a surrounding μ-bind, set it's state. */
 	    if (sp_mu)
 		sp_mu->state = state;
-
 
 	    CUEX_OPN_TRAN(e_meta, ekey, ep, strip(ep));
 
@@ -411,8 +410,11 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 
 	/* Locate or create the block */
 	if (cucon_pmap_insert_mem(ekey_to_block, ekey,
-				  sizeof(struct block_s), &block))
+				  sizeof(struct block_s), &block)) {
 	    block_cct(block);
+	    cu_dprintf("cuex.optimal_fold", "New block %p: %!", block, e);
+	} else
+	    cu_dprintf("cuex.optimal_fold", "Old block %p: %!", block, e);
 	block_insert_state(block, state);
     }
     return state;
@@ -427,6 +429,7 @@ cu_clos_def(add_pending_block, cu_prot(void, void const *key, void *block),
     cu_rank_t a;
     cu_clos_self(add_pending_block);
     block_update(block);
+    cu_debug_assert(((block_t)block)->selectset_count <= self->r_max);
     cu_dprintf("cuex.optimal_fold", "Seeding with block %p", block);
     for (a = 0; a < self->r_max; ++a)
 	/* We're allowed to omit one block from each pending_arr, but
@@ -514,6 +517,7 @@ refine_partition(int r_max, struct cucon_pset_s *pending_arr)
 	    ap_max = block_j->selectset_count;
 	    if (block_k->selectset_count > ap_max)
 		ap_max = block_k->selectset_count;
+	    cu_debug_assert(block_k->selectset_count <= r_max);
 	    for (ap = 0; ap < block_k->selectset_count; ++ap) {
 		/* We only need to use one of the blocks for further
 		 * refinement.  Choose the smallest one. */
@@ -588,7 +592,7 @@ reconstruct_binding(block_t block)
 	return;
     }
 
-    if (block->level == -2) {
+    if (block->level == -2 && !cuex_og_metaregular_contains(e_meta)) {
 	cu_dprintf("cuex.optimal_fold",
 		   "reconstruct_binding: back ref on %p.", block);
 	block->need_mubind = cu_true;
@@ -620,7 +624,8 @@ reconstruct(block_t block, int level)
 	cu_rank_t a, r = cuex_opr_r(e_meta);
 	cuex_t *arr;
 
-	if (block->level != -1) {  /* We've crossed a μ-variable */
+	if (block->level != -1 && !cuex_og_metaregular_contains(e_meta)) {
+	    /* We've crossed a μ-variable */
 	    cu_debug_assert(block->level >= 0 && block->level <= level);
 	    return cuex_hole(level - block->level);
 	}
@@ -715,6 +720,8 @@ cuex_optimal_fold(cuex_t e)
     r_max = cuex_max_arity(e);
     if (r_max == 0)
 	return e;
+    if (r_max < 2)
+	r_max = 2; /* label nodes for commutative view of labellings */
     depth = cuex_max_binding_depth(e);
     if (depth == 0)
 	return e;

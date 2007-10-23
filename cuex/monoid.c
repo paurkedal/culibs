@@ -62,7 +62,7 @@ cuex_monoid_product(cuex_meta_t mult, cuex_t x, cuex_t y)
     }
     else {
 	if (cuex_is_monoid(mult, y)) {
-	    if (cuex_ltree_is_empty(MONOID(y)))
+	    if (cuex_ltree_is_empty(MONOID(y)->ltree))
 		return x;
 	    else
 		ltree = cuex_ltree_concat(x, MONOID(y)->ltree);

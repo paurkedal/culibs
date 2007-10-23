@@ -41,7 +41,7 @@ cu_test_bug_count()
 void
 cuP_test_vbugf(char const *file, int line, char const *msg, va_list va)
 {
-    int bug_count = AO_fetch_and_add1(&cuP_test_fail_count);
+    int bug_count = AO_fetch_and_add1(&cuP_test_fail_count) + 1;
     fprintf(stderr, "%s:%d: ", file, line);
     cu_vfprintf(stderr, msg, va);
     fputc('\n', stderr);

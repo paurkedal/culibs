@@ -199,6 +199,12 @@ cuoo_stdtype_t cuoo_stdtypeoftypes_new_hce(cuoo_impl_t impl);
 cuoo_stdtype_t cuoo_stdtypeoftypes_new_hcs(cuoo_impl_t impl, size_t key_size);
 
 
+/* Objects
+ * ======= */
+
+void *cuoo_impl_ptr(cuex_t obj, cu_word_t intf);
+
+
 /* Hashconsed Objects
  * ================== */
 

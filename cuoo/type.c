@@ -195,6 +195,19 @@ cuoo_stdtype_new_hcv(cuoo_impl_t impl, cu_clop(key_size_fn, size_t, void *))
 }
 
 
+/* Objects
+ * ======= */
+
+void *
+cuoo_impl_ptr(cuex_t obj, cu_word_t intf)
+{
+    cuex_meta_t obj_meta = cuex_meta(obj);
+    if (cuex_meta_is_type(obj_meta))
+	return cuoo_type_impl_ptr(cuoo_type_from_meta(obj_meta), intf);
+    return NULL;
+}
+
+
 /* Hashconsed Objects
  * ================== */
 

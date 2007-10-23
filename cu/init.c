@@ -154,6 +154,23 @@ cu_init(void)
 	    cu_verbf(0, "Seeding rng with %ld (from current time).", s);
 	    srand48(s);
 	}
+	else if (cstr[0] == '0' && cstr[1] == 'x') {
+	    unsigned short seed[3];
+	    int i;
+	    cstr += 2;
+	    for (i = 0; i < 3; ++i) {
+		if (sscanf(cstr, "%4hx", &seed[i]) != 1)
+		    break;
+		cstr += 4;
+	    }
+	    if (i == 3) {
+		cu_verbf(0, "Seeding RNG with seed48(0x%04x%04x%04x).",
+			seed[0], seed[1], seed[2]);
+		seed48(seed);
+	    }
+	    else
+		cu_errf("Value in $CU_SEED48 is incompatible for seed48.");
+	}
 	else if (sscanf(cstr, "%ld", &s) == 1) {
 	    cu_verbf(0, "Seeding rng with %ld.", s);
 	    srand48(s);

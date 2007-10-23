@@ -26,9 +26,12 @@
 #include <cuex/oprdefs.h>
 #include <cuex/aci.h>
 #include <cuex/subst.h>
+#include <cuex/compound.h>
+#include <cuex/intf.h>
 #include <cu/memory.h>
 #include <cu/idr.h>
 #include <cu/int.h>
+#include <cu/ptr_seq.h>
 #include <cucon/list.h>
 #include <cucon/pmap.h>
 #include <cucon/pset.h>
@@ -42,14 +45,25 @@
 cu_rank_t
 cuex_max_arity(cuex_t e)
 {
-    cuex_meta_t meta = cuex_meta(e);
-    if (cuex_meta_is_opr(meta)) {
-	cu_rank_t r = cuex_opr_r(meta);
-	CUEX_OPN_ITER(meta, e, ep, r = cu_uint_max(r, cuex_max_arity(ep)));
+    cuex_meta_t e_meta = cuex_meta(e);
+    if (cuex_meta_is_opr(e_meta)) {
+	cu_rank_t r = cuex_opr_r(e_meta);
+	CUEX_OPN_ITER(e_meta, e, ep, r = cu_uint_max(r, cuex_max_arity(ep)));
 	return r;
+    } else if (cuex_meta_is_type(e_meta)) {
+	cuex_intf_compound_t e_c;
+	cuoo_type_t e_type = cuoo_type_from_meta(e_meta);
+	e_c = cuoo_type_impl_ptr(e_type, CUEX_INTF_COMPOUND);
+	if (e_c) {
+	    int r = 1;
+	    cuex_t ep;
+	    cu_ptr_source_t src = cuex_compound_pref_iter_source(e_c, e);
+	    while ((ep = cu_ptr_source_get(src)))
+		r = cu_uint_max(r, cuex_max_arity(ep));
+	    return r;
+	}
     }
-    else
-	return 0;
+    return 0;
 }
 
 int

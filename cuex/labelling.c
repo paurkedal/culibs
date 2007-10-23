@@ -26,6 +26,9 @@
 #include <cuoo/properties.h>
 #include <cu/ptr_seq.h>
 
+#define l_o2_label cuex_o2_metapair
+#define L_O2_LABEL CUEX_O2_METAPAIR
+
 cu_clop_def(get_key, cu_word_t, cuex_t e)
 { return (cu_word_t)cuex_opn_at(e, 0); }
 
@@ -65,7 +68,7 @@ cuex_t cuexP_labelling_empty;
 cuex_t
 cuex_labelling_singleton(cuex_t l, cuex_t e)
 {
-    return labelling(cuex_o2_label(l, e));
+    return labelling(l_o2_label(l, e));
 }
 
 cuex_t
@@ -85,7 +88,7 @@ cuex_labelling_insert(cuex_t L, cuex_t l, cuex_t e)
     if (!cuex_is_labelling(L))
 	cu_bugf("First argument of cuex_labelling_insert must be a "
 		"labelling.");
-    return labelling(atree_insert(LABELLING(L)->atree, cuex_o2_label(l, e)));
+    return labelling(atree_insert(LABELLING(L)->atree, l_o2_label(l, e)));
 }
 
 cuex_t
@@ -118,7 +121,7 @@ cuex_labelling_deep_insert(cu_clop(merge, cuex_t, cuex_t, cuex_t),
 	cu_bugf("Second argument of cuex_labelling_insert must be a "
 		"labelling.");
     return labelling(cuex_atree_deep_insert(get_key, merge, L,
-					    cuex_o2_label(l, e)));
+					    l_o2_label(l, e)));
 }
 
 cuex_t
@@ -250,7 +253,7 @@ cuex_labelling_contract_all(cuex_t e)
 	M = cuex_monoid_identity(CUEX_O2_TUPLE);
 	while ((ep = cuex_monoid_itr_get(&itr))) {
 	    cuex_meta_t ep_meta = cuex_meta(ep);
-	    if (ep_meta == CUEX_O2_LABEL) {
+	    if (ep_meta == L_O2_LABEL) {
 		cuex_t l = cuex_opn_at(ep, 0);
 		cuex_t v = cuex_labelling_contract_all(cuex_opn_at(ep, 1));
 		L = cuex_labelling_insert(L, l, v);
@@ -268,7 +271,7 @@ cuex_labelling_contract_all(cuex_t e)
 	    return L;
 	else
 	    return cuex_monoid_product(CUEX_O2_TUPLE, M, L);
-    } else if (cuex_meta(e) == CUEX_O2_LABEL) {
+    } else if (cuex_meta(e) == L_O2_LABEL) {
 	cuex_t l = cuex_opn_at(e, 0);
 	cuex_t v = cuex_opn_at(e, 1);
 	return cuex_labelling_singleton(l, v);
@@ -398,7 +401,7 @@ ncomm_image_junctor_put(cu_ptr_sink_t sink, void *elt)
 		"%! into %!.", elt, self->new_atree);
     cu_debug_assert(l);
 #endif
-    self->new_atree = atree_insert(self->new_atree, cuex_o2_label(l, elt));
+    self->new_atree = atree_insert(self->new_atree, l_o2_label(l, elt));
 #ifndef CU_NDEBUG_CLIENT
     self->current_label = NULL;
 #endif
@@ -449,7 +452,7 @@ comm_build_sinktor_put(cu_ptr_sink_t sink, void *elt)
 {
     comm_build_sinktor_t self
 	= cu_from2(comm_build_sinktor, cu_ptr_sinktor, cu_ptr_sink, sink);
-    if (cuex_meta(elt) == CUEX_O2_LABEL)
+    if (cuex_meta(elt) == L_O2_LABEL)
 	self->new_atree = atree_insert(self->new_atree, elt);
     else if (cuex_is_labelling(elt))
 	self->new_atree

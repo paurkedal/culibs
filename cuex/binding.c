@@ -43,6 +43,18 @@ cuexP_bfree_adjusted(cuex_t e, int l_diff, int l_top)
 	    CUEX_OPN_TRAN(e_meta, e, ep,
 			  cuexP_bfree_adjusted(ep, l_diff, l_top));
 	}
+    } else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(e_meta);
+	cuex_intf_compound_t e_c;
+	e_c = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (e_c) {
+	    cuex_t ep;
+	    cu_ptr_junctor_t ij;
+	    ij = cuex_compound_pref_image_junctor(e_c, e);
+	    while ((ep = cu_ptr_junctor_get(ij)))
+		cu_ptr_junctor_put(ij, cuexP_bfree_adjusted(ep, l_diff, l_top));
+	    return cu_ptr_junctor_finish(ij);
+	}
     }
     return e;
 }

@@ -27,7 +27,8 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_algo cuex/algo.h: Algorithms on Expressions and Substitutions
  * @{ \ingroup cuex_mod */
 
-/*!The maximum arity of \a e and any of it's subexpressions. */
+/*!The maximum arity of \a e and any of it's subexpressions.  Compounds are
+ * checked for subexpressions, but count only as 1 themselves. */
 cu_rank_t cuex_max_arity(cuex_t e);
 
 /*!The depth of the deepest branch of \a e.  The depth of non-operations are
@@ -48,13 +49,13 @@ cuex_t cuex_unify(cuex_t x, cuex_t y);
  * operator, in which case it can pre-process, invoke cuex_fallback_tran
  * recursively, re-construct, and post-process, or it will not know the form,
  * in which case it typically has no need for any of the processing except for
- * the fallback recursion and re-construction. */
+ * the fall-back recursion and re-construction. */
 cuex_t cuex_fallback_tran(cuex_t e, cu_clop(cb, cuex_t, cuex_t));
 
 /*!Sequentially conjunct \a cb over variables in \a ex in depth-first order. */
 cu_bool_t cuex_depth_conj_vars(cuex_t ex, cu_clop(cb, cu_bool_t, cuex_var_t));
 
-/*!Sequantially conjunct \a cb over all nodes in \a ex in depth-first
+/*!Sequentially conjunct \a cb over all nodes in \a ex in depth-first
  * leaf-to-root order. */
 cu_bool_t cuex_depthout_conj(cuex_t ex, cu_clop(cb, cu_bool_t, cuex_t));
 
