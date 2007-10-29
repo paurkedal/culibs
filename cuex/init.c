@@ -27,6 +27,7 @@ void cuexP_monoid_init(void);
 void cuexP_labelling_init(void);
 void cuexP_semilattice_init(void);
 void cuexP_sig_init(void);
+void cuexP_set_init(void);
 void cuexP_type_init(void);
 void cuexP_print_init(void);
 void cuex_oprdefs_init(void);
@@ -53,6 +54,7 @@ cuex_init()
     cuexP_labelling_init();
     cuexP_semilattice_init();
     cuexP_sig_init();
+    cuexP_set_init();
     cuexP_type_init();
     cuexP_print_init();
     cuexP_dunion_empty = cuex_aci_identity(CUEX_O4ACI_DUNION);

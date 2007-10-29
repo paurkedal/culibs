@@ -113,6 +113,7 @@ cuex_check_programs = \
 	cuex/opn_t0 \
 	cuex/optimal_fold_t0 \
 	cuex/semilattice_t0 \
+	cuex/set_t0 \
 	cuex/sig_t0 \
 	cuex/subst_t0 \
 	cuex/subst_algo_t0 \
@@ -144,6 +145,8 @@ cuex_opn_t0_SOURCES = cuex/opn_t0.c
 cuex_opn_t0_LDADD = libcuex.la -lm
 cuex_optimal_fold_t0_SOURCES = cuex/optimal_fold_t0.c
 cuex_optimal_fold_t0_LDADD = libcuex.la
+cuex_set_t0_SOURCES = cuex/set_t0.c
+cuex_set_t0_LDADD = libcuex.la
 cuex_sig_t0_SOURCES = cuex/sig_t0.c
 cuex_sig_t0_LDADD = libcuex.la
 cuex_semilattice_t0_SOURCES = cuex/semilattice_t0.c
