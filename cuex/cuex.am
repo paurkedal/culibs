@@ -24,6 +24,7 @@ cuex_headers = \
 	cuex/qcode.h \
 	cuex/recursion.h \
 	cuex/semilattice.h \
+	cuex/set.h \
 	cuex/sig.h \
 	cuex/subst.h \
 	cuex/ssfn.h \
@@ -65,6 +66,7 @@ cuex_sources = \
 	cuex/pvar.c \
 	cuex/recursion.c \
 	cuex/semilattice.c \
+	cuex/set.c \
 	cuex/sig.c \
 	cuex/subst.c \
 	cuex/subst_algo.c \
