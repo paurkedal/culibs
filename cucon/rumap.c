@@ -15,31 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cucon/rpmap.h>
+#include <cucon/rumap.h>
 
 void
-cucon_rpmap_cct(cucon_rpmap_t rpmap)
+cucon_rumap_cct(cucon_rumap_t rumap)
 {
-    cucon_pmap_cct(&rpmap->pmap);
-    rpmap->data = NULL;
+    cucon_pmap_cct(&rumap->pmap);
+    rumap->data = NULL;
 }
 
-cucon_rpmap_t
-cucon_rpmap_new()
+cucon_rumap_t
+cucon_rumap_new()
 {
-    cucon_rpmap_t rpmap = cu_gnew(struct cucon_rpmap_s);
-    cucon_rpmap_cct(rpmap);
-    return rpmap;
-}
-
-cucon_rpmap_t
-cucon_rpmap_mref(cucon_rpmap_t rpmap, void *key)
-{
-    cucon_rpmap_t sub;
-    if (cucon_pmap_insert_mem(&rpmap->pmap, key,
-			    sizeof(struct cucon_rpmap_s), &sub))
-	cucon_rpmap_cct(sub);
-    return sub;
+    cucon_rumap_t rumap = cu_gnew(struct cucon_rumap_s);
+    cucon_rumap_cct(rumap);
+    return rumap;
 }
 
 cucon_rumap_t
@@ -52,7 +42,7 @@ cucon_rumap_mref(cucon_rumap_t rumap, uintptr_t key)
     return sub;
 }
 
-cucon_rpmap_t
+cucon_rumap_t
 cucon_rumap_mref_by_uint8_arr(cucon_rumap_t rumap,
 			      uint8_t *key_arr, size_t key_cnt)
 {
@@ -66,9 +56,9 @@ cucon_rumap_mref_by_uint8_arr(cucon_rumap_t rumap,
     return rumap;
 }
 
-cucon_rpmap_t
+cucon_rumap_t
 cucon_rumap_mref_by_uint16_arr(cucon_rumap_t rumap,
-			     uint16_t *key_arr, size_t key_cnt)
+			       uint16_t *key_arr, size_t key_cnt)
 {
     while (key_cnt) {
 	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
@@ -80,9 +70,9 @@ cucon_rumap_mref_by_uint16_arr(cucon_rumap_t rumap,
     return rumap;
 }
 
-cucon_rpmap_t
+cucon_rumap_t
 cucon_rumap_mref_by_uint32_arr(cucon_rumap_t rumap,
-			     uint32_t *key_arr, size_t key_cnt)
+			       uint32_t *key_arr, size_t key_cnt)
 {
     while (key_cnt) {
 	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
@@ -95,9 +85,9 @@ cucon_rumap_mref_by_uint32_arr(cucon_rumap_t rumap,
 }
 
 #ifdef CUCONF_HAVE_UINT64_T
-cucon_rpmap_t
+cucon_rumap_t
 cucon_rumap_mref_by_uint64_arr(cucon_rumap_t rumap,
-			     uint64_t *key_arr, size_t key_cnt)
+			       uint64_t *key_arr, size_t key_cnt)
 {
     while (key_cnt) {
 	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,

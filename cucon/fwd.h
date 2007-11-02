@@ -44,7 +44,7 @@ typedef struct cucon_rbset_s		*cucon_rbset_t;		/* rbset.h */
 typedef struct cucon_rbnode_s		*cucon_rbnode_t;	/* rbtree.h */
 typedef struct cucon_rbtree_s		*cucon_rbtree_t;	/* rbtree.h */
 typedef struct cucon_rpmap_s		*cucon_rpmap_t;		/* rpmap.h */
-typedef struct cucon_rpmap_s		*cucon_rumap_t;		/* rpmap.h */
+typedef struct cucon_rumap_s		*cucon_rumap_t;		/* rumap.h */
 typedef struct cucon_slink_s		*cucon_slink_t;		/* slink.h */
 typedef struct cucon_stack_s		*cucon_stack_t;		/* stack.h */
 typedef struct cucon_umap_s		*cucon_umap_t;		/* umap.h */

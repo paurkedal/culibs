@@ -23,6 +23,7 @@ cucon_headers = \
 	cucon/rbset.h \
 	cucon/rbtree.h \
 	cucon/rpmap.h \
+	cucon/rumap.h \
 	cucon/slink.h \
 	cucon/stack.h \
 	cucon/umap.h \
@@ -50,7 +51,7 @@ cucon_sources = \
 	cucon/rbmap.c \
 	cucon/rbset.c \
 	cucon/rbtree.c \
-	cucon/rpmap.c \
+	cucon/rumap.c \
 	cucon/slink.c \
 	cucon/stack.c \
 	cucon/ucmap.c \
