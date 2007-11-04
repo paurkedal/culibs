@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUCON_STR_H
-#define CUCON_STR_H
+#ifndef CU_STR_H
+#define CU_STR_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -26,7 +26,7 @@
 #include <cuoo/type.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_str cu/str.h: Strings
+/*!\defgroup cu_str cu/str.h: Multi-Byte Strings
  * @{ \ingroup cu_mod */
 
 struct cu_str_s
@@ -244,6 +244,10 @@ size_t cu_str_rchr_in_substr(cu_str_t str, size_t pos, size_t len, char ch);
 /*!Chop spaces from beginning and end of \a str.  Currently only ASCII
  * spaces are stripped. */
 void cu_str_chop_space(cu_str_t str);
+
+cu_str_t cu_str_toupper(cu_str_t str);
+
+cu_str_t cu_str_tolower(cu_str_t str);
 
 /*!Searches for the next white-space separated component of \a str, starting
  * at \c *\a pos_io + \c *\a len_io.  If there are only whitespace characters

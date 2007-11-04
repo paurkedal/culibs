@@ -858,6 +858,26 @@ cu_str_chop_space(cu_str_t str)
     str->len = n;
 }
 
+cu_str_t
+cu_str_toupper(cu_str_t str)
+{
+    int i;
+    cu_str_t newstr = cu_str_new_uninit(str->len);
+    for (i = 0; newstr->len; ++i)
+	newstr->arr[i] = toupper(str->arr[i]);
+    return newstr;
+}
+
+cu_str_t
+cu_str_tolower(cu_str_t str)
+{
+    int i;
+    cu_str_t newstr = cu_str_new_uninit(str->len);
+    for (i = 0; newstr->len; ++i)
+	newstr->arr[i] = tolower(str->arr[i]);
+    return newstr;
+}
+
 cu_bool_t
 cu_str_next_space_delimited(cu_str_t str, size_t *pos, size_t *len)
 {

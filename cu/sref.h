@@ -155,7 +155,7 @@ cu_sref_advance_char(cu_sref_t srf, char ch)
     switch (ch) {
 	case '\n': cu_sref_newline(srf); break;
 	case '\t': cu_sref_tab(srf); break;
-	default: cu_sref_next(srf); break;
+	default: if ((unsigned char)ch <= 127) cu_sref_next(srf); break;
     }
 }
 
