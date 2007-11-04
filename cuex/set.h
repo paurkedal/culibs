@@ -48,6 +48,9 @@ CU_SINLINE cu_bool_t
 cuex_is_empty_set(cuex_t S)
 { return S == cuexP_set_empty; }
 
+/*!Returns the singleton set {\a e}. */
+cuex_t cuex_singleton_set(cuex_t e);
+
 /*!Returns \a S ∪ \a e. */
 cuex_t cuex_set_insert(cuex_t S, cuex_t e);
 

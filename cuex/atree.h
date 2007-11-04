@@ -77,6 +77,10 @@ CU_SINLINE cu_bool_t
 cuex_atree_is_empty(cuex_t tree)
 { return tree == NULL; }
 
+CU_SINLINE cuex_t
+cuex_atree_singleton(cuex_t e)
+{ return e; }
+
 /*!True iff \a tree is a singleton. */
 CU_SINLINE cu_bool_t
 cuex_atree_is_singleton(cuex_t tree)

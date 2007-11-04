@@ -49,6 +49,12 @@ set_new(cuex_t atree)
 }
 
 cuex_t
+cuex_singleton_set(cuex_t e)
+{
+    return set_new(cuex_atree_singleton(e));
+}
+
+cuex_t
 cuex_set_insert(cuex_t S, cuex_t e)
 {
     return set_new(cuex_atree_insert(set_key, SET(S)->atree, e));
