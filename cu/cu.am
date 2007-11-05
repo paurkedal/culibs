@@ -27,6 +27,8 @@ cu_headers = \
 	cu/test.h \
 	cu/thread.h \
 	cu/tstate.h \
+	cu/wchar.h \
+	cu/wstring.h \
 	cu/util.h \
 	cu/va_ref.h \
 	cu/weakptr.h \
@@ -52,7 +54,9 @@ cu_sources = \
 	cu/str.c \
 	cu/test.c \
 	cu/thread.c \
-	cu/tstate.c
+	cu/tstate.c \
+	cu/wchar.c \
+	cu/wstring.c
 
 if enable_clos_i386
     cu_headers += cu/i386/clos.h
@@ -70,7 +74,8 @@ cu_check_programs = \
 	cu/int_t0 \
 	cu/ptr_t0 \
 	cu/thread_t0 \
-	cu/rarex_t0
+	cu/rarex_t0 \
+	cu/wstring_t0
 cu_norun_check_programs = \
 	cu/int_b0
 
@@ -97,5 +102,7 @@ cu_thread_t0_SOURCES = cu/thread_t0.c
 cu_thread_t0_LDADD = libcubase.la
 cu_rarex_t0_SOURCES = cu/rarex_t0.c
 cu_rarex_t0_LDADD = libcubase.la
+cu_wstring_t0_SOURCES = cu/wstring_t0.c
+cu_wstring_t0_LDADD = libcubase.la
 
 endif

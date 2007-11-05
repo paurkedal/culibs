@@ -133,6 +133,16 @@ typedef unsigned int cu_count_t;
 typedef int cu_countdiff_t;
 #endif
 
+/*!A unicode character.  This is defined as \c wchar_t if the compiler defines
+ * \c __STDC_ISO_10646__ and \c wchar_t is wide enough to hold characters
+ * beyond the BMP.  Otherwise, a 32 bit integer type is used. */
+#if defined(__STDC_ISO_10646__) && WCHAR_MAX >= 0x10ffff
+typedef wchar_t cu_wchar_t;
+#define CU_WCHAR_IS_STDC 1
+#else
+typedef uint_least32_t cu_wchar_t;
+#endif
+
 
 /* Compound Types
  * -------------- */
@@ -146,6 +156,7 @@ typedef struct cu_ptr_sinktor_s *cu_ptr_sinktor_t;	/* ptr_seq.h */
 typedef struct cu_ptr_junctor_s *cu_ptr_junctor_t;	/* ptr_seq.h */
 typedef struct cu_sref_s	*cu_sref_t;		/* srcref.h */
 typedef struct cu_str_s		*cu_str_t;		/* str.h */
+typedef struct cu_wstring_s	*cu_wstring_t;		/* wstring.h */
 
 
 /* Declarations of Some Common Functions
