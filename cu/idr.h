@@ -49,6 +49,14 @@ cu_idr_t cu_idr_by_cstr(char const *cstr);
  * \a size.  See \ref cu_idr_by_cstr. */
 cu_idr_t cu_idr_by_charr(char const *arr, size_t size);
 
+/*!Returns the identifier with the name given by \a arr to \a arr + \a len.
+ * The Unicode string is converted to UTF-8. */
+cu_idr_t cu_idr_by_wchararr(cu_wchar_t const *arr, size_t len);
+
+/*!Returns the identifier of name \a s.  The Unicode string is converted to
+ * UTF-8. */
+cu_idr_t cu_idr_by_wstring(cu_wstring_t s);
+
 /*!Return a C string strcmp-equal to the one passed upon costruction. */
 CU_SINLINE char const *cu_idr_to_cstr(cu_idr_t idr)
 { return (char const *)(idr + 1); }

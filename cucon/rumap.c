@@ -44,7 +44,7 @@ cucon_rumap_mref(cucon_rumap_t rumap, uintptr_t key)
 
 cucon_rumap_t
 cucon_rumap_mref_by_uint8_arr(cucon_rumap_t rumap,
-			      uint8_t *key_arr, size_t key_cnt)
+			      uint8_t const *key_arr, size_t key_cnt)
 {
     while (key_cnt) {
 	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
@@ -58,7 +58,7 @@ cucon_rumap_mref_by_uint8_arr(cucon_rumap_t rumap,
 
 cucon_rumap_t
 cucon_rumap_mref_by_uint16_arr(cucon_rumap_t rumap,
-			       uint16_t *key_arr, size_t key_cnt)
+			       uint16_t const *key_arr, size_t key_cnt)
 {
     while (key_cnt) {
 	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
@@ -72,7 +72,7 @@ cucon_rumap_mref_by_uint16_arr(cucon_rumap_t rumap,
 
 cucon_rumap_t
 cucon_rumap_mref_by_uint32_arr(cucon_rumap_t rumap,
-			       uint32_t *key_arr, size_t key_cnt)
+			       uint32_t const *key_arr, size_t key_cnt)
 {
     while (key_cnt) {
 	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
@@ -87,7 +87,7 @@ cucon_rumap_mref_by_uint32_arr(cucon_rumap_t rumap,
 #ifdef CUCONF_HAVE_UINT64_T
 cucon_rumap_t
 cucon_rumap_mref_by_uint64_arr(cucon_rumap_t rumap,
-			       uint64_t *key_arr, size_t key_cnt)
+			       uint64_t const *key_arr, size_t key_cnt)
 {
     while (key_cnt) {
 	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,

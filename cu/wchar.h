@@ -25,6 +25,10 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_wchar_h cu/wchar.h: Unicode Characters
  *@{\ingroup cu_mod */
 
+/*!The maximum number of \c char elements needed to represent a \ref
+ * cu_wchar_t. */
+#define CU_MAX_MBLEN 4
+
 /*!A thread-local \c iconv_t descriptor for converting from \ref cu_wchar_t
  * strings to \c char strings. */
 iconv_t cu_iconv_for_wchar_to_char(void);

@@ -24,27 +24,29 @@
 #endif
 
 cu_wstring_t
-cu_wstring_of_arr(cu_wchar_t *arr, size_t len)
+cu_wstring_of_arr(cu_wchar_t const *src_arr, size_t src_len)
 {
     cu_wstring_t s = cu_gnew(struct cu_wstring_s);
-    s->arr = cu_galloc(sizeof(cu_wchar_t)*len);
-    memcpy(s->arr, arr, sizeof(cu_wchar_t)*len);
-    s->len = len;
+    cu_wchar_t *arr = cu_galloc(sizeof(cu_wchar_t)*src_len);
+    memcpy(arr, src_arr, sizeof(cu_wchar_t)*src_len);
+    s->arr = arr;
+    s->len = src_len;
     return s;
 }
 
 cu_wstring_t
-cu_wstring_of_arr_o(cu_wchar_t *arr, size_t len)
+cu_wstring_of_arr_o(cu_wchar_t const *src_arr, size_t src_len)
 {
     cu_wstring_t s = cuoo_onew(cu_wstring);
-    s->arr = cu_galloc(sizeof(cu_wchar_t)*len);
-    memcpy(s->arr, arr, sizeof(cu_wchar_t)*len);
-    s->len = len;
+    cu_wchar_t *arr = cu_galloc(sizeof(cu_wchar_t)*src_len);
+    memcpy(arr, src_arr, sizeof(cu_wchar_t)*src_len);
+    s->arr = arr;
+    s->len = src_len;
     return s;
 }
 
 cu_wstring_t
-cu_wstring_of_arr_ref(cu_wchar_t *arr, size_t len)
+cu_wstring_of_arr_ref(cu_wchar_t const *arr, size_t len)
 {
     cu_wstring_t s = cu_gnew(struct cu_wstring_s);
     s->arr = arr;
@@ -53,7 +55,7 @@ cu_wstring_of_arr_ref(cu_wchar_t *arr, size_t len)
 }
 
 cu_wstring_t
-cu_wstring_of_arr_ref_o(cu_wchar_t *arr, size_t len)
+cu_wstring_of_arr_ref_o(cu_wchar_t const *arr, size_t len)
 {
     cu_wstring_t s = cuoo_onew(cu_wstring);
     s->arr = arr;
@@ -91,7 +93,7 @@ cu_wstring_of_char_str(char *str)
 }
 
 cu_wstring_t
-cu_wstring_concat(cu_wstring_t sl, cu_wstring_t sr)
+cu_wstring_cat2(cu_wstring_t sl, cu_wstring_t sr)
 {
     cu_wchar_t *arr;
     if (sl->len == 0)
@@ -105,7 +107,7 @@ cu_wstring_concat(cu_wstring_t sl, cu_wstring_t sr)
 }
 
 cu_wstring_t
-cu_wstring_concat_o(cu_wstring_t sl, cu_wstring_t sr)
+cu_wstring_cat2_o(cu_wstring_t sl, cu_wstring_t sr)
 {
     cu_wchar_t *arr;
     if (sl->len == 0)
@@ -116,6 +118,30 @@ cu_wstring_concat_o(cu_wstring_t sl, cu_wstring_t sr)
     memcpy(arr, sl->arr, sizeof(cu_wchar_t)*sl->len);
     memcpy(arr + sl->len, sr->arr, sizeof(cu_wchar_t)*sr->len);
     return cu_wstring_of_arr_ref_o(arr, sl->len + sr->len);
+}
+
+cu_wstring_t
+cu_wstring_cat3(cu_wstring_t s0, cu_wstring_t s1, cu_wstring_t s2)
+{
+    cu_wchar_t *arr, *p;
+    arr = cu_galloc(sizeof(cu_wchar_t)*(s0->len + s1->len + s2->len));
+    p = arr;
+    memcpy(p, s0->arr, sizeof(cu_wchar_t)*s0->len); p += s0->len;
+    memcpy(p, s1->arr, sizeof(cu_wchar_t)*s1->len); p += s1->len;
+    memcpy(p, s2->arr, sizeof(cu_wchar_t)*s2->len); p += s2->len;
+    return cu_wstring_of_arr_ref(arr, p - arr);
+}
+
+cu_wstring_t
+cu_wstring_cat3_o(cu_wstring_t s0, cu_wstring_t s1, cu_wstring_t s2)
+{
+    cu_wchar_t *arr, *p;
+    arr = cu_galloc(sizeof(cu_wchar_t)*(s0->len + s1->len + s2->len));
+    p = arr;
+    memcpy(p, s0->arr, sizeof(cu_wchar_t)*s0->len); p += s0->len;
+    memcpy(p, s1->arr, sizeof(cu_wchar_t)*s1->len); p += s1->len;
+    memcpy(p, s2->arr, sizeof(cu_wchar_t)*s2->len); p += s2->len;
+    return cu_wstring_of_arr_ref_o(arr, p - arr);
 }
 
 cu_wstring_t

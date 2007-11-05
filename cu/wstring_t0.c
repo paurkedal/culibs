@@ -25,7 +25,7 @@ main()
     int i;
     s0 = CU_WSTRING_C("Break me ");
     s1 = CU_WSTRING_C("not.");
-    s2 = cu_wstring_concat(s0, s1);
+    s2 = cu_wstring_cat2(s0, s1);
     s3 = cu_wstring_slice(s0, 2, 5);
     cu_test_assert(cu_wstring_cmp(s2, CU_WSTRING_C("Break me not.")) == 0);
     cu_test_assert(cu_wstring_cmp(s3, CU_WSTRING_C("eak")) == 0);

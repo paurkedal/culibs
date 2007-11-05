@@ -65,15 +65,19 @@ cucon_rumap_cref(cucon_rumap_t rmap, uintptr_t key)
 /* Array lookup
  * ------------ */
 
-cucon_rumap_t cucon_rumap_mref_by_uint8_arr(cucon_rumap_t rmap,
-					uint8_t *key_arr, size_t key_cnt);
-cucon_rumap_t cucon_rumap_mref_by_uint16_arr(cucon_rumap_t rmap,
-					 uint16_t *key_arr, size_t key_cnt);
-cucon_rumap_t cucon_rumap_mref_by_uint32_arr(cucon_rumap_t rmap,
-					 uint32_t *key_arr, size_t key_cnt);
+cucon_rumap_t
+cucon_rumap_mref_by_uint8_arr(cucon_rumap_t rmap,
+			      uint8_t const *key_arr, size_t key_cnt);
+cucon_rumap_t
+cucon_rumap_mref_by_uint16_arr(cucon_rumap_t rmap,
+			       uint16_t const *key_arr, size_t key_cnt);
+cucon_rumap_t
+cucon_rumap_mref_by_uint32_arr(cucon_rumap_t rmap,
+			       uint32_t const *key_arr, size_t key_cnt);
 #if CUCONF_WIDTHOF_INTPTR_T >= 64
-cucon_rumap_t cucon_rumap_mref_by_uint64_arr(cucon_rumap_t rmap,
-					 uint64_t *key_arr, size_t key_cnt);
+cucon_rumap_t
+cucon_rumap_mref_by_uint64_arr(cucon_rumap_t rmap,
+			       uint64_t const *key_arr, size_t key_cnt);
 #endif
 
 #if CUCONF_WIDTHOF_INTPTR_T < CUCONF_WIDTHOF_WCHAR_T \
@@ -90,45 +94,45 @@ cucon_rumap_t cucon_rumap_mref_by_uint64_arr(cucon_rumap_t rmap,
 
 CU_SINLINE cucon_rumap_t
 cucon_rumap_mref_by_uchar_arr(cucon_rumap_t rmap,
-			    unsigned char *key_arr, size_t key_cnt)
+			      unsigned char const *key_arr, size_t key_cnt)
 {
     return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CUCONF_WIDTHOF_CHAR,
-		      rmap, key_arr, key_cnt);
+			rmap, key_arr, key_cnt);
 }
 CU_SINLINE cucon_rumap_t
 cucon_rumap_mref_by_schar_arr(cucon_rumap_t rmap,
-			    signed char *key_arr, size_t key_cnt)
+			      signed char const *key_arr, size_t key_cnt)
 {
     return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CUCONF_WIDTHOF_CHAR,
-		      rmap, key_arr, key_cnt);
+			rmap, key_arr, key_cnt);
 }
 CU_SINLINE cucon_rumap_t
 cucon_rumap_mref_by_short_arr(cucon_rumap_t rmap,
-			    short *key_arr, size_t key_cnt)
+			      short const *key_arr, size_t key_cnt)
 {
     return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CUCONF_WIDTHOF_SHORT,
-		      rmap, key_arr, key_cnt);
+			rmap, key_arr, key_cnt);
 }
 CU_SINLINE cucon_rumap_t
 cucon_rumap_mref_by_ushort_arr(cucon_rumap_t rmap,
-			     unsigned short *key_arr, size_t key_cnt)
+			       unsigned short const *key_arr, size_t key_cnt)
 {
     return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CUCONF_WIDTHOF_SHORT,
-		      rmap, key_arr, key_cnt);
+			rmap, key_arr, key_cnt);
 }
 CU_SINLINE cucon_rumap_t
 cucon_rumap_mref_by_int_arr(cucon_rumap_t rmap,
-			  int *key_arr, size_t key_cnt)
+			    int const *key_arr, size_t key_cnt)
 {
     return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CUCONF_WIDTHOF_INT,
-		      rmap, key_arr, key_cnt);
+			rmap, key_arr, key_cnt);
 }
 CU_SINLINE cucon_rumap_t
 cucon_rumap_mref_by_uint_arr(cucon_rumap_t rmap,
-			   unsigned int *key_arr, size_t key_cnt)
+			     unsigned int const *key_arr, size_t key_cnt)
 {
     return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CUCONF_WIDTHOF_INT,
-		      rmap, key_arr, key_cnt);
+			rmap, key_arr, key_cnt);
 }
 #if 0 /* the pmap only supports uintptr_t */
 CU_SINLINE cucon_rumap_t
@@ -149,16 +153,16 @@ cucon_rumap_mref_by_ulong_arr(cucon_rumap_t rmap,
 
 CU_SINLINE cucon_rumap_t
 cucon_rumap_mref_by_char_arr(cucon_rumap_t rmap,
-			     char *key_arr, size_t key_cnt)
+			     char const *key_arr, size_t key_cnt)
 {
     return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CUCONF_WIDTHOF_CHAR,
 			rmap, key_arr, key_cnt);
 }
 CU_SINLINE cucon_rumap_t
 cucon_rumap_mref_by_wchar_arr(cucon_rumap_t rmap,
-			      wchar_t *key_arr, size_t key_cnt)
+			      cu_wchar_t const *key_arr, size_t key_cnt)
 {
-    return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CUCONF_WIDTHOF_WCHAR_T,
+    return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CU_WCHAR_WIDTH,
 			rmap, key_arr, key_cnt);
 }
 #undef cuconP_APPLY

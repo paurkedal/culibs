@@ -139,8 +139,10 @@ typedef int cu_countdiff_t;
 #if defined(__STDC_ISO_10646__) && WCHAR_MAX >= 0x10ffff
 typedef wchar_t cu_wchar_t;
 #define CU_WCHAR_IS_STDC 1
+#define CU_WCHAR_WIDTH CUCONF_WIDTHOF_WCHAR_T
 #else
-typedef uint_least32_t cu_wchar_t;
+typedef uint32_t cu_wchar_t;
+#define CU_WCHAR_WIDTH 32
 #endif
 
 

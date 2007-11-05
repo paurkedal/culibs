@@ -34,7 +34,7 @@ struct cu_wstring_s
 {
     CUOO_OBJ
     size_t len;
-    cu_wchar_t *arr;
+    cu_wchar_t const *arr;
 };
 
 #ifdef CU_WCHAR_IS_STDC
@@ -53,7 +53,8 @@ CU_SINLINE cuoo_type_t cu_wstring_type()
 CU_SINLINE size_t cu_wstring_length(cu_wstring_t s) { return s->len; }
 
 /*!The underlying array of \a s. This is not null-terminated. */
-CU_SINLINE cu_wchar_t *cu_wstring_array(cu_wstring_t s) { return s->arr; }
+CU_SINLINE cu_wchar_t const *cu_wstring_array(cu_wstring_t s)
+{ return s->arr; }
 
 /*!Returns the character at position \a i. */
 CU_SINLINE cu_wchar_t cu_wstring_at(cu_wstring_t s, size_t i)
@@ -63,30 +64,36 @@ CU_SINLINE cu_wchar_t cu_wstring_at(cu_wstring_t s, size_t i)
 CU_SINLINE cu_wstring_t cu_wstring_empty() { return cuP_wstring_empty; }
 
 /*!Returns a string with a copy of \a len characters from \a arr. */
-cu_wstring_t cu_wstring_of_arr(cu_wchar_t *arr, size_t len);
+cu_wstring_t cu_wstring_of_arr(cu_wchar_t const *arr, size_t len);
 
 /*!A variant of \ref cu_wstring_of_arr which returns a dynamically typed
  * object. */
-cu_wstring_t cu_wstring_of_arr_o(cu_wchar_t *arr, size_t len);
+cu_wstring_t cu_wstring_of_arr_o(cu_wchar_t const *arr, size_t len);
 
 /*!Returns a string with a reference to the first \a len characters of
  * \a arr. */
-cu_wstring_t cu_wstring_of_arr_ref(cu_wchar_t *arr, size_t len);
+cu_wstring_t cu_wstring_of_arr_ref(cu_wchar_t const *arr, size_t len);
 
 /*!A variant of \ref cu_wstring_of_arr_ref which returns a dynamically typed
  * object.  */
-cu_wstring_t cu_wstring_of_arr_ref_o(cu_wchar_t *arr, size_t len);
+cu_wstring_t cu_wstring_of_arr_ref_o(cu_wchar_t const *arr, size_t len);
 
-cu_wstring_t cu_wstring_of_char_arr(char *arr, size_t len);
+cu_wstring_t cu_wstring_of_chararr(char const *arr, size_t len);
 
-cu_wstring_t cu_wstring_of_char_str(char *str);
+cu_wstring_t cu_wstring_of_charstr(char const *str);
 
 /*!The concatenation of \a sl and \a sr. */
-cu_wstring_t cu_wstring_concat(cu_wstring_t sl, cu_wstring_t sr);
+cu_wstring_t cu_wstring_cat2(cu_wstring_t sl, cu_wstring_t sr);
 
-/*!A variant of \ref cu_wstring_concat which returns a dynamically typed
+/*!A variant of \ref cu_wstring_cat2 which returns a dynamically typed
  * object. */
-cu_wstring_t cu_wstring_concat_o(cu_wstring_t sl, cu_wstring_t sr);
+cu_wstring_t cu_wstring_cat2_o(cu_wstring_t sl, cu_wstring_t sr);
+
+cu_wstring_t cu_wstring_cat3(cu_wstring_t s0, cu_wstring_t s1,
+			     cu_wstring_t s2);
+
+cu_wstring_t cu_wstring_cat3_o(cu_wstring_t s0, cu_wstring_t s1,
+			       cu_wstring_t s2);
 
 /*!The slice from character \a i to (but not including) character \a j. */
 cu_wstring_t cu_wstring_slice(cu_wstring_t s, size_t i, size_t j);

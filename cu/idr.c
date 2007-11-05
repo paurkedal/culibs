@@ -17,6 +17,8 @@
 
 #include <cu/idr.h>
 #include <cu/util.h>
+#include <cu/wchar.h>
+#include <cu/wstring.h>
 #include <cuoo/halloc.h>
 #include <cuoo/intf.h>
 
@@ -48,6 +50,33 @@ cu_idr_by_charr(char const *arr, size_t charr_size)
 	   key_size - sizeof(struct cu_idr_s) - charr_size + CUOO_HCOBJ_SHIFT);
     idr = cuoo_halloc(cu_idr_type(), key_size, (char *)idr + CUOO_HCOBJ_SHIFT);
     return idr;
+}
+
+cu_idr_t
+cu_idr_by_wchararr(wchar_t const *arr, size_t len)
+{
+    char *inarr = (char *)arr;
+    size_t inlen = len*sizeof(wchar_t);
+    size_t outcap = len*CU_MAX_MBLEN;
+    char *charr = cu_salloc(outcap);
+    char *outarr = charr;
+    iconv_t cd = cu_iconv_for_wchar_to_char();
+    if (iconv(cd, &inarr, &inlen, &outarr, &outcap) == (size_t)-1) {
+	switch (errno) {
+	    case E2BIG:
+		cu_debug_unreachable();
+	    case EILSEQ:
+	    case EINVAL:
+		return NULL;
+	}
+    }
+    return cu_idr_by_charr(charr, outarr - charr);
+}
+
+cu_idr_t
+cu_idr_by_wstring(cu_wstring_t s)
+{
+    return cu_idr_by_wchararr(s->arr, s->len);
 }
 
 int
