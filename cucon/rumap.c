@@ -16,6 +16,7 @@
  */
 
 #include <cucon/rumap.h>
+#include <cu/wstring.h>
 
 void
 cucon_rumap_cct(cucon_rumap_t rumap)
@@ -99,3 +100,10 @@ cucon_rumap_mref_by_uint64_arr(cucon_rumap_t rumap,
     return rumap;
 }
 #endif
+
+cucon_rumap_t
+cucon_rumap_mref_by_wstring(cucon_rumap_t rmap, cu_wstring_t s)
+{
+    return cucon_rumap_mref_by_wchar_arr(rmap, cu_wstring_array(s),
+					 cu_wstring_length(s));
+}

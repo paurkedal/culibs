@@ -168,6 +168,8 @@ cucon_rumap_mref_by_wchar_arr(cucon_rumap_t rmap,
 #undef cuconP_APPLY
 #undef cuconP_RUMAP_MREF_ARR
 
+cucon_rumap_t cucon_rumap_mref_by_wstring(cucon_rumap_t rmap, cu_wstring_t s);
+
 
 /* Iteration
  * --------- */
