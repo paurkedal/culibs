@@ -27,6 +27,7 @@
 #include <cu/idr.h>
 #include <cu/str.h>
 #include <cuex/oprinfo.h>	/* FIXME: remove dep */
+#include <cuex/ex.h>
 
 
 /* Elementary types. */
@@ -238,8 +239,6 @@ cudyn_load(cuoo_type_t t, void *p)
 	    return p;
 	case cuoo_typekind_ptrtype:
 	    return cudyn_ptr(cudyn_ptrtype_from_type(t), p);
-	case cuoo_typekind_sngtype:
-	    return cudyn_singular_obj();
 
 	case cuoo_typekind_elmtype_bool:
 	    return cudyn_bool(*(cu_bool_t *)p);
@@ -276,8 +275,6 @@ cudyn_load(cuoo_type_t t, void *p)
     }
 }
 
-cuex_t cudynP_singular_obj;
-
 void
 cudynP_misc_init()
 {
@@ -295,8 +292,6 @@ cudynP_misc_init()
     CUDYN_ETYPE_INIT(bool, int, BOOL, &ffi_type_sint)
     cudynP_true = cudyn_bool(1);
     cudynP_false = cudyn_bool(0);
-
-    cudynP_singular_obj = cuoo_oalloc(cudyn_singular_type(), 0);
 
     CUDYN_ETYPEARR_INIT(char, char, SINT, &ffi_type_schar)
 

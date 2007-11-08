@@ -22,7 +22,6 @@
 #include <cuex/ex.h>
 #include <cuex/opn.h>
 #include <cuex/oprdefs.h>
-#include <cuex/aci.h>
 #include <cuex/algo.h>
 #include <cuex/tvar.h>
 
@@ -658,12 +657,14 @@ tailcall:
 	return ex;
     }
     if (cuex_meta_is_opr(meta)) {
+#if 0
 	if (cuex_opr_is_aci(meta)) {
 	    subst_apply_cb_t cb;
 	    cb.subst = subst;
 	    return cuex_aci_tran(meta, ex, subst_apply_cb_prep(&cb));
 	}
 	else
+#endif
 	    CUEX_OPN_TRAN(meta, ex, subex, cuexP_subst_apply(subst, subex));
     }
     return ex;

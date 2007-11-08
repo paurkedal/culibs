@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,27 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cuex/fwd.h>
-#include <cudyn/misc.h>
-#include <stdint.h>
+#ifndef CUEX_ACIDEFS_H
+#define CUEX_ACIDEFS_H
 
-int main()
-{
-    uint64_t n;
-    cuex_t x;
-    cuex_init();
-    x = cudyn_uint(792);
-    cu_debug_assert(cudyn_is_uint(x));
-    cu_debug_assert(cudyn_to_uint(x) == 792);
-    cu_debug_assert(cudyn_uint(792) == x);
-    x = cudyn_uint8(111);
-    cu_debug_assert(cudyn_is_uint8(x));
-    cu_debug_assert(cudyn_to_uint8(x) == 111);
-    cu_debug_assert(cudyn_uint8(111) == x);
-    n = UINT64_C(0xf39a241788bed001);
-    x = cudyn_uint64(n);
-    cu_debug_assert(cudyn_is_uint64(x));
-    cu_debug_assert(cudyn_to_uint64(x) == n);
-    cu_debug_assert(cudyn_uint64(n) == x);
-    return 0;
-}
+#include <cuex/fwd.h>
+
+CU_BEGIN_DECLARATIONS
+/*!\defgroup cuex_acidefs_h cuex/acidefs.h: Extras for ACI Operators
+ *@{\ingroup cuex_mod */
+
+#define CUEX_O0ACI_PROD		cuex_o0aci(CUEX_O3ACI_PROD)
+#define CUEX_O0ACI_SIGPROD	cuex_o0aci(CUEX_O4ACI_SIGPROD)
+#define CUEX_O0ACI_STRUCTJOIN	cuex_o0aci(CUEX_O4ACI_STRUCTJOIN)
+#define CUEX_O0ACI_DUNION	cuex_o0aci(CUEX_O4ACI_DUNION)
+#define CUEX_O0ACI_SETJOIN	cuex_o0aci(CUEX_O3ACI_SETJOIN)
+
+/*!@}*/
+CU_END_DECLARATIONS
+
+#endif

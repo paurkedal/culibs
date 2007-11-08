@@ -23,6 +23,7 @@
 #include <cucon/list.h>
 #include <cuex/subst.h>
 #include <cuex/oprdefs.h>
+#include <cuex/opn.h>
 #include <stdio.h>
 
 

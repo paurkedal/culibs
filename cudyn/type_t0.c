@@ -18,8 +18,8 @@
 #include <cudyn/type.h>
 #include <cudyn/misc.h>
 #include <cuex/oprdefs.h>
+#include <cuex/opn.h>
 #include <cuex/ex.h>
-#include <cuex/sig.h>
 
 void
 test_type(cuex_t ex)
@@ -37,10 +37,12 @@ test()
     test_type(cuex_o2_gexpt(cudyn_bool_type(), cudyn_int(33)));
     test_type(cuex_o2_gprod(cudyn_int8_type(), cudyn_int16_type()));
     test_type(cuex_o2_gprod(cudyn_int8_type(), cudyn_int32_type()));
+#if 0
     test_type(cuex_sig_v(3,
 		"x", cudyn_int8_type(), 
 		"y", cudyn_float_type(),
 		"cond", cudyn_bool_type()));
+#endif
 }
 
 

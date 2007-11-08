@@ -24,7 +24,6 @@
 #include <cuex/opn.h>
 #include <cuex/algo.h>
 #include <cuex/oprdefs.h>
-#include <cuex/aci.h>
 #include <cuex/subst.h>
 #include <cuex/compound.h>
 #include <cuex/intf.h>
@@ -126,26 +125,6 @@ cuex_unify(cuex_t ex0, cuex_t ex1)
     return cuex_null();
 }
 
-static cuex_t
-fallback_tran_aci(cuex_meta_t join, cuex_opn_t idy, cuex_opn_t e,
-		  cuex_opn_t acc, cu_clop(cb, cuex_t, cuex_t e))
-{
-    /* Basically a specialised version of "aci.c":aci_tran, for efficiency
-     * since cuex_fallback_tran is very general. */
-    while (e != idy) {
-        cuex_opn_t v;
-        cu_debug_assert(cuex_meta(e) == join);
-        acc = fallback_tran_aci(join, idy, cuex_aci_left(e), acc, cb);
-        if (!acc)
-            return NULL;
-        v = cu_call(cb, cuex_aci_rebranch(e, idy, idy));
-        if (!v)
-            return NULL;
-        acc = cuex_aci_join(join, acc, v);
-        e = cuex_aci_right(e);
-    }
-    return acc;
-}
 cuex_t
 cuex_fallback_tran(cuex_t e, cu_clop(cb, cuex_t, cuex_t))
 {
@@ -154,14 +133,8 @@ cuex_fallback_tran(cuex_t e, cu_clop(cb, cuex_t, cuex_t))
     if (r)
 	return r;
     meta = cuex_meta(e);
-    if (cuex_meta_is_opr(meta)) {
-	if (cuex_opr_is_aci(meta)) {
-	    cuex_opn_t idy = cuex_aci_identity(meta);
-	    return fallback_tran_aci(meta, idy, e, idy, cb);
-	}
-	else
-	    CUEX_OPN_TRAN(meta, e, se, cuex_fallback_tran(se, cb));
-    }
+    if (cuex_meta_is_opr(meta))
+	CUEX_OPN_TRAN(meta, e, se, cuex_fallback_tran(se, cb));
     return e;
 }
 
@@ -216,26 +189,12 @@ cuex_depthout_conj(cuex_t ex, cu_clop(cb, cu_bool_t, cuex_t))
     return cu_call(cb, ex);
 }
 
-cu_clos_def(depthout_tran_aci_cb,
-	    cu_prot(cuex_opn_t, cuex_opn_t opn),
-    ( cu_clop(cb, cuex_t, cuex_t); ))
-{
-    cu_clos_self(depthout_tran_aci_cb);
-    return cuex_depthout_tran(opn, self->cb);
-}
 cuex_t
 cuex_depthout_tran(cuex_t ex, cu_clop(cb, cuex_t, cuex_t))
 {
     cuex_meta_t meta = cuex_meta(ex);
-    if (cuex_meta_is_opr(meta)) {
-	if (cuex_opr_is_aci(meta)) {
-	    depthout_tran_aci_cb_t aci_cb;
-	    aci_cb.cb = cb;
-	    ex = cuex_aci_tran(meta, ex, depthout_tran_aci_cb_prep(&aci_cb));
-	}
-	else
-	    CUEX_OPN_TRAN(meta, ex, subex, cuex_depthout_tran(subex, cb));
-    }
+    if (cuex_meta_is_opr(meta))
+	CUEX_OPN_TRAN(meta, ex, subex, cuex_depthout_tran(subex, cb));
     return cu_call(cb, ex);
 }
 

@@ -20,6 +20,7 @@
 #include <cudyn/type.h>
 #include <cuoo/layout.h>
 #include <cuoo/intf.h>
+#include <cuoo/halloc.h>
 #include <cu/memory.h>
 #include <cu/ptr.h>
 #include <string.h>

@@ -20,6 +20,7 @@
 
 #include <cudyn/fwd.h>
 #include <cuoo/properties.h>
+#include <cuoo/halloc.h>
 #include <cudyn/typetpl.h>
 #include <cudyn/type.h>
 #include <cu/idr.h>
@@ -154,15 +155,6 @@ cudyn_ptr(cudyn_ptrtype_t ptrtype, void *ptr)
 CU_SINLINE void *
 cudyn_to_ptr(cuex_t e)
 { return *(void **)((char *)e + CUOO_HCOBJ_SHIFT); }
-
-
-extern cuex_t cudynP_singular_obj;
-
-CU_SINLINE cuex_t cudyn_singular_obj(void)
-{ return cudynP_singular_obj; }
-
-CU_SINLINE cu_bool_t cudyn_is_singular_obj(cuex_t obj)
-{ return obj == cudynP_singular_obj; }
 
 
 /* Functions which applies to many types

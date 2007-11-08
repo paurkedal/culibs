@@ -18,6 +18,7 @@
 #include <cuex/algo.h>
 #include <cuex/var.h>
 #include <cuex/ex.h>
+#include <cuex/opn.h>
 #include <cuex/oprdefs.h>
 #include <cudyn/misc.h>
 #include <cu/test.h>

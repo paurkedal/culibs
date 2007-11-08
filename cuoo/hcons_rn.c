@@ -292,6 +292,7 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
      * we add CU_GRAN_SIZEW - 1 for the upwards rounding. */
     sizeg = (key_sizew + CUOO_HCOBJ_SHIFTW + CU_GRAN_SIZEW)/CU_GRAN_SIZEW;
 
+    cu_debug_assert(meta);
     hash = cu_wordarr_hash(key_sizew, key, meta);
     hcset = cu_hcset(hash);
     cu_hcset_lock_write(hcset);
@@ -341,6 +342,7 @@ cuexP_halloc_extra_raw(cuex_meta_t meta, size_t sizeg,
     cu_hash_t hash;
     cu_hcset_t hcset;
 
+    cu_debug_assert(meta);
     hash = cu_wordarr_hash(key_sizew, key, meta);
     hcset = cu_hcset(hash);
     cu_hcset_lock_write(hcset);

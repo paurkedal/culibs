@@ -22,7 +22,6 @@ range cuex_og_all = __all[0 .! 0x10000]
 range cuex_og_regular	= cuex_og_all[0x0000 .! 0x4000]
 range cuexP_og_ltree	= cuex_og_all[0x6000 .! 0x6200] # 1 operator
     attr cuexP_oa_ltree_depth : 5 bits "unsigned int"	# 4^32 = 2^64 nodes
-range cuex_og_aci	= cuex_og_all[0x6200 .! 0x6300]
 range cuex_og_semilattice = cuex_og_all[0x6800 .! 0x7000]
     attr cuex_oa_semilattice_prefix : 6 bits "unsigned int" # 0x20 operators
 range cuex_og_hole	= cuex_og_all[0x7000 .! 0x7800] # 1 operator
@@ -37,7 +36,6 @@ range cuex_og_scoping	= cuex_og_all[0x4200 .! 0x4210]
 range cuex_og_ta	= cuex_og_all[0x4210 .! 0x4220]
 
 reserve cuex_og_regular		[0x000 .! 0x020]
-reserve cuex_og_aci		[0x000 .! 0x010]
 reserve cuexP_og_ltree		[0x000 .! 0x001]
 reserve cuex_og_semilattice	[0x000 .! 0x008]
 reserve cuex_og_hole		[0 .! 1]
@@ -125,14 +123,8 @@ o/3 cuex_o3_let		: cuex_og_scoping
 # no letself : scoping
 
 # Old misc
-o/3 cuex_o3aci_prod	: cuex_og_aci
-o/4c cuex_o4aci_sigprod	: cuex_og_aci
-o/2c cuex_o2_sigbase	: cuex_og_regular
 o/1 cuex_o1_singleton	: cuex_og_regular
 o/1 cuex_o1_vtable_slots: cuex_og_regular
-o/4 cuex_o4aci_structjoin:cuex_og_aci
-o/4 cuex_o4aci_dunion	: cuex_og_aci
-o/3 cuex_o3aci_setjoin	: cuex_og_aci
 
 # group ta
 o/2 cuex_o2_ident_ta	: cuex_og_ta
@@ -142,8 +134,6 @@ o/r cuex_oR_call_ta	: cuex_og_ta
 
 # == C Generation Options ==
 
-option c_prologue =
-    "#include <cuex/opr_priv.h>\n"
 option h_prologue =
     "/*!\\defgroup cuex_oprdefs_h cuex/oprdefs.h: Operator Definitions\n"
     " *@{\\ingroup cuex_mod */\n"

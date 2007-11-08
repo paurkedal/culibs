@@ -19,10 +19,12 @@
 #include <cudyn/misc.h>
 #include <cucon/stack.h>
 #include <cuex/oprdefs.h>
-#include <cuex/aci.h>
 #include <cuex/algo.h>
 #include <cuex/type.h>
-#include <cuex/sig.h>
+#include <cuex/labelling.h>
+#include <cuex/opn.h>
+#include <cuex/set.h>
+#include <cuex/monoid.h>
 #include <cuoo/intf.h>
 
 
@@ -179,24 +181,25 @@ tuptype_finish_gprod_glck(cudyn_tuptype_t t, cuex_t ex, int i)
     }
 }
 
+#if 0
 cu_clos_def(tuptype_finish_sigprod_cb,
-	    cu_prot(cu_bool_t, cuex_opn_t e),
+	    cu_prot(cu_bool_t, cuex_t idr, cuex_t subt),
 	( cuoo_layout_t lyo;
 	  cudyn_tuptype_t t; ))
 {
     cu_clos_self(tuptype_finish_sigprod_cb);
-    cuoo_type_t subt;
-    cu_idr_t idr = cuex_aci_at(e, 0);
     struct cudyn_tupcomp_s *comp;
+    cu_debug_assert(cu_is_idr(idr));
+    cu_debug_assert(cuoo_is_type(subt));
     if (!cucon_pmap_insert_mem(&self->t->scomp_map, idr,
 			       sizeof(struct cudyn_tupcomp_s), &comp))
 	cu_debug_unreachable();
-    subt = cuoo_type_glck(cuex_aci_at(e, 1));
+    subt = cuoo_type_glck(subt);
     if (!subt)
 	return cu_false;
     comp->type = subt;
     self->lyo = cuoo_layout_product(self->lyo, cuoo_type_layout(subt),
-				     &comp->bitoffset);
+				    &comp->bitoffset);
     return cu_true;
 }
 
@@ -206,12 +209,12 @@ tuptype_finish_sigprod_glck(cudyn_tuptype_t t, cuex_t ex, cuoo_layout_t lyo)
     tuptype_finish_sigprod_cb_t cb;
     cb.lyo = lyo;
     cb.t = t;
-    if (cuex_aci_conj(CUEX_O4ACI_SIGPROD, ex,
-		      tuptype_finish_sigprod_cb_prep(&cb)))
+    if (cuex_labelling_conj_kv(ex, tuptype_finish_sigprod_cb_prep(&cb)))
 	return cb.lyo;
     else
 	return NULL;
 }
+#endif
 
 static void
 tuptype_cct_glck(cudyn_tuptype_t t)
@@ -221,12 +224,16 @@ tuptype_cct_glck(cudyn_tuptype_t t)
 
     ex = cudyn_tuptype_to_type(t)->as_expr;
     cucon_pmap_cct(&t->scomp_map);
-    if (ex == cuex_sig_identity()) {
-	lyo = 0;
+#if 0
+    if (ex == cuex_o0_gunit()) { /* XXX */
+	lyo = NULL;
 	t->tcomp_cnt = 0;
 	t->tcomp_arr = NULL;
     }
-    else if (cuex_meta(ex) == CUEX_O2_GPROD) {
+    else
+#endif
+    if (cuex_meta(ex) == CUEX_O2_GPROD) {
+#if 0
 	cuex_t ex0 = cuex_opn_at(ex, 0);
 	cuex_t ex1 = cuex_opn_at(ex, 1);
 	if (cuex_meta(ex1) == CUEX_O4ACI_SIGPROD) {
@@ -240,7 +247,9 @@ tuptype_cct_glck(cudyn_tuptype_t t)
 	    if (!lyo)
 		return;
 	}
-	else {
+	else
+#endif
+	{
 	    t->tcomp_cnt = cuex_binary_left_depth(CUEX_O2_GPROD, ex) + 1;
 	    t->tcomp_arr =
 		cu_galloc(t->tcomp_cnt*sizeof(struct cudyn_tupcomp_s));
@@ -249,6 +258,7 @@ tuptype_cct_glck(cudyn_tuptype_t t)
 		return;
 	}
     }
+#if 0
     else if (cuex_meta(ex) == CUEX_O4ACI_SIGPROD) {
 	t->tcomp_cnt = 0;
 	t->tcomp_arr = NULL;
@@ -256,6 +266,7 @@ tuptype_cct_glck(cudyn_tuptype_t t)
 	if (!lyo)
 	    return;
     }
+#endif
     else {
 	cuoo_type_t t0 = cuoo_type_glck(ex);
 	if (!t0)
@@ -375,6 +386,7 @@ tuptype_impl(cu_word_t intf_number, ...)
 /* Union Types
  * =========== */
 
+#if 0
 cu_clos_def(duntype_cct_cb,
 	    cu_prot(cu_bool_t, cuex_opn_t node),
 	( cuoo_layout_t lyo;
@@ -440,29 +452,7 @@ cudyn_duntype(cuex_t ex)
 {
     return duntype(ex, cu_false);
 }
-
-
-/* Singular Types
- * ============== */
-
-cudyn_sngtype_t
-cudyn_sngtype(cuex_t ex)
-{
-    cudyn_sngtype_t t;
-    cuoo_hctem_decl(cudyn_sngtype, tem);
-    cuoo_hctem_init(cudyn_sngtype, tem);
-    t = cuoo_hctem_get(cudyn_sngtype, tem);
-    cuooP_type_cct_nonhc(cu_to2(cuoo_type, cudyn_inltype, t),
-			 cuoo_impl_none, ex, cuoo_typekind_sngtype);
-    cu_to(cudyn_inltype, t)->ffitype = (AO_t)&ffi_type_void;
-    return cuoo_hctem_new(cudyn_sngtype, tem);
-}
-
-cudyn_sngtype_t
-cudyn_sngtype_of_elt(cuex_t elt)
-{
-    return cudyn_sngtype(cuex_aci_generator(CUEX_O3ACI_SETJOIN, elt));
-}
+#endif
 
 
 /* Generic
@@ -488,10 +478,10 @@ dispatch_type(cuex_t ex, cu_bool_t have_lock)
     if (cuoo_is_type(ex))
 	return ex;
     switch (cuex_meta(ex)) {
-	case CUEX_O3ACI_SETJOIN:
-	    return cudyn_sngtype_to_type(cudyn_sngtype(ex));
+#if 0
 	case CUEX_O4ACI_DUNION:
 	    return cudyn_duntype_to_type(duntype(ex, have_lock));
+#endif
 	case CUEX_O2_GEXPT:
 	    return cudyn_arrtype_to_type(arrtype(ex, have_lock));
 	case CUEX_O2_GPROD:
@@ -548,7 +538,6 @@ cudynP_type_init()
     cudynP_tuptype_type = cuoo_stdtypeoftypes_new_hce(tuptype_impl);
     cudynP_duntype_type = cuoo_stdtypeoftypes_new_hce(cuoo_impl_none);
     cudynP_sngtype_type = cuoo_stdtypeoftypes_new_hce(cuoo_impl_none);
-    cudynP_tup_null = cuex_aci_identity(CUEX_O4ACI_SIGPROD);
-    cudynP_default_sngtype = cudyn_sngtype_of_elt(cudynP_tup_null);
+    cudynP_tup_null = cuex_monoid_identity(CUEX_O2_TUPLE);
     cuooP_type_type = cuoo_stdtypeoftypes_new_hce(cuoo_impl_none);
 }

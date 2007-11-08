@@ -51,16 +51,6 @@ cuex_t cuex_typeof(cuex_t e);
 /* Pointers
  * -------- */
 
-extern cuex_t cuexP_generic_ptr_type;
-
-/*!A generic pointer type. This is a \ref CUEX_O1_PTR_TO. */
-CU_SINLINE cuex_t cuex_generic_ptr_type(void)
-{ return cuexP_generic_ptr_type; }
-
-/*!True iff \a e is \ref cuex_generic_ptr_type(). */
-CU_SINLINE cu_bool_t cuex_is_generic_ptr_type(cuex_t e)
-{ return e == cuexP_generic_ptr_type; }
-
 /*!Returns \a fn as an expression of type \a t, which should be the type of \a
  * fn, expressed as a \ref CUEX_O2_FARROW_NATIVE with the first operand
  * being the argument types as a left-associated tree of \ref

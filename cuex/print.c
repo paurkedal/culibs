@@ -22,7 +22,7 @@
 #include <cuex/tvar.h>
 #include <cuex/opn.h>
 #include <cuex/oprinfo.h>
-#include <cuex/dunion.h>
+#include <cuex/oprdefs.h>
 #include <cuoo/properties.h>
 #include <cucon/pmap.h>
 #include <cucon/pset.h>

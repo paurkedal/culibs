@@ -17,7 +17,6 @@
 
 #include <cuex/fwd.h>
 #include <cugra/fwd.h>
-#include <cuex/dunion.h>
 #include <cuex/tpvar.h>
 
 void cudynP_init(void);
@@ -26,13 +25,9 @@ void cuexP_ex_init(void);
 void cuexP_monoid_init(void);
 void cuexP_labelling_init(void);
 void cuexP_semilattice_init(void);
-void cuexP_sig_init(void);
 void cuexP_set_init(void);
-void cuexP_type_init(void);
 void cuexP_print_init(void);
 void cuex_oprdefs_init(void);
-
-cuex_opn_t cuexP_dunion_empty;
 
 void
 cuex_init()
@@ -46,16 +41,13 @@ cuex_init()
 		    (1 << CUEXP_VARMETA_WSIZE_WIDTH));
 
     cugra_init();
-    cudynP_init();
     cuexP_ex_init();
     cuex_oprdefs_init();
     cuexP_atree_init();
     cuexP_monoid_init();
     cuexP_labelling_init();
     cuexP_semilattice_init();
-    cuexP_sig_init();
     cuexP_set_init();
-    cuexP_type_init();
+    cudynP_init();
     cuexP_print_init();
-    cuexP_dunion_empty = cuex_aci_identity(CUEX_O4ACI_DUNION);
 }

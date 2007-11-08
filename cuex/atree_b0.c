@@ -17,6 +17,7 @@
 
 #include <cuex/atree.h>
 #include <cuex/oprdefs.h>
+#include <cuex/opn.h>
 #include <cudyn/misc.h>
 
 cu_clop_def(opn0word, cu_word_t, cuex_t e)

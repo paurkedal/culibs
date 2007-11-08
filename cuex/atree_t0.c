@@ -17,6 +17,7 @@
 
 #include <cuex/atree.h>
 #include <cuex/oprdefs.h>
+#include <cuex/opn.h>
 #include <cudyn/misc.h>
 #include <cu/test.h>
 #include <cucon/pset.h>

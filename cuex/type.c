@@ -16,11 +16,10 @@
  */
 
 #include <cuex/oprdefs.h>
-#include <cuex/acidefs.h>
 #include <cuex/type.h>
 #include <cuex/algo.h>
-#include <cuex/sig.h>
 #include <cuex/tvar.h>
+#include <cuex/opn.h>
 #include <cudyn/type.h>
 #include <cudyn/misc.h>
 
@@ -62,10 +61,12 @@ tailcall:
 	    case CUEX_O2_FORALL:
 		type = cuex_opn_at(type, 1);
 		goto tailcall;
+#if 0
 	    case CUEX_O4ACI_SIGPROD:
 	    case CUEX_O2_SIGBASE:
 		return cuex_sig_bitsize(type);
 	    case CUEX_O0ACI_SIGPROD:
+#endif
 	    case CUEX_O1_SINGLETON:
 		return 0;
 	    case CUEX_O2_GEXPT:
@@ -97,12 +98,16 @@ cuex_type_bitalign(cuex_t type)
     if (cuoo_is_type(type))
 	return cuoo_type_bitalign(type);
     switch (cuex_meta(type)) {
+#if 0
 	case CUEX_O0ACI_SIGPROD:
+#endif
 	case CUEX_O1_SINGLETON:
 	    return 1;
+#if 0
 	case CUEX_O4ACI_SIGPROD:
 	case CUEX_O2_SIGBASE:
 	    return cuex_sig_bitalign(type);
+#endif
 	default:
 	    return 8*sizeof(void *);
     }
@@ -122,12 +127,4 @@ cuex_typeof(cuex_t e)
 	default:
 	    cu_debug_unreachable();
     }
-}
-
-cuex_t cuexP_generic_ptr_type;
-
-void
-cuexP_type_init()
-{
-    cuexP_generic_ptr_type = cuex_o1_ptr_to(cudyn_singular_type());
 }

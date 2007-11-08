@@ -23,7 +23,6 @@
 #include <cucon/pmap.h>
 #include <cucon/ucmap.h>
 #include <cudyn/fwd.h>
-#include <cuex/aci.h>
 #ifdef CUCONF_HAVE_LIBFFI_FFI_H
 #  include <libffi/ffi.h>
 #else
@@ -243,38 +242,7 @@ cudyn_tuptype_offset_at(cudyn_tuptype_t t, cudyn_tupindex_t i)
 
 /*!@}*/
 
-
-/* Singular Types
- * ============== */
-
-struct cudyn_sngtype_s
-{
-    cu_inherit (cudyn_inltype_s);
-};
-
-extern cuoo_stdtype_t cudynP_sngtype_type;
-extern cudyn_sngtype_t cudynP_default_sngtype;
-
-CU_SINLINE cuoo_type_t cudyn_sngtype_type()
-{ return cuoo_stdtype_to_type(cudynP_sngtype_type); }
-
-#define cudyn_sngtype_to_type(t) \
-    cu_to2(cuoo_type, cudyn_inltype, t)
-#define cudyn_sngtype_from_type(t) \
-    cu_from2(cudyn_sngtype, cudyn_inltype, cuoo_type, t)
-
-/*!True iff \a ex is the singular type. */
-CU_SINLINE cu_bool_t cuoo_type_is_sngtype(cuoo_type_t t)
-{ return cuoo_type_typekind(t) == cuoo_typekind_sngtype; }
-
-cudyn_sngtype_t cudyn_sngtype_of_elt(cuex_t obj);
-
-CU_SINLINE cudyn_sngtype_t cudyn_sngtype_default()
-{ return cudynP_default_sngtype; }
-
-CU_SINLINE cuex_t cudyn_sngtype_elt(cudyn_sngtype_t t)
-{ return cuex_aci_at(cuoo_type_as_expr(cudyn_sngtype_to_type(t)), 0); }
-
+#if 0
 /*!\defgroup cudyn_duntype_mod cudyn_duntype_t: Discriminated Unions
  * @{ */
 
@@ -338,7 +306,7 @@ cudyn_duntype_conj(cudyn_duntype_t u,
 		   cu_clop(cb, cu_bool_t, cudyn_cnum_t, cuoo_type_t));
 
 /*!@}*/
-
+#endif
 
 cuoo_type_t cuoo_type_glck(cuex_t ex);
 
@@ -346,25 +314,11 @@ cuoo_type_t cuoo_type_glck(cuex_t ex);
  * correct. */
 cuoo_type_t cuoo_type(cuex_t ex);
 
-CU_SINLINE cu_bool_t
-cuoo_type_is_singular(cuoo_type_t t)
-{
-    return cuoo_type_is_sngtype(t);
-}
-
-CU_SINLINE cuoo_type_t
-cudyn_singular_type()
-{
-    return cudyn_sngtype_to_type(cudynP_default_sngtype);
-}
-
 /*!The memory layout of \a type. */
 CU_SINLINE cuoo_layout_t
 cuoo_type_layout(cuoo_type_t type)
 {
-    if (cuoo_type_is_singular(type))
-	return cuoo_layout_void();
-    else if (cuoo_type_is_nonptr_inltype(type))
+    if (cuoo_type_is_nonptr_inltype(type))
 	return (cuoo_layout_t)cu_from(cudyn_inltype,
 				       cuoo_type, type)->layout;
     else

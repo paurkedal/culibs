@@ -17,6 +17,7 @@
 
 #include <cudyn/proto.h>
 #include <cudyn/misc.h>
+#include <cuex/fwd.h>
 #include <cu/int.h>
 
 int

@@ -46,8 +46,8 @@ static void *
 test(void *thread_index)
 {
     int i;
-    cuex_opn_t exn_arr[EXN_CNT];
-    cuex_opn_t scratch_arr[1024];
+    cuex_t exn_arr[EXN_CNT];
+    cuex_t scratch_arr[1024];
     clock_t t = -clock();
     for (i = 0; i < EXN_CNT; ++i)
 	exn_arr[i] = cuex_opn(cuex_opr(1, 0));
@@ -66,7 +66,7 @@ test(void *thread_index)
 	    opr += cuex_meta(scratch_arr[j]);
 	}
 	opr %= 0x1000;
-	e = cuex_opn_by_arr(cuex_opr(opr, J), (void **)scratch_arr);
+	e = cuex_opn_by_arr(cuex_opr(opr, J), scratch_arr);
 	check_ex(e);
 	exn_arr[dst] = e;
     }
