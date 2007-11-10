@@ -15,98 +15,83 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*!\file
- * \deprecated Use cucon/hmap.h */
-
 #ifndef CUCON_HSET_H
 #define CUCON_HSET_H
 
-#include <cu/clos.h>
-#include <cucon/fwd.h>
+#include <cucon/hmap.h>
 
 CU_BEGIN_DECLARATIONS
-
-typedef struct cucon_hset_s *cucon_hset_t;
-typedef struct cucon_hset_it_s cucon_hset_it_t;
-typedef struct cucon_hset_node_s *cucon_hset_node_t;
-
-struct cucon_hset_node_s
-{
-    cucon_hset_node_t next;
-    void *key;
-};
+/*!\defgroup cucon_hset_h cucon/hset.h: General Hash Set
+ * @{\ingroup cucon_maps_and_sets_mod
+ * \see cucon_hmap_h
+ * \see cucon_pset_h
+ */
 
 struct cucon_hset_s
 {
-    cu_clop(equals, cu_bool_t, void *, void *);
-    cu_clop(hash, cu_hash_t, void *);
-    cucon_hset_node_t *table;
-    size_t count;
-    cu_hash_t mask;
-    struct cucon_hset_node_s tail;
+    struct cucon_hmap_s impl;
 };
 
-struct cucon_hset_it_s
+/*!Constructs a hash set with equality predicate \a eq and hash function \a
+ * hash. */
+CU_SINLINE void
+cucon_hset_cct(cucon_hset_t set,
+	       cu_clop(eq, cu_bool_t, void const *, void const *),
+	       cu_clop(hash, cu_hash_t, void const *))
+{ return cucon_hmap_cct(&set->impl, eq, hash); }
+
+/*!Returns a hash set with equality predicate \a eq and hash function
+ * \a hash. */
+CU_SINLINE cucon_hset_t
+cucon_hset_new(cu_clop(eq, cu_bool_t, void const *, void const *),
+	       cu_clop(hash, cu_hash_t, void const *))
+{ return (cucon_hset_t)cucon_hmap_new(eq, hash); }
+
+/*!True iff \a key is in \a set. */
+CU_SINLINE cu_bool_t
+cucon_hset_contains(cucon_hset_t set, void const *key)
+{ return cucon_hmap_find_mem(&set->impl, key) != NULL; }
+
+/*!If \a key is not in \a set, inserts it and returns true.  Otherwise, returns
+ * false. */
+CU_SINLINE cu_bool_t
+cucon_hset_insert(cucon_hset_t set, void const *key)
 {
-    cucon_hset_node_t *node_head;
-    cucon_hset_node_t node;
-};
+    void *slot;
+    return cucon_hmap_insert_mem(&set->impl, key, 0, &slot);
+}
 
-/* Create a new hash set over elements with equality predicate 'equal'
- * and hash function 'hash'. */
-void
-cucon_hset_cct(cucon_hset_t,
-	     cu_clop(equal, cu_bool_t, void *, void *),
-	     cu_clop(hash, cu_hash_t, void *));
-cucon_hset_t
-cucon_hset_new(cu_clop(equal, cu_bool_t, void *, void *),
-	     cu_clop(hash, cu_hash_t, void *));
+/*!If an key equal to \a key is in \a set, erase it and return true, else
+ * return false. */
+CU_SINLINE cu_bool_t
+cucon_hset_erase(cucon_hset_t set, void const *key)
+{ return cucon_hmap_erase(&set->impl, key) != NULL; }
 
+CU_SINLINE cu_bool_t
+cucon_hset_erase_keep_capacity(cucon_hset_t set, void const *key)
+{ return cucon_hmap_erase_keep_capacity(&set->impl, key) != NULL; }
 
-/* Redundant. */
-void		cucon_hset_dct_free(cucon_hset_t);
+CU_SINLINE void
+cucon_hset_set_capacity(cucon_hset_t set, int cap)
+{ cucon_hmap_set_capacity(&set->impl, cap); }
 
-/* Erase all entries in the hash set. */
-void		cucon_hset_clear(cucon_hset_t);
+CU_SINLINE size_t
+cucon_hset_size(cucon_hset_t set)
+{ return cucon_hmap_size(&set->impl); }
 
-/* If an key equal to 'key' is in 'hs', return it, else return NULL. */
-void *		cucon_hset_find(cucon_hset_t hs, void *key);
+CU_SINLINE cu_bool_t
+cucon_hset_is_empty(cucon_hset_t set)
+{ return cucon_hmap_is_empty(&set->impl); }
 
-/* If an key equal to 'key' is in 'hs', return it, else insert
- * 'key' and return NULL. */
-void *		cucon_hset_insert(cucon_hset_t hs, void *key);
-
-/* Insert 'key' into 'hs' possibly replacing an key which compares
- * equal. The old key is returned or NULL if none. */
-void *		cucon_hset_replace(cucon_hset_t hs, void *key);
-
-/* If an key equal to 'key' is in 'hs', erase it from 'hs' and return it,
- * else return NULL. */
-void *		cucon_hset_erase(cucon_hset_t hs, void *key);
-void *		cucon_hset_erase_keep_capacity(cucon_hset_t hs, void *key);
-
-void		cucon_hset_set_capacity(cucon_hset_t, int);
-
-#define		cucon_hset_size(hs) ((size_t const)(hs)->count)
-#define		cucon_hset_is_empty(hs) (cucon_hset_size(hs) == 0)
-
-/* Evaluate the sequential conjunction of 'cb' over 'hs'. */
-cu_bool_t	cucon_hset_conj(cucon_hset_t hs,
-			      cu_clop(cb, cu_bool_t, void *));
+CU_SINLINE cu_bool_t
+cucon_hset_conj(cucon_hset_t set,
+		cu_clop(f, cu_bool_t, void const *))
+{ return cucon_hmap_conj_keys(&set->impl, f); }
 
 /* Comparison of whole hash sets, assuming they have the same callbacks. */
-cu_bool_t	cucon_hset_eq(cucon_hset_t hs0, cucon_hset_t hs1);	/* = */
-cu_bool_t	cucon_hset_sub(cucon_hset_t hs0, cucon_hset_t hs1);	/* ⊂ */
-cu_bool_t	cucon_hset_subeq(cucon_hset_t hs0, cucon_hset_t hs1);	/* ⊆ */
+cu_bool_t cucon_hset_eq(cucon_hset_t hs0, cucon_hset_t hs1);	/* = */
+cu_bool_t cucon_hset_sub(cucon_hset_t hs0, cucon_hset_t hs1);	/* ⊂ */
+cu_bool_t cucon_hset_subeq(cucon_hset_t hs0, cucon_hset_t hs1);	/* ⊆ */
 
-/* Iterators
- * --------- */
-
-cucon_hset_it_t	cucon_hset_begin(cucon_hset_t);
-cucon_hset_it_t	cucon_hset_end(cucon_hset_t);
-#define		cucon_hset_it_eq(it1, it2) ((it1)->node == (it2)->node)
-cucon_hset_it_t	cucon_hset_it_next(cucon_hset_it_t it);
-
-void		cucon_hset_check_integrity(cucon_hset_t);
-
+/*!@}*/
 #endif

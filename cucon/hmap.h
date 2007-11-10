@@ -22,85 +22,81 @@
 #include <cu/clos.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cucon_hmap cucon/hmap.h: General Hash Maps
- * @{\ingroup cucon_maps_and_sets_mod */
+/*!\defgroup cucon_hmap_h cucon/hmap.h: General Hash Map
+ * @{\ingroup cucon_maps_and_sets_mod
+ * \see cucon_hset_h
+ * \see cucon_pmap_h
+ */
 
-typedef struct cucon_hmap_it_s cucon_hmap_it_t;
 typedef struct cucon_hmap_node_s *cucon_hmap_node_t;
-
 struct cucon_hmap_node_s
 {
     cucon_hmap_node_t next;
-    void *key;
+    void const *key;
     /* value data */
 };
 
 struct cucon_hmap_s
 {
-    cu_clop(eq, cu_bool_t, void *, void *);
-    cu_clop(hash, cu_hash_t, void *);
+    cu_clop(eq, cu_bool_t, void const *, void const *);
+    cu_clop(hash, cu_hash_t, void const *);
     cucon_hmap_node_t *table;
     int size;
     cu_hash_t mask;
     struct cucon_hmap_node_s tail;
 };
 
-struct cucon_hmap_it_s
+void cucon_hmap_cct(cucon_hmap_t hm,
+		    cu_clop(eq, cu_bool_t, void const *, void const *),
+		    cu_clop(hash, cu_hash_t, void const *));
+void cucon_hmap_dct_free(cucon_hmap_t);
+
+/*!Return a hash set over objects with equality defined by \a eq and hash
+ * function \a hash. */
+cucon_hmap_t cucon_hmap_new(cu_clop(eq, cu_bool_t, void const *, void const *),
+			    cu_clop(hash, cu_hash_t, void const *));
+
+/*!Erase all entries in \a hash. */
+void cucon_hmap_clear(cucon_hmap_t);
+
+/*!If an object equal to \a key is in \a map, return its value slot, else
+ * return \c NULL. */
+void *cucon_hmap_find_mem(cucon_hmap_t map, void const *key);
+
+void *cucon_hmap_find_ptr(cucon_hmap_t map, void const *key);
+
+/*!If \a key is in \a map, return false and set \c *\a slot to its value
+ * slot, else return true and associate \a key with \a slot_size bytes
+ * of value slot assigned to \c *\a slot. */
+cu_bool_t cucon_hmap_insert_mem(cucon_hmap_t map, void const *key,
+				size_t slot_size, cu_ptr_ptr_t slot);
+
+void *cucon_hmap_erase(cucon_hmap_t map, void const *key);
+
+void *cucon_hmap_erase_keep_capacity(cucon_hmap_t map, void const *key);
+
+void cucon_hmap_set_capacity(cucon_hmap_t, int);
+
+CU_SINLINE size_t
+cucon_hmap_size(cucon_hmap_t map) { return map->size; }
+
+CU_SINLINE cu_bool_t
+cucon_hmap_is_empty(cucon_hmap_t map)
+{ return map->size != 0; }
+
+cu_bool_t cucon_hmap_conj_keys(cucon_hmap_t map,
+			       cu_clop(f, cu_bool_t, void const *));
+
+cu_bool_t cucon_hmap_conj_mem(cucon_hmap_t map,
+			      cu_clop(f, cu_bool_t, void const *, void *));
+
+#if 0
+struct cucon_hmap_itr_s
 {
     cucon_hmap_node_t *node_head;
     cucon_hmap_node_t node;
 };
-
-void		cucon_hmap_cct(cucon_hmap_t hm,
-			     cu_clop(eq, cu_bool_t, void *, void *),
-			     cu_clop(hash, cu_hash_t, void *));
-void		cucon_hmap_dct_free(cucon_hmap_t);
-
-/* Return a hash set over objects with equality defined by 'equal' and
- * hash codes created by 'hash'. */
-cucon_hmap_t	cucon_hmap_new(cu_clop(eq, cu_bool_t, void *, void *),
-			     cu_clop(hash, cu_hash_t, void *));
-
-/* Erase all entries in the hash set. */
-void		cucon_hmap_clear(cucon_hmap_t);
-
-/* If an object equal to 'key' is in 'hs', return its value slot, else
- * retrun NULL. */
-void *		cucon_hmap_find_mem(cucon_hmap_t hs, void *key);
-
-void *		cucon_hmap_find_ptr(cucon_hmap_t hs, void *key);
-
-/* If 'key' is in 'hs', return false and set '*slot' to its value
- * slot, else return true and associate 'key' with 'slot_size' bytes
- * of value slot assigned to '*slot'. */
-cu_bool_t	cucon_hmap_insert_mem(cucon_hmap_t hs, void *key,
-				    size_t slot_size, cu_ptr_ptr_t slot);
-
-void *		cucon_hmap_erase(cucon_hmap_t hs, void *key);
-
-void		cucon_hmap_set_capacity(cucon_hmap_t, int);
-
-#define		cucon_hmap_size(hs) ((size_t const)(hs)->size)
-#define		cucon_hmap_is_empty(hs) (cucon_hmap_size(hs) == 0)
-
-cu_bool_t cucon_hmap_conj_mem(cucon_hmap_t map,
-			     cu_clop(cb, cu_bool_t, void const *, void *));
-
-cucon_hmap_it_t	cucon_hmap_begin(cucon_hmap_t);
-cucon_hmap_it_t	cucon_hmap_end(cucon_hmap_t);
-#define		cucon_hmap_it_eq(it1, it2) ((it1)->node == (it2)->node)
-cucon_hmap_it_t	cucon_hmap_it_next(cucon_hmap_it_t it);
-
-/*typedef struct cucon_hmap_it_t {
-    cucon_hmap_ths;
-    int idx;
-    void *entry;
-};
-
-hash_set_iterator* cucon_hmap_begin(cucon_hmap_t hs);
-hash_set_iterator* cucon_hmap_end(cucon_hmap_t hs);
-int hsi_equals(cucon_hmap_it_t *hi, cucon_hmap_it_t *hi1);
-void cucon_hmap_next(hash_set_iterator *hi);*/
+#endif
 
 /*!@}*/
 CU_END_DECLARATIONS

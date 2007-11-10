@@ -17,15 +17,16 @@
 
 #include <cucon/fwd.h>
 #include <cucon/hset.h>
+#include <cu/test.h>
 #include <stdlib.h>
 #include <assert.h>
 
-cu_clop_def(eq, cu_bool_t, void *p0, void *p1)
+cu_clop_def(eq, cu_bool_t, void const *p0, void const *p1)
 {
     return p0 == p1;
 }
 
-cu_clop_def(hash, cu_hash_t, void *p)
+cu_clop_def(hash, cu_hash_t, void const *p)
 {
     return (cu_hash_t)p >> 1;
 }
@@ -40,17 +41,12 @@ main()
 
     hs = cucon_hset_new(eq, hash);
     for (i = 0; i < n_ins; ++i)
-	if (cucon_hset_insert(hs, (void*)i) != NULL)
-	    assert(!"unexpected degeneracy");
+	if (!cucon_hset_insert(hs, (void*)i))
+	    cu_test_bugf("unexpected degeneracy");
     for (i = 0; i < n_ins; i += 2)
-	if (cucon_hset_erase(hs, (void*)i) != (void*)i)
-	    assert(!"lost value");
-    for (i = 0; i < n_ins; ++i) {
-	void *key = cucon_hset_find(hs, (void*)i);
-	if (i % 2)
-	    assert(key == (void*)i);
-	else
-	    assert(key == NULL);
-    }
-    return 0;
+	if (!cucon_hset_erase(hs, (void*)i))
+	    cu_test_bugf("lost value");
+    for (i = 0; i < n_ins; ++i)
+	cu_test_assert(cucon_hset_contains(hs, (void*)i) == i % 2);
+    return cu_test_bug_count()? 2 : 0;
 }

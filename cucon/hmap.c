@@ -41,8 +41,8 @@
 
 void
 cucon_hmap_cct(cucon_hmap_t map,
-	     cu_clop(eq, cu_bool_t, void *, void *),
-	     cu_clop(hash, cu_hash_t, void *))
+	       cu_clop(eq, cu_bool_t, void const *, void const *),
+	       cu_clop(hash, cu_hash_t, void const *))
 {
     map->table = cu_galloc(sizeof(void*)*(CUCON_HMAP_CAPACITY_INIT+1));
     memset(map->table, 0, sizeof(void*)*CUCON_HMAP_CAPACITY_INIT);
@@ -54,8 +54,8 @@ cucon_hmap_cct(cucon_hmap_t map,
 }
 
 cucon_hmap_t
-cucon_hmap_new(cu_clop(eq, cu_bool_t, void *, void *),
-	     cu_clop(hash, cu_hash_t, void *))
+cucon_hmap_new(cu_clop(eq, cu_bool_t, void const *, void const *),
+	       cu_clop(hash, cu_hash_t, void const *))
 {
     cucon_hmap_t map = cu_galloc(sizeof(struct cucon_hmap_s));
     cucon_hmap_cct(map, eq, hash);
@@ -77,7 +77,7 @@ cucon_hmap_clear(cucon_hmap_t map)
 }
 
 void *
-cucon_hmap_find_mem(cucon_hmap_t map, void *o)
+cucon_hmap_find_mem(cucon_hmap_t map, void const *o)
 {
     cu_hash_t hc;
     cucon_hmap_node_t node;
@@ -92,7 +92,7 @@ cucon_hmap_find_mem(cucon_hmap_t map, void *o)
 }
 
 void *
-cucon_hmap_find_ptr(cucon_hmap_t map, void *o)
+cucon_hmap_find_ptr(cucon_hmap_t map, void const *o)
 {
     void **p = cucon_hmap_find_mem(map, o);
     if (p)
@@ -102,8 +102,8 @@ cucon_hmap_find_ptr(cucon_hmap_t map, void *o)
 }
 
 cu_bool_fast_t
-cucon_hmap_insert_mem(cucon_hmap_t map, void *key,
-		    size_t slot_size, cu_ptr_ptr_t slot)
+cucon_hmap_insert_mem(cucon_hmap_t map, void const *key,
+		      size_t slot_size, cu_ptr_ptr_t slot)
 {
     cu_hash_t idx = cu_call(map->hash, key) & map->mask;
     cucon_hmap_node_t node;
@@ -152,7 +152,7 @@ cucon_hmap_multi_insert_node(cucon_hmap_t map, cucon_hmap_node_t newnode)
 }
 
 void *
-cucon_hmap_erase(cucon_hmap_t map, void *key)
+cucon_hmap_erase(cucon_hmap_t map, void const *key)
 {
     cu_hash_t idx = cu_call(map->hash, key) & map->mask;
     cucon_hmap_node_t *node = &map->table[idx];
@@ -163,6 +163,23 @@ cucon_hmap_erase(cucon_hmap_t map, void *key)
 	    if (map->size-- < (map->mask>>2) &&
 		map->mask > CUCON_HMAP_CAPACITY_MIN)
 		cucon_hmap_set_capacity(map, (map->mask+1)/2);
+	    return ret;
+	}
+	node = &(*node)->next;
+    }
+    return NULL;
+}
+
+void *
+cucon_hmap_erase_keep_capacity(cucon_hmap_t map, void const *key)
+{
+    cu_hash_t idx = cu_call(map->hash, key) & map->mask;
+    cucon_hmap_node_t *node = &map->table[idx];
+    while (*node) {
+	if (cu_call(map->eq, (*node)->key, key)) {
+	    void *ret = CU_ALIGNED_PTR_END(*node);
+	    *node = (*node)->next;
+	    --map->size;
 	    return ret;
 	}
 	node = &(*node)->next;
@@ -193,8 +210,25 @@ cucon_hmap_set_capacity(cucon_hmap_t map, int newsize)
 }
 
 cu_bool_t
+cucon_hmap_conj_keys(cucon_hmap_t map,
+		     cu_clop(f, cu_bool_t, void const *))
+{
+    size_t N = map->mask + 1;
+    size_t n;
+    for (n = 0; n < N; ++n) {
+	cucon_hmap_node_t node = map->table[n];
+	while (node) {
+	    if (!cu_call(f, node->key))
+		return cu_false;
+	    node = node->next;
+	}
+    }
+    return cu_true;
+}
+
+cu_bool_t
 cucon_hmap_conj_mem(cucon_hmap_t map,
-		  cu_clop(cb, cu_bool_t, void const *, void *))
+		    cu_clop(cb, cu_bool_t, void const *, void *))
 {
     size_t N = map->mask + 1;
     size_t n;
@@ -209,10 +243,11 @@ cucon_hmap_conj_mem(cucon_hmap_t map,
     return cu_true;
 }
 
-cucon_hmap_it_t
+#if 0
+cucon_hmap_itr_t
 cucon_hmap_begin(cucon_hmap_t map)
 {
-    cucon_hmap_it_t it;
+    cucon_hmap_itr_t it;
     it.node_head = map->table;
     while (!*it.node_head)
 	++it.node_head;
@@ -220,17 +255,17 @@ cucon_hmap_begin(cucon_hmap_t map)
     return it;
 }
 
-cucon_hmap_it_t
+cucon_hmap_itr_t
 cucon_hmap_end(cucon_hmap_t map)
 {
-    cucon_hmap_it_t it;
+    cucon_hmap_itr_t it;
     it.node_head = map->table + (map->mask+1);
     it.node = NULL;
     return it;
 }
 
-cucon_hmap_it_t
-cucon_hmap_next(cucon_hmap_it_t it)
+cucon_hmap_itr_t
+cucon_hmap_itr_next(cucon_hmap_itr_t it)
 {
     if (!(it.node = it.node->next)) {
 	++it.node_head;
@@ -239,3 +274,4 @@ cucon_hmap_next(cucon_hmap_it_t it)
     }
     return it;
 }
+#endif

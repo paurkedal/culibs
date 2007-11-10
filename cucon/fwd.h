@@ -29,6 +29,7 @@ typedef struct cucon_digraph_s		*cucon_digraph_t;	/* digraph.h */
 typedef struct cucon_digraph_vertex_s	*cucon_digraph_vertex_t;/* digraph.h */
 typedef struct cucon_digraph_edge_s	*cucon_digraph_edge_t;	/* digraph.h */
 typedef struct cucon_hmap_s		*cucon_hmap_t;		/* hmap.h */
+typedef struct cucon_hset_s		*cucon_hset_t;		/* hset.h */
 typedef struct cucon_list_s		*cucon_list_t;		/* list.h */
 typedef struct cucon_listnode_s		*cucon_listnode_t;	/* list.h */
 typedef struct cucon_pcmap_s		*cucon_pcmap_t;		/* pcmap.h */
