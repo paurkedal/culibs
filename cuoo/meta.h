@@ -102,6 +102,8 @@ typedef enum {
 #define CUEXP_VARMETA_WSIZE_WIDTH 2
 #define CUEXP_VARMETA_WSIZE_MASK \
     CUEX_META_MASK(CUEXP_VARMETA_WSIZE_SHIFT, CUEXP_VARMETA_WSIZE_WIDTH)
+#define cuexP_varmeta_wsize(meta) \
+    ((meta & CUEXP_VARMETA_WSIZE_MASK) >> CUEXP_VARMETA_WSIZE_SHIFT)
 
 
 /* Operators

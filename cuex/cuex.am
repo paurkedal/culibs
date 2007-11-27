@@ -65,7 +65,8 @@ cuex_sources = \
 	cuex/tuple.c \
 	cuex/tvar.c \
 	cuex/type.c \
-	cuex/unfolded_fv_sets.c
+	cuex/unfolded_fv_sets.c \
+	cuex/var.c
 
 cuex_built_sources = \
 	cuex/oprdefs.c

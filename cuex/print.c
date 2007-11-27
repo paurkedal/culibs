@@ -92,6 +92,15 @@ cuex_print_ex(cuex_t ex, FILE *out)
 	default:
 	    if (cuex_is_rvarmeta(meta))
 		fprintf(out, "μ%u", (unsigned int)cuex_varmeta_index(meta));
+	    else if (cuex_is_xvarmeta(meta)) {
+		cuex_xvarops_t ops;
+		ops = cucon_umap_find_ptr(&cuexP_xvarops,
+					  cuex_xvarmeta_subkind(meta));
+		if (ops)
+		    ops->print(ex, out);
+		else
+		    fprintf(out, "__xvar_%p", ex);
+	    }
 	    else if (cuex_is_varmeta(meta)) {
 		char *prefix;
 		if (cuex_is_tvarmeta(meta) && cuex_tvar_is_type(ex))

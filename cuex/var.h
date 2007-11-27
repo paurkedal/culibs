@@ -46,9 +46,9 @@ typedef enum {
     cuex_varkind_tpvar,
     cuex_varkind_fpvar,
     cuex_varkind_pvar,
-    cuex_varkind_bvar,
     cuex_varkind_ivar,
-    cuex_varkind_rvar
+    cuex_varkind_rvar,
+    cuex_varkind_xvar,
 } cuex_varkind_t;
 
 /* Variable meta format: (index, kind, qcode, wsize, 2'b10) */
@@ -105,6 +105,12 @@ typedef enum {
       | CUEXP_VARMETA_KIND_MASK						\
       | CUEXP_VARMETA_QCODE_MASK ) & (meta))				\
      == cuex_varmeta_kqi(kind, qcode, 0))
+
+#define cuex_is_varmeta_ki(meta, kind, index)				\
+    ((( CUEXP_VARMETA_SELECT_MASK					\
+      | CUEXP_VARMETA_KIND_MASK						\
+      | CUEXP_VARMETA_INDEX_MASK ) & (meta))				\
+     == cuex_varmeta_kqi(kind, 0, index))
 
 /* Select on kind, match any (qcode, index, wsize) */
 #define cuex_is_varmeta_k(meta, kind)					\
@@ -227,6 +233,61 @@ CU_SINLINE cuex_var_t cuex_rvar(unsigned int index)
 #define cuex_rvar_index(var) cuex_ivar_index(var)
 
 /*!@}*/
+
+typedef struct cuex_xvarops_s *cuex_xvarops_t;
+struct cuex_xvarops_s
+{
+    void (*print)(void *, FILE *);
+};
+
+extern struct cucon_umap_s cuexP_xvarops;
+
+/*!Compose a meta for an extended variable kind from the given quantisation,
+ * subkind and slot size.  The slot size \a wsize is in words
+ * (\ref cu_word_t). */
+#define cuex_xvarmeta(qcode, subkind, wsize) \
+    cuex_varmeta_kqis(cuex_varkind_xvar, qcode, subkind, wsize)
+
+/*!Call this at startup to register new variable subkinds.  This checks that \a
+ * subkind is unique and registers the callbacks \a ops for variables of this
+ * kind.  It is up to the client to ensure that \a subkind is unique across the
+ * codebase.  Alternatively, pass \a subkind = \c (cuex_meta_t)(-1) to
+ * dynamically allocate a free subkind.  The registered subkind is returned.
+ *
+ * This shall be called from the main thread. */
+cuex_meta_t cuex_register_xvarkind(cuex_meta_t subkind, unsigned int wsize,
+				   cuex_xvarops_t ops);
+
+/*!True iff \a meta is describes an extended variable kind. */
+CU_SINLINE cu_bool_t
+cuex_is_xvarmeta(meta)
+{ return cuex_is_varmeta_k(meta, cuex_varkind_xvar); }
+
+/*!True iff \a meta is an extended variable kind meta of with the given subkind. */
+CU_SINLINE cu_bool_t
+cuex_is_xvarmeta_k(meta, subkind)
+{ return cuex_is_varmeta_ki(meta, cuex_varkind_xvar, subkind); }
+
+/*!True iff \a meta is an extended variable kind meta of the given subkind and
+ * quantification. */
+CU_SINLINE cu_bool_t
+cuex_is_xvarmeta_kq(meta, subkind, qcode)
+{ return cuex_is_varmeta_kqi(meta, cuex_varkind_xvar, qcode, subkind); }
+
+/*!Extracts the subkind of \a meta which is assumed to describe an extended
+ * variable kind. */
+CU_SINLINE cuex_meta_t
+cuex_xvarmeta_subkind(cuex_meta_t meta)
+{ return cuex_varmeta_index(meta); }
+
+/*!Allocate a variable of extended kind with meta \a xvarmeta. */
+CU_SINLINE cuex_t
+cuex_xvar_alloc(cuex_meta_t xvarmeta)
+{
+    return cuexP_oalloc(xvarmeta,
+			cuexP_varmeta_wsize(xvarmeta)*sizeof(cu_word_t));
+}
+
 /*!@}*/
 CU_END_DECLARATIONS
 

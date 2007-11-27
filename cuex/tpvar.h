@@ -32,8 +32,8 @@ CU_BEGIN_DECLARATIONS
  *
  * A typical use for this is to represent definitions of the form
  * <pre>
- * α list = nil | cons of α × α list   (a type)
- * map ∈ (α → β → β) → α list → β → β  (a function)
+ * α list = nil | cons of α × α list     (a type)
+ * image : (α → β → β) → α list → β → β  (a function)
  * </pre>
  * where the greek letters denote universally quantised type parameters.
  *

@@ -27,6 +27,7 @@ void cuexP_labelling_init(void);
 void cuexP_semilattice_init(void);
 void cuexP_set_init(void);
 void cuexP_print_init(void);
+void cuexP_var_init(void);
 void cuex_oprdefs_init(void);
 
 void
@@ -43,6 +44,7 @@ cuex_init()
     cugra_init();
     cuexP_ex_init();
     cuex_oprdefs_init();
+    cuexP_var_init();
     cuexP_atree_init();
     cuexP_monoid_init();
     cuexP_labelling_init();

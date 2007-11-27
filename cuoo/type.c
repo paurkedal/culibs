@@ -233,8 +233,7 @@ cuex_key_size(cuex_meta_t meta, void *obj)
     case cuex_meta_kind_other:
 	cu_debug_assert((meta & CUEXP_VARMETA_SELECT_MASK) ==
 			CUEXP_VARMETA_SELECT_VALUE);
-	key_size = ((meta & CUEXP_VARMETA_WSIZE_MASK)
-		    >> CUEXP_VARMETA_WSIZE_SHIFT)*sizeof(cu_word_t);
+	key_size = cuexP_varmeta_wsize(meta)*sizeof(cu_word_t);
 	break;
     default:
 	cu_debug_unreachable();
