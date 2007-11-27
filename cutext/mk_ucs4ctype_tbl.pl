@@ -2,6 +2,11 @@
 use strict;
 use POSIX;
 
+# IMPORTANT. If $unicode_max or $blk_size is changed, ucs4ctype.c must be updated!
+my $unicode_max = 0x1fffff;
+my $blk_size = 512;
+my $blk_cnt = ($unicode_max + 1)/$blk_size;
+
 my $unicode_data = "UnicodeData.txt";
 my @general_category_arr;
 
@@ -51,12 +56,7 @@ if (0) {
     print "\n};\n";
 }
 else {
-    #
-    # IMPORTANT. If $blk_size is changed, ucs4ctype.c must be updated!
-    #
-    my $blk_size = 512;
     my $char_cnt = $#general_category_arr + 1;
-    my $blk_cnt = POSIX::ceil($char_cnt/$blk_size);
     my $nonuniform_cnt = 0;
     my @is_nonuniform_arr;
     for (my $i_blk = 0; $i_blk < $blk_cnt; ++$i_blk) {
