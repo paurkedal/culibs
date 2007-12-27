@@ -7,11 +7,6 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([nostdinc no-define dist-bzip2 subdir-objects foreign])
 AM_CONFIG_HEADER([config_raw.h])
 
-AC_ARG_VAR([ACLOCAL_FLAGS], [Flags to pass to aclocal.])
-AC_ARG_VAR([ACLOCAL_FLAGS])
-ACLOCAL_AMFLAGS="-I aclocal $ACLOCAL_FLAGS"
-AC_SUBST([ACLOCAL_AMFLAGS])
-
 AM_PROG_CC_C_O
 AC_PROG_CXX
 AM_PROG_LIBTOOL

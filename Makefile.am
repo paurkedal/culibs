@@ -11,6 +11,7 @@ htmldir = $(pkgdocdir)/html
 # Common Flags
 #
 common_ldflags = -release $(PACKAGE_VERSION)
+ACLOCAL_AMFLAGS = -I aclocal
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_builddir) \
 	$(BDWGC_CFLAGS) $(FFI_CFLAGS)
 
