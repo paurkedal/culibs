@@ -162,7 +162,7 @@ print_sref_also(cu_sref_t sref, char const *errorkind, FILE *out)
     while ((sref = cu_sref_chain_tail(sref))) {
 	cu_sref_fprint(sref, out);
 	fputs(errorkind, out);
-	fputs(": Same expression occurs here.", out);
+	fputs(": As above.\n", out);
     }
 }
 

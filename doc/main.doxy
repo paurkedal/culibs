@@ -59,7 +59,7 @@ In addition to the OS libraries, you need
 
 <table class="normal">
   <tr>
-    <th>libary (components)</th>
+    <th>library (components)</th>
     <th>internal deps</th>
     <th>external deps</th>
   </tr>

@@ -78,14 +78,6 @@ typedef unsigned long cucon_pmap_hash_t;
 /* Implementation
  * ============== */
 
-typedef struct key_finaliser_args_s *key_finaliser_args_t;
-struct key_finaliser_args_s
-{
-    cucon_pmap_t pmap;				/* the pmap */
-    GC_finalization_proc  key_finaliser_fn;	/* the old finaliser fn */
-    void		 *key_finaliser_cd;	/* the old finaliser CD */
-};
-
 void
 cucon_umap_cct(cucon_umap_t umap)
 {
@@ -239,7 +231,8 @@ set_capacity(cucon_umap_t umap, size_t new_cap)
 
     new_arr = cu_galloc(sizeof(cucon_pmap_node_t)*(new_cap + 1));
 
-    /* Before calling this function, 'GC_invoke_finalizers' was
+    /* 2007-12-19 Keeping old comment for reference:
+     * Before calling this function, 'GC_invoke_finalizers' was
      * called, but to be really sure, check if 'cu_galloc' decided to
      * invoke more invokations of 'key_finaliser' on 'umap'.  */
     if (old_cap != umap->mask + 1) {

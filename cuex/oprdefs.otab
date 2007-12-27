@@ -40,7 +40,7 @@ reserve cuexP_og_ltree		[0x000 .! 0x001]
 reserve cuex_og_semilattice	[0x000 .! 0x008]
 reserve cuex_og_hole		[0 .! 1]
 reserve cuex_og_binder		[0x000 .! 0x010]
-reserve cuex_og_scoping		[0x000 .! 0x010]
+reserve cuex_og_scoping		[0x000 .! 0x008]
 reserve cuex_og_ta		[0x000 .! 0x010]
 
 reserve cuex_og_metaregular	[0x00 .! 0x10]

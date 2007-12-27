@@ -161,6 +161,16 @@ CU_SINLINE cu_bool_t
 cucon_pmap_erase_keep_cap(cucon_pmap_t map, void const *key)
 { return cucon_umap_erase_keep_cap(&map->impl, (uintptr_t)key); }
 
+/*!\copydoc cucon_umap_pop_any_node */
+CU_SINLINE cucon_pmap_node_t
+cucon_pmap_pop_any_node(cucon_pmap_t map)
+{ return (cucon_pmap_node_t)cucon_umap_pop_any_node(&map->impl); }
+
+/*!\copydoc cucon_umap_pop_any_key */
+CU_SINLINE void const *
+cucon_pmap_pop_any_key(cucon_pmap_t map)
+{ return (void const *)cucon_umap_pop_any_key(&map->impl); }
+
 /*!\copydoc cucon_umap_update_cap */
 CU_SINLINE void cucon_pmap_update_cap(cucon_pmap_t map)
 { cucon_umap_update_cap(&map->impl); }
