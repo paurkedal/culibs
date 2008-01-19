@@ -79,6 +79,35 @@ cu_wordarr_hash_bj(size_t count, cu_word_t *arr, cu_hash_t init)
 }
 
 cu_hash_t
+cu_wordarr_hash_noinit_bj(size_t count, cu_word_t *arr)
+{
+    uint32_t a, b, c;
+    a = 0xbe5eeded;
+    b = --count;
+    c = *arr++;
+    while (count > 3) {
+	a += arr[0];
+	b += arr[1];
+	c += arr[2];
+	CU_HASH_BJMIX32_STEP(a, b, c);
+	count -= 3;
+	arr += 3;
+    }
+    switch (count) {
+	case 3:
+	    c += arr[2];
+	case 2:
+	    b += arr[1];
+	case 1:
+	    a += arr[0];
+	    CU_HASH_BJMIX32_FINAL(a, b, c);
+	case 0:
+	    break;
+    }
+    return c;
+}
+
+cu_hash_t
 cu_1word_hash_bj(cu_word_t d0, cu_hash_t init)
 {
     uint32_t a, b, c;
@@ -133,6 +162,31 @@ cu_wordarr_hash_bj(size_t count, cu_word_t *arr, cu_hash_t init)
 
     n = count;
     a = b = init;
+    c = INT64_C(0x9e3779b97f4a7c13);
+    while (n >= 3) {
+	a += arr[0];
+	b += arr[1];
+	c += arr[2];
+	CU_HASH_BJMIX64(a, b, c);
+	arr += 3;
+	n -= 3;
+    }
+    c += count << 3;
+    switch (n) {
+	case 2: b += arr[1];
+	case 1: a += arr[0];
+    }
+    CU_HASH_BJMIX64(a, b, c);
+    return c;
+}
+
+cu_hash_t
+cu_wordarr_hash_noinit_bj(size_t count, cu_word_t *arr)
+{
+    uint64_t a, b, c, n;
+
+    n = --count;
+    a = b = *arr++;
     c = INT64_C(0x9e3779b97f4a7c13);
     while (n >= 3) {
 	a += arr[0];

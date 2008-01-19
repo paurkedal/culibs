@@ -149,7 +149,7 @@ cucon_poelt_t	cucon_poelt_of_data(void *slot);
 
 /* void		cucon_po_erase(cucon_poelt_t e); */
 
-/*!If \a e1 ≺ \a e0, return false, else force the constraint \a e0 ≺ \a e1
+/*!If \a e1 ≼ \a e0, return false, else force the constraint \a e0 ≺ \a e1
  * and return true. */
 cu_bool_t	cucon_po_constrain_prec(cucon_po_t po,
 					cucon_poelt_t e0, cucon_poelt_t e1);

@@ -89,7 +89,13 @@ void cugra_graph_merge(cugra_graph_t G_dst, cugra_graph_t G_src);
 CU_SINLINE cu_bool_t cugra_graph_is_directed(cugra_graph_t G)
 { return !(G->options & cugra_opt_undirected); }
 
-/*!Insert a vertex into \a G and return a referece to it. */
+/*!Construct and insert \a v into \a G. This variant is useful when \a v is
+ * inherited in another struct, otherwise see \ref cugra_graph_vertex_new. */
+void cugra_graph_vertex_init(cugra_graph_t G, cugra_vertex_t v);
+
+/*!Insert a vertex into \a G and return a referece to it. If you need to store
+ * data on the vertex, use \ref cugra_graph_vertex_new_mem or \ref
+ * cugra_graph_vertex_new_ptr. */
 cugra_vertex_t cugra_graph_vertex_new(cugra_graph_t G);
 
 /*!Insert a vertex into \a G with slot size \a size and return it. */

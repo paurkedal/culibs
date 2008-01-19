@@ -215,7 +215,9 @@ cucon_po_insert_ptr(cucon_po_t po, void *ptr)
 /* cucon_po_prec, cucon_po_preceq
  * ------------------------------ */
 
-/* if e0 < e1, return true, else lower span of e1 is accumulated in lspan1 */
+/* Spearches downwards from e1 for e0 and returns true iff it is found.
+ * Visited elements are inserted into lspan1, so if e0 ≮ e1, then lspan1 will
+ * contain the lower span of e1 upon exit. */
 static cu_bool_t
 po_prec_collect_lspan(cucon_poelt_t e0, cucon_poelt_t e1, cucon_pmap_t lspan1)
 {
@@ -235,7 +237,9 @@ po_prec_collect_lspan(cucon_poelt_t e0, cucon_poelt_t e1, cucon_pmap_t lspan1)
     return cu_false;
 }
 
-/* if e0 < e1, return true, else upper span of e0 is accumulated in uspan0 */
+/* Searches upwards from e0 for e1 and returns true iff it is found.  Visited
+ * elements are inserted into uspan0, so if e0 ≮ e1, then uspan0 will contain
+ * the upper span of e0 upon exit. */
 static cu_bool_t
 po_prec_collect_uspan(cucon_poelt_t e0, cucon_poelt_t e1, cucon_pmap_t uspan0)
 {
@@ -340,9 +344,9 @@ cucon_po_constrain_prec(cucon_po_t po, cucon_poelt_t e0, cucon_poelt_t e1)
     struct cucon_pmap_s lspan0, uspan1;
     if (e0 == e1)
 	return cu_false;
-#if 0
     if (cucon_po_prec(e0, e1))
 	return cu_true;
+#if 0
     cucon_pmap_cct(&lspan0);
     if (po_prec_collect_lspan(e1, e0, &lspan0))
 	return cu_false;
@@ -350,8 +354,6 @@ cucon_po_constrain_prec(cucon_po_t po, cucon_poelt_t e0, cucon_poelt_t e1)
     cucon_pmap_cct(&uspan1);
     po_for_succeq_remove_preds_in_pmap(e1, &lspan0, &uspan1);
 #else
-    if (cucon_po_prec(e0, e1))
-	return cu_true;
     cucon_pmap_cct(&uspan1);
     if (po_prec_collect_uspan(e1, e0, &uspan1))
 	return cu_false;

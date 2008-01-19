@@ -59,6 +59,12 @@ cct_arc(cugra_arc_t a, cugra_vertex_t v_tail, cugra_vertex_t v_head)
     a->adj[cugra_direction_in].vertex = v_tail;
 }
 
+void
+cugra_graph_vertex_init(cugra_graph_t G, cugra_vertex_t v)
+{
+    cct_vertex(G, v);
+}
+
 cugra_vertex_t
 cugra_graph_vertex_new(cugra_graph_t G)
 {
