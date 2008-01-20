@@ -8,6 +8,7 @@ cucon_headers = \
 	cucon/digraph.h \
 	cucon/frame.h \
 	cucon/hmap.h \
+	cucon/hzmap.h \
 	cucon/hset.h \
 	cucon/list.h \
 	cucon/logchain.h \
@@ -39,6 +40,7 @@ cucon_sources = \
 	cucon/digraph.c \
 	cucon/frame.c \
 	cucon/hmap.c \
+	cucon/hzmap.c \
 	cucon/hset.c \
 	cucon/list.c \
 	cucon/logchain.c \
@@ -64,6 +66,7 @@ cucon_doxyfiles = \
 cucon_check_programs = \
 	cucon/bitvect_t0 \
 	cucon/frame_t0 \
+	cucon/hzmap_t0 \
 	cucon/hset_t0 \
 	cucon/list_t1 \
 	cucon/logchain_t0 \
@@ -90,6 +93,8 @@ cucon_bitvect_t0_SOURCES = cucon/bitvect_t0.c
 cucon_bitvect_t0_LDADD = libcubase.la
 cucon_frame_t0_SOURCES = cucon/frame_t0.c
 cucon_frame_t0_LDADD = libcubase.la
+cucon_hzmap_t0_SOURCES = cucon/hzmap_t0.c
+cucon_hzmap_t0_LDADD = libcubase.la
 cucon_hset_t0_SOURCES = cucon/hset_t0.c
 cucon_hset_t0_LDADD = libcubase.la
 cucon_list_t1_SOURCES = cucon/list_t1.c
