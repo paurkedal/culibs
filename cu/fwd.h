@@ -117,6 +117,13 @@ typedef uintptr_t cu_word_t;
 #define CU_WORD_WIDTH CUCONF_WIDTHOF_INTPTR_T
 #define CU_WORD_SIZE CUCONF_SIZEOF_INTPTR_T
 #define CU_WORD_C(x) ((cu_word_t)x##UL)
+#define CU_PRIdWORD PRIdPTR
+#define CU_PRIuWORD PRIuPTR
+#define CU_PRIxWORD PRIxPTR
+#define CU_SCNdWORD SCNdPTR
+#define CU_SCNiWORD SCNiPTR
+#define CU_SCNuWORD SCNuPTR
+#define CU_SCNxWORD SCNxPTR
 
 /* Missing from stdint.h */
 #define CU_UINTPTR_C(x) ((uintptr_t)x##UL)

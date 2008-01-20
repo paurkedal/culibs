@@ -45,9 +45,11 @@ cu_diag_define_format_key(char key, cu_diag_format_fn_t fn)
 void
 cu_vfprintf(FILE *file, char const* msg, va_list va)
 {
+    char fmt_buf[8] = "%";
     int i;
     for (i = 0; msg[i]; ++i) {
 	if (msg[i] == '%') {
+	    char *fmt_ptr = fmt_buf + 1;
 	    ++i;
 	    switch (msg[i]) {
 		cu_diag_format_fn_t fmt_fn;
@@ -59,17 +61,24 @@ cu_vfprintf(FILE *file, char const* msg, va_list va)
 		print(obj, file);
 		break;
 	    }
-	    case 'l':
+	    case 'h': case 'l':
+		if (msg[i + 1] == msg[i])
+		    *fmt_ptr++ = msg[i++];
+		/* fall though */
+	    case 'j': case 'z': case 't':
+		*fmt_ptr++ = msg[i];
 		switch (msg[++i]) {
+		case 'd': case 'i': case 'u': case 'o': case 'x':
+		    *fmt_ptr++ = msg[i];
+		    *fmt_ptr++ = 0;
+		    fprintf(file, fmt_buf, va_arg(va, long));
+		    break;
 		case 'c':
-		    fprintf(file, "%lc", va_arg(va, int));
-		    break;
-		case 'd':
-		    fprintf(file, "%ld", va_arg(va, long));
-		    break;
-		case 'x':
-		    fprintf(file, "%lx", va_arg(va, long));
-		    break;
+		    if (msg[i - 1] == 'l') {
+			fprintf(file, "%lc", va_arg(va, int));
+			break;
+		    }
+		    /* fall through */
 		default:
 		    fputs("#[bad_formatting_key]", file);
 		    break;

@@ -75,6 +75,10 @@ void cuP_test_bugf(char const *file, int line, char const *msg, ...);
 
 #define cu_test_assert_ptr_eq(LHS, RHS) \
     cu_test_assert_binary(cu_test_op_eq, void *, "p", LHS, RHS)
+#define cu_test_assert_size_eq(LHS, RHS) \
+    cu_test_assert_binary(cu_test_op_eq, size_t, "zd", LHS, RHS)
+#define cu_test_assert_word_eq(LHS, RHS) \
+    cu_test_assert_binary(cu_test_op_eq, cu_word_t, CU_PRIxWORD, LHS, RHS)
 
 /*!@}*/
 CU_END_DECLARATIONS
