@@ -63,8 +63,8 @@ cu_hash_rot(cu_hash_t x, int k)
 
 #define cu_hash_mix cu_hash_mix5
 
-cu_hash_t cu_wordarr_hash_bj(size_t count, cu_word_t *arr, cu_hash_t init);
-cu_hash_t cu_wordarr_hash_noinit_bj(size_t count, cu_word_t *arr);
+cu_hash_t cu_wordarr_hash_bj(size_t cnt, cu_word_t const *arr, cu_hash_t init);
+cu_hash_t cu_wordarr_hash_noinit_bj(size_t count, cu_word_t const *arr);
 cu_hash_t cu_1word_hash_bj(cu_word_t d0, cu_hash_t init);
 cu_hash_t cu_2word_hash_bj(cu_word_t d0, cu_word_t d1, cu_hash_t init);
 

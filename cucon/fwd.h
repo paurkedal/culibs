@@ -31,6 +31,8 @@ typedef struct cucon_digraph_edge_s	*cucon_digraph_edge_t;	/* digraph.h */
 typedef struct cucon_hmap_s		*cucon_hmap_t;		/* hmap.h */
 typedef struct cucon_hzmap_s		*cucon_hzmap_t;		/* hzmap.h */
 typedef struct cucon_hzmap_itr_s	*cucon_hzmap_itr_t;	/* hzmap.h */
+typedef struct cucon_hzset_s		*cucon_hzset_t;		/* hzset.h */
+typedef struct cucon_hzset_itr_s	*cucon_hzset_itr_t;	/* hzset.h */
 typedef struct cucon_hset_s		*cucon_hset_t;		/* hset.h */
 typedef struct cucon_list_s		*cucon_list_t;		/* list.h */
 typedef struct cucon_listnode_s		*cucon_listnode_t;	/* list.h */

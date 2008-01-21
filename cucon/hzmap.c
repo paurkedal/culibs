@@ -139,7 +139,8 @@ cucon_hzmap_prepare_insert(map_t map, size_t count)
 }
 
 cu_bool_t
-cucon_hzmap_insert(map_t map, void *key, size_t node_size, node_t *node_out)
+cucon_hzmap_insert(map_t map, void const *key,
+		   size_t node_size, node_t *node_out)
 {
     cu_hash_t index;
     node_t *p;
@@ -165,7 +166,7 @@ cucon_hzmap_insert(map_t map, void *key, size_t node_size, node_t *node_out)
 }
 
 cu_bool_t
-cucon_hzmap_insert_void(map_t map, void *key)
+cucon_hzmap_insert_void(map_t map, void const *key)
 {
     cu_hash_t index;
     node_t *p;
@@ -189,7 +190,7 @@ cucon_hzmap_insert_void(map_t map, void *key)
 }
 
 cu_bool_t
-cucon_hzmap_erase(map_t map, void *key)
+cucon_hzmap_erase(map_t map, void const *key)
 {
     cu_hash_t index;
     node_t *p;
@@ -213,7 +214,7 @@ cucon_hzmap_erase(map_t map, void *key)
 }
 
 cu_bool_t
-cucon_hzmap_step_erase(map_t map, void *key)
+cucon_hzmap_step_erase(map_t map, void const *key)
 {
     cu_hash_t index;
     node_t *p;
@@ -240,7 +241,7 @@ cucon_hzmap_finish_erase(map_t map)
 }
 
 node_t
-cucon_hzmap_find(map_t map, void *key)
+cucon_hzmap_find(map_t map, void const *key)
 {
     size_t key_size_w = map->key_size_w;
     cu_hash_t index = key_hash(key_size_w, key) & map_mask(map);
@@ -254,7 +255,7 @@ cucon_hzmap_find(map_t map, void *key)
 }
 
 node_t
-cucon_hzmap_1w_find(map_t map, void *key)
+cucon_hzmap_1w_find(map_t map, void const *key)
 {
     cu_hash_t index = key_hash(1, key) & map_mask(map);
     node_t node = map->arr[index];
@@ -267,7 +268,7 @@ cucon_hzmap_1w_find(map_t map, void *key)
     return NULL;
 }
 node_t
-cucon_hzmap_2w_find(map_t map, void *key)
+cucon_hzmap_2w_find(map_t map, void const *key)
 {
     cu_hash_t index = key_hash(2, key) & map_mask(map);
     node_t node = map->arr[index];
@@ -299,6 +300,24 @@ cucon_hzmap_forall(cu_clop(f, cu_bool_t, cucon_hzmap_node_t),
     return cu_true;
 }
 
+cu_bool_t
+cucon_hzmap_forall_keys(cu_clop(f, cu_bool_t, void const *), cucon_hzmap_t map)
+{
+    cucon_hzmap_node_t *head, *head_end;
+    head = map->arr;
+    head_end = head + map_cap(map);
+    while (head != head_end) {
+	cucon_hzmap_node_t node = *head;
+	while (node) {
+	    if (!cu_call(f, node_key(node)))
+		return cu_false;
+	    node = node->next;
+	}
+	++head;
+    }
+    return cu_true;
+}
+
 void
 cucon_hzmap_filter(cu_clop(f, cu_bool_t, cucon_hzmap_node_t),
 		   cucon_hzmap_t map)
@@ -310,6 +329,27 @@ cucon_hzmap_filter(cu_clop(f, cu_bool_t, cucon_hzmap_node_t),
 	cucon_hzmap_node_t *p = head;
 	while (*p) {
 	    if (cu_call(f, *p))
+		p = &(*p)->next;
+	    else {
+		*p = (*p)->next;
+		--map->size;
+	    }
+	}
+	++head;
+    }
+    cucon_hzmap_finish_erase(map);
+}
+
+void
+cucon_hzmap_filter_keys(cu_clop(f, cu_bool_t, void const *), cucon_hzmap_t map)
+{
+    cucon_hzmap_node_t *head, *head_end;
+    head = map->arr;
+    head_end = head + map_cap(map);
+    while (head != head_end) {
+	cucon_hzmap_node_t *p = head;
+	while (*p) {
+	    if (cu_call(f, node_key(*p)))
 		p = &(*p)->next;
 	    else {
 		*p = (*p)->next;
@@ -340,4 +380,17 @@ cucon_hzmap_itr_get(cucon_hzmap_itr_t itr)
     }
     itr->node = node->next;
     return node;
+}
+
+void const *
+cucon_hzmap_itr_get_key(cucon_hzmap_itr_t itr)
+{
+    cucon_hzmap_node_t node = itr->node;
+    while (!node) {
+	if (itr->arr_cur == itr->arr_end)
+	    return NULL;
+	node = *itr->arr_cur++;
+    }
+    itr->node = node->next;
+    return node_key(node);
 }

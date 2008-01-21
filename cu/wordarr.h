@@ -24,7 +24,7 @@
 CU_BEGIN_DECLARATIONS
 
 CU_SINLINE cu_bool_t
-cu_wordarr_eq(size_t cnt, cu_word_t *arr0, cu_word_t *arr1)
+cu_wordarr_eq(size_t cnt, cu_word_t const *arr0, cu_word_t const *arr1)
 {
     while (cnt--)
 	if (*arr0++ != *arr1++)
@@ -33,7 +33,7 @@ cu_wordarr_eq(size_t cnt, cu_word_t *arr0, cu_word_t *arr1)
 }
 
 CU_SINLINE void
-cu_wordarr_copy(size_t cnt, cu_word_t *dst, cu_word_t *src)
+cu_wordarr_copy(size_t cnt, cu_word_t *dst, cu_word_t const *src)
 {
     while (cnt--)
 	*dst++ = *src++;

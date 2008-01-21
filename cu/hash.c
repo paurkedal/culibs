@@ -48,7 +48,7 @@
     } while (0)
 
 cu_hash_t
-cu_wordarr_hash_bj(size_t count, cu_word_t *arr, cu_hash_t init)
+cu_wordarr_hash_bj(size_t count, cu_word_t const *arr, cu_hash_t init)
 {
     uint32_t a, b, c;
     a = 0xbe5eeded;
@@ -79,7 +79,7 @@ cu_wordarr_hash_bj(size_t count, cu_word_t *arr, cu_hash_t init)
 }
 
 cu_hash_t
-cu_wordarr_hash_noinit_bj(size_t count, cu_word_t *arr)
+cu_wordarr_hash_noinit_bj(size_t count, cu_word_t const *arr)
 {
     uint32_t a, b, c;
     a = 0xbe5eeded;
@@ -156,7 +156,7 @@ cu_2word_hash_bj(cu_word_t d0, cu_word_t d1, cu_hash_t init)
     } while (0)
 
 cu_hash_t
-cu_wordarr_hash_bj(size_t count, cu_word_t *arr, cu_hash_t init)
+cu_wordarr_hash_bj(size_t count, cu_word_t const *arr, cu_hash_t init)
 {
     uint64_t a, b, c, n;
 
@@ -181,7 +181,7 @@ cu_wordarr_hash_bj(size_t count, cu_word_t *arr, cu_hash_t init)
 }
 
 cu_hash_t
-cu_wordarr_hash_noinit_bj(size_t count, cu_word_t *arr)
+cu_wordarr_hash_noinit_bj(size_t count, cu_word_t const *arr)
 {
     uint64_t a, b, c, n;
 
