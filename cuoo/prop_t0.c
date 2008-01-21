@@ -16,6 +16,7 @@
  */
 
 #include <cu/dyn.h>
+#include <cu/test.h>
 #define DIM 10000
 
 cuex_meta_t opr0;
@@ -29,17 +30,17 @@ test_prop()
     opr0 = cuex_opr(10, 0);
     e0 = cuex_opn(opr0);
     cuoo_prop_set(e0, k0, &k0);
-    cu_debug_assert(cuoo_prop_get(e0, k0) == &k0);
+    cu_test_assert(cuoo_prop_get(e0, k0) == &k0);
     k1 = cuoo_propkey_create();
     cuoo_prop_set(e0, k1, &k1);
-    cu_debug_assert(cuoo_prop_get(e0, k0) == &k0);
-    cu_debug_assert(cuoo_prop_get(e0, k1) == &k1);
+    cu_test_assert(cuoo_prop_get(e0, k0) == &k0);
+    cu_test_assert(cuoo_prop_get(e0, k1) == &k1);
     GC_gcollect();
-    cu_debug_assert(cuoo_prop_get(e0, k0) == &k0);
-    cu_debug_assert(cuoo_prop_get(e0, k1) == &k1);
+    cu_test_assert(cuoo_prop_get(e0, k0) == &k0);
+    cu_test_assert(cuoo_prop_get(e0, k1) == &k1);
     e0 = cuex_opn(opr0);
-    cu_debug_assert(cuoo_prop_get(e0, k0) == &k0);
-    cu_debug_assert(cuoo_prop_get(e0, k1) == &k1);
+    cu_test_assert(cuoo_prop_get(e0, k0) == &k0);
+    cu_test_assert(cuoo_prop_get(e0, k1) == &k1);
     e0 = NULL;
 }
 
@@ -60,7 +61,7 @@ check_some_props()
     for (i = 1; i <= DIM; ++i) {
 	prop = cuoo_prop_get(cuex_opn(cuex_opr(i, 0)), k0);
 	if (prop) {
-	    cu_debug_assert((void *)i == prop);
+	    cu_test_assert((void *)i == prop);
 	    ++n_props;
 	}
     }
@@ -83,5 +84,5 @@ int main()
 	    cu_warnf("This is probably ok, it only needs to be "
 		     "asymptotically fine.");
     }
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

@@ -19,6 +19,7 @@
 #include <cudyn/misc.h>
 #include <cuex/fwd.h>
 #include <cu/int.h>
+#include <cu/test.h>
 
 int
 main()
@@ -35,8 +36,8 @@ main()
     arg_arr[0] = cudyn_uint(0x20);
     res1 = cudyn_proto_apply_fn(p_uint_uint, (cu_fnptr_t)cu_uint_log2_lowbit,
 				arg_arr);
-    cu_debug_assert(cudyn_is_uint(res0) && cudyn_is_uint(res1));
-    cu_debug_assert(cudyn_to_uint(res0) == 5);
-    cu_debug_assert(res0 == res1);
-    return 0;
+    cu_test_assert(cudyn_is_uint(res0) && cudyn_is_uint(res1));
+    cu_test_assert(cudyn_to_uint(res0) == 5);
+    cu_test_assert(res0 == res1);
+    return 2*!!cu_test_bug_count();
 }

@@ -17,6 +17,7 @@
 
 #include <cucon/ucset.h>
 #include <cu/debug.h>
+#include <cu/test.h>
 #include <string.h>
 
 #define CHECK_SIZE 0x100
@@ -44,10 +45,10 @@ check()
 	    if (key > maxkey)
 		maxkey = key;
 	    tree = cucon_ucset_insert(tree, key);
-	    cu_debug_assert(cucon_ucset_find(tree, key));
+	    cu_test_assert(cucon_ucset_find(tree, key));
 	}
-	cu_debug_assert(minkey == cucon_ucset_min_ukey(tree));
-	cu_debug_assert(maxkey == cucon_ucset_max_ukey(tree));
+	cu_test_assert(minkey == cucon_ucset_min_ukey(tree));
+	cu_test_assert(maxkey == cucon_ucset_max_ukey(tree));
 	for (j = 0; j < CHECK_MOD; ++j) {
 	    cu_bool_t bit = !!(bitset[j/WORD_WIDTH]
 			       & (CU_WORD_C(1) << j%WORD_WIDTH));
@@ -78,5 +79,5 @@ main()
     putc('\n', stdout);
     cucon_ucset_dump(tree, stdout);
     check();
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

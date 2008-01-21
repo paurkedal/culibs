@@ -17,6 +17,7 @@
 
 #include <cuex/fwd.h>
 #include <cudyn/misc.h>
+#include <cu/test.h>
 #include <stdint.h>
 
 int main()
@@ -25,17 +26,17 @@ int main()
     cuex_t x;
     cuex_init();
     x = cudyn_uint(792);
-    cu_debug_assert(cudyn_is_uint(x));
-    cu_debug_assert(cudyn_to_uint(x) == 792);
-    cu_debug_assert(cudyn_uint(792) == x);
+    cu_test_assert(cudyn_is_uint(x));
+    cu_test_assert(cudyn_to_uint(x) == 792);
+    cu_test_assert(cudyn_uint(792) == x);
     x = cudyn_uint8(111);
-    cu_debug_assert(cudyn_is_uint8(x));
-    cu_debug_assert(cudyn_to_uint8(x) == 111);
-    cu_debug_assert(cudyn_uint8(111) == x);
+    cu_test_assert(cudyn_is_uint8(x));
+    cu_test_assert(cudyn_to_uint8(x) == 111);
+    cu_test_assert(cudyn_uint8(111) == x);
     n = UINT64_C(0xf39a241788bed001);
     x = cudyn_uint64(n);
-    cu_debug_assert(cudyn_is_uint64(x));
-    cu_debug_assert(cudyn_to_uint64(x) == n);
-    cu_debug_assert(cudyn_uint64(n) == x);
-    return 0;
+    cu_test_assert(cudyn_is_uint64(x));
+    cu_test_assert(cudyn_to_uint64(x) == n);
+    cu_test_assert(cudyn_uint64(n) == x);
+    return 2*!!cu_test_bug_count();
 }

@@ -20,6 +20,7 @@
 #include <cu/debug.h>
 #include <cu/memory.h>
 #include <cu/clos.h>
+#include <cu/test.h>
 #include <stdio.h>
 
 #define SLICE_CNT 10000
@@ -108,7 +109,7 @@ test_gworkq(cu_bool_t verbose)
 	cuflow_gworkq_dump(stdout);
     }
     if (THR_CNT == 1) /* Need promises to ascertain result for MT case! */
-	cu_debug_assert(res > 0.79102 && res < 0.79103);
+	cu_test_assert(res > 0.79102 && res < 0.79103);
 }
 
 void
@@ -159,5 +160,5 @@ int main()
     for (i_th = 0; i_th < THR_CNT; ++i_th)
 	cu_pthread_join(th[i_th], NULL);
 
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

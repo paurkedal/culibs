@@ -64,14 +64,14 @@ test()
 cu_clos_def(ladd, cu_prot(cuex_t, cuex_t e), (int diff;))
 {
     cu_clos_self(ladd);
-    cu_debug_assert(cudyn_is_int(e));
+    cu_test_assert(cudyn_is_int(e));
     return cudyn_int(cudyn_to_int(e) + self->diff);
 }
 
 cu_clos_def(lsum, cu_prot(cu_bool_t, cuex_t e), (int sum;))
 {
     cu_clos_self(lsum);
-    cu_debug_assert(cudyn_is_int(e));
+    cu_test_assert(cudyn_is_int(e));
     self->sum += cudyn_to_int(e);
     return cu_true;
 }

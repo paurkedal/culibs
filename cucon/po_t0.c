@@ -20,6 +20,7 @@
 #include <cu/clos.h>
 #include <cu/debug.h>
 #include <cu/diag.h>
+#include <cu/test.h>
 #include <assert.h>
 #include <stdio.h>
 
@@ -66,12 +67,12 @@ cu_clos_def(check_inf_span_cb0,
     cb.found_succ = 0;
     cucon_pmap_iter_keys(self->pruned_inf_span, check_inf_span_cb1_prep(&cb));
     if (cucon_pmap_find_mem(self->pruned_inf_span, e0arg)) {
-	cu_debug_assert(cb.found_prec == 0); /* self */
-	cu_debug_assert(cb.found_succ == 0);
+	cu_test_assert(cb.found_prec == 0); /* self */
+	cu_test_assert(cb.found_succ == 0);
     }
     else {
-	cu_debug_assert(cb.found_prec > 0);
-	cu_debug_assert(cb.found_succ == 0);
+	cu_test_assert(cb.found_prec > 0);
+	cu_test_assert(cb.found_succ == 0);
     }
 #undef e0arg
 }
@@ -96,8 +97,8 @@ cu_clos_def(check_inf_of_list_cbp,
 {
 #define e1_inf ((cucon_poelt_t)e1_inf)
     cu_clos_self(check_inf_of_list_cbp);
-    cu_debug_assert(self->e0_inf == e1_inf
-		     || !cucon_po_prec(self->e0_inf, e1_inf));
+    cu_test_assert(self->e0_inf == e1_inf
+		   || !cucon_po_prec(self->e0_inf, e1_inf));
 #undef e1_inf
 }
 cu_clos_def(check_inf_of_list_cb,
@@ -112,7 +113,7 @@ cu_clos_def(check_inf_of_list_cb,
     for (it_L = cucon_list_begin(self->L); it_L != cucon_list_end(self->L);
 	 it_L = cucon_listnode_next(it_L)) {
 	cucon_poelt_t e = cucon_listnode_ptr(it_L);
-	cu_debug_assert(cucon_po_preceq(e_inf, e));
+	cu_test_assert(cucon_po_preceq(e_inf, e));
     }
     cbp.e0_inf = e_inf;
     cucon_pmap_iter_keys(self->S, check_inf_of_list_cbp_prep(&cbp));
@@ -228,5 +229,5 @@ main()
     cu_set_verbosity(10);
     for (i = 0; i < 20; ++i)
 	check_all();
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

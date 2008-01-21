@@ -16,6 +16,7 @@
  */
 
 #include <cuex/opn.h>
+#include <cu/test.h>
 #include <math.h>
 #include <time.h>
 #include <gc/gc.h>
@@ -37,7 +38,7 @@ check_ex(void *ex)
 	for (j = 0; j < J; ++j)
 	    opr += check_ex(cuex_opn_at(ex, j));
 	opr %= 0x1000;
-	cu_debug_assert(cuex_opr(opr, J) == meta);
+	cu_test_assert(cuex_opr(opr, J) == meta);
     }
     return meta;
 }
@@ -92,16 +93,16 @@ simple_test()
     GC_register_finalizer(opn01, report, NULL, NULL, NULL);
     save = opn01;
     printf("%p\n", opn01);
-    cu_debug_assert(cuex_opn(cuex_opr(1, 0)) == opn0);
-    cu_debug_assert(cuex_opn(cuex_opr(3, 2), opn0, opn1) == opn01);
+    cu_test_assert(cuex_opn(cuex_opr(1, 0)) == opn0);
+    cu_test_assert(cuex_opn(cuex_opr(3, 2), opn0, opn1) == opn01);
     GC_gcollect();
     //test(NULL);
     printf("%p, %p, %p\n", opn01, opn0, opn1);
-    cu_debug_assert(cuex_opn(cuex_opr(1, 0)) == opn0);
-    cu_debug_assert(cuex_opn(cuex_opr(3, 2), opn0, opn1) == opn01);
-    cu_debug_assert(cuex_opn_by_arr(cuex_opr(3, 2), arr) == opn01);
-    cu_debug_assert(cuex_opn(cuex_opr(3, 2), opn0, opn0) != opn01);
-    cu_debug_assert(cuex_opn(cuex_opr(2, 2), opn0, opn1) != opn01);
+    cu_test_assert(cuex_opn(cuex_opr(1, 0)) == opn0);
+    cu_test_assert(cuex_opn(cuex_opr(3, 2), opn0, opn1) == opn01);
+    cu_test_assert(cuex_opn_by_arr(cuex_opr(3, 2), arr) == opn01);
+    cu_test_assert(cuex_opn(cuex_opr(3, 2), opn0, opn0) != opn01);
+    cu_test_assert(cuex_opn(cuex_opr(2, 2), opn0, opn1) != opn01);
     return opn01;
 }
 
@@ -136,5 +137,5 @@ main()
     }
 #endif
     printf("CPU time: %lg s\n", t/(double)CLOCKS_PER_SEC);
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

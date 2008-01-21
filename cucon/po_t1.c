@@ -18,6 +18,7 @@
 #include <cucon/po.h>
 #include <cucon/pmap.h>
 #include <cu/str.h>
+#include <cu/test.h>
 
 static cucon_po_t
 po_of_random_ints(unsigned int mask, unsigned int n)
@@ -118,20 +119,20 @@ random_elt(cucon_po_t po, unsigned int mask)
 				    elt_cmp_prep(&cmp),
 				    &range, &preds, &succs);
     if (!cucon_pmap_is_empty(&range)) {
-	cu_debug_assert(cucon_pmap_size(&range) == 1);
+	cu_test_assert(cucon_pmap_size(&range) == 1);
 	cucon_pmap_conj_keys(&range, first_clop);
-	cu_debug_assert(k == elt_val(first.val));
+	cu_test_assert(k == elt_val(first.val));
 	return first.val;
     }
     if (cucon_pmap_size(&preds) > 0 && lrand48() % 2) {
 	cucon_pmap_conj_keys(&preds, first_clop);
-	cu_debug_assert(bitset_cmp(k, elt_val(first.val)) == cucon_pocmp_succ);
+	cu_test_assert(bitset_cmp(k, elt_val(first.val)) == cucon_pocmp_succ);
 	return first.val;
     }
     else {
-	cu_debug_assert(cucon_pmap_size(&succs) > 0);
+	cu_test_assert(cucon_pmap_size(&succs) > 0);
 	cucon_pmap_conj_keys(&succs, first_clop);
-	cu_debug_assert(bitset_cmp(k, elt_val(first.val)) == cucon_pocmp_prec);
+	cu_test_assert(bitset_cmp(k, elt_val(first.val)) == cucon_pocmp_prec);
 	return first.val;
     }
 }
@@ -162,9 +163,9 @@ check_closed_range_and_succs()
 	    /* TODO */
 	}
 	else {
-	    cu_debug_assert(!cucon_po_prec(e0, e1));
-	    cu_debug_assert(cucon_pmap_size(&range) == 0);
-	    cu_debug_assert(cucon_pmap_size(&succs) == 0);
+	    cu_test_assert(!cucon_po_prec(e0, e1));
+	    cu_test_assert(cucon_pmap_size(&range) == 0);
+	    cu_test_assert(cucon_pmap_size(&succs) == 0);
 	    printf("empty\n");
 	}
     }
@@ -175,5 +176,5 @@ main()
 {
     cu_init();
     check_closed_range_and_succs();
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

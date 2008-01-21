@@ -22,6 +22,7 @@
 #include <cucon/pset.h>
 #include <cucon/stack.h>
 #include <cu/str.h>
+#include <cu/test.h>
 #include <time.h>
 
 
@@ -46,7 +47,7 @@ cu_clos_def(vertex_label,
 #else
     i = cucon_pmap_find_mem(self->msc_map, v);
     if (cucon_pset_find(self->mfvs_set, v)) {
-	cu_debug_assert(i);
+	cu_test_assert(i);
 	return cu_str_new_fmt("%d cut", *i);
     }
     else if (i)
@@ -89,18 +90,18 @@ test(int vertex_cnt, cu_bool_t do_save)
 	for (a = cugra_vertex_outarcs_begin(v);
 		a != cugra_vertex_outarcs_end(v);
 		a = cugra_vertex_outarcs_next(a))
-	    cu_debug_assert(cugra_arc_tail(a) == v);
+	    cu_test_assert(cugra_arc_tail(a) == v);
 	for (a = cugra_vertex_inarcs_begin(v);
 		a != cugra_vertex_inarcs_end(v);
 		a = cugra_vertex_inarcs_next(a))
-	    cu_debug_assert(cugra_arc_head(a) == v);
+	    cu_test_assert(cugra_arc_head(a) == v);
     }
-    cu_debug_assert(i == vertex_cnt);
+    cu_test_assert(i == vertex_cnt);
     i = 0;
     for (a = cugra_graph_arcs_begin(G); a != cugra_graph_arcs_end(G);
 	    a = cugra_graph_arcs_next(G, a))
 	++i;
-    cu_debug_assert(i == arc_cnt);
+    cu_test_assert(i == arc_cnt);
 
     /* Simplyfy graph */
     cugra_graph_erase_loops(G);
@@ -128,7 +129,7 @@ test(int vertex_cnt, cu_bool_t do_save)
     /* Make graph ascyclic by removing the MFVS vertices. */
     cucon_pset_iter(&V,
 		    (cu_clop(, void, void const *))cugra_erase_vertex_clop);
-    cu_debug_assert(cugra_graph_is_acyclic(G));
+    cu_test_assert(cugra_graph_is_acyclic(G));
 }
 
 void stress_test()
@@ -158,5 +159,5 @@ main()
     stress_test();
     t += clock();
     fprintf(stdout, "time: %lg\n", t/(double)CLOCKS_PER_SEC);
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

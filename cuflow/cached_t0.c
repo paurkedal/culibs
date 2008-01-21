@@ -18,6 +18,7 @@
 #include <cuflow/cached.h>
 #include <cuflow/tstate.h>
 #include <cuflow/workers.h>
+#include <cu/test.h>
 
 cuflow_cached_sdecl(plus, (int x; int y;), (int z;))
 
@@ -36,11 +37,11 @@ test()
     plus_result_t result;
 
     cuflow_cached_call(plus, (arg->x = 10; arg->y = 20;), &result);
-    cu_debug_assert(result->z == 30);
+    cu_test_assert(result->z == 30);
 
     cuflow_cached_sched_call(plus, (arg->x = 10; arg->y = 20;), &promise);
     result = plus_fulfill(promise);
-    cu_debug_assert(result->z == 30);
+    cu_test_assert(result->z == 30);
 }
 
 int main()
@@ -48,5 +49,5 @@ int main()
     cuflow_init();
     cuflow_workers_spawn(0);
     test();
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

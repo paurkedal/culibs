@@ -18,6 +18,7 @@
 #include <cucon/pmap.h>
 #include <cu/memory.h>
 #include <cu/debug.h>
+#include <cu/test.h>
 
 #include <assert.h>
 #include <cu/clos.h>
@@ -64,7 +65,7 @@ cu_clos_def(test_isecn_union_cb,
     cu_clos_self(test_isecn_union_cb);
     self->sum += key;
     if (!self->is_union)
-	cu_debug_assert((key & 3) == 3);
+	cu_test_assert((key & 3) == 3);
 }
 
 void
@@ -96,13 +97,13 @@ test_isecn_union()
 	}
     }
     cucon_umap_assign_isecn_union(&S, &T);
-    cu_debug_assert(cucon_umap_size(&S) + cucon_umap_size(&T) == S_cnt + T_cnt);
+    cu_test_assert(cucon_umap_size(&S) + cucon_umap_size(&T) == S_cnt + T_cnt);
     cb.sum = 0;
     cb.is_union = cu_false;
     cucon_umap_iter_keys(&S, cb_clop);
     cb.is_union = cu_true;
     cucon_umap_iter_keys(&T, cb_clop);
-    cu_debug_assert(cb.sum == sum);
+    cu_test_assert(cb.sum == sum);
 }
 
 int
@@ -114,5 +115,5 @@ main()
     for (i = 0; i < 100; ++i)
 	test_isecn_union();
     GC_gcollect();
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

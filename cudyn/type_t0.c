@@ -20,12 +20,13 @@
 #include <cuex/oprdefs.h>
 #include <cuex/opn.h>
 #include <cuex/ex.h>
+#include <cu/test.h>
 
 void
 test_type(cuex_t ex)
 {
     cuoo_type_t t = cuoo_type(ex);
-    cu_debug_assert(t);
+    cu_test_assert(t);
     cu_fprintf(stdout, "%! ↦ %! (%d bits aligned on %d bits)\n",
 	       ex, t, cuoo_type_bitsize(t), cuoo_type_bitalign(t));
 }
@@ -50,7 +51,7 @@ int
 main()
 {
     cuex_init();
-    cu_debug_assert(cudyn_int_type());
+    cu_test_assert(cudyn_int_type());
     test();
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

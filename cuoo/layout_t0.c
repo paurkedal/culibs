@@ -18,6 +18,7 @@
 #include <cuoo/layout.h>
 #include <cu/debug.h>
 #include <cu/thread.h>
+#include <cu/test.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -143,7 +144,7 @@ test_layout(void *data)
 	}
 	else
 	    bitalign = 1;
-	cu_debug_assert(bitsize > 0);
+	cu_test_assert(bitsize > 0);
 	lo = cuoo_layout_pack_bits(lo, bitsize, bitalign, &offset);
 	//if (I < 400)
 	//    printf("%2d %2d %4d\n", bitsize, bitalign, offset);
@@ -183,5 +184,5 @@ main()
     for (i = 0; i < THREAD_CNT; ++i)
 	cu_pthread_join(th[i], NULL);
 #endif
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

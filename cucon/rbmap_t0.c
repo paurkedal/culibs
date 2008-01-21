@@ -17,6 +17,7 @@
 
 #include <cucon/rbmap.h>
 #include <cu/str.h>
+#include <cu/test.h>
 
 
 static cu_bool_t
@@ -26,11 +27,11 @@ check_insert(cucon_rbmap_t rbmap, int i, cu_bool_t expect)
     cu_str_t key = cu_str_new_fmt("%d", i);
     if (cucon_rbmap_insert_mem(rbmap, key, sizeof(int), &slot)) {
 	*slot = i;
-	cu_debug_assert(expect);
+	cu_test_assert(expect);
 	return cu_true;
     }
     else {
-	cu_debug_assert(!expect);
+	cu_test_assert(!expect);
 	return cu_false;
     }
 }
@@ -41,7 +42,7 @@ check_find(cucon_rbmap_t rbmap, int i, cu_bool_t expect)
     cu_str_t key = cu_str_new_fmt("%d", i);
     int *slot = cucon_rbmap_find_mem(rbmap, key);
     if (slot)
-	cu_debug_assert(*slot == i);
+	cu_test_assert(*slot == i);
     return !!slot;
 }
 
@@ -50,7 +51,7 @@ check_erase(cucon_rbmap_t rbmap, int i, cu_bool_t expect)
 {
      cu_str_t key = cu_str_new_fmt("%d", i);
      cu_bool_t st = cucon_rbmap_erase(rbmap, key);
-     cu_debug_assert(st == expect);
+     cu_test_assert(st == expect);
      return st;
 }
 
@@ -74,5 +75,5 @@ main()
 	check_erase(map, i, cu_true);
     for (i = 0; i < N; ++i)
 	check_find(map, i, i >= N/2);
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

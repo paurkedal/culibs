@@ -18,6 +18,7 @@
 #include <cuflow/promise.h>
 #include <cu/debug.h>
 #include <cu/memory.h>
+#include <cu/test.h>
 #include <unistd.h>
 #include <time.h>
 
@@ -50,11 +51,11 @@ cu_clos_def(job, cu_prot0(void),
     struct thread_info_s *ti = pthread_getspecific(thread_info_key);
     cuflow_promise_state_t pst;
     struct job_result_s *jr = &job_result[self->i];
-    cu_debug_assert(self->pri <= cuflow_gworkq_current_priority());
+    cu_test_assert(self->pri <= cuflow_gworkq_current_priority());
     jr->run_pri = cuflow_gworkq_current_priority();
     while (drand48() > 0.000001);
     pst = cuflow_promise_increment_state(self->promise);
-    cu_debug_assert(pst - cuflow_promise_state_initiated <= JOB_CNT);
+    cu_test_assert(pst - cuflow_promise_state_initiated <= JOB_CNT);
     if (pst - cuflow_promise_state_initiated == JOB_CNT) {
 	printf("done\n");
 	cuflow_promise_set_state(self->promise,
@@ -123,5 +124,5 @@ main()
 	printf("job %d: i_th %d, sched_pri = %d, run_pri = %d, pst = %d\n",
 	       i, jr->i_th, jr->sched_pri, jr->run_pri, jr->pst);
     }
-    return 0;
+    return 2*!!cu_test_bug_count();
 }

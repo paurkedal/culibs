@@ -125,8 +125,8 @@ dmu_depth_eq_aux(cuex_t e0, dmu_depth_eq_frame_t muf0,
 	cuex_meta_is_opr(m1) && cuex_og_hole_contains(m1)) {
 	muf0 = cucon_frame_at(muf0, cuex_oa_hole_index(m0));
 	muf1 = cucon_frame_at(muf1, cuex_oa_hole_index(m1));
-	cu_debug_assert(cuex_og_binder_contains(cuex_meta(muf0->e)));
-	cu_debug_assert(cuex_og_binder_contains(cuex_meta(muf1->e)));
+	cu_test_assert(cuex_og_binder_contains(cuex_meta(muf0->e)));
+	cu_test_assert(cuex_og_binder_contains(cuex_meta(muf1->e)));
 	return muf0->depth == muf1->depth;
     }
 
@@ -371,5 +371,5 @@ main(int argc, char **argv)
 	cu_errf("%d tests failed.", cu_test_bug_count());
 	return 2;
     }
-    return 0;
+    return 2*!!cu_test_bug_count();
 }
