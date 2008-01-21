@@ -42,7 +42,8 @@ subst()
     local ppname="`echo ${header_idr} | tr '[a-z]' '[A-Z]'`"
     local begin_include_guard="#ifndef ${ppname}_H$newline#define ${ppname}_H"
     local end_include_guard="#endif"
-    local header_relpath="${relpath%.[hc]}.h"
+    local relpath_sans_ext="${relpath%.[hc]}"
+    local header_relpath="${relpath_sans_ext%_[bt][0-9]}.h"
     sed \
 	-e "s|^#|$comment|g" \
 	-e "s|@YEAR@|$year|g" \
@@ -65,7 +66,11 @@ for path in $*; do
     if [[ -e $path ]]; then
 	echo "$path already exists"
     elif [[ -e $skel_dir/template.$ext ]]; then
-	subst $skel_dir/template.$ext $path
+	if [[ "$path" = *_[bt][0-9].c ]]; then
+	    subst $skel_dir/template_test.$ext $path
+	else
+	    subst $skel_dir/template.$ext $path
+	fi
     else
 	case $ext in
 	    pl|sh|cuex-ot)
