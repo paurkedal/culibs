@@ -35,7 +35,6 @@ typedef struct cuex_tpvar_s	*cuex_tpvar_t;		/* tpvar.h */
 typedef struct cuex_tvar_s	*cuex_tvar_t;		/* tvar.h */
 typedef struct cuex_var_s	*cuex_var_t;		/* var.h */
 
-#define cuex_meta_is_opr(meta) (cuex_meta_kind(meta) == cuex_meta_kind_opr)
 #define cuex_var_from_ex(ex) ((cuex_var_t)(ex))
 #define cuex_is_idr(ex) (cuex_meta(ex) == cuoo_type_to_meta(cu_idr_type()))
 #define cuex_idr_from_ex(ex) ((cu_idr_t)(ex))

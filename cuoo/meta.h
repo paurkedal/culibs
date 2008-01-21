@@ -112,16 +112,25 @@ typedef enum {
  * Operators are the same type as cuex_meta_t, no need for cast, but before
  * using cuex_opr_r, check that it is really an operator. */
 
-/*!Returns the arity of the operator \a opr. */
-#define cuex_opr_r(opr)							\
-    ((int)(((opr) & CUEX_OPR_ARITY_MASK) >> CUEX_OPR_ARITY_SHIFT))
+/*!True iff \a meta is an operator, i.e. it is the meta of an operation. */
+CU_SINLINE cu_bool_t
+cuex_meta_is_opr(cuex_meta_t meta)
+{ return cuex_meta_kind(meta) == cuex_meta_kind_opr; }
 
+/*!The arity of the operator \a opr. */
+CU_SINLINE cu_rank_t
+cuex_opr_r(cuex_meta_t opr)
+{ return ((opr) & CUEX_OPR_ARITY_MASK) >> CUEX_OPR_ARITY_SHIFT; }
 
+/*!True iff \a meta is an operator of rank \a r. */
+CU_SINLINE cu_bool_t
+cuex_meta_is_opr_r(cu_rank_t r, cuex_meta_t meta)
+{ return cuex_meta_is_opr(meta) && cuex_opr_r(meta) == r; }
+
+/*!The meta of a dynamic object or operation \a obj. */
 CU_SINLINE cuex_meta_t
 cuex_meta(void *obj)
-{
-    return *((cuex_meta_t *)obj - 1) - 1;
-}
+{ return *((cuex_meta_t *)obj - 1) - 1; }
 
 /*!@}*/
 CU_END_DECLARATIONS

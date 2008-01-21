@@ -88,12 +88,11 @@ static void
 comm_by_ncomm_image_adaptor_put(cu_ptr_sink_t sink, void *elt)
 {
     cuex_t elt_key, elt_val;
-    cuex_meta_t e_meta = cuex_meta(elt);
     comm_by_ncomm_image_adaptor_t self
 	= cu_from3(comm_by_ncomm_image_adaptor,
 		   cu_ptr_junctor, cu_ptr_junction, cu_ptr_sink,
 		   sink);
-    cu_debug_assert(cuex_meta_is_opr(e_meta) && cuex_opr_r(e_meta) == 2);
+    cu_debug_assert(cuex_meta_is_opr_r(2, cuex_meta(elt)));
     elt_key = cuex_opn_at(elt, 0);
     elt_val = cuex_opn_at(elt, 1);
     cu_debug_assert(cudyn_is_int(elt_key));
