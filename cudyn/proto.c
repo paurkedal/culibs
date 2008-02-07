@@ -178,7 +178,7 @@ cudyn_proto_by_tuptype(cudyn_tuptype_t arg_type, cuoo_type_t res_type)
     key.arg_type = arg_type;
     key.res_type = res_type;
     init.r = r;
-    proto = cuoo_halloc_extra(cudyn_proto_type(), size,
+    proto = cuoo_hxalloc_init(cudyn_proto_type(), size,
 			      CUDYN_PROTO_KEY_SIZE,
 			      cu_ptr_add(&key, CUOO_HCOBJ_SHIFT),
 			      proto_init_cif_prep(&init));

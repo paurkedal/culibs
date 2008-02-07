@@ -262,9 +262,8 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
 }
 
 void *
-cuexP_halloc_extra_raw(cuex_meta_t meta, size_t sizeg,
-		       size_t key_sizew, void *key,
-		       cu_clop(init_nonkey, void, void *))
+cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
+		  cu_clop(init_nonkey, void, void *))
 {
     return halloc(meta, sizeg*CU_GRAN_SIZE, key_sizew, key, init_nonkey);
 }

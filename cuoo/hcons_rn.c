@@ -276,7 +276,7 @@ cu_hcset_hasheqv_erase_wlck(cu_hcset_t hcset, cu_hash_t hash,
 #  error Hash-consed object headers are not multiples of granules.
 #endif
 
-/* In the arguments to cuexP_halloc_raw and cuooP_halloc_extra_raw, sizeg is
+/* In the arguments to cuexP_halloc_raw and cuooP_hxalloc_init_raw, sizeg is
  * the full size to be allocated, in granules.  This includes the cuex_meta_t
  * field in front of the returned pointer. */
 void *
@@ -333,9 +333,8 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
 }
 
 void *
-cuexP_halloc_extra_raw(cuex_meta_t meta, size_t sizeg,
-		       size_t key_sizew, void *key,
-		       cu_clop(init_nonkey, void, void *))
+cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
+		  cu_clop(init_nonkey, void, void *))
 {
     cu_hcobj_t *slot, obj;
     size_t mask;

@@ -35,21 +35,25 @@ CU_BEGIN_DECLARATIONS
 #define CUOO_HCOBJ_ALLOC_SIZEG(struct_size) \
     CUOO_OBJ_ALLOC_SIZEG(struct_size)
 
+#ifndef CU_IN_DOXYGEN
 void *cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key);
-void *cuexP_halloc_extra_raw(cuex_meta_t meta, size_t raw_alloc_sizeg,
-			     size_t key_sizew, void *key,
-			     cu_clop(init_nonkey, void, void *));
+void *cuexP_hxalloc_raw(cuex_meta_t meta, size_t raw_alloc_sizeg,
+			size_t key_sizew, void *key,
+			cu_clop(init_nonkey, void, void *));
 CU_SINLINE void *
-cuooP_halloc_extra_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
+cuooP_hxalloc_init_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
 		       size_t key_sizew, void *key,
 		       cu_clop(init_nonkey, void, void *))
 {
-    return cuexP_halloc_extra_raw(cuoo_type_to_meta(type), raw_alloc_sizeg,
-				  key_sizew, key, init_nonkey);
+    return cuexP_hxalloc_raw(cuoo_type_to_meta(type), raw_alloc_sizeg,
+			     key_sizew, key, init_nonkey);
 }
-void *cuooP_halloc_extra_setao_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
-				   size_t key_sizew, void *key,
-				   cu_offset_t ao_offset, AO_t ao_value);
+void *cuooP_hxalloc_setao_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
+			      size_t key_sizew, void *key,
+			      cu_offset_t ao_offset, AO_t ao_value);
+void *cuooP_hxalloc_clear_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
+			      size_t key_sizew, void *key);
+#endif
 
 /*!Assuming a declaration of a struct <tt><em>prefix</em>_s</tt> which starts
  * with a \ref CUOO_HCOBJ statement, this macro returns the key-size to use for
@@ -84,7 +88,7 @@ void *cuooP_halloc_extra_setao_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
     ((struct prefix##_s *)((char *)(key) - CUOO_HCOBJ_SHIFT))
 
 /*!The key address of a template in case you need to use \ref cuoo_halloc or
- * \ref cuoo_halloc_extra instead of cuoo_hctem_new. */
+ * \ref cuoo_hxalloc_init instead of cuoo_hctem_new. */
 #define cuoo_hctem_key(prefix, key) (&(key))
 
 /*!This is part of several high-level hash-consing macros.
@@ -119,6 +123,7 @@ void *cuooP_halloc_extra_setao_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
     ((struct prefix##_s *) \
      cuoo_halloc(prefix##_type(), cuoo_hctem_key_size(prefix), &(key)))
 
+#ifndef CU_IN_DOXYGEN
 CU_SINLINE void *
 cuexP_halloc(cuex_meta_t meta, size_t key_size, void *key)
 {
@@ -126,6 +131,7 @@ cuexP_halloc(cuex_meta_t meta, size_t key_size, void *key)
 			    CUOO_HCOBJ_KEY_SIZEW(key_size + CUOO_HCOBJ_SHIFT),
 			    key);
 }
+#endif
 
 /*!General hash-consing allocation, allowing more control than \ref
  * cuoo_hctem_new. */
@@ -142,40 +148,79 @@ cuoo_halloc(cuoo_type_t type, size_t key_size, void *key)
  * cuoo_halloc, but it allows caching computations and associating properties
  * to live objects. */
 CU_SINLINE void *
-cuoo_halloc_extra(cuoo_type_t type, size_t struct_size,
+cuoo_hxalloc_init(cuoo_type_t type, size_t struct_size,
 		  size_t key_size, void *key,
 		  cu_clop(init_nonkey, void, void *obj))
 {
     cu_debug_assert(key_size % CU_WORD_SIZE == 0);
-    return cuooP_halloc_extra_raw(
+    return cuooP_hxalloc_init_raw(
 	type, CUOO_HCOBJ_ALLOC_SIZEG(struct_size),
 	CUOO_HCOBJ_KEY_SIZEW(key_size + CUOO_HCOBJ_SHIFT),
 	key, init_nonkey);
 }
 
-#define cuoo_hnew_extra(prefix, key_size, key, init_nonkey) \
-    ((struct prefix##_s *) \
-     cuoo_halloc_extra(prefix##_type(), sizeof(struct prefix##_s), \
-		       key_size, key, init_nonkey))
-
+/*!As \ref cuoo_hxalloc_init specialised with initialisation that simply sets
+ * an \a AO_t typed field at offset \a oa_offset to \a ao_value. */
 CU_SINLINE void *
-cuoo_halloc_extra_setao(cuoo_type_t type, size_t struct_size,
-			size_t key_size, void *key,
-			cu_offset_t ao_offset, AO_t ao_value)
+cuoo_hxalloc_setao(cuoo_type_t type, size_t struct_size,
+		   size_t key_size, void *key,
+		   cu_offset_t ao_offset, AO_t ao_value)
 {
     cu_debug_assert(key_size % CU_WORD_SIZE == 0);
-    return cuooP_halloc_extra_setao_raw(
+    return cuooP_hxalloc_setao_raw(
 	type, CUOO_HCOBJ_ALLOC_SIZEG(struct_size),
 	CUOO_HCOBJ_KEY_SIZEW(key_size + CUOO_HCOBJ_SHIFT),
 	key, ao_offset, ao_value);
 }
 
-#define cuoo_hnew_extra_setao(prefix, key_size, key, ao_offset, ao_value) \
+/*!As \ref cuoo_hxalloc_init specialised with initialisation that only clear
+ * the non-key data. */
+CU_SINLINE void *
+cuoo_hxalloc_clear(cuoo_type_t type, size_t struct_size,
+		   size_t key_size, void *key)
+{
+    cu_debug_assert(key_size % CU_WORD_SIZE == 0);
+    return cuooP_hxalloc_clear_raw(
+	type, CUOO_HCOBJ_ALLOC_SIZEG(struct_size),
+	CUOO_HCOBJ_KEY_SIZEW(key_size + CUOO_HCOBJ_SHIFT), key);
+}
+
+/*!Macro to call \ref cuoo_hxalloc_init based on an identifier prefix.  It is
+ * assumed that the following are defined:
+ * <ul>
+ *   <li><tt>struct <i>prefix</i>_s { CU_HCOBJ ... }</tt> — The struct of the
+ *     object, used for size calculation and the return type.</li>
+ *   <li><tt>cuoo_type_t <i>prefix</i>_type(void)</tt> — A function or
+ *     function-like macro which shall return the dynamic type of the
+ *     object.</li>
+ * </ul> */
+#define cuoo_hxnew_init(prefix, key_size, key, init_nonkey) \
     ((struct prefix##_s *) \
-     cuoo_halloc_extra_setao(prefix##_type(), sizeof(struct prefix##_s), \
-			     key_size, key, ao_offset, ao_value))
+     cuoo_hxalloc_init(prefix##_type(), sizeof(struct prefix##_s), \
+		       key_size, key, init_nonkey))
+
+/*!Macro to call \ref cuoo_hxalloc_setao based on an indentifier prefix.  See
+ * \ref cuoo_hxnew_init for details. */
+#define cuoo_hxnew_setao(prefix, key_size, key, ao_offset, ao_value) \
+    ((struct prefix##_s *) \
+     cuoo_hxalloc_setao(prefix##_type(), sizeof(struct prefix##_s), \
+			key_size, key, ao_offset, ao_value))
+
+/*!Macro to call \ref cuoo_hxalloc_clear based on an indentifier prefix.  See
+ * \ref cuoo_hxnew_init for details. */
+#define cuoo_hxnew_clear(prefix, key_size, key) \
+    ((struct prefix##_s *) \
+     cuoo_hxalloc_clear(prefix##_type(), sizeof(struct prefix##_s), \
+			key_size, key))
 
 /*!@}*/
+
+#if CU_COMPAT < 20080207
+#  define cuoo_halloc_extra		cuoo_hxalloc_init
+#  define cuoo_halloc_extra_setao	cuoo_hxalloc_setao
+#  define cuoo_hnew_extra		cuoo_hxnew_init
+#  define cuoo_hnew_extra_setao		cuoo_hxnew_setao
+#endif
 
 CU_END_DECLARATIONS
 

@@ -75,10 +75,10 @@ cuex_opn(cuex_meta_t opr, ...)
 	cct_cached_t cct;
 	cuex_oprinfo_t oi = cuex_oprinfo(opr);
 	cct.oi = oi;
-	return cuexP_halloc_extra_raw(
+	return cuexP_hxalloc_raw(
 	    opr,
 	    CUOO_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT
-				    + oi->cache_size),
+				   + oi->cache_size),
 	    CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	    operand_arr, cct_cached_prep(&cct));
     }
@@ -106,10 +106,10 @@ cuex_opn_by_valist(cuex_meta_t opr, va_list va)
 	cct_cached_t cct;
 	cuex_oprinfo_t oi = cuex_oprinfo(opr);
 	cct.oi = oi;
-	return cuexP_halloc_extra_raw(
+	return cuexP_hxalloc_raw(
 	    opr,
 	    CUOO_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT
-				    + oi->cache_size),
+				   + oi->cache_size),
 	    CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	    operand_arr, cct_cached_prep(&cct));
     }
@@ -122,10 +122,10 @@ cuexP_opn_by_arr_with_ctor(cuex_meta_t opr, cuex_t *operand_arr)
     cct_cached_t cct;
     cuex_oprinfo_t oi = cuex_oprinfo(opr);
     cct.oi = oi;
-    return cuexP_halloc_extra_raw(
+    return cuexP_hxalloc_raw(
 	opr,
 	CUOO_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT
-				+ oi->cache_size),
+			       + oi->cache_size),
 	CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	operand_arr, cct_cached_prep(&cct));
 }

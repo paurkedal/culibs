@@ -29,13 +29,23 @@ cu_clos_def(setao_clos, cu_prot(void, void *obj),
 }
 
 void *
-cuooP_halloc_extra_setao_raw(cuoo_type_t type, size_t struct_size,
-			     size_t key_size, void *key,
-			     cu_offset_t ao_offset, AO_t ao_value)
+cuooP_hxalloc_setao_raw(cuoo_type_t type, size_t struct_size,
+			size_t key_size, void *key,
+			cu_offset_t ao_offset, AO_t ao_value)
 {
     setao_clos_t init;
     init.ao_offset = ao_offset;
     init.ao_value = ao_value;
-    return cuooP_halloc_extra_raw(type, struct_size, key_size, key,
+    return cuooP_hxalloc_init_raw(type, struct_size, key_size, key,
 				  setao_clos_prep(&init));
+}
+
+cu_clop_def(init_noop_clos, void, void *obj) {}
+
+void *
+cuooP_hxalloc_clear_raw(cuoo_type_t type, size_t struct_size,
+			size_t key_size, void *key)
+{
+    return cuooP_hxalloc_init_raw(type, struct_size, key_size, key,
+				  init_noop_clos);
 }

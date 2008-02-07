@@ -128,8 +128,8 @@ static cudyn_arrtype_t
 arrtype(cuex_t ex, cu_bool_t have_lock)
 {
     cudyn_arrtype_t t;
-    t = cuoo_hnew_extra_setao(cudyn_arrtype, sizeof(cuex_t), &ex,
-			      offsetof(struct cudyn_inltype_s, layout), 0);
+    t = cuoo_hxnew_setao(cudyn_arrtype, sizeof(cuex_t), &ex,
+			 offsetof(struct cudyn_inltype_s, layout), 0);
     if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
 	if (!have_lock)
 	    cu_mutex_lock(&type_glck);
@@ -287,8 +287,8 @@ static cudyn_tuptype_t
 tuptype(cuex_t ex, cu_bool_t have_lock)
 {
     cudyn_tuptype_t t;
-    t = cuoo_hnew_extra_setao(cudyn_tuptype, sizeof(cuex_t), &ex,
-			      offsetof(struct cudyn_inltype_s, layout), 0);
+    t = cuoo_hxnew_setao(cudyn_tuptype, sizeof(cuex_t), &ex,
+			 offsetof(struct cudyn_inltype_s, layout), 0);
     if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
 	if (!have_lock)
 	    cu_mutex_lock(&type_glck);
@@ -432,8 +432,8 @@ static cudyn_duntype_t
 duntype(cuex_t ex, cu_bool_t have_lock)
 {
     cudyn_duntype_t t;
-    t = cuoo_hnew_extra_setao(cudyn_duntype, sizeof(cuex_t), &ex,
-			      offsetof(struct cudyn_inltype_s, layout), 0);
+    t = cuoo_hxnew_setao(cudyn_duntype, sizeof(cuex_t), &ex,
+			 offsetof(struct cudyn_inltype_s, layout), 0);
     if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
 	if (!have_lock)
 	    cu_mutex_lock(&type_glck);
@@ -462,7 +462,7 @@ static cuoo_type_t
 default_type(cuex_t ex)
 {
     cuoo_type_t t;
-    t = cuoo_halloc_extra_setao(cuoo_type_type(),
+    t = cuoo_hxalloc_setao(cuoo_type_type(),
 				sizeof(struct cuoo_type_s) + sizeof(AO_t),
 				sizeof(cuex_t), &ex,
 				sizeof(struct cuoo_type_s), 0);
