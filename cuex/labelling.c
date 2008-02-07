@@ -331,6 +331,7 @@ ncomm_iter_source(cuex_intf_compound_t impl, cuex_t L)
 cu_ptr_source_t
 cuex_labelling_ncomm_iter_source(cuex_t L)
 {
+    cu_debug_assert(cuex_is_labelling(L));
     return ncomm_iter_source(NULL, L);
 }
 
@@ -354,6 +355,7 @@ comm_iter_source(cuex_intf_compound_t impl, cuex_t L)
 cu_ptr_source_t
 cuex_labelling_comm_iter_source(cuex_t L)
 {
+    cu_debug_assert(cuex_is_labelling(L));
     return comm_iter_source(NULL, L);
 }
 

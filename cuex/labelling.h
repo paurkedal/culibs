@@ -113,12 +113,15 @@ cuex_t cuex_labelling_expand_all(cuex_t L);
 cuex_t cuex_labelling_contract_all(cuex_t L);
 
 /*!Returns an iteration source for the unordered sequence.  The implied
- * sequence are \c CUEX_O2_LABEL nodes. */
+ * sequence are \c CUEX_O2_LABEL nodes.
+ * \pre L is a labelling; check with \ref cuex_is_labelling */
 cu_ptr_source_t cuex_labelling_comm_iter_source(cuex_t L);
 
 /*!Returns an iteration source for an ordered sequence of all values mapped by
  * \a L.  The ordering is given by arbitrary fixing the ordering of the
- * labels. */
+ * labels.  The labels are not exposed.
+ * \pre L is a labelling; check with \ref cuex_is_labelling
+ * \see cuex_labelling_comm_iter_source */
 cu_ptr_source_t cuex_labelling_ncomm_iter_source(cuex_t L);
 
 /*!A junctor for constructing the image of \a L, using the ordered view

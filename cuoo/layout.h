@@ -48,12 +48,12 @@ extern cuoo_stdtype_t cuooP_layout_type;
  * <tt>*\a bitoffset</tt>.  \pre \a bitalign must be 1 (bitfield), 8 (a
  * byte), or a larger power of two. */
 cuoo_layout_t cuoo_layout_pack_bits(cuoo_layout_t prefix,
-				      cu_offset_t bitsize, cu_offset_t bitalign,
-				      cu_offset_t *bitoffset);
+				    cu_offset_t bitsize, cu_offset_t bitalign,
+				    cu_offset_t *bitoffset);
 
 /*!The layout of \a lyo0 with \a lyo1 packed inside or appended. */
 cuoo_layout_t cuoo_layout_product(cuoo_layout_t lyo0, cuoo_layout_t lyo1,
-				    cu_offset_t *bitoffset);
+				  cu_offset_t *bitoffset);
 
 /*!Return a layout which can hold the union of \a lyo0 and \a lyo1.  Holes
  * present in both arguments are preserved. */
