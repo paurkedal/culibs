@@ -31,6 +31,13 @@ CU_BEGIN_DECLARATIONS
 	(y) = cuL_tmp;							\
     } while (0)
 
+#define CU_RETURN_UNLESS_FIRST_CALL					\
+    do {								\
+	static int cuL_done = 0;					\
+	if (cuL_done)							\
+	    return;							\
+	cuL_done = 1;							\
+    } while (0)
 
 /*!Assuming \a ptr points to \a field in \a type, returns a pointer to the
  * whole \a type.  Uses <tt>offsetof(\a type, \a field)</tt>. */

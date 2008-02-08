@@ -112,8 +112,6 @@ cuoo_stdtype_cct(cuoo_stdtype_t type, cuoo_typekind_t kind, cuoo_impl_t impl)
 {
     cuooP_type_cct_nonhc(cuoo_stdtype_to_type(type), impl, NULL, kind);
     type->finalise = cu_clop_null;
-    type->conj = stdobj_conj_default_clop;
-    type->tran = stdobj_tran_default_clop;
 }
 
 cuoo_stdtype_t
@@ -147,8 +145,6 @@ cuoo_stdtype_cct_hcs(cuoo_stdtype_t type, cuoo_typekind_t kind,
 {
     cuooP_type_cct_hcs(cuoo_stdtype_to_type(type), impl, NULL, kind, key_size);
     type->finalise = cu_clop_null;
-    type->conj = stdobj_conj_default_clop;
-    type->tran = stdobj_tran_default_clop;
 }
 
 void
@@ -157,8 +153,6 @@ cuoo_stdtype_cct_hcv(cuoo_stdtype_t type, cuoo_typekind_t kind,
 {
     cuooP_type_cct_hcv(cuoo_stdtype_to_type(type), impl, NULL, kind, key_size_fn);
     type->finalise = cu_clop_null;
-    type->conj = stdobj_conj_default_clop;
-    type->tran = stdobj_tran_default_clop;
 }
 
 cuoo_stdtype_t

@@ -216,6 +216,9 @@ cu_galloc_au(size_t size)
  * not.  Clients may want to use their own analogous macro for local tuning. */
 #define CU_GWIPE(ptr_lvalue) ((ptr_lvalue) = NULL)
 
+#define CU_GCLEAR_INT(lvalue) (0? (void)((lvalue) = 0) : (void)0)
+#define CU_GCLEAR_PTR(lvalue) (0? (void)((lvalue) = NULL) : (void)0)
+
 /*!A type which represents a pointer that is hidden to the garbage
  * collector. */
 typedef struct cu_hidden_ptr_s *cu_hidden_ptr_t;

@@ -156,8 +156,6 @@ struct cuoo_stdtype_s
 {
     cu_inherit (cuoo_type_s);
     cu_clop(finalise, void, void *);
-    cu_clop(conj, cu_bool_t, void *, cu_clop(, cu_bool_t, void *));
-    cu_clop(tran, void *, void *, cu_clop(, void *, void *));
 };
 
 #define cuoo_stdtype_from_type(type) cu_from(cuoo_stdtype, cuoo_type, type)
