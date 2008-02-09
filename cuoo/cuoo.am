@@ -16,6 +16,7 @@ cuoo_sources = \
 	cuoo/init.c \
 	cuoo/intf.c \
 	cuoo/layout.c \
+	cuoo/oalloc.c \
 	cuoo/properties.c \
 	cuoo/prop.c \
 	cuoo/support.c \
@@ -23,16 +24,12 @@ cuoo_sources = \
 
 if enable_gc_disclaim
     noinst_HEADERS += cuoo/hcons_rn.h
-    cuoo_sources += cuoo/hcons_rn.c cuoo/obj_mlc.c
+    cuoo_sources += cuoo/hcons_rn.c
 else
     cuoo_sources += cuoo/hcons_wp.c
 endif
 
 cuoo_doxyfiles =
-
-# FIXME
-#cuoo_check_programs = \
-#	cuoo/obj_t0
 
 cuoo_norun_check_programs = \
 	cuoo/hcons_b0 \
@@ -44,5 +41,3 @@ cuoo_hcons_b0_SOURCES = cuoo/hcons_b0.c
 cuoo_hcons_b0_LDADD = libcubase.la
 cuoo_layout_t0_SOURCES = cuoo/layout_t0.c
 cuoo_layout_t0_LDADD = libcubase.la
-#cuoo_obj_t0_SOURCES = cuoo/obj_t0.c
-#cuoo_obj_t0_LDADD = libcubase.la

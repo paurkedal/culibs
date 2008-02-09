@@ -43,21 +43,6 @@ cuoo_type_cct(cuoo_type_t t, cuex_t expr, cuoo_typekind_t kind)
 /* HC Type
  * ------- */
 
-cu_clos_def(stdobj_conj_default,
-	    cu_prot(cu_bool_t, void *obj, cu_clop(fn, cu_bool_t, void *)), ())
-{
-    return cu_true;
-}
-static cu_clop(stdobj_conj_default_clop,
-	       cu_bool_t, void *, cu_clop(, cu_bool_t, void *));
-cu_clos_def(stdobj_tran_default,
-	    cu_prot(void *, void *obj, cu_clop(fn, void *, void *)), ())
-{
-    return obj;
-}
-static cu_clop(stdobj_tran_default_clop,
-	       void *, void *, cu_clop(, void *, void *));
-
 void
 cuooP_type_cct_nonhc(cuoo_type_t type, cuoo_impl_t impl, cuex_t expr,
 		     cuoo_typekind_t kind)
@@ -336,12 +321,8 @@ cuoo_prop_get(cuex_t ex, cuoo_propkey_t key)
 cuoo_stdtype_t cuooP_stdtype_type;
 
 void
-cuP_dyn_init()
+cuooP_type_init()
 {
-    static stdobj_conj_default_t stdobj_conj_default;
-    static stdobj_tran_default_t stdobj_tran_default;
-    stdobj_conj_default_clop = stdobj_conj_default_prep(&stdobj_conj_default);
-    stdobj_tran_default_clop = stdobj_tran_default_prep(&stdobj_tran_default);
 #if CUOO_ENABLE_KEYED_PROP
     cucon_umap_cct(&cuooP_property_map);
 #endif

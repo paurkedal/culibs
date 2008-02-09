@@ -26,18 +26,15 @@
 
 
 void cucon_init(void);
-void cuoo_init(void);
+void cuooP_init(void);
 void cuP_debug_init(void);
 void cuP_memory_init(void);
-void cuP_obj_mlc_init(void);
 void cuP_thread_init(void);
 void cuP_tstate_init(void);
 void cuP_diag_init(void);
-void cuP_hcset_init(void);
-void cuP_dyn_init(void);
-void cuP_dyn_init_post_layout(void);
 void cuP_idr_init(void);
 void cuP_str_init(void);
+void cuP_wstring_init(void);
 
 cu_bool_t cuP_locale_is_utf8;
 pthread_mutexattr_t cuP_mutexattr;
@@ -128,24 +125,21 @@ cu_init(void)
 	}
 #   endif
 
+    /* Init the most basic stuff */
     cuP_thread_init();
     cuP_tstate_init();
-    cuP_hcset_init();
     cuP_memory_init();
-#   ifdef CUCONF_ENABLE_GC_DISCLAIM
-	cuP_obj_mlc_init();
-#   endif
     cuP_diag_init();
     cuP_debug_init();
 
     /* Dynamic */
-    cuP_dyn_init();
+    cuooP_init();
     cuP_idr_init();
     cuP_str_init();
+    cuP_wstring_init();
 
     /* Submodules */
     cucon_init();
-    cuoo_init();
 
     if ((cstr = getenv("CU_SEED48"))) {
 	long s;

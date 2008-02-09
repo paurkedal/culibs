@@ -50,7 +50,7 @@ typedef unsigned int		cuoo_propkey_t;		/* type.h */
 typedef struct cuoo_stdtype_s	*cuoo_stdtype_t;	/* type.h */
 typedef struct cuoo_type_s	*cuoo_type_t;		/* type.h */
 
-void cuoo_init(void);
+CU_SINLINE void cuoo_init(void) { cu_init(); }
 
 /*!@}*/
 CU_END_DECLARATIONS

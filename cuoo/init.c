@@ -15,12 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cu/debug.h>
+
+void cuooP_hcons_init(void);
+void cuooP_oalloc_init(void);
 void cuooP_layout_init(void);
 void cuooP_properties_init(void);
+void cuooP_type_init(void);
 
 void
-cuoo_init()
+cuooP_init()
 {
+    cu_debug_assert_once();
+
+    cuooP_oalloc_init();
+    cuooP_hcons_init();
+    cuooP_type_init();
+
     cuooP_layout_init();
     cuooP_properties_init();
 }

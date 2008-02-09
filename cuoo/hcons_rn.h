@@ -78,15 +78,15 @@ struct cu_hcset_s
 # endif
 #endif
 };
-extern struct cu_hcset_s cuP_hcset[CU_HCSET_CNT];
+extern struct cu_hcset_s cuooP_hcset[CU_HCSET_CNT];
 
 #if CUOO_HC_GENERATION
 
-extern AO_t cuP_hc_generation;
+extern AO_t cuooP_hcons_generation;
 
 CU_SINLINE cu_bool_t
 cu_hcobj_is_marked(cu_hcobj_t obj)
-{ return obj->generation >= AO_load_read(&cuP_hc_generation); }
+{ return obj->generation >= AO_load_read(&cuooP_hcons_generation); }
 
 CU_SINLINE void
 cu_hcobj_unmark_lck(cu_hcobj_t obj)
@@ -94,7 +94,7 @@ cu_hcobj_unmark_lck(cu_hcobj_t obj)
 
 CU_SINLINE void
 cu_hcobj_mark_lck(cu_hcobj_t obj)
-{ obj->generation = AO_load_read(&cuP_hc_generation)
+{ obj->generation = AO_load_read(&cuooP_hcons_generation)
 		  | (obj->generation & 1); }
 
 CU_SINLINE void
@@ -153,9 +153,9 @@ CU_SINLINE cu_hcset_t
 cu_hcset(cu_hash_t hash)
 {
 #if CU_HCSET_CNT > 1
-    return &cuP_hcset[hash >> (sizeof(cu_hash_t)*8 - CU_HCSET_LOG_CNT)];
+    return &cuooP_hcset[hash >> (sizeof(cu_hash_t)*8 - CU_HCSET_LOG_CNT)];
 #else
-    return &cuP_hcset[0];
+    return &cuooP_hcset[0];
 #endif
 }
 

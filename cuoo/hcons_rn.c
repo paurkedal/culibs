@@ -48,8 +48,8 @@
 #endif
 
 #if CUPRIV_ENABLE_COLL_STATS
-int_least64_t cuP_coll_cnt = 0;
-int_least64_t cuP_noncoll_cnt = 0;
+static int_least64_t _coll_count = 0;
+static int_least64_t _noncoll_count = 0;
 #endif
 
 void
@@ -321,7 +321,7 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
     obj = cuexP_oalloc_unord_fin_raw(meta, sizeg);
     cu_wordarr_copy(key_sizew, CUOO_HCOBJ_KEY(obj), key);
 #if CUPRIV_ENABLE_COLL_STATS
-    if (*slot) ++cuP_coll_cnt; else ++cuP_noncoll_cnt;
+    if (*slot) ++_coll_count; else ++_noncoll_count;
 #endif
     obj->hcset_next = ~(AO_t)*slot;
     cu_debug_assert((uintptr_t)obj->hcset_next != 0);
@@ -371,7 +371,7 @@ cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
     cu_wordarr_copy(key_sizew, CUOO_HCOBJ_KEY(obj), key);
     cu_call(init_nonkey, obj);
 #if CUPRIV_ENABLE_COLL_STATS
-    if (*slot) ++cuP_coll_cnt; else ++cuP_noncoll_cnt;
+    if (*slot) ++_coll_count; else ++_noncoll_count;
 #endif
     obj->hcset_next = ~(AO_t)*slot;
     cu_debug_assert((uintptr_t)obj->hcset_next != 0);
@@ -388,7 +388,7 @@ extern struct cucon_umap_s cuooP_property_map;
 #endif
 
 int
-cuP_hc_disclaim_proc(void *obj, void *null)
+cuooP_hcons_disclaim_proc(void *obj, void *null)
 {
     cuex_meta_t meta;
     cu_hash_t hash;
@@ -445,21 +445,21 @@ cuP_hc_disclaim_proc(void *obj, void *null)
     return 0;
 }
 
-struct cu_hcset_s cuP_hcset[CU_HCSET_CNT];
+struct cu_hcset_s cuooP_hcset[CU_HCSET_CNT];
 
 #if CUOO_HC_GENERATION
-AO_t cuP_hc_generation = 0;
+AO_t cuooP_hcons_generation = 0;
 
 extern void (*GC_start_call_back)(void);
-void (*cuP_old_gc_start_callback)(void);
+static void (*_next_gc_start_callback)(void);
 
 void
 cu_gc_start_callback(void)
 {
-    AO_fetch_and_add_full(&cuP_hc_generation, 2);
-    //printf("generation = %ld\n", cuP_hc_generation);
-    if (cuP_old_gc_start_callback)
-	cuP_old_gc_start_callback();
+    AO_fetch_and_add_full(&cuooP_hcons_generation, 2);
+    //printf("generation = %ld\n", cuooP_hcons_generation);
+    if (_next_gc_start_callback)
+	_next_gc_start_callback();
 }
 
 #endif
@@ -468,22 +468,22 @@ cu_gc_start_callback(void)
 void
 coll_stats(void)
 {
-    int_least64_t cnt = cuP_coll_cnt + cuP_noncoll_cnt;
+    int_least64_t cnt = _coll_count + _noncoll_count;
     fprintf(stderr, "Hash cons collisions: %lf of %"PRIi64" inserts\n",
-	    cuP_coll_cnt/(double)cnt, cnt);
+	    _coll_count/(double)cnt, cnt);
 }
 #endif
 
 void
-cuP_hcset_init()
+cuooP_hcons_init()
 {
     size_t i;
 #if CUOO_HC_GENERATION
-    cuP_old_gc_start_callback = GC_start_call_back;
+    _next_gc_start_callback = GC_start_call_back;
     GC_start_call_back = cu_gc_start_callback;
 #endif
     for (i = 0; i < CU_HCSET_CNT; ++i)
-	cu_hcset_cct(&cuP_hcset[i]);
+	cu_hcset_cct(&cuooP_hcset[i]);
 #if CUPRIV_ENABLE_COLL_STATS
     atexit(coll_stats);
 #endif

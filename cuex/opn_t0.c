@@ -116,7 +116,7 @@ main()
     int i;
     pthread_t th[NTHREADS];
 #endif
-    cu_init();
+    cuex_init();
     simple_test();
     opn_t0_seed = time(NULL);
     //opn_t0_seed = 1121340589;

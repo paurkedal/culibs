@@ -58,7 +58,7 @@ struct cu_hcset_s
     cu_hclink_t *arr;
 };
 
-static struct cu_hcset_s cuP_hcset;
+static struct cu_hcset_s cuooP_hcset;
 
 CU_SINLINE cu_hclink_t *
 cu_hcset_link(cu_hcset_t hcset, cu_hash_t hash)
@@ -206,14 +206,14 @@ halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
     cu_hidden_ptr_t *obj_link = NULL;
     cu_hcnode_t node;
 
-    cu_hcset_lock(&cuP_hcset);
-    link = cu_hcset_link(&cuP_hcset, hash);
+    cu_hcset_lock(&cuooP_hcset);
+    link = cu_hcset_link(&cuooP_hcset, hash);
     while (((uintptr_t)(node = link->node) & 1) == 0 && node) {
 	obj = cu_weakptr_get(&node->obj);
 	if (obj) {
 	    if (cuex_meta(obj) == meta
 		    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
-		cu_hcset_unlock(&cuP_hcset);
+		cu_hcset_unlock(&cuooP_hcset);
 		return obj;
 	    }
 	}
@@ -226,7 +226,7 @@ halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
 	if (obj) {
 	    if (cuex_meta(obj) == meta
 		    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
-		cu_hcset_unlock(&cuP_hcset);
+		cu_hcset_unlock(&cuooP_hcset);
 		return obj;
 	    }
 	    else if (!obj_link) {
@@ -245,10 +245,10 @@ halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
     cu_wordarr_copy(key_sizew, CUOO_HCOBJ_KEY(obj), key);
     cu_call(init_nonkey, obj);
     cu_weakptr_cct(obj_link, obj);
-    ++cuP_hcset.insert_cnt;
-    cu_hcset_unlock(&cuP_hcset);
-    if (cuP_hcset.insert_cnt*4 > cuP_hcset.mask)
-	cu_hcset_adjust(&cuP_hcset);
+    ++cuooP_hcset.insert_cnt;
+    cu_hcset_unlock(&cuooP_hcset);
+    if (cuooP_hcset.insert_cnt*4 > cuooP_hcset.mask)
+	cu_hcset_adjust(&cuooP_hcset);
     return obj;
 }
 
@@ -270,10 +270,10 @@ cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
 
 #define HCSET_SIZE_INIT 8
 void
-cuP_hcset_init()
+cuooP_hcons_init()
 {
-    cu_mutex_cct(&cuP_hcset.mutex);
-    cuP_hcset.mask = HCSET_SIZE_INIT - 1;
-    cuP_hcset.insert_cnt = 0;
-    cuP_hcset.arr = cu_galloc(sizeof(void *)*HCSET_SIZE_INIT);
+    cu_mutex_cct(&cuooP_hcset.mutex);
+    cuooP_hcset.mask = HCSET_SIZE_INIT - 1;
+    cuooP_hcset.insert_cnt = 0;
+    cuooP_hcset.arr = cu_galloc(sizeof(void *)*HCSET_SIZE_INIT);
 }

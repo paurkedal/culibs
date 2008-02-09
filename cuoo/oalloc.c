@@ -31,9 +31,9 @@
 #  include <gc/gc_disclaim.h>
 #endif
 
-static cu_bool_t done_init = 0;
-int cuP_ord_objkind, cuP_unord_objkind;
-void **cuP_ord_gfl, **cuP_unord_gfl;
+static cu_bool_t _done_init = 0;
+int cuooP_ord_objkind, cuooP_unord_objkind;
+void **cuooP_ord_gfl, **cuooP_unord_gfl;
 
 #define EXTRA_BYTES 0
 
@@ -55,8 +55,9 @@ void *
 cuexP_oalloc_ord_fin_raw(cuex_meta_t meta, size_t sizeg)
 {
     void *r;
+    cu_debug_assert(_done_init);
     if (sizeg >= cuP_FL_CNT) {
-	r = GC_generic_malloc(sizeg*CU_GRAN_SIZE, cuP_ord_objkind);
+	r = GC_generic_malloc(sizeg*CU_GRAN_SIZE, cuooP_ord_objkind);
 	if (r == NULL) {
 	    cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
 	    cu_debug_unreachable();
@@ -65,7 +66,7 @@ cuexP_oalloc_ord_fin_raw(cuex_meta_t meta, size_t sizeg)
 	cuP_tstate_t st = cuP_tstate();
 	void **fl = st->ord_fl_arr + sizeg;
 	if (!*fl) {
-	    GC_generic_malloc_many(sizeg*CU_GRAN_SIZE, cuP_ord_objkind, fl);
+	    GC_generic_malloc_many(sizeg*CU_GRAN_SIZE, cuooP_ord_objkind, fl);
 	    if (!*fl) {
 		cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
 		cu_debug_unreachable();
@@ -82,8 +83,9 @@ void *
 cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
 {
     void *r;
+    cu_debug_assert(_done_init);
     if (sizeg >= cuP_FL_CNT) {
-	r = GC_generic_malloc(sizeg*CU_GRAN_SIZE, cuP_unord_objkind);
+	r = GC_generic_malloc(sizeg*CU_GRAN_SIZE, cuooP_unord_objkind);
 	if (r == NULL) {
 	    cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
 	    cu_debug_unreachable();
@@ -92,7 +94,7 @@ cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
 	cuP_tstate_t st = cuP_tstate();
 	void **fl = st->unord_fl_arr + sizeg;
 	if (!*fl) {
-	    GC_generic_malloc_many(sizeg*CU_GRAN_SIZE, cuP_unord_objkind, fl);
+	    GC_generic_malloc_many(sizeg*CU_GRAN_SIZE, cuooP_unord_objkind, fl);
 	    if (!*fl) {
 		cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
 		cu_debug_unreachable();
@@ -107,7 +109,8 @@ cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
 
 #else /* !CUCONF_ENABLE_GC_DISCLAIM */
 
-void cuP_stdobj_finaliser(void *base, void *cd)
+static void
+_stdobj_finaliser(void *base, void *cd)
 {
     cuex_meta_t meta = *(cuex_meta_t *)base - 1;
     cuoo_stdtype_t t;
@@ -122,6 +125,7 @@ void *
 cuexP_oalloc_ord_fin_raw(cuex_meta_t meta, size_t sizeg)
 {
     void *r;
+    cu_debug_assert(_done_init);
     cu_debug_assert(cuex_meta_is_type(meta));
     cu_debug_assert(cuoo_type_is_stdtype(cuoo_type_from_meta(meta)));
     r = GC_malloc(sizeg*CU_GRAN_SIZE);
@@ -129,7 +133,7 @@ cuexP_oalloc_ord_fin_raw(cuex_meta_t meta, size_t sizeg)
 	cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
 	cu_debug_unreachable();
     }
-    GC_register_finalizer(r, cuP_stdobj_finaliser, NULL, NULL, NULL);
+    GC_register_finalizer(r, _stdobj_finaliser, NULL, NULL, NULL);
     *(cuex_meta_t *)r = meta + 1;
     return (cuex_meta_t *)r + 1;
 }
@@ -138,6 +142,7 @@ void *
 cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
 {
     void *r;
+    cu_debug_assert(_done_init);
     cu_debug_assert(cuex_meta_is_type(meta));
     cu_debug_assert(cuoo_type_is_stdtype(cuoo_type_from_meta(meta)));
     r = GC_malloc(sizeg*CU_GRAN_SIZE);
@@ -145,7 +150,7 @@ cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
 	cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
 	cu_debug_unreachable();
     }
-    GC_register_finalizer_noorder(r, cuP_stdobj_finaliser, NULL, NULL, NULL);
+    GC_register_finalizer_no_order(r, _stdobj_finaliser, NULL, NULL, NULL);
     *(cuex_meta_t *)r = meta + 1;
     return (cuex_meta_t *)r + 1;
 }
@@ -153,12 +158,12 @@ cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
 #endif /* !CUCONF_ENABLE_GC_DISCLAIM */
 
 
-int cuP_hc_disclaim_proc(void *obj, void *null);
+int cuooP_hcons_disclaim_proc(void *obj, void *null);
 
 void
-cuP_obj_mlc_init(void)
+cuooP_oalloc_init(void)
 {
-    cu_debug_assert(!done_init);
+    cu_debug_assert(!_done_init);
 
 #ifdef CUCONF_ENABLE_GC_DISCLAIM
 
@@ -177,21 +182,23 @@ cuP_obj_mlc_init(void)
      *     • F now has wrong cache data. */
 
     /* Create the ordered object kind. */
-    cuP_ord_gfl = GC_new_free_list();
-    cuP_ord_objkind = GC_new_kind(cuP_ord_gfl, 0 | GC_DS_LENGTH, 1, 1);
-    GC_register_disclaim_proc(cuP_ord_objkind, cuP_hc_disclaim_proc, NULL, 1);
+    cuooP_ord_gfl = GC_new_free_list();
+    cuooP_ord_objkind = GC_new_kind(cuooP_ord_gfl, 0 | GC_DS_LENGTH, 1, 1);
+    GC_register_disclaim_proc(cuooP_ord_objkind, cuooP_hcons_disclaim_proc,
+			      NULL, 1);
 
     /* Create the unordered object kind. */
-    cuP_unord_gfl = GC_new_free_list();
-    cuP_unord_objkind = GC_new_kind(cuP_unord_gfl, 0 | GC_DS_LENGTH, 1, 1);
-    GC_register_disclaim_proc(cuP_unord_objkind, cuP_hc_disclaim_proc, NULL, 0);
+    cuooP_unord_gfl = GC_new_free_list();
+    cuooP_unord_objkind = GC_new_kind(cuooP_unord_gfl, 0 | GC_DS_LENGTH, 1, 1);
+    GC_register_disclaim_proc(cuooP_unord_objkind, cuooP_hcons_disclaim_proc,
+			      NULL, 0);
 
     /* Need to trigger some initialisation before using
      * GC_generic_malloc_many. */
-    GC_generic_malloc(1, cuP_ord_objkind);
-    GC_generic_malloc(1, cuP_unord_objkind);
+    GC_generic_malloc(1, cuooP_ord_objkind);
+    GC_generic_malloc(1, cuooP_unord_objkind);
 
 #endif /* CUCONF_ENABLE_GC_DISCLAIM */
 
-    done_init = cu_true;
+    _done_init = cu_true;
 }
