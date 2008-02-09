@@ -4,6 +4,8 @@
 #include <cu/sref.h>
 #include <cu/str.h>
 #include <cu/clos.h>
+#include <cuos/file.h>
+#include <cuos/fs.h>
 #include <cucon/pmap.h>
 #include <cucon/list.h>
 #include <cucon/bitvect.h>
@@ -575,6 +577,7 @@ struct main_opts_s
 {
     char const *path;
     char const *out_base;
+    cu_bool_t update;
     struct cucon_list_s import_paths;
 };
 
@@ -597,6 +600,9 @@ main_parseopt(int key, char *arg, struct argp_state *state)
 	case 'o':
 	    opts->out_base = arg;
 	    break;
+	case 'u':
+	    opts->update = 1;
+	    break;
 	case 'I':
 	    cucon_list_append_ptr(&opts->import_paths, cu_str_new_cstr(arg));
 	    break;
@@ -609,6 +615,7 @@ main_parseopt(int key, char *arg, struct argp_state *state)
 struct argp_option main_options[] = {
     {"output-prefix", 'o', "PREFIX", 0,
      "Prefix for output, \".h\" and \".c\" will be appended.", 0},
+    {"update", 'u', NULL, 0, "Only overwrite outputs if they would change."},
     {NULL, 'I', "DIRECTORY", 0, "Add DIRECTORY as import seach path."},
     {NULL}
 };
@@ -629,6 +636,7 @@ main(int argc, char **argv)
     cucon_list_cct(&main_opts.import_paths);
     main_opts.out_base = NULL;
     main_opts.path = NULL;
+    main_opts.update = 0;
     argp_parse(&main_argp, argc, argv, 0, NULL, &main_opts);
     cu_debug_assert(main_opts.out_base);
     otab = cuex_otab_new(16, ot_error_cb);
@@ -638,9 +646,27 @@ main(int argc, char **argv)
 	cu_str_t out_h, out_c;
 	out_h = cu_str_new_2cstr(main_opts.out_base, ".h");
 	out_c = cu_str_new_2cstr(main_opts.out_base, ".c");
-	cuex_otab_print_std_sources(otab, out_h, out_c);
-	return 0;
+	if (main_opts.update) {
+	    cu_str_t out_h_old = NULL, out_c_old = NULL;
+	    if (cuos_dentry_type(out_h) == cuos_dentry_type_file) {
+		out_h_old = out_h;
+		out_h = cu_str_new_2cstr(main_opts.out_base, ".h~");
+	    }
+	    if (cuos_dentry_type(out_c) == cuos_dentry_type_file) {
+		out_c_old = out_c;
+		out_c = cu_str_new_2cstr(main_opts.out_base, ".c~");
+	    }
+	    cuex_otab_print_std_sources(otab, out_h, out_c);
+	    if (out_h_old && cuos_file_update(out_h, out_h_old) < 0) {
+		perror("cuos_file_update");
+		++err_cnt;
+	    }
+	    if (out_c_old && cuos_file_update(out_c, out_c_old) < 0) {
+		perror("cuos_file_update");
+		++err_cnt;
+	    }
+	} else
+	    cuex_otab_print_std_sources(otab, out_h, out_c);
     }
-    else
-	return 2;
+    return err_cnt? 2 : 0;
 }

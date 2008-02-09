@@ -21,13 +21,15 @@
 #include <cu/fwd.h>
 
 CU_BEGIN_DECLARATIONS
+/*!\defgroup cu_algo_h cu/algo.h: Supportive definitions for various algorithms
+ * @{\ingroup cu_mod */
 
 /*!Enumeration of partial order relations. */
 typedef enum {
-    cu_order_none,
-    cu_order_lt = 1,
-    cu_order_gt = 2,
-    cu_order_eq = 3
+    cu_order_none,	/*!< no ordering relation applies */
+    cu_order_lt,	/*!< less-than ordering */
+    cu_order_gt,	/*!< greater-than ordering */
+    cu_order_eq,	/*!< equal-to ordering */
 } cu_order_t;
 
 CU_SINLINE void
@@ -47,6 +49,7 @@ cu_ptr_rotl(cu_ptr_ptr_t p0, cu_ptr_ptr_t p1, cu_ptr_ptr_t p2)
     *(void **)p2 = pS;
 }
 
+/*!@}*/
 CU_END_DECLARATIONS
 
 #endif

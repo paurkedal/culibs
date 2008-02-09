@@ -3,12 +3,14 @@ if enable_cuos
 cuos_headers = \
 	cuos/process.h \
 	cuos/path.h \
+	cuos/file.h \
 	cuos/fs.h \
 	cuos/time.h
 
 cuos_sources = \
 	cuos/process.c \
 	cuos/path.c \
+	cuos/file.c \
 	cuos/fs.c \
 	cuos/time.c
 

@@ -85,14 +85,14 @@ endif
 
 cuex_cuex_otab_SOURCES = cuex/otab.c cuex/cuex-otab.y
 if enable_cucon	
-cuex_cuex_otab_LDADD = libcubase.la
+cuex_cuex_otab_LDADD = libcubase.la libcuos.la
 else
 cuex_cuex_otab_LDADD = $(CUCON_LIBS)
 endif
 # The above switch is needed due to dependency tracking.
 
 %.h %.c: %.otab $(top_builddir)/cuex/cuex-otab
-	$(top_builddir)/cuex/cuex-otab -o $* $<
+	$(top_builddir)/cuex/cuex-otab -u -o $* $<
 
 cuex_check_programs = \
 	cuex/algo_t0 \
