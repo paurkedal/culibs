@@ -74,9 +74,9 @@ void cu_debug_unindent();
 #define cu_debug_here() cu_debug_inform("here")
 #define cu_debug_assert_once()						\
     do {								\
-	static int cnt = 0;						\
-	if (cnt++ != 0)							\
-	    cu_bugf("This point should only have been reached once.");	\
+	static int cuL_cnt = 0;						\
+	if (cuL_cnt++ != 0)						\
+	    cu_debug_error("This point should only have been reached once."); \
     } while (0)
 
 #else
