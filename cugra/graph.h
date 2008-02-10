@@ -277,33 +277,41 @@ CU_SINLINE cugra_arc_t cugra_graph_arcs_end(cugra_graph_t G) { return NULL; }
 cugra_arc_t cugra_graph_arcs_next(cugra_graph_t G, cugra_arc_t a);
 
 
-#define cugra_vertex_inarcs_for(a, v)					\
+#define cugra_vertex_for_inarcs(a, v)					\
     for (a = cugra_vertex_inarcs_begin(v);				\
 	 a != cugra_vertex_inarcs_end(v);				\
 	 a = cugra_vertex_inarcs_next(a))
 
-#define cugra_vertex_outarcs_for(a, v)					\
+#define cugra_vertex_for_outarcs(a, v)					\
     for (a = cugra_vertex_outarcs_begin(v);				\
 	 a != cugra_vertex_outarcs_end(v);				\
 	 a = cugra_vertex_outarcs_next(a))
 
-#define cugra_vertex_arcs_for(dir, a, v)				\
+#define cugra_vertex_for_arcs(dir, a, v)				\
     for (a = cugra_vertex_arcs_begin(dir, v);				\
 	 a != cugra_vertex_arcs_end(dir, v);				\
 	 a = cugra_vertex_arcs_next(dir, a))
 
-#define cugra_vertex_inoutarcs_for(dir, a, v)				\
+#define cugra_vertex_for_inoutarcs(dir, a, v)				\
     for (dir = cugra_direction_BEGIN; dir < cugra_direction_END; ++dir)	\
     for (a = cugra_vertex_arcs_begin(dir, v);				\
 	 a != cugra_vertex_arcs_end(dir, v);				\
 	 a = cugra_vertex_arcs_next(dir, a))
 
-#define cugra_graph_vertices_for(v, G)					\
+#define cugra_graph_for_vertices(v, G)					\
     for (v = cugra_graph_vertices_begin(G);				\
 	 v != cugra_graph_vertices_end(G);				\
 	 v = cugra_graph_vertices_next(v))
 
 /*!@}*/
+
+#if CU_COMPAT < 20080210
+#  define cugra_vertex_inarcs_for	cugra_vertex_for_inarcs
+#  define cugra_vertex_outarcs_for	cugra_vertex_for_outarcs
+#  define cugra_vertex_arcs_for	 	cugra_vertex_for_arcs
+#  define cugra_vertex_inoutarcs_for	cugra_vertex_for_inoutarcs
+#  define cugra_graph_vertices_for	cugra_graph_for_vertices
+#endif
 CU_END_DECLARATIONS
 
 #endif

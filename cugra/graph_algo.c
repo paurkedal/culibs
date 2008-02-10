@@ -26,17 +26,17 @@ cugra_graph_copy(cugra_graph_t G_src, cugra_graph_t G_dst,
     cugra_vertex_t v_src;
     if (!fv_src_to_dst)
 	fv_src_to_dst = cucon_pmap_new();
-    cugra_graph_vertices_for(v_src, G_src) {
+    cugra_graph_for_vertices(v_src, G_src) {
 	cugra_vertex_t v_dst = cugra_graph_vertex_new(G_dst);
 	cucon_pmap_insert_ptr(fv_src_to_dst, v_src, v_dst);
 	if (fv_dst_to_src)
 	    cucon_pmap_insert_ptr(fv_dst_to_src, v_dst, v_src);
     }
-    cugra_graph_vertices_for(v_src, G_src) {
+    cugra_graph_for_vertices(v_src, G_src) {
 	cugra_arc_t a;
 	cugra_vertex_t v_dst = cucon_pmap_find_ptr(fv_src_to_dst, v_src);
 	cu_debug_assert(v_dst);
-	cugra_vertex_outarcs_for(a, v_src) {
+	cugra_vertex_for_outarcs(a, v_src) {
 	    cugra_vertex_t v_src_head = cugra_arc_head(a);
 	    cugra_vertex_t v_dst_head;
 	    v_dst_head = cucon_pmap_find_ptr(fv_src_to_dst, v_src_head);
@@ -53,7 +53,7 @@ detect_cycle(cugra_vertex_t v, cucon_pmap_t vinfo_map)
     if (cucon_pmap_insert_mem(vinfo_map, v, sizeof(int), &vinfo)) {
 	cugra_arc_t a;
 	*vinfo = 1;
-	cugra_vertex_outarcs_for(a, v) {
+	cugra_vertex_for_outarcs(a, v) {
 	    cugra_vertex_t u = cugra_arc_head(a);
 	    if (detect_cycle(u, vinfo_map))
 		return cu_true;
@@ -71,7 +71,7 @@ cugra_graph_is_acyclic(cugra_graph_t G)
     cugra_vertex_t v;
     struct cucon_pmap_s vinfo_map;
     cucon_pmap_cct(&vinfo_map);
-    cugra_graph_vertices_for(v, G)
+    cugra_graph_for_vertices(v, G)
 	if (detect_cycle(v, &vinfo_map))
 	    return cu_false;
     return cu_true;
@@ -125,7 +125,7 @@ void
 cugra_graph_erase_isolated(cugra_graph_t G)
 {
     cugra_vertex_t v;
-    cugra_graph_vertices_for(v, G)
+    cugra_graph_for_vertices(v, G)
 	if (cugra_vertex_is_isolated(v))
 	    cugra_erase_vertex(v);
 }

@@ -150,13 +150,13 @@ void
 cugra_eliminate_vertex(cugra_vertex_t v)
 {
     cugra_arc_t out, in;
-    cugra_vertex_inarcs_for(in, v) {
+    cugra_vertex_for_inarcs(in, v) {
 	struct cucon_pset_s V;
 	cugra_vertex_t v_tail = cugra_arc_tail(in);
 	cucon_pset_cct(&V);
-	cugra_vertex_outarcs_for(out, v_tail)
+	cugra_vertex_for_outarcs(out, v_tail)
 	    cucon_pset_insert(&V, cugra_arc_head(out));
-	cugra_vertex_outarcs_for(out, v) {
+	cugra_vertex_for_outarcs(out, v) {
 	    cugra_vertex_t v_head = cugra_arc_head(out);
 	    if (!cucon_pset_find(&V, v_head))
 		cugra_graph_arc_new(v_tail, v_head);
@@ -182,7 +182,7 @@ void
 cugra_graph_erase_loops(cugra_graph_t G)
 {
     cugra_vertex_t v;
-    cugra_graph_vertices_for(v, G)
+    cugra_graph_for_vertices(v, G)
 	cugra_vertex_erase_loops(v);
 }
 
@@ -190,7 +190,7 @@ cu_bool_t
 cugra_vertex_has_loop(cugra_vertex_t v)
 {
     cugra_arc_t a;
-    cugra_vertex_outarcs_for(a, v)
+    cugra_vertex_for_outarcs(a, v)
 	if (cugra_arc_is_loop(a))
 	    return cu_true;
     return cu_false;

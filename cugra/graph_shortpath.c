@@ -73,7 +73,7 @@ cugra_shortest_path(cugra_direction_t dir, cugra_vertex_t v_start,
 	}
 
 	/* Relax v */
-	cugra_vertex_arcs_for(dir, a, v) {
+	cugra_vertex_for_arcs(dir, a, v) {
 	    dij_vertex_t dij_u;
 	    cugra_vertex_t u = cugra_arc_adjacent(dir, a);
 	    double s_uv, s_u_try;

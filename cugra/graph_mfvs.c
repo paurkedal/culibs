@@ -32,9 +32,9 @@ static void
 push_neighbourhood(cucon_stack_t KV, cugra_vertex_t v)
 {
     cugra_arc_t a;
-    cugra_vertex_outarcs_for(a, v)
+    cugra_vertex_for_outarcs(a, v)
 	CUCON_STACK_PUSH(KV, cugra_vertex_t, cugra_arc_head(a));
-    cugra_vertex_inarcs_for(a, v)
+    cugra_vertex_for_inarcs(a, v)
 	CUCON_STACK_PUSH(KV, cugra_vertex_t, cugra_arc_tail(a));
 }
 
@@ -44,7 +44,7 @@ MFVS_reduce_graph(cugra_graph_t G, cucon_pset_t V, cucon_pmap_t vdst_to_vsrc)
     cugra_vertex_t v;
     struct cucon_stack_s KV;
     cucon_stack_cct(&KV);
-    cugra_graph_vertices_for(v, G)
+    cugra_graph_for_vertices(v, G)
 	CUCON_STACK_PUSH(&KV, cugra_vertex_t, v);
     while (!cucon_stack_is_empty(&KV)) {
 	v = CUCON_STACK_TOP(&KV, cugra_vertex_t);
@@ -93,7 +93,7 @@ init_first_approx(cugra_vertex_t v, cucon_pmap_t vinfo_map,
 	cucon_umap_insert_ptr(index_to_vertex, vinfo->index, v);
 	vinfo->f = bddfalse;
 	vinfo->it_num = -1;
-	cugra_vertex_outarcs_for(a, v)
+	cugra_vertex_for_outarcs(a, v)
 	    init_first_approx(cugra_arc_head(a), vinfo_map, index_to_vertex, B);
 	cu_dprintf("cugra.graph_mfvs",
 		   "Init %p: f(%d) := %d", v, vinfo->index, vinfo->f);
@@ -119,7 +119,7 @@ MFVS_iterate(cugra_vertex_t v, cucon_pmap_t vinfo_map, int cur_it_num,
 
 	/* g = ∧ {f(u) | (u, v) ∈ G} */
 	g = bddtrue;
-	cugra_vertex_inarcs_for(a, v) {
+	cugra_vertex_for_inarcs(a, v) {
 	    cugra_vertex_t u = cugra_arc_tail(a);
 	    BDD f_u = MFVS_iterate(u, vinfo_map, cur_it_num, changes);
 	    tmp = g;

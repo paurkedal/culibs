@@ -59,7 +59,7 @@ collect_msc(cugra_vertex_t v, cucon_pmap_t vinfomap, int level)
 	/* Process out-arcs */
 	vinfo->level = level; /* visiting */
 	vinfo->tag = NULL;
-	cugra_vertex_outarcs_for(a, v) {
+	cugra_vertex_for_outarcs(a, v) {
 	    msc_tag_t tagp;
 	    tagp = collect_msc(cugra_arc_head(a), vinfomap, level + 1);
 	    if (tagp && tagp != tag && tagp->level <= level) {
@@ -177,7 +177,7 @@ cugra_identify_MSC(cugra_graph_t G, cucon_stack_t vertex_set_stack,
     cugra_vertex_t v;
     struct cucon_pmap_s vinfomap;
     cucon_pmap_cct(&vinfomap);
-    cugra_graph_vertices_for(v, G)
+    cugra_graph_for_vertices(v, G)
 	collect_msc(v, &vinfomap, 0);
     reverse_msc_tag(&vinfomap, vertex_set_stack, vertex_index_map);
 }

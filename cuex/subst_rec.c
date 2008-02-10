@@ -176,7 +176,7 @@ cuex_subst_render_idempotent(cuex_subst_t sig)
 
 	/* Collect maximally strongly connected variables. */
 	cucon_pset_cct(&msc_vars);
-	cugra_graph_vertices_for(vtx, G) {
+	cugra_graph_for_vertices(vtx, G) {
 	    cuex_veqv_t vq = cugra_vertex_mem(vtx);
 	    cuex_veqv_it_t it;
 	    for (it = cuex_veqv_begin(vq); it != cuex_veqv_end(vq);
@@ -249,7 +249,7 @@ cuex_subst_mark_all_feedback(cuex_subst_t sig)
     do {
 	cugra_graph_t G = cucon_stack_pop_ptr(&KG);
 	cugra_vertex_t vtx;
-	cugra_graph_vertices_for(vtx, G) {
+	cugra_graph_for_vertices(vtx, G) {
 	    cuex_veqv_t vq = cugra_vertex_mem(vtx);
 	    vq->is_feedback_var = cu_true;
 	}
