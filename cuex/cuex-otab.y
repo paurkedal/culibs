@@ -656,7 +656,8 @@ main(int argc, char **argv)
 		out_c_old = out_c;
 		out_c = cu_str_new_2cstr(main_opts.out_base, ".c~");
 	    }
-	    cuex_otab_print_std_sources(otab, out_h, out_c);
+	    if (!cuex_otab_print_std_sources(otab, out_h, out_c))
+		return 2;
 	    if (out_h_old && cuos_file_update(out_h, out_h_old) < 0) {
 		perror("cuos_file_update");
 		++err_cnt;
@@ -665,8 +666,10 @@ main(int argc, char **argv)
 		perror("cuos_file_update");
 		++err_cnt;
 	    }
-	} else
-	    cuex_otab_print_std_sources(otab, out_h, out_c);
+	} else {
+	    if (!cuex_otab_print_std_sources(otab, out_h, out_c))
+		return 2;
+	}
     }
     return err_cnt? 2 : 0;
 }

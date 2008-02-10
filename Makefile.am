@@ -110,8 +110,9 @@ if enable_cuex
     libcuex_la_LIBADD	 = @CUEX_LIBADD@ $(FFI_LIBS)
     libcuex_la_DEPENDENCIES = @CUEX_DEPENDENCIES@
     libcuex_la_LDFLAGS	 = $(common_ldflags)
-    libcuex_la_SOURCES	 = $(cuex_sources) $(cuex_built_sources) \
+    libcuex_la_SOURCES	 = $(cuex_sources) \
 			   $(cudyn_sources)
+    nodist_libcuex_la_SOURCES = $(cuex_built_sources)
     BUILT_SOURCES	+= $(cuex_built_headers) $(cuex_built_sources)
     pkgconfig_DATA	+= pkgconfig/cuex.pc
     noinst_DATA		+= pkgconfig/cuex-uninstalled.pc
@@ -127,9 +128,10 @@ nobase_culibs_HEADERS = \
 	$(cuos_headers) \
 	$(cutext_headers) \
 	$(custo_headers) \
-	$(cuex_headers) $(cuex_built_headers) \
+	$(cuex_headers) \
 	$(cudyn_headers)
 nobase_nodist_culibs_HEADERS = \
+	$(cuex_built_headers) \
 	$(nodist_cu_headers)
 
 check_programs = \
