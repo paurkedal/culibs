@@ -32,11 +32,21 @@
 typedef cucon_hzmap_t map_t;
 typedef cucon_hzmap_node_t node_t;
 
-#define key_hash(key_size_w, key) cu_wordarr_hash_noinit_bj(key_size_w, key)
+#if 0
+#  define key_hash(key_size_w, key) cu_wordarr_hash_bj(key_size_w, key, 0)
+#  define key_hash_1w(key) cu_1word_hash_bj(((cu_word_t *)key)[0], 0)
+#  define key_hash_2w(key) cu_2word_hash_bj(((cu_word_t *)key)[0], ((cu_word_t *)key)[1], 0)
+#else
+#  define key_hash(key_size_w, key) cu_wordarr_hash_noinit_bj(key_size_w, key)
+#  define key_hash_1w(key) cu_1word_hash_noinit_bj(((cu_word_t *)key)[0])
+#  define key_hash_2w(key) cu_2word_hash_noinit_bj(((cu_word_t *)key)[0], ((cu_word_t *)key)[1])
+#endif
 #define key_eq(key_size_w, k0, k1) cu_wordarr_eq(key_size_w, k0, k1)
 #define key_copy(key_size_w, dst, src) cu_wordarr_copy(key_size_w, dst, src)
 #define node_key(node) ((cu_word_t *)((node_t)(node) + 1))
 #define node_hash(key_size_w, node) key_hash(key_size_w, node_key(node))
+#define node_hash_1w(node) key_hash_1w(node_key(node))
+#define node_hash_2w(node) key_hash_2w(node_key(node))
 #ifdef CUCON_HZMAP_COMPACT
 #  define map_cap(map) ((size_t)1 << (map)->cap_expt)
 #  define map_cap_est(map) map_cap(map)
@@ -257,7 +267,7 @@ cucon_hzmap_find(map_t map, void const *key)
 node_t
 cucon_hzmap_1w_find(map_t map, void const *key)
 {
-    cu_hash_t index = key_hash(1, key) & map_mask(map);
+    cu_hash_t index = key_hash_1w(key) & map_mask(map);
     node_t node = map->arr[index];
     cu_debug_assert(map->key_size_w == 1);
     while (node) {
@@ -270,7 +280,7 @@ cucon_hzmap_1w_find(map_t map, void const *key)
 node_t
 cucon_hzmap_2w_find(map_t map, void const *key)
 {
-    cu_hash_t index = key_hash(2, key) & map_mask(map);
+    cu_hash_t index = key_hash_2w(key) & map_mask(map);
     node_t node = map->arr[index];
     cu_debug_assert(map->key_size_w == 2);
     while (node) {
