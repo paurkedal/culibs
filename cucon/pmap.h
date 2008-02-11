@@ -245,10 +245,10 @@ CU_SINLINE void
 cucon_pmap_assign_union_void(cucon_pmap_t dst, cucon_pmap_t src)
 { cucon_umap_assign_union_void(&dst->impl, &src->impl); }
 
-/*!\copydoc cucon_umap_show_stats */
+/*!\copydoc cucon_umap_dump_stats */
 CU_SINLINE void
-cucon_pmap_show_stats(cucon_pmap_t map)
-{ cucon_umap_show_stats(&map->impl); }
+cucon_pmap_dump_stats(cucon_pmap_t map, FILE *out)
+{ cucon_umap_dump_stats(&map->impl, out); }
 
 /*!\copydoc cucon_umap_size */
 CU_SINLINE size_t

@@ -68,6 +68,7 @@ cucon_check_programs = \
 	cucon/bitvect_t0 \
 	cucon/frame_t0 \
 	cucon/hzmap_b0 \
+	cucon/hzmap_b1 \
 	cucon/hzmap_t0 \
 	cucon/hzset_t0 \
 	cucon/hset_t0 \
@@ -89,7 +90,8 @@ cucon_check_programs = \
 	cucon/ucmap_b0 \
 	cucon/ucset_b0 \
 	cucon/ucset_t0 \
-	cucon/uset_b0
+	cucon/uset_b0 \
+	cucon/uset_b1
 
 cucon_norun_check_programs =
 
@@ -101,6 +103,8 @@ cucon_hset_t0_SOURCES = cucon/hset_t0.c
 cucon_hset_t0_LDADD = libcubase.la
 cucon_hzmap_b0_SOURCES = cucon/hzmap_b0.c
 cucon_hzmap_b0_LDADD = libcubase.la
+cucon_hzmap_b1_SOURCES = cucon/hzmap_b1.c
+cucon_hzmap_b1_LDADD = libcubase.la
 cucon_hzmap_t0_SOURCES = cucon/hzmap_t0.c
 cucon_hzmap_t0_LDADD = libcubase.la
 cucon_hzset_t0_SOURCES = cucon/hzset_t0.c
@@ -143,6 +147,8 @@ cucon_ucset_t0_SOURCES = cucon/ucset_t0.c
 cucon_ucset_t0_LDADD = libcubase.la
 cucon_uset_b0_SOURCES = cucon/uset_b0.c
 cucon_uset_b0_LDADD = libcubase.la
+cucon_uset_b1_SOURCES = cucon/uset_b1.c
+cucon_uset_b1_LDADD = libcubase.la
 
 bin_PROGRAMS += cucon/cuset
 cucon_cuset_SOURCES = cucon/cuset.c

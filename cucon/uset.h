@@ -142,6 +142,10 @@ CU_SINLINE void
 cucon_uset_print(cucon_uset_t set, FILE *out)
 { cucon_umap_print_keys(&set->impl, out); }
 
+CU_SINLINE void
+cucon_uset_dump_stats(cucon_uset_t set, FILE *out)
+{ cucon_umap_dump_stats(&set->impl, out); }
+
 /*!@}*/
 CU_END_DECLARATIONS
 

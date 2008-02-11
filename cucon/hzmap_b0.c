@@ -34,7 +34,6 @@ bench_em(int N)
     int J = 0x80000/N + 1;
     clock_t t_insert = 0, t_find = 0;
 
-    /* GC_gcollect(); */
     for (j = 0; j < J; ++j) {
 	int i;
 	cucon_hzmap_t hzmap;

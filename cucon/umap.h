@@ -261,7 +261,7 @@ void cucon_umap_assign_isecn(cucon_umap_t dst, cucon_umap_t src);
 void cucon_umap_assign_union_void(cucon_umap_t dst, cucon_umap_t src);
 
 /*!For profiling use. */
-void cucon_umap_show_stats(cucon_umap_t map);
+void cucon_umap_dump_stats(cucon_umap_t map, FILE *out);
 
 /*!Return the number of elements in \a map. */
 CU_SINLINE size_t cucon_umap_size(cucon_umap_t map) { return map->size; }

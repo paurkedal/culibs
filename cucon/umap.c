@@ -40,13 +40,18 @@
  * 8, since client may create many empty or small instances. */
 #define MIN_SIZE 8
 
-/* The maximum filling ratio before the array is expanded. */
-#define MAX_FILL_NOM 2
-#define MAX_FILL_DENOM 3
-
-/* The minimum filling ratio before the array is shrunk. */
-#define MIN_FILL_NOM 1
-#define MIN_FILL_DENOM 3
+/* The minimum/maximum filling ratio before the array is shrunk/expanded. */
+#ifdef CUCONF_OPT_SPEED
+#  define MIN_FILL_NUMER 1
+#  define MIN_FILL_DENOM 3
+#  define MAX_FILL_NUMER 2
+#  define MAX_FILL_DENOM 3
+#else
+#  define MIN_FILL_NUMER 1
+#  define MIN_FILL_DENOM 2
+#  define MAX_FILL_NUMER 3
+#  define MAX_FILL_DENOM 2
+#endif
 
 /* Prime numbers used for hashing. */
 #define PRIME0 10000849
@@ -263,7 +268,7 @@ set_capacity(cucon_umap_t umap, size_t new_cap)
 CU_SINLINE void
 update_cap_after_erase(cucon_umap_t umap)
 {
-    if (umap->size*MIN_FILL_DENOM <= umap->mask*MIN_FILL_NOM) {
+    if (umap->size*MIN_FILL_DENOM <= umap->mask*MIN_FILL_NUMER) {
 	size_t new_cap = cu_ulong_exp2_ceil_log2(umap->size + 1);
 	if (new_cap > MIN_SIZE)
 	    set_capacity(umap, new_cap);
@@ -275,7 +280,7 @@ update_cap_after_erase(cucon_umap_t umap)
 CU_SINLINE void
 update_cap_after_insert(cucon_umap_t umap)
 {
-    if (umap->size*MAX_FILL_DENOM > umap->mask*MAX_FILL_NOM) {
+    if (umap->size*MAX_FILL_DENOM > umap->mask*MAX_FILL_NUMER) {
 	size_t new_cap = cu_ulong_exp2_ceil_log2(umap->size + 1);
 	set_capacity(umap, new_cap);
     }
@@ -284,11 +289,11 @@ update_cap_after_insert(cucon_umap_t umap)
 void
 cucon_umap_update_cap(cucon_umap_t umap)
 {
-    if (umap->size*MAX_FILL_DENOM > umap->mask*MAX_FILL_NOM) {
+    if (umap->size*MAX_FILL_DENOM > umap->mask*MAX_FILL_NUMER) {
 	size_t new_cap = cu_ulong_exp2_ceil_log2(umap->size + 1);
 	set_capacity(umap, new_cap);
     }
-    else if (umap->size*MIN_FILL_DENOM <= umap->mask*MIN_FILL_NOM) {
+    else if (umap->size*MIN_FILL_DENOM <= umap->mask*MIN_FILL_NUMER) {
 	size_t new_cap = cu_ulong_exp2_ceil_log2(umap->size + 1);
 	if (new_cap > MIN_SIZE)
 	    set_capacity(umap, new_cap);
@@ -968,7 +973,7 @@ cucon_umap_assign_union_void(cucon_umap_t dst, cucon_umap_t src)
 }
 
 void
-cucon_umap_show_stats(cucon_umap_t umap)
+cucon_umap_dump_stats(cucon_umap_t umap, FILE *out)
 {
     double avg_depth;
     size_t const n_profile = 8;
@@ -988,19 +993,19 @@ cucon_umap_show_stats(cucon_umap_t umap)
 	if (cnt > max_cnt)
 	    max_cnt = cnt;
     }
-    printf("debug: cucon_umap: depth profile:");
+    fprintf(out, "debug: cucon_umap: depth profile:");
     avg_depth = 0;
     for (i = 0; i < n_profile; ++i) {
 	double w;
 	if (i > max_cnt)
 	    break;
 	w = a_profile[i]/(double)umap->size;
-	printf(" %5.3f", w);
+	fprintf(out, " %5.3f", w);
 	avg_depth += i*w;
     }
-    printf("\n");
-    printf("debug: cucon_umap:     gives max_depth = %d, avg_depth = %f\n",
-	   max_cnt, avg_depth);
+    fprintf(out, "\n");
+    fprintf(out, "debug: cucon_umap:     gives max_depth = %d, avg_depth = %f\n",
+	    max_cnt, avg_depth);
 }
 
 cucon_umap_it_t

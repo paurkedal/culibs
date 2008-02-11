@@ -21,6 +21,7 @@
 #include <cucon/fwd.h>
 #include <cu/conf.h>
 #include <cu/clos.h>
+#include <stdio.h>
 
 #define CUCON_HZMAP_COMPACT
 
@@ -146,6 +147,8 @@ void cucon_hzmap_itr_init(cucon_hzmap_itr_t itr, cucon_hzmap_t map);
 cucon_hzmap_node_t cucon_hzmap_itr_get(cucon_hzmap_itr_t itr);
 
 void const *cucon_hzmap_itr_get_key(cucon_hzmap_itr_t itr);
+
+void cucon_hzmap_dump_stats(cucon_hzmap_t map, FILE *out);
 
 /*!@}*/
 CU_END_DECLARATIONS

@@ -24,10 +24,18 @@
 
 #define INIT_CAP_EXPT 2
 #define INIT_CAP ((size_t)1 << INIT_CAP_EXPT)
-#define MINFILL_NUMER 1
-#define MINFILL_DENOM 2
-#define MAXFILL_NUMER 2
-#define MAXFILL_DENOM 1
+
+#ifdef CUCONF_OPT_SPEED
+#  define MINFILL_NUMER 1
+#  define MINFILL_DENOM 3
+#  define MAXFILL_NUMER 1
+#  define MAXFILL_DENOM 1
+#else
+#  define MINFILL_NUMER 1
+#  define MINFILL_DENOM 2
+#  define MAXFILL_NUMER 3
+#  define MAXFILL_DENOM 2
+#endif
 
 typedef cucon_hzmap_t map_t;
 typedef cucon_hzmap_node_t node_t;
@@ -58,7 +66,7 @@ typedef cucon_hzmap_node_t node_t;
 #endif
 
 void
-cucon_hzmap_init(map_t map, size_t key_size_w)
+cucon_hzmap_init(map_t map, cu_shortsize_t key_size_w)
 {
     map->key_size_w = key_size_w;
 #ifdef CUCON_HZMAP_COMPACT
@@ -71,7 +79,7 @@ cucon_hzmap_init(map_t map, size_t key_size_w)
 }
 
 map_t
-cucon_hzmap_new(size_t key_size_w)
+cucon_hzmap_new(cu_shortsize_t key_size_w)
 {
     map_t map = cu_gnew(struct cucon_hzmap_s);
     cucon_hzmap_init(map, key_size_w);
@@ -403,4 +411,40 @@ cucon_hzmap_itr_get_key(cucon_hzmap_itr_t itr)
     }
     itr->node = node->next;
     return node_key(node);
+}
+
+void
+cucon_hzmap_dump_stats(cucon_hzmap_t map, FILE *out)
+{
+    double avg_depth;
+    size_t const n_profile = 8;
+    size_t a_profile[n_profile];
+    size_t i;
+    int max_cnt = 0;
+    memset(a_profile, 0, n_profile*sizeof(size_t));
+    for (i = 0; i <= map_mask(map); ++i) {
+	cucon_hzmap_node_t node = map->arr[i];
+	size_t cnt = 0;
+	while (node) {
+	    if (cnt < n_profile)
+		++a_profile[cnt];
+	    ++cnt;
+	    node = node->next;
+	}
+	if (cnt > max_cnt)
+	    max_cnt = cnt;
+    }
+    fprintf(out, "debug: cucon_hzmap: depth profile:");
+    avg_depth = 0;
+    for (i = 0; i < n_profile; ++i) {
+	double w;
+	if (i > max_cnt)
+	    break;
+	w = a_profile[i]/(double)map->size;
+	fprintf(out, " %5.3f", w);
+	avg_depth += i*w;
+    }
+    fprintf(out, "\n");
+    fprintf(out, "debug: cucon_hzmap:     gives max_depth = %d, avg_depth = %f\n",
+	    max_cnt, avg_depth);
 }
