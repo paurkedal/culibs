@@ -28,12 +28,20 @@ int main()
 	cu_hash_t init;
 	for (j = 0; j < 2; ++j)
 	    arr[j] = lrand48();
+
 	init = lrand48();
 	h0 = cu_wordarr_hash_bj(1, arr, init);
 	h1 = cu_1word_hash_bj(arr[0], init);
 	cu_test_assert(h0 == h1);
 	h0 = cu_wordarr_hash_bj(2, arr, init);
 	h1 = cu_2word_hash_bj(arr[0], arr[1], init);
+	cu_test_assert(h0 == h1);
+
+	h0 = cu_wordarr_hash_noinit_bj(1, arr);
+	h1 = cu_1word_hash_noinit_bj(arr[0]);
+	cu_test_assert(h0 == h1);
+	h0 = cu_wordarr_hash_noinit_bj(2, arr);
+	h1 = cu_2word_hash_noinit_bj(arr[0], arr[1]);
 	cu_test_assert(h0 == h1);
     }
     return 2*!!cu_test_bug_count();

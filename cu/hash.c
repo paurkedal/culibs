@@ -197,6 +197,7 @@ cu_wordarr_hash_bj(size_t count, cu_word_t const *arr, cu_hash_t init)
 cu_hash_t
 cu_1word_hash_bj(cu_word_t d0, cu_hash_t init)
 {
+    uint64_t a, b, c;
     a = b = init;
     c = INT64_C(0x9e3779b97f4a7c1b); /* Added count << 3 where count = 1 */
     a += d0;
@@ -207,6 +208,7 @@ cu_1word_hash_bj(cu_word_t d0, cu_hash_t init)
 cu_hash_t
 cu_2word_hash_bj(cu_word_t d0, cu_word_t d1, cu_hash_t init)
 {
+    uint64_t a, b, c;
     a = b = init;
     c = INT64_C(0x9e3779b97f4a7c23); /* Added count << 3 where count = 2 */
     b += d1;
@@ -220,8 +222,8 @@ cu_wordarr_hash_noinit_bj(size_t count, cu_word_t const *arr)
 {
     uint64_t a, b, c, n;
 
-    n = --count;
-    a = b = *arr++;
+    n = count;
+    a = b = 0;
     c = INT64_C(0x9e3779b97f4a7c13);
     while (n >= 3) {
 	a += arr[0];
@@ -243,9 +245,10 @@ cu_wordarr_hash_noinit_bj(size_t count, cu_word_t const *arr)
 cu_hash_t
 cu_1word_hash_noinit_bj(cu_word_t d0)
 {
+    uint64_t a, b, c;
     c = INT64_C(0x9e3779b97f4a7c1b); /* Added count << 3 where count = 1 */
-    b = 0;
     a = d0;
+    b = 0;
     CU_HASH_BJMIX64(a, b, c);
     return c;
 }
@@ -253,9 +256,10 @@ cu_1word_hash_noinit_bj(cu_word_t d0)
 cu_hash_t
 cu_2word_hash_noinit_bj(cu_word_t d0, cu_word_t d1)
 {
+    uint64_t a, b, c;
     c = INT64_C(0x9e3779b97f4a7c23); /* Added count << 3 where count = 2 */
-    b = d1;
     a = d0;
+    b = d1;
     CU_HASH_BJMIX64(a, b, c);
     return c;
 }
