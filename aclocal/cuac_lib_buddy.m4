@@ -55,7 +55,6 @@ main()
 	AC_MSG_RESULT([disabled])
 	have_buddy=false
     fi
-    AM_CONDITIONAL([have_buddy], [$have_buddy])
     AC_SUBST([BUDDY_CPPFLAGS])
     AC_SUBST([BUDDY_LIBS])
   ])

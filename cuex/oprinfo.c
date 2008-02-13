@@ -38,7 +38,7 @@ cuex_oprinfo_register(cuex_oprinfo_t arr)
 	oprinfo_initialised = cu_true;
     }
     while (arr->name) {
-	if (!cucon_umap_insert_node(&oprinfo_map, &arr->node))
+	if (!cucon_umap_insert_init_node(&oprinfo_map, &arr->node))
 	    cu_bugf("Conflicting defition for operator 0x%x = %s",
 		    cuex_oprinfo_opr(arr), cuex_oprinfo_name(arr));
 	++arr;

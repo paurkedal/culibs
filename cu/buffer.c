@@ -48,9 +48,9 @@ void
 cu_buffer_swap(cu_buffer_t buf0, cu_buffer_t buf1)
 {
     struct cu_buffer_s buf2;
-    memcpy(&buf2, &buf0, sizeof(struct cu_buffer_s));
-    memcpy(&buf1, &buf2, sizeof(struct cu_buffer_s));
-    memcpy(&buf0, &buf1, sizeof(struct cu_buffer_s));
+    memcpy(&buf2,  buf0, sizeof(struct cu_buffer_s));
+    memcpy( buf1, &buf2, sizeof(struct cu_buffer_s));
+    memcpy( buf0,  buf1, sizeof(struct cu_buffer_s));
 }
 
 void

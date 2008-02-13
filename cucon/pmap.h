@@ -99,10 +99,20 @@ CU_SINLINE void cucon_pmap_cct_copy_node(
 CU_SINLINE void cucon_pmap_swap(cucon_pmap_t map0, cucon_pmap_t map1)
 { cucon_umap_swap(&map0->impl, &map1->impl); }
 
-/*!\copydoc cucon_umap_insert_node */
+/*!\copydoc cucon_umap_insert_init_node */
 CU_SINLINE cu_bool_t
-cucon_pmap_insert_node(cucon_pmap_t map, cucon_pmap_node_t node)
-{ return cucon_umap_insert_node(&map->impl, node); }
+cucon_pmap_insert_init_node(cucon_pmap_t map, cucon_pmap_node_t node)
+{ return cucon_umap_insert_init_node(&map->impl, node); }
+
+/*!If \a key is not in \a map, this call allocates a node of size \a node_size,
+ * initialises a \c cucon_pmap_node_s from offset 0 with the key \a key,
+ * inserts the node into \a map, assigns it to \c *\a node_out, and returns
+ * true.  Otherwise, returns false. */
+CU_SINLINE cu_bool_t
+cucon_pmap_insert_new_node(cucon_pmap_t map, void const *key,
+			   size_t node_size, cu_ptr_ptr_t node_out)
+{ return cucon_umap_insert_new_node(&map->impl, (uintptr_t)key,
+				    node_size, node_out); }
 
 /*!\copydoc cucon_umap_insert_mem */
 CU_SINLINE cu_bool_t

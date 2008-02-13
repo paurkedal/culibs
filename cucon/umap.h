@@ -111,7 +111,14 @@ void cucon_umap_cct_copy_node(
 void cucon_umap_swap(cucon_umap_t map0, cucon_umap_t map1);
 
 /*!Insert \a node, which must be prepared with a key, into \a map. */
-cu_bool_t cucon_umap_insert_node(cucon_umap_t map, cucon_umap_node_t node);
+cu_bool_t cucon_umap_insert_init_node(cucon_umap_t map, cucon_umap_node_t node);
+
+/*!If \a key is not in \a map, allocates a node of size \a node_size,
+ * initialises it the key \a key, inserts it, assigns it to \c *\a
+ * node_out, and return true.  Otherwise, returns false.  This works if the
+ * full node inherits \c cucon_umap_node_s <i>at the top</i> of the struct. */
+cu_bool_t cucon_umap_insert_new_node(cucon_umap_t map, uintptr_t key,
+				     size_t node_size, cu_ptr_ptr_t node_out);
 
 /*!If \a key has a mapping in \a map, set \c *\a slot to a pointer to the
  * value and return false, else create a new mapping to \a slot_size bytes

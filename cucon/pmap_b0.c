@@ -63,7 +63,7 @@ bench_em(int N)
 #endif
 	t1 += clock();
 	if (j == 0)
-	    cucon_pmap_show_stats(pmap);
+	    cucon_pmap_dump_stats(pmap, stdout);
     }
     printf("%8d%16lg%16lg\n", N,
 	   t0/((double)CLOCKS_PER_SEC * N * J),

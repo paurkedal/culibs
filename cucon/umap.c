@@ -327,11 +327,38 @@ cucon_umap_insert_general(cucon_umap_t umap, uintptr_t key,
     node->next = NULL;
     if (node_out)
 	*node_out = node;
+    update_cap_after_insert(umap);
     return cu_true;
 }
 
 cu_bool_t
-cucon_umap_insert_node(cucon_umap_t umap, cucon_umap_node_t node)
+cucon_umap_insert_new_node(cucon_umap_t map, uintptr_t key,
+			   size_t node_size, cu_ptr_ptr_t node_out)
+{
+    size_t index;
+    cucon_umap_node_t *head, node;
+
+    index = HASH(node->key) & map->mask;
+    head = &map->arr[index];
+    node = *head;
+    while (node) {
+	if (node->key == key) {
+	    *(cucon_umap_node_t *)node_out = node;
+	    return cu_false;
+	}
+	node = node->next;
+    }
+    ++map->size;
+    node = cu_galloc(node_size);
+    node->key = key;
+    node->next = *head;
+    *head = *(cucon_umap_node_t *)node_out = node;
+    update_cap_after_insert(map);
+    return cu_true;
+}
+
+cu_bool_t
+cucon_umap_insert_init_node(cucon_umap_t umap, cucon_umap_node_t node)
 {
     size_t index;
     cucon_umap_node_t *node0;

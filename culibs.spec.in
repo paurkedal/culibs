@@ -9,7 +9,8 @@ License: GPL
 Group: System/Libraries
 Requires: gc libffi
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildRequires: libffi-devel gc-disclaim-devel libatomic_ops-devel buddy-devel
+BuildRequires: libffi-devel gc-devel libatomic_ops-devel
+%{?use_buddy:BuildRequires: buddy-devel}
 
 %package devel
 Summary: Garbage Collected C Libraries
@@ -65,7 +66,6 @@ test "%{buildroot}" != / && rm -rf "%{buildroot}"
 %_libdir/libcu*[a-z].so
 %_libdir/libcu*.a
 %_libdir/pkgconfig/cu*.pc
-%_datadir/aclocal/cu_useful.m4
 %_includedir/culibs-%{version}
 %_bindir/cuex-otab
 %_bindir/cuset

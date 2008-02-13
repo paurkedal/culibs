@@ -141,6 +141,7 @@ if $enable_cuex; then
     CUAC_LIB_FFI
     CUAC_LIB_BUDDY([22])
 fi
+AM_CONDITIONAL([have_buddy], [$have_buddy])
 
 
 # Optional Features

@@ -8,7 +8,7 @@ Group: System/Libraries
 Requires: gc
 Conflicts: culibs
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildRequires: gc-disclaim-devel libatomic_ops-devel
+BuildRequires: gc-devel libatomic_ops-devel
 
 %package devel
 Summary: Containers Library for Garbage Collected C
@@ -52,4 +52,3 @@ test "%{buildroot}" != / && rm -rf "%{buildroot}"
 %_includedir/culibs-%{version}
 %_bindir/sedi
 %_bindir/cuset
-%_datadir/aclocal/cu_useful.m4

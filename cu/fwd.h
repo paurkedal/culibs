@@ -108,12 +108,18 @@ typedef unsigned int cu_logsize_fast_t;
 typedef unsigned char cu_logsize_least_t;
 #define cu_logsize_width 6
 
-/* Used for fast and weak hashes. */
+/*!An unsigned integer used for narrow (non-cryptographic) hashes. */
 typedef unsigned long int cu_hash_t;
+
+/*!\c sizeof(cu_hash_t) as a const literal. */
 #define CUCONF_SIZEOF_CU_HASH_T CUCONF_SIZEOF_LONG
 
-/* Machine word. */
+/*!An integer of the biggest width which can be efficiently handled by the
+ * architecture.  This must also be wide enough to hold a pointer, so if
+ * there are architetures where pointers are wider than the maximum natural
+ * integer with, a less efficient integer type must me chosen. */
 typedef uintptr_t cu_word_t;
+
 #define CU_WORD_WIDTH CUCONF_WIDTHOF_INTPTR_T
 #define CU_WORD_SIZE CUCONF_SIZEOF_INTPTR_T
 #define CU_WORD_C(x) ((cu_word_t)x##UL)
