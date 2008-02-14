@@ -227,14 +227,14 @@ static void
 set_capacity(cucon_umap_t umap, size_t new_cap)
 {
     size_t i;
-    cucon_pmap_node_t *new_arr;
-    cucon_pmap_node_t *old_arr = umap->arr;
+    cucon_umap_node_t *new_arr;
+    cucon_umap_node_t *old_arr = umap->arr;
     size_t old_cap = umap->mask + 1;
     size_t new_mask;
     if (old_cap == new_cap)
 	return;
 
-    new_arr = cu_galloc(sizeof(cucon_pmap_node_t)*(new_cap + 1));
+    new_arr = cu_galloc(sizeof(cucon_umap_node_t)*(new_cap + 1));
 
     /* 2007-12-19 Keeping old comment for reference:
      * Before calling this function, 'GC_invoke_finalizers' was
@@ -250,12 +250,12 @@ set_capacity(cucon_umap_t umap, size_t new_cap)
 	     umap, umap->size, old_cap, new_cap);
     umap->mask = new_mask = new_cap - 1;
     umap->arr = new_arr;
-    memset(new_arr, 0, sizeof(cucon_pmap_node_t)*new_cap);
+    memset(new_arr, 0, sizeof(cucon_umap_node_t)*new_cap);
     new_arr[new_cap] = (void *)-1;
     for (i = 0; i < old_cap; ++i) {
-	cucon_pmap_node_t node = old_arr[i];
+	cucon_umap_node_t node = old_arr[i];
 	while (node) {
-	    cucon_pmap_node_t next = node->next;
+	    cucon_umap_node_t next = node->next;
 	    size_t index = HASH(node->key) & new_mask;
 	    node->next = new_arr[index];
 	    new_arr[index] = node;
@@ -338,7 +338,7 @@ cucon_umap_insert_new_node(cucon_umap_t map, uintptr_t key,
     size_t index;
     cucon_umap_node_t *head, node;
 
-    index = HASH(node->key) & map->mask;
+    index = HASH(key) & map->mask;
     head = &map->arr[index];
     node = *head;
     while (node) {
@@ -609,7 +609,7 @@ cucon_pmap_iter_mem(cucon_pmap_t pmap,
 {
     size_t i;
     for (i = 0; i <= pmap->impl.mask; ++i) {
-	cucon_pmap_node_t node = pmap->impl.arr[i];
+	cucon_umap_node_t node = pmap->impl.arr[i];
 	while (node != NULL) {
 	    cu_call(cb, (void*)node->key, CU_ALIGNED_PTR_END(node));
 	    node = node->next;
@@ -623,7 +623,7 @@ cucon_pmap_iter_ptr(cucon_pmap_t pmap,
 {
     size_t i;
     for (i = 0; i <= pmap->impl.mask; ++i) {
-	cucon_pmap_node_t node = pmap->impl.arr[i];
+	cucon_umap_node_t node = pmap->impl.arr[i];
 	while (node != NULL) {
 	    cu_call(cb, (void*)node->key,
 		     *(void **)CU_ALIGNED_PTR_END(node));
@@ -637,7 +637,7 @@ cucon_umap_iter_mem(cucon_umap_t umap, cu_clop(cb, void, uintptr_t, void *))
 {
     size_t i;
     for (i = 0; i <= umap->mask; ++i) {
-	cucon_pmap_node_t node = umap->arr[i];
+	cucon_umap_node_t node = umap->arr[i];
 	while (node != NULL) {
 	    cu_call(cb, node->key, CU_ALIGNED_PTR_END(node));
 	    node = node->next;
@@ -667,7 +667,7 @@ cucon_pmap_conj_general(cucon_pmap_t map, size_t node_offset,
 {
     size_t i;
     for (i = 0; i <= map->impl.mask; ++i) {
-	cucon_pmap_node_t node = map->impl.arr[i];
+	cucon_umap_node_t node = map->impl.arr[i];
 	while (node) {
 	    if (!cu_call(cb, (void const *)node->key,
 			 (void *)node - node_offset))
@@ -684,7 +684,7 @@ cucon_umap_conj_node(cucon_umap_t map,
 {
     size_t i;
     for (i = 0; i <= map->mask; ++i) {
-	cucon_pmap_node_t node = map->arr[i];
+	cucon_umap_node_t node = map->arr[i];
 	while (node) {
 	    if (!cu_call(cb, node))
 		return cu_false;
@@ -700,7 +700,7 @@ cucon_pmap_conj_mem(cucon_pmap_t pmap,
 {
     size_t i;
     for (i = 0; i <= pmap->impl.mask; ++i) {
-	cucon_pmap_node_t node = pmap->impl.arr[i];
+	cucon_umap_node_t node = pmap->impl.arr[i];
 	while (node != NULL) {
 	    if (!cu_call(cb, (void*)node->key, CU_ALIGNED_PTR_END(node)))
 		return cu_false;
@@ -716,7 +716,7 @@ cucon_pmap_conj_ptr(cucon_pmap_t pmap,
 {
     size_t i;
     for (i = 0; i <= pmap->impl.mask; ++i) {
-	cucon_pmap_node_t node = pmap->impl.arr[i];
+	cucon_umap_node_t node = pmap->impl.arr[i];
 	while (node != NULL) {
 	    if (!cu_call(cb, (void*)node->key,
 			  *(void **)CU_ALIGNED_PTR_END(node)))
@@ -733,7 +733,7 @@ cucon_umap_conj_mem(cucon_umap_t umap,
 {
     size_t i;
     for (i = 0; i <= umap->mask; ++i) {
-	cucon_pmap_node_t node = umap->arr[i];
+	cucon_umap_node_t node = umap->arr[i];
 	while (node != NULL) {
 	    if (!cu_call(cb, node->key, CU_ALIGNED_PTR_END(node)))
 		return cu_false;
@@ -748,7 +748,7 @@ cucon_pmap_iter_keys(cucon_pmap_t pmap, cu_clop(cb, void, void const *))
 {
     size_t i;
     for (i = 0; i <= pmap->impl.mask; ++i) {
-	cucon_pmap_node_t node = pmap->impl.arr[i];
+	cucon_umap_node_t node = pmap->impl.arr[i];
 	while (node != NULL) {
 	    cu_call(cb, (void*)node->key);
 	    node = node->next;
@@ -761,7 +761,7 @@ cucon_umap_iter_keys(cucon_umap_t umap, cu_clop(cb, void, uintptr_t))
 {
     size_t i;
     for (i = 0; i <= umap->mask; ++i) {
-	cucon_pmap_node_t node = umap->arr[i];
+	cucon_umap_node_t node = umap->arr[i];
 	while (node != NULL) {
 	    cu_call(cb, node->key);
 	    node = node->next;
@@ -783,7 +783,7 @@ cucon_umap_iter_increasing_keys(cucon_umap_t umap,
     uintptr_t *arr = cu_salloc(sizeof(uintptr_t)*umap->size);
     uintptr_t *p = arr;
     for (i = 0; i <= umap->mask; ++i) {
-	cucon_pmap_node_t node = umap->arr[i];
+	cucon_umap_node_t node = umap->arr[i];
 	while (node != NULL) {
 	    *p++ = node->key;
 	    node = node->next;
@@ -800,7 +800,7 @@ cucon_pmap_conj_keys(cucon_pmap_t pmap, cu_clop(cb, cu_bool_t, void const *))
 {
     size_t i;
     for (i = 0; i <= pmap->impl.mask; ++i) {
-	cucon_pmap_node_t node = pmap->impl.arr[i];
+	cucon_umap_node_t node = pmap->impl.arr[i];
 	while (node != NULL) {
 	    if (!cu_call(cb, (void const*)node->key))
 		return cu_false;
@@ -815,7 +815,7 @@ cucon_umap_conj_keys(cucon_umap_t umap, cu_clop(cb, cu_bool_t, uintptr_t))
 {
     size_t i;
     for (i = 0; i <= umap->mask; ++i) {
-	cucon_pmap_node_t node = umap->arr[i];
+	cucon_umap_node_t node = umap->arr[i];
 	while (node != NULL) {
 	    if (!cu_call(cb, node->key))
 		return cu_false;
@@ -832,7 +832,7 @@ cucon_umap_eq_keys(cucon_umap_t umap0, cucon_umap_t umap1)
     if (cucon_umap_size(umap0) != cucon_umap_size(umap1))
 	return cu_false;
     for (i = 0; i <= umap0->mask; ++i) {
-	cucon_pmap_node_t node = umap0->arr[i];
+	cucon_umap_node_t node = umap0->arr[i];
 	while (node != NULL) {
 	    if (!cucon_umap_find_mem(umap1, node->key))
 		return cu_false;
@@ -849,7 +849,7 @@ cucon_umap_eq_mem(cucon_umap_t umap0, cucon_umap_t umap1, size_t slot_size)
     if (cucon_umap_size(umap0) != cucon_umap_size(umap1))
 	return cu_false;
     for (i = 0; i <= umap0->mask; ++i) {
-	cucon_pmap_node_t node = umap0->arr[i];
+	cucon_umap_node_t node = umap0->arr[i];
 	while (node != NULL) {
 	    void *slot = cucon_umap_find_mem(umap1, node->key);
 	    if (!slot)
@@ -867,7 +867,7 @@ cucon_umap_hash_keys(cucon_umap_t umap)
     size_t i;
     cu_hash_t hash = 178841123;
     for (i = 0; i <= umap->size; ++i) {
-	cucon_pmap_node_t node = umap->arr[i];
+	cucon_umap_node_t node = umap->arr[i];
 	while (node != NULL) {
 	    hash += HASH(node->key);
 	    node = node->next;
@@ -882,7 +882,7 @@ cucon_umap_hash_mem(cucon_umap_t umap, size_t slot_size)
     size_t i;
     cu_hash_t hash = 178841123;
     for (i = 0; i <= umap->size; ++i) {
-	cucon_pmap_node_t node = umap->arr[i];
+	cucon_umap_node_t node = umap->arr[i];
 	while (node != NULL) {
 	    cu_hash_t subhash = HASH(node->key);
 	    void *slot = CU_ALIGNED_PTR_END(node);

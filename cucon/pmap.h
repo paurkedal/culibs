@@ -42,9 +42,16 @@ struct cucon_pmap_s
     struct cucon_umap_s impl;
 };
 
-typedef struct cucon_umap_node_s *cucon_pmap_node_t;
-#define cucon_pmap_node_s cucon_umap_node_s
+struct cucon_pmap_node_s
+{
+    struct cucon_umap_node_s impl;
+};
+
+typedef struct cucon_pmap_node_s *cucon_pmap_node_t;
 typedef cucon_umap_it_t cucon_pmap_it_t;
+
+CU_SINLINE void *cucon_pmap_node_key(cucon_pmap_node_t node)
+{ return (void *)cucon_umap_node_key(&node->impl); }
 
 /*!Construct \a map as an empty property map. */
 CU_SINLINE void cucon_pmap_cct(cucon_pmap_t map)
@@ -87,7 +94,10 @@ CU_SINLINE void cucon_pmap_cct_copy_mem_ctor(
 CU_SINLINE void cucon_pmap_cct_copy_node(
     cucon_pmap_t dst, cucon_pmap_t src,
     cu_clop(node_alloc_copy, cucon_pmap_node_t, void *, uintptr_t))
-{ cucon_umap_cct_copy_node(&dst->impl, &src->impl, node_alloc_copy); }
+{
+    cucon_umap_cct_copy_node(&dst->impl, &src->impl,
+	(cu_clop(, cucon_umap_node_t, void *, uintptr_t))node_alloc_copy);
+}
 /* TODO. Fix key argument. */
 
 #define cucon_pmap_node_alloc(slot_size) \
@@ -102,7 +112,7 @@ CU_SINLINE void cucon_pmap_swap(cucon_pmap_t map0, cucon_pmap_t map1)
 /*!\copydoc cucon_umap_insert_init_node */
 CU_SINLINE cu_bool_t
 cucon_pmap_insert_init_node(cucon_pmap_t map, cucon_pmap_node_t node)
-{ return cucon_umap_insert_init_node(&map->impl, node); }
+{ return cucon_umap_insert_init_node(&map->impl, &node->impl); }
 
 /*!If \a key is not in \a map, this call allocates a node of size \a node_size,
  * initialises a \c cucon_pmap_node_s from offset 0 with the key \a key,
@@ -188,7 +198,7 @@ CU_SINLINE void cucon_pmap_update_cap(cucon_pmap_t map)
 /*!\copydoc cucon_umap_find_node */
 CU_SINLINE cucon_pmap_node_t
 cucon_pmap_find_node(cucon_pmap_t map, void const *key)
-{ return cucon_umap_find_node(&map->impl, (uintptr_t)key); }
+{ return (cucon_pmap_node_t)cucon_umap_find_node(&map->impl, (uintptr_t)key); }
 
 /*!\copydoc cucon_umap_find_mem */
 CU_SINLINE void *cucon_pmap_find_mem(cucon_pmap_t map, void const *key)
@@ -233,7 +243,10 @@ cu_bool_t cucon_pmap_conj_keys(cucon_pmap_t map,
 CU_SINLINE cu_bool_t
 cucon_pmap_conj_node(cucon_pmap_t map,
 		     cu_clop(cb, cu_bool_t, cucon_pmap_node_t node))
-{ return cucon_umap_conj_node(&map->impl, cb); }
+{
+    return cucon_umap_conj_node(&map->impl,
+				(cu_clop(, cu_bool_t, cucon_umap_node_t))cb);
+}
 
 /*!\copydoc cucon_umap_assign_isecn_union */
 CU_SINLINE void
