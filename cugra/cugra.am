@@ -3,6 +3,7 @@ if enable_cugra
 cugra_headers = \
 	cugra/fwd.h \
 	cugra/graph.h \
+	cugra/graph_scc.h \
 	cugra/graph_algo.h
 
 cugra_sources = \
@@ -10,10 +11,12 @@ cugra_sources = \
 	cugra/graph_algo.c \
 	cugra/graph_io.c \
 	cugra/graph_msc.c \
+	cugra/graph_scc.c \
 	cugra/graph_shortpath.c \
 	cugra/init.c
 
-cugra_check_programs =
+cugra_check_programs = \
+	cugra/graph_scc_t0
 
 if have_buddy
 cugra_headers += cugra/bdd_buddy.h
@@ -23,5 +26,7 @@ endif
 
 cugra_graph_t0_SOURCES = cugra/graph_t0.c
 cugra_graph_t0_LDADD = libcugra.la
+cugra_graph_scc_t0_SOURCES = cugra/graph_scc_t0.c
+cugra_graph_scc_t0_LDADD = libcugra.la
 
 endif
