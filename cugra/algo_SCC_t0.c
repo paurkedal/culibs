@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cugra/graph_scc.h>
+#include <cugra/algo_SCC.h>
 #include <cugra/graph.h>
 #include <cucon/uset.h>
 #include <cu/test.h>
@@ -38,23 +38,23 @@ struct my_subvertex_s
 
 struct my_cb_s
 {
-    cu_inherit (cugra_graph_SCC_cb_s);
+    cu_inherit (cugra_detect_SCC_s);
     cugra_graph_t G;
 };
 
 void *
-my_cpt_new(cugra_graph_SCC_cb_t self)
+my_cpt_new(cugra_detect_SCC_t self)
 {
     my_subvertex_t cpt = cu_gnew(struct my_subvertex_s);
     printf("New component:\n");
     cucon_uset_cct(&cpt->labels);
-    cugra_graph_vertex_init(cu_from(my_cb, cugra_graph_SCC_cb, self)->G,
+    cugra_graph_vertex_init(cu_from(my_cb, cugra_detect_SCC, self)->G,
 			    cu_to(cugra_vertex, cpt));
     return cpt;
 }
 
 void
-my_cpt_insert(cugra_graph_SCC_cb_t self, void *cpt, cugra_vertex_t v)
+my_cpt_insert(cugra_detect_SCC_t self, void *cpt, cugra_vertex_t v)
 {
     int label = cu_from(my_vertex, cugra_vertex, v)->label;
     printf("    Vertex %d.\n", label);
@@ -62,21 +62,21 @@ my_cpt_insert(cugra_graph_SCC_cb_t self, void *cpt, cugra_vertex_t v)
 }
 
 void
-my_cpt_connect(cugra_graph_SCC_cb_t self, void *tail, void *head)
+my_cpt_connect(cugra_detect_SCC_t self, void *tail, void *head)
 {
     printf("Connect ");
-    cucon_uset_print(&((my_subvertex_t)head)->labels, stdout);
-    printf(" --> ");
     cucon_uset_print(&((my_subvertex_t)tail)->labels, stdout);
+    printf(" --> ");
+    cucon_uset_print(&((my_subvertex_t)head)->labels, stdout);
     printf("\n");
 }
 
 void
 my_cb_init(my_cb_t cb)
 {
-    cu_to(cugra_graph_SCC_cb, cb)->cpt_new = my_cpt_new;
-    cu_to(cugra_graph_SCC_cb, cb)->cpt_insert = my_cpt_insert;
-    cu_to(cugra_graph_SCC_cb, cb)->cpt_connect = my_cpt_connect;
+    cu_to(cugra_detect_SCC, cb)->cpt_new = my_cpt_new;
+    cu_to(cugra_detect_SCC, cb)->cpt_insert = my_cpt_insert;
+    cu_to(cugra_detect_SCC, cb)->cpt_connect = my_cpt_connect;
     cb->G = cugra_graph_new(0);
 }
 
@@ -107,7 +107,7 @@ test()
     A(8, 9); A(9, 10); A(10, 8); A(9, 0); A(9, 6);
 #undef A
     my_cb_init(&cb);
-    cugra_graph_SCC_cb(G, cu_to(cugra_graph_SCC_cb, &cb));
+    cugra_detect_SCC(G, cu_to(cugra_detect_SCC, &cb));
 }
 
 int

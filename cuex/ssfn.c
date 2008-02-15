@@ -187,24 +187,24 @@ cu_clos_def(cuexP_ssfn_cct_copy_idr_or_exaddr,
     cuexP_ssfn_cct_copy(dst_slot, src_slot, self->jargs);
 }
 cu_clos_def(cuexP_ssfn_cct_copy_opr,
-	    cu_prot(cucon_pmap_node_t, void *src_slot, uintptr_t key),
+	    cu_prot(cucon_umap_node_t, void *src_slot, uintptr_t key),
 	    (cuexP_ssfn_cct_copy_jargs_t jargs;))
 {
     cu_clos_self(cuexP_ssfn_cct_copy_opr);
-    cucon_pmap_node_t node;
+    cucon_umap_node_t node;
     cuexP_ssfn_cct_copy_jargs_t jargs = self->jargs;
     cu_count_t pending_cnt_save = jargs->pending_cnt;
     jargs->pending_cnt += cuex_opr_r(key);
     if (jargs->pending_cnt == 0) {
-	node = cucon_pmap_node_alloc(jargs->slot_size);
+	node = cucon_umap_node_alloc(jargs->slot_size);
 	cu_call(jargs->value_cct_copy,
-		 cucon_pmap_node_get_mem(node), src_slot);
+		cucon_umap_node_get_mem(node), src_slot);
     }
     else {
 	cu_count_t var_cnt = jargs->var_cnt;
-	node = cucon_pmap_node_alloc(CU_ALIGNED_SIZEOF(struct cuex_ssfn_node_s)
-				   + sizeof(cuex_ssfn_node_t)*var_cnt);
-	cuexP_ssfn_cct_copy(cucon_pmap_node_get_mem(node), src_slot, jargs);
+	node = cucon_umap_node_alloc(CU_ALIGNED_SIZEOF(struct cuex_ssfn_node_s)
+				     + sizeof(cuex_ssfn_node_t)*var_cnt);
+	cuexP_ssfn_cct_copy(cucon_umap_node_get_mem(node), src_slot, jargs);
     }
     jargs->pending_cnt = pending_cnt_save;
     return node;

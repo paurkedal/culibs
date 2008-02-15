@@ -21,18 +21,18 @@
 #include <cugra/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cugra_graph_scc_h cugra/graph_scc.h: Detect strongly connected components
+/*!\defgroup cugra_algo_SCC_h cugra/algo_SCC.h: Detect strongly connected components
  *@{\ingroup cugra_mod */
 
-typedef struct cugra_graph_SCC_cb_s *cugra_graph_SCC_cb_t;
-struct cugra_graph_SCC_cb_s
+typedef struct cugra_detect_SCC_s *cugra_detect_SCC_t;
+struct cugra_detect_SCC_s
 {
-    void *(*cpt_new)(cugra_graph_SCC_cb_t self);
-    void (*cpt_insert)(cugra_graph_SCC_cb_t self, void *cpt, cugra_vertex_t v);
-    void (*cpt_connect)(cugra_graph_SCC_cb_t self, void *tail_cpt, void *head_cpt);
+    void *(*cpt_new)(cugra_detect_SCC_t self);
+    void (*cpt_insert)(cugra_detect_SCC_t self, void *cpt, cugra_vertex_t v);
+    void (*cpt_connect)(cugra_detect_SCC_t self, void *tail_cpt, void *head_cpt);
 };
 
-void cugra_graph_SCC_cb(cugra_graph_t G, cugra_graph_SCC_cb_t cb);
+void cugra_detect_SCC(cugra_graph_t G, cugra_detect_SCC_t cb);
 
 /*!@}*/
 CU_END_DECLARATIONS

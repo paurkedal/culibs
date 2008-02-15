@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cugra/graph_scc.h>
+#include <cugra/algo_SCC.h>
 #include <cugra/graph.h>
 #include <cucon/pmap.h>
 #include <cucon/stack.h>
@@ -31,9 +31,9 @@ struct SCC_vinfo_s {
 };
 
 static int
-SCC_traverse_cb(cugra_graph_SCC_cb_t cb,
-		cucon_pmap_t vinfo_map, cugra_vertex_t tail, int *index_pool,
-		SCC_vinfo_t *vertex_stack, cucon_stack_t cpt_stack)
+detect_SCC(cugra_detect_SCC_t cb,
+	   cucon_pmap_t vinfo_map, cugra_vertex_t tail, int *index_pool,
+	   SCC_vinfo_t *vertex_stack, cucon_stack_t cpt_stack)
 {
     SCC_vinfo_t tail_info;
     if (cucon_pmap_insert_new_node(vinfo_map, tail,
@@ -50,8 +50,8 @@ SCC_traverse_cb(cugra_graph_SCC_cb_t cb,
 
 	cugra_vertex_for_outarcs(arc, tail) {
 	    cugra_vertex_t head = cugra_arc_head(arc);
-	    head_min_reach = SCC_traverse_cb(cb, vinfo_map, head, index_pool,
-					     vertex_stack, cpt_stack);
+	    head_min_reach = detect_SCC(cb, vinfo_map, head, index_pool,
+					vertex_stack, cpt_stack);
 	    tail_min_reach = cu_int_min(tail_min_reach, head_min_reach);
 	}
 
@@ -85,7 +85,7 @@ SCC_traverse_cb(cugra_graph_SCC_cb_t cb,
 }
 
 void
-cugra_graph_SCC_cb(cugra_graph_t G, cugra_graph_SCC_cb_t cb)
+cugra_detect_SCC(cugra_graph_t G, cugra_detect_SCC_t cb)
 {
     cugra_vertex_t v;
     struct cucon_pmap_s vinfo_map;
@@ -96,6 +96,5 @@ cugra_graph_SCC_cb(cugra_graph_t G, cugra_graph_SCC_cb_t cb)
     cucon_stack_cct(&cpt_stack);
     cucon_pmap_cct(&vinfo_map);
     cugra_graph_for_vertices(v, G)
-	SCC_traverse_cb(cb, &vinfo_map, v, &index_pool,
-			&vertex_stack, &cpt_stack);
+	detect_SCC(cb, &vinfo_map, v, &index_pool, &vertex_stack, &cpt_stack);
 }

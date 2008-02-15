@@ -22,6 +22,7 @@
 #include <cucon/fwd.h>
 #include <cucon/umap.h>
 #include <cu/memory.h>
+#include <cu/util.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_pmap_h cucon/pmap.h: Pointer-Keyed Hash Map
@@ -100,10 +101,11 @@ CU_SINLINE void cucon_pmap_cct_copy_node(
 }
 /* TODO. Fix key argument. */
 
-#define cucon_pmap_node_alloc(slot_size) \
-	cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_umap_node_s) + slot_size)
-#define cucon_pmap_node_get_mem(node) \
-	CU_ALIGNED_MARG_END(cucon_umap_node_t, node)
+CU_SINLINE cucon_pmap_node_t cucon_pmap_node_alloc(size_t slot_size)
+{ return cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_pmap_node_s) + slot_size); }
+
+CU_SINLINE void *cucon_pmap_node_get_mem(cucon_pmap_node_t node)
+{ return node + 1; }
 
 /*!\copydoc cucon_umap_swap */
 CU_SINLINE void cucon_pmap_swap(cucon_pmap_t map0, cucon_pmap_t map1)
