@@ -177,6 +177,7 @@ cucon_hzmap_insert(map_t map, void const *key,
 	p = &(*p)->next;
     }
     *p = cu_galloc(node_size);
+    CU_GCLEAR_PTR((*p)->next);
     key_copy(key_size_w, node_key(*p), key);
     *node_out = *p;
     ++map->size;
@@ -202,6 +203,7 @@ cucon_hzmap_insert_void(map_t map, void const *key)
     }
     *p = cu_galloc(sizeof(struct cucon_hzmap_node_s)
 		   + key_size_w*sizeof(cu_word_t));
+    CU_GCLEAR_PTR((*p)->next);
     key_copy(key_size_w, node_key(*p), key);
     ++map->size;
     return cu_true;
@@ -220,13 +222,12 @@ cucon_hzmap_erase(map_t map, void const *key)
 	if (key_eq(key_size_w, node_key(*p), key)) {
 	    *p = (*p)->next;
 	    --map->size;
+	    if (map->size*MINFILL_DENOM < map_cap_est(map)*MINFILL_NUMER)
+		shrink(map, map_cap(map)/2);
 	    return cu_true;
 	}
 	p = &(*p)->next;
     }
-
-    if (map->size*MINFILL_DENOM < map_cap_est(map)*MINFILL_NUMER)
-	shrink(map, map_cap(map)/2);
 
     return cu_false;
 }
