@@ -44,7 +44,9 @@ CU_BEGIN_DECLARATIONS
  * \endcode
  */
 
-#define cugra_opt_undirected 1
+#define CUGRA_GFLAG_UNDIRECTED	1  /*!< Graph is undirected. */
+#define CUGRA_GFLAG_LOOPFREE	2  /*!< \i Unused. The graph has no loops. */
+#define CUGRA_GFLAG_SIMPLEARCED	4  /*!< All arcs are simple. */
 
 typedef enum {
     cugra_direction_BEGIN,
@@ -55,8 +57,16 @@ typedef enum {
 
 struct cugra_graph_s
 {
-    unsigned int options;
+    unsigned int gflags;
     struct cu_dlink_s vertices;
+};
+
+struct cugra_graph_with_arcset_s
+{
+    cu_inherit (cugra_graph_s);
+    size_t arcset_size;
+    size_t arcset_mask;
+    struct cugraP_arcset_node_s **arcset_arr;
 };
 
 struct cugra_vertex_s
@@ -76,18 +86,25 @@ struct cugra_arc_s
     struct cugra_adjlink_s adj[2];
 };
 
-/*!Construct \a G as an empty graph. */
-void cugra_graph_cct(cugra_graph_t G, unsigned int options);
+/*!Construct \a G as an empty graph.  This constructor does not support the
+ * \ref CUGRA_GFLAG_SIMPLEARCED flag, use \ref cugra_graph_new in that case. */
+void cugra_graph_cct(cugra_graph_t G, unsigned int gflags);
 
 /*!Return an empty graph. */
-cugra_graph_t cugra_graph_new(unsigned int options);
+cugra_graph_t cugra_graph_new(unsigned int gflags);
 
 /*!Moves all vertices and arcs from \a G_src into \a G_dst. */
 void cugra_graph_merge(cugra_graph_t G_dst, cugra_graph_t G_src);
 
-/*!True iff \a G is a directed graph. */
+/*!True iff \a G was created without the \ref CUGRA_GFLAG_UNDIRECTED flag, i.e.
+ * it's a directed graph. */
 CU_SINLINE cu_bool_t cugra_graph_is_directed(cugra_graph_t G)
-{ return !(G->options & cugra_opt_undirected); }
+{ return !(G->gflags & CUGRA_GFLAG_UNDIRECTED); }
+
+/*!True iff \a G was created with the \ref CUGRA_GFLAG_SIMPLEARCED flag, i.e.
+ * all arcs are kept simple by the graph methods. */
+CU_SINLINE cu_bool_t cugra_graph_is_simplearced(cugra_graph_t G)
+{ return G->gflags & CUGRA_GFLAG_SIMPLEARCED; }
 
 /*!Construct and insert \a v into \a G. This variant is useful when \a v is
  * inherited in another struct, otherwise see \ref cugra_graph_vertex_new. */
@@ -142,32 +159,53 @@ CU_SINLINE cu_bool_t cugra_vertex_indegree_leq_1(cugra_vertex_t v)
 /*!True iff \a v has a loop. */
 cu_bool_t cugra_vertex_has_loop(cugra_vertex_t v);
 
+/*!Connects \a tail to \a head with a custom arc type of size \a arc_size which
+ * is returned in \c *\a out_arc.  If the graph has simple arcs and an arc from
+ * \a tail to \a head exists, then returns false and sets \c *\a arc_out to the
+ * found arc.  Otherwise, returns true. */
+cu_bool_t cugra_connect_custom(cugra_graph_t G,
+			       cugra_vertex_t tail, cugra_vertex_t head,
+			       size_t arc_size, cugra_arc_t *arc_out);
+
+/*!Connects \a tail to \a head.  If the graph has simple arcs and an arc from
+ * \a tail to \a head exists, then returns false, otherwise returns true. */
+cu_bool_t cugra_connect(cugra_graph_t G,
+			cugra_vertex_t tail, cugra_vertex_t head);
+
+/*!Removes all arcs from \a tail to \a head, and returns the number removed. */
+int cugra_disconnect(cugra_graph_t G, cugra_vertex_t tail, cugra_vertex_t head);
+
+/*!Erases \a arc. */
+void cugra_erase_arc(cugra_graph_t G, cugra_arc_t arc);
+
 /*!Insert an arc from \a tail to \a head and return a reference to it. */
-cugra_arc_t cugra_graph_arc_new(cugra_vertex_t tail, cugra_vertex_t head);
+cugra_arc_t cugra_graph_arc_new(cugra_vertex_t tail, cugra_vertex_t head)
+    CU_ATTR_DEPRECATED;
 
 /*!Insert an arc from \a tail to \a head with slot size \a size and return
  * it. */
 cugra_arc_t cugra_graph_arc_new_mem(cugra_vertex_t tail, cugra_vertex_t head,
-				    size_t size);
+				    size_t size)
+    CU_ATTR_DEPRECATED;
 
 /*!Insert an arc from \a tail to \a head with slot initialised to \a ptr and
  * return it. */
 cugra_arc_t cugra_graph_arc_new_ptr(cugra_vertex_t tail, cugra_vertex_t head,
-				    void *ptr);
+				    void *ptr)
+    CU_ATTR_DEPRECATED;
 
-/*!Erase \a a from its graph. */
-void cugra_erase_arc(cugra_arc_t a);
+/*!Erase \a v and all incident arcs from \a G. */
+void cugra_erase_vertex(cugra_graph_t G, cugra_vertex_t v);
 
-/*!Erase \a v and all incident arcs from its graph. */
-void cugra_erase_vertex(cugra_vertex_t v);
-extern cu_clop(cugra_erase_vertex_clop, void, cugra_vertex_t);
+cu_clos_edec(cugra_erase_vertex_clos, cu_prot(void, cugra_vertex_t),
+	     (cugra_graph_t G;));
 
 /*!Make arcs from each in-neightbour of \a v to each out-neighbour of \a v,
  * and erase \a v and all its incident arcs. */
-void cugra_eliminate_vertex(cugra_vertex_t v);
+void cugra_eliminate_vertex(cugra_graph_t G, cugra_vertex_t v);
 
 /*!Erase all loops on \a v. */
-void cugra_vertex_erase_loops(cugra_vertex_t v);
+void cugra_vertex_erase_loops(cugra_graph_t G, cugra_vertex_t v);
 
 /*!Erase loops on all vertices of \a G. */
 void cugra_graph_erase_loops(cugra_graph_t G);
@@ -191,6 +229,17 @@ cugra_arc_head(cugra_arc_t e) { return e->adj[cugra_direction_out].vertex; }
 /*!The tail of \a e. */
 CU_SINLINE cugra_vertex_t
 cugra_arc_tail(cugra_arc_t e) { return e->adj[cugra_direction_in].vertex; }
+
+/*!True iff \a a points from \a vH to \a vT. */
+CU_SINLINE cu_bool_t
+cugra_arc_connects(cugra_arc_t a, cugra_vertex_t vT, cugra_vertex_t vH)
+{ return cugra_arc_tail(a) == vT && cugra_arc_head(a) == vH; }
+
+/*!True iff \a joins vertices \a v0 and \a v1 in any direction. */
+CU_SINLINE cu_bool_t
+cugra_arc_unord_connects(cugra_arc_t a, cugra_vertex_t v0, cugra_vertex_t v1)
+{ return cugra_arc_head(a) == v0?   cugra_arc_tail(a) == v1
+       : cugra_arc_head(a) == v1 && cugra_arc_tail(a) == v0; }
 
 /*!True iff \a a is a loop (head = tail). */
 CU_SINLINE cu_bool_t

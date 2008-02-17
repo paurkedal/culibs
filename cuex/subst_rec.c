@@ -46,6 +46,7 @@ cu_clos_def(build_graph_vertex_cb,
 cu_clos_def(build_graph_connect_cb,
 	    cu_prot(cu_bool_t, cuex_var_t var),
     ( cuex_subst_t sig;
+      cugra_graph_t G;
       cucon_pmap_t var_to_vertex;
       cugra_vertex_t vtx_tail; ))
 {
@@ -55,7 +56,7 @@ cu_clos_def(build_graph_connect_cb,
     if (vq) {
 	var = cuex_veqv_primary_var(vq);
 	cu_debug_assert(vtx_head);
-	cugra_graph_arc_new(self->vtx_tail, vtx_head);
+	cugra_connect(self->G, self->vtx_tail, vtx_head);
     }
     return cu_true;
 }
@@ -72,6 +73,7 @@ cu_clos_def(build_graph_arc_cb,
 	build_graph_connect_cb_t cb;
 	cuex_var_t var = cuex_veqv_primary_var(vq);
 	cb.sig = self->sig;
+	cb.G = self->G;
 	cb.vtx_tail = cucon_pmap_find_ptr(self->var_to_vertex, var);
 	cb.var_to_vertex = self->var_to_vertex;
 	cu_debug_assert(cb.vtx_tail);

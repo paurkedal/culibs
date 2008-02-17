@@ -190,7 +190,7 @@ cugra_move_MSC_subgraphs(cugra_graph_t G, cucon_stack_t KG)
     cugra_identify_MSC(G, &KV, NULL);
     while (!cucon_stack_is_empty(&KV)) {
 	cucon_pmap_t V = CUCON_STACK_TOP(&KV, cucon_pmap_t);
-	cugra_graph_t Gp = cugra_graph_new(G->options);
+	cugra_graph_t Gp = cugra_graph_new(G->gflags);
 	CUCON_STACK_POP(&KV, cucon_pmap_t);
 	cugra_move_induced_subgraph(V, G, Gp);
 	CUCON_STACK_PUSH(KG, cugra_graph_t, Gp);

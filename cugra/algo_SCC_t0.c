@@ -99,7 +99,7 @@ test()
     cugra_graph_t G = cugra_graph_new(0);
 
     cucon_umap_cct(&M);
-#define A(x, y) cugra_graph_arc_new(vertex(G, &M, x), vertex(G, &M, y))
+#define A(x, y) cugra_connect(G, vertex(G, &M, x), vertex(G, &M, y))
     A(0, 0); A(0, 1); A(1, 2); A(1, 3); A(2, 3); A(3, 0);
     A(4, 5); A(5, 4); A(4, 2); A(5, 0);
     A(6, 3);

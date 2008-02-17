@@ -51,18 +51,18 @@ MFVS_reduce_graph(cugra_graph_t G, cucon_pset_t V, cucon_pmap_t vdst_to_vsrc)
 	CUCON_STACK_POP(&KV, cugra_vertex_t);
 	if (cugra_vertex_is_sink(v) || cugra_vertex_is_source(v)) {
 	    push_neighbourhood(&KV, v);
-	    cugra_erase_vertex(v);
+	    cugra_erase_vertex(G, v);
 	}
 	else if (cugra_vertex_has_loop(v)) {
 	    cugra_vertex_t v_dst = cucon_pmap_find_ptr(vdst_to_vsrc, v);
 	    cucon_pset_insert(V, v_dst);
 	    push_neighbourhood(&KV, v);
-	    cugra_erase_vertex(v);
+	    cugra_erase_vertex(G, v);
 	}
 	else if (cugra_vertex_outdegree_leq_1(v)
 		 || cugra_vertex_indegree_leq_1(v)) {
 	    push_neighbourhood(&KV, v);
-	    cugra_eliminate_vertex(v);
+	    cugra_eliminate_vertex(G, v);
 	}
     }
 }

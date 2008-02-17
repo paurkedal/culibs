@@ -19,6 +19,7 @@
 #define CUGRA_GRAPH_SCC_H
 
 #include <cugra/fwd.h>
+#include <cu/clos.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cugra_algo_SCC_h cugra/algo_SCC.h: Detect strongly connected components
@@ -33,6 +34,10 @@ struct cugra_detect_SCC_s
 };
 
 void cugra_detect_SCC(cugra_graph_t G, cugra_detect_SCC_t cb);
+
+cugra_graph_t
+cugra_SCC_graph_of_lists(cugra_graph_t G, size_t vslot_size,
+			 cu_clop(vslot_copy, void, void *src, void *dst));
 
 /*!@}*/
 CU_END_DECLARATIONS

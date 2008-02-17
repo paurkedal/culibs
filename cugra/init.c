@@ -29,8 +29,6 @@ bdd_error(int err)
 }
 #endif
 
-void cugraP_graph_init(void);
-
 void
 cugra_init(void)
 {
@@ -40,7 +38,6 @@ cugra_init(void)
     done_init = 1;
 
     cu_init();
-    cugraP_graph_init();
 
 #ifdef CUCONF_HAVE_BUDDY
     bdd_init(10000, 1000);

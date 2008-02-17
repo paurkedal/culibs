@@ -16,7 +16,8 @@ cugra_sources = \
 	cugra/init.c
 
 cugra_check_programs = \
-	cugra/algo_SCC_t0
+	cugra/algo_SCC_t0 \
+	cugra/graph_t1
 
 if have_buddy
 cugra_headers += cugra/bdd_buddy.h
@@ -26,6 +27,8 @@ endif
 
 cugra_graph_t0_SOURCES = cugra/graph_t0.c
 cugra_graph_t0_LDADD = libcugra.la
+cugra_graph_t1_SOURCES = cugra/graph_t1.c
+cugra_graph_t1_LDADD = libcugra.la
 cugra_algo_SCC_t0_SOURCES = cugra/algo_SCC_t0.c
 cugra_algo_SCC_t0_LDADD = libcugra.la
 

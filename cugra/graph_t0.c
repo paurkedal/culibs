@@ -70,6 +70,7 @@ test(int vertex_cnt, cu_bool_t do_save)
     struct cucon_stack_s msc_stack;
     struct cucon_pmap_s msc_pmap;
     struct cucon_pset_s V;
+    cugra_erase_vertex_clos_t erase_vertex_clos;
 
     for (i = 0; i < vertex_cnt; ++i)
 	v_arr[i] = cugra_graph_vertex_new(G);
@@ -127,8 +128,10 @@ test(int vertex_cnt, cu_bool_t do_save)
     }
 
     /* Make graph ascyclic by removing the MFVS vertices. */
+    erase_vertex_clos.G = G;
     cucon_pset_iter(&V,
-		    (cu_clop(, void, void const *))cugra_erase_vertex_clop);
+		    (cu_clop(, void, void const *))
+		    cugra_erase_vertex_clos_prep(&erase_vertex_clos));
     cu_test_assert(cugra_graph_is_acyclic(G));
 }
 

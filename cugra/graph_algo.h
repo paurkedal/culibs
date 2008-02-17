@@ -39,7 +39,8 @@ cu_bool_t cugra_graph_is_acyclic(cugra_graph_t G);
 void cugra_graph_erase_isolated(cugra_graph_t G);
 
 /*!Erase all arcs which connect \a v to a vertex not in \a V. */
-void cugra_erase_vertex_to_vsetcompl_arcs(cugra_vertex_t v, cucon_pmap_t V);
+void cugra_erase_vertex_to_vsetcompl_arcs(cugra_graph_t G, cugra_vertex_t v,
+					  cucon_pmap_t V);
 
 /*!Move vertices in \a V_move from \a G_src to \a G_dst, cutting all arcs
  * between \a V_move and its complement. */

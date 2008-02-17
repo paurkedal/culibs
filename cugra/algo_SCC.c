@@ -19,8 +19,14 @@
 #include <cugra/graph.h>
 #include <cucon/pmap.h>
 #include <cucon/stack.h>
+#include <cucon/list.h>
 #include <cu/int.h>
+#include <cu/inherit.h>
 #include <limits.h>
+
+
+/* cugra_detect_SCC
+ * ---------------- */
 
 typedef struct SCC_vinfo_s *SCC_vinfo_t;
 struct SCC_vinfo_s {
@@ -97,4 +103,62 @@ cugra_detect_SCC(cugra_graph_t G, cugra_detect_SCC_t cb)
     cucon_pmap_cct(&vinfo_map);
     cugra_graph_for_vertices(v, G)
 	detect_SCC(cb, &vinfo_map, v, &index_pool, &vertex_stack, &cpt_stack);
+}
+
+
+/* cugra_SCC_graph_of_lists
+ * ------------------------ */
+
+typedef struct graph_of_lists_state_s *graph_of_lists_state_t;
+struct graph_of_lists_state_s
+{
+    cu_inherit (cugra_detect_SCC_s);
+    size_t vslot_size;
+    cu_clop(vslot_copy, void, void *src, void *dst);
+    cugra_graph_t A;
+};
+
+static void *
+graph_of_lists_cpt_new(cugra_detect_SCC_t base)
+{
+    cugra_vertex_t v;
+    graph_of_lists_state_t self;
+    self = cu_from(graph_of_lists_state, cugra_detect_SCC, base);
+    v = cugra_graph_vertex_new_mem(self->A, sizeof(struct cucon_list_s));
+    cucon_list_cct(cugra_vertex_mem(v));
+    return v;
+}
+
+static void
+graph_of_lists_cpt_insert(cugra_detect_SCC_t base, void *v_new,
+			  cugra_vertex_t v)
+{
+    graph_of_lists_state_t self;
+    cucon_listnode_t node;
+    self = cu_from(graph_of_lists_state, cugra_detect_SCC, base);
+    node = cucon_list_append_mem(cugra_vertex_mem(v_new), self->vslot_size);
+    cu_call(self->vslot_copy, cugra_vertex_mem(v), cucon_listnode_mem(node));
+}
+
+static void
+graph_of_lists_cpt_connect(cugra_detect_SCC_t base, void *tail, void *head)
+{
+    graph_of_lists_state_t self;
+    self = cu_from(graph_of_lists_state, cugra_detect_SCC, base);
+    cugra_connect(self->A, tail, head);
+}
+
+cugra_graph_t
+cugra_SCC_graph_of_lists(cugra_graph_t G, size_t vslot_size,
+			 cu_clop(vslot_copy, void, void *src, void *dst))
+{
+    struct graph_of_lists_state_s state;
+    cu_to(cugra_detect_SCC, &state)->cpt_new = graph_of_lists_cpt_new;
+    cu_to(cugra_detect_SCC, &state)->cpt_insert = graph_of_lists_cpt_insert;
+    cu_to(cugra_detect_SCC, &state)->cpt_connect = graph_of_lists_cpt_connect;
+    state.vslot_size = vslot_size;
+    state.vslot_copy = vslot_copy;
+    state.A = cugra_graph_new(0);
+    cugra_detect_SCC(G, cu_to(cugra_detect_SCC, &state));
+    return state.A;
 }
