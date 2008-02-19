@@ -117,10 +117,6 @@ o/2 cuex_o2_lambda	: cuex_og_scoping
 o/3 cuex_o3_lambda_ta	: cuex_og_scoping
 o/2 cuex_o2_forall	: cuex_og_scoping
 o/3 cuex_o3_forall	: cuex_og_scoping
-o/2 cuex_o2_exists	: cuex_og_scoping
-o/3 cuex_o3_exists	: cuex_og_scoping
-o/3 cuex_o3_let		: cuex_og_scoping
-# no letself : scoping
 
 # Old misc
 o/1 cuex_o1_singleton	: cuex_og_regular

@@ -41,10 +41,10 @@
  * the same may in fact be different. */
 
 static int
-varindex(cuex_t var)
+varindex(cuex_t var, int kind)
 {
     static cucon_pmap_t index_map = NULL;
-    static int current_index[] = {0, 0, 0, 0};
+    static int current_index[][4] = {{0, 0, 0, 0}, {0, 0, 0, 0}};
     static cu_mutex_t mutex = CU_MUTEX_INITIALISER;
     int *i;
     cuex_qcode_t qc = cuex_varmeta_qcode(cuex_meta(var));
@@ -53,7 +53,7 @@ varindex(cuex_t var)
     if (!index_map)
 	index_map = cucon_pmap_new();
     if (cucon_pmap_insert_mem(index_map, var, sizeof(int), &i))
-	*i = ++current_index[qc];
+	*i = ++current_index[kind][qc];
     cu_mutex_unlock(&mutex);
     return *i;
 }
@@ -96,10 +96,10 @@ cuex_print_ex(cuex_t ex, FILE *out)
 		cuex_xvarops_t ops;
 		ops = cucon_umap_find_ptr(&cuexP_xvarops,
 					  cuex_xvarmeta_subkind(meta));
-		if (ops)
+		if (ops && ops->print)
 		    ops->print(ex, out);
 		else
-		    fprintf(out, "__xvar_%p", ex);
+		    fprintf(out, "_x%d", varindex(ex, 1));
 	    }
 	    else if (cuex_is_varmeta(meta)) {
 		char *prefix;
@@ -135,7 +135,7 @@ cuex_print_ex(cuex_t ex, FILE *out)
 		if (cuex_is_ivarmeta(meta))
 		    fprintf(out, "%s%d", prefix, cuex_varmeta_index(meta));
 		else
-		    fprintf(out, "%s#%d", prefix, varindex(ex));
+		    fprintf(out, "_%s%d", prefix, varindex(ex, 0));
 	    }
 	    else
 		fprintf(out, "special_%p", ex);
