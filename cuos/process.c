@@ -216,8 +216,14 @@ cuos_argv_cct_strlist(char const **argv, cucon_list_t lst)
 static cu_bool_t
 cuos_shell_char_is_safe(char ch)
 {
-    return isalnum(ch) || ch == '_' || ch == '-' || ch == '+'
-	|| ch == '/';
+    if (isalnum(ch)) return cu_true;
+    else switch (ch) {
+	case '_': case '.':
+	case '-': case '+': case '/': case '%': case '^':
+	    return cu_true;
+	default:
+	    return cu_false;
+    }
 }
 
 cu_str_t
