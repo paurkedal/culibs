@@ -209,48 +209,6 @@ if test x"$enable_debug_metadata" = xyes; then
     AC_DEFINE([CUCONF_DEBUG_MEMORY], 1, [Define to enable memory metadata.])
 fi
 
-
-# Determine closure implementation
-#
-AC_MSG_CHECKING([which closure variant to use])
-AC_ARG_ENABLE([closure-variant],
-    AC_HELP_STRING([--enable-closure-variant=generic|i386],
-	[Enable a specific closure implementation.]),
-    [],
-    [enable_closure_variant=generic] )
-case $enable_closure_variant in
-    generic)
-	enable_closure_variant=generic
-	cu_closure_variant_macro=CU_CLOS_VARIANT_GENERIC
-	;;
-    x86|i386)
-	enable_closure_variant=i386
-	cu_closure_variant_macro=CU_CLOS_VARIANT_I386
-	;;
-    *)
-	AC_MSG_RESULT([invalid])
-	AC_MSG_ERROR([Bad argument $enable_closure_variant to --enable-closure-variant])
-	;;
-esac
-AC_ARG_ENABLE([closure-type-hack],
-  [ AC_HELP_STRING([--enable-closure-type-hack],
-	[Use type-safety hack for closures.  This, however, breaks C
-	 aliasing rules, so don't us it when compiling with high
-	 optimisation.]) ],
-  [ AC_DEFINE([ENABLE_CLOSURE_TYPE_HACK], [1], [Enable closure hack.]) ])
-AM_CONDITIONAL([enable_clos_i386], [test "$enable_closure_variant" = i386])
-AC_DEFINE_UNQUOTED(CLOS_VARIANT, $cu_closure_variant_macro,
-		   [Which closure implementation to use.])
-AC_MSG_RESULT($enable_closure_variant)
-if test "$enable_closure_variant" = i386; then
-AC_MSG_WARN([This closure implementation uses generated code which does not])
-AC_MSG_WARN([work on all i386 platforms, and is significantly less efficient])
-AC_MSG_WARN([than the generic for closures according to benchmarks.  It is])
-AC_MSG_WARN([only kept for experimentation and verification of the])
-AC_MSG_WARN([genericity of the interface.])
-fi
-
-
 # Determine winding implementitaion
 #
 AC_ARG_ENABLE(wind-variant,

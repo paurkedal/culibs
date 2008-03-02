@@ -58,13 +58,6 @@ cu_sources = \
 	cu/wchar.c \
 	cu/wstring.c
 
-if enable_clos_i386
-    cu_headers += cu/i386/clos.h
-else
-    cu_headers += cu/generic/clos.h
-endif
-
-
 cu_check_programs = \
 	cu/clos_b0 \
 	cu/clos_t0 \
