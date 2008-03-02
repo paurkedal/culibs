@@ -295,12 +295,12 @@ cuos_mtime(cu_str_t path)
  * ------------ */
 
 static pthread_mutex_t _tmp_dir_mutex = CU_MUTEX_INITIALISER;
-static AO_t /* cu_str_t */ _tmp_dir = NULL;
+static AO_t /* cu_str_t */ _tmp_dir = (AO_t)0;
 
 static void _tmp_dir_clean()
 {
     cu_debug_assert(_tmp_dir);
-    cuos_remove_rec(AO_load(&_tmp_dir));
+    cuos_remove_rec((cu_str_t)AO_load(&_tmp_dir));
 }
 
 cu_str_t
@@ -314,17 +314,18 @@ cuos_tmp_dir()
     if (!_tmp_dir) {
 	char const *env_tmpdir = getenv("TMPDIR");
 	if (env_tmpdir)
-	    _tmp_dir = cu_str_new_2cstr(env_tmpdir, "/culibs.XXXXXX");
+	    dir = cu_str_new_2cstr(env_tmpdir, "/culibs.XXXXXX");
 	else
-	    _tmp_dir = cu_str_new_cstr("/tmp/culibs.XXXXXX");
-	if (!mkdtemp((char *)cu_str_to_cstr(_tmp_dir))) {
+	    dir = cu_str_new_cstr("/tmp/culibs.XXXXXX");
+	if (!mkdtemp((char *)cu_str_to_cstr(dir))) {
 	    cu_errf("Could not create temporary directory for process.");
 	    exit(71); /* cf sysexits.h */
 	}
+	AO_store_release_write(&_tmp_dir, (AO_t)dir);
 	atexit(_tmp_dir_clean);
     }
     cu_mutex_unlock(&_tmp_dir_mutex);
-    return _tmp_dir;
+    return dir;
 }
 
 /* cuos_session_dir
