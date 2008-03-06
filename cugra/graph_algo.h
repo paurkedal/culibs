@@ -53,12 +53,15 @@ void cugra_move_induced_subgraph(cucon_pmap_t V_move,
  * keys are the vertices of the subgraph.
  * If \a M is non-\c NULL, associate each vertex which is part of a loop with
  * an index identifying the maximally connected subgraph to which it belongs.
- */
-void cugra_identify_MSC(cugra_graph_t G, cucon_stack_t KV, cucon_pmap_t M);
+ * \deprecated Use \ref cugra_algo_SCC */
+void cugra_identify_MSC(cugra_graph_t G, cucon_stack_t KV, cucon_pmap_t M)
+    CU_ATTR_DEPRECATED;
 
 /*!Move all maximally connected subgraphs of \a G into separate graphs and
- * push them onto \a KG. */
-void cugra_move_MSC_subgraphs(cugra_graph_t G, cucon_stack_t KG);
+ * push them onto \a KG.
+ * \deprecated Use \ref cugra_algo_SCC */
+void cugra_move_MSC_subgraphs(cugra_graph_t G, cucon_stack_t KG)
+    CU_ATTR_DEPRECATED;
 
 #ifdef CUCONF_HAVE_BUDDY
 /*!Inserts a minimum feedback vertex set of \a G into \a V.  Only available if

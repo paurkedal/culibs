@@ -38,31 +38,33 @@ struct my_subvertex_s
 
 struct my_cb_s
 {
-    cu_inherit (cugra_detect_SCC_s);
+    cu_inherit (cugra_walk_SCC_s);
     cugra_graph_t G;
 };
 
 void *
-my_cpt_new(cugra_detect_SCC_t self)
+my_enter_component(cugra_walk_SCC_t self)
 {
     my_subvertex_t cpt = cu_gnew(struct my_subvertex_s);
     printf("New component:\n");
     cucon_uset_cct(&cpt->labels);
-    cugra_graph_vertex_init(cu_from(my_cb, cugra_detect_SCC, self)->G,
+    cugra_graph_vertex_init(cu_from(my_cb, cugra_walk_SCC, self)->G,
 			    cu_to(cugra_vertex, cpt));
     return cpt;
 }
 
 void
-my_cpt_insert(cugra_detect_SCC_t self, void *cpt, cugra_vertex_t v)
+my_pass_vertex(cugra_walk_SCC_t self, void *cpt, cugra_vertex_t v)
 {
     int label = cu_from(my_vertex, cugra_vertex, v)->label;
     printf("    Vertex %d.\n", label);
     cucon_uset_insert(&((my_subvertex_t)cpt)->labels, label);
 }
 
+void my_leave_component(cugra_walk_SCC_t self, void *cpt) {}
+
 void
-my_cpt_connect(cugra_detect_SCC_t self, void *tail, void *head)
+my_connect_components(cugra_walk_SCC_t self, void *tail, void *head)
 {
     printf("Connect ");
     cucon_uset_print(&((my_subvertex_t)tail)->labels, stdout);
@@ -71,12 +73,17 @@ my_cpt_connect(cugra_detect_SCC_t self, void *tail, void *head)
     printf("\n");
 }
 
+struct cugra_walk_SCC_vt_s my_walk_vt = {
+    .enter_component = my_enter_component,
+    .pass_vertex = my_pass_vertex,
+    .leave_component = my_leave_component,
+    .connect_components = my_connect_components,
+};
+
 void
 my_cb_init(my_cb_t cb)
 {
-    cu_to(cugra_detect_SCC, cb)->cpt_new = my_cpt_new;
-    cu_to(cugra_detect_SCC, cb)->cpt_insert = my_cpt_insert;
-    cu_to(cugra_detect_SCC, cb)->cpt_connect = my_cpt_connect;
+    cu_to(cugra_walk_SCC, cb)->vt = &my_walk_vt;
     cb->G = cugra_graph_new(0);
 }
 
@@ -107,7 +114,7 @@ test()
     A(8, 9); A(9, 10); A(10, 8); A(9, 0); A(9, 6);
 #undef A
     my_cb_init(&cb);
-    cugra_detect_SCC(G, cu_to(cugra_detect_SCC, &cb));
+    cugra_walk_SCC(cu_to(cugra_walk_SCC, &cb), G, cugra_direction_out);
 }
 
 int

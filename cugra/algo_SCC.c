@@ -36,76 +36,95 @@ struct SCC_vinfo_s {
     void *cpt;
 };
 
+typedef struct detect_SCC_state_s *detect_SCC_state_t;
+struct detect_SCC_state_s
+{
+    cugra_direction_t dir;
+    cugra_walk_SCC_t walk_struct;
+    struct cucon_pmap_s vinfo_map;
+    struct cucon_stack_s cpt_stack;
+    int index_pool;
+    SCC_vinfo_t vertex_stack;
+};
+
 static int
-detect_SCC(cugra_detect_SCC_t cb,
-	   cucon_pmap_t vinfo_map, cugra_vertex_t tail, int *index_pool,
-	   SCC_vinfo_t *vertex_stack, cucon_stack_t cpt_stack)
+detect_SCC(detect_SCC_state_t state, cugra_vertex_t tail)
 {
     SCC_vinfo_t tail_info;
-    if (cucon_pmap_insert_new_node(vinfo_map, tail,
+    if (cucon_pmap_insert_new_node(&state->vinfo_map, tail,
 				   sizeof(struct SCC_vinfo_s), &tail_info)) {
-	cucon_stack_mark_t cpt_stack_mark = cucon_stack_mark(cpt_stack);
+	cugra_walk_SCC_t walk_struct = state->walk_struct;
+	cugra_walk_SCC_vt_t walk_vt = walk_struct->vt;
+	cucon_stack_mark_t cpt_stack_mark;
 	cugra_arc_t arc;
 	int tail_min_reach, head_min_reach;
 
+	cpt_stack_mark = cucon_stack_mark(&state->cpt_stack);
+
 	/* Create metadata for the tail vertex and process all adjacent head
 	 * vertices. */
-	tail_info->index = tail_min_reach = (*index_pool)++;
-	tail_info->next_vertex = *vertex_stack;
-	*vertex_stack = tail_info;
+	tail_info->index = tail_min_reach = (state->index_pool)++;
+	tail_info->next_vertex = state->vertex_stack;
+	state->vertex_stack = tail_info;
 
-	cugra_vertex_for_outarcs(arc, tail) {
+	cugra_vertex_for_arcs(state->dir, arc, tail) {
 	    cugra_vertex_t head = cugra_arc_head(arc);
-	    head_min_reach = detect_SCC(cb, vinfo_map, head, index_pool,
-					vertex_stack, cpt_stack);
+	    head_min_reach = detect_SCC(state, head);
 	    tail_min_reach = cu_int_min(tail_min_reach, head_min_reach);
 	}
 
 	/* If this is the root of a strong component, process the component. */
 	if (tail_info->index == tail_min_reach) {
+	    void (*pass_vertex)(cugra_walk_SCC_t, void *, cugra_vertex_t)
+		= walk_vt->pass_vertex;
+
 	    /* Pop off vertices up to the root of the component. */
-	    void *cpt = (*cb->cpt_new)(cb);
+	    void *cpt = (*walk_vt->enter_component)(walk_struct);
 	    cugra_vertex_t v;
 	    do {
-		SCC_vinfo_t vinfo = *vertex_stack;
-		*vertex_stack = vinfo->next_vertex;
+		SCC_vinfo_t vinfo = state->vertex_stack;
+		state->vertex_stack = vinfo->next_vertex;
 		v = cucon_pmap_node_key(cu_to(cucon_pmap_node, vinfo));
-		(*cb->cpt_insert)(cb, cpt, v);
+		(*pass_vertex)(walk_struct, cpt, v);
 		vinfo->cpt = cpt;
 	    } while (v != tail);
+	    (*walk_vt->leave_component)(walk_struct, cpt);
 
 	    /* Connect component to all subcomponents, and push it. */
-	    while (cucon_stack_mark(cpt_stack) != cpt_stack_mark) {
-		SCC_vinfo_t sub_cpt = cucon_stack_pop_ptr(cpt_stack);
-		(*cb->cpt_connect)(cb, cpt, sub_cpt);
+	    while (cucon_stack_mark(&state->cpt_stack) != cpt_stack_mark) {
+		SCC_vinfo_t sub_cpt = cucon_stack_pop_ptr(&state->cpt_stack);
+		(*walk_vt->connect_components)(walk_struct, cpt, sub_cpt);
 	    }
-	    cucon_stack_push_ptr(cpt_stack, cpt);
+	    cucon_stack_push_ptr(&state->cpt_stack, cpt);
 	}
 	tail_info->index = INT_MAX;
 	return tail_min_reach;
     } else {
 	if (tail_info->cpt)
-	    cucon_stack_push_ptr(cpt_stack, tail_info->cpt);
+	    cucon_stack_push_ptr(&state->cpt_stack, tail_info->cpt);
 	return tail_info->index;
     }
 }
 
 void
-cugra_detect_SCC(cugra_graph_t G, cugra_detect_SCC_t cb)
+cugra_walk_SCC(cugra_walk_SCC_t walk_struct,
+	       cugra_graph_t G, cugra_direction_t dir)
 {
+    struct detect_SCC_state_s state;
     cugra_vertex_t v;
-    struct cucon_pmap_s vinfo_map;
-    int index_pool = 0;
-    SCC_vinfo_t vertex_stack = NULL;
-    struct cucon_stack_s cpt_stack;
 
-    cucon_stack_cct(&cpt_stack);
-    cucon_pmap_cct(&vinfo_map);
+    state.dir = dir;
+    state.walk_struct = walk_struct;
+    cucon_stack_cct(&state.cpt_stack);
+    cucon_pmap_cct(&state.vinfo_map);
+    state.vertex_stack = NULL;
+
     cugra_graph_for_vertices(v, G)
-	detect_SCC(cb, &vinfo_map, v, &index_pool, &vertex_stack, &cpt_stack);
+	detect_SCC(&state, v);
 }
 
 
+#if 0
 /* cugra_SCC_graph_of_lists
  * ------------------------ */
 
@@ -162,3 +181,4 @@ cugra_SCC_graph_of_lists(cugra_graph_t G, size_t vslot_size,
     cugra_detect_SCC(G, cu_to(cugra_detect_SCC, &state));
     return state.A;
 }
+#endif

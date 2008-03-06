@@ -18,26 +18,45 @@
 #ifndef CUGRA_GRAPH_SCC_H
 #define CUGRA_GRAPH_SCC_H
 
-#include <cugra/fwd.h>
+#include <cugra/graph.h>
 #include <cu/clos.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cugra_algo_SCC_h cugra/algo_SCC.h: Detect strongly connected components
  *@{\ingroup cugra_mod */
 
-typedef struct cugra_detect_SCC_s *cugra_detect_SCC_t;
-struct cugra_detect_SCC_s
+typedef struct cugra_walk_SCC_s *cugra_walk_SCC_t;
+typedef struct cugra_walk_SCC_vt_s const *cugra_walk_SCC_vt_t;
+
+struct cugra_walk_SCC_vt_s
 {
-    void *(*cpt_new)(cugra_detect_SCC_t self);
-    void (*cpt_insert)(cugra_detect_SCC_t self, void *cpt, cugra_vertex_t v);
-    void (*cpt_connect)(cugra_detect_SCC_t self, void *tail_cpt, void *head_cpt);
+    void *(*enter_component)(cugra_walk_SCC_t self);
+    void (*pass_vertex)(cugra_walk_SCC_t self, void *, cugra_vertex_t);
+    void (*leave_component)(cugra_walk_SCC_t self, void *);
+    void (*connect_components)(cugra_walk_SCC_t self, void *, void *);
 };
 
-void cugra_detect_SCC(cugra_graph_t G, cugra_detect_SCC_t cb);
+#define cugra_walk_SCC_def_vt(name) \
+    struct cugra_walk_SCC_vt_s name##_vt = { \
+	.enter_component = name##_enter_component; \
+	.pass_vertext = name##_pass_vertex; \
+	.leave_component = name##_leave_component; \
+	.connect_components = name##_connect_components; \
+    }
 
+struct cugra_walk_SCC_s
+{
+    cugra_walk_SCC_vt_t vt;
+};
+
+void cugra_walk_SCC(cugra_walk_SCC_t walk_struct,
+		    cugra_graph_t G, cugra_direction_t dir);
+
+#if 0
 cugra_graph_t
 cugra_SCC_graph_of_lists(cugra_graph_t G, size_t vslot_size,
 			 cu_clop(vslot_copy, void, void *src, void *dst));
+#endif
 
 /*!@}*/
 CU_END_DECLARATIONS
