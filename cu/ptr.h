@@ -36,8 +36,8 @@ CU_SINLINE void *cu_ptr_sub(void *ptr, ptrdiff_t diff)
 
 /*!The difference between \a ptr0 and \a ptr1 in bytes, irrespective of the
  * underlying types. */
-CU_SINLINE ptrdiff_t cu_ptr_diff(void *ptr_lhs, void *ptr_rhs)
-{ return (char *)ptr_lhs - (char *)ptr_rhs; }
+CU_SINLINE ptrdiff_t cu_ptr_diff(void const *ptr_lhs, void const *ptr_rhs)
+{ return (char const *)ptr_lhs - (char const *)ptr_rhs; }
 
 /*!The pointer \a ptr rounded down to the nearest multiple of \a m. */
 CU_SINLINE void *cu_ptr_mulfloor(void *ptr, cu_offset_t m)

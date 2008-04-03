@@ -169,7 +169,8 @@ backtrace()
 		info.format);
 #else
 	fprintf(stderr,
-		"    called from %s+0x%x\n", proc_name, proc_name_off);
+		"    called from %s+0x%lx\n",
+		proc_name, (unsigned long)proc_name_off);
 #endif
         err = unw_step(&cursor);
 #undef PROC_NAME_MAX

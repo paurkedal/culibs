@@ -138,7 +138,7 @@ cu_buffer_set_content_end(cu_buffer_t buf, void *end)
 CU_SINLINE void
 cu_buffer_incr_content_end(cu_buffer_t buf, size_t incr)
 {
-    void *content_end = cu_ptr_add(buf->content_start, incr);
+    void *content_end = cu_ptr_add(buf->content_end, incr);
     if (content_end > buf->storage_end)
 	cuP_buffer_fixup(buf, cu_ptr_diff(content_end, buf->content_start));
     buf->content_end = content_end;
@@ -153,6 +153,17 @@ cu_buffer_resize_content(cu_buffer_t buf, size_t size)
     if (content_end > buf->storage_end)
 	cuP_buffer_fixup(buf, size);
     buf->content_end = content_end;
+}
+
+CU_SINLINE void *
+cu_buffer_produce(cu_buffer_t buf, size_t incr)
+{
+    void *old_end = buf->content_end;
+    void *new_end = cu_ptr_add(old_end, incr);
+    if (new_end > buf->storage_end)
+	cuP_buffer_fixup(buf, cu_ptr_diff(new_end, buf->content_start));
+    buf->content_end = new_end;
+    return old_end;
 }
 
 /*!@}*/

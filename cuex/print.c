@@ -133,7 +133,7 @@ cuex_print_ex(cuex_t ex, FILE *out)
 			    cu_debug_unreachable();
 		    }
 		if (cuex_is_ivarmeta(meta))
-		    fprintf(out, "%s%d", prefix, cuex_varmeta_index(meta));
+		    fprintf(out, "%s%ld", prefix, (long)cuex_varmeta_index(meta));
 		else
 		    fprintf(out, "_%s%d", prefix, varindex(ex, 0));
 	    }

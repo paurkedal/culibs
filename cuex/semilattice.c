@@ -19,6 +19,7 @@
 #include <cuex/atree.h>
 #include <cuex/oprinfo.h>
 #include <cuoo/intf.h>
+#include <inttypes.h>
 
 typedef struct cuex_semilattice_s *cuex_semilattice_t;
 struct cuex_semilattice_s
@@ -163,7 +164,7 @@ semilattice_print(cuex_t x, FILE *out)
     if (info)
 	fputs(cuex_oprinfo_name(info), out);
     else
-	fprintf(out, "__O%d_0x%x", cuex_opr_r(opr), opr);
+	fprintf(out, "__O%d_0x%"CUEX_PRIxMETA, cuex_opr_r(opr), opr);
     fputs(" {", out);
     cb.out = out;
     cb.index = 0;
