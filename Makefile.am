@@ -29,6 +29,8 @@ EXTRA_DIST =
 BUILT_SOURCES = cu/conf_ac.h
 DISTCLEANFILES = cu/conf_ac.h
 CLEANFILES =
+check_programs =
+norun_check_programs =
 
 
 # Per-Module Build Instructions
@@ -47,6 +49,8 @@ if enable_cucon
     dist_bin_SCRIPTS	+= bin/sedi
 endif
 EXTRA_DIST		+= cu/cu.am cuoo/cuoo.am cucon/cucon.am
+
+include cufo/cufo.am
 
 include cuflow/cuflow.am
 if enable_cuflow
@@ -134,7 +138,7 @@ nobase_nodist_culibs_HEADERS = \
 	$(cuex_built_headers) \
 	$(nodist_cu_headers)
 
-check_programs = \
+check_programs += \
 	$(cu_check_programs) \
 	$(cuoo_check_programs) \
 	$(cucon_check_programs) \
@@ -146,7 +150,7 @@ check_programs = \
 	$(cuex_check_programs) \
 	$(cudyn_check_programs)
 
-norun_check_programs = \
+norun_check_programs += \
 	$(cu_norun_check_programs) \
 	$(cuoo_norun_check_programs) \
 	$(cucon_norun_check_programs) \

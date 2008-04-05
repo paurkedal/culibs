@@ -27,6 +27,7 @@ AM_CONDITIONAL([enable_experimental], [test "x$enable_experimental" = xyes])
 #
 CUAC_MODULE([cu],	[],		[libcubase.la])
 CUAC_MODULE([cucon],	[],		[libcubase.la])
+CUAC_MODULE([cufo],	[cu])
 CUAC_MODULE([cuflow],	[cucon])
 CUAC_MODULE([cugra],	[cucon])
 CUAC_MODULE([cuos],	[cucon])
@@ -260,6 +261,7 @@ AC_CONFIG_FILES([
 	Makefile
 	Doxyfile
 	pkgconfig/cubase.pc pkgconfig/cubase-uninstalled.pc
+	pkgconfig/cufo.pc   pkgconfig/cufo-uninstalled.pc
 	pkgconfig/cugra.pc  pkgconfig/cugra-uninstalled.pc
 	pkgconfig/cuflow.pc pkgconfig/cuflow-uninstalled.pc
 	pkgconfig/cuos.pc   pkgconfig/cuos-uninstalled.pc

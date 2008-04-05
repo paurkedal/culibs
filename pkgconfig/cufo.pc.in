@@ -1,0 +1,13 @@
+PACKAGE_NAME=@PACKAGE_NAME@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: cufo
+Description: Collected C: Lightweight Pluggable Text Formatter
+Version: ${PACKAGE_VERSION}
+Requires: cubase
+Libs: -L${libdir} -lcufo
+Cflags: -I${includedir}/${PACKAGE_NAME}-${PACKAGE_VERSION}

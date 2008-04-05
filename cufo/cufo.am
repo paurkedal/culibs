@@ -1,0 +1,36 @@
+if enable_cufo
+
+cufo_header = \
+	cufo/fwd.h \
+	cufo/stream.h \
+	cufo/tag.h \
+	cufo/tagdefs.h
+
+cufo_sources = \
+	cufo/fdtarget.c \
+	cufo/init.c \
+	cufo/printf.c \
+	cufo/stream.c \
+	cufo/tag.c \
+	cufo/tagdefs.c
+
+check_programs += \
+	cufo/stream_t0
+
+cufo/tagdefs.c: $(srcdir)/cufo/tagdefs.h $(srcdir)/cufo/mktagdefs.pl
+	$(srcdir)/cufo/mktagdefs.pl -o $@ $<
+
+lib_LTLIBRARIES += libcufo.la
+libcufo_la_LIBADD = @CUFO_LIBADD@
+libcufo_la_DEPENDENCIES = @CUFO_DEPENDENCIES@
+libcufo_la_LDFLAGS = $(common_ldflags)
+libcufo_la_SOURCES = $(cufo_sources)
+pkgconfig_DATA += pkgconfig/cufo.pc
+noinst_DATA += pkgconfig/cufo-uninstalled.pc
+
+cufo_stream_t0_SOURCES = cufo/stream_t0.c
+cufo_stream_t0_LDADD = libcufo.la
+
+endif
+
+EXTRA_DIST += cufo/cufo.am cufo/mktagdefs.pl

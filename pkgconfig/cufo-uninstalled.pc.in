@@ -4,9 +4,9 @@ exec_prefix=@exec_prefix@
 top_builddir=@abs_top_builddir@
 top_srcdir=@abs_top_srcdir@
 
-Name: cuos
-Description: Collected C: Operating System Wrappers and Utilities
+Name: cufo
+Description: Collected C: Lightweight Pluggable Text Formatter
 Version: ${PACKAGE_VERSION}
 Requires: cubase
-Libs: ${top_builddir}/libcuos.la
+Libs: ${top_builddir}/libcufo.la
 Cflags: -I${top_builddir} -I${top_srcdir}
