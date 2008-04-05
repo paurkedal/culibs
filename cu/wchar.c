@@ -19,11 +19,11 @@
 #include <cu/tstate.h>
 
 #ifdef CU_WCHAR_IS_STDC
-#  define WCHAR_ENCODING "WCHAR_T"
+char const *cu_wchar_encoding = "WCHAR_T";
 #elif defined(CUCONF_WORDS_BIGENDIAN)
-#  define WCHAR_ENCODING "UTF-32"
+char const *cu_wchar_encoding = "UTF-32";
 #else
-#  define WCHAR_ENCODING "UTF-32LE"
+char const *cu_wchar_encoding = "UTF-32LE";
 #endif
 
 iconv_t
@@ -31,7 +31,7 @@ cu_iconv_for_wchar_to_char(void)
 {
     cuP_tstate_t tls = cuP_tstate();
     if (!tls->iconv_ucs4_to_utf8)
-	tls->iconv_ucs4_to_utf8 = iconv_open("UTF-8", WCHAR_ENCODING);
+	tls->iconv_ucs4_to_utf8 = iconv_open("UTF-8", cu_wchar_encoding);
     iconv(tls->iconv_ucs4_to_utf8, NULL, NULL, NULL, NULL);
     return tls->iconv_ucs4_to_utf8;
 }
@@ -41,7 +41,7 @@ cu_iconv_for_char_to_wchar(void)
 {
     cuP_tstate_t tls = cuP_tstate();
     if (!tls->iconv_utf8_to_ucs4)
-	tls->iconv_utf8_to_ucs4 = iconv_open(WCHAR_ENCODING, "UTF-8");
+	tls->iconv_utf8_to_ucs4 = iconv_open(cu_wchar_encoding, "UTF-8");
     iconv(tls->iconv_utf8_to_ucs4, NULL, NULL, NULL, NULL);
     return tls->iconv_utf8_to_ucs4;
 }

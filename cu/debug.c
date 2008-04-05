@@ -120,7 +120,7 @@ void (*cuP_debug_bug_report)(const char *, int, const char *, ...)
 
 
 #ifdef CUCONF_HAVE_LIBUNWIND
-static void
+static int
 backtrace()
 {
     int err;
@@ -129,12 +129,12 @@ backtrace()
     err = unw_getcontext(&context);
     if (err < 0) {
         fprintf(stderr, "Could not get unwind context.\n");
-        exit(1);
+	return -1;
     }
     err = unw_init_local(&cursor, &context);
     if (err < 0) {
         fprintf(stderr, "Could not initialise unwind cursor: error %d.\n", err);
-        exit(1);
+	return -1;
     }
     err = unw_step(&cursor); /* skip backtrace() */
     err = unw_step(&cursor); /* skip cu_debug_abort() */
@@ -149,7 +149,7 @@ backtrace()
         err = unw_get_proc_info(&cursor, &info);
         if (err < 0) {
             fprintf(stderr, "Could not get procedure info: error %d.\n", err);
-            exit(1);
+	    return -1;
         }
         unw_get_proc_name(&cursor, proc_name, PROC_NAME_MAX, &proc_name_off);
 #if 0
@@ -177,8 +177,9 @@ backtrace()
     }
     if (err < 0) {
         fprintf(stderr, "Could not step up more frames: error %d.\n", err);
-        exit(1);
+	return -1;
     }
+    return 0;
 }
 #endif
 

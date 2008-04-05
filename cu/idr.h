@@ -19,6 +19,7 @@
 #define CU_IDR_H
 
 #include <cuoo/type.h>
+#include <cu/wchar.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_idr cu/idr.h: Identifiers (Strings with Pointer Equality)

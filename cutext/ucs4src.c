@@ -266,6 +266,6 @@ cutext_ucs4src_advance(cutext_ucs4src_t ucs4src, size_t size)
 void
 cutextP_ucs4src_terminate(cutext_ucs4src_t ucs4src)
 {
-    cu_buffer_extend_capacity(&ucs4src->src.buf, 4);
+    cu_buffer_extend_freecap(&ucs4src->src.buf, 4);
     *(cutext_ucs4char_t*)ucs4src->src.buf.content_end = 0;
 }

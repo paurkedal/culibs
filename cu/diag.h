@@ -100,6 +100,9 @@ void cu_bugf_at(cu_sref_t, char const *fmt, ...) CU_ATTR_NORETURN;
 void cu_bugf_fl(char const *file, int line,
 		char const *msg, ...) CU_ATTR_NORETURN;
 
+#define cu_bug_unreachable() \
+    cu_bugf_fl(__FILE__, __LINE__, \
+	       "This point should not have been reached.")
 #define cu_bug_unfinished() \
     cu_bugf_fl(__FILE__, __LINE__, \
 	       "Reached a code point which is not yet written.")

@@ -146,18 +146,6 @@ typedef unsigned int cu_count_t;
 typedef int cu_countdiff_t;
 #endif
 
-/*!A unicode character.  This is defined as \c wchar_t if the compiler defines
- * \c __STDC_ISO_10646__ and \c wchar_t is wide enough to hold characters
- * beyond the BMP.  Otherwise, a 32 bit integer type is used. */
-#if defined(__STDC_ISO_10646__) && WCHAR_MAX >= 0x10ffff
-typedef wchar_t cu_wchar_t;
-#define CU_WCHAR_IS_STDC 1
-#define CU_WCHAR_WIDTH CUCONF_WIDTHOF_WCHAR_T
-#else
-typedef uint32_t cu_wchar_t;
-#define CU_WCHAR_WIDTH 32
-#endif
-
 
 /* Compound Types
  * -------------- */

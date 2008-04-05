@@ -64,9 +64,9 @@ cutextP_src_lookahead(cutext_src_t ibuf, size_t size)
     cutext_status_t r;
     size_t multiplier = 1;
 rec:
-    cu_buffer_extend_capacity(&ibuf->buf, size*multiplier);
+    cu_buffer_extend_freecap(&ibuf->buf, size*multiplier);
     r = cu_call(ibuf->produce,
-		 &ibuf->buf.content_end, ibuf->buf.storage_end - ibuf->buf.content_end);
+		&ibuf->buf.content_end, ibuf->buf.storage_end - ibuf->buf.content_end);
     if (r == cutext_status_buffer_too_small &&
 	&ibuf->buf.content_end - &ibuf->buf.content_start < size) {
 	if (multiplier > 1 && multiplier*size > cutextP_buffer_limit) {

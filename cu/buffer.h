@@ -24,7 +24,8 @@
 
 CU_BEGIN_DECLARATIONS
 
-void cuP_buffer_fixup(cu_buffer_t buf, size_t size);
+void cuP_buffer_fix_fullcap(cu_buffer_t buf, size_t fullcap);
+void cuP_buffer_fix_freecap(cu_buffer_t buf, size_t freecap);
 
 /*!\defgroup cu_buffer_h cu/buffer.h: Generic Self-Extending Buffer
  *@{\ingroup cu_mod
@@ -55,6 +56,11 @@ cu_buffer_t cu_buffer_new(size_t init_cap);
  * \a init_cap. */
 void cu_buffer_init(cu_buffer_t buf, size_t init_cap);
 
+/*!Set the content of \a buf to the empty sequence aligned to the start of the
+ * storage. */
+CU_SINLINE void cu_buffer_clear(cu_buffer_t buf)
+{ buf->content_start = buf->content_end = buf->storage_start; }
+
 /*!Initialise \a buf with the data of \a buf_drop, and invalidate
  * \a buf_drop. */
 void cu_buffer_init_drop(cu_buffer_t buf, cu_buffer_t buf_drop);
@@ -75,18 +81,39 @@ cu_buffer_storage_end(cu_buffer_t buf)
 /*!The number of bytes from the start of the buffer contents to the end of the
  * end of the current buffer storage. */
 CU_SINLINE size_t
-cu_buffer_capacity(cu_buffer_t buf)
+cu_buffer_fullcap(cu_buffer_t buf)
 { return cu_ptr_diff(buf->storage_end, buf->content_start); }
 
-/*!Makes sure there is at least \a size bytes allocated after the start of the
- * buffer content.  This is done either by moving the content to the start of
- * the buffer or by allocating a bigger chunck of memory. */
+/*!Makes sure there is at least \a fullcap bytes allocated after the start of
+ * the buffer content.  This is done either by moving the content to the start
+ * of the buffer or by allocating a bigger chunck of memory. */
 CU_SINLINE void
-cu_buffer_extend_capacity(cu_buffer_t buf, size_t size)
+cu_buffer_extend_fullcap(cu_buffer_t buf, size_t fullcap)
 {
-    if (cu_ptr_add(buf->content_start, size) > buf->storage_end)
-	cuP_buffer_fixup(buf, size);
+    if (cu_ptr_add(buf->content_start, fullcap) > buf->storage_end)
+	cuP_buffer_fix_fullcap(buf, fullcap);
 }
+
+/*!The number of bytes allocated after the current contents. */
+CU_SINLINE size_t
+cu_buffer_freecap(cu_buffer_t buf)
+{ return cu_ptr_diff(buf->storage_end, buf->content_end); }
+
+/*!Makes sure there is at least \a freecap bytes allocated after the end of the
+ * buffer content. */
+CU_SINLINE void
+cu_buffer_extend_freecap(cu_buffer_t buf, size_t freecap)
+{
+    if (cu_ptr_add(buf->content_end, freecap) > buf->storage_end)
+	cuP_buffer_fix_freecap(buf, freecap);
+}
+
+/*!Unconditionally realign content to start of storage. */
+void cu_buffer_force_realign(cu_buffer_t buf);
+
+/*!Realign content to start of storage if the displacement is larger than the
+ * content size. */
+void cu_buffer_maybe_realign(cu_buffer_t buf);
 
 /*!Pointer to the start of the content of the buffer. */
 CU_SINLINE void *
@@ -128,43 +155,20 @@ cu_buffer_incr_content_start(cu_buffer_t buf, size_t incr)
 CU_SINLINE void
 cu_buffer_set_content_end(cu_buffer_t buf, void *end)
 {
-    cu_debug_assert(buf->content_start <= end && end < buf->storage_end);
+    cu_debug_assert(buf->content_start <= end && end <= buf->storage_end);
     buf->content_end = end;
 }
 
 /*!Inclement the end of content by \a incr bytes, which in essence indicates
  * that the corresponding content is produced.  This function extends the
  * buffer capacity if needed. */
-CU_SINLINE void
-cu_buffer_incr_content_end(cu_buffer_t buf, size_t incr)
-{
-    void *content_end = cu_ptr_add(buf->content_end, incr);
-    if (content_end > buf->storage_end)
-	cuP_buffer_fixup(buf, cu_ptr_diff(content_end, buf->content_start));
-    buf->content_end = content_end;
-}
+void cu_buffer_incr_content_end(cu_buffer_t buf, size_t incr);
 
 /*!Sets the size of the content of \a buf.  This function extends the buffer
  * capacity if needed. */
-CU_SINLINE void
-cu_buffer_resize_content(cu_buffer_t buf, size_t size)
-{
-    void *content_end = cu_ptr_add(buf->content_start, size);
-    if (content_end > buf->storage_end)
-	cuP_buffer_fixup(buf, size);
-    buf->content_end = content_end;
-}
+void cu_buffer_resize_content(cu_buffer_t buf, size_t size);
 
-CU_SINLINE void *
-cu_buffer_produce(cu_buffer_t buf, size_t incr)
-{
-    void *old_end = buf->content_end;
-    void *new_end = cu_ptr_add(old_end, incr);
-    if (new_end > buf->storage_end)
-	cuP_buffer_fixup(buf, cu_ptr_diff(new_end, buf->content_start));
-    buf->content_end = new_end;
-    return old_end;
-}
+void *cu_buffer_produce(cu_buffer_t buf, size_t incr);
 
 /*!@}*/
 CU_END_DECLARATIONS

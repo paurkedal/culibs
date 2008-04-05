@@ -54,26 +54,91 @@ cu_buffer_swap(cu_buffer_t buf0, cu_buffer_t buf1)
 }
 
 void
-cuP_buffer_fixup(cu_buffer_t buf, size_t size)
+cuP_buffer_fix_fullcap(cu_buffer_t buf, size_t fullcap)
 {
     void *storage_start = buf->storage_start;
     void *content_start = buf->content_start;
     void *content_end = buf->content_end;
     void *storage_end = buf->storage_end;
-    size_t data_size = content_end - content_start;
-    if (storage_end - storage_start >= 2*size) {
-	memmove(storage_start, content_start, data_size);
+    size_t content_size = content_end - content_start;
+    if (storage_end - storage_start >= 2*fullcap) {
+	memmove(storage_start, content_start, content_size);
 	buf->content_start = storage_start;
-	buf->content_end = storage_start + data_size;
+	buf->content_end = cu_ptr_add(storage_start, content_size);
     }
     else {
-	if (size < (storage_end - storage_start)*2)
-	    size = (storage_end - storage_start)*2;
-	void *p = cu_galloc(size);
+	size_t storage_size = cu_ptr_diff(storage_end, storage_start);
+	if (fullcap < storage_size*2)
+	    fullcap = storage_size*2;
+	void *p = cu_galloc(fullcap);
 	buf->storage_start = p;
 	buf->content_start = p;
-	buf->content_end = p + data_size;
-	buf->storage_end = p + size;
-	memcpy(p, content_start, data_size);
+	buf->content_end = cu_ptr_add(p, content_size);
+	buf->storage_end = cu_ptr_add(p, fullcap);
+	memcpy(p, content_start, content_size);
+    }
+}
+
+void
+cuP_buffer_fix_freecap(cu_buffer_t buf, size_t freecap)
+{
+    cuP_buffer_fix_fullcap(buf, cu_buffer_content_size(buf) + freecap);
+}
+
+void
+cu_buffer_incr_content_end(cu_buffer_t buf, size_t incr)
+{
+    void *content_end = cu_ptr_add(buf->content_end, incr);
+    if (content_end > buf->storage_end) {
+	cuP_buffer_fix_fullcap(buf,
+			       cu_ptr_diff(content_end, buf->content_start));
+	content_end = cu_ptr_add(buf->content_end, incr);
+    }
+    buf->content_end = content_end;
+}
+
+void
+cu_buffer_resize_content(cu_buffer_t buf, size_t size)
+{
+    void *content_end = cu_ptr_add(buf->content_start, size);
+    if (content_end > buf->storage_end) {
+	cuP_buffer_fix_fullcap(buf, size);
+	content_end = cu_ptr_add(buf->content_start, size);
+    }
+    buf->content_end = content_end;
+}
+
+void *
+cu_buffer_produce(cu_buffer_t buf, size_t incr)
+{
+    void *old_end = buf->content_end;
+    void *new_end = cu_ptr_add(old_end, incr);
+    if (new_end > buf->storage_end) {
+	cuP_buffer_fix_fullcap(buf, cu_ptr_diff(new_end, buf->content_start));
+	old_end = buf->content_end;
+	new_end = cu_ptr_add(old_end, incr);
+    }
+    buf->content_end = new_end;
+    return old_end;
+}
+
+void
+cu_buffer_force_realign(cu_buffer_t buf)
+{
+    size_t content_size = cu_buffer_content_size(buf);
+    memmove(buf->storage_start, buf->content_start, content_size);
+    buf->content_start = buf->storage_start;
+    buf->content_end = cu_ptr_add(buf->storage_start, content_size);
+}
+
+void
+cu_buffer_maybe_realign(cu_buffer_t buf)
+{
+    size_t content_size = cu_buffer_content_size(buf);
+    size_t shift = cu_ptr_diff(buf->content_start, buf->storage_start);
+    if (shift > content_size) {
+	memmove(buf->storage_start, buf->content_start, content_size);
+	buf->content_start = buf->storage_start;
+	buf->content_end = cu_ptr_add(buf->storage_start, content_size);
     }
 }

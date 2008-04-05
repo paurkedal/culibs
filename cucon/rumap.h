@@ -20,6 +20,7 @@
 
 #include <cucon/pmap.h>
 #include <cu/conf.h>
+#include <cu/wchar.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_rumap cucon/rumap.h: Recursive Hash Map with Integer Keys

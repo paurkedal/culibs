@@ -30,6 +30,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <limits.h>
+#include <inttypes.h>
 
 
 /* Tuning options
@@ -1082,7 +1083,7 @@ cu_clos_def(umap_print_keys_cb,
     cu_clos_self(umap_print_keys_cb);
     if (self->index)
 	fputs(", ", self->out);
-    fprintf(self->out, "%d", key);
+    fprintf(self->out, "%"PRIdPTR, key);
     ++self->index;
 }
 
