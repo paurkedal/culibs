@@ -15,43 +15,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cufo/target_fd.h>
 #include <cufo/stream.h>
 #include <cu/memory.h>
 #include <cu/diag.h>
 #include <cu/wchar.h>
-#include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #define BUFFER(fos) cu_to(cu_buffer, fos)
 #define FDSTREAM(fos) cu_from(cufo_fdstream, cufo_stream, fos)
 
-struct iconv_info_s
-{
-    iconv_t cd;
-    unsigned int wr_scale;
-};
-
-typedef struct cufo_fdstream_s *cufo_fdstream_t;
-struct cufo_fdstream_s
-{
-    cu_inherit (cufo_stream_s);
-    int fd;
-    struct iconv_info_s iconv_info[2]; /* = { multibyte_iconv, wide_iconv } */
-};
-
 static void
-fdtarget_flush(cufo_stream_t fos, cu_bool_t must_clear)
+target_fd_flush(cufo_stream_t fos, cu_bool_t must_clear)
 {
     char *src_buf = cu_buffer_content_start(BUFFER(fos));
     size_t src_size = cu_buffer_content_size(BUFFER(fos));
     char *wr_buf;
     size_t wr_size;
     ssize_t sz;
-    struct iconv_info_s *iconv_info;
-    iconv_info = &cu_from(cufo_fdstream, cufo_stream, fos)
-	->iconv_info[fos->is_wide];
-    if (iconv_info->cd == NULL) {
+    struct cufo_fdconvinfo_s *convinfo;
+    convinfo = &cu_from(cufo_fdstream, cufo_stream, fos)
+	->convinfo[fos->is_wide];
+    if (convinfo->cd == NULL) {
 	wr_buf = src_buf;
 	wr_size = src_size;
 	cu_buffer_clear(BUFFER(fos));
@@ -59,9 +49,9 @@ fdtarget_flush(cufo_stream_t fos, cu_bool_t must_clear)
 	char *wr_cur;
 	size_t wr_lim;
 	size_t cz;
-	wr_lim = wr_size = iconv_info->wr_scale*src_size;
+	wr_lim = wr_size = convinfo->wr_scale*src_size;
 	wr_cur = wr_buf = cu_salloc(wr_lim);
-	cz = iconv(iconv_info->cd, &src_buf, &src_size, &wr_cur, &wr_lim);
+	cz = iconv(convinfo->cd, &src_buf, &src_size, &wr_cur, &wr_lim);
 	if (cz == (size_t)-1) {
 	    switch (errno) {
 		case E2BIG:
@@ -86,6 +76,7 @@ fdtarget_flush(cufo_stream_t fos, cu_bool_t must_clear)
 	if (sz == (ssize_t)-1) {
 	    /* TODO: Report error. */
 	    cu_errf("Error writing to file descriptor %d.", FDSTREAM(fos)->fd);
+	    cufo_flag_error(fos);
 	    break;
 	}
 	wr_size -= sz;
@@ -93,38 +84,63 @@ fdtarget_flush(cufo_stream_t fos, cu_bool_t must_clear)
 }
 
 static void
-fdtarget_enter(cufo_stream_t fos, cufo_tag_t tag, va_list va)
+target_fd_enter(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 {
     /* Nothing to do. */
 }
 
 static void
-fdtarget_leave(cufo_stream_t fos, cufo_tag_t tag)
+target_fd_leave(cufo_stream_t fos, cufo_tag_t tag)
 {
     /* Nothing to do. */
 }
 
-struct cufo_target_s cufoP_fdtarget = {
-    .flush = fdtarget_flush,
-    .enter = fdtarget_enter,
-    .leave = fdtarget_leave,
+static void *
+target_fd_close(cufo_stream_t fos)
+{
+    if (FDSTREAM(fos)->do_close)
+	close(FDSTREAM(fos)->fd);
+    return NULL;
+}
+
+struct cufo_target_s cufoP_target_fd = {
+    .flush = target_fd_flush,
+    .enter = target_fd_enter,
+    .leave = target_fd_leave,
+    .close = target_fd_close,
 };
 
+void
+cufo_fdstream_init(cufo_fdstream_t fos, int fd, char const *encoding)
+{
+    cufo_stream_init(cu_to(cufo_stream, fos), &cufoP_target_fd);
+    fos->fd = fd;
+    fos->do_close = cu_false;
+    if (encoding && strcmp(encoding, "UTF-8") == 0) {
+	fos->convinfo[0].cd = iconv_open(encoding, "UTF-8");
+	fos->convinfo[0].wr_scale = 4;
+	fos->convinfo[1].cd = iconv_open(encoding, cu_wchar_encoding);
+	fos->convinfo[1].wr_scale = 6;
+    } else {
+	fos->convinfo[0].cd = NULL;
+	fos->convinfo[1].cd = iconv_open("UTF-8", cu_wchar_encoding);
+	fos->convinfo[1].wr_scale = 6;
+    }
+}
+
 cufo_stream_t
-cufo_stream_new_fd(int fd, char const *encoding)
+cufo_open_fd(int fd, char const *encoding)
 {
     cufo_fdstream_t fos = cu_gnew(struct cufo_fdstream_s);
-    cufo_stream_init(cu_to(cufo_stream, fos), &cufoP_fdtarget);
-    fos->fd = fd;
-    if (encoding && strcmp(encoding, "UTF-8") == 0) {
-	fos->iconv_info[0].cd = iconv_open(encoding, "UTF-8");
-	fos->iconv_info[0].wr_scale = 4;
-	fos->iconv_info[1].cd = iconv_open(encoding, cu_wchar_encoding);
-	fos->iconv_info[1].wr_scale = 6;
-    } else {
-	fos->iconv_info[0].cd = NULL;
-	fos->iconv_info[1].cd = iconv_open("UTF-8", cu_wchar_encoding);
-	fos->iconv_info[1].wr_scale = 6;
-    }
+    cufo_fdstream_init(fos, fd, encoding);
     return cu_to(cufo_stream, fos);
+}
+
+cufo_stream_t
+cufo_open_file(char const *path, char const *encoding)
+{
+    int fd = open(path, O_CREAT | O_WRONLY | O_TRUNC, 0666);
+    cufo_stream_t fos = cufo_open_fd(fd, encoding);
+    FDSTREAM(fos)->do_close = cu_true;
+    return fos;
 }

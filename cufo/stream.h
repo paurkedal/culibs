@@ -26,7 +26,7 @@
 
 CU_BEGIN_DECLARATIONS
 
-void cufoP_setwide(cufo_stream_t fos, cu_bool_t be_wide);
+void cufoP_set_wide(cufo_stream_t fos, cu_bool_t be_wide);
 
 /*!\defgroup cufo_stream_h cufo/stream.h:
  *@{\ingroup cufo_mod */
@@ -51,10 +51,11 @@ struct cufo_target_s
     void (*flush)(cufo_stream_t fos, cu_bool_t must_empty);
     void (*enter)(cufo_stream_t fos, cufo_tag_t tag, va_list va);
     void (*leave)(cufo_stream_t fos, cufo_tag_t);
+    void *(*close)(cufo_stream_t fos);
 };
 
 #define CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE	(1u << 0)
-#define CUFO_SFLAG_IS_ERROR			(1u << 16)
+#define CUFO_SFLAG_HAVE_ERROR			(1u << 16)
 
 struct cufo_stream_s
 {
@@ -62,20 +63,37 @@ struct cufo_stream_s
     cufo_target_t target;
     cu_bool_t is_wide;
     unsigned int flags;
+#ifdef CUCONF_DEBUG_CLIENT
+    struct cufoP_tag_stack_s *tag_stack;
+#endif
 };
 
 void cufo_stream_init(cufo_stream_t fos, cufo_target_t target);
 
-cufo_stream_t cufo_stream_new_fd(int fd, char const *encoding);
+cufo_stream_t cufo_open_fd(int fd, char const *encoding);
+
+cufo_stream_t cufo_open_file(char const *path, char const *encoding);
+
+void *cufo_close(cufo_stream_t fos);
+
+void cufo_close_discard(cufo_stream_t fos);
 
 void cufo_flush(cufo_stream_t fos);
 
 CU_SINLINE void
-cufo_setwide(cufo_stream_t fos, cu_bool_t be_wide)
+cufo_set_wide(cufo_stream_t fos, cu_bool_t be_wide)
 {
     if (fos->is_wide != be_wide)
-	cufoP_setwide(fos, be_wide);
+	cufoP_set_wide(fos, be_wide);
 }
+
+CU_SINLINE void
+cufo_flag_error(cufo_stream_t fos)
+{ fos->flags |= CUFO_SFLAG_HAVE_ERROR; }
+
+CU_SINLINE cu_bool_t
+cufo_have_error(cufo_stream_t fos)
+{ return fos->flags & CUFO_SFLAG_HAVE_ERROR; }
 
 CU_SINLINE void
 cufo_fast_putc(cufo_stream_t fos, char ch)
@@ -107,9 +125,9 @@ void cufo_puts(cufo_stream_t fos, char const *cs);
 
 void cufo_putws(cufo_stream_t fos, cu_wchar_t *wcs);
 
-void cufo_write_charr(cufo_stream_t fos, char const *cs, size_t cs_len);
+void cufo_print_charr(cufo_stream_t fos, char const *cs, size_t cs_len);
 
-void cufo_write_wcarr(cufo_stream_t fos, cu_wchar_t const *arr, size_t len);
+void cufo_print_wcarr(cufo_stream_t fos, cu_wchar_t const *arr, size_t len);
 
 void cufo_print_wstring(cufo_stream_t fos, cu_wstring_t ws);
 
@@ -117,17 +135,16 @@ void cufo_print_str(cufo_stream_t fos, cu_str_t str);
 
 void cufo_enter(cufo_stream_t fos, cufo_tag_t tag, ...);
 
-CU_SINLINE void
-cufo_enter_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
-{ (*fos->target->enter)(fos, tag, va); }
+void cufo_enter_va(cufo_stream_t fos, cufo_tag_t tag, va_list va);
 
-CU_SINLINE void
-cufo_leave(cufo_stream_t fos, cufo_tag_t tag)
-{ (*fos->target->leave)(fos, tag); }
+void cufo_leave(cufo_stream_t fos, cufo_tag_t tag);
+
+void cufo_leaveln(cufo_stream_t fos, cufo_tag_t tag);
 
 void cufo_empty(cufo_stream_t fos, cufo_tag_t tag, ...);
 
 int cufo_printf(cufo_stream_t fos, char const *fmt, ...);
+
 int cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va);
 
 /*!@}*/

@@ -4,15 +4,16 @@ cufo_header = \
 	cufo/fwd.h \
 	cufo/stream.h \
 	cufo/tag.h \
-	cufo/tagdefs.h
+	cufo/tagdefs.h \
+	cufo/target_fd.h
 
 cufo_sources = \
-	cufo/fdtarget.c \
 	cufo/init.c \
 	cufo/printf.c \
 	cufo/stream.c \
 	cufo/tag.c \
-	cufo/tagdefs.c
+	cufo/tagdefs.c \
+	cufo/target_fd.c
 
 check_programs += \
 	cufo/stream_t0

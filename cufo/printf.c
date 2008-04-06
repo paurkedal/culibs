@@ -45,7 +45,7 @@ get_buffer_cap(cufo_stream_t fos, int max_width,
 	       char **buf_out, size_t *cap_out)
 {
     /* Extend buffer capacity if needed to avoid truncation. */
-    cufo_setwide(fos, cu_false);
+    cufo_set_wide(fos, cu_false);
     cu_buffer_extend_freecap(cu_to(cu_buffer, fos), max_width + 1);
     *cap_out = cu_buffer_freecap(cu_to(cu_buffer, fos));
     *buf_out = cu_buffer_content_end(cu_to(cu_buffer, fos));
@@ -323,13 +323,13 @@ break_flags:
 		    if (prec != -1 && len > prec)
 			len = prec;
 		    if (len >= width)
-			cufo_write_charr(fos, arr, len);
+			cufo_print_charr(fos, arr, len);
 		    else if (flags & CUFO_PRIFLAG_MINUS) {
-			cufo_write_charr(fos, arr, len);
+			cufo_print_charr(fos, arr, len);
 			cufo_fillc(fos, ' ', width - len);
 		    } else {
 			cufo_fillc(fos, ' ', width - len);
-			cufo_write_charr(fos, arr, len);
+			cufo_print_charr(fos, arr, len);
 		    }
 		    break;
 		}
@@ -427,7 +427,7 @@ cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va)
 	if (*fmt == '%') {
 	    if (fmt != fmt_last) {
 		size_t count = cu_ptr_diff(fmt, fmt_last);
-		cufo_write_charr(fos, fmt_last, count);
+		cufo_print_charr(fos, fmt_last, count);
 		write_count += count;
 	    }
 	    ++fmt;
@@ -443,7 +443,7 @@ cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va)
     }
     if (fmt != fmt_last) {
 	size_t count = cu_ptr_diff(fmt, fmt_last);
-	cufo_write_charr(fos, fmt_last, count);
+	cufo_print_charr(fos, fmt_last, count);
 	write_count += count;
     }
     return write_count;

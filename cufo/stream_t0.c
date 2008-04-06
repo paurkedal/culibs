@@ -16,18 +16,24 @@
  */
 
 #include <cufo/stream.h>
+#include <cufo/tagdefs.h>
 #include <cu/test.h>
 #include <cu/wstring.h>
 
-int
-main()
+void
+print_page(cufo_stream_t fos)
 {
     int i, j;
-    cufo_stream_t fos;
-    cufo_init();
-    fos = cufo_stream_new_fd(1, NULL);
+    cufo_enter(fos, cufo_b_title);
+    cufo_puts(fos, "Test Output of libcufo Formatter\n");
+    cufo_leaveln(fos, cufo_b_title);
+
+    cufo_enter(fos, cufo_b_para);
     cufo_puts(fos, "Hello world.\n");
     cufo_print_wstring(fos, CU_WSTRING_C("Hello wide world.\n"));
+    cufo_leaveln(fos, cufo_b_para);
+
+    cufo_enter(fos, cufo_b_codepre);
     for (i = 1; i < 100; i *= 2)
 	for (j = 1; j < 10; j *= 2) {
 	    double x = i/(double)j;
@@ -37,6 +43,16 @@ main()
     for (i = 0x2200; i < 0x2210; ++i)
 	cufo_printf(fos, "%#x '%lc' %s", i, (cu_wint_t)i,
 		    i % 4 == 3? "\n" : "| ");
-    cufo_flush(fos);
+    cufo_leaveln(fos, cufo_b_codepre);
+}
+
+int
+main()
+{
+    cufo_stream_t fos;
+    cufo_init();
+    fos = cufo_open_fd(1, NULL);
+    print_page(fos);
+    cufo_close(fos);
     return 2*!!cu_test_bug_count();
 }
