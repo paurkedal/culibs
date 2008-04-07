@@ -68,7 +68,7 @@ cu_wstring_of_chararr(char const *arr, size_t len)
 {
     iconv_t cd = cu_iconv_for_char_to_wchar();
     cu_wchar_t *buf = cu_salloc(len*sizeof(cu_wchar_t));
-    char *inbuf = arr;
+    char *inbuf = (char *)arr;
     size_t incap = len;
     char *outbuf = (char *)buf;
     size_t outcap = len*sizeof(cu_wchar_t);

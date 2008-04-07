@@ -162,6 +162,8 @@ main(int argc, char **argv)
 	case 4:
 	    test = test_malloc_free;
 	    break;
+	default:
+	    exit(2);
     }
 
     _test_type = cuoo_stdtype_new_hcs(

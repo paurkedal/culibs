@@ -23,6 +23,7 @@ bin_PROGRAMS =
 bin_SCRIPTS =
 dist_bin_SCRIPTS =
 noinst_HEADERS =
+nobase_culibs_HEADERS =
 pkgconfig_DATA =
 noinst_DATA =
 EXTRA_DIST =
@@ -123,7 +124,7 @@ if enable_cuex
 endif
 EXTRA_DIST		+= cudyn/cudyn.am cudyn/misc.doxy.sh
 
-nobase_culibs_HEADERS = \
+nobase_culibs_HEADERS += \
 	$(cu_headers) \
 	$(cuoo_headers) \
 	$(cucon_headers) \

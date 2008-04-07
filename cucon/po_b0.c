@@ -81,6 +81,6 @@ main()
     t1 = check_some(N, arr);
     report("insert", N, t0);
     report("check", N, t1);
-    printf("connection count: %d\n", cucon_po_debug_count_connections(po));
+    printf("connection count: %zd\n", cucon_po_debug_count_connections(po));
     return 0;
 }

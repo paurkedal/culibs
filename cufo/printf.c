@@ -335,12 +335,6 @@ break_flags:
 		}
 		case CUFO_PRILENGTH_LONG: {
 		    cu_bug_unfinished();
-		    if (prec == -1)
-			snprintf(outbuf, outcap, new_fmt, width,
-				 cu_va_ref_arg(va_ref, wchar_t *));
-		    else
-			snprintf(outbuf, outcap, new_fmt, width, prec,
-				 cu_va_ref_arg(va_ref, wchar_t *));
 		    break;
 		}
 		default:
@@ -411,6 +405,9 @@ break_flags:
 		cu_bugf("Unimplemented.");
 	    return fmt;
 	}
+	default:
+	    cu_bugf("Invalid format specifier %%%c.", *fmt);
+	    return fmt;
     }
     /* Only formats using outbuf return here. */
     cu_buffer_set_content_end(BUFFER(fos), outbuf + strlen(outbuf));

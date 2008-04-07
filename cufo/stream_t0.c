@@ -83,12 +83,12 @@ main()
     print_page(fos);
     cufo_close(fos);
 
-    fos = cufo_open_file(NULL, "cufo_stream_t0.utf8");
+    fos = cufo_open_file(NULL, "tmp.cufo_stream_t0.utf8");
     cu_test_assert(fos);
     print_page(fos);
     cufo_close(fos);
 
-    fos = cufo_open_file("UTF-32", "cufo_stream_t0.utf32");
+    fos = cufo_open_file("UTF-32", "tmp.cufo_stream_t0.utf32");
     cu_test_assert(fos);
     print_page(fos);
     cufo_close(fos);

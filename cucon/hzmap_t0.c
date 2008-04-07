@@ -58,7 +58,7 @@ test(cucon_hzmap_t map, int verb)
     }
     bench_t_insert += clock();
     if (verb)
-	printf("Inserted %d unique of %d random pairs, cap = %d.\n", n, N_INS,
+	printf("Inserted %zd unique of %d random pairs, cap = %zd.\n", n, N_INS,
 	       cucon_hzmap_capacity(map));
     cu_test_assert_size_eq(cucon_hzmap_size(map), n);
 
@@ -91,7 +91,8 @@ test(cucon_hzmap_t map, int verb)
     }
     bench_t_erase += clock();
     if (verb)
-	printf("Map shrunk to %d pairs, cap = %d.\n", n, cucon_hzmap_capacity(map));
+	printf("Map shrunk to %zd pairs, cap = %zd.\n",
+	       n, cucon_hzmap_capacity(map));
     cu_test_assert_size_eq(n, cucon_hzmap_size(map));
 }
 

@@ -1,6 +1,6 @@
 if enable_cufo
 
-cufo_header = \
+cufo_headers = \
 	cufo/fwd.h \
 	cufo/stream.h \
 	cufo/tag.h \
@@ -24,6 +24,7 @@ check_programs += \
 cufo/tagdefs.c: $(srcdir)/cufo/tagdefs.h $(srcdir)/cufo/mktagdefs.pl
 	$(srcdir)/cufo/mktagdefs.pl -o $@ $<
 
+nobase_culibs_HEADERS += $(cufo_headers)
 lib_LTLIBRARIES += libcufo.la
 libcufo_la_LIBADD = @CUFO_LIBADD@
 libcufo_la_DEPENDENCIES = @CUFO_DEPENDENCIES@
