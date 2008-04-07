@@ -19,6 +19,7 @@
 #include <cufo/tagdefs.h>
 #include <cu/test.h>
 #include <cu/wstring.h>
+#include <cu/str.h>
 
 void
 print_page(cufo_stream_t fos)
@@ -46,13 +47,53 @@ print_page(cufo_stream_t fos)
     cufo_leaveln(fos, cufo_b_codepre);
 }
 
+void
+test_str_target()
+{
+    cufo_stream_t fos = cufo_open_str();
+    cu_str_t str;
+    cu_wstring_t wstr, wstrp;
+
+    cufo_printf(fos, "%c %03d %x", 'C', 79, 0x3219);
+    str = cufo_close(fos);
+    cu_test_assert(cu_str_cmp_cstr(str, "C 079 3219") == 0);
+
+    fos = cufo_open_wstring();
+    cu_test_assert(fos);
+    print_page(fos);
+    wstr = cufo_close(fos);
+
+    fos = cufo_open_str();
+    cu_test_assert(fos);
+    print_page(fos);
+    str = cufo_close(fos);
+    wstrp = cu_wstring_of_chararr(cu_str_charr(str), cu_str_size(str));
+
+    cu_test_assert(cu_wstring_cmp(wstr, wstrp) == 0);
+}
+
 int
 main()
 {
     cufo_stream_t fos;
     cufo_init();
-    fos = cufo_open_fd(1, NULL);
+
+    fos = cufo_open_fd(NULL, 1, cu_false);
+    cu_test_assert(fos);
     print_page(fos);
     cufo_close(fos);
+
+    fos = cufo_open_file(NULL, "cufo_stream_t0.utf8");
+    cu_test_assert(fos);
+    print_page(fos);
+    cufo_close(fos);
+
+    fos = cufo_open_file("UTF-32", "cufo_stream_t0.utf32");
+    cu_test_assert(fos);
+    print_page(fos);
+    cufo_close(fos);
+
+    test_str_target();
+
     return 2*!!cu_test_bug_count();
 }

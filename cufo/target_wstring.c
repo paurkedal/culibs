@@ -17,58 +17,52 @@
 
 #include <cufo/target_sink.h>
 #include <cu/data_seq.h>
-#include <cu/memory.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
+#include <cu/wstring.h>
 
-typedef struct fdsink_s *fdsink_t;
-struct fdsink_s {
+#define BUFSINK(sink) cu_from(bufsink, cu_data_sink, sink)
+
+typedef struct bufsink_s *bufsink_t;
+struct bufsink_s
+{
     cu_inherit (cu_data_sink_s);
-    int fd;
-    cu_bool_t do_close;
+    struct cu_buffer_s buffer;
 };
 
-#define FDSINK(sink) cu_from(fdsink, cu_data_sink, sink)
-
-static size_t
-fdsink_write(cu_data_sink_t sink, void const *arr, size_t len)
+size_t
+bufsink_write(cu_data_sink_t sink, void const *arr, size_t len)
 {
-    return write(FDSINK(sink)->fd, arr, len);
+    void *dst = cu_buffer_produce(&BUFSINK(sink)->buffer, len);
+    memcpy(dst, arr, len);
+    return len;
 }
 
 cu_word_t
-fdsink_control(cu_data_sink_t sink, int cmd, va_list va)
+wstring_control(cu_data_sink_t sink, int op, va_list va)
 {
-    switch (cmd) {
+    switch (op) {
+	    cu_buffer_t buf;
 	case CU_DATA_CONTROL_FINISH:
-	    if (FDSINK(sink)->do_close)
-		close(FDSINK(sink)->fd);
-	    return 0;
-	case CU_DATA_CONTROL_DISCARD:
-	    if (FDSINK(sink)->do_close)
-		close(FDSINK(sink)->fd);
-	    return 0;
+	    buf = &BUFSINK(sink)->buffer;
+	    cu_debug_assert(cu_buffer_content_size(buf) % 4 == 0);
+	    return (cu_word_t)cu_wstring_of_arr(cu_buffer_content_start(buf),
+						cu_buffer_content_size(buf)/4);
 	default:
 	    return CU_DATA_STATUS_UNIMPL;
     }
 }
 
 cufo_stream_t
-cufo_open_fd(char const *encoding, int fd, cu_bool_t do_close)
+cufo_open_wstring_recode(char const *encoding)
 {
-    fdsink_t sink;
-    sink = cu_gnew(struct fdsink_s);
-    cu_data_sink_init(cu_to(cu_data_sink, sink), fdsink_write, fdsink_control);
-    sink->fd = fd;
-    sink->do_close = do_close;
+    bufsink_t sink = cu_gnew(struct bufsink_s);
+    cu_data_sink_init(cu_to(cu_data_sink, sink),
+		      bufsink_write, wstring_control);
+    cu_buffer_init(&sink->buffer, 32);
     return cufo_open_sink(encoding, cu_to(cu_data_sink, sink));
 }
 
 cufo_stream_t
-cufo_open_file(char const *encoding, char const *path)
+cufo_open_wstring()
 {
-    int fd = open(path, O_CREAT | O_WRONLY | O_TRUNC, 0666);
-    return cufo_open_fd(encoding, fd, cu_true);
+    return cufo_open_wstring_recode(cu_wchar_encoding);
 }

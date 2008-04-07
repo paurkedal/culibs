@@ -64,14 +64,14 @@ cu_wstring_of_arr_ref_o(cu_wchar_t const *arr, size_t len)
 }
 
 cu_wstring_t
-cu_wstring_of_char_arr(char *arr, size_t len)
+cu_wstring_of_chararr(char const *arr, size_t len)
 {
     iconv_t cd = cu_iconv_for_char_to_wchar();
-    cu_wchar_t *buf = cu_salloc(len*sizeof(cu_wstring_t));
+    cu_wchar_t *buf = cu_salloc(len*sizeof(cu_wchar_t));
     char *inbuf = arr;
     size_t incap = len;
     char *outbuf = (char *)buf;
-    size_t outcap = len*sizeof(cu_wstring_t);
+    size_t outcap = len*sizeof(cu_wchar_t);
     if (iconv(cd, &inbuf, &incap, &outbuf, &outcap)
 	== (size_t)-1) {
 	switch (errno) {
@@ -82,14 +82,14 @@ cu_wstring_of_char_arr(char *arr, size_t len)
 		return NULL;
 	}
     }
-    cu_debug_assert(outcap % sizeof(cu_wstring_t) == 0);
-    return cu_wstring_of_arr(buf, len - outcap/sizeof(cu_wstring_t));
+    cu_debug_assert(outcap % sizeof(cu_wchar_t) == 0);
+    return cu_wstring_of_arr(buf, len - outcap/sizeof(cu_wchar_t));
 }
 
 cu_wstring_t
-cu_wstring_of_char_str(char *str)
+cu_wstring_of_charstr(char const *str)
 {
-    return cu_wstring_of_char_arr(str, strlen(str));
+    return cu_wstring_of_chararr(str, strlen(str));
 }
 
 cu_wstring_t

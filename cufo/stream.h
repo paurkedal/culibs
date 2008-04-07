@@ -70,9 +70,19 @@ struct cufo_stream_s
 
 void cufo_stream_init(cufo_stream_t fos, cufo_target_t target);
 
-cufo_stream_t cufo_open_fd(int fd, char const *encoding);
+cufo_stream_t cufo_open_fd(char const *encoding, int fd, cu_bool_t do_close);
 
-cufo_stream_t cufo_open_file(char const *path, char const *encoding);
+cufo_stream_t cufo_open_file(char const *encoding, char const *path);
+
+cufo_stream_t cufo_open_sink(char const *encoding, cu_data_sink_t sink);
+
+cufo_stream_t cufo_open_str(void);
+
+cufo_stream_t cufo_open_str_recode(char const *encoding);
+
+cufo_stream_t cufo_open_wstring(void);
+
+cufo_stream_t cufo_open_wstring_recode(char const *encoding);
 
 void *cufo_close(cufo_stream_t fos);
 

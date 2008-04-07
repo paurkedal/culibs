@@ -27,6 +27,7 @@ CU_BEGIN_DECLARATIONS
 typedef struct cufo_target_s *cufo_target_t;
 typedef struct cufo_prispec_s *cufo_prispec_t;
 typedef struct cufo_stream_s *cufo_stream_t;
+typedef struct cufo_convstream_s *cufo_convstream_t;
 
 typedef struct cufo_tag_s *cufo_tag_t;
 typedef struct cufo_tagspace_s *cufo_tagspace_t;

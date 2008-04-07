@@ -26,22 +26,22 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cufo_target_fd_h cufo/target_fd.h:
  *@{\ingroup cufo_target_mod */
 
-struct cufo_fdconvinfo_s
+struct cufo_sinkconvinfo_s
 {
     iconv_t cd;
     unsigned int wr_scale;
 };
 
-typedef struct cufo_fdstream_s *cufo_fdstream_t;
-struct cufo_fdstream_s
+typedef struct cufo_sinkstream_s *cufo_sinkstream_t;
+struct cufo_sinkstream_s
 {
     cu_inherit (cufo_stream_s);
-    int fd;
-    cu_bool_t do_close;
-    struct cufo_fdconvinfo_s convinfo[2]; /* = { multibyte_iconv, wide_iconv } */
+    cu_data_sink_t sink;
+    struct cufo_sinkconvinfo_s convinfo[2]; /* = { multibyte_iconv, wide_iconv } */
 };
 
-void cufo_fdstream_init(cufo_fdstream_t fos, int fd, char const *encoding);
+cu_bool_t cufo_sinkstream_init(cufo_sinkstream_t fos, char const *encoding,
+			       cu_data_sink_t sink);
 
 /*!@}*/
 CU_END_DECLARATIONS

@@ -41,7 +41,7 @@ struct cu_wstring_s
 #  define CU_WSTRING_C(s) \
 	  cu_wstring_of_arr(L##s, sizeof(L##s)/sizeof(cu_wchar_t) - 1)
 #else
-#  define CU_WSTRING_C(s) cu_wstring_of_char_arr(s, sizeof(s) - 1)
+#  define CU_WSTRING_C(s) cu_wstring_of_chararr(s, sizeof(s) - 1)
 #endif
 
 /*!Dynamic type of a \a cu_wstring_t. Only strings returned by functions ending

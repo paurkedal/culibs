@@ -5,7 +5,7 @@ cufo_header = \
 	cufo/stream.h \
 	cufo/tag.h \
 	cufo/tagdefs.h \
-	cufo/target_fd.h
+	cufo/target_sink.h
 
 cufo_sources = \
 	cufo/init.c \
@@ -13,7 +13,10 @@ cufo_sources = \
 	cufo/stream.c \
 	cufo/tag.c \
 	cufo/tagdefs.c \
-	cufo/target_fd.c
+	cufo/target_fd.c \
+	cufo/target_sink.c \
+	cufo/target_str.c \
+	cufo/target_wstring.c
 
 check_programs += \
 	cufo/stream_t0
