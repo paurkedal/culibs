@@ -23,6 +23,7 @@
 #include <cu/inherit.h>
 #include <cu/buffer.h>
 #include <cu/wchar.h>
+#include <cuoo/fwd.h>
 
 CU_BEGIN_DECLARATIONS
 
@@ -45,6 +46,9 @@ struct cufo_prispec_s
 };
 typedef void (*cufo_print_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 				cu_va_ref_t va_ref);
+
+typedef void (*cufo_print_ptr_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
+				    void *ptr);
 
 struct cufo_target_s
 {
@@ -142,6 +146,10 @@ void cufo_print_wcarr(cufo_stream_t fos, cu_wchar_t const *arr, size_t len);
 void cufo_print_wstring(cufo_stream_t fos, cu_wstring_t ws);
 
 void cufo_print_str(cufo_stream_t fos, cu_str_t str);
+
+void cufo_print_ex(cufo_stream_t fos, cuex_t e);
+
+void cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e);
 
 void cufo_enter(cufo_stream_t fos, cufo_tag_t tag, ...);
 

@@ -51,6 +51,41 @@ get_buffer_cap(cufo_stream_t fos, int max_width,
     *buf_out = cu_buffer_content_end(cu_to(cu_buffer, fos));
 }
 
+void
+cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    cuoo_type_t e_type;
+    if (cuex_meta_is_type(e_meta)) {
+	cufo_print_ptr_fn_t f;
+	e_type = cuoo_type_from_meta(e_meta);
+	f = cuoo_type_impl_ptr(e_type, CUOO_INTF_FOPRINT_FN);
+	if (f)
+	    (*f)(fos, spec, e);
+	else {
+	    if (fos->flags & CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE) {
+		fos->flags &= ~CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE;
+		cufo_printf(fos, "(?%p : %!)", e, e_type);
+		fos->flags |= CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE;
+	    }
+	    else
+		cufo_printf(fos, "(?%p)", e);
+	}
+    }
+    else
+	cu_bugf("Unimplemented.");
+}
+
+void
+cufo_print_ex(cufo_stream_t fos, cuex_t e)
+{
+    struct cufo_prispec_s spec;
+    spec.flags = 0;
+    spec.width = 0;
+    spec.precision = -1;
+    cufo_printsp_ex(fos, &spec, e);
+}
+
 static char const *
 handle_format(cufo_stream_t fos, char const *fmt, cu_va_ref_t va_ref,
 	      size_t old_size)
@@ -379,30 +414,12 @@ break_flags:
 	    return fmt;
 	}
 	case '!': {
-	    cufo_print_fn_t f;
 	    struct cufo_prispec_s spec;
 	    cuex_t e = cu_va_ref_arg(va_ref, cuex_t);
-	    cuex_meta_t e_meta = cuex_meta(e);
 	    spec.flags = flags;
 	    spec.width = width;
 	    spec.precision = prec;
-	    if (cuex_meta_is_type(e_meta)) {
-		cuoo_type_t e_type = cuoo_type_from_meta(e_meta);
-		f = cuoo_type_impl_ptr(e_type, CUOO_INTF_FOPRINT_FN);
-		if (f)
-		    (*f)(fos, &spec, va_ref);
-		else {
-		    if (fos->flags & CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE) {
-			fos->flags &= ~CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE;
-			cufo_printf(fos, "(?%p : %!)", e, e_type);
-			fos->flags |= CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE;
-		    }
-		    else
-			cufo_printf(fos, "(?%p)", e);
-		}
-	    }
-	    else
-		cu_bugf("Unimplemented.");
+	    cufo_printsp_ex(fos, &spec, e);
 	    return fmt;
 	}
 	default:

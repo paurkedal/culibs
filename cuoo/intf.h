@@ -38,7 +38,7 @@ CU_BEGIN_DECLARATIONS
 
 #define CUOO_INTF_SERIALISABLE	0x12	/* cuoo_serialisable_t */
 #define CUOO_INTF_PRINT_FN	0x13	/* void (*)(void *, FILE *) */
-#define CUOO_INTF_FOPRINT_FN	0x14	/* cufo_print_fn_t */
+#define CUOO_INTF_FOPRINT_FN	0x14	/* cufo_print_ptr_fn_t */
 
 /*!An interface dispatch which conistently returns \ref CUOO_IMPL_NONE. */
 cu_word_t cuoo_impl_none(cu_word_t intf_number, ...);
