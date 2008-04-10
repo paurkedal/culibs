@@ -24,10 +24,13 @@
 #include <cu/buffer.h>
 #include <cu/wchar.h>
 #include <cuoo/fwd.h>
+#include <iconv.h>
 
 CU_BEGIN_DECLARATIONS
 
 void cufoP_set_wide(cufo_stream_t fos, cu_bool_t be_wide);
+void cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear);
+void *cufoP_stream_produce(cufo_stream_t fos, size_t len);
 
 /*!\defgroup cufo_stream_h cufo/stream.h:
  *@{\ingroup cufo_mod */
@@ -52,7 +55,7 @@ typedef void (*cufo_print_ptr_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 
 struct cufo_target_s
 {
-    void (*flush)(cufo_stream_t fos, cu_bool_t must_empty);
+    void (*write)(cufo_stream_t fos, void const *data, size_t size);
     void (*enter)(cufo_stream_t fos, cufo_tag_t tag, va_list va);
     void (*leave)(cufo_stream_t fos, cufo_tag_t);
     void *(*close)(cufo_stream_t fos);
@@ -61,18 +64,38 @@ struct cufo_target_s
 #define CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE	(1u << 0)
 #define CUFO_SFLAG_HAVE_ERROR			(1u << 16)
 
+struct cufo_convinfo_s
+{
+    iconv_t cd;
+    unsigned int wr_scale;
+};
+
 struct cufo_stream_s
 {
     cu_inherit (cu_buffer_s);
     cufo_target_t target;
     cu_bool_t is_wide;
     unsigned int flags;
+    struct cufo_convinfo_s convinfo[2]; /* = { multibyte_iconv, wide_iconv } */
 #ifdef CUCONF_DEBUG_CLIENT
     struct cufoP_tag_stack_s *tag_stack;
 #endif
 };
 
-void cufo_stream_init(cufo_stream_t fos, cufo_target_t target);
+cu_bool_t cufo_stream_init(cufo_stream_t fos, char const *encoding,
+			   cufo_target_t target);
+
+CU_SINLINE void *
+cufo_stream_produce(cufo_stream_t fos, size_t len)
+{
+    if (len > cu_buffer_freecap(cu_to(cu_buffer, fos)))
+	return cufoP_stream_produce(fos, len);
+    else {
+	void *res = cu_buffer_content_end(cu_to(cu_buffer, fos));
+	cu_buffer_set_content_end(cu_to(cu_buffer, fos), cu_ptr_add(res, len));
+	return res;
+    }
+}
 
 cufo_stream_t cufo_open_fd(char const *encoding, int fd, cu_bool_t do_close);
 
@@ -92,7 +115,7 @@ void *cufo_close(cufo_stream_t fos);
 
 void cufo_close_discard(cufo_stream_t fos);
 
-void cufo_flush(cufo_stream_t fos);
+CU_SINLINE void cufo_flush(cufo_stream_t fos) { cufoP_flush(fos, cu_false); }
 
 CU_SINLINE void
 cufo_set_wide(cufo_stream_t fos, cu_bool_t be_wide)
@@ -114,7 +137,7 @@ cufo_fast_putc(cufo_stream_t fos, char ch)
 {
     char *s;
     cu_debug_assert(!fos->is_wide);
-    s = cu_buffer_produce(cu_to(cu_buffer, fos), 1);
+    s = cufo_stream_produce(fos, 1);
     *s = ch;
 }
 
@@ -123,7 +146,7 @@ cufo_fast_putwc(cufo_stream_t fos, cu_wchar_t wc)
 {
     cu_wchar_t *s;
     cu_debug_assert(fos->is_wide);
-    s = cu_buffer_produce(cu_to(cu_buffer, fos), sizeof(cu_wchar_t));
+    s = cufo_stream_produce(fos, sizeof(cu_wchar_t));
     *s = wc;
 }
 

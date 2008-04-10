@@ -4,8 +4,7 @@ cufo_headers = \
 	cufo/fwd.h \
 	cufo/stream.h \
 	cufo/tag.h \
-	cufo/tagdefs.h \
-	cufo/target_sink.h
+	cufo/tagdefs.h
 
 cufo_sources = \
 	cufo/init.c \

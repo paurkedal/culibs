@@ -20,6 +20,7 @@
 #include <cu/wstring.h>
 #include <cu/str.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef CUCONF_DEBUG_SELF
 #  define INIT_BUFFER_CAP 16
@@ -38,8 +39,8 @@ struct cufoP_tag_stack_s
 #endif
 
 
-void
-cufo_stream_init(cufo_stream_t fos, cufo_target_t target)
+cu_bool_t
+cufo_stream_init(cufo_stream_t fos, char const *encoding, cufo_target_t target)
 {
     cu_buffer_init(BUFFER(fos), INIT_BUFFER_CAP);
     fos->target = target;
@@ -48,17 +49,60 @@ cufo_stream_init(cufo_stream_t fos, cufo_target_t target)
 #ifdef CUCONF_DEBUG_CLIENT
     fos->tag_stack = NULL;
 #endif
+
+    /* Allocate multi-byte descriptor. */
+    if (!encoding || strcmp(encoding, "UTF-8") == 0) {
+	encoding = "UTF-8";
+	fos->convinfo[0].cd = NULL;
+    }
+    else {
+	fos->convinfo[0].cd = iconv_open(encoding, "UTF-8");
+	fos->convinfo[0].wr_scale = 4;
+	if (fos->convinfo[0].cd == (iconv_t)-1) {
+	    cu_errf("iconv_open(\"%s\", \"UTF-8\"): %s",
+		    encoding, strerror(errno));
+	    return cu_false;
+	}
+    }
+
+    /* Allocate wide-char descriptor. */
+    if (strcmp(encoding, cu_wchar_encoding) == 0)
+	fos->convinfo[1].cd = NULL;
+    else {
+	fos->convinfo[1].cd = iconv_open(encoding, cu_wchar_encoding);
+	fos->convinfo[1].wr_scale = 2;
+	if (fos->convinfo[1].cd == (iconv_t)-1) {
+	    if (fos->convinfo[0].cd)
+		iconv_close(fos->convinfo[0].cd);
+	    cu_errf("iconv_open(\"%s\", \"%s\"): %s",
+		    encoding, cu_wchar_encoding, strerror(errno));
+	    return cu_false;
+	}
+    }
+
+    return cu_true;
+}
+
+void *
+cufoP_stream_produce(cufo_stream_t fos, size_t len)
+{
+    cufoP_flush(fos, cu_false);
+    return cu_buffer_produce(cu_to(cu_buffer, fos), len);
 }
 
 void *
 cufo_close(cufo_stream_t fos)
 {
+    int i;
 #ifdef CUCONF_DEBUG_CLIENT
     if (!cufo_have_error(fos) && fos->tag_stack != NULL)
 	cu_bugf("Missing closing tag %s at end of stream.",
 		fos->tag_stack->tag);
 #endif
-    (*fos->target->flush)(fos, cu_true);
+    cufoP_flush(fos, cu_true);
+    for (i = 0; i < 2; ++i)
+	if (fos->convinfo[i].cd)
+	    iconv_close(fos->convinfo[i].cd);
     return (*fos->target->close)(fos);
 }
 
@@ -70,20 +114,62 @@ cufo_close_discard(cufo_stream_t fos)
 }
 
 void
-cufo_flush(cufo_stream_t fos)
+cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
 {
-    if (cu_buffer_content_size(BUFFER(fos)) > 0) {
-	(*fos->target->flush)(fos, cu_false);
-	if (cu_buffer_content_size(BUFFER(fos)) == 0)
-	    cu_buffer_clear(BUFFER(fos)); /* Good place to realign content. */
+    char *src_buf;
+    size_t src_size = cu_buffer_content_size(BUFFER(fos));
+    char *wr_buf;
+    size_t wr_size;
+    struct cufo_convinfo_s *convinfo;
+
+    if (src_size == 0)
+	return;
+
+    src_buf = cu_buffer_content_start(BUFFER(fos));
+    convinfo = &fos->convinfo[fos->is_wide];
+    if (convinfo->cd == NULL) {
+	wr_buf = src_buf;
+	wr_size = src_size;
+	cu_buffer_clear(BUFFER(fos));
+    } else {
+	char *wr_cur;
+	size_t wr_lim;
+	size_t cz;
+	wr_lim = wr_size = convinfo->wr_scale*(src_size + 1);
+	wr_cur = wr_buf = cu_salloc(wr_lim);
+	cz = iconv(convinfo->cd, &src_buf, &src_size, &wr_cur, &wr_lim);
+	if (cz == (size_t)-1) {
+	    switch (errno) {
+		case E2BIG:
+		    cu_bugf("Unexpected insufficient space in output buffer.");
+		    break;
+		case EILSEQ:
+		    cu_errf("Invalid multibyte sequence.");
+		    abort();
+		    break;
+		case EINVAL:
+		    cu_errf("Incomplete multibyte sequence.");
+		    break;
+		default:
+		    cu_bug_unreachable();
+	    }
+	}
+	wr_size -= wr_lim;
+	cu_buffer_set_content_start(BUFFER(fos), src_buf);
     }
+    (*fos->target->write)(fos, wr_buf, wr_size);
+
+    if (cu_buffer_content_size(BUFFER(fos)) == 0)
+	cu_buffer_clear(BUFFER(fos)); /* Good place to realign content. */
+    else if (must_clear && !cufo_have_error(fos))
+	cu_bugf("Buffer should have been cleared.");
 }
 
 void
 cufoP_set_wide(cufo_stream_t fos, cu_bool_t is_wide)
 {
     if (cu_buffer_content_size(BUFFER(fos)) > 0) {
-	(*fos->target->flush)(fos, cu_true);
+	cufoP_flush(fos, cu_true);
 	if (cu_buffer_content_size(BUFFER(fos)) == 0)
 	    cu_buffer_clear(BUFFER(fos)); /* Good place to realign content. */
 	else
@@ -115,7 +201,7 @@ cufo_fillc(cufo_stream_t fos, char ch, int repeat)
 {
     char *buf;
     cufo_set_wide(fos, cu_false);
-    buf = cu_buffer_produce(BUFFER(fos), repeat);
+    buf = cufo_stream_produce(fos, repeat);
     memset(buf, ch, repeat);
 }
 
@@ -124,7 +210,7 @@ cufo_fillwc(cufo_stream_t fos, cu_wchar_t wc, int repeat)
 {
     cu_wchar_t *buf;
     cufo_set_wide(fos, cu_true);
-    buf = cu_buffer_produce(BUFFER(fos), repeat*sizeof(cu_wchar_t));
+    buf = cufo_stream_produce(fos, repeat*sizeof(cu_wchar_t));
     while (repeat-- > 0)
 	*buf++ = wc;
 }
@@ -134,7 +220,7 @@ cufo_print_charr(cufo_stream_t fos, char const *charr, size_t size)
 {
     void *buf;
     cufo_set_wide(fos, cu_false);
-    buf = cu_buffer_produce(BUFFER(fos), size);
+    buf = cufo_stream_produce(fos, size);
     memcpy(buf, charr, size);
 }
 
@@ -143,7 +229,7 @@ cufo_print_wcarr(cufo_stream_t fos, cu_wchar_t const *wcarr, size_t count)
 {
     void *buf;
     cufo_set_wide(fos, cu_true);
-    buf = cu_buffer_produce(BUFFER(fos), count*sizeof(cu_wchar_t));
+    buf = cufo_stream_produce(fos, count*sizeof(cu_wchar_t));
     memcpy(buf, wcarr, count*sizeof(cu_wchar_t));
 }
 

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cufo/target_sink.h>
+#include <cufo/stream.h>
 #include <cu/data_seq.h>
 #include <cu/str.h>
 
