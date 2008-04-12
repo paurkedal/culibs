@@ -21,7 +21,7 @@
 #include <cu/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_clos_h cu/clos.h:
+/* \defgroup cu_clos_h cu/clos.h:
  *@{\ingroup cu_mod */
 
 #define cuPP_splice(argl...) argl
@@ -114,7 +114,7 @@ typedef struct cu_clos_self_s *cu_clos_self_t;
 
 #define cu_clos_self(name) name##_t *self = cuL_self
 
-/*!@}*/
+/* @}*/
 CU_END_DECLARATIONS
 
 #endif

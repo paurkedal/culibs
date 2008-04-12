@@ -16,6 +16,7 @@
  */
 
 #include <cu/dsink.h>
+#include <cu/diag.h>
 
 cu_word_t
 cu_dsink_control(cu_dsink_t sink, int op, ...)
@@ -26,4 +27,13 @@ cu_dsink_control(cu_dsink_t sink, int op, ...)
     res = (*sink->control)(sink, op, va);
     va_end(va);
     return res;
+}
+
+void
+cu_dsink_assert_clogfree(cu_dsink_t sink)
+{
+    cu_word_t st = cu_dsink_control(sink, CU_DSINK_FN_ASSERT_CLOGFREE);
+    if (st != CU_DSINK_ST_SUCCESS)
+	cu_bugf("Caller expected a clog-free sink, but sink does not "
+		"guarante to be clog-free.");
 }
