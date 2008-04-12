@@ -15,7 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cufo/stream.h>
+#include <cuos/dsink.h>
+#include <cu/inherit.h>
 #include <cu/dsink.h>
 #include <cu/memory.h>
 #include <sys/types.h>
@@ -23,52 +24,66 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-typedef struct fdsink_s *fdsink_t;
-struct fdsink_s {
+typedef struct fd_sink_s *fd_sink_t;
+struct fd_sink_s
+{
     cu_inherit (cu_dsink_s);
     int fd;
-    cu_bool_t do_close;
 };
 
-#define FDSINK(sink) cu_from(fdsink, cu_dsink, sink)
+#define FD_SINK(sink) cu_from(fd_sink, cu_dsink, sink)
 
-static size_t
-fdsink_write(cu_dsink_t sink, void const *arr, size_t len)
+size_t
+fd_sink_write(cu_dsink_t sink, void const *data, size_t size)
 {
-    return write(FDSINK(sink)->fd, arr, len);
+    return write(FD_SINK(sink)->fd, data, size);
 }
 
 cu_word_t
-fdsink_control(cu_dsink_t sink, int cmd, va_list va)
+fd_sink_control_if_not_close(cu_dsink_t sink, int cmd, va_list va)
+{
+    return CU_DSINK_ST_UNIMPL;
+}
+
+cu_word_t
+fd_sink_control_if_close(cu_dsink_t sink, int cmd, va_list va)
 {
     switch (cmd) {
-	case CU_DSINK_FN_FINISH:
-	    if (FDSINK(sink)->do_close)
-		close(FDSINK(sink)->fd);
-	    return 0;
 	case CU_DSINK_FN_DISCARD:
-	    if (FDSINK(sink)->do_close)
-		close(FDSINK(sink)->fd);
-	    return 0;
+	case CU_DSINK_FN_FINISH:
+	    close(FD_SINK(sink)->fd);
+	    return CU_DSINK_ST_SUCCESS;
 	default:
 	    return CU_DSINK_ST_UNIMPL;
     }
 }
 
-cufo_stream_t
-cufo_open_fd(char const *encoding, int fd, cu_bool_t do_close)
+cu_dsink_t
+cuos_dsink_fdopen(int fd)
 {
-    fdsink_t sink;
-    sink = cu_gnew(struct fdsink_s);
-    cu_dsink_init(cu_to(cu_dsink, sink), fdsink_control, fdsink_write);
+    fd_sink_t sink = cu_gnew(struct fd_sink_s);
+    cu_dsink_init(cu_to(cu_dsink, sink),
+		  fd_sink_control_if_not_close, fd_sink_write);
     sink->fd = fd;
-    sink->do_close = do_close;
-    return cufo_open_sink(encoding, cu_to(cu_dsink, sink));
+    return cu_to(cu_dsink, sink);
 }
 
-cufo_stream_t
-cufo_open_file(char const *encoding, char const *path)
+cu_dsink_t
+cuos_dsink_fdopen_close(int fd)
+{
+    fd_sink_t sink = cu_gnew(struct fd_sink_s);
+    cu_dsink_init(cu_to(cu_dsink, sink),
+		  fd_sink_control_if_close, fd_sink_write);
+    sink->fd = fd;
+    return cu_to(cu_dsink, sink);
+}
+
+cu_dsink_t
+cuos_dsink_open(char const *path)
 {
     int fd = open(path, O_CREAT | O_WRONLY | O_TRUNC, 0666);
-    return cufo_open_fd(encoding, fd, cu_true);
+    if (fd != -1)
+	return cuos_dsink_fdopen_close(fd);
+    else
+	return NULL;
 }

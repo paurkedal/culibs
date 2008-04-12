@@ -55,7 +55,7 @@ typedef void (*cufo_print_ptr_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 
 struct cufo_target_s
 {
-    void (*write)(cufo_stream_t fos, void const *data, size_t size);
+    size_t (*write)(cufo_stream_t fos, void const *data, size_t size);
     void (*enter)(cufo_stream_t fos, cufo_tag_t tag, va_list va);
     void (*leave)(cufo_stream_t fos, cufo_tag_t);
     void *(*close)(cufo_stream_t fos);
@@ -101,7 +101,7 @@ cufo_stream_t cufo_open_fd(char const *encoding, int fd, cu_bool_t do_close);
 
 cufo_stream_t cufo_open_file(char const *encoding, char const *path);
 
-cufo_stream_t cufo_open_sink(char const *encoding, cu_data_sink_t sink);
+cufo_stream_t cufo_open_sink(char const *encoding, cu_dsink_t sink);
 
 cufo_stream_t cufo_open_str(void);
 
@@ -110,6 +110,8 @@ cufo_stream_t cufo_open_str_recode(char const *encoding);
 cufo_stream_t cufo_open_wstring(void);
 
 cufo_stream_t cufo_open_wstring_recode(char const *encoding);
+
+cufo_stream_t cufo_open_xmldirect(char const *encoding, cu_dsink_t sink);
 
 void *cufo_close(cufo_stream_t fos);
 

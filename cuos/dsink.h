@@ -15,16 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cu/util.h>
+#ifndef CUOS_SINK_H
+#define CUOS_SINK_H
 
-void cufoP_tag_init(void);
-void cufoP_tagdefs_init(void);
+#include <cu/fwd.h>
 
-void
-cufo_init(void)
-{
-    CU_RETURN_UNLESS_FIRST_CALL;
-    cu_init();
-    cufoP_tag_init();
-    cufoP_tagdefs_init();
-}
+CU_BEGIN_DECLARATIONS
+/*!\defgroup cuos_dsink_h cuos/sink.h:
+ *@{\ingroup cuos_mod */
+
+cu_dsink_t cuos_dsink_fdopen(int fd);
+
+cu_dsink_t cuos_dsink_fdopen_close(int fd);
+
+cu_dsink_t cuos_dsink_open(char const *path);
+
+cu_dsink_t cuos_dsink_iconv_open(char const *source_encoding,
+				 char const *target_encoding,
+				 cu_dsink_t target_sink);
+
+/*!@}*/
+CU_END_DECLARATIONS
+
+#endif

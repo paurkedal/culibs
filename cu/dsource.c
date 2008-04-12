@@ -15,16 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cu/util.h>
+#include <cu/dsource.h>
 
-void cufoP_tag_init(void);
-void cufoP_tagdefs_init(void);
-
-void
-cufo_init(void)
+cu_word_t
+cu_dsource_control(cu_dsource_t source, int op, ...)
 {
-    CU_RETURN_UNLESS_FIRST_CALL;
-    cu_init();
-    cufoP_tag_init();
-    cufoP_tagdefs_init();
+    cu_word_t res;
+    va_list va;
+    va_start(va, op);
+    res = (*source->control)(source, op, va);
+    va_end(va);
+    return res;
 }

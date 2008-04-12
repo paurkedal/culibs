@@ -151,8 +151,8 @@ typedef int cu_countdiff_t;
  * -------------- */
 
 typedef struct cu_buffer_s	*cu_buffer_t;		/* buffer.h */
-typedef struct cu_data_sink_s	*cu_data_sink_t;	/* data_seq.h */
-typedef struct cu_data_source_s	*cu_data_source_t;	/* data_seq.h */
+typedef struct cu_dsink_s	*cu_dsink_t;		/* dsink.h */
+typedef struct cu_dsource_s	*cu_dsource_t;		/* dsource.h */
 typedef struct cu_idr_s		*cu_idr_t;		/* idr.h */
 typedef struct cu_ptr_source_s	*cu_ptr_source_t;	/* ptr_seq.h */
 typedef struct cu_ptr_sink_s	*cu_ptr_sink_t;		/* ptr_seq.h */

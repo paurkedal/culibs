@@ -19,7 +19,7 @@
 #include <cu/memory.h>
 #include <cu/diag.h>
 #include <cu/wchar.h>
-#include <cu/data_seq.h>
+#include <cu/dsink.h>
 
 #define BUFFER(fos) cu_to(cu_buffer, fos)
 #define SINKSTREAM(fos) cu_from(cufo_sinkstream, cufo_stream, fos)
@@ -28,28 +28,19 @@ typedef struct cufo_sinkstream_s *cufo_sinkstream_t;
 struct cufo_sinkstream_s
 {
     cu_inherit (cufo_stream_s);
-    cu_data_sink_t sink;
+    cu_dsink_t sink;
 };
 
-static void
+static size_t
 target_sink_write(cufo_stream_t fos, void const *wr_buf, size_t wr_size)
 {
-    size_t sz;
-    while (wr_size > 0) {
-	sz = cu_data_sink_write(SINKSTREAM(fos)->sink, wr_buf, wr_size);
-	if (sz == (size_t)-1) {
-	    cu_errf("Error writing to sink.");
-	    cufo_flag_error(fos);
-	    break;
-	}
-	else if (sz == 0) {
-	    /* This should possibly be considered a bug. */
-	    cu_errf("Could not write to sink, zero bytes consumed.");
-	    cufo_flag_error(fos);
-	    break;
-	}
-	wr_size -= sz;
-    }
+    size_t wz = cu_dsink_write(SINKSTREAM(fos)->sink, wr_buf, wr_size);
+    if (wz == (size_t)-1) {
+	cu_errf("Error writing to sink.");
+	cufo_flag_error(fos);
+	return 0;
+    } else
+	return wz;
 }
 
 static void
@@ -67,7 +58,7 @@ target_sink_leave(cufo_stream_t fos, cufo_tag_t tag)
 static void *
 target_sink_close(cufo_stream_t fos)
 {
-    return cu_data_sink_finish(SINKSTREAM(fos)->sink);
+    return cu_dsink_finish(SINKSTREAM(fos)->sink);
 }
 
 struct cufo_target_s cufoP_target_sink = {
@@ -78,7 +69,7 @@ struct cufo_target_s cufoP_target_sink = {
 };
 
 cufo_stream_t
-cufo_open_sink(char const *encoding, cu_data_sink_t sink)
+cufo_open_sink(char const *encoding, cu_dsink_t sink)
 {
     cufo_sinkstream_t fos = cu_gnew(struct cufo_sinkstream_s);
     if (cufo_stream_init(cu_to(cufo_stream, fos), encoding,

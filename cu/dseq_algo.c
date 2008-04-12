@@ -15,16 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cu/util.h>
+#include <cu/dsink.h>
+#include <cu/dsource.h>
 
-void cufoP_tag_init(void);
-void cufoP_tagdefs_init(void);
+#define ALGO_BLOCK_SIZE 4096
 
-void
-cufo_init(void)
+cu_bool_t
+cu_dsource_sink_short(cu_dsource_t source, cu_dsink_t sink)
 {
-    CU_RETURN_UNLESS_FIRST_CALL;
-    cu_init();
-    cufoP_tag_init();
-    cufoP_tagdefs_init();
+    char buf[ALGO_BLOCK_SIZE];
+    for (;;) {
+	char *s;
+	size_t rsize;
+	rsize = cu_dsource_read(source, buf, ALGO_BLOCK_SIZE);
+	if (!rsize)
+	    break;
+	s = buf;
+	while (rsize > 0) {
+	    size_t wsize;
+	    wsize = cu_dsink_write(sink, buf, rsize);
+	    if (wsize == 0)
+		return cu_false;
+	    rsize -= wsize;
+	    s += wsize;
+	}
+    }
+    return cu_true;
 }

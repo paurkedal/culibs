@@ -5,6 +5,7 @@ cuos_headers = \
 	cuos/path.h \
 	cuos/file.h \
 	cuos/fs.h \
+	cuos/dsink.h \
 	cuos/time.h
 
 cuos_sources = \
@@ -12,6 +13,7 @@ cuos_sources = \
 	cuos/path.c \
 	cuos/file.c \
 	cuos/fs.c \
+	cuos/dsink_fd.c \
 	cuos/time.c
 
 cuos_check_programs = \

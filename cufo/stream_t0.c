@@ -17,6 +17,7 @@
 
 #include <cufo/stream.h>
 #include <cufo/tagdefs.h>
+#include <cuos/dsink.h>
 #include <cu/test.h>
 #include <cu/wstring.h>
 #include <cu/str.h>
@@ -40,7 +41,7 @@ print_page(cufo_stream_t fos)
 	    double x = i/(double)j;
 	    cufo_printf(fos, "%3d / %-2d = %4.2g = %5.2lf\n", i, j, x, x);
 	}
-    cufo_printf(fos, "%c %lc (alpha)\n", '*', (cu_wint_t)0x3b1);
+    cufo_printf(fos, "%c %lc (alpha) < > &\n", '*', (cu_wint_t)0x3b1);
     for (i = 0x2200; i < 0x2210; ++i)
 	cufo_printf(fos, "%#x '%lc' %s", i, (cu_wint_t)i,
 		    i % 4 == 3? "\n" : "| ");
@@ -72,6 +73,18 @@ test_str_target()
     cu_test_assert(cu_wstring_cmp(wstr, wstrp) == 0);
 }
 
+void
+test_xml_target()
+{
+    cufo_stream_t fos;
+    cu_dsink_t sink;
+    sink = cuos_dsink_open("tmp.cufo_stream_t0.xml");
+    cu_test_assert(sink != NULL);
+    fos = cufo_open_xmldirect("UTF-8", sink);
+    print_page(fos);
+    cufo_close(fos);
+}
+
 int
 main()
 {
@@ -94,6 +107,7 @@ main()
     cufo_close(fos);
 
     test_str_target();
+    test_xml_target();
 
     return 2*!!cu_test_bug_count();
 }

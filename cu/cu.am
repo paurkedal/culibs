@@ -7,7 +7,8 @@ cu_headers = \
 	cu/conf.h \
 	cu/conf_fixed.h \
 	cu/cstr.h \
-	cu/data_seq.h \
+	cu/dsink.h \
+	cu/dsource.h \
 	cu/debug.h \
 	cu/diag.h \
 	cu/dlink.h \
@@ -41,7 +42,9 @@ nodist_cu_headers = \
 cu_sources = \
 	cu/buffer.c \
 	cu/cstr.c \
-	cu/data_seq.c \
+	cu/dsink.c \
+	cu/dseq_algo.c \
+	cu/dsource.c \
 	cu/debug.c \
 	cu/diag.c \
 	cu/hash.c \

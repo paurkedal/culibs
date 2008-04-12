@@ -14,6 +14,7 @@ cufo_sources = \
 	cufo/tagdefs.c \
 	cufo/target_fd.c \
 	cufo/target_sink.c \
+	cufo/target_xmldirect.c \
 	cufo/target_str.c \
 	cufo/target_wstring.c
 
@@ -33,7 +34,7 @@ pkgconfig_DATA += pkgconfig/cufo.pc
 noinst_DATA += pkgconfig/cufo-uninstalled.pc
 
 cufo_stream_t0_SOURCES = cufo/stream_t0.c
-cufo_stream_t0_LDADD = libcufo.la
+cufo_stream_t0_LDADD = libcufo.la libcuos.la
 
 endif
 

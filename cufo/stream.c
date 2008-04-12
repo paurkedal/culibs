@@ -117,11 +117,14 @@ void
 cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
 {
     char *src_buf;
-    size_t src_size = cu_buffer_content_size(BUFFER(fos));
+    size_t src_size;
     char *wr_buf;
     size_t wr_size;
     struct cufo_convinfo_s *convinfo;
 
+    if (cufo_have_error(fos))
+	return;
+    src_size = cu_buffer_content_size(BUFFER(fos));
     if (src_size == 0)
 	return;
 
@@ -130,7 +133,11 @@ cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
     if (convinfo->cd == NULL) {
 	wr_buf = src_buf;
 	wr_size = src_size;
-	cu_buffer_clear(BUFFER(fos));
+	wr_size = (*fos->target->write)(fos, wr_buf, wr_size);
+	if (wr_size == (size_t)-1)
+	    cufo_flag_error(fos);
+	else
+	    cu_buffer_incr_content_start(BUFFER(fos), wr_size);
     } else {
 	char *wr_cur;
 	size_t wr_lim;
@@ -156,8 +163,13 @@ cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
 	}
 	wr_size -= wr_lim;
 	cu_buffer_set_content_start(BUFFER(fos), src_buf);
+	cz = (*fos->target->write)(fos, wr_buf, wr_size);
+	if (cz == (size_t)-1)
+	    cufo_flag_error(fos);
+	else if (cz != wr_size)
+	    cu_bugf("cufo stream write callback did not consume all output "
+		    "as required when conversion is enabled.");
     }
-    (*fos->target->write)(fos, wr_buf, wr_size);
 
     if (cu_buffer_content_size(BUFFER(fos)) == 0)
 	cu_buffer_clear(BUFFER(fos)); /* Good place to realign content. */
@@ -179,7 +191,7 @@ cufoP_set_wide(cufo_stream_t fos, cu_bool_t is_wide)
 		    "character in the application, or a bug in the "
 		    "cufo_target implementation.");
     }
-    fos->is_wide = is_wide;
+    fos->is_wide = !!is_wide;
 }
 
 void

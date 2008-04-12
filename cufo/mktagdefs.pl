@@ -17,7 +17,7 @@ foreach $tag (@tags) {
     my ($t, $n) = @$tag;
     print O "cufo_tag_t cufo_${t}_${n};\n";
 }
-print O "\nvoid\ncufo_tagdefs_init(void)\n{\n";
+print O "\nvoid\ncufoP_tagdefs_init(void)\n{\n";
 print O "\tcufo_tagspace_t ns = cufo_culibs_tagspace();\n";
 foreach $tag (@tags) {
     my ($t, $n) = @$tag;
