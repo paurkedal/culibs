@@ -98,7 +98,7 @@ bufsink_control(cu_dsink_t sink_, int fc, va_list va)
 }
 
 cu_dsink_t
-cu_dsink_new_buffer(cu_dsink_t subsink)
+cu_dsink_stack_buffer(cu_dsink_t subsink)
 {
     bufsink_t sink = cu_gnew(struct bufsink_s);
     cu_dsink_init(cu_to(cu_dsink, sink), bufsink_control, bufsink_write);

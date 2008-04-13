@@ -15,26 +15,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUOS_SINK_H
-#define CUOS_SINK_H
+#include <cu/dsink.h>
+#include <cu/str.h>
 
-#include <cu/fwd.h>
+#define STRSINK(sink) cu_from(strsink, cu_dsink, sink)
 
-CU_BEGIN_DECLARATIONS
-/*!\defgroup cuos_dsink_h cuos/dsink.h: Binding Data Sinks to Resources
- *@{\ingroup cuos_mod */
+typedef struct strsink_s *strsink_t;
+struct strsink_s
+{
+    cu_inherit (cu_dsink_s);
+    cu_str_t str;
+};
 
-cu_dsink_t cuos_dsink_fdopen(int fd);
+size_t
+strsink_write(cu_dsink_t sink, void const *arr, size_t len)
+{
+    cu_str_append_charr(STRSINK(sink)->str, arr, len);
+    return len;
+}
 
-cu_dsink_t cuos_dsink_fdopen_close(int fd);
+cu_word_t
+strsink_control(cu_dsink_t sink, int op, va_list va)
+{
+    switch (op) {
+	case CU_DSINK_FN_FINISH:
+	    return (cu_word_t)STRSINK(sink)->str;
+	default:
+	    return CU_DSINK_ST_UNIMPL;
+    }
+}
 
-cu_dsink_t cuos_dsink_open(char const *path);
-
-cu_dsink_t cuos_dsink_open_iconv(char const *source_encoding,
-				 char const *target_encoding,
-				 cu_dsink_t target_sink);
-
-/*!@}*/
-CU_END_DECLARATIONS
-
-#endif
+cu_dsink_t
+cu_dsink_new_str(void)
+{
+    strsink_t sink = cu_gnew(struct strsink_s);
+    cu_dsink_init(cu_to(cu_dsink, sink), strsink_control, strsink_write);
+    sink->str = cu_str_new();
+    return cu_to(cu_dsink, sink);
+}

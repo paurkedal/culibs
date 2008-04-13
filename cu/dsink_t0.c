@@ -73,7 +73,7 @@ test_dsink_buffer(int i_run)
     char buf[TEST_SIZE];
     int i;
     testsink_t testsink = testsink_new();
-    cu_dsink_t sink = cu_dsink_new_buffer(cu_to(cu_dsink, testsink));
+    cu_dsink_t sink = cu_dsink_stack_buffer(cu_to(cu_dsink, testsink));
 
     for (i = 0; i < TEST_SIZE; ++i)
 	buf[i] = lrand48();

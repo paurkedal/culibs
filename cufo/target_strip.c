@@ -69,7 +69,7 @@ struct cufo_target_s cufoP_target_sink = {
 };
 
 cufo_stream_t
-cufo_open_sink(char const *encoding, cu_dsink_t sink)
+cufo_open_strip_sink(char const *encoding, cu_dsink_t sink)
 {
     cufo_sinkstream_t fos = cu_gnew(struct cufo_sinkstream_s);
     if (cufo_stream_init(cu_to(cufo_stream, fos), encoding,

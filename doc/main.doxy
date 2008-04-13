@@ -51,6 +51,7 @@ are subject to API changes.  Roughly the status of various components are
   <tr><td>\ref cu_mod</td>	<td>mostly beta, somewhat unstable API</td></tr>
   <tr><td>\ref cucon_mod</td>	<td>beta</td></tr>
   <tr><td>\ref cuos_mod</td>	<td>beta</td></tr>
+  <tr><td>\ref cufo_mod</td>	<td>alpha</td></tr>
   <tr><td>\ref cuoo_mod</td>	<td>unstable API</td></tr>
   <tr><td>\ref cugra_mod</td>	<td>unstable API</td></tr>
   <tr><td>\ref cudyn_mod</td>	<td>deprecated, may be removed</td></tr>

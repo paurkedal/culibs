@@ -16,47 +16,37 @@
  */
 
 #include <cufo/stream.h>
+#include <cuos/dsink.h>
 #include <cu/dsink.h>
-#include <cu/str.h>
 
-#define STRSINK(sink) cu_from(strsink, cu_dsink, sink)
-
-typedef struct strsink_s *strsink_t;
-struct strsink_s
+cufo_stream_t
+cufo_open_strip_fd(char const *encoding, int fd)
 {
-    cu_inherit (cu_dsink_s);
-    cu_str_t str;
-};
-
-size_t
-strsink_write(cu_dsink_t sink, void const *arr, size_t len)
-{
-    cu_str_append_charr(STRSINK(sink)->str, arr, len);
-    return len;
-}
-
-cu_word_t
-strsink_control(cu_dsink_t sink, int op, va_list va)
-{
-    switch (op) {
-	case CU_DSINK_FN_FINISH:
-	    return (cu_word_t)STRSINK(sink)->str;
-	default:
-	    return CU_DSINK_ST_UNIMPL;
-    }
+    cu_dsink_t subsink = cuos_dsink_fdopen(fd);
+    if (!subsink)
+	return NULL;
+    return cufo_open_strip_sink(encoding, subsink);
 }
 
 cufo_stream_t
-cufo_open_str_recode(char const *encoding)
+cufo_open_strip_file(char const *encoding, char const *path)
 {
-    strsink_t sink = cu_gnew(struct strsink_s);
-    cu_dsink_init(cu_to(cu_dsink, sink), strsink_control, strsink_write);
-    sink->str = cu_str_new();
-    return cufo_open_sink(encoding, cu_to(cu_dsink, sink));
+    cu_dsink_t subsink = cuos_dsink_open(path);
+    if (!subsink)
+	return NULL;
+    return cufo_open_strip_sink(encoding, subsink);
 }
 
 cufo_stream_t
-cufo_open_str()
+cufo_open_strip_str(void)
 {
-    return cufo_open_str_recode(NULL);
+    cu_dsink_t subsink = cu_dsink_new_str();
+    return cufo_open_strip_sink("UTF-8", subsink);
+}
+
+cufo_stream_t
+cufo_open_strip_wstring(void)
+{
+    cu_dsink_t subsink = cu_dsink_new_wstring();
+    return cufo_open_strip_sink(cu_wchar_encoding, subsink);
 }

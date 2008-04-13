@@ -17,14 +17,18 @@
 
 #include <cu/wchar.h>
 #include <cu/tstate.h>
+#include <string.h>
 
 #ifdef CU_WCHAR_IS_STDC
 char const *cu_wchar_encoding = "WCHAR_T";
 #elif defined(CUCONF_WORDS_BIGENDIAN)
-char const *cu_wchar_encoding = "UTF-32";
+#  define CU_WCHAR_IS_UTF32BE_COMPAT 1
+char const *cu_wchar_encoding = "UTF-32BE";
 #else
+#  define CU_WCHAR_IS_UTF32LE_COMPAT 1
 char const *cu_wchar_encoding = "UTF-32LE";
 #endif
+/* TODO: Check and define CU_WCHAR_IS_UTF32_COMPAT if appropriate. */
 
 iconv_t
 cu_iconv_for_wchar_to_char(void)
@@ -44,4 +48,61 @@ cu_iconv_for_char_to_wchar(void)
 	tls->iconv_utf8_to_ucs4 = iconv_open(cu_wchar_encoding, "UTF-8");
     iconv(tls->iconv_utf8_to_ucs4, NULL, NULL, NULL, NULL);
     return tls->iconv_utf8_to_ucs4;
+}
+
+cu_bool_t
+cu_encoding_is_wchar_compat(char const *enc)
+{
+    switch (*enc++) {
+#if CU_WCHAR_IS_STDC
+	case 'w': case 'W':
+	    return strcasecmp(enc, "char_t") == 0;
+#endif
+#if CU_WCHAR_IS_UTF32BE_COMPAT || CU_WCHAR_IS_UTF32LE_COMPAT
+	case 'u': case 'U':
+	    switch (*enc++) {
+		case 't': case 'T':
+		    if (*enc != 'f' && *enc != 'F') return cu_false;
+		    ++enc;
+		    if (*enc == '-') ++enc;
+		    if (*enc++ != '3') return cu_false;
+		    if (*enc++ != '2') return cu_false;
+		    goto check_endian;
+		case 'c': case 'C':
+		    if (*enc != 's' && *enc != 'S') return cu_false;
+		    ++enc;
+		    if (*enc == '-') ++enc;
+		    if (*enc++ != '4') return cu_false;
+		    goto check_endian;
+		default:
+		    return cu_false;
+	    }
+#endif
+	default:
+	    return cu_false;
+    }
+
+#if CU_WCHAR_IS_UTF32BE_COMPAT
+check_endian:
+# if CU_WCHAR_IS_UTF32_COMPAT
+    if (!*enc) return cu_true;
+# endif
+    if (*enc != 'b' || *enc != 'B') return cu_false;
+    ++enc;
+    if (*enc != 'e' || *enc != 'E') return cu_false;
+    ++enc;
+    return !*enc;
+#endif
+
+#if CU_WCHAR_IS_UTF32LE_COMPAT
+check_endian:
+# if CU_WCHAR_IS_UTF32_COMPAT
+    if (!*enc) return cu_true;
+# endif
+    if (*enc != 'l' || *enc != 'L') return cu_false;
+    ++enc;
+    if (*enc != 'e' || *enc != 'E') return cu_false;
+    ++enc;
+    return !*enc;
+#endif
 }

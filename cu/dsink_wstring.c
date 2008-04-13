@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cufo/stream.h>
 #include <cu/dsink.h>
 #include <cu/wstring.h>
+#include <cu/buffer.h>
 
 #define BUFSINK(sink) cu_from(bufsink, cu_dsink, sink)
 
@@ -37,31 +37,26 @@ bufsink_write(cu_dsink_t sink, void const *arr, size_t len)
 }
 
 cu_word_t
-wstring_control(cu_dsink_t sink, int op, va_list va)
+wstring_control(cu_dsink_t sink, int fn, va_list va)
 {
-    switch (op) {
+    switch (fn) {
 	    cu_buffer_t buf;
 	case CU_DSINK_FN_FINISH:
 	    buf = &BUFSINK(sink)->buffer;
 	    cu_debug_assert(cu_buffer_content_size(buf) % 4 == 0);
-	    return (cu_word_t)cu_wstring_of_arr(cu_buffer_content_start(buf),
-						cu_buffer_content_size(buf)/4);
+	    return (cu_word_t)cu_wstring_of_arr(
+		cu_buffer_content_start(buf),
+		cu_buffer_content_size(buf)/sizeof(cu_wchar_t));
 	default:
 	    return CU_DSINK_ST_UNIMPL;
     }
 }
 
-cufo_stream_t
-cufo_open_wstring_recode(char const *encoding)
+cu_dsink_t
+cu_dsink_new_wstring()
 {
     bufsink_t sink = cu_gnew(struct bufsink_s);
     cu_dsink_init(cu_to(cu_dsink, sink), wstring_control, bufsink_write);
     cu_buffer_init(&sink->buffer, 32);
-    return cufo_open_sink(encoding, cu_to(cu_dsink, sink));
-}
-
-cufo_stream_t
-cufo_open_wstring()
-{
-    return cufo_open_wstring_recode(cu_wchar_encoding);
+    return cu_to(cu_dsink, sink);
 }

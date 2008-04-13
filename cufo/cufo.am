@@ -14,13 +14,11 @@ cufo_sources = \
 	cufo/init.c \
 	cufo/printf.c \
 	cufo/stream.c \
+	cufo/stream_open.c \
 	cufo/tag.c \
 	cufo/tagdefs.c \
-	cufo/target_fd.c \
-	cufo/target_sink.c \
-	cufo/target_xmldirect.c \
-	cufo/target_str.c \
-	cufo/target_wstring.c
+	cufo/target_strip.c \
+	cufo/target_xmldirect.c
 
 check_programs += \
 	cufo/stream_t0

@@ -52,7 +52,17 @@ iconv_t cu_iconv_for_wchar_to_char(void);
  * \ref cu_wchar_t strings. */
 iconv_t cu_iconv_for_char_to_wchar(void);
 
+/*!The name of the encoding used for \c cu_wchar_t, as suitable for passing to
+ * \c iconv_open.  This is wide character encoding with Unicode compatible
+ * code-points and endianness according to the platform.  The encoding is wide
+ * enough to hold Unicode characters beyond BMP.
+ * \see cu_wchar_t. */
 extern char const *cu_wchar_encoding;
+
+/*!True if \a enc is the name of a character encoding known to be binary
+ * compatible with and array of \c cu_wchar_t. Conversely, a false return does
+ * not guarantee that the encoding is incompatible. */
+cu_bool_t cu_encoding_is_wchar_compat(char const *enc);
 
 /*!@}*/
 CU_END_DECLARATIONS

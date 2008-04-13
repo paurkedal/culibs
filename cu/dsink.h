@@ -41,7 +41,7 @@ CU_BEGIN_DECLARATIONS
  *     call to \ref cu_dsink_assert_clogfree.
  * </ul>
  * Any buffer can be turned into a clog-free buffer by stacking a buffer on top
- * of it, as done by \ref cu_dsink_new_buffer.
+ * of it, as done by \ref cu_dsink_stack_buffer.
  */
 
 /* Use odd function codes where flushing any buffered data is required prior to
@@ -118,7 +118,9 @@ cu_word_t cu_dsink_control(cu_dsink_t sink, int fn, ...);
 
 /*!True if \a sink is clog-free, as reported by the \ref
  * CU_DSINK_FN_IS_CLOGFREE response. */
-cu_bool_t cu_dsink_is_clogfree(cu_dsink_t sink);
+CU_SINLINE cu_bool_t cu_dsink_is_clogfree(cu_dsink_t sink)
+{ return cu_dsink_control(sink, CU_DSINK_FN_IS_CLOGFREE)
+      == CU_DSINK_ST_SUCCESS; }
 
 /*!Control function to check that \a sink is clog-free.  It is recommended to
  * call this once before starting to write to a sink where a clog-free sink is
@@ -147,7 +149,17 @@ cu_dsink_discard(cu_dsink_t sink)
 { cu_dsink_control(sink, CU_DSINK_FN_DISCARD); }
 
 /*!Creates a clog-free sink of \a subsink by buffering data. */
-cu_dsink_t cu_dsink_new_buffer(cu_dsink_t subsink);
+cu_dsink_t cu_dsink_stack_buffer(cu_dsink_t subsink);
+
+/*!Returns a sink on which the call to \ref cu_dsink_finish returns a \ref
+ * cu_str_t of the written data.  No conversion is done.  Writing UTF-8 encoded
+ * data gives a text string. */
+cu_dsink_t cu_dsink_new_str(void);
+
+/*!Returns a sink on which the call to \ref cu_dsink_finish returns a \ref
+ * cu_wstring_t of the written data.  No conversion is done.  Writing \ref
+ * cu_wchar_encoding encoded characters gives a text string. */
+cu_dsink_t cu_dsink_new_wstring(void);
 
 /*!@}*/
 CU_END_DECLARATIONS
