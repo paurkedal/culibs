@@ -20,19 +20,18 @@
 #include <cuoo/halloc.h>
 #include <cuoo/intf.h>
 
-cufo_tagspace_t cufoP_culibs_tagspace;
+cufo_namespace_t cufoP_culibs_namespace;
 cuoo_stdtype_t cufoP_tag_type;
 
 cufo_tag_t
-cufo_tag(cufo_tagspace_t tagspace, char const *name, unsigned int hints)
+cufo_tag(cufo_namespace_t namespace, char const *name)
 {
     cufo_tag_t tag;
     cuoo_hctem_decl(cufo_tag, tem);
     cuoo_hctem_init(cufo_tag, tem);
     tag = cuoo_hctem_get(cufo_tag, tem);
-    tag->tagspace = tagspace;
+    tag->namespace = namespace;
     tag->idr = cu_idr_by_cstr(name);
-    tag->hints = hints;
     return cuoo_hctem_new(cufo_tag, tem);
 }
 
@@ -50,5 +49,5 @@ cufoP_tag_init()
 {
     cufoP_tag_type = cuoo_stdtype_new_hcs(
 	tag_dispatch, sizeof(struct cufo_tag_s) - CUOO_HCOBJ_SHIFT);
-    cufoP_culibs_tagspace = cufo_tagspace("http://www.eideticdew.org/culibs");
+    cufoP_culibs_namespace = cufo_namespace("http://www.eideticdew.org/culibs");
 }

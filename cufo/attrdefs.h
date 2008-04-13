@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUFO_FWD_H
-#define CUFO_FWD_H
+#ifndef CUFO_ATTRDEFS_H
+#define CUFO_ATTRDEFS_H
 
-#include <cu/fwd.h>
+#include <cufo/attr.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cufo_fwd_h cufo/fwd.h: Forward Declarations
+/*!\defgroup cufo_attrdefs_h cufo/attrdefs.h:
  *@{\ingroup cufo_mod */
 
-typedef struct cufo_target_s *cufo_target_t;
-typedef struct cufo_prispec_s *cufo_prispec_t;
-typedef struct cufo_stream_s *cufo_stream_t;
+extern struct cufo_attr_s cufoP_attr_id;
+extern struct cufo_attr_s cufoP_attr_class;
 
-typedef struct cufo_tag_s *cufo_tag_t;
-typedef struct cufo_namespace_s *cufo_namespace_t;
-typedef struct cufo_attr_s *cufo_attr_t;
-
-void cufo_init(void);
+#define cufoA_id(s)	CUFO_ATTR_CSTR(&cufoP_attr_id, s)
+#define cufoA_class(s)	CUFO_ATTR_CSTR(&cufoP_attr_class, s)
 
 /*!@}*/
 CU_END_DECLARATIONS

@@ -174,6 +174,8 @@ void cu_buffer_resize_content(cu_buffer_t buf, size_t size);
 
 void *cu_buffer_produce(cu_buffer_t buf, size_t incr);
 
+void cu_buffer_write(cu_buffer_t buf, void const *data, size_t size);
+
 /*!@}*/
 CU_END_DECLARATIONS
 

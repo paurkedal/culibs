@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,26 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUFO_FWD_H
-#define CUFO_FWD_H
+#include <cufo/attr.h>
 
-#include <cu/fwd.h>
+void
+cufo_attr_init(cufo_attr_t attr, cufo_namespace_t ns,
+	       char const *name, cufo_attrtype_t type)
+{
+    attr->ns = ns;
+    attr->idr = cu_idr_by_cstr(name);
+    attr->type = type;
+    attr->fixed_value = NULL;
+}
 
-CU_BEGIN_DECLARATIONS
-/*!\defgroup cufo_fwd_h cufo/fwd.h: Forward Declarations
- *@{\ingroup cufo_mod */
-
-typedef struct cufo_target_s *cufo_target_t;
-typedef struct cufo_prispec_s *cufo_prispec_t;
-typedef struct cufo_stream_s *cufo_stream_t;
-
-typedef struct cufo_tag_s *cufo_tag_t;
-typedef struct cufo_namespace_s *cufo_namespace_t;
-typedef struct cufo_attr_s *cufo_attr_t;
-
-void cufo_init(void);
-
-/*!@}*/
-CU_END_DECLARATIONS
-
-#endif
+void
+cufo_attr_init_fixed(cufo_attr_t attr, cufo_namespace_t ns,
+		     char const *name, char const *val)
+{
+    attr->ns = ns;
+    attr->idr = cu_idr_by_cstr(name);
+    attr->type = cufo_attrtype_fixed;
+    attr->fixed_value = val;
+}

@@ -19,6 +19,7 @@
 
 void cufoP_tag_init(void);
 void cufoP_tagdefs_init(void);
+void cufoP_attrdefs_init(void);
 
 void
 cufo_init(void)
@@ -27,4 +28,5 @@ cufo_init(void)
     cu_init();
     cufoP_tag_init();
     cufoP_tagdefs_init();
+    cufoP_attrdefs_init();
 }

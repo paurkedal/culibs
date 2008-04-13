@@ -17,8 +17,10 @@
 
 #include <cufo/stream.h>
 #include <cufo/tag.h>
+#include <cufo/attr.h>
 #include <cu/dsink.h>
 #include <cu/memory.h>
+#include <cu/buffer.h>
 
 typedef struct xd_stream_s *xd_stream_t;
 struct xd_stream_s
@@ -94,17 +96,54 @@ xd_enter(cufo_stream_t os, cufo_tag_t tag, va_list va)
 {
     char const *name;
     size_t name_len;
-    char *buf;
+    cufo_attr_t attr;
+    struct cu_buffer_s buf;
 
     cufoP_flush(os, cu_true);
 
     name = cufo_tag_name(tag);
     name_len = strlen(name);
-    buf = cu_salloc(name_len + 2);
-    buf[0] = '<';
-    memcpy(buf + 1, name, name_len);
-    buf[name_len + 1] = '>';
-    xd_raw_write(os, buf, name_len + 2);
+    cu_buffer_init(&buf, name_len + 2);
+    cu_buffer_write(&buf, "<", 1);
+    cu_buffer_write(&buf, name, name_len);
+
+    while ((attr = va_arg(va, cufo_attr_t))) {
+	name = cufo_attr_name(attr);
+	name_len = strlen(name);
+	cu_buffer_write(&buf, " ", 1);
+	cu_buffer_write(&buf, name, name_len);
+	cu_buffer_write(&buf, "=", 1);
+	switch (cufo_attr_type(attr)) {
+		char const *cs;
+		char *s;
+		int i, n;
+	    case cufo_attrtype_fixed:
+		cs = attr->fixed_value;
+		cu_buffer_write(&buf, "\"", 1);
+		cu_buffer_write(&buf, cs, strlen(cs));
+		cu_buffer_write(&buf, "\"", 1);
+		break;
+	    case cufo_attrtype_cstr:
+		/* TODO: Escape string. */
+		cs = va_arg(va, char const *);
+		cu_buffer_write(&buf, "\"", 1);
+		cu_buffer_write(&buf, cs, strlen(cs));
+		cu_buffer_write(&buf, "\"", 1);
+		break;
+	    case cufo_attrtype_int:
+		i = va_arg(va, int);
+		cu_buffer_extend_freecap(&buf, sizeof(int)*3 + 3);
+		s = cu_buffer_content_end(&buf);
+		sprintf(s, "\"%d\"%n", i, &n);
+		cu_buffer_incr_content_end(&buf, n);
+		break;
+	    default:
+		cu_bug_unfinished();
+	}
+    }
+    cu_buffer_write(&buf, ">", 1);
+    xd_raw_write(os, cu_buffer_content_start(&buf),
+		 cu_buffer_content_size(&buf));
 }
 
 static void

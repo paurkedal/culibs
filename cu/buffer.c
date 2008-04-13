@@ -123,6 +123,13 @@ cu_buffer_produce(cu_buffer_t buf, size_t incr)
 }
 
 void
+cu_buffer_write(cu_buffer_t buf, void const *data, size_t size)
+{
+    void *p = cu_buffer_produce(buf, size);
+    memcpy(p, data, size);
+}
+
+void
 cu_buffer_force_realign(cu_buffer_t buf)
 {
     size_t content_size = cu_buffer_content_size(buf);

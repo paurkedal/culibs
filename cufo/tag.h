@@ -24,49 +24,45 @@
 
 CU_BEGIN_DECLARATIONS
 
-extern cufo_tagspace_t cufoP_culibs_tagspace;
-extern cuoo_stdtype_t cufoP_tagspace_type, cufoP_tag_type;
+extern cufo_namespace_t cufoP_culibs_namespace;
+extern cuoo_stdtype_t cufoP_namespace_type, cufoP_tag_type;
 
 /*!\defgroup cufo_tag_h cufo/tag.h: Tags for Light-Weight Markup
  *@{\ingroup cufo_mod */
 
-struct cufo_tagspace_s;
+struct cufo_namespace_s;
 
-CU_SINLINE cufo_tagspace_t cufo_tagspace(char const *url)
-{ return (cufo_tagspace_t)cu_idr_by_cstr(url); }
+CU_SINLINE cufo_namespace_t cufo_namespace(char const *url)
+{ return (cufo_namespace_t)cu_idr_by_cstr(url); }
 
 CU_SINLINE cu_idr_t
-cufo_tagspace_url_idr(cufo_tagspace_t tagspace)
-{ return (cu_idr_t)tagspace; }
+cufo_namespace_url_idr(cufo_namespace_t namespace)
+{ return (cu_idr_t)namespace; }
 
 CU_SINLINE char const *
-cufo_tagspace_url(cufo_tagspace_t tagspace)
-{ return cu_idr_to_cstr(cufo_tagspace_url_idr(tagspace)); }
+cufo_namespace_url(cufo_namespace_t namespace)
+{ return cu_idr_to_cstr(cufo_namespace_url_idr(namespace)); }
 
-CU_SINLINE cufo_tagspace_t cufo_culibs_tagspace(void)
-{ return cufoP_culibs_tagspace; }
+CU_SINLINE cufo_namespace_t cufo_culibs_namespace(void)
+{ return cufoP_culibs_namespace; }
 
 struct cufo_tag_s
 {
     CUOO_HCOBJ
-    cufo_tagspace_t tagspace;
+    cufo_namespace_t namespace;
     cu_idr_t idr;
-    unsigned int hints;
 };
-
-#define CUFO_TAGHINT_BLOCK 1
-#define CUFO_TAGHINT_INLINE 2
 
 CU_SINLINE cuoo_type_t
 cufo_tag_type()
 { return cuoo_stdtype_to_type(cufoP_tag_type); }
 
 cufo_tag_t
-cufo_tag(cufo_tagspace_t tagspace, char const *name, unsigned int hints);
+cufo_tag(cufo_namespace_t namespace, char const *name);
 
-CU_SINLINE cufo_tagspace_t
+CU_SINLINE cufo_namespace_t
 cufo_tag_space(cufo_tag_t tag)
-{ return tag->tagspace; }
+{ return tag->namespace; }
 
 CU_SINLINE char const *
 cufo_tag_name(cufo_tag_t tag)
@@ -75,10 +71,6 @@ cufo_tag_name(cufo_tag_t tag)
 CU_SINLINE cu_idr_t
 cufo_tag_name_idr(cufo_tag_t tag)
 { return tag->idr; }
-
-CU_SINLINE unsigned int
-cufo_tag_hints(cufo_tag_t tag)
-{ return tag->hints; }
 
 /*!@}*/
 CU_END_DECLARATIONS

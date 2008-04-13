@@ -176,9 +176,12 @@ void cufo_print_ex(cufo_stream_t fos, cuex_t e);
 
 void cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e);
 
-void cufo_enter(cufo_stream_t fos, cufo_tag_t tag, ...);
+void cufoP_entera(cufo_stream_t fos, cufo_tag_t tag, ...);
 
-void cufo_enter_va(cufo_stream_t fos, cufo_tag_t tag, va_list va);
+void cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va);
+
+#define cufo_enter(fos, tag) cufoP_entera(fos, tag, NULL)
+#define cufo_entera(fos, tag, ...) cufoP_entera(fos, tag, __VA_ARGS__, NULL)
 
 void cufo_leave(cufo_stream_t fos, cufo_tag_t tag);
 

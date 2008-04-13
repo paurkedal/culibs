@@ -264,7 +264,7 @@ cufo_print_str(cufo_stream_t fos, cu_str_t str)
 }
 
 void
-cufo_enter_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
+cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 {
 #ifdef CUCONF_DEBUG_CLIENT
     cufoP_tag_stack_t tag_stack = cu_gnew(struct cufoP_tag_stack_s);
@@ -276,7 +276,7 @@ cufo_enter_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 }
 
 void
-cufo_enter(cufo_stream_t fos, cufo_tag_t tag, ...)
+cufoP_entera(cufo_stream_t fos, cufo_tag_t tag, ...)
 {
 #ifdef CUCONF_DEBUG_CLIENT
     cufoP_tag_stack_t tag_stack = cu_gnew(struct cufoP_tag_stack_s);

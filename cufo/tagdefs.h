@@ -25,39 +25,39 @@ CU_BEGIN_DECLARATIONS
  *@{\ingroup cufo_mod */
 
 /* Generic Inline */
-extern cufo_tag_t cufo_i_emph;
-extern cufo_tag_t cufo_i_italic;
-extern cufo_tag_t cufo_i_bold;
-extern cufo_tag_t cufo_i_underline;
-extern cufo_tag_t cufo_i_superscript;
-extern cufo_tag_t cufo_i_subscript;
+extern cufo_tag_t cufoT_emph;
+extern cufo_tag_t cufoT_italic;
+extern cufo_tag_t cufoT_bold;
+extern cufo_tag_t cufoT_underline;
+extern cufo_tag_t cufoT_superscript;
+extern cufo_tag_t cufoT_subscript;
 
 /* Generic Blocks */
-extern cufo_tag_t cufo_i_indent;
-extern cufo_tag_t cufo_i_section;
-extern cufo_tag_t cufo_b_title;
-extern cufo_tag_t cufo_b_para;
+extern cufo_tag_t cufoT_indent;
+extern cufo_tag_t cufoT_section;
+extern cufo_tag_t cufoT_title;
+extern cufo_tag_t cufoT_para;
 
 /* Diagnostic */
-extern cufo_tag_t cufo_i_location;
-extern cufo_tag_t cufo_i_message;
-extern cufo_tag_t cufo_b_runtime_info;
-extern cufo_tag_t cufo_b_runtime_warning;
-extern cufo_tag_t cufo_b_runtime_error;
-extern cufo_tag_t cufo_b_bug_info;
-extern cufo_tag_t cufo_b_bug_warning;
-extern cufo_tag_t cufo_b_bug_error;
-extern cufo_tag_t cufo_b_bug_trace;
+extern cufo_tag_t cufoT_location;
+extern cufo_tag_t cufoT_message;
+extern cufo_tag_t cufoT_runtime_info;
+extern cufo_tag_t cufoT_runtime_warning;
+extern cufo_tag_t cufoT_runtime_error;
+extern cufo_tag_t cufoT_bug_info;
+extern cufo_tag_t cufoT_bug_warning;
+extern cufo_tag_t cufoT_bug_error;
+extern cufo_tag_t cufoT_bug_trace;
 
 /* Expressions */
-extern cufo_tag_t cufo_b_codepre;
-extern cufo_tag_t cufo_i_code;
-extern cufo_tag_t cufo_i_comment;
-extern cufo_tag_t cufo_i_keyword;
-extern cufo_tag_t cufo_i_operator;
-extern cufo_tag_t cufo_i_variable;
-extern cufo_tag_t cufo_i_type;
-extern cufo_tag_t cufo_i_literal;
+extern cufo_tag_t cufoT_codepre;
+extern cufo_tag_t cufoT_code;
+extern cufo_tag_t cufoT_comment;
+extern cufo_tag_t cufoT_keyword;
+extern cufo_tag_t cufoT_operator;
+extern cufo_tag_t cufoT_variable;
+extern cufo_tag_t cufoT_type;
+extern cufo_tag_t cufoT_literal;
 
 /*!@}*/
 CU_END_DECLARATIONS
