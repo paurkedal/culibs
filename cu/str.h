@@ -27,7 +27,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_str cu/str.h: Multi-Byte Strings
- * @{ \ingroup cu_mod */
+ * @{ \ingroup cu_type_mod */
 
 struct cu_str_s
 {

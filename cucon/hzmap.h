@@ -27,7 +27,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_hzmap_h cucon/hzmap.h: Hash Map of Flat Fixed-Sized Keys
- *@{\ingroup cucon_mod
+ *@{\ingroup cucon_maps_and_sets_mod
  * \see cucon_hzset_h
  */
 

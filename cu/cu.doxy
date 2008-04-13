@@ -1,0 +1,13 @@
+/*!
+\defgroup cu_base_mod Basics
+\ingroup cu_mod
+
+\defgroup cu_type_mod Data Types
+\ingroup cu_mod
+
+\defgroup cu_seq_mod Data Sequences
+\ingroup cu_mod
+
+\defgroup cu_util_mod Utilities
+\ingroup cu_mod
+*/

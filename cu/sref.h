@@ -23,7 +23,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_sref cu/sref.h: Source Code References
- * @{ \ingroup cu_mod
+ * @{ \ingroup cu_util_mod
  * This defines a datatype which can hold a reference to a point or a range of
  * a file, with either line-precision or column-precision.
  */

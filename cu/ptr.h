@@ -24,7 +24,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_ptr_h cu/ptr.h: Pointer Arithmetic
- *@{\ingroup cu_mod */
+ *@{\ingroup cu_type_mod */
 
 /*!Add \a diff bytes to \a ptr irrespective of the underlying type. */
 CU_SINLINE void *cu_ptr_add(void *ptr, ptrdiff_t diff)

@@ -28,7 +28,7 @@ extern cuoo_stdtype_t cuP_wstring_type;
 extern cu_wstring_t cuP_wstring_empty;
 
 /*!\defgroup cu_wstring_h cu/wstring.h: Unicode String
- *@{\ingroup cu_mod */
+ *@{\ingroup cu_type_mod */
 
 struct cu_wstring_s
 {

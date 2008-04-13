@@ -32,7 +32,7 @@ cu_dsink_control(cu_dsink_t sink, int op, ...)
 void
 cu_dsink_assert_clogfree(cu_dsink_t sink)
 {
-    cu_word_t st = cu_dsink_control(sink, CU_DSINK_FN_ASSERT_CLOGFREE);
+    cu_word_t st = cu_dsink_control(sink, CU_DSINK_FN_IS_CLOGFREE);
     if (st != CU_DSINK_ST_SUCCESS)
 	cu_bugf("Caller expected a clog-free sink, but sink does not "
 		"guarante to be clog-free.");

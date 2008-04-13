@@ -83,7 +83,7 @@ bufsink_control(cu_dsink_t sink_, int fc, va_list va)
 {
     bufsink_t sink = cu_from(bufsink, cu_dsink, sink_);
     switch (fc) {
-	case CU_DSINK_FN_ASSERT_CLOGFREE:
+	case CU_DSINK_FN_IS_CLOGFREE:
 	    return CU_DSINK_ST_SUCCESS;
 	case CU_DSINK_FN_DEBUG_DUMP:
 	    cu_verbf(0, "dsink buffer, storage_size = %d, content_size = %d.",

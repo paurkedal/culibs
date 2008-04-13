@@ -23,21 +23,22 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_dsink_h cu/dsink.h: Generic Data Sink
- *@{\ingroup cu_mod
+ *@{\ingroup cu_seq_mod
  *
  * This header provides a data structure with callbacks for defining <i>data
  * sinks</i> which are consumers of arbitrary byte streams.
  *
  * A data sink is said to be <i>clog-free</i> if it's write-callback is
  * guaranteed to always cosume all data provided to it.  Data sinks derived
- * form \a ref cu_dsink_s may or may not be clog-free.  This property may be
+ * form \ref cu_dsink_s may or may not be clog-free.  This property may be
  * essential to some callers, and since this is not checked at compile time,
  * it's recommendable that
  * <ul>
  *   <li>It's documentet whether a returned sink is guaranteed to be clog-free.
- *   <li>It's documentet whether a function expects a clog-free stream as
- *     argument.
- *   <li>When a clog-free stream is expected, this is verified at run-time.
+ *   <li>It's documentet whether a function sink-parameter is required to be
+ *     clog-free.
+ *   <li>When a clog-free stream is expected, this is verified at run-time by a
+ *     call to \ref cu_dsink_assert_clogfree.
  * </ul>
  * Any buffer can be turned into a clog-free buffer by stacking a buffer on top
  * of it, as done by \ref cu_dsink_new_buffer.
@@ -45,8 +46,15 @@ CU_BEGIN_DECLARATIONS
 
 /* Use odd function codes where flushing any buffered data is required prior to
  * passing the control down to sub-sinks, even otherwise.  */
-#define CU_DSINK_FN_ASSERT_CLOGFREE	0
-    /*!< Function code for \ref cu_dsink_assert_clogfree. */
+
+/*!\name Function Codes
+ * @{*/
+/*!Function code for \ref cu_dsink_is_clogfree, also used by \ref
+ * cu_dsink_assert_clogfree.  If the sink is guaranteed to be clog-free, the
+ * control dispatcher shall indicate this by returning \ref CU_DSINK_ST_SUCCESS
+ * as response, otherwise this control need not be implemented. */
+#define CU_DSINK_FN_IS_CLOGFREE		0
+
 #define CU_DSINK_FN_FLUSH		1
     /*!< Function code for \ref cu_dsink_flush. */
 #define CU_DSINK_FN_DISCARD		2
@@ -54,7 +62,10 @@ CU_BEGIN_DECLARATIONS
 #define CU_DSINK_FN_FINISH		3
     /*!< Function code for \ref cu_dsink_finish. */
 #define CU_DSINK_FN_DEBUG_DUMP		4
+/*!@}*/
 
+/*!\name Function Exit Codes
+ * @{*/
 #define CU_DSINK_ST_UNIMPL	((cu_word_t)-3)
     /*!< Status returned by control dispatcher when the requested function is
      * not implemented. */
@@ -62,6 +73,7 @@ CU_BEGIN_DECLARATIONS
 #define CU_DSINK_ST_SUCCESS	0
     /*!< Status which may be returned by a dispatches on successful return when
      * no other value is to be returned. */
+/*!@}*/
 
 /*!Base struct for data sinks. */
 struct cu_dsink_s
@@ -103,6 +115,10 @@ cu_dsink_control_va(cu_dsink_t sink, int fn, va_list va)
  * arguments.  See the specific control functions below for a safer
  * interface. */
 cu_word_t cu_dsink_control(cu_dsink_t sink, int fn, ...);
+
+/*!True if \a sink is clog-free, as reported by the \ref
+ * CU_DSINK_FN_IS_CLOGFREE response. */
+cu_bool_t cu_dsink_is_clogfree(cu_dsink_t sink);
 
 /*!Control function to check that \a sink is clog-free.  It is recommended to
  * call this once before starting to write to a sink where a clog-free sink is

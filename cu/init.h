@@ -22,7 +22,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_init_h cu/init.h: Library Initialisation
- * @{\ingroup cu_mod */
+ * @{\ingroup cu_base_mod */
 
 extern cu_bool_t cuP_locale_is_utf8;
 

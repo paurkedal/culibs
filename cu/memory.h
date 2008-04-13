@@ -47,7 +47,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_memory cu/memory.h: Memory Allocation
- * @{ \ingroup cu_mod */
+ * @{ \ingroup cu_base_mod */
 
 #ifdef CUCONF_HAVE_STDINT_H
 typedef uintptr_t cu_uintptr_t;

@@ -9,7 +9,7 @@ doc_extra_dist = \
 	doc/gplv3-127x51.png \
 	doc/styledefs.m4
 
-all_doxyfiles = $(built_doxyfiles) $(doxyfiles) $(nobase_culibs_HEADERS)
+all_doxyfiles = $(built_doxyfiles) $(nobase_culibs_HEADERS) $(doxyfiles)
 
 install-doc-dirs:
 	$(mkinstalldirs) $(DESTDIR)$(htmldir)

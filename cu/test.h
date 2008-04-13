@@ -24,7 +24,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_test_h cu/test.h: Utilities for Testing
- *@{\ingroup cu_mod */
+ *@{\ingroup cu_util_mod */
 
 typedef enum {
     cu_test_bugaction_cont,	/* continue */

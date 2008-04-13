@@ -23,7 +23,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_idr cu/idr.h: Identifiers (Strings with Pointer Equality)
- * @{ \ingroup cu_mod */
+ * @{ \ingroup cu_type_mod */
 
 struct cu_idr_s
 {

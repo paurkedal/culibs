@@ -28,7 +28,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_thread cu/thread.h: Multi-Threading (Extensions to pthreads)
- * @{ \ingroup cu_mod
+ * @{ \ingroup cu_base_mod
  * These are mostly light wrappers around the pthread functions or
  * from the corresponding GC wrappers.  You may as well use the underlying
  * functions if you prefer.

@@ -32,7 +32,7 @@ void cufoP_set_wide(cufo_stream_t fos, cu_bool_t be_wide);
 void cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear);
 void *cufoP_stream_produce(cufo_stream_t fos, size_t len);
 
-/*!\defgroup cufo_stream_h cufo/stream.h:
+/*!\defgroup cufo_stream_h cufo/stream.h: Formatted Ouput Streams
  *@{\ingroup cufo_mod */
 
 #define CUFO_PRIFLAG_PLUS	 1	/* explicit plus-sign for positive */

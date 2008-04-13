@@ -26,7 +26,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_debug cu/debug.h: Utilities for Debugging
- * @{\ingroup cu_mod */
+ * @{\ingroup cu_util_mod */
 
 /*
  *  Debugging Selection

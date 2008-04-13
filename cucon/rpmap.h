@@ -22,7 +22,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_rpmap_h cucon/rpmap.h: Recursive Hash Map with Pointer Keys
- *@{\ingroup cucon_mod */
+ *@{\ingroup cucon_maps_and_sets_mod */
 
 struct cucon_rpmap_s
 {

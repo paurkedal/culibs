@@ -25,7 +25,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_int cu/int.h: Integer Functions
- * @{ \ingroup cu_mod */
+ * @{ \ingroup cu_type_mod */
 
 #if CUCONF_SIZEOF_INT == 4
 #  define CUP_UINT_NAME(prefix, name) prefix##uint32_##name

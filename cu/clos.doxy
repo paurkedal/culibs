@@ -1,6 +1,6 @@
 
 /*!\defgroup cu_clos_h cu/clos.h: Closures
- * @{\ingroup cu_mod
+ * @{\ingroup cu_base_mod
  *
  * This submodule implements a efficient and partly type-safe encapsulation
  * of closures.  The capsule contains a function pointer and an optional

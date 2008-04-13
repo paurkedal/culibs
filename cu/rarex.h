@@ -24,7 +24,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_rarex cu/rarex.h: Read-Write Locks Optimised for Rarely Excluding Cases
- * @{ \ingroup cu_mod
+ * @{ \ingroup cu_util_mod
  * Rarices are read-write locks implemented with a single word per lock
  * (in addition to some per-thread data).  They are cheap as long
  * as they are read-locked, or write access do not conflict with another

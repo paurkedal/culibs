@@ -22,7 +22,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_algo_h cu/algo.h: Supportive definitions for various algorithms
- * @{\ingroup cu_mod */
+ * @{\ingroup cu_util_mod */
 
 /*!Enumeration of partial order relations. */
 typedef enum {

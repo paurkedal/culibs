@@ -25,7 +25,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_wchar_h cu/wchar.h: Unicode Characters
- *@{\ingroup cu_mod */
+ *@{\ingroup cu_type_mod */
 
 /*!A unicode character.  This is defined as \c wchar_t if the compiler defines
  * \c __STDC_ISO_10646__ and \c wchar_t is wide enough to hold characters

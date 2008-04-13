@@ -23,7 +23,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_size_h cu/size.h: Functions on Sizes and Pointer Diffs
- *@{\ingroup cu_mod */
+ *@{\ingroup cu_type_mod */
 
 #if CUCONF_SIZEOF_SIZE_T == 4
 #  define CUP_SIZE_NAME(pre, suf) pre##uint32_##suf

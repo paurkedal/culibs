@@ -26,7 +26,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_diag cu/diag.h: Printing and Error Reporting
- * @{ \ingroup cu_mod */
+ * @{ \ingroup cu_base_mod */
 
 typedef cu_clop(cu_diag_format_fn_t, void,
 		cu_str_t fmt, cu_va_ref_t va, FILE *out);

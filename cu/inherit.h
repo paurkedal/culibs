@@ -24,7 +24,7 @@
  * These are only macros, and we don't need to include cu/fwd.h */
 
 /*!\defgroup cu_inherit cu/inherit.h: A Framework for Multiple Inheritance
- * @{ \ingroup cu_mod */
+ * @{ \ingroup cu_base_mod */
 
 #ifndef CU_MARG
 #  ifndef CU_NDEBUG

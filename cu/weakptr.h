@@ -22,7 +22,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_weakptr_h cu/weakptr.h: Weak Pointers
- *@{\ingroup cu_mod */
+ *@{\ingroup cu_util_mod */
 
 /*!Construct \a link as a weak pointer to \a ptr.  If \a ptr gets
  * collected, the link will be cleared, as manifested by a NULL

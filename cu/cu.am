@@ -82,6 +82,7 @@ cu_norun_check_programs = \
 	cu/int_b0
 
 cu_doxyfiles = \
+	cu/cu.doxy \
 	cu/clos.doxy
 
 cu_clos_b0_SOURCES = cu/clos_b0.c

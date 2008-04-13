@@ -21,7 +21,7 @@
 #include <cu/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuos_dsink_h cuos/sink.h:
+/*!\defgroup cuos_dsink_h cuos/dsink.h: Binding Data Sinks to Resources
  *@{\ingroup cuos_mod */
 
 cu_dsink_t cuos_dsink_fdopen(int fd);

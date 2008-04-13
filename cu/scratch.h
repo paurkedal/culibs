@@ -22,7 +22,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_scratch_h cu/scratch.h: Scratch Memory for Repeated Reuse
- *@{\ingroup cu_mod
+ *@{\ingroup cu_util_mod
  * This header defines a small object to manage reuse of a scratch memory
  * area.  It is mainly inteded to be defined in function bodies and used in
  * inner loops when \ref cu_salloc is not feasible.

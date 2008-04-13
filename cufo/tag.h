@@ -27,7 +27,7 @@ CU_BEGIN_DECLARATIONS
 extern cufo_tagspace_t cufoP_culibs_tagspace;
 extern cuoo_stdtype_t cufoP_tagspace_type, cufoP_tag_type;
 
-/*!\defgroup cufo_tag_h cufo/tag.h:
+/*!\defgroup cufo_tag_h cufo/tag.h: Tags for Light-Weight Markup
  *@{\ingroup cufo_mod */
 
 struct cufo_tagspace_s;

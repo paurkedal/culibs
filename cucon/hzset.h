@@ -22,7 +22,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_hzset_h cucon/hzset.h: Hash Set of Flat Fixed-Sized Keys
- *@{\ingroup cucon_mod
+ *@{\ingroup cucon_maps_and_sets_mod
  * This is a thin layer over \ref cucon_hzmap_h "cucon/hzmap.h" specialised for
  * the case when there is no value associated with the keys.
  */

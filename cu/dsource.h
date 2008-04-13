@@ -23,7 +23,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_dsource_h cu/dsource.h: Generic Data Source
- *@{\ingroup cu_mod */
+ *@{\ingroup cu_seq_mod */
 
 #define CU_DSOURCE_FN_CLOSE 1
 #define CU_DSOURCE_ST_SUCCESS 0

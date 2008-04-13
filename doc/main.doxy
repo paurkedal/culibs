@@ -211,6 +211,9 @@ components.
 /*!\defgroup cuos_mod cuos: Interface to the Operating System
  */
 
+/*!\defgroup cufo_mod cufo: Formatted Output
+ */
+
 /*!\defgroup cuflow_mod cuflow: Control Flow */
 
 /*!\defgroup cuex_mod cuex: Expressions

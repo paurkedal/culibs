@@ -24,7 +24,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_ptr_seq_h cu/ptr_seq.h: Pointer Sequence Objects
- *@{\ingroup cu_mod
+ *@{\ingroup cu_seq_mod
  *
  * This header defines generic ways of processing sequences of pointers.  The
  * structs combine three concepts: \e sources which provide a sequence of
@@ -200,7 +200,7 @@ CU_SINLINE cu_ptr_sink_t
 cu_ptr_junctor_sink(cu_ptr_junctor_t junctor)
 { return cu_to2(cu_ptr_sink, cu_ptr_junction, junctor); }
 
-/*!\defgroup cu_ptr_seq_adaptors_mod Adaptors
+/*!\name cu_ptr_seq_adaptors_mod Adaptors
  *@{*/
 
 cu_ptr_junction_t cu_ptr_junction_from_source_sink(cu_ptr_source_t source,
@@ -211,7 +211,7 @@ cu_ptr_junctor_t cu_ptr_junctor_from_source_sinktor(cu_ptr_source_t source,
 
 /*!@}*/
 
-/*!\defgroup cu_ptr_seq_algo_mod Basic Algorithms
+/*!\name cu_ptr_seq_algo_mod Basic Algorithms
  *@{*/
 
 /*!Counts the number of remaining elements on \a source, draining it in the

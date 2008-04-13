@@ -22,7 +22,7 @@
 
 CU_BEGIN_DECLARATIONS
 /* \defgroup cu_clos_h cu/clos.h:
- *@{\ingroup cu_mod */
+ *@{\ingroup cu_base_mod */
 
 #define cuPP_splice(argl...) argl
 #define cuPP_argl_append(argl, arg) (cuPP_splice argl, arg)

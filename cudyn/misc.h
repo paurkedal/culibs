@@ -58,9 +58,6 @@ CUDYN_ETYPEARR_DCLN(uint64, uint64_t)
 /* Other Elementary Types
  * ---------------------- */
 
-/*!\addtogroup cudyn_bool_mod
- * @{ */
-
 extern cudyn_elmtype_t cudynP_bool_type;
 
 CU_SINLINE cuoo_type_t cudyn_bool_type()
@@ -81,12 +78,9 @@ CU_SINLINE cu_bool_t cudyn_to_bool(cuex_t ex)
 extern cuex_t cudynP_true;
 extern cuex_t cudynP_false;
 
-/*!The dynamic boolean true value. */
 #define cudyn_true() cudynP_true
-/*!The dynamic boolean false value. */
 #define cudyn_false() cudynP_false
 
-/*!@}*/
 
 CUDYN_ETYPEARR_DCLN(float, float)
 CUDYN_ETYPEARR_DCLN(double, double)

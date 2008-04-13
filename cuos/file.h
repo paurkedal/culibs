@@ -22,7 +22,7 @@
 #include <cu/algo.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuos_file_h cuos/file.h:
+/*!\defgroup cuos_file_h cuos/file.h: Functions on Files
  *@{\ingroup cuos_mod */
 
 /*!Returns the ordering relation of the content of the files at \a path0 and \a

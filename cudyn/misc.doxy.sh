@@ -57,9 +57,20 @@ etypearr_doc()
     arrtype_doc "$@"
 }
 
+bool_doc()
+{
+    etype_doc bool cu_bool_t
+    cat <<END
+/*!\\def cudyn_true
+ * The dynamic boolean true value. */
+/*!\\def cudyn_false
+ * The dynamic boolean false value. */
+END
+}
+
 wrapmod()
 {
-    echo "/*!\\defgroup cudyn_${2}_mod Dynamic $3"
+    echo "/*!\\name Dynamic $3"
     echo " * @{\\ingroup cudyn_misc_h */"
     "$@"
     echo "/*!@}*/"
@@ -80,7 +91,7 @@ for prec in 8 16 32 64; do
     wrapmod etypearr_doc int${prec} int${prec}_t
     wrapmod etypearr_doc uint${prec} uint${prec}_t
 done
-wrapmod etype_doc bool cu_bool_t
+wrapmod bool_doc bool cu_bool_t
 wrapmod etypearr_doc float float
 wrapmod etypearr_doc double double
 for t in char short int long; do

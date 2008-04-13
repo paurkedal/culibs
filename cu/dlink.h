@@ -23,7 +23,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_dlink_h cu/dlink.h: Double Link Struct and Functions
- * @{\ingroup cu_mod
+ * @{\ingroup cu_util_mod
  * Defines a simple double link structure and inline functions to manipulate
  * them.  This is intended as a low-level functionality used to define higher
  * level structures.

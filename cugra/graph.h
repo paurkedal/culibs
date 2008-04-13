@@ -45,7 +45,7 @@ CU_BEGIN_DECLARATIONS
  */
 
 #define CUGRA_GFLAG_UNDIRECTED	1  /*!< Graph is undirected. */
-#define CUGRA_GFLAG_LOOPFREE	2  /*!< \i Unused. The graph has no loops. */
+#define CUGRA_GFLAG_LOOPFREE	2  /*!< \e Unused. The graph has no loops. */
 #define CUGRA_GFLAG_SIMPLEARCED	4  /*!< All arcs are simple. */
 
 typedef enum {

@@ -28,7 +28,7 @@ void cuP_buffer_fix_fullcap(cu_buffer_t buf, size_t fullcap);
 void cuP_buffer_fix_freecap(cu_buffer_t buf, size_t freecap);
 
 /*!\defgroup cu_buffer_h cu/buffer.h: Generic Self-Extending Buffer
- *@{\ingroup cu_mod
+ *@{\ingroup cu_seq_mod
  *
  * This header defines a buffer for use with any data which can be moved
  * around.  It has a storage which is dynamically re-allocated as needed.

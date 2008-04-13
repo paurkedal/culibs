@@ -22,7 +22,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_util_h cu/util.h: General Utilities
- *@{\ingroup cu_mod */
+ *@{\ingroup cu_util_mod */
 
 #define CU_SWAP(value_t, x, y)						\
     do {								\
