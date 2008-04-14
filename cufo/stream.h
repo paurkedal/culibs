@@ -107,6 +107,16 @@ cufo_stream_t cufo_open_strip_str(void);
 
 cufo_stream_t cufo_open_strip_wstring(void);
 
+cufo_stream_t cufo_open_text_sink(char const *encoding, cu_dsink_t sink);
+
+cufo_stream_t cufo_open_text_fd(char const *encoding, int fd);
+
+cufo_stream_t cufo_open_text_file(char const *encoding, char const *path);
+
+cufo_stream_t cufo_open_text_str(void);
+
+cufo_stream_t cufo_open_text_wstring(void);
+
 cufo_stream_t cufo_open_xmldirect(char const *encoding, cu_dsink_t target_sink);
 
 void *cufo_close(cufo_stream_t fos);

@@ -122,8 +122,10 @@ cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
     size_t wr_size;
     struct cufo_convinfo_s *convinfo;
 
-    if (cufo_have_error(fos))
+    if (cufo_have_error(fos)) {
+	cu_buffer_clear(BUFFER(fos));
 	return;
+    }
     src_size = cu_buffer_content_size(BUFFER(fos));
     if (src_size == 0)
 	return;
@@ -134,8 +136,11 @@ cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
 	wr_buf = src_buf;
 	wr_size = src_size;
 	wr_size = (*fos->target->write)(fos, wr_buf, wr_size);
-	if (wr_size == (size_t)-1)
+	if (wr_size == (size_t)-1) {
 	    cufo_flag_error(fos);
+	    cu_buffer_clear(BUFFER(fos));
+	    return;
+	}
 	else
 	    cu_buffer_incr_content_start(BUFFER(fos), wr_size);
     } else {
@@ -164,8 +169,11 @@ cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
 	wr_size -= wr_lim;
 	cu_buffer_set_content_start(BUFFER(fos), src_buf);
 	cz = (*fos->target->write)(fos, wr_buf, wr_size);
-	if (cz == (size_t)-1)
+	if (cz == (size_t)-1) {
 	    cufo_flag_error(fos);
+	    cu_buffer_clear(BUFFER(fos));
+	    return;
+	}
 	else if (cz != wr_size)
 	    cu_bugf("cufo stream write callback did not consume all output "
 		    "as required when conversion is enabled.");

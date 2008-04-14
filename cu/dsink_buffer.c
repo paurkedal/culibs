@@ -40,8 +40,11 @@ bufsink_flush(bufsink_t sink)
     size_wr = cu_dsink_write(sink->subsink,
 			     cu_buffer_content_start(&sink->buf),
 			     cu_buffer_content_size(&sink->buf));
-    if (size_wr == (size_t)-1)
+    if (size_wr == (size_t)-1) {
+	cu_dsink_discard(sink->subsink);
+	sink->subsink = NULL;
 	return CU_DSINK_ST_FAILURE;
+    }
     cu_buffer_incr_content_start(&sink->buf, size_wr);
 
     /* If clog is bigger than half the buffer capacity, extend the capacity. */
@@ -55,7 +58,12 @@ static size_t
 bufsink_write(cu_dsink_t sink_, void const *data, size_t size)
 {
     bufsink_t sink = cu_from(bufsink, cu_dsink, sink_);
-    size_t size_left = size;
+    size_t size_left;
+
+    if (!sink->subsink)
+	return (size_t)-1;
+
+    size_left = size;
     while (size_left > 0) {
 	size_t tmp_size;
 	cu_buffer_maybe_realign(&sink->buf);
@@ -68,8 +76,10 @@ bufsink_write(cu_dsink_t sink_, void const *data, size_t size)
 	cu_buffer_incr_content_end(&sink->buf, tmp_size);
 
 	/* Write as much of current buffer as possible. */
-	if (cu_buffer_content_size(&sink->buf) >= WRITE_THRESHOLD)
-	    bufsink_flush(sink);
+	if (cu_buffer_content_size(&sink->buf) >= WRITE_THRESHOLD) {
+	    if (bufsink_flush(sink) == CU_DSINK_ST_FAILURE)
+		return (size_t)-1;
+	}
 	else
 	    /* This is guaranteed as long as the buffer is at least twice
 	     * WRITE_THRESHOLD, cf condition of cu_buffer_maybe_realign. */
@@ -90,10 +100,18 @@ bufsink_control(cu_dsink_t sink_, int fc, va_list va)
 		     cu_buffer_storage_size(&sink->buf),
 		     cu_buffer_content_size(&sink->buf));
 	    return CU_DSINK_ST_SUCCESS;
+	case CU_DSINK_FN_DISCARD:
+	    if (!sink->subsink)
+		return CU_DSINK_ST_SUCCESS;
+	    /* Fall though. */
 	default:
-	    if (fc & 1)
-		bufsink_flush(sink);
-	    return cu_dsink_control_va(sink->subsink, fc, va);
+	    if (sink->subsink) {
+		if (fc & 1)
+		    bufsink_flush(sink);
+		return cu_dsink_control_va(sink->subsink, fc, va);
+	    }
+	    else
+		return CU_DSINK_ST_FAILURE;
     }
 }
 

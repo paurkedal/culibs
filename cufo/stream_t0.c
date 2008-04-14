@@ -50,12 +50,13 @@ print_page(cufo_stream_t fos)
 }
 
 void
-test_str_target()
+test_strip_target()
 {
-    cufo_stream_t fos = cufo_open_strip_str();
+    cufo_stream_t fos;
     cu_str_t str;
     cu_wstring_t wstr, wstrp;
 
+    fos = cufo_open_strip_str();
     cufo_printf(fos, "%c %03d %x", 'C', 79, 0x3219);
     str = cufo_close(fos);
     cu_test_assert(cu_str_cmp_cstr(str, "C 079 3219") == 0);
@@ -70,6 +71,56 @@ test_str_target()
     print_page(fos);
     str = cufo_close(fos);
     wstrp = cu_wstring_of_chararr(cu_str_charr(str), cu_str_size(str));
+
+    cu_test_assert(cu_wstring_cmp(wstr, wstrp) == 0);
+}
+
+void
+test_text_target()
+{
+    int i, j;
+    cufo_stream_t fos;
+    cu_str_t str;
+    cu_wstring_t wstr, wstrp;
+
+    fos = cufo_open_text_str();
+    cufo_printf(fos, "%c %03d %x", 'C', 79, 0x3219);
+    str = cufo_close(fos);
+    cu_test_assert(cu_str_cmp_cstr(str, "C 079 3219") == 0);
+
+    fos = cufo_open_text_wstring();
+    cu_test_assert(fos);
+    print_page(fos);
+    wstr = cufo_close(fos);
+
+    fos = cufo_open_text_str();
+    cu_test_assert(fos);
+    print_page(fos);
+    str = cufo_close(fos);
+    wstrp = cu_wstring_of_chararr(cu_str_charr(str), cu_str_size(str));
+
+    fos = cufo_open_text_fd("UTF-8", 1);
+    for (j = 0; j < 16; ++j) {
+	if (j % 2) {
+	    for (i = 0; i < 40; ++i)
+		cufo_printf(fos, "%02d; ", i);
+	} else {
+	    char const *s[] = {"w/o", "ra", "jar", " "};
+	    int sp = 1;
+	    for (i = 0; i < 80; ++i) {
+		int j = lrand48() % (sizeof(s)/sizeof(s[0]) - sp);
+		cufo_puts(fos, s[j]);
+		sp = j == sizeof(s)/sizeof(s[0]) - 1;
+	    }
+	}
+	cufo_putc(fos, '\n');
+	if (j < 8)
+	    cufo_enter(fos, cufoT_indent);
+	else
+	    cufo_leave(fos, cufoT_indent);
+    }
+    cufo_putc(fos, '\n');
+    cufo_close(fos);
 
     cu_test_assert(cu_wstring_cmp(wstr, wstrp) == 0);
 }
@@ -92,22 +143,23 @@ main()
     cufo_stream_t fos;
     cufo_init();
 
-    fos = cufo_open_strip_fd(NULL, 1);
+    fos = cufo_open_text_fd(NULL, 1);
     cu_test_assert(fos);
     print_page(fos);
     cufo_close(fos);
 
-    fos = cufo_open_strip_file(NULL, "tmp.cufo_stream_t0.utf8");
+    fos = cufo_open_text_file(NULL, "tmp.cufo_stream_t0.utf8");
     cu_test_assert(fos);
     print_page(fos);
     cufo_close(fos);
 
-    fos = cufo_open_strip_file("UTF-32", "tmp.cufo_stream_t0.utf32");
+    fos = cufo_open_text_file("UTF-32", "tmp.cufo_stream_t0.utf32");
     cu_test_assert(fos);
     print_page(fos);
     cufo_close(fos);
 
-    test_str_target();
+    test_strip_target();
+    test_text_target();
     test_xml_target();
 
     return 2*!!cu_test_bug_count();

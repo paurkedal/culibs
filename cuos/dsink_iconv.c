@@ -55,7 +55,7 @@ ic_write(cu_dsink_t sink, void const *data_start, size_t data_size)
 	if (dst_cap < IC_WRITE_BUFSIZE) {
 	    size_t sub_st;
 	    sub_st = cu_dsink_write(IC_DSINK(sink)->target_sink,
-				    dst_ptr, IC_WRITE_BUFSIZE - dst_cap);
+				    buf, IC_WRITE_BUFSIZE - dst_cap);
 	    if (sub_st != IC_WRITE_BUFSIZE - dst_cap) {
 		if (sub_st == (size_t)-1)
 		    return (size_t)-1;

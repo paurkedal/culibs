@@ -19,6 +19,8 @@
 #include <cuos/dsink.h>
 #include <cu/dsink.h>
 
+/* Strip Target */
+
 cufo_stream_t
 cufo_open_strip_fd(char const *encoding, int fd)
 {
@@ -49,4 +51,38 @@ cufo_open_strip_wstring(void)
 {
     cu_dsink_t subsink = cu_dsink_new_wstring();
     return cufo_open_strip_sink(cu_wchar_encoding, subsink);
+}
+
+/* Text Target */
+
+cufo_stream_t
+cufo_open_text_fd(char const *encoding, int fd)
+{
+    cu_dsink_t subsink = cuos_dsink_fdopen(fd);
+    if (!subsink)
+	return NULL;
+    return cufo_open_text_sink(encoding, subsink);
+}
+
+cufo_stream_t
+cufo_open_text_file(char const *encoding, char const *path)
+{
+    cu_dsink_t subsink = cuos_dsink_open(path);
+    if (!subsink)
+	return NULL;
+    return cufo_open_text_sink(encoding, subsink);
+}
+
+cufo_stream_t
+cufo_open_text_str(void)
+{
+    cu_dsink_t subsink = cu_dsink_new_str();
+    return cufo_open_text_sink("UTF-8", subsink);
+}
+
+cufo_stream_t
+cufo_open_text_wstring(void)
+{
+    cu_dsink_t subsink = cu_dsink_new_wstring();
+    return cufo_open_text_sink(cu_wchar_encoding, subsink);
 }

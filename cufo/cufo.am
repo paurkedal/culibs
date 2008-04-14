@@ -18,6 +18,7 @@ cufo_sources = \
 	cufo/tag.c \
 	cufo/tagdefs.c \
 	cufo/target_strip.c \
+	cufo/target_text.c \
 	cufo/target_xmldirect.c
 
 check_programs += \
