@@ -26,6 +26,7 @@ AM_CONDITIONAL([enable_experimental], [test "x$enable_experimental" = xyes])
 # Modules
 #
 CUAC_MODULE([cu],	[],		[libcubase.la])
+CUAC_MODULE([cuoo],	[],		[libcubase.la])
 CUAC_MODULE([cucon],	[],		[libcubase.la])
 CUAC_MODULE([cufo],	[cu])
 CUAC_MODULE([cuflow],	[cucon])
@@ -34,9 +35,8 @@ CUAC_MODULE([cuos],	[cucon])
 CUAC_MODULE([cutext],	[cucon])
 CUAC_MODULE([custo],	[cucon])
 CUAC_MODULE([cuex],	[cucon, cugra])
-CUAC_MODULE_ALIAS([cubase], [cu, cucon])
-CUAC_MODULE_IMPLIES([cu], [cucon])
-CUAC_MODULE_IMPLIES([cucon], [cu])
+CUAC_MODULE_ALIAS([cubase], [cu, cucon, cuoo])
+CUAC_MODULE_EQUIVALENCE([cu, cuoo, cucon])
 CUAC_ARG_MODULES
 
 # Documentation option.

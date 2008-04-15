@@ -18,6 +18,9 @@ AC_DEFUN([CUAC_MODULE_ALIAS],
 AC_DEFUN([CUAC_MODULE_IMPLIES],
   [ cu4_list_grow($1[_IMPLIES], [$2]) ])
 
+AC_DEFUN([CUAC_MODULE_EQUIVALENCE],
+  [ cu4_list_grow([_CUAC_MODULE_EQV_LIST], [$1]) ])
+
 AC_DEFUN([CUAC_ARG_MODULES],
   [ m4_foreach([_mod], [CUAC_MODULE_LIST],
       [ m4_append([CUAC_MODULE_CASE], _mod, [|]) ])
@@ -56,6 +59,13 @@ m4_foreach([_mod], [cu4_list_at([1], [_alias])], [dnl
 	      [ AS_IF([$enable_[]_mod && ! $enable_[]_impl],
 		  [ AC_MSG_NOTICE([Enabeling module _impl due to _mod.])
 		    enable_[]_impl=true
+		  ]) ]) ]) ])
+    m4_foreach([_eqv], [_CUAC_MODULE_EQV_LIST],
+      [ AS_IF([m4_foreach([_mod], [_eqv], [$enable_[]_mod || ])false],
+	  [ m4_foreach([_mod], [_eqv],
+	      [ AS_IF([! $enable_[]_mod],
+		  [ AC_MSG_NOTICE([Enabeling module _mod due to equivalence of {_eqv}])
+		    enable_[]_mod=true
 		  ]) ]) ]) ])
     m4_foreach([_mod], [CUAC_MODULE_LIST],
       [ m4_if(m4_defn(_mod[_DEPS]), [], [],
