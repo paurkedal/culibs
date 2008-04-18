@@ -157,6 +157,29 @@ cucon_hzmap_prepare_insert(map_t map, size_t count)
 }
 
 cu_bool_t
+cucon_hzmap_insert_node(map_t map, node_t node)
+{
+    cu_hash_t index;
+    node_t *p;
+    size_t key_size_w = map->key_size_w;
+
+    if (map->size*MAXFILL_DENOM > map_cap_est(map)*MAXFILL_NUMER)
+	expand(map, map_cap(map)*2);
+
+    index = key_hash(key_size_w, node_key(node)) & map_mask(map);
+    p = &map->arr[index];
+    while (*p) {
+	if (key_eq(key_size_w, node_key(*p), node_key(node)))
+	    return cu_false;
+	p = &(*p)->next;
+    }
+    *p = node;
+    CU_GCLEAR_PTR((*p)->next);
+    ++map->size;
+    return cu_true;
+}
+
+cu_bool_t
 cucon_hzmap_insert(map_t map, void const *key,
 		   size_t node_size, node_t *node_out)
 {

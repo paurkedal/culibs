@@ -80,6 +80,12 @@ cucon_hzmap_t cucon_hzmap_new(cu_shortsize_t key_size_w);
  * underlying array to be resized to it's final size right away. */
 void cucon_hzmap_prepare_insert(cucon_hzmap_t, size_t count);
 
+/*!Given that \a node is initialised with a key of suitable size for \a map,
+ * if they key exists in \a map, returns false, else links \a node to \a map
+ * and returns true.  The \ref cucon_hzmap_node_s base struct of \a node is
+ * initialised by this call if the insert takes place. */
+cu_bool_t cucon_hzmap_insert_node(cucon_hzmap_t map, cucon_hzmap_node_t node);
+
 /*!If a node with key \a key exists in \a map, assign it to \c *\a node_out and
  * return false, else insert a new node of size \a node_size, set it's key to
  * \a key, assign it to \c *\a node_out, and return true. */

@@ -54,6 +54,14 @@ CU_SINLINE void cucon_hzset_init(cucon_hzset_t set, cu_shortsize_t key_size_w)
 CU_SINLINE cucon_hzset_t cucon_hzset_new(cu_shortsize_t key_size_w)
 { return (cucon_hzset_t)cucon_hzmap_new(key_size_w); }
 
+/*!Given that \a node is initialised with a key of suitable size for \a set, if
+ * the key exists in \a set, returns false, else inserts \a node into \a set
+ * and returns true.  The \ref cucon_hzset_node_s base struct of \a node is
+ * initialised by this call if the insert takes place. */
+CU_SINLINE cu_bool_t
+cucon_hzset_insert_node(cucon_hzset_t set, cucon_hzset_node_t node)
+{ return cucon_hzmap_insert_node(&set->impl, node->impl); }
+
 /*!If \a set does not contain \a key, inserts it and returns true, else returns
  * false. */
 CU_SINLINE cu_bool_t cucon_hzset_insert(cucon_hzset_t set, void const *key)

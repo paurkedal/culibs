@@ -22,8 +22,7 @@ AC_DEFUN([CUAC_MODULE_EQUIVALENCE],
   [ cu4_list_grow([_CUAC_MODULE_EQV_LIST], [$1]) ])
 
 AC_DEFUN([CUAC_ARG_MODULES],
-  [ m4_foreach([_mod], [CUAC_MODULE_LIST],
-      [ m4_append([CUAC_MODULE_CASE], _mod, [|]) ])
+  [ # Parse modulemagick command-line.
     AC_ARG_ENABLE([modules],
       [ AC_HELP_STRING([--enable-modules=MODULELIST],
 	    [Comma-separated list the modules to build.  By default, all modules which present in the source directory are built.]) ],
@@ -32,10 +31,14 @@ AC_DEFUN([CUAC_ARG_MODULES],
 	  [ test ! -e $srcdir/_mod/_mod.am || enabled_modules="$enabled_modules _mod"
 	  ])
       ])
+
+    # Initialise the $enable_MODULE and $check_MODULE variables.
     m4_foreach([_mod], [CUAC_MODULE_LIST],
       [ enable_[]_mod=false
 	check_[]_mod=false
       ])
+    m4_foreach([_mod], [CUAC_MODULE_LIST],
+      [ m4_append([CUAC_MODULE_CASE], _mod, [|]) ])
     for module in $enabled_modules; do
 	case $module in
 m4_foreach([_alias], m4_quote(_CUAC_MODULE_ALIASES), [dnl
@@ -53,6 +56,8 @@ m4_foreach([_mod], [cu4_list_at([1], [_alias])], [dnl
 		;;
 	esac
     done
+
+    # Enable all implied modules.
     m4_foreach([_mod], [CUAC_MODULE_LIST],
       [ m4_ifdef(_mod[_IMPLIES],
 	  [ m4_foreach([_impl], m4_defn(_mod[_IMPLIES]),
@@ -67,11 +72,17 @@ m4_foreach([_mod], [cu4_list_at([1], [_alias])], [dnl
 		  [ AC_MSG_NOTICE([Enabeling module _mod due to equivalence of {_eqv}])
 		    enable_[]_mod=true
 		  ]) ]) ]) ])
+
+    # For each dependency of an enabled, assign check_DEP=true to force
+    # checking for it's presense.
     m4_foreach([_mod], [CUAC_MODULE_LIST],
       [ m4_if(m4_defn(_mod[_DEPS]), [], [],
 	  [ AS_IF([$enable_[]_mod],
 	      [ m4_foreach([_dep], m4_defn(_mod[_DEPS]),
 		  [ check_[]_dep=true; ]) ]) ]) ])
+
+    # Collect the lists of built, imported, and unused modules, and define
+    # conditionals and substitutions.
     cuac_build_modules=
     cuac_import_modules=
     cuac_unused_modules=
