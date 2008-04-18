@@ -20,13 +20,17 @@
 void cufoP_tag_init(void);
 void cufoP_tagdefs_init(void);
 void cufoP_attrdefs_init(void);
+void cufoP_textstyle_default_init(void);
 
 void
 cufo_init(void)
 {
     CU_RETURN_UNLESS_FIRST_CALL;
     cu_init();
+
     cufoP_tag_init();
     cufoP_tagdefs_init();
     cufoP_attrdefs_init();
+
+    cufoP_textstyle_default_init();
 }

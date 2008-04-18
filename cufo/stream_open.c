@@ -56,33 +56,34 @@ cufo_open_strip_wstring(void)
 /* Text Target */
 
 cufo_stream_t
-cufo_open_text_fd(char const *encoding, int fd)
+cufo_open_text_fd(char const *encoding, cufo_textstyle_t style, int fd)
 {
     cu_dsink_t subsink = cuos_dsink_fdopen(fd);
     if (!subsink)
 	return NULL;
-    return cufo_open_text_sink(encoding, subsink);
+    return cufo_open_text_sink(encoding, style, subsink);
 }
 
 cufo_stream_t
-cufo_open_text_file(char const *encoding, char const *path)
+cufo_open_text_file(char const *encoding, cufo_textstyle_t style,
+		    char const *path)
 {
     cu_dsink_t subsink = cuos_dsink_open(path);
     if (!subsink)
 	return NULL;
-    return cufo_open_text_sink(encoding, subsink);
+    return cufo_open_text_sink(encoding, style, subsink);
 }
 
 cufo_stream_t
-cufo_open_text_str(void)
+cufo_open_text_str(cufo_textstyle_t style)
 {
     cu_dsink_t subsink = cu_dsink_new_str();
-    return cufo_open_text_sink("UTF-8", subsink);
+    return cufo_open_text_sink("UTF-8", style, subsink);
 }
 
 cufo_stream_t
-cufo_open_text_wstring(void)
+cufo_open_text_wstring(cufo_textstyle_t style)
 {
     cu_dsink_t subsink = cu_dsink_new_wstring();
-    return cufo_open_text_sink(cu_wchar_encoding, subsink);
+    return cufo_open_text_sink(cu_wchar_encoding, style, subsink);
 }

@@ -107,15 +107,18 @@ cufo_stream_t cufo_open_strip_str(void);
 
 cufo_stream_t cufo_open_strip_wstring(void);
 
-cufo_stream_t cufo_open_text_sink(char const *encoding, cu_dsink_t sink);
+cufo_stream_t cufo_open_text_sink(char const *encoding, cufo_textstyle_t style,
+				  cu_dsink_t sink);
 
-cufo_stream_t cufo_open_text_fd(char const *encoding, int fd);
+cufo_stream_t cufo_open_text_fd(char const *encoding, cufo_textstyle_t style,
+				int fd);
 
-cufo_stream_t cufo_open_text_file(char const *encoding, char const *path);
+cufo_stream_t cufo_open_text_file(char const *encoding, cufo_textstyle_t style,
+				  char const *path);
 
-cufo_stream_t cufo_open_text_str(void);
+cufo_stream_t cufo_open_text_str(cufo_textstyle_t style);
 
-cufo_stream_t cufo_open_text_wstring(void);
+cufo_stream_t cufo_open_text_wstring(cufo_textstyle_t style);
 
 cufo_stream_t cufo_open_xmldirect(char const *encoding, cu_dsink_t target_sink);
 

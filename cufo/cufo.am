@@ -6,7 +6,8 @@ cufo_headers = \
 	cufo/fwd.h \
 	cufo/stream.h \
 	cufo/tag.h \
-	cufo/tagdefs.h
+	cufo/tagdefs.h \
+	cufo/textstyle.h
 
 cufo_sources = \
 	cufo/attr.c \
@@ -19,7 +20,9 @@ cufo_sources = \
 	cufo/tagdefs.c \
 	cufo/target_strip.c \
 	cufo/target_text.c \
-	cufo/target_xmldirect.c
+	cufo/target_xmldirect.c \
+	cufo/textstyle.c \
+	cufo/textstyle_default.c
 
 check_programs += \
 	cufo/stream_t0

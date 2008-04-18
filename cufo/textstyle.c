@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,30 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUFO_FWD_H
-#define CUFO_FWD_H
+#include <cufo/textstyle.h>
+#include <cucon/hzmap.h>
 
-#include <cu/fwd.h>
+void
+cufo_textstyle_init(cufo_textstyle_t style, size_t state_size,
+		    cu_clop(state_init, void, cufo_textstate_t state))
+{
+    style->state_size = state_size;
+    style->state_init = state_init;
+    cucon_hzmap_init(&style->tag_to_styler, 1);
+}
 
-CU_BEGIN_DECLARATIONS
-/*!\defgroup cufo_fwd_h cufo/fwd.h: Forward Declarations
- *@{\ingroup cufo_mod */
+void
+cufo_textstyle_bind_static(cufo_textstyle_t style,
+			   cufo_tag_t tag, cufo_textstyler_t styler)
+{
+    styler->tag = (cu_word_t)tag;
+    cucon_hzmap_insert_node(&style->tag_to_styler,
+			    cu_to(cucon_hzmap_node, styler));
+}
 
-typedef struct cufo_target_s *cufo_target_t;
-typedef struct cufo_prispec_s *cufo_prispec_t;
-typedef struct cufo_stream_s *cufo_stream_t;
-
-typedef struct cufo_tag_s *cufo_tag_t;
-typedef struct cufo_namespace_s *cufo_namespace_t;
-typedef struct cufo_attr_s *cufo_attr_t;
-
-typedef struct cufo_textstate_s *cufo_textstate_t;
-typedef struct cufo_textstyle_s *cufo_textstyle_t;
-typedef struct cufo_textstyler_s *cufo_textstyler_t;
-
-void cufo_init(void);
-
-/*!@}*/
-CU_END_DECLARATIONS
-
-#endif
