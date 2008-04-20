@@ -22,7 +22,7 @@
 #include <cutext/src.h>
 #include <cucon/pmap.h>
 #include <cu/cstr.h>
-#include <cutext/ucs4.h>
+#include <cutext/conv.h>
 
 CU_BEGIN_DECLARATIONS
 

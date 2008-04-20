@@ -18,7 +18,7 @@
 #include <cutext/ucs4src.h>
 #include <cu/memory.h>
 #include <cucon/pmap.h>
-#include <cutext/ucs4ctype.h>
+#include <cutext/wccat.h>
 #include <string.h>
 
 void
@@ -55,7 +55,7 @@ cutext_ucs4src_scan_str(cutext_ucs4src_t ucs4src,
 	char buf[6];
 	size_t buf_cnt = 6;
 	char *storage_end = buf;
-	err = cutext_ucs4char_to_charr(ch, &storage_end, &buf_cnt);
+	err = cutext_wchar_to_charr(ch, &storage_end, &buf_cnt);
 	if (err) {
 	    cu_errf_at(&ucs4src->srf, "%s", strerror(err));
 	    return NULL;
@@ -105,17 +105,17 @@ cutext_ucs4src_cct_detect(cutext_ucs4src_t ucs4src,
 			  cutext_producer_t producer,
 			  cu_str_t path, int line, int column)
 {
-    cutext_chenc_t chenc;
+    cutext_encoding_t chenc;
     cu_wchar_t *s;
     cu_wchar_t ch;
     cutext_src_cct(&ucs4src->src, producer);
     ucs4src->properties = NULL;
     chenc = cutext_src_detect_chenc(&ucs4src->src);
-    if (chenc != cutext_chenc_ucs4host) {
+    if (chenc != CUTEXT_ENCODING_UCS4HOST) {
 	cutext_src_t src = cutext_src_new_move(&ucs4src->src);
 	cutext_src_cct(&ucs4src->src,
 		       cutext_producer_new_iconv(src, chenc,
-						 cutext_chenc_ucs4host));
+						 CUTEXT_ENCODING_UCS4HOST));
     }
     if (cutext_src_lookahead(&ucs4src->src, 4)
 	== cutext_status_eos)
@@ -191,16 +191,16 @@ header_ok:
 		cu_warnf("Invalid value for tabstop in header.");
 	}
 	if (str_encoding) {
-	    cutext_chenc_t enc
-		= cutext_chenc_from_cstr(cu_str_to_cstr(str_encoding));
-	    if (enc == cutext_chenc_unknown)
+	    cutext_encoding_t enc
+		= cutext_encoding_by_name(cu_str_to_cstr(str_encoding));
+	    if (enc == CUTEXT_ENCODING_UNKNOWN)
 		cu_warnf("Unsupported character encoding %S",
 			  str_encoding);
 	    else if (enc != chenc) {
 		/* XX The encoding shall be changed if sensible, else */
 		cu_warnf("Encoding %s does not match autodetected %s.",
-			  cutext_chenc_to_cstr(enc),
-			  cutext_chenc_to_cstr(chenc));
+			  cutextP_encoding_name(enc),
+			  cutextP_encoding_name(chenc));
 	    }
 	}
     }

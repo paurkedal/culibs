@@ -180,13 +180,13 @@ producer_iconv_dct(void *obj, void *cd)
 
 cutext_producer_t
 cutext_producer_new_iconv(cutext_src_t src,
-			  cutext_chenc_t src_chenc,
-			  cutext_chenc_t self_chenc)
+			  cutext_encoding_t src_chenc,
+			  cutext_encoding_t self_chenc)
 {
     producer_iconv_t *cb = cu_gnew(producer_iconv_t);
     cb->src = src;
-    cb->cd = iconv_open(cutext_chenc_name(self_chenc),
-			cutext_chenc_name(src_chenc));
+    cb->cd = iconv_open(cutext_encoding_name(self_chenc),
+			cutext_encoding_name(src_chenc));
     if (cb->cd == NULL) {
 	cu_errf("Could not initiate UTF-8 to UCS-4 conversion: %s",
 		 strerror(errno));
@@ -197,14 +197,14 @@ cutext_producer_new_iconv(cutext_src_t src,
 }
 
 char const *
-cutext_chenc_name(cutext_chenc_t chenc)
+cutext_encoding_name(cutext_encoding_t chenc)
 {
-    char const *name = cutext_chenc_to_cstr(chenc);
+    char const *name = cutextP_encoding_name(chenc);
     cu_debug_assert(name);
     return name;
 }
 
-cutext_chenc_t
+cutext_encoding_t
 cutext_src_detect_chenc(cutext_src_t src)
 {
     size_t n;
@@ -213,34 +213,34 @@ cutext_src_detect_chenc(cutext_src_t src)
     n = cutext_src_data_size(src);
     s = cutext_src_data_start(src);
     if (n == 0)
-	return cutext_chenc_none;
+	return CUTEXT_ENCODING_NONE;
     else if (n == 1 || n == 3)
-	return cutext_chenc_utf8;
+	return CUTEXT_ENCODING_UTF8;
     else if (n == 2) {
 	if ((s[0] == 0xfe && s[1] == 0xff) || s[0] == 0)
-	    return cutext_chenc_utf16;
+	    return CUTEXT_ENCODING_UTF16;
 	if ((s[0] == 0xff && s[1] == 0xfe) || s[1] == 0)
-	    return cutext_chenc_utf16le;
-	return cutext_chenc_utf8;
+	    return CUTEXT_ENCODING_UTF16LE;
+	return CUTEXT_ENCODING_UTF8;
     }
 
     /* Detect by byte order mark 0x0000feff. */
 
     /* UTF-8 */
     if (s[0] == 0xef && s[1] == 0xbb && s[2] == 0xbf)
-	return cutext_chenc_utf8;
+	return CUTEXT_ENCODING_UTF8;
     /* Network byte order */
     if (s[0] == 0xfe && s[1] == 0xff)
-	return cutext_chenc_utf16;
+	return CUTEXT_ENCODING_UTF16;
     if (s[0] == 0x00 && s[1] == 0x00) {
 	if (s[2] == 0xfe && s[3] == 0xff)
-	    return cutext_chenc_ucs4;
+	    return CUTEXT_ENCODING_UCS4;
     }
     /* Little endian */
     if (s[0] == 0xff && s[1] == 0xfe) {
 	if (s[2] == 0x00 && s[3] == 0x00)
-	    return cutext_chenc_ucs4le;
-	return cutext_chenc_utf16le;
+	    return CUTEXT_ENCODING_UCS4LE;
+	return CUTEXT_ENCODING_UTF16LE;
     }
 
     /* Detect by assuming the first character is ASCII */
@@ -248,15 +248,15 @@ cutext_src_detect_chenc(cutext_src_t src)
     /* Network byte order */
     if (s[0] == 0) { /* UTF-16, UCS-2, UCS-4 */
 	if (s[1] == 0)
-	    return cutext_chenc_ucs4;
-	return cutext_chenc_utf16;
+	    return CUTEXT_ENCODING_UCS4;
+	return CUTEXT_ENCODING_UTF16;
     }
     /* Little endian */
     if (s[2] == 0 && s[3] == 0)
-	return cutext_chenc_ucs4le;
+	return CUTEXT_ENCODING_UCS4LE;
     if (s[1] == 0)
-	return cutext_chenc_utf16le;
+	return CUTEXT_ENCODING_UTF16LE;
     if (s[2] != 0)
-	return cutext_chenc_utf8;
-    return cutext_chenc_unknown;
+	return CUTEXT_ENCODING_UTF8;
+    return CUTEXT_ENCODING_UNKNOWN;
 }

@@ -23,25 +23,25 @@
 CU_BEGIN_DECLARATIONS
 
 typedef enum {
-    cutext_chenc_none,
-    cutext_chenc_unknown,
-    cutext_chenc_utf8,
-    cutext_chenc_utf16,
-    cutext_chenc_utf16le,
-    cutext_chenc_ucs2,
-    cutext_chenc_ucs2le,
-    cutext_chenc_ucs4,
-    cutext_chenc_ucs4le,
+    CUTEXT_ENCODING_NONE,
+    CUTEXT_ENCODING_UNKNOWN,
+    CUTEXT_ENCODING_UTF8,
+    CUTEXT_ENCODING_UTF16,
+    CUTEXT_ENCODING_UTF16LE,
+    CUTEXT_ENCODING_UCS2,
+    CUTEXT_ENCODING_UCS2LE,
+    CUTEXT_ENCODING_UCS4,
+    CUTEXT_ENCODING_UCS4LE,
 #ifdef CUCONF_WORDS_BIGENDIAN
-    cutext_chenc_utf16host = cutext_chenc_utf16,
-    cutext_chenc_ucs2host = cutext_chenc_ucs2,
-    cutext_chenc_ucs4host = cutext_chenc_ucs4,
+    CUTEXT_ENCODING_UTF16HOST = CUTEXT_ENCODING_UTF16,
+    CUTEXT_ENCODING_UCS2HOST = CUTEXT_ENCODING_UCS2,
+    CUTEXT_ENCODING_UCS4HOST = CUTEXT_ENCODING_UCS4,
 #else
-    cutext_chenc_utf16host = cutext_chenc_utf16le,
-    cutext_chenc_ucs2host = cutext_chenc_ucs2le,
-    cutext_chenc_ucs4host = cutext_chenc_ucs4le,
+    CUTEXT_ENCODING_UTF16HOST = CUTEXT_ENCODING_UTF16LE,
+    CUTEXT_ENCODING_UCS2HOST = CUTEXT_ENCODING_UCS2LE,
+    CUTEXT_ENCODING_UCS4HOST = CUTEXT_ENCODING_UCS4LE,
 #endif
-} cutext_chenc_t;
+} cutext_encoding_t;
 
 typedef struct cutext_src_s *cutext_src_t;
 typedef struct cutext_ucs4src_s *cutext_ucs4src_t;

@@ -16,7 +16,7 @@
  */
 
 #include <cu/tstate.h>
-#include <cutext/ucs4.h>
+#include <cutext/conv.h>
 #include <cu/memory.h>
 #include <cu/conf.h>
 #include <string.h>
@@ -31,8 +31,8 @@
 #endif
 
 int
-cutext_charr_to_ucs4arr(char const **src_arr, size_t *src_cnt,
-		     cu_wchar_t **dst_arr, size_t *dst_cap_scaled)
+cutext_iconv_char_to_wchar(char const **src_arr, size_t *src_cnt,
+			   cu_wchar_t **dst_arr, size_t *dst_cap_scaled)
 {
     size_t dst_cap = *dst_cap_scaled*4;
 #ifdef REOPEN_ICONV
@@ -79,8 +79,8 @@ fail:
 }
 
 int
-cutext_ucs4arr_to_charr(cu_wchar_t const **src_arr, size_t *src_cnt_sc,
-		     char **dst_arr, size_t *dst_cnt)
+cutext_iconv_wchar_to_char(cu_wchar_t const **src_arr, size_t *src_cnt_sc,
+			   char **dst_arr, size_t *dst_cnt)
 {
     size_t src_cnt = *src_cnt_sc*sizeof(cu_wchar_t);
 #ifdef REOPEN_ICONV
@@ -125,9 +125,9 @@ fail:
 }
 
 int
-cutext_ucs4char_to_charr(cu_wchar_t ucs4ch, char **dst_arr, size_t *dst_cnt)
+cutext_wchar_to_charr(cu_wchar_t wc, char **dst_arr, size_t *dst_cnt)
 {
-    size_t ucs4cnt = 1;
-    cu_wchar_t const *ucs4arr = &ucs4ch;
-    return cutext_ucs4arr_to_charr(&ucs4arr, &ucs4cnt, dst_arr, dst_cnt);
+    size_t src_cnt = 1;
+    cu_wchar_t const *src_arr = &wc;
+    return cutext_iconv_wchar_to_char(&src_arr, &src_cnt, dst_arr, dst_cnt);
 }

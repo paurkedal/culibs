@@ -40,12 +40,12 @@ main()
 {
     int fd = 0;
     cutext_src_t src;
-    cutext_chenc_t chenc;
+    cutext_encoding_t chenc;
 
     cu_init();
     src = cutext_src_new(cutext_producer_new_read(fd));
     chenc = cutext_src_detect_chenc(src);
-    fprintf(stderr, "chenc=%s\n", cutext_chenc_name(chenc));
+    fprintf(stderr, "chenc=%s\n", cutext_encoding_name(chenc));
     copy_to_stdout(src);
     return 0;
 }

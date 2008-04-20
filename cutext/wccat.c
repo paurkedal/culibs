@@ -15,27 +15,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cutext/ucs4ctype.h>
+#include <cutext/wccat.h>
+#include <cu/diag.h>
 
 #define UNICODE_MAX 0x1fffff
 #define BLOCK_SIZE 512
 #define BLOCK_COUNT ((UNICODE_MAX + 1)/BLOCK_SIZE)
 
-struct cutext_ucs4ctype_tbl_entry_s
+struct cutextP_wctype_table_entry_s
 {
     char cat;
     char *sub;
 };
-extern struct cutext_ucs4ctype_tbl_entry_s cutext_ucs4ctype_tbl[];
+extern struct cutextP_wctype_table_entry_s cutextP_wctype_table[];
 
-cutext_ucs4ctype_t
-cutext_ucs4ctype(cu_wchar_t ch)
+cutext_wccat_t
+cutext_wchar_wccat(cu_wchar_t ch)
 {
     int block = ch / BLOCK_SIZE;
-    struct cutext_ucs4ctype_tbl_entry_s *ent;
+    struct cutextP_wctype_table_entry_s *ent;
     if (ch > UNICODE_MAX)
 	cu_bugf("Unicode character number %d is out of range.", (int)ch);
-    ent = &cutext_ucs4ctype_tbl[block];
+    ent = &cutextP_wctype_table[block];
     if (ent->sub)
 	return ent->sub[ch % BLOCK_SIZE];
     else

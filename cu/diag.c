@@ -19,7 +19,6 @@
 #include <cu/str.h>
 #include <cu/sref.h>
 #include <cucon/pmap.h>
-#include <cutext/ucs4.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -120,7 +119,7 @@ cu_vfprintf(FILE *file, char const* msg, va_list va)
 		    ch = va_arg(va, cu_wchar_t);
 		    buf_cnt = BUF_SIZE;
 		    buf_end = buf;
-		    err = cutext_ucs4char_to_charr(ch, &buf_end, &buf_cnt);
+		    err = cutext_wchar_to_charr(ch, &buf_end, &buf_cnt);
 		    if (err != 0)
 			fprintf(file, "#[iconv_error: %s]", strerror(err));
 		    else
@@ -131,7 +130,7 @@ cu_vfprintf(FILE *file, char const* msg, va_list va)
 		    while (*ucs4cstr) {
 			buf_cnt = BUF_SIZE;
 			buf_end = buf;
-			err = cutext_ucs4char_to_charr(*ucs4cstr,
+			err = cutext_wchar_to_charr(*ucs4cstr,
 						    &buf_end, &buf_cnt);
 			if (err != 0)
 			    fprintf(file, "#[iconv_error: %s]", strerror(err));

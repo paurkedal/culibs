@@ -73,18 +73,18 @@ cutext_src_advance(cutext_src_t src, size_t size)
 cutext_producer_t cutext_producer_new_charr(char const *arr, size_t size);
 cutext_producer_t cutext_producer_new_read(int fd);
 cutext_producer_t cutext_producer_new_iconv(cutext_src_t src,
-					    cutext_chenc_t src_chenc,
-					    cutext_chenc_t self_chenc);
+					    cutext_encoding_t src_chenc,
+					    cutext_encoding_t self_chenc);
 
-char const *cutext_chenc_name(cutext_chenc_t chenc);
-char const *cutext_chenc_to_cstr(cutext_chenc_t chenc);
-cutext_chenc_t cutext_chenc_from_cstr(char const *cstr);
+char const *cutext_encoding_name(cutext_encoding_t chenc);
+char const *cutextP_encoding_name(cutext_encoding_t chenc);
+cutext_encoding_t cutext_encoding_by_name(char const *cstr);
 
 /* Detect character encoding of 'src', assuming it is one of UTF-8,
  * UTF-16, UTF-16LE, UCS-4, or UCS-4LE, and that the sequence starts
  * with either a byte order mark or an ASCII character.  UCS-2 and
  * UCS-2LE will be wrongly detected as UTF-16 and UTF-16LE rsp. */
-cutext_chenc_t cutext_src_detect_chenc(cutext_src_t src);
+cutext_encoding_t cutext_src_detect_chenc(cutext_src_t src);
 
 CU_END_DECLARATIONS
 

@@ -2,7 +2,7 @@
 use strict;
 use POSIX;
 
-# IMPORTANT. If $unicode_max or $blk_size is changed, ucs4ctype.c must be updated!
+# IMPORTANT. If $unicode_max or $blk_size is changed, wccat.c must be updated!
 my $unicode_max = 0x1fffff;
 my $blk_size = 512;
 my $blk_cnt = ($unicode_max + 1)/$blk_size;
@@ -35,8 +35,8 @@ while (<STDIN>) {
 }
 
 print "#include <stdlib.h>\n";
-print "#include <cutext/ucs4ctype.h>\n";
-print "#define C(x) cutext_ucs4ctype_##x\n";
+print "#include <cutext/wccat.h>\n";
+print "#define C(x) CUTEXT_WCCAT_##x\n";
 if (0) {
     print "char cupriv_ucs_general_category[] = {";
     my $i = 7;
@@ -45,8 +45,8 @@ if (0) {
 	    print "\n";
 	    $i = 0;
 	}
-	tr/A-Z/a-z/;
 	if ($_) {
+	    uc;
 	    print "C($_),";
 	}
 	else {
@@ -75,7 +75,7 @@ else {
 		print "\n" if ($i % 8 == 0);
 		my $gcat = $general_category_arr[$n];
 		if ($gcat) {
-		    print "C(", tolower($gcat), "),";
+		    print "C(", uc($gcat), "),";
 		}
 		else {
 		    print "0,";
@@ -90,8 +90,8 @@ else {
     print STDERR "Table size est.: $est\n";
     print STDERR "Table size unblocked: $char_cnt\n";
 
-    print "struct cutext_ucs4ctype_tbl_entry_s { char cat; char *sub; };\n";
-    print "struct cutext_ucs4ctype_tbl_entry_s cutext_ucs4ctype_tbl[] = {\n";
+    print "struct cutextP_wctype_table_entry_s { char cat; char *sub; };\n";
+    print "struct cutextP_wctype_table_entry_s cutextP_wctype_table[] = {\n";
     for (my $i_blk = 0; $i_blk < $blk_cnt; ++$i_blk) {
 	if ($is_nonuniform_arr[$i_blk]) {
 	    print "{0,b_$i_blk},\n";
@@ -99,7 +99,7 @@ else {
 	else {
 	    my $gcat = $general_category_arr[$i_blk*$blk_size];
 	    if ($gcat) {
-		print "{C(", tolower($gcat), "),NULL},\n";
+		print "{C(", uc($gcat), "),NULL},\n";
 	    }
 	    else {
 		print "{0,NULL},\n";
