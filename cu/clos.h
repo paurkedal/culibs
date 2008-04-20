@@ -47,6 +47,7 @@ typedef struct cu_clos_self_s *cu_clos_self_t;
 
 #define cu_clop(val, res_t, parl...)	res_t (**val)(parl, cu_clos_self_t)
 #define cu_clop0(val, res_t)		res_t (**val)(cu_clos_self_t)
+typedef void (**cu_clop_generic_t)();
 
 #define cu_clop_null (NULL)
 #define cu_clop_is_null(clop) ((clop) == NULL)
@@ -59,7 +60,8 @@ typedef struct cu_clos_self_s *cu_clos_self_t;
 #define cuP_clop_def(name, linkage, res_t, alops, xparl)		\
     linkage res_t name##_fn cuP_clos_formal(alops, xparl);		\
     linkage res_t (*name##_data) cuP_clos_formal(alops, xparl) = &name##_fn; \
-    linkage res_t (**name) cuP_clos_formal(alops, xparl) = &name##_data; \
+    linkage res_t (**name) cuP_clos_formal(alops, xparl) 		\
+	    CU_ATTR_UNUSED = &name##_data;				\
     linkage res_t name##_fn cuP_clos_formal(alops, xparl)
 #define cu_clop_ref(name) (&name##_data)
 

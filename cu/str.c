@@ -66,7 +66,7 @@ cu_str_set_capacity(cu_str_t str, size_t capacity)
 {
     char *old_arr = str->arr;
     str->cap = capacity;
-    str->arr = cu_galloc(sizeof(char)*capacity);
+    str->arr = cu_galloc_a(sizeof(char)*capacity);
     memcpy(str->arr, old_arr, str->len);
 }
 
@@ -92,7 +92,7 @@ cu_str_onew()
 void
 cu_str_cct_charr(cu_str_t str, char const *ptr, size_t n)
 {
-    str->arr = cu_galloc(n + 1);
+    str->arr = cu_galloc_a(n + 1);
     str->len = n;
     str->cap = n + 1;
     memcpy(str->arr, ptr, n);
@@ -102,7 +102,7 @@ cu_str_t
 cu_str_new_charr(char const *ptr, size_t n)
 {
     cu_str_t str = cu_gnew(struct cu_str_s);
-    str->arr = cu_galloc(n + 1);
+    str->arr = cu_galloc_a(n + 1);
     str->len = n;
     str->cap = n + 1;
     memcpy(str->arr, ptr, n);
@@ -113,7 +113,7 @@ cu_str_t
 cu_str_onew_charr(char const *ptr, size_t n)
 {
     cu_str_t str = cuoo_onew(cu_str);
-    str->arr = cu_galloc(n + 1);
+    str->arr = cu_galloc_a(n + 1);
     str->len = n;
     str->cap = n + 1;
     memcpy(str->arr, ptr, n);
@@ -163,7 +163,7 @@ cu_str_onew_cstr_static(char const *cstr)
 void
 cu_str_cct_uninit(cu_str_t str, size_t n)
 {
-    str->arr = cu_galloc(n + 1);
+    str->arr = cu_galloc_a(n + 1);
     str->len = n;
     str->cap = n + 1;
 }
@@ -171,7 +171,7 @@ cu_str_t
 cu_str_new_uninit(size_t n)
 {
     cu_str_t str = cu_gnew(struct cu_str_s);
-    str->arr = cu_galloc(n + 1);
+    str->arr = cu_galloc_a(n + 1);
     str->len = n;
     str->cap = n + 1;
     return str;
@@ -180,7 +180,7 @@ cu_str_t
 cu_str_onew_uninit(size_t n)
 {
     cu_str_t str = cuoo_onew(cu_str);
-    str->arr = cu_galloc(n + 1);
+    str->arr = cu_galloc_a(n + 1);
     str->len = n;
     str->cap = n + 1;
     return str;
@@ -193,7 +193,7 @@ cu_str_new_copy(cu_str_t str0)
     /* XX MT */
     cu_str_t str = cu_gnew(struct cu_str_s);
     size_t n = str0->len;
-    str->arr = cu_galloc(n + 1);
+    str->arr = cu_galloc_a(n + 1);
     str->len = n;
     str->cap = n + 1;
     memcpy(str->arr, str0->arr, n);

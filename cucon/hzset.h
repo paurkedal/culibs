@@ -60,7 +60,7 @@ CU_SINLINE cucon_hzset_t cucon_hzset_new(cu_shortsize_t key_size_w)
  * initialised by this call if the insert takes place. */
 CU_SINLINE cu_bool_t
 cucon_hzset_insert_node(cucon_hzset_t set, cucon_hzset_node_t node)
-{ return cucon_hzmap_insert_node(&set->impl, node->impl); }
+{ return cucon_hzmap_insert_node(&set->impl, &node->impl); }
 
 /*!If \a set does not contain \a key, inserts it and returns true, else returns
  * false. */
