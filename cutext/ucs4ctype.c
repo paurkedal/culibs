@@ -29,7 +29,7 @@ struct cutext_ucs4ctype_tbl_entry_s
 extern struct cutext_ucs4ctype_tbl_entry_s cutext_ucs4ctype_tbl[];
 
 cutext_ucs4ctype_t
-cutext_ucs4ctype(cutext_ucs4char_t ch)
+cutext_ucs4ctype(cu_wchar_t ch)
 {
     int block = ch / BLOCK_SIZE;
     struct cutext_ucs4ctype_tbl_entry_s *ent;

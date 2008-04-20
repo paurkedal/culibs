@@ -25,24 +25,22 @@
 
 CU_BEGIN_DECLARATIONS
 
-typedef cu_wchar_t cutext_ucs4char_t;
-
 /* Convert 'src_size' UTF-8 bytes starting at 'src_arr' storing up to
  * 'dst_cap' UCS-4 characters starting at 'dst_arr', and set
  * '*dst_size' to the actual number stored.  Return 0 on success and
  * the 'errno' returned from 'iconv' on failure. */
 int cutext_charr_to_ucs4arr(char const **src_arr, size_t *src_cnt,
-			    cutext_ucs4char_t **dst_arr, size_t *dst_cnt);
+			    cu_wchar_t **dst_arr, size_t *dst_cnt);
 
 /* Convert 'src_size' UCS-4 characters starting at 'src_arr' storing
  * up to 'dst_cap' UTF-8 characters starting at 'dst_arr', and set
  * '*dst_size' to the actual numbers stored.  Return 0 on success and
  * the 'errno' returned from 'iconv' on failure. */
-int cutext_ucs4arr_to_charr(cutext_ucs4char_t const **src_arr, size_t *src_size,
+int cutext_ucs4arr_to_charr(cu_wchar_t const **src_arr, size_t *src_size,
 			    char **dst_arr, size_t *dst_cap);
 
 /* Convert a single UCS-4 character to an UTF-8 sequence. */
-int cutext_ucs4char_to_charr(cutext_ucs4char_t ucs4ch,
+int cutext_ucs4char_to_charr(cu_wchar_t ucs4ch,
 			     char **dst_arr, size_t *dst_cnt);
 
 CU_END_DECLARATIONS

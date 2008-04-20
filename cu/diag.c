@@ -113,11 +113,11 @@ cu_vfprintf(FILE *file, char const* msg, va_list va)
 		    size_t buf_cnt;
 		    char buf[BUF_SIZE];
 		    char *buf_end;
-		    cutext_ucs4char_t ch;
-		    cutext_ucs4char_t *ucs4cstr;
+		    cu_wchar_t ch;
+		    cu_wchar_t *ucs4cstr;
 		    int err;
 		case 'c':
-		    ch = va_arg(va, cutext_ucs4char_t);
+		    ch = va_arg(va, cu_wchar_t);
 		    buf_cnt = BUF_SIZE;
 		    buf_end = buf;
 		    err = cutext_ucs4char_to_charr(ch, &buf_end, &buf_cnt);
@@ -127,7 +127,7 @@ cu_vfprintf(FILE *file, char const* msg, va_list va)
 			fwrite(buf, 1, buf_end - buf, file);
 		    break;
 		case 's':
-		    ucs4cstr = va_arg(va, cutext_ucs4char_t *);
+		    ucs4cstr = va_arg(va, cu_wchar_t *);
 		    while (*ucs4cstr) {
 			buf_cnt = BUF_SIZE;
 			buf_end = buf;

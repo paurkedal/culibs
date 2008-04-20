@@ -99,18 +99,18 @@ cutext_ucs4src_is_eof(cutext_ucs4src_t ucs4src)
 }
 
 /* Have a peek at the next character. */
-CU_SINLINE cutext_ucs4char_t
+CU_SINLINE cu_wchar_t
 cutext_ucs4src_peek(cutext_ucs4src_t ucs4src)
 {
-    return *(cutext_ucs4char_t *)ucs4src->src.buf.content_start;
+    return *(cu_wchar_t *)ucs4src->src.buf.content_start;
 }
 
 /* Internal */
-cutext_ucs4char_t *
+cu_wchar_t *
 cutextP_ucs4src_peek_arr(cutext_ucs4src_t ucs4src, size_t size);
 
 /* Returns an array of 'size' B lookahead or a zero-terminated one. */
-CU_SINLINE cutext_ucs4char_t *
+CU_SINLINE cu_wchar_t *
 cutext_ucs4src_peek_arr(cutext_ucs4src_t ucs4src, size_t size)
 {
     size_t avail = cutext_src_data_size(&ucs4src->src)/4;
@@ -126,10 +126,10 @@ void cutextP_ucs4src_terminate(cutext_ucs4src_t ucs4src);
 void cutext_ucs4src_advance(cutext_ucs4src_t ucs4src, size_t size);
 
 /* Reads one character from ucs4src.  Returns 0 if EOS. */
-CU_SINLINE cutext_ucs4char_t
+CU_SINLINE cu_wchar_t
 cutext_ucs4src_get(cutext_ucs4src_t ucs4src)
 {
-    cutext_ucs4char_t ch = cutext_ucs4src_peek(ucs4src);
+    cu_wchar_t ch = cutext_ucs4src_peek(ucs4src);
     cutext_ucs4src_advance(ucs4src, 1);
     return ch;
 }

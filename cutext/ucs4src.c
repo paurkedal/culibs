@@ -45,10 +45,10 @@ cutext_ucs4src_new(cutext_producer_t producer,
 
 cu_str_t
 cutext_ucs4src_scan_str(cutext_ucs4src_t ucs4src,
-			cu_clop(is_part, cu_bool_t, cutext_ucs4char_t ch))
+			cu_clop(is_part, cu_bool_t, cu_wchar_t ch))
 {
     cu_str_t str = cu_str_new();
-    cutext_ucs4char_t ch;
+    cu_wchar_t ch;
     while (ch = cutext_ucs4src_peek(ucs4src),
 	   ch != 0 && cu_call(is_part, ch)) {
 	int err;
@@ -66,7 +66,7 @@ cutext_ucs4src_scan_str(cutext_ucs4src_t ucs4src,
     return str;
 }
 
-cu_clop_def(header_idrchar, cu_bool_t, cutext_ucs4char_t ch)
+cu_clop_def(header_idrchar, cu_bool_t, cu_wchar_t ch)
 {
     switch (ch) {
     case ' ':
@@ -81,7 +81,7 @@ cu_clop_def(header_idrchar, cu_bool_t, cutext_ucs4char_t ch)
 }
 
 cu_clos_def(header_strchar,
-	    cu_prot(cu_bool_t, cutext_ucs4char_t ch),
+	    cu_prot(cu_bool_t, cu_wchar_t ch),
 	    (cu_bool_t have_quote;))
 {
     cu_clos_self(header_strchar);
@@ -106,8 +106,8 @@ cutext_ucs4src_cct_detect(cutext_ucs4src_t ucs4src,
 			  cu_str_t path, int line, int column)
 {
     cutext_chenc_t chenc;
-    cutext_ucs4char_t *s;
-    cutext_ucs4char_t ch;
+    cu_wchar_t *s;
+    cu_wchar_t ch;
     cutext_src_cct(&ucs4src->src, producer);
     ucs4src->properties = NULL;
     chenc = cutext_src_detect_chenc(&ucs4src->src);
@@ -215,7 +215,7 @@ cutext_ucs4src_new_detect(cutext_producer_t producer,
     return ucs4src;
 }
 
-cutext_ucs4char_t *
+cu_wchar_t *
 cutextP_ucs4src_peek_arr(cutext_ucs4src_t ucs4src, size_t size)
 {
     cutext_status_t st = cutext_src_lookahead(&ucs4src->src, size*4);
@@ -237,9 +237,9 @@ cutextP_ucs4src_peek_arr(cutext_ucs4src_t ucs4src, size_t size)
 void
 cutext_ucs4src_advance(cutext_ucs4src_t ucs4src, size_t size)
 {
-    cutext_ucs4char_t *arr = cutext_ucs4src_peek_arr(ucs4src, size);
-    cutext_ucs4char_t *cur = arr;
-    cutext_ucs4char_t *end = arr + size;
+    cu_wchar_t *arr = cutext_ucs4src_peek_arr(ucs4src, size);
+    cu_wchar_t *cur = arr;
+    cu_wchar_t *end = arr + size;
     while (cur < end && *cur)
 	switch (*cur++) {
 	case '\n':
@@ -267,5 +267,5 @@ void
 cutextP_ucs4src_terminate(cutext_ucs4src_t ucs4src)
 {
     cu_buffer_extend_freecap(&ucs4src->src.buf, 4);
-    *(cutext_ucs4char_t*)ucs4src->src.buf.content_end = 0;
+    *(cu_wchar_t*)ucs4src->src.buf.content_end = 0;
 }

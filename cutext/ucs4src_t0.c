@@ -37,7 +37,7 @@ main()
     if (props)
 	cucon_pmap_iter_ptr(props, print_prop);
     while (!cutext_ucs4src_is_eof(ucs4src)) {
-	cutext_ucs4char_t ch = cutext_ucs4src_peek(ucs4src);
+	cu_wchar_t ch = cutext_ucs4src_peek(ucs4src);
 	cu_errf_at(cutext_ucs4src_sref(ucs4src), "%Uc 0x%x", ch, ch);
 	cutext_ucs4src_advance(ucs4src, 1);
     }

@@ -64,7 +64,7 @@ typedef enum {
     cutext_ucs4ctype_cn, /* not assigned */
 } cutext_ucs4ctype_t;
 
-cutext_ucs4ctype_t cutext_ucs4ctype(cutext_ucs4char_t ch);
+cutext_ucs4ctype_t cutext_ucs4ctype(cu_wchar_t ch);
 
 CU_SINLINE cu_bool_t
 cutext_ucs4ctype_is_letter(cutext_ucs4ctype_t ct) { return (ct >> 3) == 1; }
@@ -82,54 +82,54 @@ CU_SINLINE cu_bool_t
 cutext_ucs4ctype_is_otherucscat(cutext_ucs4ctype_t ct) { return (ct >> 3) == 7; }
 
 CU_SINLINE cu_bool_t
-cutext_ucs4char_is_letter(cutext_ucs4char_t ch)
+cutext_ucs4char_is_letter(cu_wchar_t ch)
 {
     return cutext_ucs4ctype_is_letter(cutext_ucs4ctype(ch));
 }
 CU_SINLINE cu_bool_t
-cutext_ucs4char_is_mark(cutext_ucs4char_t ch)
+cutext_ucs4char_is_mark(cu_wchar_t ch)
 {
     return cutext_ucs4ctype_is_mark(cutext_ucs4ctype(ch));
 }
 CU_SINLINE cu_bool_t
-cutext_ucs4char_is_number(cutext_ucs4char_t ch)
+cutext_ucs4char_is_number(cu_wchar_t ch)
 {
     return cutext_ucs4ctype_is_number(cutext_ucs4ctype(ch));
 }
 CU_SINLINE cu_bool_t
-cutext_ucs4char_is_punctuation(cutext_ucs4char_t ch)
+cutext_ucs4char_is_punctuation(cu_wchar_t ch)
 {
     return cutext_ucs4ctype_is_punctuation(cutext_ucs4ctype(ch));
 }
 CU_SINLINE cu_bool_t
-cutext_ucs4char_is_symbol(cutext_ucs4char_t ch)
+cutext_ucs4char_is_symbol(cu_wchar_t ch)
 {
     return cutext_ucs4ctype_is_symbol(cutext_ucs4ctype(ch));
 }
 CU_SINLINE cu_bool_t
-cutext_ucs4char_is_separator(cutext_ucs4char_t ch)
+cutext_ucs4char_is_separator(cu_wchar_t ch)
 {
     return cutext_ucs4ctype_is_separator(cutext_ucs4ctype(ch));
 }
 CU_SINLINE cu_bool_t
-cutext_ucs4char_is_otherucscat(cutext_ucs4char_t ch)
+cutext_ucs4char_is_otherucscat(cu_wchar_t ch)
 {
     return cutext_ucs4ctype_is_otherucscat(cutext_ucs4ctype(ch));
 }
 
 CU_SINLINE cu_bool_t
-cutext_ucs4char_is_vertical_space(cutext_ucs4char_t ch)
+cutext_ucs4char_is_vertical_space(cu_wchar_t ch)
 {
     return ch == '\n' || ch == '\v' || ch == '\f';
 }
 CU_SINLINE cu_bool_t
-cutext_ucs4char_is_space(cutext_ucs4char_t ch)
+cutext_ucs4char_is_space(cu_wchar_t ch)
 {
     return cutext_ucs4char_is_separator(ch) || cutext_ucs4char_is_vertical_space(ch)
 	|| ch == '\t';
 }
 CU_SINLINE cu_bool_t
-cutext_ucs4char_is_printable(cutext_ucs4char_t ch)
+cutext_ucs4char_is_printable(cu_wchar_t ch)
 {
     return !cutext_ucs4char_is_otherucscat(ch)
 	&& !cutext_ucs4char_is_vertical_space(ch);

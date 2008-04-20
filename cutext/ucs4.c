@@ -32,7 +32,7 @@
 
 int
 cutext_charr_to_ucs4arr(char const **src_arr, size_t *src_cnt,
-		     cutext_ucs4char_t **dst_arr, size_t *dst_cap_scaled)
+		     cu_wchar_t **dst_arr, size_t *dst_cap_scaled)
 {
     size_t dst_cap = *dst_cap_scaled*4;
 #ifdef REOPEN_ICONV
@@ -52,7 +52,7 @@ cutext_charr_to_ucs4arr(char const **src_arr, size_t *src_cnt,
     *dst_cap_scaled = dst_cap/4;
     return 0;
 #else
-    cutext_ucs4char_t *dst_beg;
+    cu_wchar_t *dst_beg;
     cuP_tstate_t tstate = cuP_tstate();
     if (!tstate->iconv_utf8_to_ucs4) {
 	tstate->iconv_utf8_to_ucs4 = iconv_open(UCS4HOST, "UTF-8");
@@ -79,10 +79,10 @@ fail:
 }
 
 int
-cutext_ucs4arr_to_charr(cutext_ucs4char_t const **src_arr, size_t *src_cnt_sc,
+cutext_ucs4arr_to_charr(cu_wchar_t const **src_arr, size_t *src_cnt_sc,
 		     char **dst_arr, size_t *dst_cnt)
 {
-    size_t src_cnt = *src_cnt_sc*sizeof(cutext_ucs4char_t);
+    size_t src_cnt = *src_cnt_sc*sizeof(cu_wchar_t);
 #ifdef REOPEN_ICONV
     iconv_t cd = iconv_open("UTF-8", UCS4HOST);
     if (!cd) {
@@ -98,7 +98,7 @@ cutext_ucs4arr_to_charr(cutext_ucs4char_t const **src_arr, size_t *src_cnt_sc,
 	return errno;
     }
     iconv_close(cd);
-    *src_cnt_sc = src_cnt/sizeof(cutext_ucs4char_t);
+    *src_cnt_sc = src_cnt/sizeof(cu_wchar_t);
     return 0;
 #else
     cuP_tstate_t tstate = cuP_tstate();
@@ -116,7 +116,7 @@ cutext_ucs4arr_to_charr(cutext_ucs4char_t const **src_arr, size_t *src_cnt_sc,
     if (iconv(tstate->iconv_ucs4_to_utf8,
 	      NULL, NULL, dst_arr, dst_cnt) == (size_t)-1)
 	goto fail;
-    *src_cnt_sc = src_cnt/sizeof(cutext_ucs4char_t);
+    *src_cnt_sc = src_cnt/sizeof(cu_wchar_t);
     return 0;
 fail:
     iconv(tstate->iconv_ucs4_to_utf8, NULL, NULL, NULL, NULL);
@@ -125,9 +125,9 @@ fail:
 }
 
 int
-cutext_ucs4char_to_charr(cutext_ucs4char_t ucs4ch, char **dst_arr, size_t *dst_cnt)
+cutext_ucs4char_to_charr(cu_wchar_t ucs4ch, char **dst_arr, size_t *dst_cnt)
 {
     size_t ucs4cnt = 1;
-    cutext_ucs4char_t const *ucs4arr = &ucs4ch;
+    cu_wchar_t const *ucs4arr = &ucs4ch;
     return cutext_ucs4arr_to_charr(&ucs4arr, &ucs4cnt, dst_arr, dst_cnt);
 }
