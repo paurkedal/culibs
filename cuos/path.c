@@ -408,6 +408,12 @@ cuos_path_join_cstr_str(char const *s0, cu_str_t s1)
     return cuos_path_join(cu_str_new_cstr(s0), s1);
 }
 
+cu_str_t
+cuos_path_join_2cstr(char const *s0, char const *s1)
+{
+    return cuos_path_join(cu_str_new_cstr(s0), cu_str_new_cstr(s1));
+}
+
 cu_bool_fast_t
 cuos_path_split(cu_str_t path, int pos, cu_str_t *path0, cu_str_t *path1)
 {

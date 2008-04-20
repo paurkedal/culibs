@@ -20,6 +20,7 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_builddir) \
 #
 lib_LTLIBRARIES =
 bin_PROGRAMS =
+noinst_PROGRAMS =
 bin_SCRIPTS =
 dist_bin_SCRIPTS =
 noinst_HEADERS =

@@ -17,10 +17,13 @@
 
 #include <cutext/wccat.h>
 #include <cu/diag.h>
+#include <string.h>
 
 #define UNICODE_MAX 0x1fffff
 #define BLOCK_SIZE 512
 #define BLOCK_COUNT ((UNICODE_MAX + 1)/BLOCK_SIZE)
+
+#ifndef CUTEXT_UNIPREP_C
 
 struct cutextP_wctype_table_entry_s
 {
@@ -41,4 +44,74 @@ cutext_wchar_wccat(cu_wchar_t ch)
 	return ent->sub[ch % BLOCK_SIZE];
     else
 	return ent->cat;
+}
+
+#endif /* !CUTEXT_UNIPREP_C */
+
+cutext_wccat_t
+cutext_wccat_by_name(char *s)
+{
+    if (strlen(s) != 2)
+	return CUTEXT_WCCAT_NONE;
+    switch (s[0]) {
+	case 'L': case 'l':
+	    switch (s[1]) {
+		case 'U': case 'u': return CUTEXT_WCCAT_LU;
+		case 'L': case 'l': return CUTEXT_WCCAT_LL;
+		case 'T': case 't': return CUTEXT_WCCAT_LT;
+		case 'M': case 'm': return CUTEXT_WCCAT_LM;
+		case 'O': case 'o': return CUTEXT_WCCAT_LO;
+	    }
+	    break;
+	case 'M': case 'm':
+	    switch (s[1]) {
+		case 'N': case 'n': return CUTEXT_WCCAT_MN;
+		case 'C': case 'c': return CUTEXT_WCCAT_MC;
+		case 'E': case 'e': return CUTEXT_WCCAT_ME;
+	    }
+	    break;
+	case 'N': case 'n':
+	    switch (s[1]) {
+		case 'D': case 'd': return CUTEXT_WCCAT_ND;
+		case 'L': case 'l': return CUTEXT_WCCAT_NL;
+		case 'O': case 'o': return CUTEXT_WCCAT_NO;
+	    }
+	    break;
+	case 'P': case 'p':
+	    switch (s[1]) {
+		case 'C': case 'c': return CUTEXT_WCCAT_PC;
+		case 'D': case 'd': return CUTEXT_WCCAT_PD;
+		case 'S': case 's': return CUTEXT_WCCAT_PS;
+		case 'E': case 'e': return CUTEXT_WCCAT_PE;
+		case 'I': case 'i': return CUTEXT_WCCAT_PI;
+		case 'F': case 'f': return CUTEXT_WCCAT_PF;
+		case 'O': case 'o': return CUTEXT_WCCAT_PO;
+	    }
+	    break;
+	case 'S': case 's':
+	    switch (s[1]) {
+		case 'M': case 'm': return CUTEXT_WCCAT_SM;
+		case 'C': case 'c': return CUTEXT_WCCAT_SC;
+		case 'K': case 'k': return CUTEXT_WCCAT_SK;
+		case 'O': case 'o': return CUTEXT_WCCAT_SO;
+	    }
+	    break;
+	case 'Z': case 'z':
+	    switch (s[1]) {
+		case 'S': case 's': return CUTEXT_WCCAT_ZS;
+		case 'L': case 'l': return CUTEXT_WCCAT_ZL;
+		case 'P': case 'p': return CUTEXT_WCCAT_ZP;
+	    }
+	    break;
+	case 'C': case 'c':
+	    switch (s[1]) {
+		case 'C': case 'c': return CUTEXT_WCCAT_CC;
+		case 'F': case 'f': return CUTEXT_WCCAT_CF;
+		case 'S': case 's': return CUTEXT_WCCAT_CS;
+		case 'O': case 'o': return CUTEXT_WCCAT_CO;
+		case 'N': case 'n': return CUTEXT_WCCAT_CN;
+	    }
+	    break;
+    }
+    return CUTEXT_WCCAT_NONE;
 }

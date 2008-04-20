@@ -32,6 +32,10 @@ cutext_ucs4src_t0_LDADD = $(cutext_check_ldadd)
 cutext_wctype_t0_SOURCES = cutext/wctype_t0.c
 cutext_wctype_t0_LDADD = $(cutext_check_ldadd)
 
+noinst_PROGRAMS += cutext/mk_wccat
+cutext_mk_wccat_SOURCES = cutext/mk_wccat.c
+cutext_mk_wccat_LDADD = libcubase.la libcuos.la
+
 cutext/chenc_conv.c: cutext/chenc_conv.tab cutext/mk_str_enum_conv
 	(   echo '#include <cutext/fwd.h>'; \
 	    cutext/mk_str_enum_conv $< \
@@ -42,6 +46,10 @@ cutext/chenc_conv.c: cutext/chenc_conv.tab cutext/mk_str_enum_conv
 
 cutext/wccat_table.c: $(srcdir)/cutext/UnicodeData.txt cutext/mk_wccat_table.pl
 	perl $(srcdir)/cutext/mk_wccat_table.pl <$< >$@
+cutext/wccat_switch.c: $(srcdir)/cutext/UnicodeData.txt cutext/mk_wccat
+	cutext/mk_wccat switch -o $@ $<
+cutext/wccat_blocks.c: $(srcdir)/cutext/UnicodeData.txt cutext/mk_wccat
+	cutext/mk_wccat blocks -o $@ $< -b wccat-data
 $(srcdir)/cutext/UnicodeData.txt:
 	$(srcdir)/cutext/fetch_unicode_data.sh --ask
 

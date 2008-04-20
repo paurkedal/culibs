@@ -27,7 +27,7 @@ CU_BEGIN_DECLARATIONS
 
 /*!Enumeration of the Unicode 5.1.0 character categories. */
 typedef enum {
-    CUTEXT_WCCAT_NONE,
+    CUTEXT_WCCAT_NONE,		/*!< not a category */
     CUTEXT_WCCAT_LU = 8,	/*!< letter, uppercase */
     CUTEXT_WCCAT_LL,		/*!< letter, lowercase */
     CUTEXT_WCCAT_LT,		/*!< letter, titlecase */
@@ -60,6 +60,11 @@ typedef enum {
     CUTEXT_WCCAT_CN,		/*!< other, not assigned */
 } cutext_wccat_t;
 
+/*!Returns the general category denoted by its two-letter name \a name, or \ref
+ * CUTEXT_WCCAT_NONE if \a name is invalid. */
+cutext_wccat_t cutext_wccat_by_name(char *name);
+
+/*!Returns the general category of \a ch. */
 cutext_wccat_t cutext_wchar_wccat(cu_wchar_t ch);
 
 /*!True iff \a ct is in the "letter" ("L*") main category. */

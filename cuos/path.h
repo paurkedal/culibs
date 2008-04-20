@@ -111,6 +111,9 @@ cu_str_t cuos_path_join_str_cstr(cu_str_t path0, char const *path1);
 /*!As \ref cuos_path_join but with C string as first argument. */
 cu_str_t cuos_path_join_cstr_str(char const *path0, cu_str_t path1);
 
+/*!As \ref cuos_path_join but with 2 C string arguments. */
+cu_str_t cuos_path_join_2cstr(char const *path0, char const *path1);
+
 /*!\pre \a path is a normalised file name.
  * 
  * If \a pos ≥ 0, then split \a path
