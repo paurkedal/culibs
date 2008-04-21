@@ -13,9 +13,14 @@ libcutext_la_SOURCES = \
 	cutext/src.c \
 	cutext/conv.c \
 	cutext/wccat.c \
-	cutext/wccat_table.c \
 	cutext/wctype.c \
 	cutext/ucs4src.c
+
+if enable_wccat_switch
+libcutext_la_SOURCES += cutext/wccat_switch.c
+else
+libcutext_la_SOURCES += cutext/wccat_table.c
+endif
 
 cutext_check_programs =
 

@@ -65,7 +65,7 @@ typedef enum {
 cutext_wccat_t cutext_wccat_by_name(char *name);
 
 /*!Returns the general category of \a ch. */
-cutext_wccat_t cutext_wchar_wccat(cu_wchar_t ch);
+cutext_wccat_t cutext_wchar_wccat(cu_wint_t ch);
 
 /*!True iff \a ct is in the "letter" ("L*") main category. */
 CU_SINLINE cu_bool_t

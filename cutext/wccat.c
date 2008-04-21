@@ -17,13 +17,14 @@
 
 #include <cutext/wccat.h>
 #include <cu/diag.h>
+#include <cu/conf.h>
 #include <string.h>
 
 #define UNICODE_MAX 0x1fffff
 #define BLOCK_SIZE 512
 #define BLOCK_COUNT ((UNICODE_MAX + 1)/BLOCK_SIZE)
 
-#ifndef CUTEXT_UNIPREP_C
+#if !defined(CUTEXT_UNIPREP_C) && !defined(CUCONF_ENABLE_WCCAT_SWITCH)
 
 struct cutextP_wctype_table_entry_s
 {
@@ -33,7 +34,7 @@ struct cutextP_wctype_table_entry_s
 extern struct cutextP_wctype_table_entry_s cutextP_wctype_table[];
 
 cutext_wccat_t
-cutext_wchar_wccat(cu_wchar_t ch)
+cutext_wchar_wccat(cu_wint_t ch)
 {
     int block = ch / BLOCK_SIZE;
     struct cutextP_wctype_table_entry_s *ent;
@@ -46,7 +47,7 @@ cutext_wchar_wccat(cu_wchar_t ch)
 	return ent->cat;
 }
 
-#endif /* !CUTEXT_UNIPREP_C */
+#endif /* !CUTEXT_UNIPREP_C && !CUCONF_ENABLE_WCCAT_SWITCH */
 
 cutext_wccat_t
 cutext_wccat_by_name(char *s)

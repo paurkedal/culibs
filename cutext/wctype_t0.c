@@ -16,8 +16,10 @@
  */
 
 #include <cutext/wctype.h>
+#include <cutext/wccat.h>
 #include <cu/test.h>
 #include <ctype.h>
+#include <stdio.h>
 
 struct {
     char const *system_name;
@@ -34,9 +36,23 @@ struct {
 };
 
 int
-main()
+main(int argc, char **argv)
 {
     cu_wint_t ch;
+    if (argc == 3) {
+	cu_wint_t ch_s = strtol(argv[1], NULL, 16);
+	cu_wint_t ch_e = strtol(argv[2], NULL, 16);
+	for (ch = ch_s; ch <= ch_e; ++ch) {
+	    int i;
+	    printf("%6x", ch);
+	    for (i = 0; i < sizeof(tests)/sizeof(tests[0]); ++i)
+		if ((*tests[i].cutext_pred)(ch)) {
+		    fputc(' ', stdout);
+		    fputs(tests[i].system_name + 2, stdout);
+		}
+	    fputc('\n', stdout);
+	}
+    }
     for (ch = 0; ch < 128; ++ch) {
 	int i;
 	for (i = 0; i < sizeof(tests)/sizeof(tests[0]); ++i) {

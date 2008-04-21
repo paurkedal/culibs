@@ -243,6 +243,17 @@ AC_SUBST(wind_variant)
 AM_CFLAGS="-Wall"
 AC_SUBST(AM_CFLAGS)
 
+# libcutext
+#
+AC_ARG_ENABLE([wccat-method],
+  [ AC_HELP_STRING([--enable-wccat-method],
+	[Choose how cutext_wchar_wccat is implemented: "switch" or "table".]) ],
+  [], [enable_wccat_method="switch"])
+AM_CONDITIONAL([enable_wccat_switch], [test $enable_wccat_method = switch])
+if test $enable_wccat_method = switch; then
+    AC_DEFINE([ENABLE_WCCAT_SWITCH], [1], [cutext_wchar_wccat as switch])
+fi
+
 # For developers
 #
 AC_ARG_VAR([TAGS_DIR], [Where to put ctags files.])

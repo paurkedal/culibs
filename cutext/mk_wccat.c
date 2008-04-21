@@ -136,7 +136,7 @@ make_switch(char const *in_path, char const *out_path)
 	  out);
     cb.out = out;
     codepoint_iter(in_path, make_switch_case_prep(&cb));
-    fputs("}\n}\n", out);
+    fprintf(out, "default: return %d;\n}\n}\n", CUTEXT_WCCAT_NONE);
 }
 
 
