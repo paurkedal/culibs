@@ -18,6 +18,8 @@
 #include <cufo/stream.h>
 #include <cufo/tagdefs.h>
 #include <cufo/textstyle.h>
+#include <cutext/wccat.h>
+#include <cutext/wctype.h>
 #include <cuos/dsink.h>
 #include <cucon/hzmap.h>
 #include <cu/inherit.h>
@@ -28,7 +30,6 @@
 #include <cu/memory.h>
 #include <cu/wstring.h>
 #include <string.h>
-#include <wctype.h>
 
 typedef struct tx_stream_s *tx_stream_t;
 struct tx_stream_s
@@ -113,21 +114,38 @@ tx_indent(tx_stream_t tos)
 }
 
 static double
-tx_breakpair(tx_stream_t tos, wint_t ch0, wint_t ch1)
+tx_tiedness(tx_stream_t tos, cu_wint_t ch0, cu_wint_t ch1)
 {
     /* TODO: Improve me. */
-    cu_bool_t ch0_is_word = iswalnum(ch0) || ch0 == L'_';
-    cu_bool_t ch1_is_word = iswalnum(ch1) || ch1 == L'_';
-    cu_bool_t ch0_is_space = iswspace(ch0);
-    cu_bool_t ch1_is_space = iswspace(ch1);
-    if (ch0_is_space || ch1_is_space)
+    cutext_wccat_t ch0_cat = cutext_wchar_wccat(ch0);
+    cutext_wccat_t ch1_cat = cutext_wchar_wccat(ch1);
+    cu_bool_t ch0_is_alnum, ch1_is_alnum;
+    cu_bool_t ch0_is_symalnum, ch1_is_symalnum;
+
+    if (cutext_wccat_is_separator(ch0_cat) ||
+	cutext_wccat_is_separator(ch1_cat) ||
+	cutext_wccat_is_other(ch0_cat) ||
+	cutext_wccat_is_other(ch1_cat))
 	return 0.0;
-    else if (ch0_is_word && !ch1_is_word)
-	return 0.1;
-    else if (!ch0_is_word && ch1_is_word)
-	return 0.15;
-    else
+
+    ch0_is_alnum = cutext_wccat_is_letter(ch0_cat)
+		|| cutext_wccat_is_number(ch0_cat) || ch0 == 0x5f;
+    ch1_is_alnum = cutext_wccat_is_letter(ch1_cat)
+		|| cutext_wccat_is_number(ch1_cat) || ch1 == 0x5f;
+    if (ch0_is_alnum && ch1_is_alnum)
 	return 1.0;
+
+    ch0_is_symalnum = cutext_wccat_is_symbol(ch0_cat) || ch0_is_alnum;
+    ch1_is_symalnum = cutext_wccat_is_symbol(ch1_cat) || ch1_is_alnum;
+    if (ch0_is_symalnum && !ch1_is_symalnum)
+	return 0.1;
+    if (!ch0_is_symalnum && ch1_is_symalnum)
+	return 0.15;
+
+    if (ch0_cat == ch1_cat)
+	return 1.0;
+    else
+	return 0.8;
 }
 
 static int
@@ -140,7 +158,7 @@ tx_find_break(tx_stream_t tos, cu_wchar_t const *s, size_t len, size_t *pos_out)
     int bv_pos = len;
     cu_debug_assert(len);
     while (--n) {
-	double break_badness = tx_breakpair(tos, s[n - 1], s[n]);
+	double break_badness = tx_tiedness(tos, s[n - 1], s[n]);
 	double bv = dist_badness + break_badness;
 	if (bv < bv_min) {
 	    bv_min = bv;
@@ -148,7 +166,7 @@ tx_find_break(tx_stream_t tos, cu_wchar_t const *s, size_t len, size_t *pos_out)
 	}
 	dist_badness += dist_badness_diff;
     }
-    while (bv_pos > 0 && iswspace(s[bv_pos - 1]))
+    while (bv_pos > 0 && cutext_iswspace(s[bv_pos - 1]))
 	--bv_pos;
     *pos_out = bv_pos;
     return bv_pos; /* column */
@@ -201,7 +219,7 @@ tx_strip_leading_space(tx_stream_t tos)
 {
     cu_wchar_t *s = cu_buffer_content_start(&tos->buf);
     cu_wchar_t *s_end = cu_buffer_content_end(&tos->buf);
-    while (s < s_end && iswspace(*s)) {
+    while (s < s_end && cutext_iswspace(*s)) {
 	--tos->col;
 	++s;
     }
@@ -321,8 +339,8 @@ tx_stream_init(tx_stream_t tos, char const *encoding, cu_dsink_t target_sink,
 					    target_sink);
 	encoding = cu_wchar_encoding;
     }
-//    if (!cu_dsink_is_clogfree(target_sink))
-//	target_sink = cu_dsink_stack_buffer(target_sink);
+    if (!cu_dsink_is_clogfree(target_sink))
+	target_sink = cu_dsink_stack_buffer(target_sink);
     stream_size = sizeof(struct cufo_stream_s)
 		+ style->state_size - sizeof(struct cufo_textstate_s);
     cufo_stream_init(cu_to(cufo_stream, tos), encoding, &tx_target);
