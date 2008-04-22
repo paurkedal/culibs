@@ -19,6 +19,38 @@
 #include <cu/tstate.h>
 #include <string.h>
 
+#ifndef CU_WCHAR_IS_STDC
+
+size_t
+cu_wcslen(cu_wchar_t const *arr)
+{
+    size_t len = 0;
+    while (*arr) { ++len; ++arr; }
+    return len;
+}
+
+int
+cu_wcscmp(cu_wchar_t const *s0, cu_wchar_t const *s1)
+{
+    while (*s0 || *s1) {
+	if (*s0 < *s1) return -1;
+	if (*s0 > *s1) return 1;
+    }
+    return 0;
+}
+
+int
+cu_wcsncmp(cu_wchar_t const *s0, cu_wchar_t const *s1, size_t n)
+{
+    while (n && (*s0 || *s1)) {
+	if (*s0 < *s1) return -1;
+	if (*s0 > *s1) return 1;
+    }
+    return 0;
+}
+
+#endif
+
 #ifdef CU_WCHAR_IS_STDC
 char const *cu_wchar_encoding = "WCHAR_T";
 #elif defined(CUCONF_WORDS_BIGENDIAN)

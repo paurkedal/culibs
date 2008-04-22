@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUFO_FORMATTER_H
-#define CUFO_FORMATTER_H
+#ifndef CUFO_STREAM_H
+#define CUFO_STREAM_H
 
 #include <cufo/fwd.h>
 #include <cu/va_ref.h>
@@ -172,6 +172,8 @@ void cufo_fillwc(cufo_stream_t fos, cu_wchar_t wc, int repeat);
 void cufo_puts(cufo_stream_t fos, char const *cs);
 
 void cufo_putws(cufo_stream_t fos, cu_wchar_t *wcs);
+
+CU_SINLINE void cufo_newline(cufo_stream_t fos) { cufo_putwc(fos, 10); }
 
 void cufo_print_charr(cufo_stream_t fos, char const *cs, size_t cs_len);
 

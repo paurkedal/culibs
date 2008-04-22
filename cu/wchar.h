@@ -44,6 +44,16 @@ typedef unsigned int cu_wint_t;
  * cu_wchar_t. */
 #define CU_MAX_MBLEN 4
 
+#ifndef CU_WCHAR_IS_STDC
+size_t cu_wcslen(cu_wchar_t const *s);
+int cu_wcscmp(cu_wchar_t const *s0, cu_wchar_t const *s1);
+int cu_wcsncmp(cu_wchar_t const *s0, cu_wchar_t const *s1, size_t n);
+#else
+#  define cu_wcslen wcslen
+#  define cu_wcscmp wcscmp
+#  define cu_wcsncmp wcsncmp
+#endif
+
 /*!A thread-local \c iconv_t descriptor for converting from \ref cu_wchar_t
  * strings to \c char strings. */
 iconv_t cu_iconv_for_wchar_to_char(void);

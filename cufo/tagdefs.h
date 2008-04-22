@@ -52,6 +52,7 @@ extern cufo_tag_t cufoT_bug_trace;
 /* Expressions */
 extern cufo_tag_t cufoT_codepre;
 extern cufo_tag_t cufoT_code;
+extern cufo_tag_t cufoT_clause;
 extern cufo_tag_t cufoT_comment;
 extern cufo_tag_t cufoT_keyword;
 extern cufo_tag_t cufoT_operator;

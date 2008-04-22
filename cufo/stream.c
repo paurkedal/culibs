@@ -260,6 +260,12 @@ cufo_puts(cufo_stream_t fos, char const *cs)
 }
 
 void
+cufo_putws(cufo_stream_t fos, cu_wchar_t *wcs)
+{
+    cufo_print_wcarr(fos, wcs, cu_wcslen(wcs));
+}
+
+void
 cufo_print_wstring(cufo_stream_t fos, cu_wstring_t ws)
 {
     cufo_print_wcarr(fos, cu_wstring_array(ws), cu_wstring_length(ws));
