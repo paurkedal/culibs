@@ -79,7 +79,7 @@ cuos_dsink_fdopen_close(int fd)
 }
 
 cu_dsink_t
-cuos_dsink_open(char const *path)
+cuos_dsink_fopen(char const *path)
 {
     int fd = open(path, O_CREAT | O_WRONLY | O_TRUNC, 0666);
     if (fd != -1)

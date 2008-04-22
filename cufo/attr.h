@@ -22,7 +22,7 @@
 #include <cu/idr.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cufo_attr_h cufo/attr.h:
+/*!\defgroup cufo_attr_h cufo/attr.h: Markup Attributes
  *@{\ingroup cufo_mod */
 
 typedef enum {

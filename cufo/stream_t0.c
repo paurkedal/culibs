@@ -132,7 +132,7 @@ test_xml_target()
 {
     cufo_stream_t fos;
     cu_dsink_t sink;
-    sink = cuos_dsink_open("tmp.cufo_stream_t0.xml");
+    sink = cuos_dsink_fopen("tmp.cufo_stream_t0.xml");
     cu_test_assert(sink != NULL);
     fos = cufo_open_xmldirect("UTF-8", sink);
     print_page(fos);

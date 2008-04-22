@@ -21,7 +21,7 @@
 #include <cufo/attr.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cufo_attrdefs_h cufo/attrdefs.h:
+/*!\defgroup cufo_attrdefs_h cufo/attrdefs.h: Various Attribute Definitions
  *@{\ingroup cufo_mod */
 
 extern struct cufo_attr_s cufoP_attr_id;

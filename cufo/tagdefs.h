@@ -21,7 +21,7 @@
 #include <cufo/tag.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cufo_tagdefs_h cufo/tagdefs.h: Predefined Tags
+/*!\defgroup cufo_tagdefs_h cufo/tagdefs.h: Various Tag Definitions
  *@{\ingroup cufo_mod */
 
 /* Generic Inline */

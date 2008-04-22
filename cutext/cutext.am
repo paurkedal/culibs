@@ -69,4 +69,5 @@ EXTRA_DIST += \
 	cutext/UnicodeData.txt
 CLEANFILES += \
 	cutext/chenc_conv.c \
-	cutext/mk_str_enum_conv
+	cutext/mk_str_enum_conv \
+	cutext/wccat_switch.c

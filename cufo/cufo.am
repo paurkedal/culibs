@@ -46,4 +46,4 @@ cufo_stream_t0_LDADD = libcufo.la libcuos.la
 
 endif
 
-EXTRA_DIST += cufo/cufo.am cufo/mktagdefs.pl
+EXTRA_DIST += cufo/cufo.am cufo/mktagdefs.pl cufo/mkattrdefs.pl

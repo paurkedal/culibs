@@ -33,7 +33,7 @@ cufo_open_strip_fd(char const *encoding, int fd)
 cufo_stream_t
 cufo_open_strip_file(char const *encoding, char const *path)
 {
-    cu_dsink_t subsink = cuos_dsink_open(path);
+    cu_dsink_t subsink = cuos_dsink_fopen(path);
     if (!subsink)
 	return NULL;
     return cufo_open_strip_sink(encoding, subsink);
@@ -68,7 +68,7 @@ cufo_stream_t
 cufo_open_text_file(char const *encoding, cufo_textstyle_t style,
 		    char const *path)
 {
-    cu_dsink_t subsink = cuos_dsink_open(path);
+    cu_dsink_t subsink = cuos_dsink_fopen(path);
     if (!subsink)
 	return NULL;
     return cufo_open_text_sink(encoding, style, subsink);
