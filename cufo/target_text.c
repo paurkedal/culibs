@@ -20,6 +20,7 @@
 #include <cufo/textstyle.h>
 #include <cutext/wccat.h>
 #include <cutext/wctype.h>
+#include <cutext/conv.h>
 #include <cuos/dsink.h>
 #include <cucon/hzmap.h>
 #include <cu/inherit.h>
@@ -335,7 +336,7 @@ tx_stream_init(tx_stream_t tos, char const *encoding, cu_dsink_t target_sink,
     if (!encoding)
 	encoding = "UTF-8";
     if (!cu_encoding_is_wchar_compat(encoding)) {
-	target_sink = cuos_dsink_open_iconv(cu_wchar_encoding, encoding,
+	target_sink = cutext_dsink_open_iconv(cu_wchar_encoding, encoding,
 					    target_sink);
 	encoding = cu_wchar_encoding;
     }

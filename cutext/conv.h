@@ -42,6 +42,10 @@ int cutext_iconv_wchar_to_char(cu_wchar_t const **src_arr, size_t *src_size,
 /* Convert a single UCS-4 character to an UTF-8 sequence. */
 int cutext_wchar_to_charr(cu_wchar_t wc, char **dst_arr, size_t *dst_cnt);
 
+cu_dsink_t cutext_dsink_open_iconv(char const *source_encoding,
+				   char const *target_encoding,
+				   cu_dsink_t target_sink);
+
 CU_END_DECLARATIONS
 
 #endif

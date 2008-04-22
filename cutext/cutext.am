@@ -12,6 +12,7 @@ libcutext_la_SOURCES = \
 	cutext/chenc_conv.c \
 	cutext/src.c \
 	cutext/conv.c \
+	cutext/conv_dsink.c \
 	cutext/wccat.c \
 	cutext/wctype.c \
 	cutext/ucs4src.c

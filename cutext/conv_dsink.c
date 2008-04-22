@@ -97,7 +97,7 @@ ic_control(cu_dsink_t sink, int fn, va_list va)
 }
 
 cu_dsink_t
-cuos_dsink_open_iconv(char const *source_encoding, char const *target_encoding,
+cutext_dsink_open_iconv(char const *source_encoding, char const *target_encoding,
 		      cu_dsink_t target_sink)
 {
     ic_dsink_t sink = cu_gnew(struct ic_dsink_s);

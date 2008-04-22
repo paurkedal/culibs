@@ -14,7 +14,6 @@ cuos_sources = \
 	cuos/file.c \
 	cuos/fs.c \
 	cuos/dsink_fd.c \
-	cuos/dsink_iconv.c \
 	cuos/time.c
 
 cuos_check_programs = \

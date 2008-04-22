@@ -30,10 +30,6 @@ cu_dsink_t cuos_dsink_fdopen_close(int fd);
 
 cu_dsink_t cuos_dsink_open(char const *path);
 
-cu_dsink_t cuos_dsink_open_iconv(char const *source_encoding,
-				 char const *target_encoding,
-				 cu_dsink_t target_sink);
-
 /*!@}*/
 CU_END_DECLARATIONS
 
