@@ -107,7 +107,7 @@ static void
 block_cct(block_t block)
 {
     block->state_count = 0;
-    cucon_list_cct(&block->state_list);
+    cucon_list_init(&block->state_list);
     block->target = NULL;
     /* block->selectset_arr is created by block_update */
     /* block->next_to_update is used internally in refine_partition */
@@ -119,7 +119,7 @@ block_cct(block_t block)
 static void
 block_insert_state(block_t block, state_t state)
 {
-    cucon_list_append_node_cct(
+    cucon_list_append_init_node(
 	&block->state_list, cu_to(cucon_listnode, state));
     ++block->state_count;
     state->block = block;
@@ -329,7 +329,7 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 		sp->state = state;
 		sp->e = e;
 		sp->mfvset = NULL;
-		cucon_uset_cct(&sp->fvset);
+		cucon_uset_init(&sp->fvset);
 	    }
 
 	    /* Process subexpressions and add transitions for δ and Δ. */
@@ -495,8 +495,8 @@ refine_partition(int r_max, struct cucon_pset_s *pending_arr)
 		--block_j->state_count;
 		++block_k->state_count;
 		cucon_list_erase_node(cu_to(cucon_listnode, statep));
-		cucon_list_append_node_cct(&block_k->state_list,
-					   cu_to(cucon_listnode, statep));
+		cucon_list_append_init_node(&block_k->state_list,
+					    cu_to(cucon_listnode, statep));
 		statep->block = block_k;
 		cu_dprintf("cuex.optimal_fold",
 			   "Moved state %p from block %p to block %p.",
@@ -727,12 +727,12 @@ cuex_optimal_fold(cuex_t e)
 	return e;
     pending_arr = cu_salloc(sizeof(struct cucon_pset_s)*r_max);
     for (a = 0; a < r_max; ++a)
-	cucon_pset_cct(&pending_arr[a]);
+	cucon_pset_init(&pending_arr[a]);
 
     /* Create initial partition. */
     sp_max = cu_salloc(sizeof(struct initial_frame_s)*depth);
     sp_max += depth;
-    cucon_pmap_cct(&ekey_to_block);
+    cucon_pmap_init(&ekey_to_block);
     block_cct(&lambdavar_block);
     fvmap = cuex_unfolded_fv_sets(e, -1);
     top_state = initial_partition(e, sp_max, sp_max, &ekey_to_block,

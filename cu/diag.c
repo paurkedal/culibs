@@ -340,7 +340,7 @@ void
 cuP_diag_init(void)
 {
     char *s;
-    cucon_umap_cct(&format_map);
+    cucon_umap_init(&format_map);
     if ((s = getenv("CU_VERBOSITY"))) {
 	int i = atoi(s);
 	if (i > 0)

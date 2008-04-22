@@ -23,7 +23,7 @@
 
 
 void
-cucon_priq_cct(cucon_priq_t q, cu_clop(prior, cu_bool_t, void *, void *))
+cucon_priq_init(cucon_priq_t q, cu_clop(prior, cu_bool_t, void *, void *))
 {
     q->prior = prior;
     q->capacity = 0;
@@ -32,7 +32,7 @@ cucon_priq_cct(cucon_priq_t q, cu_clop(prior, cu_bool_t, void *, void *))
 }
 
 void
-cucon_priq_cct_copy(cucon_priq_t q, cucon_priq_t q_src)
+cucon_priq_init_copy(cucon_priq_t q, cucon_priq_t q_src)
 {
     q->prior = q_src->prior;
     q->capacity = q_src->capacity;

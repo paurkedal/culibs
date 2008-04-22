@@ -57,11 +57,11 @@ cucon_po_cct_2elt_cct(cucon_po_t po, cucon_poelt_t bot, cucon_poelt_t top)
     bot->po = po;
     top->po = po;
 #endif
-    cucon_list_cct(&bot->isuccs);
+    cucon_list_init(&bot->isuccs);
     cucon_list_prepend_ptr(&bot->isuccs, top);
-    cucon_list_cct(&bot->ipreds);
-    cucon_list_cct(&top->isuccs);
-    cucon_list_cct(&top->ipreds);
+    cucon_list_init(&bot->ipreds);
+    cucon_list_init(&top->isuccs);
+    cucon_list_init(&top->ipreds);
     cucon_list_prepend_ptr(&top->ipreds, bot);
 }
 
@@ -103,8 +103,8 @@ cucon_po_t (cucon_po_new)(void)        { return cucon_po_new(); }
 void
 cucon_poelt_cct(cucon_poelt_t e)
 {
-    cucon_list_cct(&e->isuccs);
-    cucon_list_cct(&e->ipreds);
+    cucon_list_init(&e->isuccs);
+    cucon_list_init(&e->ipreds);
 #if defined(CUCON_PO_ELT_LINKS_PO) && !defined(CU_NDEBUG)
     e->po = NULL;
 #endif
@@ -114,8 +114,8 @@ cucon_poelt_t
 cucon_poelt_new_alloc(size_t size)
 {
     cucon_poelt_t elt = cu_galloc(sizeof(struct cucon_poelt_s) + size);
-    cucon_list_cct(&elt->isuccs);
-    cucon_list_cct(&elt->ipreds);
+    cucon_list_init(&elt->isuccs);
+    cucon_list_init(&elt->ipreds);
 #if defined(CUCON_PO_ELT_LINKS_PO) && !defined(CU_NDEBUG)
     elt->po = NULL;
 #endif
@@ -184,8 +184,8 @@ cucon_po_insert_cct(cucon_po_t po, cucon_poelt_t e)
 #ifdef CUCON_PO_ELT_LINKS_PO
     e->po = po;
 #endif
-    cucon_list_cct(&e->ipreds);
-    cucon_list_cct(&e->isuccs);
+    cucon_list_init(&e->ipreds);
+    cucon_list_init(&e->isuccs);
     cucon_list_prepend_ptr(&e->ipreds, po->bot);
     cucon_list_prepend_ptr(&e->isuccs, po->top);
     cucon_list_prepend_ptr(&po->bot->isuccs, e);
@@ -283,7 +283,7 @@ cu_bool_t
 cucon_po_prec(cucon_poelt_t e0, cucon_poelt_t e1)
 {
     struct cucon_pmap_s done;
-    cucon_pmap_cct(&done);
+    cucon_pmap_init(&done);
     return po_prec(e0, e1, &done);
 }
 #define po_preceq cucon_po_preceq /* XX */
@@ -347,18 +347,18 @@ cucon_po_constrain_prec(cucon_po_t po, cucon_poelt_t e0, cucon_poelt_t e1)
     if (cucon_po_prec(e0, e1))
 	return cu_true;
 #if 0
-    cucon_pmap_cct(&lspan0);
+    cucon_pmap_init(&lspan0);
     if (po_prec_collect_lspan(e1, e0, &lspan0))
 	return cu_false;
     cucon_pmap_insert_void(&lspan0, e0);
-    cucon_pmap_cct(&uspan1);
+    cucon_pmap_init(&uspan1);
     po_for_succeq_remove_preds_in_pmap(e1, &lspan0, &uspan1);
 #else
-    cucon_pmap_cct(&uspan1);
+    cucon_pmap_init(&uspan1);
     if (po_prec_collect_uspan(e1, e0, &uspan1))
 	return cu_false;
     cucon_pmap_insert_void(&uspan1, e1);
-    cucon_pmap_cct(&lspan0);
+    cucon_pmap_init(&lspan0);
     po_for_preceq_remove_succs_in_pmap(e0, &uspan1, &lspan0);
 #endif
     cucon_list_prepend_ptr(&e0->isuccs, e1);
@@ -457,7 +457,7 @@ cucon_po_range_and_bounds_of_fn(cucon_poelt_t bot, cucon_poelt_t top,
 {
     cucon_pocmp_t *cmp;
     struct cucon_pmap_s cache;
-    cucon_pmap_cct(&cache);
+    cucon_pmap_init(&cache);
     cucon_pmap_insert_mem(&cache, top, sizeof(cucon_pocmp_t), &cmp);
     *cmp = cu_call(cmp_fn, top);
     switch (*cmp) {
@@ -501,17 +501,17 @@ cucon_po_constrain_or_unify(cucon_po_t po, cucon_poelt_t e0, cucon_poelt_t e1,
 	return NULL;
     if (cucon_po_prec(e0, e1))
 	return cu_true;
-    cucon_pmap_cct(&deleted);
+    cucon_pmap_init(&deleted);
     if (cucon_po_open_range_accum(e1, e0, &deleted)) {
 	cucon_pmap_insert_void(deleted, e0);
 	cucon_pmap_insert_void(deleted, e1);
     }
     else {
 	struct cucon_pmap_s lspan0, uspan0;
-	cucon_pmap_cct(&uspan1);
+	cucon_pmap_init(&uspan1);
 	cucon_po_uspan(e1, &uspan1);
 	cucon_pmap_insert_void(&uspan1, e1);
-	cucon_pmap_cct(&lspan0);
+	cucon_pmap_init(&lspan0);
 	po_for_preceq_remove_succs_in_pmap(e0, &uspan1, &lspan0);
 	cucon_list_prepend_ptr(&e0->isuccs, e1);
 	cucon_list_prepend_ptr(&e1->ipreds, e0);
@@ -715,7 +715,7 @@ cucon_po_iter_open_range(cucon_poelt_t low, cucon_poelt_t high,
 			 cu_clop(f, void, cucon_poelt_t))
 {
     struct cucon_pmap_s visit_set;
-    cucon_pmap_cct(&visit_set);
+    cucon_pmap_init(&visit_set);
     po_for_open_range_dw(low, high, f, &visit_set);
 }
 
@@ -724,7 +724,7 @@ cucon_po_iter_left_range(cucon_poelt_t min, cucon_poelt_t high,
 			 cu_clop(f, void, cucon_poelt_t))
 {
     struct cucon_pmap_s visit_set;
-    cucon_pmap_cct(&visit_set);
+    cucon_pmap_init(&visit_set);
     if (po_for_open_range_dw(min, high, f, &visit_set))
 	cu_call(f, min);
 }
@@ -733,7 +733,7 @@ cucon_po_iter_right_range(cucon_poelt_t low, cucon_poelt_t max,
 			  cu_clop(f, void, cucon_poelt_t))
 {
     struct cucon_pmap_s visit_set;
-    cucon_pmap_cct(&visit_set);
+    cucon_pmap_init(&visit_set);
     if (po_for_open_range_dw(low, max, f, &visit_set))
 	cu_call(f, max);
 }
@@ -742,7 +742,7 @@ cucon_po_iter_closed_range(cucon_poelt_t min, cucon_poelt_t max,
 			   cu_clop(f, void, cucon_poelt_t))
 {
     struct cucon_pmap_s visit_set;
-    cucon_pmap_cct(&visit_set);
+    cucon_pmap_init(&visit_set);
     if (min == max)
 	cu_call(f, min);
     else if (po_for_open_range_dw(min, max, f, &visit_set)) {
@@ -791,9 +791,9 @@ cucon_po_topological_succs(cucon_poelt_t e, cu_clop(f, void, cucon_poelt_t))
 {
     struct cucon_priq_s priq;
     struct cucon_pmap_s processed;
-    cucon_priq_cct(&priq,
+    cucon_priq_init(&priq,
 	(cu_clop(, cu_bool_t, void *, void *))cucon_po_topological_prec);
-    cucon_pmap_cct(&processed);
+    cucon_pmap_init(&processed);
     for (;;) {
 	cucon_po_isucc_it_t it;
 	cu_call(f, e);
@@ -814,9 +814,9 @@ cucon_po_topological_preds(cucon_poelt_t e, cu_clop(f, void, cucon_poelt_t))
 {
     struct cucon_priq_s priq;
     struct cucon_pmap_s processed;
-    cucon_priq_cct(&priq,
+    cucon_priq_init(&priq,
 	(cu_clop(, cu_bool_t, void *, void *))cucon_po_topological_succ);
-    cucon_pmap_cct(&processed);
+    cucon_pmap_init(&processed);
     for (;;) {
 	cucon_po_ipred_it_t it;
 	cu_call(f, e);
@@ -870,7 +870,7 @@ cucon_po_pruned_lspanning(cucon_po_t po, cucon_pmap_t S)
 {
     po_pruned_lspanning_cb_t cb;
     cb.pruned_S = cucon_pmap_new();
-    cucon_pmap_cct(&cb.uspan);
+    cucon_pmap_init(&cb.uspan);
     cucon_pmap_iter_keys(S, po_pruned_lspanning_cb_prep(&cb));
     return cb.pruned_S;
 }
@@ -915,7 +915,7 @@ cucon_po_conj_lspan(cucon_po_t po, cucon_pmap_t span,
     cu_bool_t r;
     conj_lspan_pmap_cb_t pmap_cb;
     pmap_cb.cb = cb;
-    cucon_pmap_cct(&pmap_cb.lspan);
+    cucon_pmap_init(&pmap_cb.lspan);
     r = cucon_pmap_conj_keys(span, conj_lspan_pmap_cb_prep(&pmap_cb));
     return r;
 }
@@ -1009,7 +1009,7 @@ cucon_po_open_range_accum(cucon_poelt_t low, cucon_poelt_t high,
 			  cucon_pmap_t S)
 {
     struct cucon_pmap_s visit;
-    cucon_pmap_cct(&visit);
+    cucon_pmap_init(&visit);
     return po_open_range_accum(low, high, S, &visit);
 }
 
@@ -1019,7 +1019,7 @@ cucon_po_open_range(cucon_poelt_t low, cucon_poelt_t high)
     cucon_pmap_t S;
     struct cucon_pmap_s visit;
     S = cucon_pmap_new();
-    cucon_pmap_cct(&visit);
+    cucon_pmap_init(&visit);
     po_open_range_accum(low, high, S, &visit);
     return S;
 }
@@ -1047,8 +1047,8 @@ po_closed_range_and_succs(cucon_poelt_t min, cucon_poelt_t max,
 	}
 	return cu_true;
     }
-    cucon_stack_cct(&maybe_ins_succs);
-    cucon_stack_cct(&maybe_rm_succs);
+    cucon_stack_init(&maybe_ins_succs);
+    cucon_stack_init(&maybe_rm_succs);
     min_in_range = cu_false;
     for (it = cucon_po_isucc_begin(min);
 	 it != cucon_po_isucc_end(min); it = cucon_listnode_next(it)) {
@@ -1093,7 +1093,7 @@ cucon_po_closed_range_and_succs(cucon_poelt_t min, cucon_poelt_t max,
 				cucon_pmap_t range, cucon_pmap_t succs)
 {
     struct cucon_pmap_s cache;
-    cucon_pmap_cct(&cache);
+    cucon_pmap_init(&cache);
     return po_closed_range_and_succs(min, max, range, succs, &cache);
 }
 
@@ -1195,8 +1195,8 @@ cucon_po_ljunctions(cucon_poelt_t e)
 {
     struct cucon_priq_s Q;
     struct cucon_pmap_s reach_map;
-    cucon_pmap_cct(&reach_map);
-    cucon_priq_cct(&Q, cucon_po_topological_succ);
+    cucon_pmap_init(&reach_map);
+    cucon_priq_init(&Q, cucon_po_topological_succ);
     cucon_priq_insert(&Q, e);
     while (!cucon_priq_is_empty(&Q)) {
 	cucon_listnode_t it;
@@ -1231,7 +1231,7 @@ cucon_po_pairwise_inf_of_list(cucon_list_t L)
     size_t N = cucon_list_count(L);
     struct cucon_priq_s Q;
     cu_debug_assert(!cucon_list_is_empty(L) && !cucon_list_is_singular(L));
-    cucon_priq_cct(&Q, cucon_po_topological_succ);
+    cucon_priq_init(&Q, cucon_po_topological_succ);
     i = 0;
     for (it_L = cucon_list_begin(L); it_L != cucon_list_end(L);
 	 it_L = cucon_listnode_next(it_L)) {
@@ -1239,7 +1239,7 @@ cucon_po_pairwise_inf_of_list(cucon_list_t L)
 	cucon_bitvect_t tagvect;
 	if (cucon_pmap_insert_mem(&elt_to_tagvect, e,
 				sizeof(struct cucon_bitvect_s), &tagvect)) {
-	    cucon_bitvect_cct_fill(&tagvect, N);
+	    cucon_bitvect_init_fill(&tagvect, N);
 	    cucon_bitvect_set_at(&tagvect, i, 1);
 	    cucon_priq_insert(&Q, e);
 	    ++i;
@@ -1256,7 +1256,7 @@ cucon_po_pairwise_inf_of_list(cucon_list_t L)
 	    cucon_bitvect_t tagvect_P;
 	    if (cucon_pmap_insert_mem(&elt_to_tagvect, e_P,
 				    sizeof(struct cucon_bitvect_s); &tagvect_P)) {
-		cucon_bitvect_cct_copy(tagvect_P, tagvect);
+		cucon_bitvect_init_copy(tagvect_P, tagvect);
 		cucon_priq_insert(&Q, e_P);
 	    }
 	    else {
@@ -1272,7 +1272,7 @@ cucon_po_ucollect_reachable_ljunctions(cucon_poelt_t elt)
     struct cucon_priq_s Q;
     cucon_pmap_t R = cucon_pmap_new();
     cucon_pmap_t *ljset;
-    cucon_priq_cct(&Q,
+    cucon_priq_init(&Q,
 	(cu_clop(, cu_bool_t, void *, void *))cucon_po_topological_prec);
     cucon_priq_insert(&Q, elt);
     cucon_pmap_insert_mem(R, elt, sizeof(cucon_pmap_t), &ljset);
@@ -1403,7 +1403,7 @@ void
 cucon_po_debug_check_nonredundant(cucon_poelt_t elt)
 {
     check_links_cb_t cb;
-    cucon_pmap_cct(&cb.uspan);
+    cucon_pmap_init(&cb.uspan);
     po_prec_collect_uspan(elt, cucon_po_bot(elt->po), &cb.uspan);
     cb.elt_center = elt;
     cucon_po_topological_preds(elt, check_links_cb_prep(&cb));

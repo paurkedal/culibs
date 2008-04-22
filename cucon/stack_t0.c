@@ -29,7 +29,7 @@ main()
 
     cu_init();
 
-    cucon_stack_cct(&stack);
+    cucon_stack_init(&stack);
 
     for (i = 2; i < 32; ++i) {
 	int j;
@@ -68,7 +68,7 @@ main()
 	--i;
     }
     i = 1000;
-    cucon_stack_cct_copy(&stack_cp, &stack);
+    cucon_stack_init_copy(&stack_cp, &stack);
     while (i > 0) {
 	--i;
 	assert(CUCON_STACK_TOP(&stack, int) == i);

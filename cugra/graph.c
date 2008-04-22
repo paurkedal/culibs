@@ -201,13 +201,13 @@ arcset_erase(cugra_graph_with_arcset_t G,
  * ---------------- */
 
 void
-cugra_graph_cct(cugra_graph_t G, unsigned int gflags)
+cugra_graph_init(cugra_graph_t G, unsigned int gflags)
 {
     G->gflags = gflags;
     if (gflags & CUGRA_GFLAG_SIMPLEARCED)
-	cu_bugf("cugra_graph_cct: CUGRA_GFLAG_SIMPLEARCED is unsupported by "
+	cu_bugf("cugra_graph_init: CUGRA_GFLAG_SIMPLEARCED is unsupported by "
 		"this constructor");
-    cu_dlink_cct_singular(&G->vertices);
+    cu_dlink_init_singleton(&G->vertices);
 }
 
 cugra_graph_t
@@ -220,7 +220,7 @@ cugra_graph_new(unsigned int gflags)
     } else
 	G = cu_gnew(struct cugra_graph_s);
     G->gflags = gflags;
-    cu_dlink_cct_singular(&G->vertices);
+    cu_dlink_init_singleton(&G->vertices);
     return G;
 }
 
@@ -234,8 +234,8 @@ CU_SINLINE void
 cct_vertex(cugra_graph_t G, cugra_vertex_t v)
 {
     cu_dlink_insert_before(&G->vertices, &v->in_graph);
-    cu_dlink_cct_singular(&v->adj_link[0]);
-    cu_dlink_cct_singular(&v->adj_link[1]);
+    cu_dlink_init_singleton(&v->adj_link[0]);
+    cu_dlink_init_singleton(&v->adj_link[1]);
 }
 
 void
@@ -405,7 +405,7 @@ cugra_eliminate_vertex(cugra_graph_t G, cugra_vertex_t v)
 	cugra_vertex_for_inarcs(in, v) {
 	    struct cucon_pset_s V;
 	    cugra_vertex_t v_tail = cugra_arc_tail(in);
-	    cucon_pset_cct(&V);
+	    cucon_pset_init(&V);
 	    cugra_vertex_for_outarcs(out, v_tail)
 		cucon_pset_insert(&V, cugra_arc_head(out));
 	    cugra_vertex_for_outarcs(out, v) {

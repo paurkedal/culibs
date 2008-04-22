@@ -28,7 +28,7 @@ CU_BEGIN_DECLARATIONS
  * collected, the link will be cleared, as manifested by a NULL
  * return from \c cu_weakptr_get(link) */
 CU_SINLINE void
-cu_weakptr_cct(cu_hidden_ptr_t *link, void *ptr)
+cu_weakptr_init(cu_hidden_ptr_t *link, void *ptr)
 {
     *link = cu_hide_ptr(ptr);
     GC_general_register_disappearing_link((void **)link, ptr);
@@ -36,7 +36,7 @@ cu_weakptr_cct(cu_hidden_ptr_t *link, void *ptr)
 
 /*!Construct \a link as a weak pointer with a NULL value. */
 CU_SINLINE void
-cu_weakptr_cct_null(cu_hidden_ptr_t *link)
+cu_weakptr_init_null(cu_hidden_ptr_t *link)
 {
     *link = 0;
 }
@@ -77,6 +77,11 @@ cu_weakptr_get(cu_hidden_ptr_t *link)
     else
 	return NULL;
 }
+
+/*!\deprecated Use cu_weakptr_init. */
+#define cu_weakptr_cct		cu_weakptr_init
+/*!\deprecated Use cu_weakptr_init_null. */
+#define cu_weakptr_cct_null	cu_weakptr_init_null
 
 /*!@}*/
 CU_END_DECLARATIONS

@@ -306,7 +306,7 @@ custo_fread_str_construct(cu_str_t str, FILE *file)
     uintmax_t n;
     if (!custo_fread_uintmax(&n, file))
 	return cu_false;
-    cu_str_cct_uninit(str, n);
+    cu_str_init_uninit(str, n);
     if (fread(str->arr, n, 1, file) != n)
 	return cu_false;
     return cu_true;

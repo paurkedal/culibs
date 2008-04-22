@@ -62,7 +62,7 @@ cu_str_t cu_str_new(void);
 cu_str_t cu_str_onew(void);
 /*!Construct an empty string.  Can be used to create a string on the
  * stack, in static memory or to inline a string in another struct. */
-void cu_str_cct(cu_str_t dest);
+void cu_str_init(cu_str_t dest);
 
 /*!Return a string containing the characters \a cstr to 'cstr + len'. */
 cu_str_t cu_str_new_charr(char const *cstr, size_t len);
@@ -74,11 +74,11 @@ cu_str_t cu_str_new_cstr(char const *cstr);
 cu_str_t cu_str_onew_cstr(char const *cstr);
 
 /*!Create a string from a statically stored C string. */
-cu_str_t cu_str_new_cstr_static(char const *cstr);
-/*!\copydoc cu_str_new_cstr_static*/
-cu_str_t cu_str_onew_cstr_static(char const *cstr);
-/*!\copydoc cu_str_new_cstr_static*/
-void cu_str_cct_cstr_static(cu_str_t str, char const *cstr);
+cu_str_t cu_str_new_static_cstr(char const *cstr);
+/*!\copydoc cu_str_new_static_cstr*/
+cu_str_t cu_str_onew_static_cstr(char const *cstr);
+/*!\copydoc cu_str_new_static_cstr*/
+void cu_str_init_static_cstr(cu_str_t str, char const *cstr);
 
 /*!Create a string and format the contents as \c sprintf. */
 cu_str_t cu_str_new_fmt(char const *fmt, ...);
@@ -90,10 +90,10 @@ cu_str_t cu_str_new_vfmt(char const *fmt, va_list va);
 cu_str_t cu_str_onew_vfmt(char const *fmt, va_list va);
 
 /*!Create a string of \a n uninitialised characters. */
-void cu_str_cct_uninit(cu_str_t str, size_t n);
-/*!\copydoc cu_str_cct_uninit*/
+void cu_str_init_uninit(cu_str_t str, size_t n);
+/*!\copydoc cu_str_init_uninit*/
 cu_str_t cu_str_new_uninit(size_t n);
-/*!\copydoc cu_str_cct_uninit*/
+/*!\copydoc cu_str_init_uninit*/
 cu_str_t cu_str_onew_uninit(size_t n);
 
 /*!Return a copy of \a str. */
@@ -103,7 +103,7 @@ cu_str_t cu_str_onew_copy(cu_str_t str);
 
 /*!Assing \a src to \a dest.  The capacity remains in \a src. */
 void cu_str_assign(cu_str_t dest, cu_str_t src);
-#define cu_str_cct_copy cu_str_assign
+#define cu_str_init_copy cu_str_assign
 
 /*!Return a new string which is the concatenation of \a x and \a y.  The
  * returned string will use the capacity of \a x if sufficient. */
@@ -279,6 +279,19 @@ cu_bool_t cu_nonclos(cu_str_eq_nonclos)(void *, void *);
 cu_hash_t cu_nonclos(cu_str_hash_nonclos)(void *);
 int cu_nonclos(cu_str_cmp_nonclos)(void *, void *);
 int cu_nonclos(cu_str_coll_nonclos)(void *, void *); */
+
+/*!\deprecated Use \ref cu_str_init. */
+#define cu_str_cct		cu_str_init
+/*!\deprecated Use \ref cu_str_init_static_cstr. */
+#define cu_str_cct_cstr_static	cu_str_init_static_cstr
+/*!\deprecated */
+#define cu_str_cct_uninit	cu_str_init_uninit
+/*!\deprecated */
+#define cu_str_cct_copy		cu_str_init_copy
+/*!\deprecated */
+#define cu_str_new_cstr_static	cu_str_new_static_cstr
+/*!\deprecated */
+#define cu_str_onew_cstr_static	cu_str_onew_static_cstr
 
 /*!@}*/
 CU_END_DECLARATIONS

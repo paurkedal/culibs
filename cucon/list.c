@@ -23,17 +23,17 @@
 struct cucon_list_s cuconP_list_empty;
 
 void
-cucon_list_cct(cucon_list_t list)
+cucon_list_init(cucon_list_t list)
 {
     list->eol.next = &list->eol;
     list->eol.prev = &list->eol;
 }
 
 void
-cucon_list_cct_copy_ptr(cucon_list_t dst, cucon_list_t src)
+cucon_list_init_copy_ptr(cucon_list_t dst, cucon_list_t src)
 {
     cucon_listnode_t it;
-    cucon_list_cct(dst);
+    cucon_list_init(dst);
     for (it = cucon_list_begin(src); it != cucon_list_end(src);
 	 it = cucon_listnode_next(it))
 	cucon_list_append_ptr(dst, cucon_listnode_ptr(it));
@@ -43,7 +43,7 @@ cucon_list_t
 cucon_list_new(void)
 {
     cucon_list_t lst = cu_gnew(struct cucon_list_s);
-    cucon_list_cct(lst);
+    cucon_list_init(lst);
     return lst;
 }
 
@@ -58,7 +58,7 @@ cucon_list_swap(cucon_list_t lst0, cucon_list_t lst1)
     if (cucon_list_is_empty(lst0)) {
 	lst0->eol.next = lst1->eol.next;
 	lst0->eol.prev = lst1->eol.prev;
-	cucon_list_cct(lst1);
+	cucon_list_init(lst1);
     }
     else {
 	CU_SWAP(cucon_listnode_t, lst0->eol.next, lst1->eol.next);
@@ -140,7 +140,7 @@ cucon_list_insert_ptr(cucon_listnode_t it, void *ptr)
 }
 
 cucon_listnode_t
-cucon_list_insert_node_cct(cucon_listnode_t it, cucon_listnode_t newnode)
+cucon_list_insert_init_node(cucon_listnode_t it, cucon_listnode_t newnode)
 {
     newnode->next = it;
     newnode->prev = it->prev;
@@ -301,6 +301,6 @@ cucon_list_prepend_list_dct(cucon_list_t lst, cucon_list_t dlst)
 void
 cuconP_list_init(void)
 {
-    cucon_list_cct(&cuconP_list_empty);
+    cucon_list_init(&cuconP_list_empty);
 }
 

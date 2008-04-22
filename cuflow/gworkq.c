@@ -234,7 +234,7 @@ cuflow_gflexq_cct(cuflow_gflexq_t gflexq, cuflow_priority_t initpri)
     cuflow_workq_cct(cu_to(cuflow_workq, gflexq));
     gflexq->priority = initpri;
     gflexq->next = gflexq->prev = NULL;
-    cucon_list_cct(&gflexq->subqueue_list);
+    cucon_list_init(&gflexq->subqueue_list);
 }
 
 cuflow_gflexq_t

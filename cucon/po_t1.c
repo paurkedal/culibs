@@ -29,7 +29,7 @@ po_of_random_ints(unsigned int mask, unsigned int n)
     po = cucon_po_new_mem(sizeof(unsigned int), sizeof(unsigned int));
     *(unsigned int *)cucon_poelt_get_mem(cucon_po_bot(po)) = 0;
     *(unsigned int *)cucon_poelt_get_mem(cucon_po_top(po)) = mask;
-    cucon_list_cct(&lst);
+    cucon_list_init(&lst);
     for (i = 0; i < n; ++i) {
 	cucon_listnode_t it;
 	unsigned int k0 = lrand48() % (mask - 2) + 1;
@@ -112,9 +112,9 @@ random_elt(cucon_po_t po, unsigned int mask)
     pick_first_t first;
     cu_clop(first_clop, cu_bool_t, void const *) = pick_first_prep(&first);
     cmp.k0 = k;
-    cucon_pmap_cct(&range);
-    cucon_pmap_cct(&preds);
-    cucon_pmap_cct(&succs);
+    cucon_pmap_init(&range);
+    cucon_pmap_init(&preds);
+    cucon_pmap_init(&succs);
     cucon_po_range_and_bounds_of_fn(cucon_po_bot(po), cucon_po_top(po),
 				    elt_cmp_prep(&cmp),
 				    &range, &preds, &succs);
@@ -151,8 +151,8 @@ check_closed_range_and_succs()
 	struct cucon_pmap_s range, succs;
 	cucon_poelt_t e0 = random_elt(po, mask);
 	cucon_poelt_t e1 = random_elt(po, mask);
-	cucon_pmap_cct(&range);
-	cucon_pmap_cct(&succs);
+	cucon_pmap_init(&range);
+	cucon_pmap_init(&succs);
 	printf("[%2x, %2x] ",
 	       *(unsigned int *)cucon_poelt_get_mem(e0),
 	       *(unsigned int *)cucon_poelt_get_mem(e1));

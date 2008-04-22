@@ -115,8 +115,8 @@ cugra_walk_SCC(cugra_walk_SCC_t walk_struct,
 
     state.dir = dir;
     state.walk_struct = walk_struct;
-    cucon_stack_cct(&state.cpt_stack);
-    cucon_pmap_cct(&state.vinfo_map);
+    cucon_stack_init(&state.cpt_stack);
+    cucon_pmap_init(&state.vinfo_map);
     state.vertex_stack = NULL;
 
     cugra_graph_for_vertices(v, G)
@@ -144,7 +144,7 @@ graph_of_lists_cpt_new(cugra_detect_SCC_t base)
     graph_of_lists_state_t self;
     self = cu_from(graph_of_lists_state, cugra_detect_SCC, base);
     v = cugra_graph_vertex_new_mem(self->A, sizeof(struct cucon_list_s));
-    cucon_list_cct(cugra_vertex_mem(v));
+    cucon_list_init(cugra_vertex_mem(v));
     return v;
 }
 

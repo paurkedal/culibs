@@ -39,22 +39,22 @@ struct cu_sref_s
 
 /*!Create a source file point reference.  <tt>\a path = NULL</tt> means stdin.
  * \a column may be -1, in which case the reference has line-precision. */
-void cu_sref_cct(cu_sref_t, cu_str_t path, int line, int column);
+void cu_sref_init(cu_sref_t, cu_str_t path, int line, int column);
 
-/*!\copydoc cu_sref_cct */
+/*!\copydoc cu_sref_init */
 cu_sref_t cu_sref_new(cu_str_t path, int line, int column);
 
-/*!\copydoc cu_sref_cct */
+/*!\copydoc cu_sref_init */
 cu_sref_t cu_sref_new_cstr(char const *path, int line, int column);
 
 /*!Create a source file range reference.
  * \pre \a first_column and \a last_column must either be both -1 (for
  * line-precision) or both positive (for column precision). */
-void cu_sref_cct_range(cu_sref_t, cu_str_t path,
-		       int first_line, int first_column,
-		       int last_line, int last_column);
+void cu_sref_init_range(cu_sref_t, cu_str_t path,
+			int first_line, int first_column,
+			int last_line, int last_column);
 
-/*!\copydoc cu_sref_cct_range */
+/*!\copydoc cu_sref_init_range */
 cu_sref_t cu_sref_new_range(cu_str_t path,
 			    int first_line, int first_column,
 			    int last_line, int last_column);
@@ -62,16 +62,16 @@ cu_sref_t cu_sref_new_range(cu_str_t path,
 /*!Create a source file range reference from two source file point references.
  * \pre \a first and \a last must be point references within the same file,
  * and have the same precision and tabstop. */
-void cu_sref_cct_sref_range(cu_sref_t, cu_sref_t first, cu_sref_t last);
+void cu_sref_init_span(cu_sref_t, cu_sref_t first, cu_sref_t last);
 
-/*!\copydoc cu_sref_cct_sref_range */
-cu_sref_t cu_sref_new_sref_range(cu_sref_t first, cu_sref_t last);
+/*!\copydoc cu_sref_init_sref_range */
+cu_sref_t cu_sref_new_span(cu_sref_t first, cu_sref_t last);
 
 /*!Construct \a srf as a point reference to the start of \a src. */
-void cu_sref_cct_sref_first(cu_sref_t srf, cu_sref_t src);
+void cu_sref_init_first(cu_sref_t srf, cu_sref_t src);
 
 /*!Construct \a srf as a point reference to the end of \a src. */
-void cu_sref_cct_sref_last(cu_sref_t srf, cu_sref_t src);
+void cu_sref_init_last(cu_sref_t srf, cu_sref_t src);
 
 /*!Set the start of \a srf to \a first. */
 void cu_sref_set_sref_first(cu_sref_t srf, cu_sref_t first);
@@ -112,7 +112,7 @@ cu_sref_is_known(cu_sref_t srf) { return srf != NULL; }
 
 /*!Construct \a srf as a copy af \a srf0.  Chained references will
  * be shared, so make sure you only modify \a srf itself. */
-void cu_sref_cct_copy(cu_sref_t srf, cu_sref_t srf0);
+void cu_sref_init_copy(cu_sref_t srf, cu_sref_t srf0);
 
 /*!Return a copy of \a srf0. */
 cu_sref_t cu_sref_new_copy(cu_sref_t);
@@ -166,6 +166,21 @@ cu_sref_advance_columns(cu_sref_t sref, int cnt) { sref->column += cnt; }
 /*!Print the source reference \a file in the format file_name:line
  * or, if column is defined, file_name:line:column. */
 void cu_sref_fprint(cu_sref_t, FILE* file);
+
+/*!\deprecated Use \ref cu_sref_init. */
+#define cu_sref_cct		cu_sref_init
+/*!\deprecated Use \ref cu_sref_init_range. */
+#define cu_sref_cct_range	cu_sref_init_range
+/*!\deprecated Use \ref cu_sref_init_span. */
+#define cu_sref_cct_sref_range	cu_sref_init_span
+/*!\deprecated Use \ref cu_sref_init_first. */
+#define cu_sref_cct_sref_first	cu_sref_init_first
+/*!\deprecated Use \ref cu_sref_init_last. */
+#define cu_sref_cct_sref_last	cu_sref_init_last
+/*!\deprecated Use \ref cu_sref_init_copy. */
+#define cu_sref_cct_copy	cu_sref_init_copy
+/*!\deprecated Use \ref cu_sref_new_span. */
+#define cu_serf_new_sref_range	cu_sref_new_span
 
 /*!@}*/
 CU_END_DECLARATIONS

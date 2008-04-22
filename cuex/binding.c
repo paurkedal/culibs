@@ -115,7 +115,7 @@ sifi_indexing(cuex_t e, unsigned int flags, int l_cur, sifi_cr_frame_t sp,
 	    if (frame_ref->fv_level < l_cur) {
 		if (frame_ref->fv_level >= 0)
 		    cucon_list_erase_node(cu_to(cucon_listnode, frame_ref));
-		cucon_list_append_node_cct(&frame_cur->fv_list,
+		cucon_list_append_init_node(&frame_cur->fv_list,
 					   cu_to(cucon_listnode, frame_ref));
 		frame_ref->fv_level = l_cur;
 	    }
@@ -127,7 +127,7 @@ sifi_indexing(cuex_t e, unsigned int flags, int l_cur, sifi_cr_frame_t sp,
 	    /* Create sub-frame (at l_cur + 1) and process sub-expressions. */
 	    frame_cur = sp;
 	    frame_sub = --sp;
-	    cucon_list_cct(&frame_sub->fv_list);
+	    cucon_list_init(&frame_sub->fv_list);
 	    frame_sub->index = 0;
 	    if (e_meta == CUEX_O1_MU) {
 		frame_sub->fv_level = -2;
@@ -205,7 +205,7 @@ sifi_indexing(cuex_t e, unsigned int flags, int l_cur, sifi_cr_frame_t sp,
 		    frame_ref->index = index_p1;
 		cu_debug_assert(frame_ref->fv_level != -2);
 		frame_ref->fv_level = l_cur;
-		cucon_list_append_node_cct(&frame_cur->fv_list, node_ref);
+		cucon_list_append_init_node(&frame_cur->fv_list, node_ref);
 	    }
 	}
 	else

@@ -71,12 +71,12 @@ main()
     l = cu_call(plain, 1010, 1.2);
     assert(l == 1011);
 
-    testfn0_cct(&fn0);
+    testfn0_init(&fn0);
     fn0.k = 10;
     fn0.l = 100;
     assert(cu_call(testfn0_prep(&fn0), 2, 3) == 320);
 
-    testfn1_cct(&fn1);
+    testfn1_init(&fn1);
     fn1.n = 6;
     assert(cu_call(testfn1_prep(&fn1), "4") == 10);
 

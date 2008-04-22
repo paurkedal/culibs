@@ -19,9 +19,9 @@
 #include <cu/wstring.h>
 
 void
-cucon_rumap_cct(cucon_rumap_t rumap)
+cucon_rumap_init(cucon_rumap_t rumap)
 {
-    cucon_pmap_cct(&rumap->pmap);
+    cucon_pmap_init(&rumap->pmap);
     rumap->data = NULL;
 }
 
@@ -29,7 +29,7 @@ cucon_rumap_t
 cucon_rumap_new()
 {
     cucon_rumap_t rumap = cu_gnew(struct cucon_rumap_s);
-    cucon_rumap_cct(rumap);
+    cucon_rumap_init(rumap);
     return rumap;
 }
 
@@ -39,7 +39,7 @@ cucon_rumap_mref(cucon_rumap_t rumap, uintptr_t key)
     cucon_rumap_t sub;
     if (cucon_umap_insert_mem(&rumap->pmap.impl, key,
 			      sizeof(struct cucon_rumap_s), &sub))
-	cucon_rumap_cct(sub);
+	cucon_rumap_init(sub);
     return sub;
 }
 
@@ -50,7 +50,7 @@ cucon_rumap_mref_by_uint8_arr(cucon_rumap_t rumap,
     while (key_cnt) {
 	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
 				  sizeof(struct cucon_rumap_s), &rumap))
-	    cucon_rumap_cct(rumap);
+	    cucon_rumap_init(rumap);
 	++key_arr;
 	--key_cnt;
     }
@@ -64,7 +64,7 @@ cucon_rumap_mref_by_uint16_arr(cucon_rumap_t rumap,
     while (key_cnt) {
 	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
 				  sizeof(struct cucon_rumap_s), &rumap))
-	    cucon_rumap_cct(rumap);
+	    cucon_rumap_init(rumap);
 	++key_arr;
 	--key_cnt;
     }
@@ -78,7 +78,7 @@ cucon_rumap_mref_by_uint32_arr(cucon_rumap_t rumap,
     while (key_cnt) {
 	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
 				  sizeof(struct cucon_rumap_s), &rumap))
-	    cucon_rumap_cct(rumap);
+	    cucon_rumap_init(rumap);
 	++key_arr;
 	--key_cnt;
     }
@@ -93,7 +93,7 @@ cucon_rumap_mref_by_uint64_arr(cucon_rumap_t rumap,
     while (key_cnt) {
 	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
 				  sizeof(struct cucon_rumap_s), &rumap))
-	    cucon_rumap_cct(rumap);
+	    cucon_rumap_init(rumap);
 	++key_arr;
 	--key_cnt;
     }

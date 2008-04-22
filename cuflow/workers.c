@@ -358,9 +358,9 @@ workers_cleanup(void)
 void
 cuflowP_workers_init()
 {
-    cucon_priq_cct(&work_atq, atjob_before_clop);
-    cucon_list_cct(&work_nowlist);
-    cucon_list_cct(&work_scheduler_list);
-    cucon_list_cct(&workers_list);
+    cucon_priq_init(&work_atq, atjob_before_clop);
+    cucon_list_init(&work_nowlist);
+    cucon_list_init(&work_scheduler_list);
+    cucon_list_init(&workers_list);
     atexit(workers_cleanup);
 }

@@ -32,7 +32,7 @@ struct cucon_rumap_s
     void *data;
 };
 
-void cucon_rumap_cct(cucon_rumap_t rmap);
+void cucon_rumap_init(cucon_rumap_t rmap);
 
 cucon_rumap_t cucon_rumap_new(void);
 
@@ -182,6 +182,9 @@ cucon_rumap_conj(cucon_rumap_t rmap,
     return cucon_umap_conj_mem(&rmap->pmap.impl,
 			       (cu_clop(, cu_bool_t, uintptr_t, void *))fn);
 }
+
+/*!\deprecated Use cucon_rumap_init. */
+#define cucon_rumap_cct cucon_rumap_init
 
 /*!@}*/
 CU_END_DECLARATIONS

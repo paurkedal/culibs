@@ -630,7 +630,7 @@ cuex_free_vars_conj(cuex_t ex, cuex_qcset_t qcset, cucon_pset_t excl,
 {
     if (!excl) {
 	excl = cu_salloc(sizeof(struct cucon_pmap_s));
-	cucon_pset_cct(excl);
+	cucon_pset_init(excl);
     }
     return free_vars_conj(ex, qcset, excl, fn);
 }

@@ -27,17 +27,17 @@
 #define cuconP_STACK_CHUNK_SIZE 4096
 
 void
-cucon_stack_cct(cucon_stack_t stack)
+cucon_stack_init(cucon_stack_t stack)
 {
     stack->prev = NULL;
     stack->begin = stack->sp = stack->end = cuconP_STACK_NOADDRESS;
 }
 
 void
-cucon_stack_cct_copy(cucon_stack_t dst, cucon_stack_t src)
+cucon_stack_init_copy(cucon_stack_t dst, cucon_stack_t src)
 {
     char *sp_dst;
-    cucon_stack_cct(dst);
+    cucon_stack_init(dst);
     sp_dst = cucon_stack_alloc(dst, cucon_stack_size(src));
     while (src) {
 	memcpy(sp_dst, src->sp, src->end - src->sp);

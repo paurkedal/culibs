@@ -30,7 +30,7 @@ cutext_ucs4src_cct(cutext_ucs4src_t ucs4src, cutext_producer_t producer,
     if (cutext_src_lookahead(&ucs4src->src, 4)
 	== cutext_status_eos)
 	cutextP_ucs4src_terminate(ucs4src);
-    cu_sref_cct(&ucs4src->srf, path, line, column);
+    cu_sref_init(&ucs4src->srf, path, line, column);
     ucs4src->indentation = -1;
 }
 
@@ -120,7 +120,7 @@ cutext_ucs4src_cct_detect(cutext_ucs4src_t ucs4src,
     if (cutext_src_lookahead(&ucs4src->src, 4)
 	== cutext_status_eos)
 	cutextP_ucs4src_terminate(ucs4src);
-    cu_sref_cct(&ucs4src->srf, path, line, column);
+    cu_sref_init(&ucs4src->srf, path, line, column);
     ucs4src->indentation = -1;
     if (cutext_ucs4src_peek(ucs4src) == 0xfeff)
 	cutext_ucs4src_advance(ucs4src, 1);

@@ -258,7 +258,7 @@ void
 cuP_debug_init()
 {
     char const *s;
-    cucon_hset_cct(&debug_keys,
+    cucon_hset_init(&debug_keys,
 	   (cu_clop(, cu_bool_t, void const *, void const *))cu_cstr_eq_clop,
 	   (cu_clop(, cu_hash_t, void const *))cu_cstr_hash_clop);
     if ((s = getenv("CU_DEBUG_KEYS"))) {

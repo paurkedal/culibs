@@ -47,15 +47,14 @@ cugra_shortest_path(cugra_direction_t dir, cugra_vertex_t v_start,
     struct cucon_priq_s q;
     struct cucon_pmap_s vprop;
     dij_vertex_t dij_v;
-    cucon_pmap_cct(&vprop);
+    cucon_pmap_init(&vprop);
     cucon_pmap_insert_mem(&vprop, v_start, sizeof(struct dij_vertex_s), &dij_v);
     dij_v->colour = cucon_algo_colour_grey;
     dij_v->distance = 0.0;
     dij_v->vertex = v_start;
     dij_v->arc = NULL;
     dij_v->prev = NULL;
-    cucon_priq_cct(&q,
-		   (cu_clop(, cu_bool_t, void *, void *))dij_vertex_prior);
+    cucon_priq_init(&q, (cu_clop(, cu_bool_t, void*, void*))dij_vertex_prior);
     cucon_priq_insert(&q, dij_v);
     while (!cucon_priq_is_empty(&q)) {
 	cugra_vertex_t v;

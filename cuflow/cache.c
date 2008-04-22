@@ -247,7 +247,7 @@ cuflow_cacheconf_cct(cuflow_cacheconf_t conf,
     struct timespec t_now;
 #if 0
     cu_mutex_cct(&conf->cache_link_mutex);
-    cu_dlink_cct_singular(&conf->cache_link);
+    cu_dlink_init_singleton(&conf->cache_link);
 #endif
     clock_gettime(CLOCK_REALTIME, &t_now);
     if (!(*manager)(conf, &t_now))

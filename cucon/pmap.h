@@ -55,16 +55,16 @@ CU_SINLINE void *cucon_pmap_node_key(cucon_pmap_node_t node)
 { return (void *)cucon_umap_node_key(&node->impl); }
 
 /*!Construct \a map as an empty property map. */
-CU_SINLINE void cucon_pmap_cct(cucon_pmap_t map)
-{ cucon_umap_cct(&map->impl); }
+CU_SINLINE void cucon_pmap_init(cucon_pmap_t map)
+{ cucon_umap_init(&map->impl); }
 
 /*!Return an empty property map. */
 CU_SINLINE cucon_pmap_t cucon_pmap_new(void)
 { return (cucon_pmap_t)cucon_umap_new(); }
 
 /*!Construct \a dst as a copy of \a src but dropping all value slots. */
-CU_SINLINE void cucon_pmap_cct_copy_void(cucon_pmap_t dst, cucon_pmap_t src)
-{ return cucon_umap_cct_copy_void(&dst->impl, &src->impl); }
+CU_SINLINE void cucon_pmap_init_copy_void(cucon_pmap_t dst, cucon_pmap_t src)
+{ return cucon_umap_init_copy_void(&dst->impl, &src->impl); }
 
 /*!Return a copy of \a src after dropping all value slots. */
 CU_SINLINE cucon_pmap_t cucon_pmap_new_copy_void(cucon_pmap_t src)
@@ -72,9 +72,9 @@ CU_SINLINE cucon_pmap_t cucon_pmap_new_copy_void(cucon_pmap_t src)
 
 /*!Construct \a dst as a copy of \a src assuming slots are \a slot_size bytes
  * which can be copied with memcpy. */
-CU_SINLINE void cucon_pmap_cct_copy_mem(cucon_pmap_t dst, cucon_pmap_t src,
-					size_t slot_size)
-{ cucon_umap_cct_copy_mem(&dst->impl, &src->impl, slot_size); }
+CU_SINLINE void cucon_pmap_init_copy_mem(cucon_pmap_t dst, cucon_pmap_t src,
+					 size_t slot_size)
+{ cucon_umap_init_copy_mem(&dst->impl, &src->impl, slot_size); }
 
 /*!Return a copy of \a src assuming slots are \a slot_size bytes which can be
  * copied with memcpy. */
@@ -82,21 +82,21 @@ CU_SINLINE cucon_pmap_t cucon_pmap_new_copy_mem(cucon_pmap_t src,
 						size_t slot_size)
 { return (cucon_pmap_t)cucon_umap_new_copy_mem(&src->impl, slot_size); }
 
-/*!\copydoc cucon_umap_cct_copy_mem_ctor */
-CU_SINLINE void cucon_pmap_cct_copy_mem_ctor(
+/*!\copydoc cucon_umap_init_copy_mem_ctor */
+CU_SINLINE void cucon_pmap_init_copy_mem_ctor(
     cucon_pmap_t dst, cucon_pmap_t src, size_t slot_size,
-    cu_clop(value_cct_copy, void, void *dst_slot, void *src_slot,
-				  uintptr_t key))
-{ cucon_umap_cct_copy_mem_ctor(&dst->impl, &src->impl, slot_size,
-			       value_cct_copy); }
+    cu_clop(value_init_copy, void, void *dst_slot, void *src_slot,
+	    uintptr_t key))
+{ cucon_umap_init_copy_mem_ctor(&dst->impl, &src->impl, slot_size,
+				value_init_copy); }
 /* TODO. Fix key argument. */
 
-/*!\copydoc cucon_umap_cct_copy_node */
-CU_SINLINE void cucon_pmap_cct_copy_node(
+/*!\copydoc cucon_umap_init_copy_node */
+CU_SINLINE void cucon_pmap_init_copy_node(
     cucon_pmap_t dst, cucon_pmap_t src,
     cu_clop(node_alloc_copy, cucon_pmap_node_t, void *, uintptr_t))
 {
-    cucon_umap_cct_copy_node(&dst->impl, &src->impl,
+    cucon_umap_init_copy_node(&dst->impl, &src->impl,
 	(cu_clop(, cucon_umap_node_t, void *, uintptr_t))node_alloc_copy);
 }
 /* TODO. Fix key argument. */
@@ -341,6 +341,17 @@ CU_SINLINE cucon_pmap_it_t cucon_pmap_it_next(cucon_pmap_it_t it)
 /*!Dump \a map to \a out assuming keys are \c cu_idr_t and slots are
  * pointers. */
 void cucon_pmap_dump_idr_ptr(cucon_pmap_t map, FILE *out);
+
+/*!\deprecated Use \ref cucon_pmap_init. */
+#define cucon_pmap_cct			cucon_pmap_init
+/*!\deprecated Use \ref cucon_pmap_init_copy_void. */
+#define cucon_pmap_cct_copy_void	cucon_pmap_init_copy_void
+/*!\deprecated Use \ref cucon_pmap_init_copy_mem. */
+#define cucon_pmap_cct_copy_mem		cucon_pmap_init_copy_mem
+/*!\deprecated Use \ref cucon_pmap_init_copy_mem_ctor. */
+#define cucon_pmap_cct_copy_mem_ctor	cucon_pmap_init_copy_mem_ctor
+/*!\deprecated Use \ref cucon_pmap_init_copy_node. */
+#define cucon_pmap_cct_copy_node	cucon_pmap_init_copy_node
 
 /*!@}*/
 CU_END_DECLARATIONS

@@ -324,7 +324,7 @@ void
 cuooP_type_init()
 {
 #if CUOO_ENABLE_KEYED_PROP
-    cucon_umap_cct(&cuooP_property_map);
+    cucon_umap_init(&cuooP_property_map);
 #endif
     cuooP_stdtype_type = cuoo_stdtype_new_self_instance(
 	cuoo_typekind_stdtypeoftypes, cuoo_impl_none);

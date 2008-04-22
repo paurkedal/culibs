@@ -140,8 +140,8 @@ create_MSC_graphs(cuex_subst_t sig, cucon_stack_t KG)
 
     /* Construct graph of variable dependencies. */
     cuex_subst_flatten(sig);
-    cugra_graph_cct(&G_sig, 0);
-    cucon_pmap_cct(&var_to_vertex);
+    cugra_graph_init(&G_sig, 0);
+    cucon_pmap_init(&var_to_vertex);
     /* -- vertices */
     vertex_cb.G = &G_sig;
     vertex_cb.var_to_vertex = &var_to_vertex;
@@ -154,7 +154,7 @@ create_MSC_graphs(cuex_subst_t sig, cucon_stack_t KG)
 
     /* Process each maximally connected subgraph, corresponding to
      * interdependent sets of variables. */
-    cucon_stack_cct(KG);
+    cucon_stack_init(KG);
     cugra_move_MSC_subgraphs(&G_sig, KG);
 }
 
@@ -177,7 +177,7 @@ cuex_subst_render_idempotent(cuex_subst_t sig)
 	CUCON_STACK_POP(&KG, cugra_graph_t);
 
 	/* Collect maximally strongly connected variables. */
-	cucon_pset_cct(&msc_vars);
+	cucon_pset_init(&msc_vars);
 	cugra_graph_for_vertices(vtx, G) {
 	    cuex_veqv_t vq = cugra_vertex_mem(vtx);
 	    cuex_veqv_it_t it;
@@ -188,13 +188,13 @@ cuex_subst_render_idempotent(cuex_subst_t sig)
 
 	/* Mark variables in mimimum feedback vertex set, and associate
 	 * cuex_rvar_t variables with them. */
-	cucon_pset_cct(&mfvs_vertices);
+	cucon_pset_init(&mfvs_vertices);
 	cugra_MFVS(G, &mfvs_vertices);
 	n_V = cucon_pset_size(&mfvs_vertices);
 	veqv_arr = cu_salloc(sizeof(cuex_veqv_t)*n_V);
 	mark_cb.veqv_arr = veqv_arr;
 	mark_cb.i = 0;
-	cucon_pmap_cct(&var_to_rvar);
+	cucon_pmap_init(&var_to_rvar);
 	mark_cb.var_to_rvar = &var_to_rvar;
 	cucon_pset_iter(&mfvs_vertices, mark_veqv_cb_prep(&mark_cb));
 

@@ -29,8 +29,8 @@ struct cucon_rpmap_s
     struct cucon_rumap_s impl;
 };
 
-CU_SINLINE void cucon_rpmap_cct(cucon_rpmap_t rmap)
-{ cucon_rumap_cct(&rmap->impl); }
+CU_SINLINE void cucon_rpmap_init(cucon_rpmap_t rmap)
+{ cucon_rumap_init(&rmap->impl); }
 
 CU_SINLINE cucon_rpmap_t cucon_rpmap_new(void)
 { return (cucon_rpmap_t)cucon_rumap_new(); }
@@ -58,6 +58,9 @@ cucon_rpmap_conj(cucon_rpmap_t rpmap,
     return cucon_pmap_conj_mem(&rpmap->impl.pmap,
 			       (cu_clop(, cu_bool_t, void const *, void *))fn);
 }
+
+/*!\deprecated Use cucon_rpmap_init. */
+#define cucon_rpmap_cct cucon_rpmap_init
 
 /*!@}*/
 CU_END_DECLARATIONS

@@ -69,7 +69,7 @@ cuex_veqv_unify(cuex_veqv_t veqv0, cuex_veqv_t veqv1, cuex_t new_value)
 	veqv1->qcode = veqv0->qcode;
 
     /* varset := vars(veqv1) */
-    cucon_pmap_cct(&varset);
+    cucon_pmap_init(&varset);
     var_link = veqv1->var_link;
     do {
 	cucon_pmap_insert_void(&varset, cucon_slink_get_ptr(var_link));
@@ -114,7 +114,7 @@ cuexP_subst_cct(cuex_subst_t subst, cuex_subst_t src_subst,
     subst->shadowed = src_subst;
     subst->qcset = qcset;
     subst->is_idem = is_idem;
-    cucon_pmap_cct(&subst->var_to_veqv);
+    cucon_pmap_init(&subst->var_to_veqv);
 }
 
 void
@@ -560,7 +560,7 @@ cuex_subst_unblock_all(cuex_subst_t subst)
 {
     if (subst) {
 	unblock_all_cb0_t cb0;
-	cucon_pmap_cct(&cb0.visited);
+	cucon_pmap_init(&cb0.visited);
 	cucon_pmap_iter_ptr(&subst->var_to_veqv, unblock_all_cb0_prep(&cb0));
 	subst = subst->shadowed;
 	while (subst) {
@@ -910,7 +910,7 @@ cuex_subst_iter_veqv(cuex_subst_t subst, cu_clop(cb, void, cuex_veqv_t))
     cu_clop(cb0_clop, void, void const *, void *)
 	= cuex_subst_iter_cb_prep(&cb0);
     cb0.cb = cb;
-    cucon_pmap_cct(&cb0.visited);
+    cucon_pmap_init(&cb0.visited);
     while (subst) {
 	cucon_pmap_iter_ptr(&subst->var_to_veqv, cb0_clop);
 	subst = subst->shadowed;
@@ -950,7 +950,7 @@ cuex_subst_iter_veqv_cache(cuex_subst_t sig, size_t cache_size,
 	= subst_iter_veqv_cache_cb_prep(&cb0);
     if (!sig) return;
     cb0.f = f;
-    cucon_pmap_cct(&cb0.cache);
+    cucon_pmap_init(&cb0.cache);
     cb0.cache_size = cache_size;
     cb0.sig = sig;
     do {
@@ -1028,7 +1028,7 @@ cuex_subst_tran_cache(cuex_subst_t sig, size_t cache_size,
 	= subst_tran_cache_cb_prep(&cb);
     if (!sig) return NULL;
     cb.f = f;
-    cucon_pmap_cct(&cb.cache);
+    cucon_pmap_init(&cb.cache);
     cb.cache_size = cache_size;
     cb.sig = sig;
 #if CUEXOPT_SUBST_TRAN_CLONE
@@ -1173,7 +1173,7 @@ cu_clos_def(subst_check_cb,
 	/* Occur check. */
 	if (veqv->value) {
 	    struct cucon_pmap_s seen;
-	    cucon_pmap_cct(&seen);
+	    cucon_pmap_init(&seen);
 	    cucon_pmap_insert_void(&seen, veqv);
 	    cuexP_subst_check_ex(subst, veqv->value, &seen);
 	}

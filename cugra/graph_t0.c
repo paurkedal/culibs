@@ -109,18 +109,18 @@ test(int vertex_cnt, cu_bool_t do_save)
     cugra_graph_erase_isolated(G);
 
     /* Compute MFVS */
-    cucon_pset_cct(&V);
+    cucon_pset_init(&V);
     cugra_MFVS(G, &V);
 
     /* Compute MSC subgraphs (for displaying) */
-    cucon_stack_cct(&msc_stack);
-    cucon_pmap_cct(&msc_pmap);
+    cucon_stack_init(&msc_stack);
+    cucon_pmap_init(&msc_pmap);
     cugra_identify_MSC(G, &msc_stack, &msc_pmap);
 
     if (do_save) {
 	vertex_label_t vlabel_cb;
 	vlabel_cb.msc_map = &msc_pmap;
-	cucon_pmap_cct(&vlabel_cb.vertex_index_map);
+	cucon_pmap_init(&vlabel_cb.vertex_index_map);
 	vlabel_cb.current_vertex_index = 0;
 	vlabel_cb.mfvs_set = &V;
 	cugra_graph_save_dot(G, vertex_label_prep(&vlabel_cb), cu_clop_null,

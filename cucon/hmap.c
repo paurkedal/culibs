@@ -40,7 +40,7 @@
 #define PRIME3 10000121
 
 void
-cucon_hmap_cct(cucon_hmap_t map,
+cucon_hmap_init(cucon_hmap_t map,
 	       cu_clop(eq, cu_bool_t, void const *, void const *),
 	       cu_clop(hash, cu_hash_t, void const *))
 {
@@ -58,7 +58,7 @@ cucon_hmap_new(cu_clop(eq, cu_bool_t, void const *, void const *),
 	       cu_clop(hash, cu_hash_t, void const *))
 {
     cucon_hmap_t map = cu_galloc(sizeof(struct cucon_hmap_s));
-    cucon_hmap_cct(map, eq, hash);
+    cucon_hmap_init(map, eq, hash);
     return map;
 }
 

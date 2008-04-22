@@ -41,15 +41,15 @@ typedef struct cucon_priq_s *cucon_priq_t;
 
 /*!Construct \a q as a priority queue of elements with priority relation
  * \a prior. */
-void cucon_priq_cct(cucon_priq_t q, cu_clop(prior, cu_bool_t, void *, void *));
+void cucon_priq_init(cucon_priq_t q, cu_clop(prior, cu_bool_t, void *, void *));
 
 /*!Return a priority queue with the priority relation \a prior. */
 cucon_priq_t cucon_priq_new(cu_clop(prior, cu_bool_t, void *, void *));
 
 /*!Construct \a q as a copy of \a src. */
-void cucon_priq_cct_copy(cucon_priq_t q, cucon_priq_t src);
+void cucon_priq_init_copy(cucon_priq_t q, cucon_priq_t src);
 
-/*!Return the prior-relation, as passed to \c cucon_priq_cct. */
+/*!Return the prior-relation, as passed to \c cucon_priq_init. */
 #define cucon_priq_prior(q) (CU_MARG(cucon_priq_t, q)->prior)
 
 /*!Enqueue \a key. */
@@ -72,6 +72,11 @@ CU_SINLINE size_t cucon_priq_count(cucon_priq_t q) { return q->count; }
 void cucon_priq_dump(cucon_priq_t q,
 		     cu_clop(print_key_fn, void, void *key, FILE *out),
 		     FILE *out);
+
+/*!\deprecated Use \ref cucon_priq_init. */
+#define cucon_priq_cct		cucon_priq_init
+/*!\deprecated Use \ref cucon_priq_init_copy. */
+#define cucon_priq_cct_copy	cucon_priq_init_copy
 
 /*!@}*/
 CU_END_DECLARATIONS

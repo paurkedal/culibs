@@ -38,7 +38,7 @@ main()
     sig = cuex_subst_new_uw();
     v0 = cuex_var_to_ex(cuex_var_new(cuex_qcode_active_s));
     v1 = cuex_var_to_ex(cuex_var_new(cuex_qcode_active_s));
-    cucon_pmap_cct(&ex_to_var);
+    cucon_pmap_init(&ex_to_var);
     ins(cuex_opn(cuex_opr(0x100, 2),
 		 cuex_opn(cuex_opr(0x101, 2), v0, v1),
 		 cuex_opn(cuex_opr(0x101, 2), v0, v1)));

@@ -43,7 +43,7 @@ MFVS_reduce_graph(cugra_graph_t G, cucon_pset_t V, cucon_pmap_t vdst_to_vsrc)
 {
     cugra_vertex_t v;
     struct cucon_stack_s KV;
-    cucon_stack_cct(&KV);
+    cucon_stack_init(&KV);
     cugra_graph_for_vertices(v, G)
 	CUCON_STACK_PUSH(&KV, cugra_vertex_t, v);
     while (!cucon_stack_is_empty(&KV)) {
@@ -158,11 +158,11 @@ cugra_MFVS(cugra_graph_t G_src, cucon_pset_t cutset)
     cugra_graph_t G;
     struct cucon_stack_s KG;
     struct cucon_pmap_s vdst_to_vsrc;
-    cugra_graph_cct(&G_dst, 0);
-    cucon_pmap_cct(&vdst_to_vsrc);
+    cugra_graph_init(&G_dst, 0);
+    cucon_pmap_init(&vdst_to_vsrc);
     cugra_graph_copy(G_src, &G_dst, NULL, &vdst_to_vsrc);
     MFVS_reduce_graph(&G_dst, cutset, &vdst_to_vsrc);
-    cucon_stack_cct(&KG);
+    cucon_stack_init(&KG);
     cugra_move_MSC_subgraphs(&G_dst, &KG);
     cu_dprintf("cugra.graph_mfvs", "Start MFVS.");
     while (!cucon_stack_is_empty(&KG)) {
@@ -181,9 +181,9 @@ cugra_MFVS(cugra_graph_t G_src, cucon_pset_t cutset)
 	CUCON_STACK_POP(&KG, cugra_graph_t);
 	v = cugra_graph_vertices_begin(G);
 
-	cucon_pmap_cct(&vinfo_map);
-	cucon_umap_cct(&index_to_vertex);
-	cucon_list_cct(&B);
+	cucon_pmap_init(&vinfo_map);
+	cucon_umap_init(&index_to_vertex);
+	cucon_list_init(&B);
 	init_first_approx(v, &vinfo_map, &index_to_vertex, &B);
 	cur_it_num = 1;
 	B_cnt = cucon_list_count(&B);

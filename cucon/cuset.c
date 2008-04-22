@@ -218,7 +218,7 @@ main(int argc, char **argv)
     cucon_init();
     args.mode = main_mode_undefined;
     args.output = NULL;
-    cucon_list_cct(&args.inputs);
+    cucon_list_init(&args.inputs);
     args.positional = NULL;
     argp_parse(&main_argp, argc, argv, 0, NULL, &args);
     switch (args.mode) {

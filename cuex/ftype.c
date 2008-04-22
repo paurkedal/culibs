@@ -140,7 +140,7 @@ cuex_t
 cuex_ftype_normalise_no_quant(cuex_t e, cu_rank_t *tparam_cnt_out)
 {
     struct cucon_pmap_s tparam_to_index;
-    cucon_pmap_cct(&tparam_to_index);
+    cucon_pmap_init(&tparam_to_index);
     *tparam_cnt_out = 0;
     return extract_and_order_tparam(e, &tparam_to_index, tparam_cnt_out);
 }
@@ -150,7 +150,7 @@ cuex_ftype_normalise_outmost_quant(cuex_t e, cu_rank_t *tparam_cnt_out)
 {
     struct cucon_pmap_s tparam_to_index;
     cu_rank_t i;
-    cucon_pmap_cct(&tparam_to_index);
+    cucon_pmap_init(&tparam_to_index);
     *tparam_cnt_out = 0;
     e = extract_and_order_tparam(e, &tparam_to_index, tparam_cnt_out);
     for (i = 0; i < *tparam_cnt_out; ++i)

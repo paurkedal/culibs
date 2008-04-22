@@ -228,7 +228,7 @@ build_sinktor(cuex_intf_compound_t impl, void *tpl)
 			build_sinktor_put, build_sinktor_finish);
     cu_debug_assert(cuex_is_any_monoid(tpl));
     self->mult = MONOID(tpl)->opr;
-    cucon_list_cct(&self->l);
+    cucon_list_init(&self->l);
     return cu_to(cu_ptr_sinktor, self);
 }
 

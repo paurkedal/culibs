@@ -45,10 +45,10 @@ void cuconP_stack_shrink(cucon_stack_t stack);
 #define cuconP_STACK_NOADDRESS NULL
 
 /*!Construct \a stack as an empty stack. */
-void cucon_stack_cct(cucon_stack_t stack);
+void cucon_stack_init(cucon_stack_t stack);
 
 /*!Construct \a dst as a copy of \a src. */
-void cucon_stack_cct_copy(cucon_stack_t dst, cucon_stack_t src);
+void cucon_stack_init_copy(cucon_stack_t dst, cucon_stack_t src);
 
 /*!True iff stack is empty. */
 CU_SINLINE cu_bool_t cucon_stack_is_empty(cucon_stack_t stack)
@@ -192,6 +192,11 @@ cucon_stack_it_advance(cucon_stack_it_t *it, size_t size)
 	cucon_stack_it_advance(it, sizeof(elt_t))
 
 #define CUCON_STACK_IT_GET(it, elt_t) (*(elt_t*)cucon_stack_it_get(it))
+
+/*\deprecated Use \ref cucon_stack_init. */
+#define cucon_stack_cct		cucon_stack_init
+/*\deprecated Use \ref cucon_stack_init_copy. */
+#define cucon_stack_cct_copy	cucon_stack_init_copy
 
 /*!@}*/
 CU_END_DECLARATIONS

@@ -134,7 +134,7 @@ cu_str_onew_cstr(char const *ptr)
 }
 
 void
-cu_str_cct_cstr_static(cu_str_t str, char const *cstr)
+cu_str_init_static_cstr(cu_str_t str, char const *cstr)
 {
     str->arr = (char*)cstr;
     str->len = strlen(cstr);
@@ -142,7 +142,7 @@ cu_str_cct_cstr_static(cu_str_t str, char const *cstr)
 }
 
 cu_str_t
-cu_str_new_cstr_static(char const *cstr)
+cu_str_new_static_cstr(char const *cstr)
 {
     cu_str_t str = cu_gnew(struct cu_str_s);
     str->arr = (char *)cstr;
@@ -151,7 +151,7 @@ cu_str_new_cstr_static(char const *cstr)
     return str;
 }
 cu_str_t
-cu_str_onew_cstr_static(char const *cstr)
+cu_str_onew_static_cstr(char const *cstr)
 {
     cu_str_t str = cuoo_onew(cu_str);
     str->arr = (char *)cstr;
@@ -161,7 +161,7 @@ cu_str_onew_cstr_static(char const *cstr)
 }
 
 void
-cu_str_cct_uninit(cu_str_t str, size_t n)
+cu_str_init_uninit(cu_str_t str, size_t n)
 {
     str->arr = cu_galloc_a(n + 1);
     str->len = n;
@@ -226,7 +226,7 @@ cu_str_onew_copy(cu_str_t str0)
 #endif
 
 void
-cu_str_cct(cu_str_t str)
+cu_str_init(cu_str_t str)
 {
     str->arr = 0;
     str->len = 0;

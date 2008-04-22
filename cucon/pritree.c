@@ -24,7 +24,7 @@
 
 
 void
-cucon_pritree_cct(cucon_pritree_t pritree)
+cucon_pritree_init(cucon_pritree_t pritree)
 {
     pritree->front = NULL;
     pritree->size = 0;
@@ -248,7 +248,7 @@ cucon_pritree_erase(cucon_pritree_t pritree, cucon_prinode_t prinode)
 }
 
 void
-cucon_pritree_insert_cct(cucon_pritree_t pritree, cucon_prinode_t newprinode,
+cucon_pritree_insert_init(cucon_pritree_t pritree, cucon_prinode_t newprinode,
 		       double priority)
 {
     cucon_prinode_t t = pritree->front;

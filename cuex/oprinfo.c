@@ -34,7 +34,7 @@ void
 cuex_oprinfo_register(cuex_oprinfo_t arr)
 {
     if (!oprinfo_initialised) {
-	cucon_umap_cct(&oprinfo_map);
+	cucon_umap_init(&oprinfo_map);
 	oprinfo_initialised = cu_true;
     }
     while (arr->name) {

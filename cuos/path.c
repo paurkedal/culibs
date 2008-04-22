@@ -34,7 +34,7 @@ cu_str_t
 cuos_path_as_dname(cu_str_t path)
 {
     if (cu_str_size(path) == 0)
-	return cu_str_new_cstr_static("/");
+	return cu_str_new_static_cstr("/");
     else if (cu_str_size(path) == 0 && cu_str_at(path, 0) == '.')
 	return cu_str_new();
     else if (cu_str_at(path, cu_str_size(path)) == '/')
@@ -47,7 +47,7 @@ cu_str_t
 cuos_dname_as_path(cu_str_t dname)
 {
     if (cu_str_size(dname) == 0)
-	return cu_str_new_cstr_static(".");
+	return cu_str_new_static_cstr(".");
     else if (cu_str_at(dname, cu_str_size(dname) - 1) == '/') {
 	if (cu_str_size(dname) == 1)
 	    return dname;

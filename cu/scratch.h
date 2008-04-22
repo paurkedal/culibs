@@ -43,7 +43,7 @@ struct cu_scratch_s
 
 /*!Alternative to \ref CU_SCRATCH_INIT. */
 CU_SINLINE void
-cu_scratch_cct(cu_scratch_t scr) { scr->size = 0; scr->ptr = NULL; }
+cu_scratch_init(cu_scratch_t scr) { scr->size = 0; scr->ptr = NULL; }
 
 /*!The size of \a scr. */
 CU_SINLINE size_t cu_scratch_size(cu_scratch_t scr) { return scr->size; }
@@ -94,6 +94,9 @@ cu_scratch_realloc_log(cu_scratch_t scr, size_t size)
 	cuP_scratch_realloc_log(scr, size);
     return scr->ptr;
 }
+
+/*!\deprecated Use \ref cu_scratch_init. */
+#define cu_scratch_cct cu_scratch_init
 
 /*!@}*/
 CU_END_DECLARATIONS

@@ -88,7 +88,7 @@ struct cugra_arc_s
 
 /*!Construct \a G as an empty graph.  This constructor does not support the
  * \ref CUGRA_GFLAG_SIMPLEARCED flag, use \ref cugra_graph_new in that case. */
-void cugra_graph_cct(cugra_graph_t G, unsigned int gflags);
+void cugra_graph_init(cugra_graph_t G, unsigned int gflags);
 
 /*!Return an empty graph. */
 cugra_graph_t cugra_graph_new(unsigned int gflags);
@@ -361,6 +361,8 @@ cugra_arc_t cugra_graph_arcs_next(cugra_graph_t G, cugra_arc_t a);
 #  define cugra_vertex_inoutarcs_for	cugra_vertex_for_inoutarcs
 #  define cugra_graph_vertices_for	cugra_graph_for_vertices
 #endif
+#define cugra_graph_cct cugra_graph_init
+
 CU_END_DECLARATIONS
 
 #endif

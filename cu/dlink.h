@@ -53,7 +53,7 @@ struct cu_dlink_s
 /*!Initialise \a l_init as a link with next and prev pointing to itself.  This
  * is typically used as the head of doubly linked lists. */
 CU_SINLINE void
-cu_dlink_cct_singular(cu_dlink_t l_init)
+cu_dlink_init_singleton(cu_dlink_t l_init)
 {
     l_init->next = l_init->prev = l_init;
 }
@@ -129,6 +129,8 @@ cu_dlink_insert_list_after(cu_dlink_t l, cu_dlink_t l_head)
     l->next = l_head->next;
     cu_debug_dlink_invalidate(l_head);
 }
+
+#define cu_dlink_cct_singular cu_dlink_init_singleton
 
 CU_END_DECLARATIONS
 

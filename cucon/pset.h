@@ -29,16 +29,16 @@ CU_BEGIN_DECLARATIONS
 struct cucon_pset_s { struct cucon_umap_s impl; };
 
 /*!Constructs \a set as an empty set. */
-CU_SINLINE void cucon_pset_cct(cucon_pset_t set)
-{ cucon_umap_cct(&set->impl); }
+CU_SINLINE void cucon_pset_init(cucon_pset_t set)
+{ cucon_umap_init(&set->impl); }
 
 /*!Returns an empty set. */
 CU_SINLINE cucon_pset_t cucon_pset_new(void)
 { return (cucon_pset_t)cucon_umap_new(); }
 
 /*!Constructs \a set as a copy of \a src_set. */
-CU_SINLINE void cucon_pset_cct_copy(cucon_pset_t set, cucon_pset_t src_set)
-{ cucon_umap_cct_copy_void(&set->impl, &src_set->impl); }
+CU_SINLINE void cucon_pset_init_copy(cucon_pset_t set, cucon_pset_t src_set)
+{ cucon_umap_init_copy_void(&set->impl, &src_set->impl); }
 
 /*!Returns a copy of \a src_set. */
 CU_SINLINE cucon_pset_t cucon_pset_new_copy(cucon_pset_t src_set)
@@ -132,6 +132,11 @@ cucon_pset_assign_isecn(cucon_pset_t dst, cucon_pset_t src)
 CU_SINLINE void
 cucon_pset_assign_union(cucon_pset_t dst, cucon_pset_t src)
 { cucon_umap_assign_union_void(&dst->impl, &src->impl); }
+
+/*!\deprecated Use \ref cucon_pset_init. */
+#define cucon_pset_cct		cucon_pset_init
+/*!\deprecated Use \ref cucon_pset_init_copy. */
+#define cucon_pset_cct_copy	cucon_pset_init_copy
 
 /*!@}*/
 CU_END_DECLARATIONS

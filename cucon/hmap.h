@@ -46,9 +46,13 @@ struct cucon_hmap_s
     struct cucon_hmap_node_s tail;
 };
 
-void cucon_hmap_cct(cucon_hmap_t hm,
-		    cu_clop(eq, cu_bool_t, void const *, void const *),
-		    cu_clop(hash, cu_hash_t, void const *));
+/*!Initialise \a map as a hash set over objects with equality \a eq and hash
+ * function \a hash. */
+void cucon_hmap_init(cucon_hmap_t map,
+		     cu_clop(eq, cu_bool_t, void const *, void const *),
+		     cu_clop(hash, cu_hash_t, void const *));
+
+/*!\deprecated */
 void cucon_hmap_dct_free(cucon_hmap_t);
 
 /*!Return a hash set over objects with equality defined by \a eq and hash
@@ -97,6 +101,9 @@ struct cucon_hmap_itr_s
     cucon_hmap_node_t node;
 };
 #endif
+
+/*!\deprecated Use \ref cucon_hmap_init. */
+#define cucon_hmap_cct cucon_hmap_init
 
 /*!@}*/
 CU_END_DECLARATIONS

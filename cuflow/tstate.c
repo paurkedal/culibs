@@ -41,7 +41,7 @@ tstate_cct(cuflow_tstate_t tstate)
 	cu_dlink_insert_before(cuflowP_tstate_chain, cu_to(cu_dlink, tstate));
     else {
 	cuflowP_tstate_chain = cu_to(cu_dlink, tstate);
-	cu_dlink_cct_singular(cu_to(cu_dlink, tstate));
+	cu_dlink_init_singleton(cu_to(cu_dlink, tstate));
     }
     cu_mutex_unlock(&cuflowP_tstate_chain_mutex);
 }

@@ -79,8 +79,8 @@ test_isecn_union()
     uintptr_t sum = 0;
     test_isecn_union_cb_t cb;
     cu_clop(cb_clop, void, uintptr_t) = test_isecn_union_cb_prep(&cb);
-    cucon_umap_cct(&S);
-    cucon_umap_cct(&T);
+    cucon_umap_init(&S);
+    cucon_umap_init(&T);
     for (n = 0; n < N; ++n) {
 	uintptr_t key = lrand48() % N;
 	if (key & 1) {

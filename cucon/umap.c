@@ -85,7 +85,7 @@ typedef unsigned long cucon_pmap_hash_t;
  * ============== */
 
 void
-cucon_umap_cct(cucon_umap_t umap)
+cucon_umap_init(cucon_umap_t umap)
 {
     umap->arr = cu_galloc(sizeof(cucon_umap_node_t)
 			   *(MIN_SIZE + 1));
@@ -99,12 +99,12 @@ cucon_umap_t
 cucon_umap_new()
 {
     cucon_umap_t umap = cu_galloc(sizeof(struct cucon_umap_s));
-    cucon_umap_cct(umap);
+    cucon_umap_init(umap);
     return umap;
 }
 
 void
-cucon_umap_cct_copy_void(cucon_umap_t dst, cucon_umap_t src)
+cucon_umap_init_copy_void(cucon_umap_t dst, cucon_umap_t src)
 {
     size_t N = src->mask;
     size_t n;
@@ -130,12 +130,12 @@ cucon_umap_t
 cucon_umap_new_copy_void(cucon_umap_t src)
 {
     cucon_umap_t dst = cu_gnew(struct cucon_umap_s);
-    cucon_umap_cct_copy_void(dst, src);
+    cucon_umap_init_copy_void(dst, src);
     return dst;
 }
 
 void
-cucon_umap_cct_copy_mem(cucon_umap_t dst, cucon_umap_t src, size_t slot_size)
+cucon_umap_init_copy_mem(cucon_umap_t dst, cucon_umap_t src, size_t slot_size)
 {
     size_t N = src->mask;
     size_t n;
@@ -159,7 +159,7 @@ cucon_umap_cct_copy_mem(cucon_umap_t dst, cucon_umap_t src, size_t slot_size)
 }
 
 void
-cucon_umap_cct_copy_mem_ctor(
+cucon_umap_init_copy_mem_ctor(
     cucon_umap_t dst, cucon_umap_t src, size_t slot_size,
     cu_clop(value_cct_copy, void, void *, void *, uintptr_t))
 {
@@ -189,7 +189,7 @@ cucon_umap_cct_copy_mem_ctor(
 }
 
 void
-cucon_umap_cct_copy_node(
+cucon_umap_init_copy_node(
     cucon_umap_t dst, cucon_umap_t src,
     cu_clop(node_new_copy, cucon_umap_node_t, void *, uintptr_t))
 {

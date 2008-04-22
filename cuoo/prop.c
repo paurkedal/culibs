@@ -21,7 +21,7 @@
 void
 cuoo_prop_cct(cuoo_prop_t prop)
 {
-    cucon_pmap_cct(&prop->pmap);
+    cucon_pmap_init(&prop->pmap);
     cu_rarex_cct(&prop->rarex);
 }
 

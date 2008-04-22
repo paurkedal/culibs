@@ -41,7 +41,7 @@ struct cucon_prinode_s
 };
 
 /*!Construct an empty tree. */
-void cucon_pritree_cct(cucon_pritree_t pritree);
+void cucon_pritree_init(cucon_pritree_t pritree);
 
 /*!Return an empty tree. */
 cucon_pritree_t cucon_pritree_new(void);
@@ -63,9 +63,9 @@ void cucon_pritree_pop(cucon_pritree_t pritree);
 
 /*!Construct \a prinode with priority \a priority and insert it into
  * \a pritree. */
-void cucon_pritree_insert_cct(cucon_pritree_t pritree,
-			      cucon_prinode_t prinode,
-			      double priority);
+void cucon_pritree_insert_init(cucon_pritree_t pritree,
+			       cucon_prinode_t prinode,
+			       double priority);
 
 /*!Erase \a prinode from \a pritree. */
 void cucon_pritree_erase(cucon_pritree_t pritree, cucon_prinode_t prinode);
@@ -90,6 +90,11 @@ cu_bool_t cucon_prinode_conj_down_to(cucon_prinode_t prinode,
 
 /*!Debug dump. */
 void cucon_pritree_dump_priorities(cucon_pritree_t pritree, FILE *out);
+
+/*!\deprecated */
+#define cucon_pritree_cct		cucon_pritree_init
+/*!\deprecated */
+#define cucon_pritree_insert_cct	cucon_pritree_insert_init
 
 /*!@}*/
 CU_END_DECLARATIONS

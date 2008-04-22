@@ -35,10 +35,10 @@ struct cucon_hset_s
 /*!Constructs a hash set with equality predicate \a eq and hash function \a
  * hash. */
 CU_SINLINE void
-cucon_hset_cct(cucon_hset_t set,
-	       cu_clop(eq, cu_bool_t, void const *, void const *),
-	       cu_clop(hash, cu_hash_t, void const *))
-{ return cucon_hmap_cct(&set->impl, eq, hash); }
+cucon_hset_init(cucon_hset_t set,
+		cu_clop(eq, cu_bool_t, void const *, void const *),
+		cu_clop(hash, cu_hash_t, void const *))
+{ return cucon_hmap_init(&set->impl, eq, hash); }
 
 /*!Returns a hash set with equality predicate \a eq and hash function
  * \a hash. */
@@ -92,6 +92,9 @@ cucon_hset_conj(cucon_hset_t set,
 cu_bool_t cucon_hset_eq(cucon_hset_t hs0, cucon_hset_t hs1);	/* = */
 cu_bool_t cucon_hset_sub(cucon_hset_t hs0, cucon_hset_t hs1);	/* ⊂ */
 cu_bool_t cucon_hset_subeq(cucon_hset_t hs0, cucon_hset_t hs1);	/* ⊆ */
+
+/*!\deprecated Use cucon_hset_init */
+#define cucon_hset_cct cucon_hset_init
 
 /*!@}*/
 #endif

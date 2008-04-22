@@ -82,7 +82,7 @@ compute_FBI(cuex_t e, int depth, FBI_t fbi, cucon_pmap_t e_to_fbi)
 		link->depth = depth;
 		fbi->sub_chain = link;
 		if (ist) {
-		    cucon_uset_cct(&sub_fbi->fvset);
+		    cucon_uset_init(&sub_fbi->fvset);
 		    sub_fbi->sub_chain = NULL;
 		    sub_fbi->e = e;
 		    compute_FBI(cuex_opn_at(e, 0), 0, sub_fbi, e_to_fbi);
@@ -164,7 +164,7 @@ compute_UBI(FBI_link_t fbi_link, cuex_t super_fiictx,
 	    cu_dprintf("cuex.binding_info", "Enter frame %d", sp_max - sp);
 	    cu_debug_assert(fbi_link->depth > 0);
 	    cu_debug_assert(sp >= sp_min);
-	    cucon_uset_cct(lambda_vars);
+	    cucon_uset_init(lambda_vars);
 	    sp[0] = lambda_vars;
 	    mvar_cb.target = lambda_vars;
 	    mvar_cb.sp = sp;
@@ -189,8 +189,8 @@ cuex_unfolded_fv_sets(cuex_t e, int max_binding_depth)
     cucon_uset_t *usp_min, *usp_max;
 
     /* Compute flat binding info. */
-    cucon_uset_cct(&top_fbi.fvset);
-    cucon_pmap_cct(&e_to_fbi);
+    cucon_uset_init(&top_fbi.fvset);
+    cucon_pmap_init(&e_to_fbi);
     top_fbi.sub_chain = NULL;
     top_fbi.e = NULL;
     compute_FBI(e, 0, &top_fbi, &e_to_fbi);

@@ -62,7 +62,7 @@ CU_BEGIN_DECLARATIONS
 
 /*!Construct the \a rarex lock. */
 CU_SINLINE void
-cu_rarex_cct(cu_rarex_t *rarex) { AO_store(rarex, 0); }
+cu_rarex_init(cu_rarex_t *rarex) { AO_store(rarex, 0); }
 
 void cuP_rarex_lock_read(cu_rarex_t *);	/*!<\private*/
 void cuP_rarex_lock_write(cu_rarex_t *);	/*!<\private*/
@@ -137,6 +137,9 @@ cu_rarex_try_promote(cu_rarex_t *rarex)
 {
     return AO_compare_and_swap_full(rarex, 1, cuP_RAREX_WRITE_MULTIPLIER);
 }
+
+/*!\deprecated Use cu_rarex_init. */
+#define cu_rarex_cct cu_rarex_init
 
 /*!@}*/
 CU_END_DECLARATIONS

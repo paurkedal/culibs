@@ -49,7 +49,7 @@ test(int N, int J, cu_bool_t do_print)
 {
     struct cucon_pset_s set;
     cuex_t e0, e1, e_meet, e_join;
-    cucon_pset_cct(&set);
+    cucon_pset_init(&set);
     e0 = build(N, J, &set);
     e1 = build(N, J, &set);
     e_meet = cuex_meetlattice_meet(MEET, e0, e1);

@@ -43,7 +43,7 @@ test(int N, cu_bool_t print)
     int i;
     cuex_t e = cuex_atree_empty();
 
-    cucon_pset_cct(&keys);
+    cucon_pset_init(&keys);
     for (i = 0; i < N; ++i) {
 	cuex_t key;
 	cuex_t val;

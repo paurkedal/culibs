@@ -26,7 +26,7 @@ main()
     cucon_listnode_t it;
 
     cu_init();
-    cucon_list_cct(&list);
+    cucon_list_init(&list);
     cucon_list_append_ptr(&list, "beta");
     cucon_list_prepend_ptr(&list, "alpha");
     it = cucon_list_append_mem(&list, sizeof(void*));

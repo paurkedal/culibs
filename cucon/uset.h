@@ -32,16 +32,16 @@ CU_BEGIN_DECLARATIONS
 struct cucon_uset_s { struct cucon_umap_s impl; };
 
 /*!Constructs \a set as an empty set. */
-CU_SINLINE void cucon_uset_cct(cucon_uset_t set)
-{ cucon_umap_cct(&set->impl); }
+CU_SINLINE void cucon_uset_init(cucon_uset_t set)
+{ cucon_umap_init(&set->impl); }
 
 /*!Returns an empty set. */
 CU_SINLINE cucon_uset_t cucon_uset_new(void)
 { return (cucon_uset_t)cucon_umap_new(); }
 
 /*!Constructs \a set as a copy of \a src_set. */
-CU_SINLINE void cucon_uset_cct_copy(cucon_uset_t set, cucon_uset_t src_set)
-{ cucon_umap_cct_copy_void(&set->impl, &src_set->impl); }
+CU_SINLINE void cucon_uset_init_copy(cucon_uset_t set, cucon_uset_t src_set)
+{ cucon_umap_init_copy_void(&set->impl, &src_set->impl); }
 
 /*!Returns a copy of \a src_set. */
 CU_SINLINE cucon_uset_t cucon_uset_new_copy(cucon_uset_t src_set)
@@ -145,6 +145,11 @@ cucon_uset_print(cucon_uset_t set, FILE *out)
 CU_SINLINE void
 cucon_uset_dump_stats(cucon_uset_t set, FILE *out)
 { cucon_umap_dump_stats(&set->impl, out); }
+
+/*!\deprecated Use \ref cucon_uset_init. */
+#define cucon_uset_cct		cucon_uset_init
+/*!\deprecated Use \ref cucon_uset_init_copy. */
+#define cucon_uset_cct_copy	cucon_uset_init_copy
 
 /*!@}*/
 CU_END_DECLARATIONS

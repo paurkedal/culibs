@@ -92,8 +92,8 @@ hcset_insert(cu_hcset_t hcset, void *obj)
 	    if (coll_obj) {
 		cu_hcnode_t new_node = cu_gnew(struct cu_hcnode_s);
 		cu_weakptr_dct_even(&new_link->obj);
-		cu_weakptr_cct(&new_node->obj, obj);
-		cu_weakptr_cct(&new_node->next.obj, coll_obj);
+		cu_weakptr_init(&new_node->obj, obj);
+		cu_weakptr_init(&new_node->next.obj, coll_obj);
 		new_link->node = new_node;
 	    }
 	    else
@@ -101,7 +101,7 @@ hcset_insert(cu_hcset_t hcset, void *obj)
 	}
 	else {
 	    cu_hcnode_t new_node = cu_gnew(struct cu_hcnode_s);
-	    cu_weakptr_cct(&new_node->obj, obj);
+	    cu_weakptr_init(&new_node->obj, obj);
 	    new_node->next.node = new_link->node;
 	    new_link->node = new_node;
 	}
@@ -167,7 +167,7 @@ cu_hcset_adjust(cu_hcset_t hcset)
 		    obj = cu_weakptr_get(&node->next.obj);
 		    if (obj) {
 			cu_weakptr_dct_even(&node->next.obj);
-			cu_weakptr_cct(&l->obj, obj);
+			cu_weakptr_init(&l->obj, obj);
 			++cnt;
 		    }
 		    else
@@ -232,7 +232,7 @@ halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
 	    else if (!obj_link) {
 		cu_weakptr_clear_even(&link->obj);
 		node = cu_gnew(struct cu_hcnode_s);
-		cu_weakptr_cct(&node->obj, obj);
+		cu_weakptr_init(&node->obj, obj);
 		link->node = node;
 		obj_link = &node->next.obj;
 	    }
@@ -244,7 +244,7 @@ halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
     obj = cuexP_oalloc(meta, size);
     cu_wordarr_copy(key_sizew, CUOO_HCOBJ_KEY(obj), key);
     cu_call(init_nonkey, obj);
-    cu_weakptr_cct(obj_link, obj);
+    cu_weakptr_init(obj_link, obj);
     ++cuooP_hcset.insert_cnt;
     cu_hcset_unlock(&cuooP_hcset);
     if (cuooP_hcset.insert_cnt*4 > cuooP_hcset.mask)

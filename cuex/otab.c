@@ -86,7 +86,7 @@ cuex_otab_cct(cuex_otab_t tab, int width,
 	      void (*error)(cuex_otab_t, cu_sref_t, char const *msg, ...))
 {
     cuex_otab_range_t all;
-    cucon_pmap_cct(&tab->env);
+    cucon_pmap_init(&tab->env);
     all = cu_from2(cuex_otab_range, cuex_otab_simplerange, cuex_otab_def,
 		   otab_allocdef(tab, cu_idr_by_cstr("__all"), NULL,
 				 cuex_otab_range_kind,
@@ -96,8 +96,8 @@ cuex_otab_cct(cuex_otab_t tab, int width,
     SIMPLERANGE(all)->range_min = 0;
     SIMPLERANGE(all)->range_maxp1 = 1 << width;
     cucon_rbset_cct(&SIMPLERANGE(all)->subrange_set, simplerange_cmp);
-    cucon_list_cct(&all->prop_list);
-    cucon_list_cct(&all->opr_list);
+    cucon_list_init(&all->prop_list);
+    cucon_list_init(&all->opr_list);
     tab->name = NULL;
     tab->is_extern = cu_false;
     tab->all_width = width;
@@ -199,8 +199,8 @@ cuex_otab_defrange(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
     if (!simplerange_cct(tab, cu_to(cuex_otab_simplerange, rng),
 			 super, rel_min, rel_maxp1))
 	return NULL;
-    cucon_list_cct(&rng->prop_list);
-    cucon_list_cct(&rng->opr_list);
+    cucon_list_init(&rng->prop_list);
+    cucon_list_init(&rng->opr_list);
     return rng;
 }
 
@@ -263,8 +263,8 @@ cuex_otab_reserve(cuex_otab_t tab, cu_sref_t sref, cuex_otab_range_t super,
 	return cu_false;
     rsv->is_full = is_full;
     cucon_arr_cct_empty(&rsv->freemask);
-    cucon_bitvect_cct_fill(&rsv->all_freemask, rel_maxp1 - rel_min, cu_true);
-    cucon_bitvect_cct_fill(&rsv->multi_freemask, rel_maxp1 - rel_min, cu_true);
+    cucon_bitvect_init_fill(&rsv->all_freemask, rel_maxp1 - rel_min, cu_true);
+    cucon_bitvect_init_fill(&rsv->multi_freemask, rel_maxp1 - rel_min, cu_true);
     return cu_true;
 }
 
@@ -315,7 +315,7 @@ cu_clos_def(alloc_in_reservation,
 	    cu_dprintf("cuex.otab", "RSV %p: Expanding to arity %d",
 		       rsv, self->r);
 	    do
-		cucon_bitvect_cct_copy(bv++, &rsv->multi_freemask);
+		cucon_bitvect_init_copy(bv++, &rsv->multi_freemask);
 	    while (++i <= self->r);
 	    --bv;
 	}

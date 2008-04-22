@@ -223,7 +223,7 @@ tuptype_cct_glck(cudyn_tuptype_t t)
     cuex_t ex;
 
     ex = cudyn_tuptype_to_type(t)->as_expr;
-    cucon_pmap_cct(&t->scomp_map);
+    cucon_pmap_init(&t->scomp_map);
 #if 0
     if (ex == cuex_o0_gunit()) { /* XXX */
 	lyo = NULL;
@@ -415,7 +415,7 @@ duntype_cct_glck(cudyn_duntype_t duntype)
     duntype_cct_cb_t cb;
     cuex_t ex = cudyn_duntype_to_type(duntype)->as_expr;
     cu_debug_assert(cuex_meta(ex) == CUEX_O4ACI_DUNION);
-    cucon_pmap_cct(&duntype->idr_to_part);
+    cucon_pmap_init(&duntype->idr_to_part);
     cb.lyo = NULL;
     cb.t = duntype;
     cb.cnum = 0;

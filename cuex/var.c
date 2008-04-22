@@ -44,5 +44,5 @@ cuex_register_xvarkind(cuex_meta_t subkind, unsigned int wsize,
 void
 cuexP_var_init(void)
 {
-    cucon_umap_cct(&cuexP_xvarops);
+    cucon_umap_init(&cuexP_xvarops);
 }

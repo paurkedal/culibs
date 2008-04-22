@@ -90,11 +90,11 @@ typedef void (**cu_clop_generic_t)();
 									\
     linkage res_t name##_fn cuP_jargl(alops, parl, name##_t *);		\
 									\
-    CU_SINLINE void name##_cct(name##_t *self)				\
+    CU_SINLINE void name##_init(name##_t *self)				\
     { self->cuL_fn = (res_t (*)cuP_clos_formal(alops, parl))name##_fn;}	\
 									\
     CU_SINLINE name##_clop_t name##_prep(name##_t *self)		\
-    { name##_cct(self); return &self->cuL_fn; }				\
+    { name##_init(self); return &self->cuL_fn; }			\
 									\
     CU_SINLINE name##_clop_t name##_ref(name##_t *self)			\
     { return &self->cuL_fn; }

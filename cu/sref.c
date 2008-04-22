@@ -21,7 +21,7 @@
 
 
 void
-cu_sref_cct(cu_sref_t srf, cu_str_t path, int line, int column)
+cu_sref_init(cu_sref_t srf, cu_str_t path, int line, int column)
 {
     srf->chain_tail = NULL;
     srf->path = path;
@@ -53,7 +53,7 @@ cu_sref_new_cstr(char const *path, int line, int column)
 }
 
 void
-cu_sref_cct_range(cu_sref_t srf, cu_str_t path,
+cu_sref_init_range(cu_sref_t srf, cu_str_t path,
 		  int first_line, int first_column,
 		  int last_line, int last_column)
 {
@@ -73,13 +73,13 @@ cu_sref_new_range(cu_str_t path,
 		  int last_line, int last_column)
 {
     cu_sref_t srf = cu_gnew(struct cu_sref_s);
-    cu_sref_cct_range(srf, path,
+    cu_sref_init_range(srf, path,
 		      first_line, first_column, last_line, last_column);
     return srf;
 }
 
 void
-cu_sref_cct_sref_range(cu_sref_t srf, cu_sref_t first, cu_sref_t last)
+cu_sref_init_span(cu_sref_t srf, cu_sref_t first, cu_sref_t last)
 {
     cu_debug_assert(cu_sref_compatible(first, last));
     srf->chain_tail = NULL;
@@ -100,12 +100,12 @@ cu_sref_t
 cu_sref_new_sref_range(cu_sref_t first, cu_sref_t last)
 {
     cu_sref_t srf = cu_gnew(struct cu_sref_s);
-    cu_sref_cct_sref_range(srf, first, last);
+    cu_sref_init_span(srf, first, last);
     return srf;
 }
 
 void
-cu_sref_cct_sref_first(cu_sref_t srf, cu_sref_t range)
+cu_sref_init_first(cu_sref_t srf, cu_sref_t range)
 {
     srf->chain_tail = NULL;
     srf->path = range->path;
@@ -116,7 +116,7 @@ cu_sref_cct_sref_first(cu_sref_t srf, cu_sref_t range)
 }
 
 void
-cu_sref_cct_sref_last(cu_sref_t srf, cu_sref_t range)
+cu_sref_init_last(cu_sref_t srf, cu_sref_t range)
 {
     srf->chain_tail = NULL;
     srf->path = range->path;
@@ -170,7 +170,7 @@ cu_sref_set_tabstop(cu_sref_t srf, int w)
 }
 
 void
-cu_sref_cct_copy(cu_sref_t srf, cu_sref_t srf0)
+cu_sref_init_copy(cu_sref_t srf, cu_sref_t srf0)
 {
     srf->chain_tail = srf0->chain_tail;
     srf->path = srf0->path;
@@ -185,7 +185,7 @@ cu_sref_t
 cu_sref_new_copy(cu_sref_t srf0)
 {
     cu_sref_t srf = cu_gnew(struct cu_sref_s);
-    cu_sref_cct_copy(srf, srf0);
+    cu_sref_init_copy(srf, srf0);
     return srf;
 }
 

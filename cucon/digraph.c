@@ -24,8 +24,8 @@ cucon_digraph_new(cucon_digraph_opt_t options)
 {
     cucon_digraph_t g = cu_gnew(struct cucon_digraph_s);
     g->options = options;
-    cucon_list_cct(&g->vertices);
-    cucon_list_cct(&g->edges);
+    cucon_list_init(&g->vertices);
+    cucon_list_init(&g->edges);
 #ifdef CUCONF_ENABLE_THREADS
     cu_mutex_cct(&g->mutex);
 #endif
@@ -46,7 +46,7 @@ cucon_digraph_insert_vertex_mem(cucon_digraph_t g, size_t value_size)
     else
 	v = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_digraph_vertex_s)
 		       + value_size);
-    cucon_list_cct(&v->output_edges);
+    cucon_list_init(&v->output_edges);
     return v;
 }
 
@@ -69,7 +69,7 @@ cucon_digraph_insert_vertex_node_cct(cucon_digraph_t g, cucon_digraph_vertex_t v
 	abort();
     }
 #endif
-    cucon_list_cct(&v->output_edges);
+    cucon_list_init(&v->output_edges);
 }
 
 cucon_digraph_edge_t
@@ -91,7 +91,7 @@ cucon_digraph_insert_edge_mem(cucon_digraph_t g,
 		       + value_size);
     e->src = src;
     e->dst = dst;
-    cucon_list_append_node_cct(&src->output_edges, &e->as_output);
+    cucon_list_append_init_node(&src->output_edges, &e->as_output);
     return e;
 }
 

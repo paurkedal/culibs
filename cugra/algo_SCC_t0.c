@@ -47,7 +47,7 @@ my_enter_component(cugra_walk_SCC_t self)
 {
     my_subvertex_t cpt = cu_gnew(struct my_subvertex_s);
     printf("New component:\n");
-    cucon_uset_cct(&cpt->labels);
+    cucon_uset_init(&cpt->labels);
     cugra_graph_vertex_init(cu_from(my_cb, cugra_walk_SCC, self)->G,
 			    cu_to(cugra_vertex, cpt));
     return cpt;
@@ -105,7 +105,7 @@ test()
     struct my_cb_s cb;
     cugra_graph_t G = cugra_graph_new(0);
 
-    cucon_umap_cct(&M);
+    cucon_umap_init(&M);
 #define A(x, y) cugra_connect(G, vertex(G, &M, x), vertex(G, &M, y))
     A(0, 0); A(0, 1); A(1, 2); A(1, 3); A(2, 3); A(3, 0);
     A(4, 5); A(5, 4); A(4, 2); A(5, 0);

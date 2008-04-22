@@ -27,7 +27,7 @@
 #define WORD_C(c) ((cuconP_bitvect_word_t)(c))
 
 void
-cucon_bitvect_cct_uninit(cucon_bitvect_t bv, size_t size)
+cucon_bitvect_init_uninit(cucon_bitvect_t bv, size_t size)
 {
     bv->size = size;
     bv->arr = cu_galloc(cu_ulong_ceil_div(size, 8));
@@ -37,12 +37,12 @@ cucon_bitvect_t
 cucon_bitvect_new_uninit(size_t size)
 {
     cucon_bitvect_t bv = cu_gnew(struct cucon_bitvect_s);
-    cucon_bitvect_cct_uninit(bv, size);
+    cucon_bitvect_init_uninit(bv, size);
     return bv;
 }
 
 void
-cucon_bitvect_cct_fill(cucon_bitvect_t bv, size_t size, cu_bool_t val)
+cucon_bitvect_init_fill(cucon_bitvect_t bv, size_t size, cu_bool_t val)
 {
     size_t bsize = cu_ulong_ceil_div(size, 8);
     bv->size = size;
@@ -54,12 +54,12 @@ cucon_bitvect_t
 cucon_bitvect_new_fill(size_t size, cu_bool_t val)
 {
     cucon_bitvect_t bv = cu_gnew(struct cucon_bitvect_s);
-    cucon_bitvect_cct_fill(bv, size, val);
+    cucon_bitvect_init_fill(bv, size, val);
     return bv;
 }
 
 void
-cucon_bitvect_cct_copy(cucon_bitvect_t bv, cucon_bitvect_t bv_src)
+cucon_bitvect_init_copy(cucon_bitvect_t bv, cucon_bitvect_t bv_src)
 {
     size_t size = bv_src->size;
     size_t bsize = cu_ulong_ceil_div(size, 8);
@@ -72,7 +72,7 @@ cucon_bitvect_t
 cucon_bitvect_new_copy(cucon_bitvect_t bv_src)
 {
     cucon_bitvect_t bv = cu_gnew(struct cucon_bitvect_s);
-    cucon_bitvect_cct_copy(bv, bv_src);
+    cucon_bitvect_init_copy(bv, bv_src);
     return bv;
 }
 

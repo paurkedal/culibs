@@ -31,10 +31,10 @@ main()
     cu_init();
 
     tv = cu_salloc(sizeof(cucon_prinode_t)*N);
-    cucon_pritree_cct(&pritree);
+    cucon_pritree_init(&pritree);
     for (n = 0; n < N; ++n) {
 	tv[n] = cu_gnew(struct cucon_prinode_s);
-	cucon_pritree_insert_cct(&pritree, tv[n], drand48());
+	cucon_pritree_insert_init(&pritree, tv[n], drand48());
     }
     for (n = 0; n < N; ++n) {
 	cucon_prinode_t prinode = cucon_pritree_front(&pritree);
@@ -46,7 +46,7 @@ main()
 
     for (n = 0; n < N; ++n) {
 	tv[n] = cu_gnew(struct cucon_prinode_s);
-	cucon_pritree_insert_cct(&pritree, tv[n], drand48());
+	cucon_pritree_insert_init(&pritree, tv[n], drand48());
     }
     for (n = 0; n < N/2; ++n)
 	cucon_pritree_change_priority(&pritree, tv[2*n], drand48());

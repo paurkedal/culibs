@@ -43,10 +43,10 @@ extern struct cucon_list_s cuconP_list_empty;
 cucon_list_t cucon_list_new(void);
 
 /*!Create an empty list. */
-void cucon_list_cct(cucon_list_t);
+void cucon_list_init(cucon_list_t);
 
 /*!Create a copy of \a src assuming elements are pointers. */
-void cucon_list_cct_copy_ptr(cucon_list_t dst, cucon_list_t src);
+void cucon_list_init_copy_ptr(cucon_list_t dst, cucon_list_t src);
 
 /*!Swap the elements of \a lst0 and \a lst1. */
 void cucon_list_swap(cucon_list_t lst0, cucon_list_t lst1);
@@ -55,7 +55,7 @@ void cucon_list_swap(cucon_list_t lst0, cucon_list_t lst1);
 #define cucon_list_empty() (&cuconP_list_empty)
 
 /*!Clear the list. */
-#define cucon_list_clear cucon_list_cct
+#define cucon_list_clear cucon_list_init
 
 /*!True iff \a lst is empty. */
 cu_bool_t cucon_list_is_empty(cucon_list_t lst);
@@ -98,7 +98,7 @@ cucon_list_insert_ptr(cucon_listnode_t, void*);
 
 /*!Construct \a node, inserting it before \a it. */
 cucon_listnode_t
-cucon_list_insert_node_cct(cucon_listnode_t it, cucon_listnode_t node);
+cucon_list_insert_init_node(cucon_listnode_t it, cucon_listnode_t node);
 
 /*!Return a pointer to the value after unlinking the element from its
  * list. */
@@ -177,8 +177,8 @@ cucon_list_prepend_ptr(cucon_list_t list, void *p)
 
 /*!Insert and construct \a node as first element of \a list. */
 CU_SINLINE cucon_listnode_t
-cucon_list_prepend_node_cct(cucon_list_t list, cucon_listnode_t node)
-{ return cucon_list_insert_node_cct(cucon_list_begin(list), node); }
+cucon_list_prepend_init_node(cucon_list_t list, cucon_listnode_t node)
+{ return cucon_list_insert_init_node(cucon_list_begin(list), node); }
 
 /*!Insert an element as the last in the list. */
 CU_SINLINE cucon_listnode_t
@@ -192,8 +192,8 @@ cucon_list_append_ptr(cucon_list_t list, void *p)
 
 /*!Insert and construct \a node at end of \a list. */
 CU_SINLINE cucon_listnode_t
-cucon_list_append_node_cct(cucon_list_t list, cucon_listnode_t node)
-{ return cucon_list_insert_node_cct(cucon_list_end(list), node); }
+cucon_list_append_init_node(cucon_list_t list, cucon_listnode_t node)
+{ return cucon_list_insert_init_node(cucon_list_end(list), node); }
 
 /*!Append \a src to \a dst, descructing \a src. */
 cucon_listnode_t
@@ -253,6 +253,16 @@ CU_SINLINE void cucon_list_pop_back(cucon_list_t list)
 #define cucon_list_is_singular cucon_list_is_singleton
 /*!\deprecated Use cucon_list_is_empty_or_singleton */
 #define cucon_list_is_empty_or_singular cucon_list_is_empty_or_singleton
+/*!\deprecated Use \ref cucon_list_init. */
+#define cucon_list_cct cucon_list_init
+/*!\deprecated Use \ref cucon_list_init_copy_ptr. */
+#define cucon_list_cct_copy_ptr cucon_list_init_copy_ptr
+/*!\deprecated Use \ref cucon_list_insert_init_node. */
+#define cucon_list_insert_node_cct cucon_list_insert_init_node
+/*!\deprecated Use \ref cucon_list_prepend_init_node. */
+#define cucon_list_prepend_node_cct cucon_list_prepend_init_node
+/*!\deprecated Use \ref cucon_list_append_init_node. */
+#define cucon_list_append_node_cct cucon_list_append_init_node
 
 /*!@}*/
 CU_END_DECLARATIONS

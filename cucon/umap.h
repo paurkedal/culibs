@@ -66,7 +66,7 @@ typedef struct
 } cucon_umap_it_t;
 
 /*!Construct \a map as an empty property map. */
-void cucon_umap_cct(cucon_umap_t map);
+void cucon_umap_init(cucon_umap_t map);
 
 /*!Return an empty property map. */
 cucon_umap_t cucon_umap_new(void);
@@ -74,32 +74,32 @@ cucon_umap_t cucon_umap_new(void);
 /*!Return an empty property map with <tt>void *</tt> keys. */
 
 /*!Construct \a dst as a copy of \a src but dropping all value slots. */
-void cucon_umap_cct_copy_void(cucon_umap_t dst, cucon_umap_t src);
+void cucon_umap_init_copy_void(cucon_umap_t dst, cucon_umap_t src);
 
 /*!Return a copy of \a src after dropping all value slots. */
 cucon_umap_t cucon_umap_new_copy_void(cucon_umap_t src);
 
 /*!Construct \a dst as a copy of \a src assuming slots are \a slot_size bytes
  * which can be copied with memcpy. */
-void cucon_umap_cct_copy_mem(cucon_umap_t dst, cucon_umap_t src,
-			     size_t slot_size);
+void cucon_umap_init_copy_mem(cucon_umap_t dst, cucon_umap_t src,
+			      size_t slot_size);
 
 /*!Return a copy of \a src assuming slots are \a slot_size bytes which can be
  * copied with memcpy. */
 cucon_umap_t cucon_umap_new_copy_mem(cucon_umap_t src, size_t slot_size);
 
 /*!Copy \a src to \a dst, assuming all slots have the same size, where
- * \a value_cct_copy copies the value at \a src_slot to \a dst_slot. */
-void cucon_umap_cct_copy_mem_ctor(
+ * \a value_init_copy copies the value at \a src_slot to \a dst_slot. */
+void cucon_umap_init_copy_mem_ctor(
     cucon_umap_t dst, cucon_umap_t src, size_t slot_size,
-    cu_clop(value_cct_copy, void, void *dst_slot, void *src_slot,
-				  uintptr_t key));
+    cu_clop(value_init_copy, void, void *dst_slot, void *src_slot,
+	    uintptr_t key));
 
 /*!Copy \a src to \a dst where \a src may have variable slot size.  \a
  * node_alloc_copy shall call \a cucon_umap_alloc to allocate some \e node,
  * and construct a copy of \a src_slot at the location given by
  * \c cucon_umap_node_get_mem(node). */
-void cucon_umap_cct_copy_node(
+void cucon_umap_init_copy_node(
     cucon_umap_t dst, cucon_umap_t src,
     cu_clop(node_alloc_copy, cucon_umap_node_t, void *src_slot, uintptr_t key));
 #define cucon_umap_node_alloc(slot_size) \
@@ -326,6 +326,17 @@ cucon_umap_it_t cucon_umap_it_next(cucon_umap_it_t it);
 /* Return the value part at 'it'. */
 #define cucon_umap_it_value_mem(it) ((void*)CU_ALIGNED_PTR_END((it).node))
 #define cucon_umap_it_value_ptr(it) (*(void**)CU_ALIGNED_PTR_END((it).node))
+
+/*!\deprecated Use \ref cucon_umap_init. */
+#define cucon_umap_cct			cucon_umap_init
+/*!\deprecated Use \ref cucon_umap_init_copy_void. */
+#define cucon_umap_cct_copy_void	cucon_umap_init_copy_void
+/*!\deprecated Use \ref cucon_umap_init_copy_mem. */
+#define cucon_umap_cct_copy_mem		cucon_umap_init_copy_mem
+/*!\deprecated Use \ref cucon_umap_init_copy_mem_ctor. */
+#define cucon_umap_cct_copy_mem_ctor	cucon_umap_init_copy_mem_ctor
+/*!\deprecated Use \ref cucon_umap_init_copy_node. */
+#define cucon_umap_cct_copy_node	cucon_umap_init_copy_node
 
 /*!@}*/
 CU_END_DECLARATIONS
