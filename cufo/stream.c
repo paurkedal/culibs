@@ -91,12 +91,13 @@ cufo_stream_clientstate(cufo_stream_t fos, void const *key,
 {
     cucon_hzmap_node_t node;
     cu_word_t wkey = (cu_word_t)key;
-    if (cucon_hzmap_insert(&fos->clientstate_map, &wkey,
-		sizeof(struct cucon_hzmap_node_s) + state_size, &node)) {
-	*(void **)state_out = node + 1;
-	return cu_true;
-    } else
-	return cu_false;
+    cu_bool_t st;
+#define NODEBASE_SIZE (sizeof(struct cucon_hzmap_node_s) + sizeof(cu_word_t))
+    st = cucon_hzmap_insert(&fos->clientstate_map, &wkey,
+			    NODEBASE_SIZE + state_size, &node);
+    *(void **)state_out = cu_ptr_add(node, NODEBASE_SIZE);
+#undef NODEBASE_SIZE
+    return st;
 }
 
 void *
