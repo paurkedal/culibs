@@ -24,6 +24,7 @@
 #include <cu/buffer.h>
 #include <cu/wchar.h>
 #include <cuoo/fwd.h>
+#include <cucon/hzmap.h>
 #include <iconv.h>
 
 CU_BEGIN_DECLARATIONS
@@ -74,16 +75,27 @@ struct cufo_stream_s
 {
     cu_inherit (cu_buffer_s);
     cufo_target_t target;
-    cu_bool_t is_wide;
+    cu_bool_least_t is_wide;
+    char lastchar;
     unsigned int flags;
     struct cufo_convinfo_s convinfo[2]; /* = { multibyte_iconv, wide_iconv } */
 #ifdef CUCONF_DEBUG_CLIENT
     struct cufoP_tag_stack_s *tag_stack;
 #endif
+    struct cucon_hzmap_s clientstate_map;
 };
 
 cu_bool_t cufo_stream_init(cufo_stream_t fos, char const *encoding,
 			   cufo_target_t target);
+
+cu_bool_t cufo_stream_clientstate(cufo_stream_t fos, void const *key,
+				  size_t state_size, cu_ptr_ptr_t state_out);
+
+/*!Returns the last character written to \ref fos if it was an ASCII character,
+ * otherwise returns 0.  This is mainly inteded as a convenient way for a
+ * client to check if it has written out spaces or newlines, instead of keeping
+ * track by itself. */
+char cufo_stream_lastchar(cufo_stream_t fos);
 
 CU_SINLINE void *
 cufo_stream_produce(cufo_stream_t fos, size_t len)

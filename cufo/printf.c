@@ -16,6 +16,7 @@
  */
 
 #include <cufo/stream.h>
+#include <cufo/tag.h>
 #include <cuoo/intf.h>
 #include <cuoo/type.h>
 #include <cucon/hzmap.h>
@@ -44,6 +45,13 @@
 #define FORMAT_MAP_KEYSIZE 8
 #define FORMAT_MAP_KEYSIZEW \
     ((FORMAT_MAP_KEYSIZE + sizeof(cu_word_t) - 1)/FORMAT_MAP_KEYSIZE)
+
+typedef struct cufoP_tag_stack_s *cufoP_tag_stack_t;
+struct cufoP_tag_stack_s
+{
+    cufoP_tag_stack_t next;
+    cufo_tag_t tag;
+};
 
 typedef struct format_node_s *format_node_t;
 struct format_node_s
@@ -136,7 +144,7 @@ cufo_print_ex(cufo_stream_t fos, cuex_t e)
 
 static char const *
 handle_format(cufo_stream_t fos, char const *fmt, cu_va_ref_t va_ref,
-	      size_t old_size)
+	      size_t old_size, cufoP_tag_stack_t *tag_stack)
 {
     char new_fmt[13] = "%";
     int i_new_fmt = 1;
@@ -490,6 +498,23 @@ break_flags:
 	    }
 	    return ++fmt;
 	}
+	case '<': {
+	    cufoP_tag_stack_t tag_node;
+	    cufo_tag_t tag = cu_va_ref_arg(va_ref, cufo_tag_t);
+	    cufo_enter(fos, tag);
+	    tag_node = cu_gnew(struct cufoP_tag_stack_s);
+	    tag_node->next = *tag_stack;
+	    tag_node->tag = tag;
+	    *tag_stack = tag_node;
+	    return fmt;
+	}
+	case '>': {
+	    if (!*tag_stack)
+		cu_bugf("Missing start tag to match '%%>' in format.");
+	    cufo_leave(fos, (*tag_stack)->tag);
+	    *tag_stack = (*tag_stack)->next;
+	    return fmt;
+	}
 	default:
 	    cu_bugf("Invalid format specifier %%%c.", *fmt);
 	    return fmt;
@@ -505,6 +530,7 @@ cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va)
     char const *fmt_last = fmt;
     size_t old_size = cu_buffer_content_size(cu_to(cu_buffer, fos));
     int write_count = 0;
+    cufoP_tag_stack_t tag_stack = NULL;
     while (*fmt) {
 	if (*fmt == '%') {
 	    if (fmt != fmt_last) {
@@ -517,7 +543,8 @@ cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va)
 		cufo_fast_putc(fos, '%');
 		++write_count;
 	    }
-	    fmt = handle_format(fos, fmt, cu_va_ref_of_va_list(va), old_size);
+	    fmt = handle_format(fos, fmt, cu_va_ref_of_va_list(va), old_size,
+				&tag_stack);
 	    fmt_last = fmt;
 	}
 	else
@@ -528,6 +555,9 @@ cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va)
 	cufo_print_charr(fos, fmt_last, count);
 	write_count += count;
     }
+    if (tag_stack)
+	cu_bugf("No closing '%%>' for '%%<' format specifier of tag %s.",
+		cufo_tag_name(tag_stack->tag));
     return write_count;
 }
 

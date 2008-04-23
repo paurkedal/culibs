@@ -32,7 +32,7 @@ print_page(cufo_stream_t fos)
     cufo_leaveln(fos, cufoT_title);
 
     cufo_entera(fos, cufoT_para, cufoA_class("test-cls"));
-    cufo_puts(fos, "Hello world.\n");
+    cufo_printf(fos, "Hello %<mellow%> world.\n", cufoT_italic);
     cufo_print_wstring(fos, CU_WSTRING_C("Hello wide world.\n"));
     cufo_leaveln(fos, cufoT_para);
 
@@ -111,6 +111,8 @@ test_text_target()
 	    for (i = 0; i < 80; ++i) {
 		int j = lrand48() % (sizeof(s)/sizeof(s[0]) - sp);
 		cufo_puts(fos, s[j]);
+		cu_test_assert(cufo_stream_lastchar(fos)
+			       == s[j][strlen(s[j])-1]);
 		sp = j == sizeof(s)/sizeof(s[0]) - 1;
 	    }
 	}

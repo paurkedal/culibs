@@ -29,8 +29,9 @@ typedef enum {
     cuex_qcode_u = 0,	/*!< universal quantification */
     cuex_qcode_e = 1,	/*!< existential quantification */
     cuex_qcode_w = 2,	/*!< weak universal quantification for special use */
-    cuex_qcode_n = 3	/*!< unquantified or special use */
+    cuex_qcode_n = 3,	/*!< unquantified or special use */
 } cuex_qcode_t;
+#define cuex_qcode_count 4
 
 /*!A set of quantifier codes. */
 typedef enum {

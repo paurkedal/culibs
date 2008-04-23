@@ -45,6 +45,7 @@ cufo_stream_init(cufo_stream_t fos, char const *encoding, cufo_target_t target)
     cu_buffer_init(BUFFER(fos), INIT_BUFFER_CAP);
     fos->target = target;
     fos->is_wide = cu_false;
+    fos->lastchar = 0;
     fos->flags = 0;
 #ifdef CUCONF_DEBUG_CLIENT
     fos->tag_stack = NULL;
@@ -80,7 +81,22 @@ cufo_stream_init(cufo_stream_t fos, char const *encoding, cufo_target_t target)
 	}
     }
 
+    cucon_hzmap_init(&fos->clientstate_map, 1);
     return cu_true;
+}
+
+cu_bool_t
+cufo_stream_clientstate(cufo_stream_t fos, void const *key,
+			size_t state_size, cu_ptr_ptr_t state_out)
+{
+    cucon_hzmap_node_t node;
+    cu_word_t wkey = (cu_word_t)key;
+    if (cucon_hzmap_insert(&fos->clientstate_map, &wkey,
+		sizeof(struct cucon_hzmap_node_s) + state_size, &node)) {
+	*(void **)state_out = node + 1;
+	return cu_true;
+    } else
+	return cu_false;
 }
 
 void *
@@ -113,6 +129,21 @@ cufo_close_discard(cufo_stream_t fos)
     (*fos->target->close)(fos);
 }
 
+char
+cufo_stream_lastchar(cufo_stream_t fos)
+{
+    if (cu_buffer_content_size(BUFFER(fos)) == 0)
+	return fos->lastchar;
+    else if (fos->is_wide) {
+	cu_wchar_t c = *((cu_wchar_t *)cu_buffer_content_end(BUFFER(fos)) - 1);
+	return c < 128? c : 0;
+    }
+    else {
+	char c = *((char const *)cu_buffer_content_end(BUFFER(fos)) - 1);
+	return (unsigned char)c < 128? c : 0;
+    }
+}
+
 void
 cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
 {
@@ -129,6 +160,8 @@ cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
     src_size = cu_buffer_content_size(BUFFER(fos));
     if (src_size == 0)
 	return;
+
+    fos->lastchar = cufo_stream_lastchar(fos);
 
     src_buf = cu_buffer_content_start(BUFFER(fos));
     convinfo = &fos->convinfo[fos->is_wide];
