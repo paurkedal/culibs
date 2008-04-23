@@ -113,20 +113,27 @@ cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e)
     cuex_meta_t e_meta = cuex_meta(e);
     cuoo_type_t e_type;
     if (cuex_meta_is_type(e_meta)) {
-	cufo_print_ptr_fn_t f;
+	cufo_print_ptr_fn_t print;
+	cu_str_t (*to_str)(void *);
 	e_type = cuoo_type_from_meta(e_meta);
-	f = cuoo_type_impl_ptr(e_type, CUOO_INTF_FOPRINT_FN);
-	if (f)
-	    (*f)(fos, spec, e);
-	else {
-	    if (fos->flags & CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE) {
-		fos->flags &= ~CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE;
-		cufo_printf(fos, "(?%p : %!)", e, e_type);
-		fos->flags |= CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE;
-	    }
-	    else
-		cufo_printf(fos, "(?%p)", e);
+
+	if ((print = cuoo_type_impl_ptr(e_type, CUOO_INTF_FOPRINT_FN))) {
+	    (*print)(fos, spec, e);
+	    return;
 	}
+
+	if ((to_str = cuoo_type_impl_ptr(e_type, CUOO_INTF_TO_STR_FN))) {
+	    cufo_print_str(fos, (*to_str)(e));
+	    return;
+	}
+
+	if (fos->flags & CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE) {
+	    fos->flags &= ~CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE;
+	    cufo_printf(fos, "__obj_%p[: %!]", e, e_type);
+	    fos->flags |= CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE;
+	}
+	else
+	    cufo_printf(fos, "__obj_%p", e);
     }
     else
 	cu_bugf("Unimplemented.");

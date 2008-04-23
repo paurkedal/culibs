@@ -19,6 +19,7 @@
 #include <cu/util.h>
 #include <cu/wchar.h>
 #include <cu/wstring.h>
+#include <cu/str.h>
 #include <cuoo/halloc.h>
 #include <cuoo/intf.h>
 
@@ -109,6 +110,7 @@ idr_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)idr_print;
+	case CUOO_INTF_TO_STR_FN: return (cu_word_t)cu_str_new_idr;
 	default: return CUOO_IMPL_NONE;
     }
 }
