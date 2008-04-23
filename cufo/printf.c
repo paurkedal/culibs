@@ -18,6 +18,7 @@
 #include <cufo/stream.h>
 #include <cuoo/intf.h>
 #include <cuoo/type.h>
+#include <cucon/hzmap.h>
 #include <cu/debug.h>
 #include <cu/diag.h>
 #include <cu/va_ref.h>
@@ -39,6 +40,53 @@
 #define CUFO_PRILENGTH_SIZE 7
 #define CUFO_PRILENGTH_PTRDIFF 8
 #define CUFO_PRILENGTH_LONG_DOUBLE 9
+
+#define FORMAT_MAP_KEYSIZE 8
+#define FORMAT_MAP_KEYSIZEW \
+    ((FORMAT_MAP_KEYSIZE + sizeof(cu_word_t) - 1)/FORMAT_MAP_KEYSIZE)
+
+typedef struct format_node_s *format_node_t;
+struct format_node_s
+{
+    cu_inherit (cucon_hzmap_node_s);
+    cu_word_t wkey[FORMAT_MAP_KEYSIZEW];
+    cufo_print_ptr_fn_t handler;
+};
+
+static struct cucon_hzmap_s format_map;
+
+void
+cufo_register_ptr_format(char const *key, cufo_print_ptr_fn_t handler)
+{
+    cucon_hzmap_node_t node;
+    cu_word_t wkey[FORMAT_MAP_KEYSIZEW];
+    size_t len = strlen(key);
+    if (len > sizeof(wkey))
+	cu_bugf("Format key '%s' is too long, max length is %d",
+		key, FORMAT_MAP_KEYSIZE);
+    memset(wkey, 0, sizeof(wkey));
+    memcpy(wkey, key, len);
+    if (!cucon_hzmap_insert(&format_map, wkey,
+			    sizeof(struct format_node_s), &node))
+	cu_bugf("Format key '%s' has already been registered.", key);
+    cu_from(format_node, cucon_hzmap_node, node)->handler = handler;
+}
+
+static cufo_print_ptr_fn_t
+lookup_ptr_format(char const *key, size_t key_len)
+{
+    cucon_hzmap_node_t node;
+    cu_word_t wkey[FORMAT_MAP_KEYSIZEW];
+    if (key_len > FORMAT_MAP_KEYSIZE)
+	return NULL;
+    memset(wkey, 0, sizeof(wkey));
+    memcpy(wkey, key, key_len);
+    node = cucon_hzmap_find(&format_map, wkey);
+    if (node)
+	return cu_from(format_node, cucon_hzmap_node, node)->handler;
+    else
+	return NULL;
+}
 
 static void
 get_buffer_cap(cufo_stream_t fos, int max_width,
@@ -422,6 +470,26 @@ break_flags:
 	    cufo_printsp_ex(fos, &spec, e);
 	    return fmt;
 	}
+	case '(': {
+	    char const *s = fmt;
+	    cufo_print_ptr_fn_t f;
+	    void *p = cu_va_ref_arg(va_ref, void *);
+	    while (*fmt && *fmt != ')') ++fmt;
+	    f = lookup_ptr_format(s, fmt - s);
+	    if (f) {
+		struct cufo_prispec_s spec;
+		spec.flags = flags;
+		spec.width = width;
+		spec.precision = prec;
+		(*f)(fos, &spec, p);
+	    }
+	    else {
+		char *sp = cu_salloc(fmt - s + 1);
+		strncpy(sp, s, fmt - s + 1); sp[fmt - s] = 0;
+		cu_bugf("Unknown format specifier %s.", sp);
+	    }
+	    return ++fmt;
+	}
 	default:
 	    cu_bugf("Invalid format specifier %%%c.", *fmt);
 	    return fmt;
@@ -472,4 +540,10 @@ cufo_printf(cufo_stream_t fos, char const *fmt, ...)
     write_count = cufo_vprintf(fos, fmt, va);
     va_end(va);
     return write_count;
+}
+
+void
+cufoP_printf_init(void)
+{
+    cucon_hzmap_init(&format_map, FORMAT_MAP_KEYSIZEW);
 }

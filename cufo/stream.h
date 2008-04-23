@@ -204,6 +204,8 @@ int cufo_printf(cufo_stream_t fos, char const *fmt, ...);
 
 int cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va);
 
+void cufo_register_ptr_format(char const *key, cufo_print_ptr_fn_t fn);
+
 /*!@}*/
 CU_END_DECLARATIONS
 
