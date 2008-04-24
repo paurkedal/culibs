@@ -18,7 +18,7 @@
 #ifndef CUCON_RUMAP_H
 #define CUCON_RUMAP_H
 
-#include <cucon/pmap.h>
+#include <cucon/umap.h>
 #include <cu/conf.h>
 #include <cu/wchar.h>
 
@@ -28,13 +28,15 @@ CU_BEGIN_DECLARATIONS
 
 struct cucon_rumap_s
 {
-    struct cucon_pmap_s pmap;
+    struct cucon_umap_s branches;
     void *data;
 };
 
 void cucon_rumap_init(cucon_rumap_t rmap);
 
 cucon_rumap_t cucon_rumap_new(void);
+
+void cucon_rumap_swap(cucon_rumap_t map0, cucon_rumap_t map1);
 
 CU_SINLINE void *
 cucon_rumap_value(cucon_rumap_t rmap)
@@ -51,7 +53,7 @@ cucon_rumap_set_value(cucon_rumap_t rmap, void *ptr)
 CU_SINLINE cu_bool_t
 cucon_rumap_is_leaf(cucon_rumap_t rmap)
 {
-    return cucon_pmap_is_empty(&rmap->pmap);
+    return cucon_umap_is_empty(&rmap->branches);
 }
 
 cucon_rumap_t cucon_rumap_mref(cucon_rumap_t rmap, uintptr_t key);
@@ -59,7 +61,7 @@ cucon_rumap_t cucon_rumap_mref(cucon_rumap_t rmap, uintptr_t key);
 CU_SINLINE cucon_rumap_t
 cucon_rumap_cref(cucon_rumap_t rmap, uintptr_t key)
 {
-    return cucon_umap_find_mem(&rmap->pmap.impl, key);
+    return cucon_umap_find_mem(&rmap->branches, key);
 }
 
 
@@ -135,22 +137,6 @@ cucon_rumap_mref_by_uint_arr(cucon_rumap_t rmap,
     return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CUCONF_WIDTHOF_INT,
 			rmap, key_arr, key_cnt);
 }
-#if 0 /* the pmap only supports uintptr_t */
-CU_SINLINE cucon_rumap_t
-cucon_rumap_mref_by_long_arr(cucon_rumap_t rmap,
-			   long *key_arr, size_t key_cnt)
-{
-    return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CUCONF_WIDTHOF_LONG,
-		      rmap, key_arr, key_cnt);
-}
-CU_SINLINE cucon_rumap_t
-cucon_rumap_mref_by_ulong_arr(cucon_rumap_t rmap,
-			    unsigned long *key_arr, size_t key_cnt)
-{
-    return cuconP_APPLY(cuconP_RUMAP_MREF_ARR, CUCONF_WIDTHOF_LONG,
-		      rmap, key_arr, key_cnt);
-}
-#endif
 
 CU_SINLINE cucon_rumap_t
 cucon_rumap_mref_by_char_arr(cucon_rumap_t rmap,
@@ -179,7 +165,7 @@ CU_SINLINE cu_bool_t
 cucon_rumap_conj(cucon_rumap_t rmap,
 		 cu_clop(fn, cu_bool_t, uintptr_t, cucon_rumap_t))
 {
-    return cucon_umap_conj_mem(&rmap->pmap.impl,
+    return cucon_umap_conj_mem(&rmap->branches,
 			       (cu_clop(, cu_bool_t, uintptr_t, void *))fn);
 }
 

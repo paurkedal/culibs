@@ -17,11 +17,12 @@
 
 #include <cucon/rumap.h>
 #include <cu/wstring.h>
+#include <cu/util.h>
 
 void
 cucon_rumap_init(cucon_rumap_t rumap)
 {
-    cucon_pmap_init(&rumap->pmap);
+    cucon_umap_init(&rumap->branches);
     rumap->data = NULL;
 }
 
@@ -33,11 +34,18 @@ cucon_rumap_new()
     return rumap;
 }
 
+void
+cucon_rumap_swap(cucon_rumap_t map0, cucon_rumap_t map1)
+{
+    CU_SWAP(void *, map0->data, map1->data);
+    cucon_umap_swap(&map0->branches, &map1->branches);
+}
+
 cucon_rumap_t
 cucon_rumap_mref(cucon_rumap_t rumap, uintptr_t key)
 {
     cucon_rumap_t sub;
-    if (cucon_umap_insert_mem(&rumap->pmap.impl, key,
+    if (cucon_umap_insert_mem(&rumap->branches, key,
 			      sizeof(struct cucon_rumap_s), &sub))
 	cucon_rumap_init(sub);
     return sub;
@@ -48,7 +56,7 @@ cucon_rumap_mref_by_uint8_arr(cucon_rumap_t rumap,
 			      uint8_t const *key_arr, size_t key_cnt)
 {
     while (key_cnt) {
-	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
+	if (cucon_umap_insert_mem(&rumap->branches, *key_arr,
 				  sizeof(struct cucon_rumap_s), &rumap))
 	    cucon_rumap_init(rumap);
 	++key_arr;
@@ -62,7 +70,7 @@ cucon_rumap_mref_by_uint16_arr(cucon_rumap_t rumap,
 			       uint16_t const *key_arr, size_t key_cnt)
 {
     while (key_cnt) {
-	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
+	if (cucon_umap_insert_mem(&rumap->branches, *key_arr,
 				  sizeof(struct cucon_rumap_s), &rumap))
 	    cucon_rumap_init(rumap);
 	++key_arr;
@@ -76,7 +84,7 @@ cucon_rumap_mref_by_uint32_arr(cucon_rumap_t rumap,
 			       uint32_t const *key_arr, size_t key_cnt)
 {
     while (key_cnt) {
-	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
+	if (cucon_umap_insert_mem(&rumap->branches, *key_arr,
 				  sizeof(struct cucon_rumap_s), &rumap))
 	    cucon_rumap_init(rumap);
 	++key_arr;
@@ -91,7 +99,7 @@ cucon_rumap_mref_by_uint64_arr(cucon_rumap_t rumap,
 			       uint64_t const *key_arr, size_t key_cnt)
 {
     while (key_cnt) {
-	if (cucon_umap_insert_mem(&rumap->pmap.impl, *key_arr,
+	if (cucon_umap_insert_mem(&rumap->branches, *key_arr,
 				  sizeof(struct cucon_rumap_s), &rumap))
 	    cucon_rumap_init(rumap);
 	++key_arr;
