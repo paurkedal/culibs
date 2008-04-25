@@ -67,6 +67,12 @@ cuex_check_monoid(cuex_t x, cuex_meta_t *mult_out)
 	return cu_false;
 }
 
+/*!Provided \a x is a monoid, returns it's operator. Do not call this without
+ * checking if \a x is a monoid. */
+CU_SINLINE cuex_meta_t
+cuex_monoid_opr(cuex_t x)
+{ return ((cuex_monoid_t)x)->opr; }
+
 /*!True iff \a x is a non-generator element of the monoid induced by
  * \a mult, including the identity of \a mult.
  * \see cuex_is_monoid

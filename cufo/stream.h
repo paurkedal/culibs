@@ -60,6 +60,7 @@ struct cufo_target_s
     void (*enter)(cufo_stream_t fos, cufo_tag_t tag, va_list va);
     void (*leave)(cufo_stream_t fos, cufo_tag_t);
     void *(*close)(cufo_stream_t fos);
+    void (*flush)(cufo_stream_t fos);
 };
 
 #define CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE	(1u << 0)

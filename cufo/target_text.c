@@ -321,11 +321,18 @@ tx_close(cufo_stream_t fos)
     return cu_dsink_finish(TX_STREAM(fos)->sink);
 }
 
+static void
+tx_flush(cufo_stream_t fos)
+{
+    cu_dsink_flush(TX_STREAM(fos)->sink);
+}
+
 static struct cufo_target_s tx_target = {
     .write = tx_write,
     .enter = tx_enter,
     .leave = tx_leave,
     .close = tx_close,
+    .flush = tx_flush,
 };
 
 static void

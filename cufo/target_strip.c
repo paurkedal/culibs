@@ -22,7 +22,7 @@
 #include <cu/dsink.h>
 
 #define BUFFER(fos) cu_to(cu_buffer, fos)
-#define SINKSTREAM(fos) cu_from(cufo_sinkstream, cufo_stream, fos)
+#define TS_STREAM(fos) cu_from(cufo_sinkstream, cufo_stream, fos)
 
 typedef struct cufo_sinkstream_s *cufo_sinkstream_t;
 struct cufo_sinkstream_s
@@ -32,9 +32,9 @@ struct cufo_sinkstream_s
 };
 
 static size_t
-target_sink_write(cufo_stream_t fos, void const *wr_buf, size_t wr_size)
+ts_write(cufo_stream_t fos, void const *wr_buf, size_t wr_size)
 {
-    size_t wz = cu_dsink_write(SINKSTREAM(fos)->sink, wr_buf, wr_size);
+    size_t wz = cu_dsink_write(TS_STREAM(fos)->sink, wr_buf, wr_size);
     if (wz == (size_t)-1) {
 	cu_errf("Error writing to sink.");
 	cufo_flag_error(fos);
@@ -44,28 +44,35 @@ target_sink_write(cufo_stream_t fos, void const *wr_buf, size_t wr_size)
 }
 
 static void
-target_sink_enter(cufo_stream_t fos, cufo_tag_t tag, va_list va)
+ts_enter(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 {
     /* Nothing to do. */
 }
 
 static void
-target_sink_leave(cufo_stream_t fos, cufo_tag_t tag)
+ts_leave(cufo_stream_t fos, cufo_tag_t tag)
 {
     /* Nothing to do. */
 }
 
 static void *
-target_sink_close(cufo_stream_t fos)
+ts_close(cufo_stream_t fos)
 {
-    return cu_dsink_finish(SINKSTREAM(fos)->sink);
+    return cu_dsink_finish(TS_STREAM(fos)->sink);
+}
+
+static void
+ts_flush(cufo_stream_t fos)
+{
+    cu_dsink_flush(TS_STREAM(fos)->sink);
 }
 
 struct cufo_target_s cufoP_target_sink = {
-    .write = target_sink_write,
-    .enter = target_sink_enter,
-    .leave = target_sink_leave,
-    .close = target_sink_close,
+    .write = ts_write,
+    .enter = ts_enter,
+    .leave = ts_leave,
+    .close = ts_close,
+    .flush = ts_flush,
 };
 
 cufo_stream_t

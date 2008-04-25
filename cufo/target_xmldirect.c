@@ -175,11 +175,18 @@ xd_close(cufo_stream_t os)
     return cu_dsink_finish(SX_STREAM(os)->sink);
 }
 
+static void
+xd_flush(cufo_stream_t os)
+{
+    cu_dsink_flush(SX_STREAM(os)->sink);
+}
+
 static struct cufo_target_s xd_target = {
     .write = xd_write,
     .enter = xd_enter,
     .leave = xd_leave,
     .close = xd_close,
+    .flush = xd_flush,
 };
 
 static cu_bool_t

@@ -159,8 +159,10 @@ cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
 	return;
     }
     src_size = cu_buffer_content_size(BUFFER(fos));
-    if (src_size == 0)
+    if (src_size == 0) {
+	(*fos->target->flush)(fos);
 	return;
+    }
 
     fos->lastchar = cufo_stream_lastchar(fos);
 
@@ -217,6 +219,7 @@ cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
 	cu_buffer_clear(BUFFER(fos)); /* Good place to realign content. */
     else if (must_clear && !cufo_have_error(fos))
 	cu_bugf("Buffer should have been cleared.");
+    (*fos->target->flush)(fos);
 }
 
 void
