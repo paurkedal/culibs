@@ -315,6 +315,28 @@ cufo_print_str(cufo_stream_t fos, cu_str_t str)
 }
 
 void
+cufo_newline(cufo_stream_t fos)
+{
+    if (cufo_stream_lastchar(fos) != '\n') {
+	if (fos->is_wide)
+	    cufo_putwc(fos, 0xa);
+	else
+	    cufo_putc(fos, '\n');
+    }
+}
+
+void
+cufo_space(cufo_stream_t fos)
+{
+    if (!isspace(cufo_stream_lastchar(fos))) {
+	if (fos->is_wide)
+	    cufo_putwc(fos, 0x20);
+	else
+	    cufo_putc(fos, ' ');
+    }
+}
+
+void
 cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 {
 #ifdef CUCONF_DEBUG_CLIENT
@@ -357,12 +379,12 @@ cufo_leave(cufo_stream_t fos, cufo_tag_t tag)
 void
 cufo_leaveln(cufo_stream_t fos, cufo_tag_t tag)
 {
+    cufo_newline(fos);
 #ifdef CUCONF_DEBUG_CLIENT
     cufo_leave(fos, tag);
 #else
     (*fos->target->leave)(fos, tag);
 #endif
-    cufo_print_charr(fos, "\n", 1);
 }
 
 void

@@ -282,7 +282,7 @@ AC_CONFIG_FILES([
 	culibs.spec cubase.spec ])
 
 AC_CONFIG_COMMANDS([cu/conf_ac.h],
-  [ sed >cu/conf_ac.h <config_raw.h \
+  [ test cu/conf_ac.h -nt config_raw.h || sed >cu/conf_ac.h <config_raw.h \
 	-e 's/\(#define\|#undef\) */\1 CUCONF_/' \
 	-e 's/CUCONF_\(cu_\|CUCONF_\)/\1/' ])
 
