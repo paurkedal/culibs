@@ -28,11 +28,14 @@ CU_BEGIN_DECLARATIONS
  */
 
 typedef struct cucon_hzset_node_s *cucon_hzset_node_t;
+
+/*!Base struct for \ref cucon_hzset_s nodes. */
 struct cucon_hzset_node_s
 {
     struct cucon_hzmap_node_s impl;
 };
 
+/*!Hash set with fixed-size keys. */
 struct cucon_hzset_s
 {
     struct cucon_hzmap_s impl;

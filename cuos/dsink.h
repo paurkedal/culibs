@@ -24,12 +24,12 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuos_dsink_h cuos/dsink.h: Binding Data Sinks to Resources
  *@{\ingroup cuos_mod */
 
-/*!Returns a \ref cu_dsink_t tied to the file descriptor \a fd.  Closing the
- * sink preserves \a fd. */
+/*!Returns a \ref cu_dsink_h "cu_dsink_t" tied to the file descriptor \a fd.
+ * Closing the sink preserves \a fd. */
 cu_dsink_t cuos_dsink_fdopen(int fd);
 
-/*!Returns a \ref cu_dsink_t tied to the file descriptor \a fd.  Closing the
- * sink effects a \c close(fd). */
+/*!Returns a \ref cu_dsink_h "cu_dsink_t" tied to the file descriptor \a fd.
+ * Closing the sink effects a \c close(fd). */
 cu_dsink_t cuos_dsink_fdopen_close(int fd);
 
 /*!Creates a regular file at \a ref path to be filled with any data written to

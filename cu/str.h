@@ -26,9 +26,10 @@
 #include <cuoo/type.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_str cu/str.h: Multi-Byte Strings
+/*!\defgroup cu_str_h cu/str.h: Multi-Byte Strings
  * @{ \ingroup cu_type_mod */
 
+/*!A byte string used for ASCII or UTF-8 data. */
 struct cu_str_s
 {
     CUOO_OBJ

@@ -26,6 +26,7 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cufo_textstyle_h cufo/textstyle.h: Text Target Styler Support
  *@{\ingroup cufo_mod */
 
+/*!Text stream state which can be modified by style callbacks. */
 struct cufo_textstate_s
 {
     int tabstop;
@@ -39,6 +40,7 @@ struct cufo_textstate_s
 CU_SINLINE int cufo_textstate_width(cufo_textstate_t ts)
 { return ts->right_margin - ts->left_margin; }
 
+/*!A \ref cufo_textstyle_s callback for a single tag. */
 struct cufo_textstyler_s
 {
     /* Node and key */
@@ -51,6 +53,7 @@ struct cufo_textstyler_s
     cu_wstring_t (*leave)(cufo_textstate_t state, cufo_tag_t tag);
 };
 
+/*!A style definition for a text stream. */
 struct cufo_textstyle_s
 {
     size_t state_size; /* state struct inherited from cufo_textstate_s */

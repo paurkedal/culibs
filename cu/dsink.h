@@ -159,13 +159,13 @@ cu_dsink_discard(cu_dsink_t sink)
 cu_dsink_t cu_dsink_stack_buffer(cu_dsink_t subsink);
 
 /*!Returns a sink on which the call to \ref cu_dsink_finish returns a \ref
- * cu_str_t of the written data.  No conversion is done.  Writing UTF-8 encoded
- * data gives a text string. */
+ * cu_str_h "cu_str_t" of the written data.  No conversion is done.  Writing
+ * UTF-8 encoded data gives a text string. */
 cu_dsink_t cu_dsink_new_str(void);
 
 /*!Returns a sink on which the call to \ref cu_dsink_finish returns a \ref
- * cu_wstring_t of the written data.  No conversion is done.  Writing \ref
- * cu_wchar_encoding encoded characters gives a text string. */
+ * cu_wstring_h "cu_wstring_t" of the written data.  No conversion is done.
+ * Writing \ref cu_wchar_encoding encoded characters gives a text string. */
 cu_dsink_t cu_dsink_new_wstring(void);
 
 /*!A sink which counts the number of bytes written. */

@@ -30,6 +30,7 @@ extern cu_wstring_t cuP_wstring_empty;
 /*!\defgroup cu_wstring_h cu/wstring.h: Unicode String
  *@{\ingroup cu_type_mod */
 
+/*!A string of \ref cu_wchar_t characters. */
 struct cu_wstring_s
 {
     CUOO_OBJ

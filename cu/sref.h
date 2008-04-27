@@ -64,7 +64,7 @@ cu_sref_t cu_sref_new_range(cu_str_t path,
  * and have the same precision and tabstop. */
 void cu_sref_init_span(cu_sref_t, cu_sref_t first, cu_sref_t last);
 
-/*!\copydoc cu_sref_init_sref_range */
+/*!\copydoc cu_sref_init_span */
 cu_sref_t cu_sref_new_span(cu_sref_t first, cu_sref_t last);
 
 /*!Construct \a srf as a point reference to the start of \a src. */

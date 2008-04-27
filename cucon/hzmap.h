@@ -29,14 +29,19 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_hzmap_h cucon/hzmap.h: Hash Map of Flat Fixed-Sized Keys
  *@{\ingroup cucon_maps_and_sets_mod
  * \see cucon_hzset_h
+ * \see cucon_umap_h
+ * \see cucon_pmap_h
  */
 
 typedef struct cucon_hzmap_node_s *cucon_hzmap_node_t;
+
+/*!Node base struct for \ref cucon_hzmap_s. */
 struct cucon_hzmap_node_s
 {
     cucon_hzmap_node_t next;
 };
 
+/*!A hash map of fixed-size keys. */
 struct cucon_hzmap_s
 {
 #ifdef CUCON_HZMAP_COMPACT

@@ -49,6 +49,9 @@ struct cugra_walk_SCC_s
     cugra_walk_SCC_vt_t vt;
 };
 
+/*!Walks though the strongly connected components of \a G where \a dir
+ * indicates arrow direction of traversal, and calls the various \a walk_struct
+ * callbacks when entering and leaving components and passing over vertices. */
 void cugra_walk_SCC(cugra_walk_SCC_t walk_struct,
 		    cugra_graph_t G, cugra_direction_t dir);
 
