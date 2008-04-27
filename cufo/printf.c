@@ -579,6 +579,18 @@ cufo_printf(cufo_stream_t fos, char const *fmt, ...)
     return write_count;
 }
 
+int
+cufo_printfln(cufo_stream_t fos, char const *fmt, ...)
+{
+    int write_count;
+    va_list va;
+    va_start(va, fmt);
+    write_count = cufo_vprintf(fos, fmt, va);
+    va_end(va);
+    cufo_newline(fos);
+    return write_count;
+}
+
 void
 cufoP_printf_init(void)
 {
