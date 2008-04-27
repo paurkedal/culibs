@@ -37,3 +37,26 @@ cu_dsink_assert_clogfree(cu_dsink_t sink)
 	cu_bugf("Caller expected a clog-free sink, but sink does not "
 		"guarante to be clog-free.");
 }
+
+
+#define DCOUNTSINK(sink) cu_from(cu_dcountsink, cu_dsink, sink)
+
+size_t
+dcountsink_write(cu_dsink_t sink, void const *arr, size_t len)
+{
+    DCOUNTSINK(sink)->count += len;
+    return len;
+}
+
+cu_word_t
+dcountsink_control(cu_dsink_t sink, int fn, va_list va)
+{
+    return CU_DSINK_ST_UNIMPL;
+}
+
+void
+cu_dcountsink_init(cu_dcountsink_t sink)
+{
+    cu_dsink_init(cu_to(cu_dsink, sink), dcountsink_control, dcountsink_write);
+    sink->count = 0;
+}

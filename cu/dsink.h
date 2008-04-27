@@ -18,7 +18,7 @@
 #ifndef CU_DSINK_H
 #define CU_DSINK_H
 
-#include <cu/fwd.h>
+#include <cu/buffer.h>
 #include <stdarg.h>
 
 CU_BEGIN_DECLARATIONS
@@ -74,6 +74,9 @@ CU_BEGIN_DECLARATIONS
     /*!< Status which may be returned by a dispatches on successful return when
      * no other value is to be returned. */
 /*!@}*/
+
+/*!\name Sink API
+ * @{*/
 
 /*!Base struct for data sinks. */
 struct cu_dsink_s
@@ -148,6 +151,10 @@ CU_SINLINE void
 cu_dsink_discard(cu_dsink_t sink)
 { cu_dsink_control(sink, CU_DSINK_FN_DISCARD); }
 
+/*!@}*/
+/*!\name Sink Implementations
+ * @{*/
+
 /*!Creates a clog-free sink of \a subsink by buffering data. */
 cu_dsink_t cu_dsink_stack_buffer(cu_dsink_t subsink);
 
@@ -161,6 +168,45 @@ cu_dsink_t cu_dsink_new_str(void);
  * cu_wchar_encoding encoded characters gives a text string. */
 cu_dsink_t cu_dsink_new_wstring(void);
 
+/*!A sink which counts the number of bytes written. */
+struct cu_dcountsink_s
+{
+    cu_inherit (cu_dsink_s);
+    ssize_t count;
+};
+
+CU_SINLINE cu_dsink_t
+cu_dcountsink_to_dsink(cu_dcountsink_t sink)
+{ return cu_to(cu_dsink, sink); }
+
+/*!Initialise \a sink. */
+void cu_dcountsink_init(cu_dcountsink_t sink);
+
+/*!Returns the number of bytes written to \a sink. */
+CU_SINLINE ssize_t
+cu_dcountsink_count(cu_dcountsink_t sink)
+{ return sink->count; }
+
+/*!A sink which copy the data written into a buffer. */
+struct cu_dbufsink_s
+{
+    cu_inherit (cu_dsink_s);
+    struct cu_buffer_s buffer;
+};
+
+CU_SINLINE cu_dsink_t
+cu_dbufsink_to_dsink(cu_dbufsink_t sink)
+{ return cu_to(cu_dsink, sink); }
+
+/*!Initialise the buffer sink \a sink. */
+void cu_dbufsink_init(cu_dbufsink_t sink);
+
+/*!The underlying buffer of \a sink. */
+CU_SINLINE cu_buffer_t
+cu_dbufsink_buffer(cu_dbufsink_t sink)
+{ return &sink->buffer; }
+
+/*!@}*/
 /*!@}*/
 CU_END_DECLARATIONS
 

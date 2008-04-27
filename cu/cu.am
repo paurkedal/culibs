@@ -42,10 +42,9 @@ nodist_cu_headers = \
 cu_sources = \
 	cu/buffer.c \
 	cu/cstr.c \
+	cu/dbufsink.c \
 	cu/dsink.c \
 	cu/dsink_buffer.c \
-	cu/dsink_str.c \
-	cu/dsink_wstring.c \
 	cu/dseq_algo.c \
 	cu/dsource.c \
 	cu/debug.c \

@@ -21,6 +21,7 @@
 #include <cu/str.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
 
 #ifdef CUCONF_DEBUG_SELF
 #  define INIT_BUFFER_CAP 16

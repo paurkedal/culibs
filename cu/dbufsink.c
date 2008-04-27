@@ -16,19 +16,13 @@
  */
 
 #include <cu/dsink.h>
-#include <cu/wstring.h>
 #include <cu/buffer.h>
+#include <cu/wstring.h>
+#include <cu/str.h>
 
-#define BUFSINK(sink) cu_from(bufsink, cu_dsink, sink)
+#define BUFSINK(sink) cu_from(cu_dbufsink, cu_dsink, sink)
 
-typedef struct bufsink_s *bufsink_t;
-struct bufsink_s
-{
-    cu_inherit (cu_dsink_s);
-    struct cu_buffer_s buffer;
-};
-
-size_t
+static size_t
 bufsink_write(cu_dsink_t sink, void const *arr, size_t len)
 {
     void *dst = cu_buffer_produce(&BUFSINK(sink)->buffer, len);
@@ -36,7 +30,7 @@ bufsink_write(cu_dsink_t sink, void const *arr, size_t len)
     return len;
 }
 
-cu_word_t
+static cu_word_t
 wstring_control(cu_dsink_t sink, int fn, va_list va)
 {
     switch (fn) {
@@ -55,8 +49,31 @@ wstring_control(cu_dsink_t sink, int fn, va_list va)
 cu_dsink_t
 cu_dsink_new_wstring()
 {
-    bufsink_t sink = cu_gnew(struct bufsink_s);
+    cu_dbufsink_t sink = cu_gnew(struct cu_dbufsink_s);
     cu_dsink_init(cu_to(cu_dsink, sink), wstring_control, bufsink_write);
     cu_buffer_init(&sink->buffer, 32);
+    return cu_to(cu_dsink, sink);
+}
+
+static cu_word_t
+str_control(cu_dsink_t sink, int fn, va_list va)
+{
+    switch (fn) {
+	    cu_buffer_t buf;
+	case CU_DSINK_FN_FINISH:
+	    buf = &BUFSINK(sink)->buffer;
+	    return (cu_word_t)cu_str_new_charr(cu_buffer_content_start(buf),
+					       cu_buffer_content_size(buf));
+	default:
+	    return CU_DSINK_ST_UNIMPL;
+    }
+}
+
+cu_dsink_t
+cu_dsink_new_str(void)
+{
+    cu_dbufsink_t sink = cu_gnew(struct cu_dbufsink_s);
+    cu_dsink_init(cu_to(cu_dsink, sink), str_control, bufsink_write);
+    cu_buffer_init(&sink->buffer, 16);
     return cu_to(cu_dsink, sink);
 }
