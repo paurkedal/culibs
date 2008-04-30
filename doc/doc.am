@@ -17,8 +17,8 @@ install-doc-css: install-doc-dirs doc/cudoxy.css doc/cucommon.css
 	install -m644 doc/cudoxy.css doc/cucommon.css \
 		$(DESTDIR)$(htmldir)/
 install-doc: install-doc-css install-doc-html install-doc-doxy
-install-doc-doxy: Doxyfile $(all_doxyfiles) doc/fixed_footer.html
-	@echo "Creating Doxyfile.install"
+install-doc-doxy: doc/Doxyfile $(all_doxyfiles) doc/fixed_footer.html
+	@echo "Creating doc/Doxyfile.install"
 	@input=; \
 	for x in $(all_doxyfiles); do \
 	    [ -e "$$x" ] || x="$(srcdir)/$$x"; \
@@ -27,8 +27,8 @@ install-doc-doxy: Doxyfile $(all_doxyfiles) doc/fixed_footer.html
 	sed \
 	    -e "s|^OUTPUT_DIRECTORY *=.*|OUTPUT_DIRECTORY = $(DESTDIR)$(pkgdocdir)|" \
 	    -e "s|^INPUT *=.*|INPUT =$$input|" \
-	    Doxyfile >Doxyfile.install
-	doxygen Doxyfile.install
+	    doc/Doxyfile >doc/Doxyfile.install
+	doxygen doc/Doxyfile.install
 	cd '$(DESTDIR)$(htmldir)' \
 	    && mv index.html frameset.html \
 	    && sed >index.html -r -e 's;(<!--)?/if-noframe/(-->)?;;g' main.html

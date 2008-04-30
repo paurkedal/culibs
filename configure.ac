@@ -270,7 +270,7 @@ AC_SUBST([tagsdir])
 
 AC_CONFIG_FILES([
 	Makefile
-	Doxyfile
+	doc/Doxyfile
 	pkgconfig/cubase.pc pkgconfig/cubase-uninstalled.pc
 	pkgconfig/cufo.pc   pkgconfig/cufo-uninstalled.pc
 	pkgconfig/cugra.pc  pkgconfig/cugra-uninstalled.pc
