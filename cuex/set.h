@@ -72,6 +72,9 @@ cu_bool_t cuex_set_subeq(cuex_t S0, cuex_t S1);
 /*!Return the most strict ordering predicate \e R such that \a S0 \e R \a S1. */
 cu_order_t cuex_set_order(cuex_t S0, cuex_t S1);
 
+/*!A commutative source over all elements of \a S. */
+cu_ptr_source_t cuex_set_iter_source(cuex_t S);
+
 /*!@}*/
 CU_END_DECLARATIONS
 

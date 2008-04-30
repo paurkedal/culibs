@@ -118,6 +118,12 @@ comm_iter_source(cuex_intf_compound_t impl, cuex_t S)
     return source;
 }
 
+cu_ptr_source_t
+cuex_set_iter_source(cuex_t S)
+{
+    return comm_iter_source(NULL, S);
+}
+
 typedef struct comm_build_sinktor_s *comm_build_sinktor_t;
 struct comm_build_sinktor_s
 {

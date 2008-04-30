@@ -3,6 +3,10 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 top_builddir=@abs_top_builddir@
 top_srcdir=@abs_top_srcdir@
+datarootdir=@datarootdir@
+datadir=@datadir@
+pkgdocdir=${datadir}/doc/culibs-${PACKAGE_VERSION}
+doxygen_tagfiles=${top_builddir}/doc/culibs.doxytags=${pkgdocdir}/html
 
 Name: cubase
 Description: Collected C: Base Library (cu, cucon, cuflow, cuos)

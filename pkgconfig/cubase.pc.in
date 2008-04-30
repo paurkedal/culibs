@@ -4,6 +4,9 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
+datarootdir=@datarootdir@
+datadir=@datadir@
+doxygen_tagfiles=${datadir}/doc/@PACKAGE_NAME@-@PACKAGE_VERSION@/culibs.doxytags
 
 Name: cubase
 Description: Collected C: Base Library (cu, cucon, cuflow, cuos)

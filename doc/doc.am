@@ -33,6 +33,7 @@ install-doc-doxy: Doxyfile $(all_doxyfiles) doc/fixed_footer.html
 	    && mv index.html frameset.html \
 	    && sed >index.html -r -e 's;(<!--)?/if-noframe/(-->)?;;g' main.html
 	install -m644 $(srcdir)/doc/gplv3-127x51.png '$(DESTDIR)$(htmldir)/'
+	install -m644 doc/culibs.doxytags '$(DESTDIR)$(pkgdocdir)/'
 install-doc-link: install-doc-dirs
 	rm -f $(DESTDIR)$(docdir)/$(PACKAGE_NAME)
 	ln -sf $(PACKAGE_NAME)-$(PACKAGE_VERSION) $(DESTDIR)$(docdir)/$(PACKAGE_NAME)
