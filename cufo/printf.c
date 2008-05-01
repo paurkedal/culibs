@@ -17,6 +17,8 @@
 
 #include <cufo/stream.h>
 #include <cufo/tag.h>
+#include <cufo/tagdefs.h>
+#include <cufo/attrdefs.h>
 #include <cuoo/intf.h>
 #include <cuoo/type.h>
 #include <cucon/hzmap.h>
@@ -25,6 +27,7 @@
 #include <cu/va_ref.h>
 #include <cu/str.h>
 #include <cu/wstring.h>
+#include <cu/logging.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -589,6 +592,36 @@ cufo_printfln(cufo_stream_t fos, char const *fmt, ...)
     va_end(va);
     cufo_newline(fos);
     return write_count;
+}
+
+void
+cufo_vlogf(cufo_stream_t fos, cu_log_facility_t facility,
+	   char const *fmt, va_list va)
+{
+    cufo_entera(fos, cufoT_logentry,
+		cufoA_logorigin(facility->origin),
+		cufoA_logseverity(facility->severity));
+    if (*fmt == '%' && fmt[1] == ':') {
+	fmt += 2;
+	while (isspace(*fmt)) ++fmt;
+	cufo_enter(fos, cufoT_location);
+	cufo_print_sref(fos, va_arg(va, cu_sref_t));
+	cufo_leave(fos, cufoT_location);
+	cufo_puts(fos, ": ");
+    }
+    cufo_enter(fos, cufoT_message);
+    cufo_vprintf(fos, fmt, va);
+    cufo_leave(fos, cufoT_message);
+    cufo_leaveln(fos, cufoT_logentry);
+}
+
+void
+cufo_logf(cufo_stream_t fos, cu_log_facility_t facility, char const *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    cufo_vlogf(fos, facility, fmt, va);
+    va_end(va);
 }
 
 void

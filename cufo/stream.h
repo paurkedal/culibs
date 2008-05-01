@@ -198,6 +198,8 @@ void cufo_print_wstring(cufo_stream_t fos, cu_wstring_t ws);
 
 void cufo_print_str(cufo_stream_t fos, cu_str_t str);
 
+void cufo_print_sref(cufo_stream_t fos, cu_sref_t srf);
+
 void cufo_print_ex(cufo_stream_t fos, cuex_t e);
 
 void cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e);
@@ -220,6 +222,12 @@ int cufo_printf(cufo_stream_t fos, char const *fmt, ...);
 int cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va);
 
 int cufo_printfln(cufo_stream_t fos, char const *fmt, ...);
+
+void cufo_logf(cufo_stream_t fos, cu_log_facility_t facility,
+	       char const *fmt, ...);
+
+void cufo_vlogf(cufo_stream_t fos, cu_log_facility_t facility,
+		char const *fmt, va_list va);
 
 void cufo_register_ptr_format(char const *key, cufo_print_ptr_fn_t fn);
 

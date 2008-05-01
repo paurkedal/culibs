@@ -19,9 +19,15 @@
 #include <cufo/tagdefs.h>
 #include <cufo/attrdefs.h>
 #include <cuos/dsink.h>
+#include <cu/logging.h>
 #include <cu/test.h>
 #include <cu/wstring.h>
 #include <cu/str.h>
+
+struct cu_log_facility_s facility = {
+    .origin = CU_LOG_USER,
+    .severity = CU_LOG_ERROR,
+};
 
 void
 print_page(cufo_stream_t fos)
@@ -47,6 +53,10 @@ print_page(cufo_stream_t fos)
 	cufo_printf(fos, "%#x '%lc' %s", i, (cu_wint_t)i,
 		    i % 4 == 3? "\n" : "| ");
     cufo_leaveln(fos, cufoT_codepre);
+
+    cufo_logf(fos, &facility, "This is a %s message.", "log");
+    cufo_logf(fos, &facility, "%: This is a log message with a location %d.",
+	      cu_sref_new_cstr("example.csv", 34, -1), 88);
 }
 
 void

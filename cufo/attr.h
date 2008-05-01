@@ -20,6 +20,7 @@
 
 #include <cufo/fwd.h>
 #include <cu/idr.h>
+#include <cucon/fwd.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cufo_attr_h cufo/attr.h: Markup Attributes
@@ -37,7 +38,10 @@ struct cufo_attr_s
     cufo_namespace_t ns;
     cu_idr_t idr;
     cufo_attrtype_t type;
-    char const *fixed_value;
+    union {
+	char const *fixed_value;
+	char const *(*enum_name)(int);
+    } extra;
 };
 
 void cufo_attr_init(cufo_attr_t attr, cufo_namespace_t ns,
@@ -45,6 +49,9 @@ void cufo_attr_init(cufo_attr_t attr, cufo_namespace_t ns,
 
 void cufo_attr_init_fixed(cufo_attr_t attr, cufo_namespace_t ns,
 			  char const *name, char const *val);
+
+void cufo_attr_init_enum(cufo_attr_t attr, cufo_namespace_t ns,
+			 char const *name, char const *(*enum_name)(int));
 
 CU_SINLINE char const *
 cufo_attr_name(cufo_attr_t attr)
@@ -59,6 +66,7 @@ CU_SINLINE char const *	cufoP_cktype_cstr(char const *s) { return s; }
 
 #define CUFO_ATTR_INT(attr, i)	attr, cufoP_cktype_int(i)
 #define CUFO_ATTR_CSTR(attr, s)	attr, cufoP_cktype_cstr(s)
+#define CUFO_ATTR_ENUM(attr, i)	attr, cufoP_cktype_int(i)
 
 /*!@}*/
 CU_END_DECLARATIONS

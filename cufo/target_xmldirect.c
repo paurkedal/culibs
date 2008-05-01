@@ -118,7 +118,7 @@ xd_enter(cufo_stream_t os, cufo_tag_t tag, va_list va)
 		char *s;
 		int i, n;
 	    case cufo_attrtype_fixed:
-		cs = attr->fixed_value;
+		cs = attr->extra.fixed_value;
 		cu_buffer_write(&buf, "\"", 1);
 		cu_buffer_write(&buf, cs, strlen(cs));
 		cu_buffer_write(&buf, "\"", 1);
@@ -136,6 +136,13 @@ xd_enter(cufo_stream_t os, cufo_tag_t tag, va_list va)
 		s = cu_buffer_content_end(&buf);
 		sprintf(s, "\"%d\"%n", i, &n);
 		cu_buffer_incr_content_end(&buf, n);
+		break;
+	    case cufo_attrtype_enum:
+		i = va_arg(va, int);
+		cs = (*attr->extra.enum_name)(i);
+		cu_buffer_write(&buf, "\"", 1);
+		cu_buffer_write(&buf, cs, strlen(cs));
+		cu_buffer_write(&buf, "\"", 1);
 		break;
 	    default:
 		cu_bug_unfinished();

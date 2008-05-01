@@ -18,6 +18,7 @@ cu_headers = \
 	cu/inherit.h \
 	cu/init.h \
 	cu/int.h \
+	cu/logging.h \
 	cu/memory.h \
 	cu/ptr.h \
 	cu/ptr_seq.h \
@@ -53,6 +54,7 @@ cu_sources = \
 	cu/idr.c \
 	cu/init.c \
 	cu/int.c \
+	cu/logging.c \
 	cu/memory.c \
 	cu/ptr_seq.c \
 	cu/rarex.c \

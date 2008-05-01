@@ -39,15 +39,9 @@ extern cufo_tag_t cufoT_title;
 extern cufo_tag_t cufoT_para;
 
 /* Diagnostic */
+extern cufo_tag_t cufoT_logentry;
 extern cufo_tag_t cufoT_location;
 extern cufo_tag_t cufoT_message;
-extern cufo_tag_t cufoT_runtime_info;
-extern cufo_tag_t cufoT_runtime_warning;
-extern cufo_tag_t cufoT_runtime_error;
-extern cufo_tag_t cufoT_bug_info;
-extern cufo_tag_t cufoT_bug_warning;
-extern cufo_tag_t cufoT_bug_error;
-extern cufo_tag_t cufoT_bug_trace;
 
 /* Expressions */
 extern cufo_tag_t cufoT_codepre;

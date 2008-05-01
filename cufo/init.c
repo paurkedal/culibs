@@ -15,13 +15,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cufo/stream.h>
 #include <cu/util.h>
+#include <cu/logging.h>
+#include <cu/thread.h>
+#include <cu/memory.h>
 
 void cufoP_tag_init(void);
 void cufoP_tagdefs_init(void);
 void cufoP_attrdefs_init(void);
 void cufoP_textstyle_default_init(void);
 void cufoP_printf_init(void);
+
+cufo_stream_t cufoP_stderr;
+cu_mutex_t cufoP_stderr_mutex = CU_MUTEX_INITIALISER;
+
+cu_clos_def(defaul_vlogf,
+	    cu_prot(void, cu_log_facility_t facility,
+		    char const *fmt, va_list va),
+    ( cufo_stream_t fos;
+      cu_mutex_t *fos_mutex; ))
+{
+    cu_clos_self(defaul_vlogf);
+    cu_mutex_lock(self->fos_mutex);
+    cufo_vlogf(self->fos, facility, fmt, va);
+    cu_mutex_unlock(self->fos_mutex);
+}
+
+cu_clop_def(default_log_binder, cu_bool_t, cu_log_facility_t facility)
+{
+    defaul_vlogf_t *vlogf = cu_gnew(defaul_vlogf_t);
+    vlogf->fos = cufoP_stderr;
+    vlogf->fos_mutex = &cufoP_stderr_mutex;
+    facility->vlogf = defaul_vlogf_prep(vlogf);
+    return cu_true;
+}
 
 void
 cufo_init(void)
@@ -35,4 +63,7 @@ cufo_init(void)
     cufoP_printf_init();
 
     cufoP_textstyle_default_init();
+
+    cufoP_stderr = cufo_open_text_fd("UTF-8", NULL, 2);
+    cu_register_log_binder(cu_clop_ref(default_log_binder));
 }

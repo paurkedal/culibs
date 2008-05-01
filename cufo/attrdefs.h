@@ -26,9 +26,25 @@ CU_BEGIN_DECLARATIONS
 
 extern struct cufo_attr_s cufoP_attr_id;
 extern struct cufo_attr_s cufoP_attr_class;
+extern struct cufo_attr_s cufoP_attr_logorigin;
+extern struct cufo_attr_s cufoP_attr_logseverity;
 
 #define cufoA_id(s)	CUFO_ATTR_CSTR(&cufoP_attr_id, s)
+
 #define cufoA_class(s)	CUFO_ATTR_CSTR(&cufoP_attr_class, s)
+
+#define cufoA_logorigin(i) CUFO_ATTR_ENUM(&cufoP_attr_logorigin, i)
+    /*:enum "logic"	CU_LOG_LOGIC	*/
+    /*:enum "system"	CU_LOG_SYSTEM	*/
+    /*:enum "user"	CU_LOG_USER	*/
+
+#define cufoA_logseverity(i) CUFO_ATTR_ENUM(&cufoP_attr_logseverity, i)
+    /*:enum "debug"	CU_LOG_DEBUG	*/
+    /*:enum "info"	CU_LOG_INFO	*/
+    /*:enum "notice"	CU_LOG_NOTICE	*/
+    /*:enum "warning"	CU_LOG_WARNING	*/
+    /*:enum "error"	CU_LOG_ERROR	*/
+    /*:enum "failure"	CU_LOG_FAILURE	*/
 
 /*!@}*/
 CU_END_DECLARATIONS

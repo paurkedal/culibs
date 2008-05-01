@@ -24,7 +24,7 @@ cufo_attr_init(cufo_attr_t attr, cufo_namespace_t ns,
     attr->ns = ns;
     attr->idr = cu_idr_by_cstr(name);
     attr->type = type;
-    attr->fixed_value = NULL;
+    attr->extra.fixed_value = NULL;
 }
 
 void
@@ -34,5 +34,15 @@ cufo_attr_init_fixed(cufo_attr_t attr, cufo_namespace_t ns,
     attr->ns = ns;
     attr->idr = cu_idr_by_cstr(name);
     attr->type = cufo_attrtype_fixed;
-    attr->fixed_value = val;
+    attr->extra.fixed_value = val;
+}
+
+void
+cufo_attr_init_enum(cufo_attr_t attr, cufo_namespace_t ns,
+		    char const *name, char const *(*enum_name)(int))
+{
+    attr->ns = ns;
+    attr->idr = cu_idr_by_cstr(name);
+    attr->type = cufo_attrtype_enum;
+    attr->extra.enum_name = enum_name;
 }
