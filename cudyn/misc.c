@@ -26,6 +26,7 @@
 #include <cuoo/properties.h>
 #include <cu/idr.h>
 #include <cu/str.h>
+#include <cufo/stream.h>
 #include <cuex/oprinfo.h>	/* FIXME: remove dep */
 #include <cuex/ex.h>
 
@@ -59,6 +60,7 @@ cudynP_char_impl(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_char_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_char_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -67,6 +69,7 @@ cudynP_uint8_impl(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_uint8_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_uint8_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -75,6 +78,7 @@ cudynP_int8_impl(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_int8_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_int8_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -83,6 +87,7 @@ cudynP_uint16_impl(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_uint16_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_uint16_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -91,6 +96,7 @@ cudynP_int16_impl(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_int16_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_int16_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -99,6 +105,7 @@ cudynP_uint32_impl(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_uint32_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_uint32_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -107,6 +114,7 @@ cudynP_int32_impl(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_int32_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_int32_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -115,6 +123,7 @@ cudynP_uint64_impl(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_uint64_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_uint64_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -123,6 +132,7 @@ cudynP_int64_impl(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_int64_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_int64_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -132,6 +142,7 @@ cudynP_float_impl(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_float_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_float_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -140,6 +151,7 @@ cudynP_double_impl(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_double_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_double_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -157,11 +169,18 @@ cudynP_bool_print(cuex_t e, FILE *out)
     fputs(cudyn_to_bool(e)? "true" : "false", out);
 }
 
+static void
+cudynP_bool_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *e)
+{
+    cufo_puts(fos, cudyn_to_bool(e)? "true" : "false");
+}
+
 static cu_word_t
 cudynP_bool_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_bool_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_bool_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
@@ -175,7 +194,9 @@ cuex_t cudynP_false;
 CUDYN_ARRTYPE_DEFN(cuex, cuex_t)
 
 CUDYN_ETYPEARR_DEFN(metaint, cuex_meta_t)
-static void cudynP_metaint_print(cuex_t e, FILE *out)
+
+static void
+cudynP_metaint_print(cuex_t e, FILE *out)
 {
     cuex_meta_t meta = cuex_meta(e);
     cuex_oprinfo_t oi = cuex_oprinfo(meta);
@@ -193,11 +214,31 @@ static void cudynP_metaint_print(cuex_t e, FILE *out)
 	fprintf(out, "__meta_0x%lx", (unsigned long)meta);
 }
 
+static void
+cudynP_metaint_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *e)
+{
+    cuex_meta_t meta = cuex_meta(e);
+    cuex_oprinfo_t oi = cuex_oprinfo(meta);
+    if (oi)
+	cufo_puts(fos, cuex_oprinfo_name(oi));
+    else if (cuex_meta_is_opr(meta))
+	cufo_printf(fos, "__opr%d/%d",
+		    (unsigned int)cuex_opr_index(meta),
+		    (unsigned int)cuex_opr_r(meta));
+    else if (cuex_meta_is_type(meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(meta);
+	cufo_printsp_ex(fos, spec, type);
+    }
+    else
+	cufo_printf(fos, "__meta_0x%lx", (unsigned long)meta);
+}
+
 static cu_word_t
 cudynP_metaint_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_metaint_print;
+	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_metaint_foprint;
 	default: return CUOO_IMPL_NONE;
     }
 }
