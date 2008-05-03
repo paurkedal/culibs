@@ -32,7 +32,7 @@ typedef struct cufo_tag_s *cufo_tag_t;
 typedef struct cufo_namespace_s *cufo_namespace_t;
 typedef struct cufo_attr_s *cufo_attr_t;
 
-typedef struct cufo_textstate_s *cufo_textstate_t;
+typedef struct cufo_textstream_s *cufo_textstream_t;
 typedef struct cufo_textstyle_s *cufo_textstyle_t;
 typedef struct cufo_textstyler_s *cufo_textstyler_t;
 

@@ -15,30 +15,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CUFO_TEXTSTYLE_H
-#define CUFO_TEXTSTYLE_H
+#ifndef CUFO_TEXTSTREAM_H
+#define CUFO_TEXTSTREAM_H
 
-#include <cufo/fwd.h>
-#include <cucon/hzmap.h>
-#include <cu/inherit.h>
+#include <cufo/stream.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cufo_textstyle_h cufo/textstyle.h: Text Target Styler Support
- *@{\ingroup cufo_mod */
+/*!\defgroup cufo_textstream_h cufo/textstream.h: Text Target Styler and Stream
+ *@{\ingroup cufo_mod
+ *
+ * \note Don't use this directly unless writing a text style definition,
+ * instead call the appropriate open-function from \ref cufo_stream_h
+ * "cufo/stream.h".
+ */
 
-/*!Text stream state which can be modified by style callbacks. */
-struct cufo_textstate_s
+/*!The text-stream struct for use by text-stylers. */
+struct cufo_textstream_s
 {
+    cu_inherit (cufo_stream_s);
+    struct cu_buffer_s buf;
+    cu_dsink_t sink;
+    int col;
+
+    cufo_textstyle_t style;
+
     int tabstop;
     int left_margin;
     int right_margin;
     int cont_indent;
     cu_wstring_t cont_eol_insert;
     cu_wstring_t cont_bol_insert;
+    cu_bool_t is_cont : 1;
 };
 
-CU_SINLINE int cufo_textstate_width(cufo_textstate_t ts)
-{ return ts->right_margin - ts->left_margin; }
+CU_SINLINE int
+cufo_textstream_width(cufo_textstream_t tos)
+{ return tos->right_margin - tos->left_margin; }
 
 /*!A \ref cufo_textstyle_s callback for a single tag. */
 struct cufo_textstyler_s
@@ -48,26 +60,25 @@ struct cufo_textstyler_s
     cu_word_t tag;
 
     /* Value */
-    cu_wstring_t (*enter)(cufo_textstate_t state, cufo_tag_t tag,
-			  va_list attrs);
-    cu_wstring_t (*leave)(cufo_textstate_t state, cufo_tag_t tag);
+    cu_wstring_t (*enter)(cufo_textstream_t tos, cufo_tag_t tag, va_list attrs);
+    cu_wstring_t (*leave)(cufo_textstream_t tos, cufo_tag_t tag);
 };
 
 /*!A style definition for a text stream. */
 struct cufo_textstyle_s
 {
-    size_t state_size; /* state struct inherited from cufo_textstate_s */
-    cu_clop(state_init, void, cufo_textstate_t state);
+    size_t stream_size;
+    cu_clop(stream_init, void, cufo_textstream_t tos);
     struct cucon_hzmap_s tag_to_styler;
 };
 
-/*!Initialises \a style with the given state size and state initialisation
- * function.  \a state_size is the full size of the state information of a type
- * derived from or the same as \ref cufo_textstate_s.  At stream creation, the
- * base struct will be filled with default values, and then \a state_init is
- * called to do the full \a state_size bytes initialisation. */
-void cufo_textstyle_init(cufo_textstyle_t style, size_t state_size,
-			 cu_clop(state_init, void, cufo_textstate_t state));
+/*!Initialises \a style with the given stream size and stream initialiser.  \a
+ * stream_size is the full size of the stream struct of some type derived from
+ * \ref cufo_textstream_s.  At stream creation, the \ref cufo_textstream_s base
+ * struct is first initialised, then \a stream_init is called to finish the
+ * initialisation. */
+void cufo_textstyle_init(cufo_textstyle_t style, size_t stream_size,
+			 cu_clop(stream_init, void, cufo_textstream_t));
 
 /*!Make a static declaration and partial initialisation of a \ref
  * cufo_textstyler_s struct using \a name as a prefix for the identifiers
@@ -87,7 +98,8 @@ void cufo_textstyle_bind_static(cufo_textstyle_t style,
 
 struct cufo_textstyle_s cufoP_default_textstyle;
 
-CU_SINLINE cufo_textstyle_t cufo_default_textstyle(void)
+CU_SINLINE cufo_textstyle_t
+cufo_default_textstyle(void)
 { return &cufoP_default_textstyle; }
 
 /*!@}*/

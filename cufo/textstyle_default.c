@@ -15,48 +15,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cufo/textstyle.h>
+#include <cufo/textstream.h>
 #include <cufo/tagdefs.h>
 #include <cu/wstring.h>
 
-typedef struct state_s *state_t;
-struct state_s
+typedef struct dtx_stream_s *dtx_stream_t;
+struct dtx_stream_s
 {
-    cu_inherit (cufo_textstate_s);
+    cu_inherit (cufo_textstream_s);
 };
-#define STATE(tstate) cu_from(state, cufo_textstate, tstate)
+#define STATE(tstate) cu_from(dtx_stream, cufo_textstream, tstate)
 
-cu_clop_def(state_init, void, cufo_textstate_t state)
+cu_clop_def(stream_init, void, cufo_textstream_t tos)
 {
 }
 
 cu_wstring_t
-indent_enter(cufo_textstate_t state, cufo_tag_t tag, va_list attrs)
+indent_enter(cufo_textstream_t tos, cufo_tag_t tag, va_list attrs)
 {
-    state->left_margin += 4;
+    tos->left_margin += 4;
     return NULL;
 }
 
 cu_wstring_t
-indent_leave(cufo_textstate_t state, cufo_tag_t tag)
+indent_leave(cufo_textstream_t tos, cufo_tag_t tag)
 {
-    state->left_margin -= 4;
+    tos->left_margin -= 4;
     return NULL;
 }
 
 cu_wstring_t
-codepre_enter(cufo_textstate_t state, cufo_tag_t tag, va_list attrs)
+codepre_enter(cufo_textstream_t tos, cufo_tag_t tag, va_list attrs)
 {
-    state->cont_eol_insert = CU_WSTRING_C(" \\");
-    state->cont_indent = 8;
+    tos->cont_eol_insert = CU_WSTRING_C(" \\");
+    tos->cont_indent = 8;
     return NULL;
 }
 
 cu_wstring_t
-codepre_leave(cufo_textstate_t state, cufo_tag_t tag)
+codepre_leave(cufo_textstream_t tos, cufo_tag_t tag)
 {
-    state->cont_eol_insert = NULL;
-    state->cont_indent = 0;
+    if (tos->is_cont) {
+	cufo_newline(cu_to(cufo_stream, tos));
+	cufo_flush(cu_to(cufo_stream, tos));
+    }
+    tos->cont_eol_insert = NULL;
+    tos->cont_indent = 0;
     return NULL;
 }
 
@@ -68,8 +72,8 @@ struct cufo_textstyle_s cufoP_default_textstyle;
 void
 cufoP_textstyle_default_init(void)
 {
-    cufo_textstyle_init(&cufoP_default_textstyle, sizeof(struct state_s),
-			cu_clop_ref(state_init));
+    cufo_textstyle_init(&cufoP_default_textstyle, sizeof(struct dtx_stream_s),
+			cu_clop_ref(stream_init));
 #define B(tag) \
 	cufo_textstyle_bind_static(&cufoP_default_textstyle, \
 				   cufoT_##tag, &tag##_styler)
