@@ -26,11 +26,15 @@ CU_BEGIN_DECLARATIONS
 
 /*!Enumeration of partial order relations. */
 typedef enum {
-    cu_order_none,	/*!< no ordering relation applies */
-    cu_order_lt,	/*!< less-than ordering */
-    cu_order_gt,	/*!< greater-than ordering */
-    cu_order_eq,	/*!< equal-to ordering */
+    cu_order_none = 0,	/*!< no ordering relation applies */
+    cu_order_lt = 13,	/*!< less-than ordering */
+    cu_order_gt = 14,	/*!< greater-than ordering */
+    cu_order_eq = 3,	/*!< equal-to ordering */
 } cu_order_t;
+
+CU_SINLINE cu_order_t
+cu_order_rev(cu_order_t order)
+{ return order ^ (order >> 2); }
 
 CU_SINLINE void
 cu_ptr_swap(cu_ptr_ptr_t p0, cu_ptr_ptr_t p1)
