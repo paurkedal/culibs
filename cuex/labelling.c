@@ -38,6 +38,8 @@ cu_clop_def(value_merge, cuex_t, cuex_t e0, cuex_t e1)
 #define atree_find(T, l) cuex_atree_find(get_key, T, (cu_word_t)(l))
 #define atree_insert(T, e) cuex_atree_insert(get_key, T, e)
 #define atree_erase(T, l) cuex_atree_erase(get_key, T, (cu_word_t)(l))
+#define atree_find_erase(pT, l) \
+	cuex_atree_find_erase(get_key, pT, (cu_word_t)(l))
 #define atree_left_union(T0, T1) cuex_atree_left_union(get_key, T0, T1)
 #define atree_isecn(T0, T1) cuex_atree_isecn(get_key, T0, T1)
 #define atree_order(T0, T1) cuex_atree_order(get_key, T0, T1)
@@ -138,16 +140,61 @@ cuex_labelling_find(cuex_t L, cuex_t l)
 }
 
 cuex_t
+cuex_labelling_erase(cuex_t L, cuex_t l)
+{
+    if (!cuex_is_labelling(L))
+	cu_bugf("First argument of cuex_labelling_erase must be a labelling.");
+    return labelling(atree_erase(LABELLING(L)->atree, l));
+}
+
+cuex_t
+cuex_labelling_find_erase(cuex_t *L, cuex_t l)
+{
+    cuex_t tree, node;
+    if (!cuex_is_labelling(L))
+	cu_bugf("First argument of cuex_labelling_erase must be a labelling.");
+    tree = LABELLING(L)->atree;
+    node = atree_find_erase(&tree, l);
+    if (node) {
+	*L = labelling(tree);
+	return cuex_opn_at(node, 1);
+    }
+    else
+	return NULL;
+}
+
+cuex_t
 cuex_labelling_left_union(cuex_t L0, cuex_t L1)
 {
     if (!cuex_is_labelling(L0))
-	cu_bugf("First argument of cuex_labelling_union must be a labelling.");
+	cu_bugf("First argument of cuex_labelling_left_union must be a "
+		"labelling.");
     if (!cuex_is_labelling(L1))
-	cu_bugf("Second argument of cuex_labelling_union must be a "
+	cu_bugf("Second argument of cuex_labelling_left_union must be a "
 		"labelling.");
     return labelling(cuex_atree_left_union(get_key,
 					   LABELLING(L0)->atree,
 					   LABELLING(L1)->atree));
+}
+
+cuex_t
+cuex_labelling_disjoint_union(cuex_t L0, cuex_t L1)
+{
+    cuex_t tree;
+    if (!cuex_is_labelling(L0))
+	cu_bugf("First argument of cuex_labelling_disjoint_union must be a "
+		"labelling.");
+    if (!cuex_is_labelling(L1))
+	cu_bugf("Second argument of cuex_labelling_disjoint_union must be a "
+		"labelling.");
+    if (!LABELLING(L0)->atree)
+	return L1;
+    tree = cuex_atree_disjoint_union(get_key,
+				     LABELLING(L0)->atree,
+				     LABELLING(L1)->atree);
+    if (!tree)
+	return NULL; /* not disjoint */
+    return labelling(tree);
 }
 
 cuex_t

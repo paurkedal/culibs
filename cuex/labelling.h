@@ -74,6 +74,14 @@ cuex_t cuex_labelling_deep_insert(cu_clop(merge, cuex_t, cuex_t, cuex_t),
 /*!Returns the mapping of \a l in \a L, or \c NULL if none. */
 cuex_t cuex_labelling_find(cuex_t L, cuex_t l);
 
+/*!Returns the result of erasing the mapping from \a l in \a L if present,
+ * otherwise returs \a L. */
+cuex_t cuex_labelling_erase(cuex_t L, cuex_t l);
+
+/*!If \a l has a mapping if \c *\a L, updates \c *\a L by erasing it, and
+ * returns the value of the mapping, otherwise returns \c NULL. */
+cuex_t cuex_labelling_find_erase(cuex_t *L, cuex_t l);
+
 /*!Forms the union of \a L0 and \a L1 considering elements equal if they have
  * the same label.  For elements present in both labellings, those from |a L0
  * are used in the result. */
@@ -83,6 +91,11 @@ cuex_t cuex_labelling_left_union(cuex_t L0, cuex_t L1);
  * elements with \a merge.  */
 cuex_t cuex_labelling_deep_union(cu_clop(merge, cuex_t, cuex_t e0, cuex_t e1),
 				 cuex_t L0, cuex_t L1);
+
+/*!Returns the union of \a L0 and \a L1 if they are disjoint, \c NULL
+ * otherwise.  ("Disjoint union" is not used in the sense of "discriminated
+ * union" here.) */
+cuex_t cuex_labelling_disjoint_union(cuex_t L0, cuex_t L1);
 
 /*!Forms the intersection of \a L0 and \a L1 considering elements equal if they
  * have the same label.  The elements of \a L0 are used in the result. */
@@ -113,7 +126,7 @@ cuex_t cuex_labelling_expand_all(cuex_t L);
 cuex_t cuex_labelling_contract_all(cuex_t L);
 
 /*!Returns an iteration source for the unordered sequence.  The implied
- * sequence are \c CUEX_O2_LABEL nodes.
+ * sequence are \c CUEX_O2_METAPAIR nodes.
  * \pre L is a labelling; check with \ref cuex_is_labelling */
 cu_ptr_source_t cuex_labelling_comm_iter_source(cuex_t L);
 
@@ -131,11 +144,11 @@ cu_ptr_source_t cuex_labelling_ncomm_iter_source(cuex_t L);
 cu_ptr_junctor_t cuex_labelling_ncomm_image_junctor(cuex_t L);
 
 /*!A sinktor for construction a new labelling by unordered insertion of \c
- * CUEX_O2_LABEL nodes and labellings. */
+ * CUEX_O2_METAPAIR nodes and labellings. */
 cu_ptr_sinktor_t cuex_labelling_comm_build_sinktor(void);
 
 /*!A sinktor for extending a labelling by unordered insertion of \c
- * CUEX_O2_LABEL nodes and labellings. */
+ * CUEX_O2_METAPAIR nodes and labellings. */
 cu_ptr_sinktor_t cuex_labelling_comm_union_sinktor(cuex_t L);
 
 /*!@}*/

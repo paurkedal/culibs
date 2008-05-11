@@ -148,6 +148,13 @@ cuex_t
 cuex_atree_erase(cu_clop(get_key, cu_word_t, cuex_t),
 		 cuex_t tree, cu_word_t erase_key);
 
+/*!If \c *\a tree has a node where \a get_key returns \a erase_key, updates \c
+ * *\a tree by removing this node and returns the node, otherwise returns \c
+ * NULL.  */
+cuex_t
+cuex_atree_find_erase(cu_clop(get_key, cu_word_t, cuex_t),
+		      cuex_t *tree, cu_word_t erase_key);
+
 /*!Returns the union of \a tree0 and \a tree1, considering two elements equal
  * if the corresponding values returned by \a get_key are equal.  For common
  * nodes, those from \a tree0 are used in the result. */
@@ -155,8 +162,15 @@ cuex_t
 cuex_atree_left_union(cu_clop(get_key, cu_word_t, cuex_t),
 		      cuex_t tree0, cuex_t tree1);
 
+/*!As \ref cuex_atree_left_union except \c NULL is returned in case \a tree0
+ * and \a tree1 coinsides on any of their keys. */
+cuex_t
+cuex_atree_disjoint_union(cu_clop(get_key, cu_word_t, cuex_t),
+			  cuex_t tree0, cuex_t tree1);
+
 /*!As \ref cuex_atree_left_union, except merge any duplicate element with \a
- * merge_values. */
+ * merge_values.  If \a merge at some point returns \c NULL, the algorithm
+ * terminates and returns \c NULL. */
 cuex_t
 cuex_atree_deep_union(cu_clop(get_key, cu_word_t, cuex_t),
 		      cu_clop(merge, cuex_t, cuex_t leaf0, cuex_t leaf1),

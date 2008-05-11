@@ -98,7 +98,6 @@ o/2 cuex_o2_farrow_native:cuex_og_regular
 o/1 cuex_o1_ptr_to	: cuex_og_regular
 
 # Structural
-o/2 cuex_o2_label	: cuex_og_regular
 o/2 cuex_o2_pair	: cuex_og_regular
 
 # Functional and Control

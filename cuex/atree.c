@@ -40,6 +40,11 @@ cu_clop_def(merge_as_second, cuex_t, cuex_t e0, cuex_t e1)
     return e1;
 }
 
+cu_clop_def(merge_disjoin, cuex_t, cuex_t e0, cuex_t e1)
+{
+    return NULL;
+}
+
 cu_clos_def(merge_iv_adaptor,
 	    cu_prot(cuex_t, cuex_t e0, cuex_t e1),
   ( cu_rank_t value_index;
@@ -243,19 +248,21 @@ atree_insert(cu_clop(get_key, cu_word_t, cuex_t),
 	if ((cu_word_t)value_key < centre) {
 	    if ((cu_word_t)value_key < centre_to_min(centre))
 		return node_new(PAIR_CENTRE(value_key, centre), value, tree);
-	    else
-		return node_new(centre,
-				atree_insert(get_key, merge_values,
-					     NODE(tree)->left, value),
-				NODE(tree)->right);
+	    else {
+		cuex_t left = atree_insert(get_key, merge_values,
+					   NODE(tree)->left, value);
+		if (!left) return NULL;
+		return node_new(centre, left, NODE(tree)->right);
+	    }
 	} else {
 	    if ((cu_word_t)value_key > centre_to_max(centre))
 		return node_new(PAIR_CENTRE(centre, value_key), tree, value);
-	    else
-		return node_new(centre,
-				NODE(tree)->left,
-				atree_insert(get_key, merge_values,
-					     NODE(tree)->right, value));
+	    else {
+		cuex_t right = atree_insert(get_key, merge_values,
+					    NODE(tree)->right, value);
+		if (!right) return NULL;
+		return node_new(centre, NODE(tree)->left, right);
+	    }
 	}
     }
 }
@@ -284,19 +291,21 @@ atree_insert_rev(cu_clop(get_key, cu_word_t, cuex_t),
 	if ((cu_word_t)value_key < centre) {
 	    if ((cu_word_t)value_key < centre_to_min(centre))
 		return node_new(PAIR_CENTRE(value_key, centre), value, tree);
-	    else
-		return node_new(centre,
-				atree_insert_rev(get_key, merge_values,
-						 NODE(tree)->left, value),
-				NODE(tree)->right);
+	    else {
+		cuex_t left = atree_insert_rev(get_key, merge_values,
+					       NODE(tree)->left, value);
+		if (!left) return NULL;
+		return node_new(centre, left, NODE(tree)->right);
+	    }
 	} else {
 	    if ((cu_word_t)value_key > centre_to_max(centre))
 		return node_new(PAIR_CENTRE(centre, value_key), tree, value);
-	    else
-		return node_new(centre,
-				NODE(tree)->left,
-				atree_insert_rev(get_key, merge_values,
-						 NODE(tree)->right, value));
+	    else {
+		cuex_t right = atree_insert_rev(get_key, merge_values,
+						NODE(tree)->right, value);
+		if (!right) return NULL;
+		return node_new(centre, NODE(tree)->left, right);
+	    }
 	}
     }
 }
@@ -354,15 +363,18 @@ cuex_atree_deep_insert_kv(cu_clop(merge_values, cuex_t,
 }
 
 static cuex_t
-atree_erase(cu_clop(get_key, cu_word_t, cuex_t), cuex_t tree, cu_word_t key)
+atree_erase(cu_clop(get_key, cu_word_t, cuex_t), cuex_t tree, cu_word_t key,
+	    cuex_t *elt_out)
 {
     cuex_meta_t tree_meta;
     tree_meta = cuex_meta(tree);
     if (tree_meta != anode_meta) {
 	cu_word_t atree_key;
 	atree_key = cu_call(get_key, tree);
-	if (key == atree_key)
+	if (key == atree_key) {
+	    *elt_out = tree;
 	    return NULL;
+	}
 	else
 	    return tree;
     } else {
@@ -372,7 +384,7 @@ atree_erase(cu_clop(get_key, cu_word_t, cuex_t), cuex_t tree, cu_word_t key)
 		return tree;
 	    else {
 		cuex_t new_left;
-		new_left = atree_erase(get_key, NODE(tree)->left, key);
+		new_left = atree_erase(get_key, NODE(tree)->left, key, elt_out);
 		if (new_left == NULL)
 		    return NODE(tree)->right;
 		else
@@ -383,7 +395,8 @@ atree_erase(cu_clop(get_key, cu_word_t, cuex_t), cuex_t tree, cu_word_t key)
 		return tree;
 	    else {
 		cuex_t new_right;
-		new_right = atree_erase(get_key, NODE(tree)->right, key);
+		new_right = atree_erase(get_key, NODE(tree)->right, key,
+					elt_out);
 		if (new_right == NULL)
 		    return NODE(tree)->left;
 		else
@@ -397,14 +410,28 @@ cuex_t
 cuex_atree_erase(cu_clop(get_key, cu_word_t, cuex_t),
 		 cuex_t tree, cu_word_t key)
 {
+    cuex_t elt;
     cuex_t res;
     if (cuex_atree_is_empty(tree))
 	return tree;
-    res = atree_erase(get_key, tree, key);
+    res = atree_erase(get_key, tree, key, &elt);
     if (res == NULL)
 	return cuex_atree_empty();
     else
 	return res;
+}
+
+cuex_t
+cuex_atree_find_erase(cu_clop(get_key, cu_word_t, cuex_t),
+		      cuex_t *tree, cu_word_t key)
+{
+    cuex_t elt;
+    if (cuex_atree_is_empty(tree))
+	return NULL;
+    *tree = atree_erase(get_key, tree, key, &elt);
+    if (*tree == NULL)
+	*tree = cuex_atree_empty();
+    return elt;
 }
 
 static cuex_t
@@ -421,14 +448,16 @@ atree_union(cu_clop(get_key, cu_word_t, cuex_t),
     else {
 	cu_word_t centre0 = NODE(tree0)->centre;
 	cu_word_t centre1 = NODE(tree1)->centre;
-	if (centre0 == centre1)
-	    return node_new(centre0,
-			    atree_union(get_key, merge_values,
-					NODE(tree0)->left,
-					NODE(tree1)->left),
-			    atree_union(get_key, merge_values,
-					NODE(tree0)->right,
-					NODE(tree1)->right));
+	if (centre0 == centre1) {
+	    cuex_t left, right;
+	    left = atree_union(get_key, merge_values,
+			       NODE(tree0)->left, NODE(tree1)->left);
+	    if (!left) return NULL;
+	    right = atree_union(get_key, merge_values,
+				NODE(tree0)->right, NODE(tree1)->right);
+	    if (!right) return NULL;
+	    return node_new(centre0, left, right);
+	}
 	else if (centre0 < centre1) {
 	    cu_word_t max0 = centre_to_max(centre0);
 	    if (max0 < centre1) {
@@ -436,17 +465,19 @@ atree_union(cu_clop(get_key, cu_word_t, cuex_t),
 		if (max0 < min1)		/* [---] [---] */
 		    return node_new(pair_centre(centre0, centre1),
 				    tree0, tree1);
-		else				/* [[---]---] */
-		    return node_new(centre1,
-				    atree_union(get_key, merge_values,
-						tree0, NODE(tree1)->left),
-				    NODE(tree1)->right);
+		else {				/* [[---]---] */
+		    cuex_t left = atree_union(get_key, merge_values, tree0,
+					      NODE(tree1)->left);
+		    if (!left) return NULL;
+		    return node_new(centre1, left, NODE(tree1)->right);
+		}
 	    }
-	    else				/* [---[---]] */
-		return node_new(centre0,
-				NODE(tree0)->left,
-				atree_union(get_key, merge_values,
-					    NODE(tree0)->right, tree1));
+	    else {				/* [---[---]] */
+		cuex_t right = atree_union(get_key, merge_values,
+					   NODE(tree0)->right, tree1);
+		if (!right) return NULL;
+		return node_new(centre0, NODE(tree0)->left, right);
+	    }
 	}
 	else {  /* As above but with tree0 and tree1 swapped. */
 	    cu_word_t max1 = centre_to_max(centre1);
@@ -455,17 +486,19 @@ atree_union(cu_clop(get_key, cu_word_t, cuex_t),
 		if (max1 < min0)
 		    return node_new(pair_centre(centre1, centre0),
 				    tree1, tree0);
-		else
-		    return node_new(centre0,
-				    atree_union(get_key, merge_values,
-						NODE(tree0)->left, tree1),
-				    NODE(tree0)->right);
+		else {
+		    cuex_t left = atree_union(get_key, merge_values,
+					      NODE(tree0)->left, tree1);
+		    if (!left) return NULL;
+		    return node_new(centre0, left, NODE(tree0)->right);
+		}
 	    }
-	    else
-		return node_new(centre1,
-				NODE(tree1)->left,
-				atree_union(get_key, merge_values,
-					    tree0, NODE(tree1)->right));
+	    else {
+		cuex_t right = atree_union(get_key, merge_values,
+					   tree0, NODE(tree1)->right);
+		if (!right) return NULL;
+		return node_new(centre1, NODE(tree1)->left, right);
+	    }
 	}
     }
 }
@@ -479,6 +512,17 @@ cuex_atree_left_union(cu_clop(get_key, cu_word_t, cuex_t),
     if (cuex_atree_is_empty(tree1))
 	return tree0;
     return atree_union(get_key, merge_as_first, tree0, tree1);
+}
+
+cuex_t
+cuex_atree_disjoint_union(cu_clop(get_key, cu_word_t, cuex_t),
+			  cuex_t tree0, cuex_t tree1)
+{
+    if (cuex_atree_is_empty(tree0))
+	return tree1;
+    if (cuex_atree_is_empty(tree1))
+	return tree0;
+    return atree_union(get_key, merge_disjoin, tree0, tree1);
 }
 
 cuex_t
