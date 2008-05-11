@@ -58,7 +58,7 @@ test(void *thread_index)
 	int J = -(int)log(drand48()*(1.0 - EPSILON) + EPSILON);
 	cuex_meta_t opr = 1;// = lrand48() % 20;
 	cuex_opn_t e;
-	//if (i < 50 && (int)thread_index == 0)
+	//if (i < 50 && (intptr_t)thread_index == 0)
 	//    printf("%5d %2d\n", dst, J);
 
 	assert(0 <= J && J < 1024);
@@ -113,7 +113,7 @@ main()
 {
     clock_t t = 0;
 #if NTHREADS > 1
-    int i;
+    intptr_t i;
     pthread_t th[NTHREADS];
 #endif
     cuex_init();

@@ -16,6 +16,7 @@
  */
 
 #include <cu/diag.h>
+#include <cu/logging.h>
 #include <cu/str.h>
 #include <cu/sref.h>
 #include <cucon/pmap.h>
@@ -29,6 +30,16 @@
 static int g_error_count;
 static int g_warning_count;
 static struct cucon_umap_s format_map;
+
+static cu_mutex_t g_log_mutex = CU_MUTEX_INITIALISER;
+enum {FI_VERB, FI_WARN, FI_ERR, FI_DEBUG, FI_BUG};
+static struct cu_log_facility_s g_log_facility_arr[] = {
+    {CU_LOG_INFO, CU_LOG_USER},
+    {CU_LOG_WARNING, CU_LOG_USER},
+    {CU_LOG_ERROR, CU_LOG_USER},
+    {CU_LOG_INFO, CU_LOG_LOGIC},
+    {CU_LOG_FAILURE, CU_LOG_LOGIC},
+};
 
 void
 cu_diag_define_format_key(char key, cu_diag_format_fn_t fn)
@@ -197,10 +208,10 @@ cu_errf_at(cu_sref_t srf, char const *msg, ...)
 void
 cu_verrf(char const *msg, va_list va)
 {
+    cu_mutex_lock(&g_log_mutex);
     ++g_error_count;
-    fputs("error: ", stderr);
-    cu_vfprintf(stderr, msg, va);
-    fputc('\n', stderr);
+    cu_vlogf(&g_log_facility_arr[FI_ERR], msg, va);
+    cu_mutex_unlock(&g_log_mutex);
 }
 
 void
@@ -235,10 +246,10 @@ cu_warnf_at(cu_sref_t srf, char const *msg, ...)
 void
 cu_vwarnf(char const* msg, va_list va)
 {
+    cu_mutex_lock(&g_log_mutex);
     ++g_warning_count;
-    fputs("warning: ", stderr);
-    cu_vfprintf(stderr, msg, va);
-    fputc('\n', stderr);
+    cu_vlogf(&g_log_facility_arr[FI_WARN], msg, va);
+    cu_mutex_unlock(&g_log_mutex);
 }
 
 void
@@ -320,11 +331,11 @@ cu_verbf(int level, char const *msg, ...)
     va_list va;
     if (level > cuP_verbosity)
 	return;
-    fputs("info: ", stderr);
     va_start(va, msg);
-    cu_vfprintf(stderr, msg, va);
+    cu_mutex_lock(&g_log_mutex);
+    cu_vlogf(&g_log_facility_arr[FI_VERB], msg, va);
+    cu_mutex_unlock(&g_log_mutex);
     va_end(va);
-    fputc('\n', stderr);
 }
 
 void
@@ -339,7 +350,13 @@ cu_fprintf(FILE *file, char const *fmt, ...)
 void
 cuP_diag_init(void)
 {
+    int i;
     char *s;
+
+    for (i = 0; i < sizeof(g_log_facility_arr)/sizeof(g_log_facility_arr[0]);
+	 ++i)
+	cu_register_permanent_log(&g_log_facility_arr[i]);
+
     cucon_umap_init(&format_map);
     if ((s = getenv("CU_VERBOSITY"))) {
 	int i = atoi(s);

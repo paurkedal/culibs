@@ -34,7 +34,7 @@
 #define VALUE_WORDS 1
 
 #if 1
-#  define cu_rarex_cct(r) pthread_mutex_init(r, NULL)
+#  define cu_rarex_init(r) pthread_mutex_init(r, NULL)
 #  define cu_rarex_t pthread_mutex_t
 #  define cu_rarex_lock_read(r) pthread_mutex_lock(r)
 #  define cu_rarex_unlock_read(r) pthread_mutex_unlock(r)
@@ -107,7 +107,7 @@ int main()
     cu_init();
     srand48(time(NULL));
     for (i = 0; i < RAREX_CNT; ++i)
-	cu_rarex_cct(&unit_arr[i].rarex);
+	cu_rarex_init(&unit_arr[i].rarex);
     for (i = 0; i < THREAD_CNT; ++i) {
 	thread_data[i] = i;
 	int err = pthread_create(&th[i], NULL, accessor, &thread_data[i]);

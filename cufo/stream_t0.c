@@ -23,6 +23,7 @@
 #include <cu/test.h>
 #include <cu/wstring.h>
 #include <cu/str.h>
+#include <cu/sref.h>
 
 struct cu_log_facility_s facility = {
     .origin = CU_LOG_USER,

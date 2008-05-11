@@ -22,8 +22,9 @@
 cu_clop_def(cuP_default_vlogf, void,
 	    cu_log_facility_t facility, char const *fmt, va_list va)
 {
+    cu_bool_t have_loc = fmt[0] == '%' && fmt[1] == ':';
+#ifdef CUCONF_COMPACT_LOG
     char s0, s1;
-
     switch (facility->origin) {
 	case CU_LOG_LOGIC:	s0 = 'l'; break;
 	case CU_LOG_SYSTEM:	s0 = 's'; break;
@@ -39,10 +40,34 @@ cu_clop_def(cuP_default_vlogf, void,
 	case CU_LOG_FAILURE:	s1 = 'f'; break;
 	default:		s1 = '?'; break;
     }
+    fprintf(stderr, "[%c/%c] ", s0, s1);
+#else
+    char *s0, *s1;
+    switch (facility->origin) {
+	case CU_LOG_LOGIC:	s0 = "logic"; break;
+	case CU_LOG_SYSTEM:	s0 = "sys"; break;
+	case CU_LOG_USER:	s0 = NULL; break;
+	default:		s0 = "?"; break;
+    }
+    switch (facility->severity) {
+	case CU_LOG_DEBUG:	s1 = "debug"; break;
+	case CU_LOG_INFO:	s1 = "info"; break;
+	case CU_LOG_NOTICE:	s1 = "notice"; break;
+	case CU_LOG_WARNING:	s1 = "warning"; break;
+	case CU_LOG_ERROR:	s1 = have_loc? NULL : "error"; break;
+	case CU_LOG_FAILURE:	s1 = "failure"; break;
+	default:		s1 = "?"; break;
+    }
+    if (s0) {
+	if (s1)
+	    fprintf(stderr, "%s %s: ", s0, s1);
+	else
+	    fprintf(stderr, "%s: ", s0);
+    } else if (s1)
+	fprintf(stderr, "%s: ", s1);
+#endif
 
-    fprintf(stderr, "%c/%c ", s0, s1);
-
-    if (fmt[0] == '%' && fmt[1] == ':') {
+    if (have_loc) {
 	cu_sref_t loc = va_arg(va, cu_sref_t);
 	cu_sref_fprint(loc, stderr);
 	fputs(": ", stderr);
