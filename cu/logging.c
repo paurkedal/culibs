@@ -90,8 +90,12 @@ static cu_log_facility_t cuP_log_facility_chain = NULL;
 cu_log_binder_t
 cu_register_log_binder(cu_log_binder_t log_binder)
 {
+    cu_log_facility_t facility;
     cu_log_binder_t old_log_binder = cuP_log_binder;
     cuP_log_binder = log_binder;
+    for (facility = cuP_log_facility_chain; facility;
+	 facility = facility->next)
+	cu_call(cuP_log_binder, facility);
     return old_log_binder;
 }
 

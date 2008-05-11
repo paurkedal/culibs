@@ -38,6 +38,11 @@ CU_SINLINE cuoo_type_t
 cuex_set_type()
 { return cuoo_stdtype_to_type(cuexP_set_type); }
 
+/*!True iff \a e is a set. */
+CU_SINLINE cu_bool_t
+cuex_is_set(cuex_t e)
+{ return cuex_meta(e) == cuoo_type_to_meta(cuex_set_type()); }
+
 /*!The empty set term. */
 CU_SINLINE cuex_t
 cuex_empty_set(void)

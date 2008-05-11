@@ -151,9 +151,9 @@ cuex_t
 cuex_labelling_find_erase(cuex_t *L, cuex_t l)
 {
     cuex_t tree, node;
-    if (!cuex_is_labelling(L))
+    if (!cuex_is_labelling(*L))
 	cu_bugf("First argument of cuex_labelling_erase must be a labelling.");
-    tree = LABELLING(L)->atree;
+    tree = LABELLING(*L)->atree;
     node = atree_find_erase(&tree, l);
     if (node) {
 	*L = labelling(tree);

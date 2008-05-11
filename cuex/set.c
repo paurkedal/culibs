@@ -57,18 +57,26 @@ cuex_singleton_set(cuex_t e)
 cuex_t
 cuex_set_insert(cuex_t S, cuex_t e)
 {
+    if (!cuex_is_set(S))
+	cu_bugf("cuex_set_insert, first arg: expected a set, got %!.", S);
     return set_new(cuex_atree_insert(set_key, SET(S)->atree, e));
 }
 
 cuex_t
 cuex_set_erase(cuex_t S, cuex_t e)
 {
+    if (!cuex_is_set(S))
+	cu_bugf("cuex_set_erase, first arg: expected a set, got %!.", S);
     return set_new(cuex_atree_erase(set_key, SET(S)->atree, (cu_word_t)e));
 }
 
 cuex_t
 cuex_set_union(cuex_t S0, cuex_t S1)
 {
+    if (!cuex_is_set(S0))
+	cu_bugf("cuex_set_union, first arg: expected a set, got %!.", S0);
+    if (!cuex_is_set(S1))
+	cu_bugf("cuex_set_union, second arg: expected a set, got %!.", S1);
     return set_new(cuex_atree_left_union(set_key,
 					 SET(S0)->atree, SET(S1)->atree));
 }
@@ -76,6 +84,10 @@ cuex_set_union(cuex_t S0, cuex_t S1)
 cuex_t
 cuex_set_isecn(cuex_t S0, cuex_t S1)
 {
+    if (!cuex_is_set(S0))
+	cu_bugf("cuex_set_isecn, first arg: expected a set, got %!.", S0);
+    if (!cuex_is_set(S1))
+	cu_bugf("cuex_set_isecn, second arg: expected a set, got %!.", S1);
     return set_new(cuex_atree_left_isecn(set_key,
 					 SET(S0)->atree, SET(S1)->atree));
 }
@@ -83,18 +95,28 @@ cuex_set_isecn(cuex_t S0, cuex_t S1)
 cu_bool_t
 cuex_set_contains(cuex_t S, cuex_t e)
 {
+    if (!cuex_is_set(S))
+	cu_bugf("cuex_set_contains, first arg: expected a set, got %!.", S);
     return !!cuex_atree_find(set_key, SET(S)->atree, (cu_word_t)e);
 }
 
 cu_bool_t
 cuex_set_subeq(cuex_t S0, cuex_t S1)
 {
+    if (!cuex_is_set(S0))
+	cu_bugf("cuex_set_subeq, first arg: expected a set, got %!.", S0);
+    if (!cuex_is_set(S1))
+	cu_bugf("cuex_set_subeq, second arg: expected a set, got %!.", S1);
     return cuex_atree_subseteq(set_key, SET(S0)->atree, SET(S1)->atree);
 }
 
 cu_order_t
 cuex_set_order(cuex_t S0, cuex_t S1)
 {
+    if (!cuex_is_set(S0))
+	cu_bugf("cuex_set_order, first arg: expected a set, got %!.", S0);
+    if (!cuex_is_set(S1))
+	cu_bugf("cuex_set_order, second arg: expected a set, got %!.", S1);
     return cuex_atree_order(set_key, SET(S0)->atree, SET(S1)->atree);
 }
 
@@ -121,6 +143,8 @@ comm_iter_source(cuex_intf_compound_t impl, cuex_t S)
 cu_ptr_source_t
 cuex_set_iter_source(cuex_t S)
 {
+    if (!cuex_is_set(S))
+	cu_bugf("cuex_set_iter_source, first arg: expected a set, got %!.", S);
     return comm_iter_source(NULL, S);
 }
 

@@ -139,7 +139,7 @@ cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e)
 	    cufo_printf(fos, "__obj_%p", e);
     }
     else
-	cu_bugf("Unimplemented.");
+	cufo_printf(fos, "__ex_%p", e);
 }
 
 void

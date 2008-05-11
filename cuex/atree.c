@@ -426,9 +426,9 @@ cuex_atree_find_erase(cu_clop(get_key, cu_word_t, cuex_t),
 		      cuex_t *tree, cu_word_t key)
 {
     cuex_t elt;
-    if (cuex_atree_is_empty(tree))
+    if (cuex_atree_is_empty(*tree))
 	return NULL;
-    *tree = atree_erase(get_key, tree, key, &elt);
+    *tree = atree_erase(get_key, *tree, key, &elt);
     if (*tree == NULL)
 	*tree = cuex_atree_empty();
     return elt;
