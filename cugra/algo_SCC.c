@@ -68,7 +68,7 @@ detect_SCC(detect_SCC_state_t state, cugra_vertex_t tail)
 	state->vertex_stack = tail_info;
 
 	cugra_vertex_for_arcs(state->dir, arc, tail) {
-	    cugra_vertex_t head = cugra_arc_head(arc);
+	    cugra_vertex_t head = cugra_arc_adjacent(state->dir, arc);
 	    head_min_reach = detect_SCC(state, head);
 	    tail_min_reach = cu_int_min(tail_min_reach, head_min_reach);
 	}

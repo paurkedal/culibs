@@ -180,7 +180,7 @@ void cu_sref_fprint(cu_sref_t, FILE* file);
 /*!\deprecated Use \ref cu_sref_init_copy. */
 #define cu_sref_cct_copy	cu_sref_init_copy
 /*!\deprecated Use \ref cu_sref_new_span. */
-#define cu_serf_new_sref_range	cu_sref_new_span
+#define cu_sref_new_sref_range	cu_sref_new_span
 
 /*!@}*/
 CU_END_DECLARATIONS
