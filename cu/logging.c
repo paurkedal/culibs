@@ -17,12 +17,19 @@
 
 #include <cu/logging.h>
 #include <cu/sref.h>
+#include <cu/diag.h>
 #include <stdio.h>
+
+cu_clop_def(cuP_null_vlogf, void,
+	    cu_log_facility_t facility, char const *fmt, va_list va)
+{
+}
 
 cu_clop_def(cuP_default_vlogf, void,
 	    cu_log_facility_t facility, char const *fmt, va_list va)
 {
     cu_bool_t have_loc = fmt[0] == '%' && fmt[1] == ':';
+    cu_bool_t have_debug_loc = facility->flags & CU_LOG_FLAG_DEBUG_FACILITY;
 #ifdef CUCONF_COMPACT_LOG
     char s0, s1;
     switch (facility->origin) {
@@ -58,6 +65,18 @@ cu_clop_def(cuP_default_vlogf, void,
 	case CU_LOG_FAILURE:	s1 = "failure"; break;
 	default:		s1 = "?"; break;
     }
+#endif
+
+    if (have_debug_loc)
+	fprintf(stderr, "%s:%d: ", va_arg(va, char const *), va_arg(va, int));
+    if (have_loc) {
+	cu_sref_t loc = va_arg(va, cu_sref_t);
+	cu_sref_fprint(loc, stderr);
+	fputs(": ", stderr);
+	fmt += 2;
+    }
+
+#ifndef CUCONF_COMPACT_LOG
     if (s0) {
 	if (s1)
 	    fprintf(stderr, "%s %s: ", s0, s1);
@@ -66,13 +85,6 @@ cu_clop_def(cuP_default_vlogf, void,
     } else if (s1)
 	fprintf(stderr, "%s: ", s1);
 #endif
-
-    if (have_loc) {
-	cu_sref_t loc = va_arg(va, cu_sref_t);
-	cu_sref_fprint(loc, stderr);
-	fputs(": ", stderr);
-	fmt += 2;
-    }
 
     vfprintf(stderr, fmt, va);
     fputc('\n', stderr);
@@ -87,6 +99,8 @@ cu_clop_def(cuP_default_log_binder, cu_bool_t, cu_log_facility_t facility)
 static cu_log_binder_t cuP_log_binder = cu_clop_ref(cuP_default_log_binder);
 static cu_log_facility_t cuP_log_facility_chain = NULL;
 
+cu_bool_t cuP_debug_facility_enabled(cu_log_facility_t facility);
+
 cu_log_binder_t
 cu_register_log_binder(cu_log_binder_t log_binder)
 {
@@ -95,7 +109,11 @@ cu_register_log_binder(cu_log_binder_t log_binder)
     cuP_log_binder = log_binder;
     for (facility = cuP_log_facility_chain; facility;
 	 facility = facility->next)
-	cu_call(cuP_log_binder, facility);
+	if (!(facility->flags & CU_LOG_FLAG_DEBUG_FACILITY) ||
+	    cuP_debug_facility_enabled(facility))
+	    cu_call(cuP_log_binder, facility);
+	else
+	    facility->vlogf = cu_clop_ref(cuP_null_vlogf);
     return old_log_binder;
 }
 
@@ -104,11 +122,42 @@ cu_register_permanent_log(cu_log_facility_t facility)
 {
     facility->next = cuP_log_facility_chain;
     cuP_log_facility_chain = facility;
-    cu_call(cuP_log_binder, facility);
+    if (!(facility->flags & CU_LOG_FLAG_DEBUG_FACILITY) ||
+	cuP_debug_facility_enabled(facility))
+	cu_call(cuP_log_binder, facility);
+    else
+	facility->vlogf = cu_clop_ref(cuP_null_vlogf);
 }
 
 void
 cu_register_transient_log(cu_log_facility_t facility)
 {
-    cu_call(cuP_log_binder, facility);
+    if (!(facility->flags & CU_LOG_FLAG_DEBUG_FACILITY) ||
+	cuP_debug_facility_enabled(facility))
+	cu_call(cuP_log_binder, facility);
+    else
+	facility->vlogf = cu_clop_ref(cuP_null_vlogf);
+}
+
+void
+cu_vlogf(cu_log_facility_t facility, char const *fmt, va_list va)
+{
+    if (!facility->vlogf) {
+	if (facility->flags & CU_LOG_FLAG_PERMANENT)
+	    cu_register_permanent_log(facility);
+	else if (facility->flags & CU_LOG_FLAG_TRANSIENT)
+	    cu_register_transient_log(facility);
+	else
+	    cu_bugf("Uninitialised log facility.");
+    }
+    cu_call(facility->vlogf, facility, fmt, va);
+}
+
+void
+cu_logf(cu_log_facility_t facility, char const *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    cu_vlogf(facility, fmt, va);
+    va_end(va);
 }

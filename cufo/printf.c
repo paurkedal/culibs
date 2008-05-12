@@ -601,6 +601,11 @@ cufo_vlogf(cufo_stream_t fos, cu_log_facility_t facility,
     cufo_entera(fos, cufoT_logentry,
 		cufoA_logorigin(facility->origin),
 		cufoA_logseverity(facility->severity));
+    if (facility->flags & CU_LOG_FLAG_DEBUG_FACILITY) {
+	char const *file = va_arg(va, char const *);
+	int line = va_arg(va, int);
+	cufo_printf(fos, "%s:%d: ", file, line);
+    }
     if (*fmt == '%' && fmt[1] == ':') {
 	fmt += 2;
 	while (isspace(*fmt)) ++fmt;

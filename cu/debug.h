@@ -22,11 +22,33 @@
 #include <cu/fwd.h>
 #include <cu/conf.h>
 #include <cu/inherit.h>
+#include <cu/logging.h>
 #include <stdio.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_debug cu/debug.h: Utilities for Debugging
  * @{\ingroup cu_util_mod */
+
+#ifdef CUCONF_DEBUG_CLIENT
+#  define cuP_dlog_def(storage, name, ...)				\
+    storage char const *name##_debug_keys[] = {__VA_ARGS__, NULL};	\
+    storage struct cu_log_facility_s name##_debug_log = {		\
+	.severity = CU_LOG_DEBUG, .origin = CU_LOG_LOGIC,		\
+	.keys = name##_debug_keys,					\
+	.flags = CU_LOG_FLAG_DEBUG_FACILITY | CU_LOG_FLAG_PERMANENT,	\
+    }
+#  define cu_dlog_def(...) cuP_dlog_def(static, __VA_ARGS__)
+#  define cu_dlog_edef(...) cuP_dlog_def(, __VA_ARGS__)
+#  define cu_dlog_edec(name) extern struct cu_log_facility_s name##_debug_log
+#  define cuP_dlogf(name, fmt, ...) \
+    cu_logf(&name##_debug_log, fmt, __FILE__, __LINE__, __VA_ARGS__)
+#  define cu_dlogf(...) cuP_dlogf(__VA_ARGS__, NULL)
+#else
+#  define cu_dlog_def(name) typedef int name##_nodebug_t
+#  define cu_dlog_edef(name) typedef int name##_nodebug_t
+#  define cu_dlog_edec(name) typedef int name##_nodebug_t
+#  define cu_dlogf(...) ((void)0)
+#endif
 
 /*
  *  Debugging Selection

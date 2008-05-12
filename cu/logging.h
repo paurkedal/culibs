@@ -47,10 +47,15 @@ typedef cu_clop(cu_log_printer_t, void,
 
 typedef cu_clop(cu_log_binder_t, cu_bool_t, cu_log_facility_t new_facility);
 
+#define CU_LOG_FLAG_PERMANENT 1
+#define CU_LOG_FLAG_TRANSIENT 2
+#define CU_LOG_FLAG_DEBUG_FACILITY 4
+
 struct cu_log_facility_s
 {
-    cu_log_severity_t severity;
-    cu_log_origin_t origin;
+    cu_log_severity_t severity : 8;
+    cu_log_origin_t origin : 8;
+    unsigned int flags : 16;
     char const **keys;
     cu_log_facility_t next;
     cu_log_printer_t vlogf;
@@ -62,9 +67,8 @@ void cu_register_permanent_log(cu_log_facility_t facility);
 
 void cu_register_transient_log(cu_log_facility_t facility);
 
-CU_SINLINE void
-cu_vlogf(cu_log_facility_t facility, char const *fmt, va_list va)
-{ cu_call(facility->vlogf, facility, fmt, va); }
+void cu_vlogf(cu_log_facility_t facility, char const *fmt, va_list va);
+void cu_logf(cu_log_facility_t facility, char const *fmt, ...);
 
 /*!@}*/
 CU_END_DECLARATIONS

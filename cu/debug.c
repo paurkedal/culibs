@@ -254,6 +254,18 @@ cu_debug_disable_key(char const *key)
 }
 #endif
 
+cu_bool_t
+cuP_debug_facility_enabled(cu_log_facility_t facility)
+{
+    char const **keys = facility->keys;
+    while (*keys) {
+	if (strncmp(*keys, "dtag=", 5) == 0 && cu_debug_key(*keys + 5))
+	    return cu_true;
+	++keys;
+    }
+    return cu_false;
+}
+
 void
 cuP_debug_init()
 {
