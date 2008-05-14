@@ -19,6 +19,7 @@
 #include <cu/test.h>
 #include <math.h>
 #include <time.h>
+#include <inttypes.h>
 #include <gc/gc.h>
 
 #define NTHREADS 4
@@ -127,7 +128,7 @@ main()
     for (i = 0; i < NTHREADS; ++i) {
 	int err = GC_pthread_create(&th[i], NULL, test, (void *)i);
 	if (err)
-	    fprintf(stderr, "Could not create thread %d: %s\n",
+	    fprintf(stderr, "Could not create thread %"PRIdPTR": %s\n",
 		    i, strerror(err));
     }
     for (i = 0; i < NTHREADS; ++i) {

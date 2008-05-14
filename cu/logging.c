@@ -18,20 +18,45 @@
 #include <cu/logging.h>
 #include <cu/sref.h>
 #include <cu/diag.h>
+#include <cu/memory.h>
 #include <stdio.h>
+#include <string.h>
+
+static void
+log_also(cu_sref_t sref, char const *skind)
+{
+    if (!sref)
+	return;
+    while ((sref = cu_sref_chain_tail(sref))) {
+	cu_sref_fprint(sref, stderr);
+	if (skind) {
+	    fputs(skind, stderr);
+	    fputs(": ", stderr);
+	}
+	fputs("As above.\n", stderr);
+    }
+}
 
 cu_clop_def(cuP_null_vlogf, void,
-	    cu_log_facility_t facility, char const *fmt, va_list va)
+	    cu_log_facility_t facility, cu_sref_t loc,
+	    char const *fmt, va_list va)
 {
 }
 
 cu_clop_def(cuP_default_vlogf, void,
-	    cu_log_facility_t facility, char const *fmt, va_list va)
+	    cu_log_facility_t facility, cu_sref_t loc,
+	    char const *fmt, va_list va)
 {
-    cu_bool_t have_loc = fmt[0] == '%' && fmt[1] == ':';
-    cu_bool_t have_debug_loc = facility->flags & CU_LOG_FLAG_DEBUG_FACILITY;
+    cu_bool_t have_debug_loc, have_fmt_loc, have_any_loc;
 #ifdef CUCONF_COMPACT_LOG
     char s0, s1;
+#else
+    char *skind, *s0, *s1;
+#endif
+    have_fmt_loc = fmt[0] == '%' && fmt[1] == ':';
+    have_debug_loc = facility->flags & CU_LOG_FLAG_DEBUG_FACILITY;
+    have_any_loc = have_fmt_loc || have_debug_loc || loc;
+#ifdef CUCONF_COMPACT_LOG
     switch (facility->origin) {
 	case CU_LOG_LOGIC:	s0 = 'l'; break;
 	case CU_LOG_SYSTEM:	s0 = 's'; break;
@@ -47,9 +72,10 @@ cu_clop_def(cuP_default_vlogf, void,
 	case CU_LOG_FAILURE:	s1 = 'f'; break;
 	default:		s1 = '?'; break;
     }
+    skind = cu_salloc(6);
+    sprintf(skind, "[%c/%c] ", s0, s1);
     fprintf(stderr, "[%c/%c] ", s0, s1);
 #else
-    char *s0, *s1;
     switch (facility->origin) {
 	case CU_LOG_LOGIC:	s0 = "logic"; break;
 	case CU_LOG_SYSTEM:	s0 = "sys"; break;
@@ -61,15 +87,22 @@ cu_clop_def(cuP_default_vlogf, void,
 	case CU_LOG_INFO:	s1 = "info"; break;
 	case CU_LOG_NOTICE:	s1 = "notice"; break;
 	case CU_LOG_WARNING:	s1 = "warning"; break;
-	case CU_LOG_ERROR:	s1 = have_loc? NULL : "error"; break;
+	case CU_LOG_ERROR:	s1 = have_any_loc? NULL : "error"; break;
 	case CU_LOG_FAILURE:	s1 = "failure"; break;
 	default:		s1 = "?"; break;
     }
 #endif
 
-    if (have_debug_loc)
-	fprintf(stderr, "%s:%d: ", va_arg(va, char const *), va_arg(va, int));
-    if (have_loc) {
+    if (have_debug_loc) {
+	char const *file = va_arg(va, char const *);
+	int line = va_arg(va, int);
+	fprintf(stderr, "%s:%d: ", file, line);
+    }
+    if (loc) {
+	cu_sref_fprint(loc, stderr);
+	fputs(": ", stderr);
+    }
+    if (have_fmt_loc) {
 	cu_sref_t loc = va_arg(va, cu_sref_t);
 	cu_sref_fprint(loc, stderr);
 	fputs(": ", stderr);
@@ -78,16 +111,27 @@ cu_clop_def(cuP_default_vlogf, void,
 
 #ifndef CUCONF_COMPACT_LOG
     if (s0) {
-	if (s1)
-	    fprintf(stderr, "%s %s: ", s0, s1);
-	else
-	    fprintf(stderr, "%s: ", s0);
-    } else if (s1)
+	if (s1) {
+	    int len0 = strlen(s0);
+	    skind = cu_salloc(len0 + strlen(s1) + 2);
+	    strcpy(skind, s0);
+	    skind[len0] = ' ';
+	    strcpy(skind + len0 + 1, s1);
+	} else
+	    skind = s0;
+    } else
+	skind = s1;
+    if (skind)
 	fprintf(stderr, "%s: ", s1);
 #endif
 
     vfprintf(stderr, fmt, va);
     fputc('\n', stderr);
+
+    /* Print the also-lines when loc is passed to an _at function for backwards
+     * compatibility.  Pending solution for the new %: format. */
+    if (loc)
+	log_also(loc, skind);
 }
 
 cu_clop_def(cuP_default_log_binder, cu_bool_t, cu_log_facility_t facility)
@@ -139,18 +183,32 @@ cu_register_transient_log(cu_log_facility_t facility)
 	facility->vlogf = cu_clop_ref(cuP_null_vlogf);
 }
 
+static void
+prepare_facility(cu_log_facility_t facility)
+{
+    if (facility->flags & CU_LOG_FLAG_PERMANENT)
+	cu_register_permanent_log(facility);
+    else if (facility->flags & CU_LOG_FLAG_TRANSIENT)
+	cu_register_transient_log(facility);
+    else
+	cu_bugf("Uninitialised log facility.");
+}
+
 void
 cu_vlogf(cu_log_facility_t facility, char const *fmt, va_list va)
 {
-    if (!facility->vlogf) {
-	if (facility->flags & CU_LOG_FLAG_PERMANENT)
-	    cu_register_permanent_log(facility);
-	else if (facility->flags & CU_LOG_FLAG_TRANSIENT)
-	    cu_register_transient_log(facility);
-	else
-	    cu_bugf("Uninitialised log facility.");
-    }
-    cu_call(facility->vlogf, facility, fmt, va);
+    if (!facility->vlogf)
+	prepare_facility(facility);
+    cu_call(facility->vlogf, facility, NULL, fmt, va);
+}
+
+void
+cu_vlogf_at(cu_log_facility_t facility, cu_sref_t loc,
+	    char const *fmt, va_list va)
+{
+    if (!facility->vlogf)
+	prepare_facility(facility);
+    cu_call(facility->vlogf, facility, loc, fmt, va);
 }
 
 void
@@ -159,5 +217,14 @@ cu_logf(cu_log_facility_t facility, char const *fmt, ...)
     va_list va;
     va_start(va, fmt);
     cu_vlogf(facility, fmt, va);
+    va_end(va);
+}
+
+void
+cu_logf_at(cu_log_facility_t facility, cu_sref_t loc, char const *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+    cu_vlogf_at(facility, loc, fmt, va);
     va_end(va);
 }

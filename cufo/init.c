@@ -31,14 +31,14 @@ cufo_stream_t cufoP_stderr;
 cu_mutex_t cufoP_stderr_mutex = CU_MUTEX_INITIALISER;
 
 cu_clos_def(defaul_vlogf,
-	    cu_prot(void, cu_log_facility_t facility,
+	    cu_prot(void, cu_log_facility_t facility, cu_sref_t sref,
 		    char const *fmt, va_list va),
     ( cufo_stream_t fos;
       cu_mutex_t *fos_mutex; ))
 {
     cu_clos_self(defaul_vlogf);
     cu_mutex_lock(self->fos_mutex);
-    cufo_vlogf(self->fos, facility, fmt, va);
+    cufo_vlogf_at(self->fos, facility, sref, fmt, va);
     cu_mutex_unlock(self->fos_mutex);
 }
 
@@ -49,6 +49,12 @@ cu_clop_def(default_log_binder, cu_bool_t, cu_log_facility_t facility)
     vlogf->fos_mutex = &cufoP_stderr_mutex;
     facility->vlogf = defaul_vlogf_prep(vlogf);
     return cu_true;
+}
+
+void
+print_wstring(cufo_stream_t fos, cufo_prispec_t spec, void *p)
+{
+    cufo_print_wstring(fos, p);
 }
 
 void
@@ -66,4 +72,6 @@ cufo_init(void)
 
     cufoP_stderr = cufo_open_text_fd("UTF-8", NULL, 2);
     cu_register_log_binder(cu_clop_ref(default_log_binder));
+
+    cufo_register_ptr_format("wstring", print_wstring);
 }

@@ -229,6 +229,9 @@ void cufo_logf(cufo_stream_t fos, cu_log_facility_t facility,
 void cufo_vlogf(cufo_stream_t fos, cu_log_facility_t facility,
 		char const *fmt, va_list va);
 
+void cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
+		   cu_sref_t sref, char const *fmt, va_list va);
+
 void cufo_register_ptr_format(char const *key, cufo_print_ptr_fn_t fn);
 
 /*!@}*/

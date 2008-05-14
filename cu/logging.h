@@ -42,8 +42,9 @@ typedef enum {
     CU_LOG_USER,
 } cu_log_origin_t;
 
-typedef cu_clop(cu_log_printer_t, void,
-		cu_log_facility_t facility, char const *fmt, va_list va);
+typedef cu_clop(cu_vlogf_t, void,
+		cu_log_facility_t facility, cu_sref_t loc,
+		char const *fmt, va_list va);
 
 typedef cu_clop(cu_log_binder_t, cu_bool_t, cu_log_facility_t new_facility);
 
@@ -58,7 +59,7 @@ struct cu_log_facility_s
     unsigned int flags : 16;
     char const **keys;
     cu_log_facility_t next;
-    cu_log_printer_t vlogf;
+    cu_vlogf_t vlogf;
 };
 
 cu_log_binder_t cu_register_log_binder(cu_log_binder_t binder);
@@ -68,6 +69,10 @@ void cu_register_permanent_log(cu_log_facility_t facility);
 void cu_register_transient_log(cu_log_facility_t facility);
 
 void cu_vlogf(cu_log_facility_t facility, char const *fmt, va_list va);
+
+void cu_vlogf_at(cu_log_facility_t facility, cu_sref_t loc,
+		 char const *fmt, va_list va);
+
 void cu_logf(cu_log_facility_t facility, char const *fmt, ...);
 
 /*!@}*/

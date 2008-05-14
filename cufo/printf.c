@@ -595,8 +595,8 @@ cufo_printfln(cufo_stream_t fos, char const *fmt, ...)
 }
 
 void
-cufo_vlogf(cufo_stream_t fos, cu_log_facility_t facility,
-	   char const *fmt, va_list va)
+cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
+	      cu_sref_t loc, char const *fmt, va_list va)
 {
     cufo_entera(fos, cufoT_logentry,
 		cufoA_logorigin(facility->origin),
@@ -605,6 +605,12 @@ cufo_vlogf(cufo_stream_t fos, cu_log_facility_t facility,
 	char const *file = va_arg(va, char const *);
 	int line = va_arg(va, int);
 	cufo_printf(fos, "%s:%d: ", file, line);
+    }
+    if (loc) {
+	cufo_enter(fos, cufoT_location);
+	cufo_print_sref(fos, loc);
+	cufo_leave(fos, cufoT_location);
+	cufo_puts(fos, ": ");
     }
     if (*fmt == '%' && fmt[1] == ':') {
 	fmt += 2;
@@ -618,6 +624,13 @@ cufo_vlogf(cufo_stream_t fos, cu_log_facility_t facility,
     cufo_vprintf(fos, fmt, va);
     cufo_leave(fos, cufoT_message);
     cufo_leaveln(fos, cufoT_logentry);
+}
+
+void
+cufo_vlogf(cufo_stream_t fos, cu_log_facility_t facility,
+	   char const *fmt, va_list va)
+{
+    cufo_vlogf_at(fos, facility, NULL, fmt, va);
 }
 
 void

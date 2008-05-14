@@ -188,12 +188,10 @@ print_sref_also(cu_sref_t sref, char const *errorkind, FILE *out)
 void
 cu_verrf_at(cu_sref_t srf, char const *msg, va_list va)
 {
+    cu_mutex_lock(&g_log_mutex);
     ++g_error_count;
-    cu_sref_fprint(srf, stderr);
-    fputs(": ", stderr);
-    cu_vfprintf(stderr, msg, va);
-    fputc('\n', stderr);
-    print_sref_also(srf, "", stderr);
+    cu_vlogf_at(&g_log_facility_arr[FI_ERR], srf, msg, va);
+    cu_mutex_unlock(&g_log_mutex);
 }
 
 void
@@ -226,12 +224,10 @@ cu_errf(char const *msg, ...)
 void
 cu_vwarnf_at(cu_sref_t srf, char const *msg, va_list va)
 {
+    cu_mutex_lock(&g_log_mutex);
     ++g_warning_count;
-    cu_sref_fprint(srf, stderr);
-    fputs(": warning: ", stderr);
-    cu_vfprintf(stderr, msg, va);
-    fputc('\n', stderr);
-    print_sref_also(srf, "warning: ", stderr);
+    cu_vlogf_at(&g_log_facility_arr[FI_WARN], srf, msg, va);
+    cu_mutex_unlock(&g_log_mutex);
 }
 
 void
@@ -265,14 +261,10 @@ void
 cu_bugf_at(cu_sref_t srf, char const* msg, ...)
 {
     va_list va;
-    ++g_warning_count;
-    cu_sref_fprint(srf, stderr);
-    fputs(": internal error: ", stderr);
+    cu_mutex_lock(&g_log_mutex);
     va_start(va, msg);
-    cu_vfprintf(stderr, msg, va);
+    cu_vlogf_at(&g_log_facility_arr[FI_BUG], srf, msg, va);
     va_end(va);
-    fputc('\n', stderr);
-    print_sref_also(srf, "internal error: ", stderr);
     abort();
 }
 
@@ -280,12 +272,10 @@ void
 cu_bugf_fl(char const *file, int line, char const *msg, ...)
 {
     va_list va;
-    ++g_warning_count;
-    fprintf(stderr, "%s:%d: internal error: ", file, line);
+    cu_sref_t srf = cu_sref_new_cstr(file, line, -1);
     va_start(va, msg);
-    cu_vfprintf(stderr, msg, va);
+    cu_vlogf_at(&g_log_facility_arr[FI_BUG], srf, msg, va);
     va_end(va);
-    fputc('\n', stderr);
     abort();
 }
 
@@ -293,12 +283,11 @@ void
 cu_bugf(char const* msg, ...)
 {
     va_list va;
-    ++g_warning_count;
-    fputs("internal error: ", stderr);
     va_start(va, msg);
-    cu_vfprintf(stderr, msg, va);
+    cu_mutex_lock(&g_log_mutex);
+    cu_vlogf(&g_log_facility_arr[FI_BUG], msg, va);
+    cu_mutex_unlock(&g_log_mutex);
     va_end(va);
-    fputc('\n', stderr);
     abort();
 }
 
@@ -316,13 +305,11 @@ cu_verbf_at(int level, cu_sref_t srf, char const *msg, ...)
     va_list va;
     if (level > cuP_verbosity)
 	return;
-    cu_sref_fprint(srf, stderr);
-    fputs(": info: ", stderr);
     va_start(va, msg);
-    cu_vfprintf(stderr, msg, va);
+    cu_mutex_lock(&g_log_mutex);
+    cu_vlogf_at(&g_log_facility_arr[FI_VERB], srf, msg, va);
+    cu_mutex_unlock(&g_log_mutex);
     va_end(va);
-    fputc('\n', stderr);
-    print_sref_also(srf, "info: ", stderr);
 }
 
 void
