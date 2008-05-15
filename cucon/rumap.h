@@ -157,6 +157,8 @@ cucon_rumap_mref_by_wchar_arr(cucon_rumap_t rmap,
 
 cucon_rumap_t cucon_rumap_mref_by_wstring(cucon_rumap_t rmap, cu_wstring_t s);
 
+size_t cucon_rumap_assign_left_union(cucon_rumap_t dst, cucon_rumap_t src);
+size_t cucon_rumap_assign_right_union(cucon_rumap_t dst, cucon_rumap_t src);
 
 /* Iteration
  * --------- */

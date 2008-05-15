@@ -86,6 +86,7 @@ cucon_check_programs = \
 	cucon/rbmap_t0 \
 	cucon/rbtree_t0 \
 	cucon/rbtree_t1 \
+	cucon/rumap_t0 \
 	cucon/stack_t0 \
 	cucon/ucmap_b0 \
 	cucon/ucset_b0 \
@@ -137,6 +138,8 @@ cucon_rbtree_t0_SOURCES = cucon/rbtree_t0.c
 cucon_rbtree_t0_LDADD = libcubase.la
 cucon_rbtree_t1_SOURCES = cucon/rbtree_t1.c
 cucon_rbtree_t1_LDADD = libcubase.la
+cucon_rumap_t0_SOURCES = cucon/rumap_t0.c
+cucon_rumap_t0_LDADD = libcubase.la
 cucon_stack_t0_SOURCES = cucon/stack_t0.c
 cucon_stack_t0_LDADD = libcubase.la
 cucon_ucmap_b0_SOURCES = cucon/ucmap_b0.c

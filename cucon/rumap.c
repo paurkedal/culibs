@@ -115,3 +115,49 @@ cucon_rumap_mref_by_wstring(cucon_rumap_t rmap, cu_wstring_t s)
     return cucon_rumap_mref_by_wchar_arr(rmap, cu_wstring_array(s),
 					 cu_wstring_length(s));
 }
+
+cu_clos_def(assign_left_union, cu_prot(void, uintptr_t key, void *R),
+    ( cucon_rumap_t L; size_t overlap; ))
+{
+    cu_clos_self(assign_left_union);
+    cucon_rumap_t L = cucon_rumap_mref(self->L, key);
+    self->overlap += cucon_rumap_assign_left_union(L, R);
+}
+
+size_t
+cucon_rumap_assign_left_union(cucon_rumap_t L, cucon_rumap_t R)
+{
+    assign_left_union_t cb;
+    cb.L = L;
+    cb.overlap = 0;
+    cucon_umap_iter_mem(&R->branches, assign_left_union_prep(&cb));
+    if (L->data) {
+	if (R->data)
+	    ++cb.overlap;
+    } else
+	L->data = R->data;
+    return cb.overlap;
+}
+
+cu_clos_def(assign_right_union, cu_prot(void, uintptr_t key, void *R),
+    ( cucon_rumap_t L; size_t overlap; ))
+{
+    cu_clos_self(assign_right_union);
+    cucon_rumap_t L = cucon_rumap_mref(self->L, key);
+    self->overlap += cucon_rumap_assign_right_union(L, R);
+}
+
+size_t
+cucon_rumap_assign_right_union(cucon_rumap_t L, cucon_rumap_t R)
+{
+    assign_right_union_t cb;
+    cb.L = L;
+    cb.overlap = 0;
+    cucon_umap_iter_mem(&R->branches, assign_right_union_prep(&cb));
+    if (R->data) {
+	if (L->data)
+	    ++cb.overlap;
+	L->data = R->data;
+    }
+    return cb.overlap;
+}
