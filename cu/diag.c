@@ -31,7 +31,15 @@ static int g_error_count;
 static int g_warning_count;
 static struct cucon_umap_s format_map;
 
+#if 0  /* Locking shall be done by vlogf implementation! */
 static cu_mutex_t g_log_mutex = CU_MUTEX_INITIALISER;
+#  define lock_logs(msg, va) cu_vlogf_mutex_lock(&g_log_mutex, msg, va)
+#  define unlock_logs() cu_mutex_unlock(&g_log_mutex)
+#else
+#  define lock_logs(msg, va) ((void)0)
+#  define unlock_logs() ((void)0)
+#endif
+
 enum {FI_VERB, FI_WARN, FI_ERR, FI_DEBUG, FI_BUG};
 static struct cu_log_facility_s g_log_facility_arr[] = {
     {CU_LOG_INFO, CU_LOG_USER},
@@ -116,47 +124,6 @@ cu_vfprintf(FILE *file, char const* msg, va_list va)
 	    case 'p':
 		fprintf(file, "%p", va_arg(va, void*));
 		break;
-#if 0 /* XXX cutext should register it */
-	    case 'U': /* UCS-4 */
-		switch (msg[++i]) {
-#define BUF_SIZE 6
-		    size_t buf_cnt;
-		    char buf[BUF_SIZE];
-		    char *buf_end;
-		    cu_wchar_t ch;
-		    cu_wchar_t *ucs4cstr;
-		    int err;
-		case 'c':
-		    ch = va_arg(va, cu_wchar_t);
-		    buf_cnt = BUF_SIZE;
-		    buf_end = buf;
-		    err = cutext_wchar_to_charr(ch, &buf_end, &buf_cnt);
-		    if (err != 0)
-			fprintf(file, "#[iconv_error: %s]", strerror(err));
-		    else
-			fwrite(buf, 1, buf_end - buf, file);
-		    break;
-		case 's':
-		    ucs4cstr = va_arg(va, cu_wchar_t *);
-		    while (*ucs4cstr) {
-			buf_cnt = BUF_SIZE;
-			buf_end = buf;
-			err = cutext_wchar_to_charr(*ucs4cstr,
-						    &buf_end, &buf_cnt);
-			if (err != 0)
-			    fprintf(file, "#[iconv_error: %s]", strerror(err));
-			else
-			    fwrite(buf, 1, buf_end - buf, file);
-			++ucs4cstr;
-		    }
-		    break;
-		default:
-		    fputs("#[bad formatting key]", file);
-		    break;
-#undef BUF_SIZE
-		}
-		break;
-#endif
 	    default:
 		fmt_fn = cucon_umap_find_ptr(&format_map, msg[i]);
 		if (fmt_fn) {
@@ -173,25 +140,13 @@ cu_vfprintf(FILE *file, char const* msg, va_list va)
     }
 }
 
-static void
-print_sref_also(cu_sref_t sref, char const *errorkind, FILE *out)
-{
-    if (!sref)
-	return;
-    while ((sref = cu_sref_chain_tail(sref))) {
-	cu_sref_fprint(sref, out);
-	fputs(errorkind, out);
-	fputs(": As above.\n", out);
-    }
-}
-
 void
 cu_verrf_at(cu_sref_t srf, char const *msg, va_list va)
 {
-    cu_mutex_lock(&g_log_mutex);
+    lock_logs(msg, va);
     ++g_error_count;
     cu_vlogf_at(&g_log_facility_arr[FI_ERR], srf, msg, va);
-    cu_mutex_unlock(&g_log_mutex);
+    unlock_logs();
 }
 
 void
@@ -206,10 +161,10 @@ cu_errf_at(cu_sref_t srf, char const *msg, ...)
 void
 cu_verrf(char const *msg, va_list va)
 {
-    cu_mutex_lock(&g_log_mutex);
+    lock_logs(msg, va);
     ++g_error_count;
     cu_vlogf(&g_log_facility_arr[FI_ERR], msg, va);
-    cu_mutex_unlock(&g_log_mutex);
+    unlock_logs();
 }
 
 void
@@ -224,10 +179,10 @@ cu_errf(char const *msg, ...)
 void
 cu_vwarnf_at(cu_sref_t srf, char const *msg, va_list va)
 {
-    cu_mutex_lock(&g_log_mutex);
+    lock_logs(msg, va);
     ++g_warning_count;
     cu_vlogf_at(&g_log_facility_arr[FI_WARN], srf, msg, va);
-    cu_mutex_unlock(&g_log_mutex);
+    unlock_logs();
 }
 
 void
@@ -242,10 +197,10 @@ cu_warnf_at(cu_sref_t srf, char const *msg, ...)
 void
 cu_vwarnf(char const* msg, va_list va)
 {
-    cu_mutex_lock(&g_log_mutex);
+    lock_logs(msg, va);
     ++g_warning_count;
     cu_vlogf(&g_log_facility_arr[FI_WARN], msg, va);
-    cu_mutex_unlock(&g_log_mutex);
+    unlock_logs();
 }
 
 void
@@ -261,9 +216,10 @@ void
 cu_bugf_at(cu_sref_t srf, char const* msg, ...)
 {
     va_list va;
-    cu_mutex_lock(&g_log_mutex);
     va_start(va, msg);
+    lock_logs(msg, va);
     cu_vlogf_at(&g_log_facility_arr[FI_BUG], srf, msg, va);
+    unlock_logs();
     va_end(va);
     abort();
 }
@@ -284,9 +240,9 @@ cu_bugf(char const* msg, ...)
 {
     va_list va;
     va_start(va, msg);
-    cu_mutex_lock(&g_log_mutex);
+    lock_logs(msg, va);
     cu_vlogf(&g_log_facility_arr[FI_BUG], msg, va);
-    cu_mutex_unlock(&g_log_mutex);
+    unlock_logs();
     va_end(va);
     abort();
 }
@@ -306,9 +262,9 @@ cu_verbf_at(int level, cu_sref_t srf, char const *msg, ...)
     if (level > cuP_verbosity)
 	return;
     va_start(va, msg);
-    cu_mutex_lock(&g_log_mutex);
+    lock_logs(msg, va);
     cu_vlogf_at(&g_log_facility_arr[FI_VERB], srf, msg, va);
-    cu_mutex_unlock(&g_log_mutex);
+    unlock_logs();
     va_end(va);
 }
 
@@ -319,9 +275,9 @@ cu_verbf(int level, char const *msg, ...)
     if (level > cuP_verbosity)
 	return;
     va_start(va, msg);
-    cu_mutex_lock(&g_log_mutex);
+    lock_logs(msg, va);
     cu_vlogf(&g_log_facility_arr[FI_VERB], msg, va);
-    cu_mutex_unlock(&g_log_mutex);
+    unlock_logs();
     va_end(va);
 }
 

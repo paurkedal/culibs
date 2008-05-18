@@ -525,11 +525,14 @@ break_flags:
 	    *tag_stack = (*tag_stack)->next;
 	    return fmt;
 	}
+	case '%':
+	    cufo_putc(fos, '%');
+	    return fmt;
 	default:
-	    cu_bugf("Invalid format specifier %%%c.", *fmt);
+	    cu_bugf("Invalid format specifier %%%c.", fmt[-1]);
 	    return fmt;
     }
-    /* Only formats using outbuf return here. */
+    /* Only formats using outbuf shall reach here. */
     cu_buffer_set_content_end(BUFFER(fos), outbuf + strlen(outbuf));
     return fmt;
 }
@@ -549,10 +552,6 @@ cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va)
 		write_count += count;
 	    }
 	    ++fmt;
-	    if (*fmt == '%') {
-		cufo_fast_putc(fos, '%');
-		++write_count;
-	    }
 	    fmt = handle_format(fos, fmt, cu_va_ref_of_va_list(va), old_size,
 				&tag_stack);
 	    fmt_last = fmt;

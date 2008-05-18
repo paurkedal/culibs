@@ -68,9 +68,9 @@ test_strip_target()
     cu_wstring_t wstr, wstrp;
 
     fos = cufo_open_strip_str();
-    cufo_printf(fos, "%c %03d %x", 'C', 79, 0x3219);
+    cufo_printf(fos, "%c %03d %x %%", 'C', 79, 0x3219);
     str = cufo_close(fos);
-    cu_test_assert(cu_str_cmp_cstr(str, "C 079 3219") == 0);
+    cu_test_assert(cu_str_cmp_cstr(str, "C 079 3219 %") == 0);
 
     fos = cufo_open_strip_wstring();
     cu_test_assert(fos);
