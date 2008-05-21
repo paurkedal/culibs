@@ -132,7 +132,7 @@ cuflowP_exeq_init_tstate(cuflow_tstate_t ts)
 	 pri != cuflow_exeqpri_end;
 	 pri = cuflow_exeqpri_succ(pri)) {
 	cuflow_exeq_t exeq = &ts->exeq[pri];
-	cu_mutex_cct(&exeq->pickup_mutex);
+	cu_mutex_init(&exeq->pickup_mutex);
 	exeq->priority = pri;
 	exeq->head = 0;
 	exeq->tail = CUFLOW_EXEQ_MASK;

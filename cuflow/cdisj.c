@@ -72,7 +72,7 @@ cuflowP_cdisj_init(void)
     for (i = 0; i < CDISJ_STRIPE_COUNT; ++i) {
 	cdisj_stripe_t stripe = &cdisj_stripe_arr[i];
 	stripe->waiting_count = 0;
-	cu_mutex_cct(&stripe->mutex);
+	cu_mutex_init(&stripe->mutex);
 	pthread_cond_init(&stripe->cond, NULL);
     }
 }

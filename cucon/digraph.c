@@ -27,7 +27,7 @@ cucon_digraph_new(cucon_digraph_opt_t options)
     cucon_list_init(&g->vertices);
     cucon_list_init(&g->edges);
 #ifdef CUCONF_ENABLE_THREADS
-    cu_mutex_cct(&g->mutex);
+    cu_mutex_init(&g->mutex);
 #endif
     return g;
 }

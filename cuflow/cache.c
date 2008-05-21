@@ -48,7 +48,7 @@ cuflow_cache_cct(cuflow_cache_t cache, cuflow_cacheconf_t conf,
     cache->fn_arr = fn_arr;
     for (i = 0; i < CUFLOWP_CACHE_BIN_COUNT; ++i) {
 	cuflowP_cachebin_t bin = &cache->bin_arr[i];
-	cu_mutex_cct(&bin->mutex);
+	cu_mutex_init(&bin->mutex);
 	bin->cap = MIN_CAP;
 	bin->size = 0;
 	bin->access_since_pruned = 0;
@@ -246,7 +246,7 @@ cuflow_cacheconf_cct(cuflow_cacheconf_t conf,
     cacheconf_update_t *confupdate;
     struct timespec t_now;
 #if 0
-    cu_mutex_cct(&conf->cache_link_mutex);
+    cu_mutex_init(&conf->cache_link_mutex);
     cu_dlink_init_singleton(&conf->cache_link);
 #endif
     clock_gettime(CLOCK_REALTIME, &t_now);

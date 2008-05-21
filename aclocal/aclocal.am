@@ -1,0 +1,7 @@
+aclocaldir = $(datadir)/aclocal
+
+# The macro files included into acinclude.m4 are already automatically included
+# in the distribution, but we'll also install some of them.
+aclocal_DATA = \
+	aclocal/cu4.m4 \
+	aclocal/cuac_useful.m4

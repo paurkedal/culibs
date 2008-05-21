@@ -117,7 +117,7 @@ vcachebin(cu_hash_t hash)
 static void
 cachebin_init(cachebin_t bin, size_t key_sizeg)
 {
-    cu_mutex_cct(&bin->mutex);
+    cu_mutex_init(&bin->mutex);
     bin->size = 0;
     bin->mask = 0;
     bin->key_sizeg = key_sizeg;

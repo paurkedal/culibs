@@ -1,7 +1,6 @@
 # Directories
 #
 culibsdir = $(includedir)/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
-aclocaldir = $(datadir)/aclocal
 pkgconfigdir = $(libdir)/pkgconfig
 docdir = $(datadir)/doc
 pkgdocdir = $(docdir)/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
@@ -37,6 +36,7 @@ norun_check_programs =
 
 # Per-Module Build Instructions
 #
+include aclocal/aclocal.am
 
 include cu/cu.am
 include cuoo/cuoo.am
@@ -180,7 +180,7 @@ TESTS =		 $(check_programs)
 # ====================
 
 EXTRA_DIST += \
-	$(aclocal_SCRIPTS) $(pkgconfig_DATA) \
+	$(pkgconfig_DATA) \
 	autotools.sh \
 	culibs.spec.in culibs.spec \
 	cubase.spec.in cubase.spec \

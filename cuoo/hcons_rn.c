@@ -63,7 +63,7 @@ cu_hcset_cct(cu_hcset_t hcset)
 # if CU_HCSET_USE_RAREX
     cu_rarex_cct(&hcset->rarex);
 # else
-    cu_mutex_cct(&hcset->mutex);
+    cu_mutex_init(&hcset->mutex);
 # endif
 #endif
 }

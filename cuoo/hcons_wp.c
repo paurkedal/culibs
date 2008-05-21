@@ -272,7 +272,7 @@ cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
 void
 cuooP_hcons_init()
 {
-    cu_mutex_cct(&cuooP_hcset.mutex);
+    cu_mutex_init(&cuooP_hcset.mutex);
     cuooP_hcset.mask = HCSET_SIZE_INIT - 1;
     cuooP_hcset.insert_cnt = 0;
     cuooP_hcset.arr = cu_galloc(sizeof(void *)*HCSET_SIZE_INIT);

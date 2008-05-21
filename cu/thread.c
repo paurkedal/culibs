@@ -45,7 +45,7 @@ cuP_thread_init(void)
 {
     size_t i;
     for (i = 0; i < cuP_PMUTEX_CNT; ++i)
-	cu_mutex_cct(&cuP_pmutex_arr[i]);
+	cu_mutex_init(&cuP_pmutex_arr[i]);
 }
 
 typedef struct cuP_thread_atexit_node_s *cuP_thread_atexit_node_t;

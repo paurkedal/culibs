@@ -40,6 +40,13 @@ CU_BEGIN_DECLARATIONS
 CU_SINLINE cuex_t cuex_hole(int l)
 { return cuex_opn(CUEX_O0_HOLE | CUEX_OA_HOLE_INDEX(l)); }
 
+CU_SINLINE cu_bool_t
+cuex_is_hole(cuex_t e)
+{
+    cuex_meta_t meta = cuex_meta(e);
+    return cuex_meta_is_opr(meta) && cuex_og_hole_contains(meta);
+}
+
 CU_SINLINE cuex_t cuex_mupath_null() { return cuex_null(); }
 
 CU_SINLINE cuex_t

@@ -82,10 +82,10 @@ typedef pthread_mutex_t cu_mutex_t;
 #   define CU_MUTEX_INITIALISER PTHREAD_MUTEX_INITIALIZER
 #endif
 #if defined(CUCONF_MUTEX_ERRORCHECK)
-#   define cu_mutex_cct(m) pthread_mutex_init(m, &cuP_mutexattr)
+#   define cu_mutex_init(m) pthread_mutex_init(m, &cuP_mutexattr)
     extern pthread_mutexattr_t cuP_mutexattr;
 #else
-#   define cu_mutex_cct(m) pthread_mutex_init(m, NULL)
+#   define cu_mutex_init(m) pthread_mutex_init(m, NULL)
 #endif
 
 /*!Lock \a m.  Aborts on bad usage if debugging is enabled. */
@@ -153,6 +153,9 @@ cu_bool_t cu_pmutex_trylock(void *ptr);
 
 /*!Unlock a mutex indexed by a hash mix of <tt>(cu_hash_t)\a ptr</tt>. */
 void cu_pmutex_unlock(void *ptr);
+
+/*!\deprecated Use cu_mutex_init. */
+#define cu_mutex_cct cu_mutex_init
 
 /*!@}*/
 CU_END_DECLARATIONS
