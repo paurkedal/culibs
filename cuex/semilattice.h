@@ -52,10 +52,10 @@ CU_BEGIN_DECLARATIONS
  * There is no special treatment of variables.
  */
 
-extern cuoo_stdtype_t cuexP_semilattice_type;
+extern cuoo_type_t cuexP_semilattice_type;
 
 CU_SINLINE cuoo_type_t cuex_semilattice_type(void)
-{ return cuoo_stdtype_to_type(cuexP_semilattice_type); }
+{ return cuexP_semilattice_type; }
 
 /*!Returns the top element of the ∧-semilattice, where ∧ = \a meet.  This is
  * also the identity element. */

@@ -89,87 +89,84 @@ cuooP_type_cct_hcf(cuoo_type_t type, cuoo_impl_t impl, cuex_t expr,
 }
 
 
-/* Standard Type
- * ------------- */
+/* Opaque Types
+ * ------------ */
 
 void
-cuoo_stdtype_cct(cuoo_stdtype_t type, cuoo_typekind_t kind, cuoo_impl_t impl)
+cuoo_type_init_opaque(cuoo_type_t type, cuoo_typekind_t kind, cuoo_impl_t impl)
 {
-    cuooP_type_cct_nonhc(cuoo_stdtype_to_type(type), impl, NULL, kind);
-    type->finalise = cu_clop_null;
+    cuooP_type_cct_nonhc(type, impl, NULL, kind);
 }
 
-cuoo_stdtype_t
-cuoo_stdtype_new(cuoo_impl_t impl)
+cuoo_type_t
+cuoo_type_new_opaque(cuoo_impl_t impl)
 {
-    cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct(type, cuoo_typekind_stdtype, impl);
+    cuoo_type_t type = cuoo_onew(cuoo_type);
+    cuoo_type_init_opaque(type, cuoo_typekind_opaque, impl);
     return type;
 }
 
-cuoo_stdtype_t
-cuoo_stdtypeoftypes_new(cuoo_impl_t impl)
+cuoo_type_t
+cuoo_type_new_metatype(cuoo_impl_t impl)
 {
-    cuoo_stdtype_t t = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct(t, cuoo_typekind_stdtypeoftypes, impl);
+    cuoo_type_t t = cuoo_onew(cuoo_type);
+    cuoo_type_init_opaque(t, cuoo_typekind_metatype, impl);
     return t;
 }
 
-cuoo_stdtype_t
-cuoo_stdtype_new_self_instance(cuoo_typekind_t kind, cuoo_impl_t impl)
+cuoo_type_t
+cuoo_type_new_self_instance(cuoo_typekind_t kind, cuoo_impl_t impl)
 {
-    cuoo_stdtype_t type
-	= cuoo_oalloc_self_instance(sizeof(struct cuoo_stdtype_s));
-    cuoo_stdtype_cct(type, kind, impl);
+    cuoo_type_t type = cuoo_oalloc_self_instance(sizeof(struct cuoo_type_s));
+    cuoo_type_init_opaque(type, kind, impl);
     return type;
 }
 
 void
-cuoo_stdtype_cct_hcs(cuoo_stdtype_t type, cuoo_typekind_t kind,
-		     cuoo_impl_t impl, size_t key_size)
+cuoo_type_init_opaque_hcs(cuoo_type_t type, cuoo_typekind_t kind,
+			  cuoo_impl_t impl, size_t key_size)
 {
-    cuooP_type_cct_hcs(cuoo_stdtype_to_type(type), impl, NULL, kind, key_size);
-    type->finalise = cu_clop_null;
+    cuooP_type_cct_hcs(type, impl, NULL, kind, key_size);
 }
 
 void
-cuoo_stdtype_cct_hcv(cuoo_stdtype_t type, cuoo_typekind_t kind,
-		     cuoo_impl_t impl, cu_clop(key_size_fn, size_t, void *))
+cuoo_type_init_opaque_hcv(cuoo_type_t type, cuoo_typekind_t kind,
+			  cuoo_impl_t impl,
+			  cu_clop(key_size_fn, size_t, void *))
 {
-    cuooP_type_cct_hcv(cuoo_stdtype_to_type(type), impl, NULL, kind, key_size_fn);
-    type->finalise = cu_clop_null;
+    cuooP_type_cct_hcv(type, impl, NULL, kind, key_size_fn);
 }
 
-cuoo_stdtype_t
-cuoo_stdtype_new_hcs(cuoo_impl_t impl, size_t key_size)
+cuoo_type_t
+cuoo_type_new_opaque_hcs(cuoo_impl_t impl, size_t key_size)
 {
-    cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtype, impl, key_size);
+    cuoo_type_t type = cuoo_onew(cuoo_type);
+    cuoo_type_init_opaque_hcs(type, cuoo_typekind_opaque, impl, key_size);
     return type;
 }
 
-cuoo_stdtype_t
-cuoo_stdtypeoftypes_new_hcs(cuoo_impl_t impl, size_t key_size)
+cuoo_type_t
+cuoo_type_new_metatype_hcs(cuoo_impl_t impl, size_t key_size)
 {
-    cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtypeoftypes, impl, key_size);
+    cuoo_type_t type = cuoo_onew(cuoo_type);
+    cuoo_type_init_opaque_hcs(type, cuoo_typekind_metatype, impl, key_size);
     return type;
 }
 
-cuoo_stdtype_t
-cuoo_stdtypeoftypes_new_hce(cuoo_impl_t impl)
+cuoo_type_t
+cuoo_type_new_metatype_hce(cuoo_impl_t impl)
 {
-    cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct_hcs(type, cuoo_typekind_stdtypeoftypes,
-			 impl, sizeof(cuex_t));
+    cuoo_type_t type = cuoo_onew(cuoo_type);
+    cuoo_type_init_opaque_hcs(type, cuoo_typekind_metatype,
+			      impl, sizeof(cuex_t));
     return type;
 }
 
-cuoo_stdtype_t
-cuoo_stdtype_new_hcv(cuoo_impl_t impl, cu_clop(key_size_fn, size_t, void *))
+cuoo_type_t
+cuoo_type_new_opaque_hcv(cuoo_impl_t impl, cu_clop(key_size_fn, size_t, void *))
 {
-    cuoo_stdtype_t type = cuoo_onew(cuoo_stdtype);
-    cuoo_stdtype_cct_hcv(type, cuoo_typekind_stdtype, impl, key_size_fn);
+    cuoo_type_t type = cuoo_onew(cuoo_type);
+    cuoo_type_init_opaque_hcv(type, cuoo_typekind_opaque, impl, key_size_fn);
     return type;
 }
 
@@ -318,7 +315,7 @@ cuoo_prop_get(cuex_t ex, cuoo_propkey_t key)
 /* Init
  * ==== */
 
-cuoo_stdtype_t cuooP_stdtype_type;
+cuoo_type_t cuooP_type_type;
 
 void
 cuooP_type_init()
@@ -326,6 +323,6 @@ cuooP_type_init()
 #if CUOO_ENABLE_KEYED_PROP
     cucon_umap_init(&cuooP_property_map);
 #endif
-    cuooP_stdtype_type = cuoo_stdtype_new_self_instance(
-	cuoo_typekind_stdtypeoftypes, cuoo_impl_none);
+    cuooP_type_type = cuoo_type_new_self_instance(
+	cuoo_typekind_metatype, cuoo_impl_none);
 }

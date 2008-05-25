@@ -21,7 +21,7 @@
 #include <cuoo/intf.h>
 
 cufo_namespace_t cufoP_culibs_namespace;
-cuoo_stdtype_t cufoP_tag_type;
+cuoo_type_t cufoP_tag_type;
 
 cufo_tag_t
 cufo_tag(cufo_namespace_t namespace, char const *name)
@@ -47,7 +47,7 @@ tag_dispatch(cu_word_t intf_number, ...)
 void
 cufoP_tag_init()
 {
-    cufoP_tag_type = cuoo_stdtype_new_hcs(
+    cufoP_tag_type = cuoo_type_new_opaque_hcs(
 	tag_dispatch, sizeof(struct cufo_tag_s) - CUOO_HCOBJ_SHIFT);
     cufoP_culibs_namespace = cufo_namespace("http://www.eideticdew.org/culibs");
 }

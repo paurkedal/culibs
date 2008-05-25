@@ -30,11 +30,11 @@ struct cudyn_ctortype_s
     cudyn_tuptype_t parttype;
 };
 
-extern cuoo_stdtype_t cudynP_ctortype_type;
+extern cuoo_type_t cudynP_ctortype_type;
 
 /*!The type of all constructor types. */
 CU_SINLINE cuoo_type_t cudyn_ctortype_type()
-{ return cuoo_stdtype_to_type(cudynP_ctortype_type); }
+{ return cudynP_ctortype_type; }
 
 /*!True iff \a meta is a constructor type. */
 CU_SINLINE cu_bool_t cudyn_meta_is_ctortype(cuex_meta_t meta)

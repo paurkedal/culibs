@@ -273,8 +273,8 @@ cudyn_load(cuoo_type_t t, void *p)
 {
     cuoo_typekind_t typekind = cuoo_type_typekind(t);
     switch (typekind) {
-	case cuoo_typekind_stdtype:
-	case cuoo_typekind_stdtypeoftypes:
+	case cuoo_typekind_opaque:
+	case cuoo_typekind_metatype:
 	case cuoo_typekind_tvar:
 	    cu_debug_assert(cuex_meta(p) == cuoo_type_to_meta(t));
 	    return p;

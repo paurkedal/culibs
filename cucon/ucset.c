@@ -386,18 +386,18 @@ ucset_impl(cu_word_t intf_number, ...)
 }
 
 #if CUCON_UCSET_ENABLE_HCONS
-cuoo_stdtype_t cuconP_ucset_type;
-cuoo_stdtype_t cuconP_ucset_leaf_type;
+cuoo_type_t cuconP_ucset_type;
+cuoo_type_t cuconP_ucset_leaf_type;
 #endif
 
 void
 cuconP_ucset_init()
 {
 #if CUCON_UCSET_ENABLE_HCONS
-    cuconP_ucset_type = cuoo_stdtype_new_hcs(
+    cuconP_ucset_type = cuoo_type_new_opaque_hcs(
 	ucset_impl, sizeof(struct cucon_ucset_s) - CUOO_HCOBJ_SHIFT);
 #  if CUCON_UCSET_ENABLE_BITSET
-    cuconP_ucset_leaf_type = cuoo_stdtype_new_hcs(
+    cuconP_ucset_leaf_type = cuoo_type_new_opaque_hcs(
 	ucset_impl, sizeof(struct cucon_ucset_leaf_s) - CUOO_HCOBJ_SHIFT);
 #  endif
 #endif

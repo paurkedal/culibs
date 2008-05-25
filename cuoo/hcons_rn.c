@@ -434,12 +434,11 @@ cuooP_hcons_disclaim_proc(void *obj, void *null)
 	cu_hcset_unlock_write(hcset);
     }
 #endif
-#if 0 /* Need finalisers? It's a minor overhead to non-finalised objects. */
+#ifdef CUOO_ENABLE_FINALISERS
     if (cuex_meta_is_type(meta)) {
 	cuoo_type_t t = cuoo_type_from_meta(meta);
-	if (cuoo_type_is_stdtype(t) &&
-		!cu_clop_is_null(cuoo_stdtype_from_type(t)->finalise))
-	    cu_call(cuoo_stdtype_from_type(t)->finalise, obj);
+	if (t->has_finaliser)
+	    (*t->impl)(CUOO_INTF_FINALISE)(obj);
     }
 #endif
     return 0;

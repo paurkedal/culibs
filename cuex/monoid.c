@@ -283,12 +283,12 @@ monoid_dispatch(cu_word_t intf_number, ...)
     }
 }
 
-cuoo_stdtype_t cuexP_monoid_type;
+cuoo_type_t cuexP_monoid_type;
 
 void
 cuexP_monoid_init(void)
 {
     cuex_intf_compound_finish(&compound_impl);
-    cuexP_monoid_type = cuoo_stdtype_new_hcs(
+    cuexP_monoid_type = cuoo_type_new_opaque_hcs(
 	monoid_dispatch, sizeof(struct cuex_monoid_s) - CUOO_HCOBJ_SHIFT);
 }

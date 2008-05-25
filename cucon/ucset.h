@@ -89,12 +89,13 @@ struct cucon_ucset_leaf_s
 #endif
 
 #if CUCON_UCSET_ENABLE_HCONS
-extern cuoo_stdtype_t cuconP_ucset_type;
+extern cuoo_type_t cuconP_ucset_type;
 CU_SINLINE cuoo_type_t cucon_ucset_type()
-{ return cuoo_stdtype_to_type(cuconP_ucset_type); }
-extern cuoo_stdtype_t cuconP_ucset_leaf_type;
+{ return cuconP_ucset_type; }
+
+extern cuoo_type_t cuconP_ucset_leaf_type;
 CU_SINLINE cuoo_type_t cucon_ucset_leaf_type()
-{ return cuoo_stdtype_to_type(cuconP_ucset_leaf_type); }
+{ return cuconP_ucset_leaf_type; }
 #endif
 
 /*!Return \a set with \a key inserted. */

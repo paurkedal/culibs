@@ -424,7 +424,7 @@ cuoo_layout_dump(cuoo_layout_t lyo, FILE *out)
     layout_dump(lyo, out);
 }
 
-cuoo_stdtype_t cuooP_layout_type;
+cuoo_type_t cuooP_layout_type;
 cuoo_layout_t cuooP_layout_ptr;
 cuoo_layout_t cuooP_layout_void;
 
@@ -442,7 +442,7 @@ cuooP_layout_init()
 {
     cu_offset_t ignore;
     cuooP_layout_type =
-	cuoo_stdtype_new_hcs(layout_impl,
+	cuoo_type_new_opaque_hcs(layout_impl,
 			     sizeof(struct cuoo_layout_s) - CUOO_HCOBJ_SHIFT);
     cuooP_layout_ptr = cuoo_layout_pack_bits(NULL,
 					  sizeof(void *)*8,

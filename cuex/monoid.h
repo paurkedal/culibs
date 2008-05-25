@@ -39,11 +39,11 @@ struct cuex_monoid_s
     cuex_t ltree;
 };
 
-extern cuoo_stdtype_t cuexP_monoid_type;
+extern cuoo_type_t cuexP_monoid_type;
 
 CU_SINLINE cuoo_type_t
 cuex_monoid_type()
-{ return cuoo_stdtype_to_type(cuexP_monoid_type); }
+{ return cuexP_monoid_type; }
 
 /*!True iff \a x is a monoid product or a monoid identity element of any
  * operator.

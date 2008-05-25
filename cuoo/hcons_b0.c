@@ -22,6 +22,8 @@
 
 #define N_ALLOC 0x2000000
 
+CU_SINLINE void ignore_pointer(void *ptr) {}
+
 typedef struct test_s *test_t;
 struct test_s
 {
@@ -30,9 +32,9 @@ struct test_s
     int arg1;
 };
 
-cuoo_stdtype_t _test_type;
+cuoo_type_t _test_type;
 CU_SINLINE cuoo_type_t test_type()
-{ return cuoo_stdtype_to_type(_test_type); }
+{ return _test_type; }
 
 void
 test_GC_malloc(int alloc_count)
@@ -65,7 +67,7 @@ test_hnew_noneq(int alloc_count)
 	cuoo_hctem_init(test, tem);
 	cuoo_hctem_get(test, tem)->arg0 = i;
 	cuoo_hctem_get(test, tem)->arg1 = i;
-	cuoo_hctem_new(test, tem);
+	ignore_pointer(cuoo_hctem_new(test, tem));
     }
 }
 
@@ -78,7 +80,7 @@ test_hnew_eq(int alloc_count)
 	cuoo_hctem_init(test, tem);
 	cuoo_hctem_get(test, tem)->arg0 = 0;
 	cuoo_hctem_get(test, tem)->arg1 = 0;
-	cuoo_hctem_new(test, tem);
+	ignore_pointer(cuoo_hctem_new(test, tem));
     }
 }
 
@@ -166,7 +168,7 @@ main(int argc, char **argv)
 	    exit(2);
     }
 
-    _test_type = cuoo_stdtype_new_hcs(
+    _test_type = cuoo_type_new_opaque_hcs(
 	cuoo_impl_none, sizeof(struct test_s) - CUOO_HCOBJ_SHIFT);
     printf("thread_count = %d, alloc_count = %d, alloc_type = %s\n",
 	   thread_count, alloc_count, alloc_name_arr[alloc_type]);

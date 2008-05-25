@@ -232,14 +232,14 @@ set_dispatch(cu_word_t intf_number, ...)
 
 /* == Initialisation == */
 
-cuoo_stdtype_t cuexP_set_type;
+cuoo_type_t cuexP_set_type;
 cuex_t cuexP_set_empty;
 
 void
 cuexP_set_init()
 {
     cuex_intf_compound_finish(&set_compound);
-    cuexP_set_type = cuoo_stdtype_new_hcs(
+    cuexP_set_type = cuoo_type_new_opaque_hcs(
 	set_dispatch, sizeof(struct cuex_set_s) - CUOO_HCOBJ_SHIFT);
     cuexP_set_empty = set_new(cuex_atree_empty());
 }

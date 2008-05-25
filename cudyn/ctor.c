@@ -42,11 +42,11 @@ cudyn_ctor(cudyn_ctortype_t type, unsigned int ctor_num)
 }
 
 
-cuoo_stdtype_t cudynP_ctortype_type;
+cuoo_type_t cudynP_ctortype_type;
 
 void
 cudyn_ctor_init()
 {
-    cudynP_ctortype_type = cuoo_stdtype_new_hcs(
+    cudynP_ctortype_type = cuoo_type_new_opaque_hcs(
 	cuoo_impl_none, sizeof(struct cudyn_ctortype_s) - CUOO_HCOBJ_SHIFT);
 }

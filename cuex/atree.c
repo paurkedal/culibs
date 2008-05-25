@@ -151,13 +151,13 @@ struct cuex_anode_s
     cuex_t left, right;
 };
 
-cuoo_stdtype_t cuexP_anode_type;
+cuoo_type_t cuexP_anode_type;
 
 #define NODE(tree) ((cuex_atree_t)(tree))
 
 #define PAIR_CENTRE(left, right) \
     pair_centre((cu_word_t)(left), (cu_word_t)(right))
-#define anode_meta cuoo_stdtype_to_meta(cuexP_anode_type)
+#define anode_meta cuoo_type_to_meta(cuexP_anode_type)
 
 CU_SINLINE cu_word_t
 pair_centre(cu_word_t left, cu_word_t right)
@@ -1309,6 +1309,6 @@ atree_impl(cu_word_t intf_number, ...)
 void
 cuexP_atree_init()
 {
-    cuexP_anode_type = cuoo_stdtype_new_hcs(
+    cuexP_anode_type = cuoo_type_new_opaque_hcs(
 	atree_impl, sizeof(struct cuex_anode_s) - CUOO_HCOBJ_SHIFT);
 }

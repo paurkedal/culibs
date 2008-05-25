@@ -46,11 +46,11 @@ struct cudyn_proto_s
 #define CUDYN_PROTO_KEY_SIZE \
 	(offsetof(struct cudyn_proto_s, cif) - CUOO_HCOBJ_SHIFT)
 
-extern cuoo_stdtype_t cudynP_proto_type;
+extern cuoo_type_t cudynP_proto_type;
 
 /*!The type of all prototypes. */
 CU_SINLINE cuoo_type_t cudyn_proto_type()
-{ return cuoo_stdtype_to_type(cudynP_proto_type); }
+{ return cudynP_proto_type; }
 
 /*!Cast to base struct. */
 CU_SINLINE cuoo_type_t cudyn_proto_to_type(cudyn_proto_t proto)

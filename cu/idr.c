@@ -96,7 +96,7 @@ cu_clop_def(idr_key_size_clop, size_t, void *idr)
     return ((cu_idr_t)idr)->key_size;
 }
 
-cuoo_stdtype_t cuP_idr_type;
+cuoo_type_t cuP_idr_type;
 
 static void
 idr_print(void *idr, FILE *out)
@@ -118,5 +118,5 @@ idr_impl(cu_word_t intf_number, ...)
 void
 cuP_idr_init(void)
 {
-    cuP_idr_type = cuoo_stdtype_new_hcv(idr_impl, idr_key_size_clop);
+    cuP_idr_type = cuoo_type_new_opaque_hcv(idr_impl, idr_key_size_clop);
 }

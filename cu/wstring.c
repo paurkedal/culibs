@@ -232,13 +232,13 @@ wstring_dispatch(cu_word_t intf, ...)
     }
 }
 
-cuoo_stdtype_t cuP_wstring_type;
+cuoo_type_t cuP_wstring_type;
 cu_wstring_t cuP_wstring_empty;
 
 void
 cuP_wstring_init()
 {
-    cuP_wstring_type = cuoo_stdtype_new(wstring_dispatch);
+    cuP_wstring_type = cuoo_type_new_opaque(wstring_dispatch);
     cuP_wstring_empty = cuoo_onew(cu_wstring);
     cuP_wstring_empty->arr = NULL;
     cuP_wstring_empty->len = 0;

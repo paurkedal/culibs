@@ -36,8 +36,8 @@ CU_BEGIN_DECLARATIONS
 typedef enum {
     cuoo_typekind_none,
     cuoo_typekind_tvar,
-    cuoo_typekind_stdtype,		/* Inherits cuoo_stdtype_s. */
-    cuoo_typekind_stdtypeoftypes,	/* Inherits cuoo_stdtype_s. */
+    cuoo_typekind_opaque,
+    cuoo_typekind_metatype,
     cuoo_typekind_proto,
     cuoo_typekind_ctortype,
     cuoo_typekind_by_expr,
@@ -89,6 +89,9 @@ struct cuoo_type_s
 
     cuoo_typekind_t typekind : 5;
     cuoo_hcmethod_t members_hcmethod : 2;
+#ifdef CUOO_ENABLE_FINALISERS
+    cu_bool_t has_finaliser : 1;
+#endif
 
     union {
 	size_t key_size;
@@ -104,7 +107,7 @@ CU_SINLINE cu_bool_t cuoo_is_type(cuex_t e)
 {
     cuex_meta_t m = cuex_meta(e);
     return cuex_meta_is_type(m)
-	&& cuoo_type_from_meta(m)->typekind == cuoo_typekind_stdtypeoftypes;
+	&& cuoo_type_from_meta(m)->typekind == cuoo_typekind_metatype;
 }
 
 CU_SINLINE cuoo_type_t cuoo_type_from_ex(cuex_t e)
@@ -124,8 +127,8 @@ CU_SINLINE cuoo_typekind_t cuoo_type_typekind(cuoo_type_t type)
 CU_SINLINE cu_bool_t cuoo_type_is_hctype(cuoo_type_t type)
 { return type->members_hcmethod; }
 
-CU_SINLINE cu_bool_t cuoo_type_is_stdtype(cuoo_type_t type)
-{ return type->typekind <= cuoo_typekind_stdtypeoftypes; }
+CU_SINLINE cu_bool_t cuoo_type_is_metatype(cuoo_type_t type)
+{ return type->typekind <= cuoo_typekind_metatype; }
 
 CU_SINLINE cu_bool_t cuoo_type_is_inltype(cuoo_type_t type)
 { return type->typekind >= cuoo_typekind_ptrtype; }
@@ -137,7 +140,7 @@ CU_SINLINE cu_bool_t cuoo_type_is_proto(cuoo_type_t type)
 { return type->typekind == cuoo_typekind_proto; }
 
 CU_SINLINE cu_bool_t cuoo_type_is_typeoftypes(cuoo_type_t type)
-{ return type->typekind == cuoo_typekind_stdtypeoftypes; }
+{ return type->typekind == cuoo_typekind_metatype; }
 
 void cuooP_type_cct_nonhc(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
 			  cuoo_typekind_t kind);
@@ -152,49 +155,38 @@ void cuooP_type_cct_hcf(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
 			cuoo_typekind_t kind,
 			cu_clop(key_hash_fn, cu_hash_t, void *));
 
-struct cuoo_stdtype_s
-{
-    cu_inherit (cuoo_type_s);
-    cu_clop(finalise, void, void *);
-};
+#define cuoo_stdtype_from_type(type) (type)
+#define cuoo_stdtype_to_type(type) (type)
 
-#define cuoo_stdtype_from_type(type) cu_from(cuoo_stdtype, cuoo_type, type)
-#define cuoo_stdtype_to_type(stdtype) cu_to(cuoo_type, stdtype)
-#define cuoo_stdtype_from_meta(meta) \
-    cuoo_stdtype_from_type(cuoo_type_from_meta(meta))
-#define cuoo_stdtype_to_meta(stdtype) \
-    cuoo_type_to_meta(cuoo_stdtype_to_type(stdtype))
-
-extern cuoo_stdtype_t cuooP_stdtype_type;
-#define cuoo_stdtype_type() cuoo_stdtype_to_type(cuooP_stdtype_type)
+extern cuoo_type_t cuooP_type_type;
+#define cuoo_type_type() cuooP_type_type
 
 /* Create a type with standard method slots. */
-void cuoo_stdtype_cct(cuoo_stdtype_t, cuoo_typekind_t kind,
-		      cuoo_impl_t impl);
+void cuoo_type_init_opaque(cuoo_type_t, cuoo_typekind_t kind, cuoo_impl_t impl);
 
-cuoo_stdtype_t cuoo_stdtype_new(cuoo_impl_t impl);
+cuoo_type_t cuoo_type_new_opaque(cuoo_impl_t impl);
 
 /* Create a type for hash constructed objects. */
-void cuoo_stdtype_cct_hcs(cuoo_stdtype_t, cuoo_typekind_t,
-			  cuoo_impl_t impl, size_t key_size);
+void cuoo_type_init_opaque_hcs(cuoo_type_t, cuoo_typekind_t,
+			       cuoo_impl_t impl, size_t key_size);
 
-cuoo_stdtype_t cuoo_stdtype_new_hcs(cuoo_impl_t impl, size_t key_size);
+cuoo_type_t cuoo_type_new_opaque_hcs(cuoo_impl_t impl, size_t key_size);
 
 /* Create a type for hash constructed objects with variable size. */
-void cuoo_stdtype_cct_hcv(cuoo_stdtype_t, cuoo_typekind_t, cuoo_impl_t impl,
-			  cu_clop(key_size, size_t, void *));
+void cuoo_type_init_opaque_hcv(cuoo_type_t, cuoo_typekind_t, cuoo_impl_t impl,
+			       cu_clop(key_size, size_t, void *));
 
-cuoo_stdtype_t cuoo_stdtype_new_hcv(cuoo_impl_t impl,
-				    cu_clop(key_size, size_t, void *));
+cuoo_type_t cuoo_type_new_opaque_hcv(cuoo_impl_t impl,
+				     cu_clop(key_size, size_t, void *));
 
 
-cuoo_stdtype_t cuoo_stdtypeoftypes_new(cuoo_impl_t impl);
+cuoo_type_t cuoo_type_new_metatype(cuoo_impl_t impl);
 
 /*!A new type of types.  If the instances are hash-consed, the expression
  * for of the type will be used as the key. */
-cuoo_stdtype_t cuoo_stdtypeoftypes_new_hce(cuoo_impl_t impl);
+cuoo_type_t cuoo_type_new_metatype_hce(cuoo_impl_t impl);
 
-cuoo_stdtype_t cuoo_stdtypeoftypes_new_hcs(cuoo_impl_t impl, size_t key_size);
+cuoo_type_t cuoo_type_new_metatype_hcs(cuoo_impl_t impl, size_t key_size);
 
 
 /* Objects

@@ -328,14 +328,14 @@ ucmap_impl(cu_word_t intf_number, ...)
 }
 
 #if cuconP_UCMAP_ENABLE_HCONS
-cuoo_stdtype_t cuconP_ucmap_type;
+cuoo_type_t cuconP_ucmap_type;
 #endif
 
 void
 cuconP_ucmap_init()
 {
 #if cuconP_UCMAP_ENABLE_HCONS
-    cuconP_ucmap_type = cuoo_stdtype_new_hcs(
+    cuconP_ucmap_type = cuoo_type_new_opaque_hcs(
 	ucmap_impl, sizeof(struct cucon_ucmap_s) - CUOO_HCOBJ_SHIFT);
 #endif
 }

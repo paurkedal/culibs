@@ -40,17 +40,13 @@ struct cudyn_inltype_s
     AO_t ffitype;
 };
 
-extern cuoo_stdtype_t cudynP_cuex_type;
-extern cuoo_stdtype_t cudynP_ptrtype_type;
-extern cuoo_stdtype_t cudynP_elmtype_type;
-extern cuoo_stdtype_t cudynP_arrtype_type;
-extern cuoo_stdtype_t cudynP_tuptype_type;
-extern cuoo_stdtype_t cudynP_sigtype_type;
-extern cuoo_stdtype_t cudynP_duntype_type;
-extern cuoo_stdtype_t cuooP_type_type;
-
-CU_SINLINE cuoo_type_t cuoo_type_type()
-{ return cuoo_stdtype_to_type(cuooP_type_type); }
+extern cuoo_type_t cudynP_cuex_type;
+extern cuoo_type_t cudynP_ptrtype_type;
+extern cuoo_type_t cudynP_elmtype_type;
+extern cuoo_type_t cudynP_arrtype_type;
+extern cuoo_type_t cudynP_tuptype_type;
+extern cuoo_type_t cudynP_sigtype_type;
+extern cuoo_type_t cudynP_duntype_type;
 
 
 /* Dynamic Object Type
@@ -58,11 +54,11 @@ CU_SINLINE cuoo_type_t cuoo_type_type()
 
 /*!Returns the type of dynamic objects and expressions. */
 CU_SINLINE cuoo_type_t cudyn_cuex_type()
-{ return cuoo_stdtype_to_type(cudynP_cuex_type); }
+{ return cudynP_cuex_type; }
 
 /*!True iff \a t is the type of dynamic objects and expressions. */
 CU_SINLINE cu_bool_t cudyn_is_cuex_type(cuoo_type_t t)
-{ return cuoo_stdtype_to_type(cudynP_cuex_type) == t; }
+{ return cudynP_cuex_type == t; }
 
 /*!\defgroup cudyn_ptrtype_mod cudyn_ptrtype_t: Pointer Types
  * @{ */
@@ -77,7 +73,7 @@ struct cudyn_ptrtype_s
 
 /*!The type of pointer types. */
 CU_SINLINE cuoo_type_t cudyn_ptrtype_type()
-{ return cuoo_stdtype_to_type(cudynP_ptrtype_type); }
+{ return cudynP_ptrtype_type; }
 
 /*!True iff \a t is a \c cudyn_ptrtype_t. */
 CU_SINLINE cu_bool_t cuoo_type_is_ptrtype(cuoo_type_t t)
@@ -109,7 +105,7 @@ struct cudyn_elmtype_s
 
 /*!The type of elementary types. */
 CU_SINLINE cuoo_type_t cudyn_elmtype_type()
-{ return cuoo_stdtype_to_type(cudynP_elmtype_type); }
+{ return cudynP_elmtype_type; }
 
 /*!True iff \a t is a \c cudyn_elmtype_t. */
 CU_SINLINE cu_bool_t cuoo_type_is_elmtype(cuoo_type_t t)
@@ -143,7 +139,7 @@ struct cudyn_arrtype_s
 
 /*!The type of array types. */
 CU_SINLINE cuoo_type_t cudyn_arrtype_type()
-{ return cuoo_stdtype_to_type(cudynP_arrtype_type); }
+{ return cudynP_arrtype_type; }
 
 /*!True iff \a t is a \c cudyn_arrtype_t. */
 CU_SINLINE cu_bool_t cuoo_type_is_arrtype(cuoo_type_t t)
@@ -197,7 +193,7 @@ typedef int cudyn_tupindex_t;
 
 /*!The type of tuple types. */
 CU_SINLINE cuoo_type_t cudyn_tuptype_type()
-{ return cuoo_stdtype_to_type(cudynP_tuptype_type); }
+{ return cudynP_tuptype_type; }
 
 /*!True iff \a t is a cudyn_tuptype_t. */
 CU_SINLINE cu_bool_t cuoo_type_is_tuptype(cuoo_type_t t)
@@ -270,7 +266,7 @@ struct cudyn_duntype_s
 
 /*!Type type of discriminated union types. */
 CU_SINLINE cuoo_type_t cudyn_duntype_type()
-{ return cuoo_stdtype_to_type(cudynP_duntype_type); }
+{ return cudynP_duntype_type; }
 
 /*!True iff \a t is a cudyn_duntype_t. */
 CU_SINLINE cu_bool_t cuoo_type_is_duntype(cuoo_type_t t)

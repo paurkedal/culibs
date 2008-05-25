@@ -24,7 +24,7 @@
 
 CU_BEGIN_DECLARATIONS
 
-extern cuoo_stdtype_t cuP_wstring_type;
+extern cuoo_type_t cuP_wstring_type;
 extern cu_wstring_t cuP_wstring_empty;
 
 /*!\defgroup cu_wstring_h cu/wstring.h: Unicode String
@@ -48,7 +48,7 @@ struct cu_wstring_s
 /*!Dynamic type of a \a cu_wstring_t. Only strings returned by functions ending
  * in \c _o are dynamically typed. */
 CU_SINLINE cuoo_type_t cu_wstring_type()
-{ return cuoo_stdtype_to_type(cuP_wstring_type); }
+{ return cuP_wstring_type; }
 
 /*!The length of \a s. */
 CU_SINLINE size_t cu_wstring_length(cu_wstring_t s) { return s->len; }

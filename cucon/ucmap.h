@@ -70,9 +70,9 @@ struct cucon_ucmap_s
 };
 
 #if cuconP_UCMAP_ENABLE_HCONS
-extern cuoo_stdtype_t cuconP_ucmap_type;
+extern cuoo_type_t cuconP_ucmap_type;
 CU_SINLINE cuoo_type_t cucon_ucmap_type()
-{ return cuoo_stdtype_to_type(cuconP_ucmap_type); }
+{ return cuconP_ucmap_type; }
 #endif
 
 /*!The empty map. */

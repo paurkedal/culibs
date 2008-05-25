@@ -23,7 +23,7 @@
 #include <cu/algo.h>
 
 CU_BEGIN_DECLARATIONS
-extern cuoo_stdtype_t cuexP_set_type;
+extern cuoo_type_t cuexP_set_type;
 extern cuex_t cuexP_set_empty;
 
 /*!\defgroup cuex_set_h cuex/set.h: Set-Like Terms
@@ -36,7 +36,7 @@ extern cuex_t cuexP_set_empty;
 /*!The type of set terms. */
 CU_SINLINE cuoo_type_t
 cuex_set_type()
-{ return cuoo_stdtype_to_type(cuexP_set_type); }
+{ return cuexP_set_type; }
 
 /*!True iff \a e is a set. */
 CU_SINLINE cu_bool_t

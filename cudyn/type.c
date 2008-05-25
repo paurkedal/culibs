@@ -463,9 +463,9 @@ default_type(cuex_t ex)
 {
     cuoo_type_t t;
     t = cuoo_hxalloc_setao(cuoo_type_type(),
-				sizeof(struct cuoo_type_s) + sizeof(AO_t),
-				sizeof(cuex_t), &ex,
-				sizeof(struct cuoo_type_s), 0);
+			   sizeof(struct cuoo_type_s) + sizeof(AO_t),
+			   sizeof(cuex_t), &ex,
+			   sizeof(struct cuoo_type_s), 0);
     if (!AO_load_acquire_read((AO_t *)(t + 1)))
 	cuooP_type_cct_hcs(t, cuoo_impl_none, ex,
 			   cuoo_typekind_by_expr, cuex_type_size(ex));
@@ -516,28 +516,26 @@ cuoo_type(cuex_t ex)
 /* Init
  * ==== */
 
-cuoo_stdtype_t cudynP_cuex_type;
-cuoo_stdtype_t cudynP_ptrtype_type;
-cuoo_stdtype_t cudynP_elmtype_type;
-cuoo_stdtype_t cudynP_arrtype_type;
-cuoo_stdtype_t cudynP_tuptype_type;
-cuoo_stdtype_t cudynP_sngtype_type;
-cuoo_stdtype_t cudynP_duntype_type;
+cuoo_type_t cudynP_cuex_type;
+cuoo_type_t cudynP_ptrtype_type;
+cuoo_type_t cudynP_elmtype_type;
+cuoo_type_t cudynP_arrtype_type;
+cuoo_type_t cudynP_tuptype_type;
+cuoo_type_t cudynP_sngtype_type;
+cuoo_type_t cudynP_duntype_type;
 cuex_t cudynP_tup_null;
 cudyn_sngtype_t cudynP_default_sngtype;
-cuoo_stdtype_t cuooP_type_type;
 
 void
 cudynP_type_init()
 {
-    cudynP_cuex_type = cuoo_stdtype_new(cuoo_impl_none);
-    cudynP_ptrtype_type = cuoo_stdtypeoftypes_new_hcs(
+    cudynP_cuex_type = cuoo_type_new_opaque(cuoo_impl_none);
+    cudynP_ptrtype_type = cuoo_type_new_metatype_hcs(
 	cuoo_impl_none, sizeof(struct cudyn_ptrtype_s) - CUOO_HCOBJ_SHIFT);
-    cudynP_elmtype_type = cuoo_stdtypeoftypes_new(cuoo_impl_none);
-    cudynP_arrtype_type = cuoo_stdtypeoftypes_new_hce(cuoo_impl_none);
-    cudynP_tuptype_type = cuoo_stdtypeoftypes_new_hce(tuptype_impl);
-    cudynP_duntype_type = cuoo_stdtypeoftypes_new_hce(cuoo_impl_none);
-    cudynP_sngtype_type = cuoo_stdtypeoftypes_new_hce(cuoo_impl_none);
+    cudynP_elmtype_type = cuoo_type_new_metatype(cuoo_impl_none);
+    cudynP_arrtype_type = cuoo_type_new_metatype_hce(cuoo_impl_none);
+    cudynP_tuptype_type = cuoo_type_new_metatype_hce(tuptype_impl);
+    cudynP_duntype_type = cuoo_type_new_metatype_hce(cuoo_impl_none);
+    cudynP_sngtype_type = cuoo_type_new_metatype_hce(cuoo_impl_none);
     cudynP_tup_null = cuex_monoid_identity(CUEX_O2_TUPLE);
-    cuooP_type_type = cuoo_stdtypeoftypes_new_hce(cuoo_impl_none);
 }

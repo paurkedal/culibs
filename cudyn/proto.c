@@ -297,11 +297,11 @@ cudyn_proto_apply_fn(cudyn_proto_t proto, cu_fnptr_t fn,
 }
 
 
-cuoo_stdtype_t cudynP_proto_type;
+cuoo_type_t cudynP_proto_type;
 
 void
 cudynP_proto_init()
 {
-    cudynP_proto_type = cuoo_stdtype_new_hcs(cuoo_impl_none,
-					     CUDYN_PROTO_KEY_SIZE);
+    cudynP_proto_type = cuoo_type_new_opaque_hcs(cuoo_impl_none,
+						 CUDYN_PROTO_KEY_SIZE);
 }

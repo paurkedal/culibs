@@ -45,7 +45,7 @@ cu_clop_def(value_merge, cuex_t, cuex_t e0, cuex_t e1)
 #define atree_order(T0, T1) cuex_atree_order(get_key, T0, T1)
 #define atree_subseteq(T0, T1) cuex_atree_subseteq(get_key, T0, T1)
 
-cuoo_stdtype_t cuexP_labelling_type;
+cuoo_type_t cuexP_labelling_type;
 
 typedef struct cuex_labelling_s *cuex_labelling_t;
 struct cuex_labelling_s
@@ -597,7 +597,7 @@ void
 cuexP_labelling_init(void)
 {
     cuex_intf_compound_finish(&labelling_compound);
-    cuexP_labelling_type = cuoo_stdtype_new_hcs(
+    cuexP_labelling_type = cuoo_type_new_opaque_hcs(
 	labelling_impl, sizeof(struct cuex_labelling_s) - CUOO_HCOBJ_SHIFT);
     cuexP_labelling_empty = labelling(NULL);
 }

@@ -37,8 +37,8 @@ struct cuoo_layout_s
     unsigned short max_free_width;
     cu_offset_t bitoffset;
 };
-extern cuoo_stdtype_t cuooP_layout_type;
-#define cuoo_layout_type() cuoo_stdtype_to_type(cuooP_layout_type)
+extern cuoo_type_t cuooP_layout_type;
+#define cuoo_layout_type() cuooP_layout_type
 
 #define cuoo_layout_prefix(oml) ((oml)->prefix)
 #define cuoo_layout_bits_alloc_mask(oml) ((oml)->alloc_mask)

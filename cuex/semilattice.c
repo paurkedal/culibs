@@ -38,9 +38,9 @@ struct cuex_semilattice_s
 #define atree_order(A0, A1) cuex_atree_order(semilattice_key, A1, A0)
 #define atree_leq(A0, A1) cuex_atree_subseteq(semilattice_key, A1, A0)
 
-cuoo_stdtype_t cuexP_semilattice_type;
-#define sl_type cuoo_stdtype_to_type(cuexP_semilattice_type)
-#define sl_meta cuoo_stdtype_to_meta(cuexP_semilattice_type)
+cuoo_type_t cuexP_semilattice_type;
+#define sl_type cuexP_semilattice_type
+#define sl_meta cuoo_type_to_meta(cuexP_semilattice_type)
 
 cu_clop_def(semilattice_key, cu_word_t, cuex_t e)
 {
@@ -187,7 +187,7 @@ void
 cuexP_semilattice_init(void)
 {
     cuexP_semilattice_type
-	= cuoo_stdtype_new_hcs(
+	= cuoo_type_new_opaque_hcs(
 	    semilattice_dispatch,
 	    sizeof(struct cuex_semilattice_s) - CUOO_HCOBJ_SHIFT);
 }

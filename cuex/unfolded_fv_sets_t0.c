@@ -57,9 +57,8 @@ int
 main()
 {
     cuex_init();
-    cuex_t e1 = cuex_var_new_e();
-    cuex_t e2 = cuex_var_new_e();
-    cuex_t e3 = cuex_var_new_e();
+//    cuex_t e1 = cuex_var_new_e();
+//    cuex_t e2 = cuex_var_new_e();
 
     _0 = cuex_hole(0);
     _1 = cuex_hole(1);

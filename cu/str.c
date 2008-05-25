@@ -934,7 +934,7 @@ cu_clop_edef(cu_str_cmp_clop, int, cu_str_t x, cu_str_t y)
 cu_clop_edef(cu_str_coll_clop, int, cu_str_t x, cu_str_t y)
 { return cu_str_coll(x, y); }
 
-cuoo_stdtype_t cuP_str_type;
+cuoo_type_t cuP_str_type;
 
 static void
 str_print(cuex_t ex, FILE *out)
@@ -955,5 +955,5 @@ str_impl(cu_word_t intf_number, ...)
 void
 cuP_str_init(void)
 {
-    cuP_str_type = cuoo_stdtype_new(str_impl);
+    cuP_str_type = cuoo_type_new_opaque(str_impl);
 }

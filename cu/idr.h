@@ -31,11 +31,11 @@ struct cu_idr_s
     size_t key_size;
 };
 
-extern cuoo_stdtype_t cuP_idr_type;
+extern cuoo_type_t cuP_idr_type;
 
 /*!Returns the type descriptor of all \c cu_idr_t objects. */
 CU_SINLINE cuoo_type_t cu_idr_type()
-{ return cuoo_stdtype_to_type(cuP_idr_type); }
+{ return cuP_idr_type; }
 
 /*!True iff the dynamically typed object at \a dyn is an \c cu_idr_t. */
 CU_SINLINE cu_bool_t cu_is_idr(void *dyn)

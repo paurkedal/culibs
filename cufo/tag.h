@@ -25,7 +25,7 @@
 CU_BEGIN_DECLARATIONS
 
 extern cufo_namespace_t cufoP_culibs_namespace;
-extern cuoo_stdtype_t cufoP_namespace_type, cufoP_tag_type;
+extern cuoo_type_t cufoP_namespace_type, cufoP_tag_type;
 
 /*!\defgroup cufo_tag_h cufo/tag.h: Tags for Light-Weight Markup
  *@{\ingroup cufo_mod */
@@ -55,7 +55,7 @@ struct cufo_tag_s
 
 CU_SINLINE cuoo_type_t
 cufo_tag_type()
-{ return cuoo_stdtype_to_type(cufoP_tag_type); }
+{ return cufoP_tag_type; }
 
 cufo_tag_t
 cufo_tag(cufo_namespace_t namespace, char const *name);

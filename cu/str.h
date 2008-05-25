@@ -38,11 +38,11 @@ struct cu_str_s
     size_t cap;
 };
 
-extern cuoo_stdtype_t cuP_str_type;
+extern cuoo_type_t cuP_str_type;
 
 /*!The dynamic type of \c cu_str_t. */
 CU_SINLINE cuoo_type_t cu_str_type()
-{ return cuoo_stdtype_to_type(cuP_str_type); }
+{ return cuP_str_type; }
 
 /*!True iff \a s is a \c cu_str_t.
  * \pre s is a dynamically typed object. */
