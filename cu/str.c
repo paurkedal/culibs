@@ -452,7 +452,7 @@ cu_str_cct_vfmt(cu_str_t str, char const *fmt, va_list va)
     size_t size;
     char *buf;
     FILE *out = open_memstream(&buf, &size);
-    cu_vfprintf(out, fmt, va);
+    vfprintf(out, fmt, va);
     fclose(out);
     cu_str_cct_charr(str, buf, size);
     free(buf);
@@ -500,7 +500,7 @@ cu_str_append_vfmt(cu_str_t dst, char const *fmt, va_list va)
     char *buf;
     size_t size;
     FILE *out = open_memstream(&buf, &size);
-    cu_vfprintf(out, fmt, va);
+    vfprintf(out, fmt, va);
     fclose(out);
     cu_str_append_charr(dst, buf, size);
     free(buf);

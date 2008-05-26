@@ -195,15 +195,6 @@ CLEANFILES += tmp.* config.sizeof
 dist-rpm: dist-bzip2
 	rpmbuild -tb $(PACKAGE)-$(VERSION).tar.bz2
 
-all-local:
-	ln -sf cubase-uninstalled.pc pkgconfig/cu-uninstalled.pc
-	ln -sf cubase-uninstalled.pc pkgconfig/cucon-uninstalled.pc
-	ln -sf cubase-uninstalled.pc pkgconfig/cuoo-uninstalled.pc
-	ln -sf cuex-uninstalled.pc pkgconfig/cudyn-uninstalled.pc
-CLEANFILES += \
-	pkgconfig/cu-uninstalled.pc \
-	pkgconfig/cucon-uninstalled.pc \
-	pkgconfig/cudyn-uninstalled.pc
 install-data-local:
 	$(mkinstalldirs) '$(DESTDIR)$(pkgconfigdir)'
 if enable_cucon

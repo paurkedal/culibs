@@ -280,6 +280,12 @@ AC_CONFIG_FILES([
 	pkgconfig/cuex.pc   pkgconfig/cuex-uninstalled.pc
 	pkgconfig/cutext.pc pkgconfig/cutext-uninstalled.pc
 	culibs.spec cubase.spec ])
+AC_CONFIG_COMMANDS([pkgconfig-links],
+  [ ln -sf cubase-uninstalled.pc pkgconfig/cu-uninstalled.pc
+    ln -sf cubase-uninstalled.pc pkgconfig/cucon-uninstalled.pc
+    ln -sf cubase-uninstalled.pc pkgconfig/cuoo-uninstalled.pc
+    ln -sf cudyn-uninstalled.pc pkgconfig/cuex-uninstalled.pc
+  ])
 
 AC_CONFIG_COMMANDS([cu/conf_ac.h],
   [ test cu/conf_ac.h -nt config_raw.h || sed >cu/conf_ac.h <config_raw.h \

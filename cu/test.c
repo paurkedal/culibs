@@ -18,6 +18,7 @@
 #include <cu/test.h>
 #include <cu/diag.h>
 #include <cu/debug.h>
+#include <cu/sref.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -42,9 +43,7 @@ void
 cuP_test_vbugf(char const *file, int line, char const *msg, va_list va)
 {
     int bug_count = AO_fetch_and_add1(&cuP_test_fail_count) + 1;
-    fprintf(stderr, "%s:%d: ", file, line);
-    cu_vfprintf(stderr, msg, va);
-    fputc('\n', stderr);
+    cu_verrf_at(cu_sref_new_cstr(file, line, -1), msg, va);
     if (bug_count < cuP_test_max_bug_count)
 	return;
     else if (cuP_test_bugaction == cu_test_bugaction_cont)
