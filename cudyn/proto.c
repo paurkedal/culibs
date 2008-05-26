@@ -173,8 +173,8 @@ cudyn_proto_by_tuptype(cudyn_tuptype_t arg_type, cuoo_type_t res_type)
     struct cudyn_proto_s key;
     cudyn_proto_t proto;
     size_t size = sizeof(struct cudyn_proto_s) + r*sizeof(ffi_type *);
-    cuooP_type_cct_hcs(cu_to(cuoo_type, &key), cuoo_impl_none, NULL,
-		       cuoo_typekind_proto, sizeof(cu_fnptr_t));
+    cuoo_type_init_general_hcs(cu_to(cuoo_type, &key), cuoo_typekind_proto,
+			       cuoo_impl_none, NULL, sizeof(cu_fnptr_t));
     key.arg_type = arg_type;
     key.res_type = res_type;
     init.r = r;

@@ -27,8 +27,9 @@ cudyn_ctortype(cudyn_tuptype_t parttype, cudyn_duntype_t fulltype)
     cuoo_hctem_decl(cudyn_ctortype, key);
     cuoo_hctem_init(cudyn_ctortype, key);
     ctortype = cuoo_hctem_get(cudyn_ctortype, key);
-    cuooP_type_cct_hcs(cu_to(cuoo_type, ctortype), cuoo_impl_none, NULL,
-		       cuoo_typekind_ctortype, sizeof(unsigned int));
+    cuoo_type_init_general_hcs(cu_to(cuoo_type, ctortype),
+			       cuoo_typekind_ctortype, cuoo_impl_none, NULL,
+			       sizeof(unsigned int));
     ctortype->fulltype = fulltype;
     ctortype->parttype = parttype;
     return cuoo_hctem_new(cudyn_ctortype, key);

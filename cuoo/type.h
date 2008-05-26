@@ -29,10 +29,7 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_type_h cuoo/type.h: Operations and Dynamically Typed Objects
  * @{ \ingroup cuoo_mod */
 
-
-/* Types
- * ===== */
-
+/*!Main classification of types. */
 typedef enum {
     cuoo_typekind_none,
     cuoo_typekind_tvar,
@@ -74,6 +71,7 @@ typedef enum {
     cuoo_hcmethod_by_hash_fn	/* Sets cuoo_type_s.u0.key_hash_fn */
 } cuoo_hcmethod_t;
 
+/*!The dynamic type (base) struct. */
 struct cuoo_type_s
 {
     CUOO_HCOBJ		/* used optionally */
@@ -81,7 +79,7 @@ struct cuoo_type_s
     /* If non-null, as_expr is the expression-form of the type.  Since
      * it uniquely identifies the type, it is, when present, sufficient for
      * the HC key.
-     * NB! This must be right after CUOO_HCOBJ, due to cuooP_type_cct_hce and
+     * NB! This must be right after CUOO_HCOBJ, due to cuoo_type_init_general_hce and
      * cuoo_type_glck. */
     cuex_t as_expr;
 
@@ -99,10 +97,19 @@ struct cuoo_type_s
 	cu_clop(key_hash_fn, cu_hash_t, void *obj);
     } u0;
 };
-#define cuex_meta_is_type(meta) (cuex_meta_kind(meta) == cuex_meta_kind_type)
 
-void cuoo_type_cct(cuoo_type_t type, cuex_t as_expr, cuoo_typekind_t kind);
+extern cuoo_type_t cuooP_type_type;
 
+/*!The type of types. */
+CU_SINLINE cuoo_type_t cuoo_type_type()
+{ return cuooP_type_type; }
+
+/*!If true then \a meta is a type and can be converted with \ref
+ * cuoo_type_from_meta. */
+CU_SINLINE cu_bool_t cuex_meta_is_type(cuex_meta_t meta)
+{ return cuex_meta_kind(meta) == cuex_meta_kind_type; }
+
+/*!True iff \a e is a type. */
 CU_SINLINE cu_bool_t cuoo_is_type(cuex_t e)
 {
     cuex_meta_t m = cuex_meta(e);
@@ -110,6 +117,7 @@ CU_SINLINE cu_bool_t cuoo_is_type(cuex_t e)
 	&& cuoo_type_from_meta(m)->typekind == cuoo_typekind_metatype;
 }
 
+/*!Cast \a e to a \ref cuoo_type_t, assuming \ref cuoo_is_type(\a e) is true. */
 CU_SINLINE cuoo_type_t cuoo_type_from_ex(cuex_t e)
 { return (cuoo_type_t)e; }
 
@@ -118,11 +126,12 @@ CU_SINLINE cuoo_type_t cuoo_type_from_ex(cuex_t e)
 CU_SINLINE cuex_t cuoo_type_as_expr(cuoo_type_t t)
 { return t->as_expr? t->as_expr : t; }
 
+/*!Returns the \ref cuoo_typekind_t "type-kind" of \a type. */
 CU_SINLINE cuoo_typekind_t cuoo_type_typekind(cuoo_type_t type)
 { return type->typekind; }
 
-#define cuoo_type_impl(type, args...) ((type)->impl(args))
-#define cuoo_type_impl_ptr(type, args...) ((void *)(type)->impl(args))
+#define cuoo_type_impl(type, ...) ((type)->impl(__VA_ARGS__))
+#define cuoo_type_impl_ptr(type, ...) ((void *)(type)->impl(__VA_ARGS__))
 
 CU_SINLINE cu_bool_t cuoo_type_is_hctype(cuoo_type_t type)
 { return type->members_hcmethod; }
@@ -142,42 +151,43 @@ CU_SINLINE cu_bool_t cuoo_type_is_proto(cuoo_type_t type)
 CU_SINLINE cu_bool_t cuoo_type_is_typeoftypes(cuoo_type_t type)
 { return type->typekind == cuoo_typekind_metatype; }
 
-void cuooP_type_cct_nonhc(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
-			  cuoo_typekind_t kind);
-void cuooP_type_cct_hcs(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
-			cuoo_typekind_t kind, size_t key_size);
-void cuooP_type_cct_hce(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
-			cuoo_typekind_t kind);
-void cuooP_type_cct_hcv(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
-			cuoo_typekind_t kind,
-			cu_clop(key_size_fn, size_t, void *));
-void cuooP_type_cct_hcf(cuoo_type_t type, cuoo_impl_t impl, cuex_t as_expr,
-			cuoo_typekind_t kind,
-			cu_clop(key_hash_fn, cu_hash_t, void *));
+/*!Initialise \a type to be used for non-hash-consed objects. */
+void cuoo_type_init_general(cuoo_type_t type, cuoo_typekind_t kind,
+			    cuoo_impl_t impl, cuex_t e);
+/*!Initialise \a type to be used for hash-consed objects of size
+ * \a key_size, excluding the CU_HCOBJ header. */
+void cuoo_type_init_general_hcs(cuoo_type_t type, cuoo_typekind_t kind,
+				cuoo_impl_t impl, cuex_t e, size_t key_size);
+/*!Initialise \a type to be used for hash-consed objects with hash function \a
+ * key_hash_fn. */
+void cuoo_type_init_general_hcf(cuoo_type_t type, cuoo_typekind_t kind,
+				cuoo_impl_t impl, cuex_t e,
+				cu_clop(key_hash_fn, cu_hash_t, void *));
 
-#define cuoo_stdtype_from_type(type) (type)
-#define cuoo_stdtype_to_type(type) (type)
+/*!Construct \a type as an opaque type for non-hash-consed objects. */
+void cuoo_type_init_opaque(cuoo_type_t type, cuoo_impl_t impl);
 
-extern cuoo_type_t cuooP_type_type;
-#define cuoo_type_type() cuooP_type_type
+/*!Construct \a type as an opaque type for hash-consed objects of key size \a
+ * key_size. */
+void cuoo_type_init_opaque_hcs(cuoo_type_t type, cuoo_impl_t impl,
+			       size_t key_size);
 
-/* Create a type with standard method slots. */
-void cuoo_type_init_opaque(cuoo_type_t, cuoo_typekind_t kind, cuoo_impl_t impl);
+/*!Construct \a type as an opaque type for hash-consed object with hash
+ * function \a key_hash_fn. */
+void cuoo_type_init_opaque_hcf(cuoo_type_t type, cuoo_impl_t impl,
+			       cu_clop(key_hash_fn, cu_hash_t, void *));
 
+/*!Creates a type for non-hash-consed objects. */
 cuoo_type_t cuoo_type_new_opaque(cuoo_impl_t impl);
 
-/* Create a type for hash constructed objects. */
-void cuoo_type_init_opaque_hcs(cuoo_type_t, cuoo_typekind_t,
-			       cuoo_impl_t impl, size_t key_size);
-
+/*!Creates a type for hash-consed objects of size \a key_size, excluding the \c
+ * CU_HCOBJ header. */
 cuoo_type_t cuoo_type_new_opaque_hcs(cuoo_impl_t impl, size_t key_size);
 
-/* Create a type for hash constructed objects with variable size. */
-void cuoo_type_init_opaque_hcv(cuoo_type_t, cuoo_typekind_t, cuoo_impl_t impl,
-			       cu_clop(key_size, size_t, void *));
-
-cuoo_type_t cuoo_type_new_opaque_hcv(cuoo_impl_t impl,
-				     cu_clop(key_size, size_t, void *));
+/*!Creates a type for hash-consed objects of with hash function
+ * \a key_hash_fn. */
+cuoo_type_t cuoo_type_new_opaque_hcf(cuoo_impl_t impl,
+				     cu_clop(key_hash_fn, cu_hash_t, void *));
 
 
 cuoo_type_t cuoo_type_new_metatype(cuoo_impl_t impl);
@@ -213,6 +223,12 @@ void *cuoo_prop_get(cuex_t ex, cuoo_propkey_t key);
 #endif
 
 /*!@}*/
+
+/*!\deprecated*/
+#define cuoo_stdtype_from_type(type) (type)
+/*!\deprecated*/
+#define cuoo_stdtype_to_type(type) (type)
+
 CU_END_DECLARATIONS
 
 #endif

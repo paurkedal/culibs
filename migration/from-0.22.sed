@@ -1,0 +1,16 @@
+s/\<cu_mutex_cct\>/cu_mutex_init/g
+s/\<cuoo_stdtype_t\>/cuoo_type_t/g
+s/\<cuoo_stdtype_s\>/cuoo_type_s/g
+s/\<cuoo_stdtype_type\>/cuoo_type_type/g
+s/\<cuoo_stdtype_new\>/cuoo_type_new_opaque/g
+s/\<cuoo_stdtype_new_hcs\>/cuoo_type_new_opaque_hcs/g
+s/\<cuoo_stdtype_new_hcv\>/cuoo_type_new_opaque_hcv/g
+s/\<cuoo_stdtype_cct\>/cuoo_type_init_opaque/g
+s/\<cuoo_stdtype_cct_hcs\>/cuoo_type_init_opaque_hcs/g
+s/\<cuoo_stdtype_cct_hcv\>/cuoo_type_init_opaque_hcv/g
+s/\<cuoo_stdtype_from_meta\>/cuoo_type_from_meta/g
+s/\<cuoo_stdtype_to_meta\>/cuoo_type_to_meta/g
+s/\<cuoo_typekind_stdtype\>/cuoo_typekind_opaque/g
+s/\<cuoo_typekind_stdtypeoftypes\>/cuoo_typekind_metatype/g
+s/\<cuoo_stdtypeoftypes_new\(\|_hc[es]\)\>/cuoo_type_new_metatype\1/g
+s/\<cuoo_type_is_stdtype\>/cuoo_type_is_metatype/g

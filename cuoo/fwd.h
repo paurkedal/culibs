@@ -24,7 +24,10 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_fwd_h cuoo/fwd.h: Forward Declarations
  *@{\ingroup cuoo_mod */
 
+/*!An expression tree-code, representing either an operator, a type, or a
+ * special code used for variables. */
 typedef uintptr_t cuex_meta_t;
+
 #define CUEX_META_C(c) CU_UINTPTR_C(c)
 #define CUEX_META_SIZE CUCONF_SIZEOF_INTPTR_T
 

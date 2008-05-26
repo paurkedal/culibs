@@ -55,8 +55,8 @@ CU_SINLINE cu_bool_t
 cucon_rpmap_conj(cucon_rpmap_t rpmap,
 		 cu_clop(fn, cu_bool_t, void const *, cucon_rpmap_t))
 {
-    return cucon_pmap_conj_mem(&rpmap->impl.pmap,
-			       (cu_clop(, cu_bool_t, void const *, void *))fn);
+    return cucon_umap_conj_mem(&rpmap->impl.branches,
+			       (cu_clop(, cu_bool_t, uintptr_t, void *))fn);
 }
 
 /*!\deprecated Use cucon_rpmap_init. */
