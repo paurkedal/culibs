@@ -16,6 +16,7 @@
  */
 
 #include <cuex/fwd.h>
+#include <cufo/fwd.h>
 #include <cugra/fwd.h>
 #include <cuex/tpvar.h>
 
@@ -41,6 +42,7 @@ cuex_init()
     cu_debug_assert(sizeof(struct cuex_tpvar_s)/sizeof(cu_word_t) <=
 		    (1 << CUEXP_VARMETA_WSIZE_WIDTH));
 
+    cufo_init();
     cugra_init();
     cuexP_ex_init();
     cuex_oprdefs_init();

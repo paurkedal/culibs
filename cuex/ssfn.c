@@ -572,8 +572,7 @@ enter:
     }
     for (i = 0; i < jargs->arg_cnt; ++i)
 	if (ssfn_unify_cntn(node, i)) {
-	    cuex_t *arg_pos
-		= cucon_stack_at(&jargs->output, i*sizeof(cuex_t));
+	    cuex_t *arg_pos = cucon_stack_at(&jargs->output, i*sizeof(cuex_t));
 	    cuex_t ex0 = *arg_pos;
 	    cuex_t ex1 = cuex_unify(ex0, ex);
 	    if (!cuex_is_null(ex1)) {

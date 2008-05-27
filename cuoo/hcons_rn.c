@@ -294,6 +294,12 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
 
     cu_debug_assert(meta);
     hash = cu_wordarr_hash(key_sizew, key, meta);
+#ifndef CU_NDEBUG
+    if (cuex_meta_is_type(meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(meta);
+	cu_debug_assert(cuoo_is_type(type) && cuoo_type_is_hctype(type));
+    }
+#endif
     hcset = cu_hcset(hash);
     cu_hcset_lock_write(hcset);
     mask = hcset->mask;
@@ -343,6 +349,12 @@ cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
 
     cu_debug_assert(meta);
     hash = cu_wordarr_hash(key_sizew, key, meta);
+#ifndef CU_NDEBUG
+    if (cuex_meta_is_type(meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(meta);
+	cu_debug_assert(cuoo_is_type(type) && cuoo_type_is_hctype(type));
+    }
+#endif
     hcset = cu_hcset(hash);
     cu_hcset_lock_write(hcset);
     mask = hcset->mask;
