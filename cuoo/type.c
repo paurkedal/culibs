@@ -28,35 +28,35 @@
 #endif
 
 void
-cuoo_type_init_general(cuoo_type_t type, cuoo_typekind_t kind,
+cuoo_type_init_general(cuoo_type_t type, cuoo_shape_t shape,
 		       cuoo_impl_t impl, cuex_t expr)
 {
-    type->typekind = kind;
+    cu_debug_assert(!(shape & CUOO_SHAPEFLAG_HCF));
+    type->shape = shape;
     type->impl = impl;
-    type->members_hcmethod = cuoo_hcmethod_none;
     type->as_expr = expr;
     type->u0.key_size = 0;
 }
 
 void
-cuoo_type_init_general_hcs(cuoo_type_t type, cuoo_typekind_t kind,
+cuoo_type_init_general_hcs(cuoo_type_t type, cuoo_shape_t shape,
 			   cuoo_impl_t impl, cuex_t expr, size_t key_size)
 {
-    type->typekind = kind;
+    cu_debug_assert(!(shape & CUOO_SHAPEFLAG_HCF));
+    type->shape = shape;
     type->impl = impl;
-    type->members_hcmethod = cuoo_hcmethod_by_size;
     type->as_expr = expr;
     type->u0.key_size = key_size;
 }
 
 void
-cuoo_type_init_general_hcf(cuoo_type_t type, cuoo_typekind_t kind,
+cuoo_type_init_general_hcf(cuoo_type_t type, cuoo_shape_t shape,
 			   cuoo_impl_t impl, cuex_t expr,
 			   cu_clop(key_hash_fn, cu_hash_t, void *))
 {
-    type->typekind = kind;
+    cu_debug_assert(shape & CUOO_SHAPEFLAG_HCF);
+    type->shape = shape;
     type->impl = impl;
-    type->members_hcmethod = cuoo_hcmethod_by_hash_fn;
     type->as_expr = expr;
     type->u0.key_hash_fn = key_hash_fn;
 }
@@ -68,13 +68,13 @@ cuoo_type_init_general_hcf(cuoo_type_t type, cuoo_typekind_t kind,
 void
 cuoo_type_init_opaque(cuoo_type_t type, cuoo_impl_t impl)
 {
-    cuoo_type_init_general(type, cuoo_typekind_opaque, impl, NULL);
+    cuoo_type_init_general(type, CUOO_SHAPE_OPAQUE, impl, NULL);
 }
 
 void
 cuoo_type_init_opaque_hcs(cuoo_type_t type, cuoo_impl_t impl, size_t key_size)
 {
-    cuoo_type_init_general_hcs(type, cuoo_typekind_opaque, impl, NULL,
+    cuoo_type_init_general_hcs(type, CUOO_SHAPE_OPAQUE, impl, NULL,
 			       key_size);
 }
 
@@ -82,7 +82,7 @@ void
 cuoo_type_init_opaque_hcf(cuoo_type_t type, cuoo_impl_t impl,
 			  cu_clop(key_hash_fn, cu_hash_t, void *))
 {
-    cuoo_type_init_general_hcf(type, cuoo_typekind_opaque, impl, NULL,
+    cuoo_type_init_general_hcf(type, CUOO_SHAPE_OPAQUE_HCF, impl, NULL,
 			       key_hash_fn);
 }
 
@@ -90,7 +90,7 @@ cuoo_type_t
 cuoo_type_new_opaque(cuoo_impl_t impl)
 {
     cuoo_type_t type = cuoo_onew(cuoo_type);
-    cuoo_type_init_general(type, cuoo_typekind_opaque, impl, NULL);
+    cuoo_type_init_general(type, CUOO_SHAPE_OPAQUE, impl, NULL);
     return type;
 }
 
@@ -119,15 +119,15 @@ cuoo_type_t
 cuoo_type_new_metatype(cuoo_impl_t impl)
 {
     cuoo_type_t t = cuoo_onew(cuoo_type);
-    cuoo_type_init_general(t, cuoo_typekind_metatype, impl, NULL);
+    cuoo_type_init_general(t, CUOO_SHAPE_METATYPE, impl, NULL);
     return t;
 }
 
 static cuoo_type_t
-cuoo_type_new_self_instance_hce(cuoo_typekind_t kind, cuoo_impl_t impl)
+cuoo_type_new_self_instance_hce(cuoo_shape_t shape, cuoo_impl_t impl)
 {
     cuoo_type_t type = cuoo_oalloc_self_instance(sizeof(struct cuoo_type_s));
-    cuoo_type_init_general_hcs(type, kind, impl, NULL, sizeof(cuex_t));
+    cuoo_type_init_general_hcs(type, shape, impl, NULL, sizeof(cuex_t));
     return type;
 }
 
@@ -135,7 +135,7 @@ cuoo_type_t
 cuoo_type_new_metatype_hcs(cuoo_impl_t impl, size_t key_size)
 {
     cuoo_type_t type = cuoo_onew(cuoo_type);
-    cuoo_type_init_general_hcs(type, cuoo_typekind_metatype, impl, NULL, key_size);
+    cuoo_type_init_general_hcs(type, CUOO_SHAPE_METATYPE, impl, NULL, key_size);
     return type;
 }
 
@@ -143,7 +143,7 @@ cuoo_type_t
 cuoo_type_new_metatype_hce(cuoo_impl_t impl)
 {
     cuoo_type_t type = cuoo_onew(cuoo_type);
-    cuoo_type_init_general_hcs(type, cuoo_typekind_metatype,
+    cuoo_type_init_general_hcs(type, CUOO_SHAPE_METATYPE,
 			       impl, NULL, sizeof(cuex_t));
     return type;
 }
@@ -165,36 +165,6 @@ cuoo_impl_ptr(cuex_t obj, cu_word_t intf)
 /* Hashconsed Objects
  * ================== */
 
-size_t
-cuex_key_size(cuex_meta_t meta, void *obj)
-{
-    cu_hash_t key_size;
-    switch (cuex_meta_kind(meta)) {
-	cuoo_type_t t;
-    case cuex_meta_kind_type:
-	t = cuoo_type_from_meta(meta);
-	if (t->members_hcmethod == cuoo_hcmethod_by_size)
-	    key_size = t->u0.key_size;
-	else {
-	    cu_debug_assert(t->members_hcmethod == cuoo_hcmethod_by_size_fn);
-	    key_size = cu_call(t->u0.key_size_fn, obj);
-	}
-	cu_debug_assert(key_size % sizeof(cu_word_t) == 0);
-	break;
-    case cuex_meta_kind_opr:
-	key_size = cuex_opr_r(meta)*sizeof(void *);
-	break;
-    case cuex_meta_kind_other:
-	cu_debug_assert((meta & CUEXP_VARMETA_SELECT_MASK) ==
-			CUEXP_VARMETA_SELECT_VALUE);
-	key_size = cuexP_varmeta_wsize(meta)*sizeof(cu_word_t);
-	break;
-    default:
-	cu_debug_unreachable();
-    }
-    return key_size;
-}
-
 cu_hash_t
 cuex_key_hash(void *obj)
 {
@@ -205,18 +175,9 @@ cuex_key_hash(void *obj)
 	case cuex_meta_kind_type:
 	    t =  cuoo_type_from_meta(meta);
 	    cu_debug_assert(cuoo_is_type(t) && cuoo_type_is_hctype(t));
-	    switch (t->members_hcmethod) {
-		case cuoo_hcmethod_by_size:
-		    key_size = t->u0.key_size;
-		    break;
-		case cuoo_hcmethod_by_size_fn:
-		    key_size = cu_call(t->u0.key_size_fn, obj);
-		    break;
-		case cuoo_hcmethod_by_hash_fn:
-		    return cu_call(t->u0.key_hash_fn, obj);
-		default:
-		    cu_debug_unreachable();
-	    }
+	    if (t->shape & CUOO_SHAPEFLAG_HCF)
+		return cu_call(t->u0.key_hash_fn, obj);
+	    key_size = t->u0.key_size;
 	    break;
 	case cuex_meta_kind_opr:
 	    key_size = cuex_opr_r(meta)*sizeof(void *);
@@ -302,5 +263,5 @@ cuooP_type_init()
     cucon_umap_init(&cuooP_property_map);
 #endif
     cuooP_type_type = cuoo_type_new_self_instance_hce(
-	cuoo_typekind_metatype, cuoo_impl_none);
+	CUOO_SHAPE_METATYPE, cuoo_impl_none);
 }

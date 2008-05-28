@@ -77,7 +77,7 @@ CU_SINLINE cuoo_type_t cudyn_ptrtype_type()
 
 /*!True iff \a t is a \c cudyn_ptrtype_t. */
 CU_SINLINE cu_bool_t cuoo_type_is_ptrtype(cuoo_type_t t)
-{ return cuoo_type_typekind(t) == cuoo_typekind_ptrtype; }
+{ return cuoo_type_shape(t) == CUOO_SHAPE_PTRTYPE; }
 
 #define cudyn_ptrtype_to_type(t) \
     cu_to2(cuoo_type, cudyn_inltype, t)
@@ -109,7 +109,7 @@ CU_SINLINE cuoo_type_t cudyn_elmtype_type()
 
 /*!True iff \a t is a \c cudyn_elmtype_t. */
 CU_SINLINE cu_bool_t cuoo_type_is_elmtype(cuoo_type_t t)
-{ return cuoo_type_typekind(t) >= cuoo_typekind_elmtype_MIN; }
+{ return cuoo_type_shape(t) >= CUOO_SHAPE_SCALAR_MIN; }
 
 #define cudyn_elmtype_to_type(t) \
     cu_to2(cuoo_type, cudyn_inltype, t)
@@ -118,7 +118,7 @@ CU_SINLINE cu_bool_t cuoo_type_is_elmtype(cuoo_type_t t)
 
 /*!Create a unique elementary type, of which objects are \a size bytes,
  * require \a alignment bytes alignement and FFI type \a ffitype. */
-cudyn_elmtype_t cudyn_elmtype_new(cuoo_typekind_t kind, cuoo_impl_t impl,
+cudyn_elmtype_t cudyn_elmtype_new(cuoo_shape_t shape, cuoo_impl_t impl,
 				  cu_offset_t size, cu_offset_t alignment,
 				  ffi_type *ffitype);
 
@@ -143,7 +143,7 @@ CU_SINLINE cuoo_type_t cudyn_arrtype_type()
 
 /*!True iff \a t is a \c cudyn_arrtype_t. */
 CU_SINLINE cu_bool_t cuoo_type_is_arrtype(cuoo_type_t t)
-{ return cuoo_type_typekind(t) == cuoo_typekind_arrtype; }
+{ return cuoo_type_shape(t) == CUOO_SHAPE_ARRTYPE; }
 
 /*!True iff \a meta is a \c cudyn_arrtype_t. */
 CU_SINLINE cu_bool_t cudyn_meta_is_arrtype(cuex_meta_t meta)
@@ -197,7 +197,7 @@ CU_SINLINE cuoo_type_t cudyn_tuptype_type()
 
 /*!True iff \a t is a cudyn_tuptype_t. */
 CU_SINLINE cu_bool_t cuoo_type_is_tuptype(cuoo_type_t t)
-{ return cuoo_type_typekind(t) == cuoo_typekind_tuptype; }
+{ return cuoo_type_shape(t) == CUOO_SHAPE_TUPTYPE; }
 
 #define cudyn_tuptype_to_type(t) \
     cu_to2(cuoo_type, cudyn_inltype, t)
@@ -270,7 +270,7 @@ CU_SINLINE cuoo_type_t cudyn_duntype_type()
 
 /*!True iff \a t is a cudyn_duntype_t. */
 CU_SINLINE cu_bool_t cuoo_type_is_duntype(cuoo_type_t t)
-{ return cuoo_type_typekind(t) == cuoo_typekind_duntype; }
+{ return cuoo_type_shape(t) == CUOO_SHAPE_DUNTYPE; }
 
 #define cudyn_duntype_to_type(t) \
     cu_to2(cuoo_type, cudyn_inltype, t)

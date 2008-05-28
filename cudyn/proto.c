@@ -103,8 +103,8 @@ cuooP_type_ffitype_ciflck(cuoo_type_t type)
 	cudyn_inltype_t t;
 	t = cu_from(cudyn_inltype, cuoo_type, type);
 	if (!t->ffitype) {
-	    switch (cuoo_type_typekind(type)) {
-		case cuoo_typekind_arrtype:
+	    switch (cuoo_type_shape(type)) {
+		case CUOO_SHAPE_ARRTYPE:
 		    /* Passed as pointer when an argument, but what to do
 		     * when inlining in a struct?  We could maybe fake the
 		     * ffi_type by setting 'size' and 'alignment', but
@@ -112,7 +112,7 @@ cuooP_type_ffitype_ciflck(cuoo_type_t type)
 		    t->ffitype = (AO_t)
 			layout_ffitype_ciflck((cuoo_layout_t)t->layout);
 		    break;
-		case cuoo_typekind_tuptype:
+		case CUOO_SHAPE_TUPTYPE:
 #if 0 /* only applies if tuptype layout is not packed */
 		    ffitype0 = cuooP_type_ffitype_ciflck(
 			    t->u0.tuptype.sans_last);
@@ -128,9 +128,6 @@ cuooP_type_ffitype_ciflck(cuoo_type_t type)
 #endif
 		    t->ffitype = (AO_t)
 			layout_ffitype_ciflck((cuoo_layout_t)t->layout);
-		    break;
-		case cuoo_typekind_duntype:
-		    cu_debug_assert(!"unimplemented");
 		    break;
 		default:
 		    cu_debug_unreachable();
@@ -173,7 +170,7 @@ cudyn_proto_by_tuptype(cudyn_tuptype_t arg_type, cuoo_type_t res_type)
     struct cudyn_proto_s key;
     cudyn_proto_t proto;
     size_t size = sizeof(struct cudyn_proto_s) + r*sizeof(ffi_type *);
-    cuoo_type_init_general_hcs(cu_to(cuoo_type, &key), cuoo_typekind_proto,
+    cuoo_type_init_general_hcs(cu_to(cuoo_type, &key), CUOO_SHAPE_PROTO,
 			       cuoo_impl_none, NULL, sizeof(cu_fnptr_t));
     key.arg_type = arg_type;
     key.res_type = res_type;

@@ -14,3 +14,9 @@ s/\<cuoo_typekind_stdtype\>/cuoo_typekind_opaque/g
 s/\<cuoo_typekind_stdtypeoftypes\>/cuoo_typekind_metatype/g
 s/\<cuoo_stdtypeoftypes_new\(\|_hc[es]\)\>/cuoo_type_new_metatype\1/g
 s/\<cuoo_type_is_stdtype\>/cuoo_type_is_metatype/g
+
+s/\<cuoo_typekind_elmtype_\(\w\+\)/CUOO_SHAPE_SCALAR_\U\1/g
+s/\<cuoo_typekind_\(\w\w\+\)/CUOO_SHAPE_\U\1/g
+s/\<cuoo_typekind_t\>/cuoo_shape_t/g
+s/\<cuoo_type_typekind\>/cuoo_type_shape/g
+s/\<cuoo_type_is_typeoftypes\>/cuoo_type_is_metatype/g

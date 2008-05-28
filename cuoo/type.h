@@ -29,47 +29,51 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_type_h cuoo/type.h: Operations and Dynamically Typed Objects
  * @{ \ingroup cuoo_mod */
 
+typedef uint_fast32_t cuoo_shape_t;
+
+/*!To be or-ed into shapes for types which use a custom hash function in place
+ * of a fixed size. */
+#define CUOO_SHAPEFLAG_HCF		UINT32_C(0x80000000)
+
+/*!Or-ed into shapes of types which may define finalisers. */
+#define CUOO_SHAPEFLAG_FIN		UINT32_C(0x40000000)
+
+/*!Mask of all the above flags. */
+#define CUOO_SHAPEFLAG_MASK		UINT32_C(0xc0000000)
+
 /*!Main classification of types. */
-typedef enum {
-    cuoo_typekind_none,
-    cuoo_typekind_tvar,
-    cuoo_typekind_opaque,
-    cuoo_typekind_metatype,
-    cuoo_typekind_proto,
-    cuoo_typekind_ctortype,
-    cuoo_typekind_by_expr,
+#define CUOO_SHAPE_NONE			0x00
+#define CUOO_SHAPE_OPAQUE		0x01
+#define CUOO_SHAPE_OPAQUE_HCF		(CUOO_SHAPE_OPAQUE|CUOO_SHAPEFLAG_HCF)
+#define CUOO_SHAPE_METATYPE		0x02
+#define CUOO_SHAPE_TVAR			0x03
+#define CUOO_SHAPE_PROTO		0x04
+#define CUOO_SHAPE_CTORTYPE		0x05
+#define CUOO_SHAPE_BY_EXPR		0x06
 
-    /* inline types */
-    cuoo_typekind_ptrtype,
-    cuoo_typekind_arrtype,
-    cuoo_typekind_tuptype,
-    cuoo_typekind_sigtype,
-    cuoo_typekind_duntype,
-    cuoo_typekind_sngtype,
+/* inline types */
+#define CUOO_SHAPE_PTRTYPE		0x08
+#define CUOO_SHAPE_ARRTYPE		0x09
+#define CUOO_SHAPE_TUPTYPE		0x0a
 
-    /* inline types: elementary */
-    cuoo_typekind_elmtype_MIN,
-    cuoo_typekind_elmtype_bool = cuoo_typekind_elmtype_MIN,
-    cuoo_typekind_elmtype_uint8,
-    cuoo_typekind_elmtype_int8,
-    cuoo_typekind_elmtype_uint16,
-    cuoo_typekind_elmtype_int16,
-    cuoo_typekind_elmtype_uint32,
-    cuoo_typekind_elmtype_int32,
-    cuoo_typekind_elmtype_uint64,
-    cuoo_typekind_elmtype_int64,
-    cuoo_typekind_elmtype_metaint,
-    cuoo_typekind_elmtype_float,
-    cuoo_typekind_elmtype_double,
-    cuoo_typekind_elmtype_char
-} cuoo_typekind_t;
+/* inline types: elementary */
+#define CUOO_SHAPE_SCALAR_MIN		0x10
+#define CUOO_SHAPE_SCALAR_BOOL		0x10
+#define CUOO_SHAPE_SCALAR_CHAR		0x11
+#define CUOO_SHAPE_SCALAR_METAINT	0x12
+#define CUOO_SHAPE_SCALAR_UINT8		0x16
+#define CUOO_SHAPE_SCALAR_INT8		0x17
+#define CUOO_SHAPE_SCALAR_UINT16	0x18
+#define CUOO_SHAPE_SCALAR_INT16		0x19
+#define CUOO_SHAPE_SCALAR_UINT32	0x1a
+#define CUOO_SHAPE_SCALAR_INT32		0x1b
+#define CUOO_SHAPE_SCALAR_UINT64	0x1c
+#define CUOO_SHAPE_SCALAR_INT64		0x1d
+#define CUOO_SHAPE_SCALAR_FLOAT		0x1e
+#define CUOO_SHAPE_SCALAR_DOUBLE	0x1f
+#define CUOO_SHAPE_SCALAR_MAX		0x1f
 
-typedef enum {
-    cuoo_hcmethod_none = 0,	/* Not hashconsed. */
-    cuoo_hcmethod_by_size,	/* Sets cuoo_type_s.u0.key_size */
-    cuoo_hcmethod_by_size_fn,	/* Sets cuoo_type_s.u0.key_size_fn */
-    cuoo_hcmethod_by_hash_fn	/* Sets cuoo_type_s.u0.key_hash_fn */
-} cuoo_hcmethod_t;
+#define CUOO_SHAPE_CULIBS_END		0x100
 
 /*!The dynamic type (base) struct. */
 struct cuoo_type_s
@@ -83,17 +87,12 @@ struct cuoo_type_s
      * cuoo_type_glck. */
     cuex_t as_expr;
 
-    cu_word_t (*impl)(cu_word_t intf_number, ...); /* FIXME set */
+    uint32_t shape;
 
-    cuoo_typekind_t typekind : 5;
-    cuoo_hcmethod_t members_hcmethod : 2;
-#ifdef CUOO_ENABLE_FINALISERS
-    cu_bool_t has_finaliser : 1;
-#endif
+    cu_word_t (*impl)(cu_word_t intf_number, ...); /* FIXME set */
 
     union {
 	size_t key_size;
-	cu_clop(key_size_fn, size_t, void *obj);
 	cu_clop(key_hash_fn, cu_hash_t, void *obj);
     } u0;
 };
@@ -114,7 +113,7 @@ CU_SINLINE cu_bool_t cuoo_is_type(cuex_t e)
 {
     cuex_meta_t m = cuex_meta(e);
     return cuex_meta_is_type(m)
-	&& cuoo_type_from_meta(m)->typekind == cuoo_typekind_metatype;
+	&& cuoo_type_from_meta(m)->shape == CUOO_SHAPE_METATYPE;
 }
 
 /*!Cast \a e to a \ref cuoo_type_t, assuming \ref cuoo_is_type(\a e) is true. */
@@ -126,41 +125,38 @@ CU_SINLINE cuoo_type_t cuoo_type_from_ex(cuex_t e)
 CU_SINLINE cuex_t cuoo_type_as_expr(cuoo_type_t t)
 { return t->as_expr? t->as_expr : t; }
 
-/*!Returns the \ref cuoo_typekind_t "type-kind" of \a type. */
-CU_SINLINE cuoo_typekind_t cuoo_type_typekind(cuoo_type_t type)
-{ return type->typekind; }
+/*!Returns the \ref cuoo_shape_t "shape" of \a type. */
+CU_SINLINE cuoo_shape_t cuoo_type_shape(cuoo_type_t type)
+{ return type->shape; }
 
 #define cuoo_type_impl(type, ...) ((type)->impl(__VA_ARGS__))
 #define cuoo_type_impl_ptr(type, ...) ((void *)(type)->impl(__VA_ARGS__))
 
 CU_SINLINE cu_bool_t cuoo_type_is_hctype(cuoo_type_t type)
-{ return type->members_hcmethod; }
+{ return type->u0.key_size; }
 
 CU_SINLINE cu_bool_t cuoo_type_is_metatype(cuoo_type_t type)
-{ return type->typekind <= cuoo_typekind_metatype; }
+{ return type->shape == CUOO_SHAPE_METATYPE; }
 
 CU_SINLINE cu_bool_t cuoo_type_is_inltype(cuoo_type_t type)
-{ return type->typekind >= cuoo_typekind_ptrtype; }
+{ return (type->shape & ~CUOO_SHAPEFLAG_MASK) >= CUOO_SHAPE_PTRTYPE; }
 
 CU_SINLINE cu_bool_t cuoo_type_is_nonptr_inltype(cuoo_type_t type)
-{ return type->typekind > cuoo_typekind_ptrtype; }
+{ return (type->shape & ~CUOO_SHAPEFLAG_MASK) > CUOO_SHAPE_PTRTYPE; }
 
 CU_SINLINE cu_bool_t cuoo_type_is_proto(cuoo_type_t type)
-{ return type->typekind == cuoo_typekind_proto; }
-
-CU_SINLINE cu_bool_t cuoo_type_is_typeoftypes(cuoo_type_t type)
-{ return type->typekind == cuoo_typekind_metatype; }
+{ return type->shape == CUOO_SHAPE_PROTO; }
 
 /*!Initialise \a type to be used for non-hash-consed objects. */
-void cuoo_type_init_general(cuoo_type_t type, cuoo_typekind_t kind,
+void cuoo_type_init_general(cuoo_type_t type, cuoo_shape_t shape,
 			    cuoo_impl_t impl, cuex_t e);
 /*!Initialise \a type to be used for hash-consed objects of size
  * \a key_size, excluding the CU_HCOBJ header. */
-void cuoo_type_init_general_hcs(cuoo_type_t type, cuoo_typekind_t kind,
+void cuoo_type_init_general_hcs(cuoo_type_t type, cuoo_shape_t shape,
 				cuoo_impl_t impl, cuex_t e, size_t key_size);
 /*!Initialise \a type to be used for hash-consed objects with hash function \a
  * key_hash_fn. */
-void cuoo_type_init_general_hcf(cuoo_type_t type, cuoo_typekind_t kind,
+void cuoo_type_init_general_hcf(cuoo_type_t type, cuoo_shape_t shape,
 				cuoo_impl_t impl, cuex_t e,
 				cu_clop(key_hash_fn, cu_hash_t, void *));
 
@@ -208,7 +204,6 @@ void *cuoo_impl_ptr(cuex_t obj, cu_word_t intf);
 /* Hashconsed Objects
  * ================== */
 
-size_t cuex_key_size(cuex_meta_t meta, void *obj);
 cu_hash_t cuex_key_hash(void *);
 
 

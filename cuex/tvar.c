@@ -23,7 +23,7 @@ cuex_tvar_new_type(cuex_qcode_t qc, cuoo_type_t type_opt)
 {
     cuex_tvar_t tv;
     tv = cuexP_oalloc(cuex_tvarmeta(qc), sizeof(struct cuex_tvar_s));
-    cuoo_type_init_general(cu_to(cuoo_type, tv), cuoo_typekind_tvar,
+    cuoo_type_init_general(cu_to(cuoo_type, tv), CUOO_SHAPE_TVAR,
 			   cuoo_impl_none, NULL);
     tv->type = (AO_t)type_opt;
     return tv;
@@ -34,7 +34,7 @@ cuex_tvar_new_obj(cuex_qcode_t qc, cuoo_type_t type_opt)
 {
     cuex_tvar_t tv;
     tv = cuexP_oalloc(cuex_tvarmeta(qc), sizeof(struct cuex_tvar_s));
-    cuoo_type_init_general(cu_to(cuoo_type, tv), cuoo_typekind_none,
+    cuoo_type_init_general(cu_to(cuoo_type, tv), CUOO_SHAPE_NONE,
 			   cuoo_impl_none, NULL);
     tv->type = (AO_t)type_opt;
     return tv;
@@ -48,7 +48,7 @@ cuex_tvar_new_as(cuex_tvar_t v_tpl)
     cu_debug_assert(cuex_is_tvarmeta(meta));
     v = cuexP_oalloc(meta, sizeof(struct cuex_tvar_s));
     cuoo_type_init_general(cu_to(cuoo_type, v),
-			   cuoo_type_typekind(cu_to(cuoo_type, v_tpl)),
+			   cuoo_type_shape(cu_to(cuoo_type, v_tpl)),
 			   cuoo_impl_none, NULL);
     v->type = v_tpl->type;
     return v;

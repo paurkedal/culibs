@@ -89,9 +89,9 @@ CU_BEGIN_DECLARATIONS
     cudyn_elmtype_t cudynP_##NAME##_type;				\
     struct cudynP_##NAME##_aligntest { char ch; type_t x; };
 
-#define CUDYN_ETYPE_INIT(NAME, type_t, kind, ffitype)			\
+#define CUDYN_ETYPE_INIT(NAME, UCNAME, type_t, kind, ffitype)		\
     cudynP_##NAME##_type =						\
-	cudyn_elmtype_new(cuoo_typekind_elmtype_##NAME,			\
+	cudyn_elmtype_new(CUOO_SHAPE_SCALAR_##UCNAME,			\
 			  cudynP_##NAME##_impl, sizeof(type_t),		\
 			  offsetof(struct cudynP_##NAME##_aligntest, x),\
 			  ffitype);		\

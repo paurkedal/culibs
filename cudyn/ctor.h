@@ -42,7 +42,7 @@ CU_SINLINE cu_bool_t cudyn_meta_is_ctortype(cuex_meta_t meta)
 
 /*!True iff \a t is a constructor type. */
 CU_SINLINE cu_bool_t cuoo_type_is_ctortype(cuoo_type_t t)
-{ return t->typekind == cuoo_typekind_ctortype; }
+{ return cuoo_type_shape(t) == CUOO_SHAPE_CTORTYPE; }
 
 #define cudyn_ctortype_to_type(t) cu_to(cuoo_type, t)
 #define cudyn_ctortype_from_type(t) cu_from(cudyn_ctortype, cuoo_type, t)

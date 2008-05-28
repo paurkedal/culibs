@@ -58,7 +58,7 @@ CU_SINLINE cu_bool_t cuex_is_tvar(cuex_t ex)
 
 /*!True iff \a tv represents a type. */
 CU_SINLINE cu_bool_t cuex_tvar_is_type(cuex_tvar_t tv)
-{ return cuoo_type_typekind(cu_to(cuoo_type, tv)) != cuoo_typekind_none; }
+{ return cuoo_type_shape(cu_to(cuoo_type, tv)) != CUOO_SHAPE_NONE; }
 
 /*!Cast \a tv to a type. */
 CU_SINLINE cuoo_type_t cuex_tvar_to_type(cuex_tvar_t tv)

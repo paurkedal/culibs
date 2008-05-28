@@ -47,7 +47,7 @@ cudyn_ptrtype_from_ex(cuex_t ex)
     type = cuoo_hctem_get(cudyn_ptrtype, tem);
     /*cu_debug_assert(cuex_meta(ex) == CUEX_O1_PTR_TO);*/
     cuoo_type_init_general_hcs(cu_to2(cuoo_type, cudyn_inltype, type),
-			       cuoo_typekind_ptrtype, cuoo_impl_none, ex,
+			       CUOO_SHAPE_PTRTYPE, cuoo_impl_none, ex,
 			       sizeof(void *));
     cu_to(cudyn_inltype, type)->layout = (AO_t)cuoo_layout_ptr;
     cu_to(cudyn_inltype, type)->ffitype = (AO_t)&ffi_type_pointer;
@@ -65,7 +65,7 @@ cudyn_ptrtype(cuex_t deref)
     type = cuoo_hctem_get(cudyn_ptrtype, tem);
     ex = cuex_o1_ptr_to(cuoo_type_as_expr(deref));
     cuoo_type_init_general_hcs(cu_to2(cuoo_type, cudyn_inltype, type),
-			       cuoo_typekind_ptrtype, cuoo_impl_none, ex,
+			       CUOO_SHAPE_PTRTYPE, cuoo_impl_none, ex,
 			       sizeof(void *));
     cu_to(cudyn_inltype, type)->layout = (AO_t)cuoo_layout_ptr;
     cu_to(cudyn_inltype, type)->ffitype = (AO_t)&ffi_type_pointer;
@@ -77,14 +77,14 @@ cudyn_ptrtype(cuex_t deref)
  * ================ */
 
 cudyn_elmtype_t
-cudyn_elmtype_new(cuoo_typekind_t kind, cuoo_impl_t impl,
+cudyn_elmtype_new(cuoo_shape_t shape, cuoo_impl_t impl,
 		  cu_offset_t size, cu_offset_t alignment, ffi_type *ffitype)
 {
     cu_offset_t bitoffset;
     cudyn_elmtype_t t = cuoo_onew(cudyn_elmtype);
     cu_offset_t wsize;
     wsize = (size + sizeof(cu_word_t) - 1)/sizeof(cu_word_t)*sizeof(cu_word_t);
-    cuoo_type_init_general_hcs(cu_to2(cuoo_type, cudyn_inltype, t), kind,
+    cuoo_type_init_general_hcs(cu_to2(cuoo_type, cudyn_inltype, t), shape,
 			       impl, NULL, wsize);
     cu_to(cudyn_inltype, t)->layout
 	= (AO_t)cuoo_layout_pack_bits(NULL, size*8, alignment*8, &bitoffset);
@@ -120,7 +120,7 @@ arrtype_cct_glck(cudyn_arrtype_t t)
     arr_bitalign = elt_bitalign;
     lyo = cuoo_layout_pack_bits(NULL, arr_bitsize, arr_bitalign, &bitoffset);
     cuoo_type_init_general_hcs(cu_to2(cuoo_type, cudyn_inltype, t),
-			       cuoo_typekind_arrtype, cuoo_impl_none, ex,
+			       CUOO_SHAPE_ARRTYPE, cuoo_impl_none, ex,
 			       cuoo_layout_size(lyo));
     AO_store_release_write(&cu_to(cudyn_inltype, t)->layout, (AO_t)lyo);
 }
@@ -280,7 +280,7 @@ tuptype_cct_glck(cudyn_tuptype_t t)
 	cu_debug_assert(lyo);
     }
     cuoo_type_init_general_hcs(cu_to2(cuoo_type, cudyn_inltype, t),
-			       cuoo_typekind_tuptype, cuoo_impl_none, ex,
+			       CUOO_SHAPE_TUPTYPE, cuoo_impl_none, ex,
 			       cuoo_layout_size(lyo));
     AO_store_release_write(&cu_to(cudyn_inltype, t)->layout, (AO_t)lyo);
 }
@@ -425,7 +425,7 @@ duntype_cct_glck(cudyn_duntype_t duntype)
 	return;
     /* TODO. Hash cons option, variable size. */
     cuoo_type_init_general(cu_to2(cuoo_type, cudyn_inltype, duntype),
-			   cuoo_typekind_duntype, cuoo_impl_none, ex);
+			   CUOO_SHAPE_DUNTYPE, cuoo_impl_none, ex);
     AO_store_release_write(&cu_to(cudyn_inltype, duntype)->layout,
 			   (AO_t)cb.lyo);
 }
@@ -469,7 +469,7 @@ default_type(cuex_t ex)
 			   sizeof(cuex_t), &ex,
 			   sizeof(struct cuoo_type_s), 0);
     if (!AO_load_acquire_read((AO_t *)(t + 1)))
-	cuoo_type_init_general_hcs(t, cuoo_typekind_by_expr,
+	cuoo_type_init_general_hcs(t, CUOO_SHAPE_BY_EXPR,
 				   cuoo_impl_none, ex, cuex_type_size(ex));
     return t;
 }

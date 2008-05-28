@@ -449,7 +449,7 @@ cuooP_hcons_disclaim_proc(void *obj, void *null)
 #ifdef CUOO_ENABLE_FINALISERS
     if (cuex_meta_is_type(meta)) {
 	cuoo_type_t t = cuoo_type_from_meta(meta);
-	if (t->has_finaliser)
+	if (t->shape & CUOO_SHAPEFLAG_FIN)
 	    (*t->impl)(CUOO_INTF_FINALISE)(obj);
     }
 #endif

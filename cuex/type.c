@@ -46,7 +46,7 @@ cuex_type_bitsize(cuex_t type)
     cuex_meta_t meta;
 tailcall:
     if (cuoo_is_type(type)) {
-	if (cuoo_type_typekind(type) != cuoo_typekind_by_expr)
+	if (cuoo_type_shape(type) != CUOO_SHAPE_BY_EXPR)
 	    return cuoo_type_bitsize(type);
 	else
 	    type = cuoo_type_as_expr(type);

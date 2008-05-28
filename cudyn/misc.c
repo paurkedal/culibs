@@ -248,18 +248,18 @@ cudyn_castget_ulong(cuex_t e)
 {
     cuex_meta_t meta = cuex_meta(e);
     if (cuex_meta_is_type(meta)) {
-	switch (cuoo_type_typekind(cuoo_type_from_meta(meta))) {
-	    case cuoo_typekind_elmtype_uint64:
-	    case cuoo_typekind_elmtype_int64:
+	switch (cuoo_type_shape(cuoo_type_from_meta(meta))) {
+	    case CUOO_SHAPE_SCALAR_UINT64:
+	    case CUOO_SHAPE_SCALAR_INT64:
 		return cudyn_to_uint64(e);
-	    case cuoo_typekind_elmtype_uint32:
-	    case cuoo_typekind_elmtype_int32:
+	    case CUOO_SHAPE_SCALAR_UINT32:
+	    case CUOO_SHAPE_SCALAR_INT32:
 		return cudyn_to_uint32(e);
-	    case cuoo_typekind_elmtype_uint16:
-	    case cuoo_typekind_elmtype_int16:
+	    case CUOO_SHAPE_SCALAR_UINT16:
+	    case CUOO_SHAPE_SCALAR_INT16:
 		return cudyn_to_uint16(e);
-	    case cuoo_typekind_elmtype_uint8:
-	    case cuoo_typekind_elmtype_int8:
+	    case CUOO_SHAPE_SCALAR_UINT8:
+	    case CUOO_SHAPE_SCALAR_INT8:
 		return cudyn_to_uint8(e);
 	    default:
 		break;
@@ -271,41 +271,41 @@ cudyn_castget_ulong(cuex_t e)
 cuex_t
 cudyn_load(cuoo_type_t t, void *p)
 {
-    cuoo_typekind_t typekind = cuoo_type_typekind(t);
-    switch (typekind) {
-	case cuoo_typekind_opaque:
-	case cuoo_typekind_metatype:
-	case cuoo_typekind_tvar:
+    cuoo_shape_t shape = cuoo_type_shape(t);
+    switch (shape) {
+	case CUOO_SHAPE_OPAQUE:
+	case CUOO_SHAPE_METATYPE:
+	case CUOO_SHAPE_TVAR:
 	    cu_debug_assert(cuex_meta(p) == cuoo_type_to_meta(t));
 	    return p;
-	case cuoo_typekind_ptrtype:
+	case CUOO_SHAPE_PTRTYPE:
 	    return cudyn_ptr(cudyn_ptrtype_from_type(t), p);
 
-	case cuoo_typekind_elmtype_bool:
+	case CUOO_SHAPE_SCALAR_BOOL:
 	    return cudyn_bool(*(cu_bool_t *)p);
-	case cuoo_typekind_elmtype_uint8:
+	case CUOO_SHAPE_SCALAR_UINT8:
 	    return cudyn_uint8(*(uint8_t *)p);
-	case cuoo_typekind_elmtype_int8:
+	case CUOO_SHAPE_SCALAR_INT8:
 	    return cudyn_int8(*(int8_t *)p);
-	case cuoo_typekind_elmtype_uint16:
+	case CUOO_SHAPE_SCALAR_UINT16:
 	    return cudyn_uint16(*(uint16_t *)p);
-	case cuoo_typekind_elmtype_int16:
+	case CUOO_SHAPE_SCALAR_INT16:
 	    return cudyn_int16(*(int16_t *)p);
-	case cuoo_typekind_elmtype_uint32:
+	case CUOO_SHAPE_SCALAR_UINT32:
 	    return cudyn_uint32(*(uint32_t *)p);
-	case cuoo_typekind_elmtype_int32:
+	case CUOO_SHAPE_SCALAR_INT32:
 	    return cudyn_int32(*(int32_t *)p);
-	case cuoo_typekind_elmtype_uint64:
+	case CUOO_SHAPE_SCALAR_UINT64:
 	    return cudyn_uint64(*(uint64_t *)p);
-	case cuoo_typekind_elmtype_int64:
+	case CUOO_SHAPE_SCALAR_INT64:
 	    return cudyn_int64(*(int64_t *)p);
-	case cuoo_typekind_elmtype_metaint:
+	case CUOO_SHAPE_SCALAR_METAINT:
 	    return cudyn_metaint(*(cuex_meta_t *)p);
-	case cuoo_typekind_elmtype_float:
+	case CUOO_SHAPE_SCALAR_FLOAT:
 	    return cudyn_float(*(float *)p);
-	case cuoo_typekind_elmtype_double:
+	case CUOO_SHAPE_SCALAR_DOUBLE:
 	    return cudyn_double(*(double *)p);
-	case cuoo_typekind_elmtype_char:
+	case CUOO_SHAPE_SCALAR_CHAR:
 	    return cudyn_char(*(char *)p);
 
 	default:
@@ -319,22 +319,22 @@ cudyn_load(cuoo_type_t t, void *p)
 void
 cudynP_misc_init()
 {
-    CUDYN_ETYPEARR_INIT(int8,   uint8_t,  SINT, &ffi_type_schar)
-    CUDYN_ETYPEARR_INIT(uint8,  uint8_t,  UINT, &ffi_type_uchar)
-    CUDYN_ETYPEARR_INIT(int16,  int16_t,  SINT, &ffi_type_sshort)
-    CUDYN_ETYPEARR_INIT(uint16, uint16_t, UINT, &ffi_type_ushort)
-    CUDYN_ETYPEARR_INIT(int32,  int32_t,  SINT, &ffi_type_sint)
-    CUDYN_ETYPEARR_INIT(uint32, uint32_t, UINT, &ffi_type_uint)
-    CUDYN_ETYPEARR_INIT(int64,  int64_t,  SINT, &ffi_type_slong)
-    CUDYN_ETYPEARR_INIT(uint64, uint64_t, UINT, &ffi_type_ulong)
-    CUDYN_ETYPEARR_INIT(float,  float,   FLOAT, &ffi_type_float)
-    CUDYN_ETYPEARR_INIT(double, double,  FLOAT, &ffi_type_double)
+    CUDYN_ETYPEARR_INIT(int8,   INT8,	uint8_t,  SINT, &ffi_type_schar)
+    CUDYN_ETYPEARR_INIT(uint8,  UINT8,	uint8_t,  UINT, &ffi_type_uchar)
+    CUDYN_ETYPEARR_INIT(int16,  INT16,	int16_t,  SINT, &ffi_type_sshort)
+    CUDYN_ETYPEARR_INIT(uint16, UINT16,	uint16_t, UINT, &ffi_type_ushort)
+    CUDYN_ETYPEARR_INIT(int32,  INT32,	int32_t,  SINT, &ffi_type_sint)
+    CUDYN_ETYPEARR_INIT(uint32, UINT32,	uint32_t, UINT, &ffi_type_uint)
+    CUDYN_ETYPEARR_INIT(int64,  INT64,	int64_t,  SINT, &ffi_type_slong)
+    CUDYN_ETYPEARR_INIT(uint64, UINT64,	uint64_t, UINT, &ffi_type_ulong)
+    CUDYN_ETYPEARR_INIT(float,  FLOAT,	float,   FLOAT, &ffi_type_float)
+    CUDYN_ETYPEARR_INIT(double, DOUBLE,	double,  FLOAT, &ffi_type_double)
 
-    CUDYN_ETYPE_INIT(bool, int, BOOL, &ffi_type_sint)
+    CUDYN_ETYPE_INIT(bool, BOOL, int, BOOL, &ffi_type_sint)
     cudynP_true = cudyn_bool(1);
     cudynP_false = cudyn_bool(0);
 
-    CUDYN_ETYPEARR_INIT(char, char, SINT, &ffi_type_schar)
+    CUDYN_ETYPEARR_INIT(char, CHAR, char, SINT, &ffi_type_schar)
 
-    CUDYN_ETYPEARR_INIT(metaint, cuex_meta_t, UINT, &ffi_type_ulong);
+    CUDYN_ETYPEARR_INIT(metaint, METAINT, cuex_meta_t, UINT, &ffi_type_ulong);
 }
