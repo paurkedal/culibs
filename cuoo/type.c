@@ -59,6 +59,7 @@ cuoo_type_init_general_hcv(cuoo_type_t type, cuoo_shape_t shape,
     type->shape = shape;
     type->impl = impl;
     type->as_expr = expr;
+    type->key_sizew = (uint_least16_t)-1;
 }
 
 
@@ -121,10 +122,11 @@ cuoo_type_new_metatype(cuoo_impl_t impl)
 }
 
 static cuoo_type_t
-cuoo_type_new_self_instance_hce(cuoo_shape_t shape, cuoo_impl_t impl)
+cuoo_type_new_self_instance_hcb(cuoo_shape_t shape, cuoo_impl_t impl)
 {
     cuoo_type_t type = cuoo_oalloc_self_instance(sizeof(struct cuoo_type_s));
-    cuoo_type_init_general_hcs(type, shape, impl, NULL, sizeof(cuex_t));
+    cuoo_type_init_general_hcs(type, shape, impl, NULL,
+			       sizeof(struct cuoo_type_s) - CUOO_HCOBJ_SHIFT);
     return type;
 }
 
@@ -261,6 +263,6 @@ cuooP_type_init()
 #if CUOO_ENABLE_KEYED_PROP
     cucon_umap_init(&cuooP_property_map);
 #endif
-    cuooP_type_type = cuoo_type_new_self_instance_hce(
+    cuooP_type_type = cuoo_type_new_self_instance_hcb(
 	CUOO_SHAPE_METATYPE, cuoo_impl_none);
 }

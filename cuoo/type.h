@@ -116,8 +116,8 @@ CU_SINLINE cu_bool_t cuoo_is_type(cuex_t e)
 CU_SINLINE cuoo_type_t cuoo_type_from_ex(cuex_t e)
 { return (cuoo_type_t)e; }
 
-/*!The expression form of \a t.  For elementary and opaque types, the type
- * itself.  For types of parametric kind, the instantiated form. */
+/*!The analytic type of \a t.  For elementary and opaque types, the type
+ * itself. */
 CU_SINLINE cuex_t cuoo_type_as_expr(cuoo_type_t t)
 { return t->as_expr? t->as_expr : t; }
 
@@ -178,13 +178,14 @@ cuoo_type_t cuoo_type_new_opaque_hcs(cuoo_impl_t impl, size_t key_size);
  * \a key_hash_fn. */
 cuoo_type_t cuoo_type_new_opaque_hcv(cuoo_impl_t impl);
 
-
+/*!A new type of non-hash-consed types. */
 cuoo_type_t cuoo_type_new_metatype(cuoo_impl_t impl);
 
-/*!A new type of types.  If the instances are hash-consed, the expression
- * for of the type will be used as the key. */
+/*!A new type of types which are hash-consed based on the analytic expression
+ * of the type. */
 cuoo_type_t cuoo_type_new_metatype_hce(cuoo_impl_t impl);
 
+/*!A new type of types which are hash-consed with key size \a key_size. */
 cuoo_type_t cuoo_type_new_metatype_hcs(cuoo_impl_t impl, size_t key_size);
 
 
