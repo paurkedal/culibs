@@ -92,14 +92,6 @@ cu_clop_edef(cu_idr_strcmp_clop, int, cu_idr_t idr0, cu_idr_t idr1)
     return strcmp(cu_idr_to_cstr(idr0), cu_idr_to_cstr(idr1));
 }
 
-cu_clop_def(idr_key_hash_clop, cu_hash_t, void *idr)
-{
-    size_t key_size = ((cu_idr_t)idr)->key_size;
-    return cu_wordarr_hash(key_size/sizeof(cu_word_t),
-			   cu_ptr_add(idr, CUOO_HCOBJ_SHIFT),
-			   cuoo_type_to_meta(cuP_idr_type));
-}
-
 cuoo_type_t cuP_idr_type;
 
 static void
@@ -122,5 +114,5 @@ idr_impl(cu_word_t intf_number, ...)
 void
 cuP_idr_init(void)
 {
-    cuP_idr_type = cuoo_type_new_opaque_hcf(idr_impl, idr_key_hash_clop);
+    cuP_idr_type = cuoo_type_new_opaque_hcv(idr_impl);
 }

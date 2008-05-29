@@ -22,6 +22,7 @@
 #include <cu/memory.h>
 #include <cu/debug.h>
 #include <cu/wordarr.h>
+#include <cu/ptr.h>
 
 #ifndef NDEBUG
 #  define CUEX_DEBUG_HCONS
@@ -31,34 +32,33 @@ void
 cuoo_type_init_general(cuoo_type_t type, cuoo_shape_t shape,
 		       cuoo_impl_t impl, cuex_t expr)
 {
-    cu_debug_assert(!(shape & CUOO_SHAPEFLAG_HCF));
+    cu_debug_assert(!(shape & CUOO_SHAPEFLAG_HCV));
     type->shape = shape;
     type->impl = impl;
     type->as_expr = expr;
-    type->u0.key_size = 0;
+    type->key_sizew = 0;
 }
 
 void
 cuoo_type_init_general_hcs(cuoo_type_t type, cuoo_shape_t shape,
 			   cuoo_impl_t impl, cuex_t expr, size_t key_size)
 {
-    cu_debug_assert(!(shape & CUOO_SHAPEFLAG_HCF));
+    cu_debug_assert(!(shape & CUOO_SHAPEFLAG_HCV));
+    cu_debug_assert(key_size % sizeof(cu_word_t) == 0);
     type->shape = shape;
     type->impl = impl;
     type->as_expr = expr;
-    type->u0.key_size = key_size;
+    type->key_sizew = key_size / sizeof(cu_word_t);
 }
 
 void
-cuoo_type_init_general_hcf(cuoo_type_t type, cuoo_shape_t shape,
-			   cuoo_impl_t impl, cuex_t expr,
-			   cu_clop(key_hash_fn, cu_hash_t, void *))
+cuoo_type_init_general_hcv(cuoo_type_t type, cuoo_shape_t shape,
+			   cuoo_impl_t impl, cuex_t expr)
 {
-    cu_debug_assert(shape & CUOO_SHAPEFLAG_HCF);
+    cu_debug_assert(shape & CUOO_SHAPEFLAG_HCV);
     type->shape = shape;
     type->impl = impl;
     type->as_expr = expr;
-    type->u0.key_hash_fn = key_hash_fn;
 }
 
 
@@ -79,11 +79,9 @@ cuoo_type_init_opaque_hcs(cuoo_type_t type, cuoo_impl_t impl, size_t key_size)
 }
 
 void
-cuoo_type_init_opaque_hcf(cuoo_type_t type, cuoo_impl_t impl,
-			  cu_clop(key_hash_fn, cu_hash_t, void *))
+cuoo_type_init_opaque_hcv(cuoo_type_t type, cuoo_impl_t impl)
 {
-    cuoo_type_init_general_hcf(type, CUOO_SHAPE_OPAQUE_HCF, impl, NULL,
-			       key_hash_fn);
+    cuoo_type_init_general_hcv(type, CUOO_SHAPE_OPAQUE_HCV, impl, NULL);
 }
 
 cuoo_type_t
@@ -103,11 +101,10 @@ cuoo_type_new_opaque_hcs(cuoo_impl_t impl, size_t key_size)
 }
 
 cuoo_type_t
-cuoo_type_new_opaque_hcf(cuoo_impl_t impl,
-			 cu_clop(key_hash_fn, cu_hash_t, void *))
+cuoo_type_new_opaque_hcv(cuoo_impl_t impl)
 {
     cuoo_type_t type = cuoo_onew(cuoo_type);
-    cuoo_type_init_opaque_hcf(type, impl, key_hash_fn);
+    cuoo_type_init_opaque_hcv(type, impl);
     return type;
 }
 
@@ -169,29 +166,31 @@ cu_hash_t
 cuex_key_hash(void *obj)
 {
     cuex_meta_t meta = cuex_meta(obj);
-    size_t key_size;
+    size_t key_sizew;
     switch (cuex_meta_kind(meta)) {
 	    cuoo_type_t t;
 	case cuex_meta_kind_type:
 	    t =  cuoo_type_from_meta(meta);
 	    cu_debug_assert(cuoo_is_type(t) && cuoo_type_is_hctype(t));
-	    if (t->shape & CUOO_SHAPEFLAG_HCF)
-		return cu_call(t->u0.key_hash_fn, obj);
-	    key_size = t->u0.key_size;
+	    if (t->shape & CUOO_SHAPEFLAG_HCV) {
+		key_sizew = *(cu_word_t *)cu_ptr_add(obj, CUOO_HCOBJ_SHIFT);
+		key_sizew = (key_sizew + CU_WORD_SIZE - 1)/CU_WORD_SIZE;
+	    }
+	    else
+		key_sizew = t->key_sizew;
 	    break;
 	case cuex_meta_kind_opr:
-	    key_size = cuex_opr_r(meta)*sizeof(void *);
+	    key_sizew = cuex_opr_r(meta);
 	    break;
 	case cuex_meta_kind_other:
 	    cu_debug_assert((meta & CUEXP_VARMETA_SELECT_MASK) ==
 			    CUEXP_VARMETA_SELECT_VALUE);
-	    key_size = 0;
+	    key_sizew = 0;
 	    break;
 	default:
 	    cu_debug_unreachable();
     }
-    return cu_wordarr_hash(key_size/sizeof(cu_word_t),
-			   obj + CUOO_HCOBJ_SHIFT, meta);
+    return cu_wordarr_hash(key_sizew, obj + CUOO_HCOBJ_SHIFT, meta);
 }
 
 

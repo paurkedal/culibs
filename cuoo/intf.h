@@ -36,6 +36,7 @@ CU_BEGIN_DECLARATIONS
 #define CUOO_INTFRANGE_CULIBS_BEGIN	0x00000000
 #define CUOO_INTFRANGE_CULIBS_END	0x00000100
 
+#define CUOO_INTF_FINALISE	0x11
 #define CUOO_INTF_SERIALISABLE	0x12	/* cuoo_serialisable_t */
 #define CUOO_INTF_PRINT_FN	0x13	/* void (*)(void *, FILE *) */
 #define CUOO_INTF_FOPRINT_FN	0x14	/* cufo_print_ptr_fn_t */

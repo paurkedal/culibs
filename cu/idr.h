@@ -28,7 +28,7 @@ CU_BEGIN_DECLARATIONS
 struct cu_idr_s
 {
     CUOO_HCOBJ
-    size_t key_size;
+    cu_word_t key_size;
 };
 
 extern cuoo_type_t cuP_idr_type;

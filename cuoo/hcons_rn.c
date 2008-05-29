@@ -19,6 +19,7 @@
 #include <cuoo/oalloc.h>
 #include <cu/memory.h>
 #include <cu/int.h>
+#include <cu/ptr.h>
 #include <cu/wordarr.h>
 #include <cu/conf.h>
 #ifdef CUOO_ENABLE_KEYED_PROP
@@ -446,11 +447,11 @@ cuooP_hcons_disclaim_proc(void *obj, void *null)
 	cu_hcset_unlock_write(hcset);
     }
 #endif
-#ifdef CUOO_ENABLE_FINALISERS
+#ifdef CUOO_INTF_FINALISE
     if (cuex_meta_is_type(meta)) {
 	cuoo_type_t t = cuoo_type_from_meta(meta);
 	if (t->shape & CUOO_SHAPEFLAG_FIN)
-	    (*t->impl)(CUOO_INTF_FINALISE)(obj);
+	    (*t->impl)(CUOO_INTF_FINALISE, obj);
     }
 #endif
     return 0;

@@ -18,8 +18,10 @@
 #define USE_GC_INLINE 0
 
 #include <cuoo/oalloc.h>
+#include <cuoo/intf.h>
 #include <cu/memory.h>
 #include <cu/tstate.h>
+#include <cu/ptr.h>
 #include <gc/gc_mark.h>
 #if USE_GC_INLINE
 #  include <gc/gc_inline.h>
@@ -109,6 +111,7 @@ cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
 
 #else /* !CUCONF_ENABLE_GC_DISCLAIM */
 
+#ifdef CUOO_INTF_FINALISE
 static void
 _stdobj_finaliser(void *base, void *cd)
 {
@@ -117,9 +120,10 @@ _stdobj_finaliser(void *base, void *cd)
     cu_debug_assert(cuex_meta_is_type(meta) &&
 		    cuoo_type_is_metatype(cuoo_type_from_meta(meta)));
     t = cuoo_type_from_meta(meta);
-    if (!cu_clop_is_null(t->finalise))
-	cu_call(t->finalise, base + sizeof(cuex_meta_t));
+    if (t->shape & CUOO_SHAPEFLAG_FIN)
+	(*t->impl)(CUOO_INTF_FINALISE, cu_ptr_add(base, sizeof(cuex_meta_t)));
 }
+#endif
 
 void *
 cuexP_oalloc_ord_fin_raw(cuex_meta_t meta, size_t sizeg)
@@ -133,7 +137,9 @@ cuexP_oalloc_ord_fin_raw(cuex_meta_t meta, size_t sizeg)
 	cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
 	cu_debug_unreachable();
     }
+#ifdef CUOO_INTF_FINALISE
     GC_register_finalizer(r, _stdobj_finaliser, NULL, NULL, NULL);
+#endif
     *(cuex_meta_t *)r = meta + 1;
     return (cuex_meta_t *)r + 1;
 }
@@ -150,7 +156,9 @@ cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
 	cu_raise_out_of_memory(sizeg*CU_GRAN_SIZE);
 	cu_debug_unreachable();
     }
+#ifdef CUOO_INTF_FINALISE
     GC_register_finalizer_no_order(r, _stdobj_finaliser, NULL, NULL, NULL);
+#endif
     *(cuex_meta_t *)r = meta + 1;
     return (cuex_meta_t *)r + 1;
 }

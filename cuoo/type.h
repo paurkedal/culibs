@@ -29,22 +29,22 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_type_h cuoo/type.h: Operations and Dynamically Typed Objects
  * @{ \ingroup cuoo_mod */
 
-typedef uint_fast32_t cuoo_shape_t;
+typedef uint_fast16_t cuoo_shape_t;
 
 /*!To be or-ed into shapes for types which use a custom hash function in place
  * of a fixed size. */
-#define CUOO_SHAPEFLAG_HCF		UINT32_C(0x80000000)
+#define CUOO_SHAPEFLAG_HCV		UINT16_C(0x8000)
 
 /*!Or-ed into shapes of types which may define finalisers. */
-#define CUOO_SHAPEFLAG_FIN		UINT32_C(0x40000000)
+#define CUOO_SHAPEFLAG_FIN		UINT16_C(0x4000)
 
 /*!Mask of all the above flags. */
-#define CUOO_SHAPEFLAG_MASK		UINT32_C(0xc0000000)
+#define CUOO_SHAPEFLAG_MASK		UINT16_C(0xc000)
 
 /*!Main classification of types. */
 #define CUOO_SHAPE_NONE			0x00
 #define CUOO_SHAPE_OPAQUE		0x01
-#define CUOO_SHAPE_OPAQUE_HCF		(CUOO_SHAPE_OPAQUE|CUOO_SHAPEFLAG_HCF)
+#define CUOO_SHAPE_OPAQUE_HCV		(CUOO_SHAPE_OPAQUE|CUOO_SHAPEFLAG_HCV)
 #define CUOO_SHAPE_METATYPE		0x02
 #define CUOO_SHAPE_TVAR			0x03
 #define CUOO_SHAPE_PROTO		0x04
@@ -87,14 +87,10 @@ struct cuoo_type_s
      * cuoo_type_glck. */
     cuex_t as_expr;
 
-    uint32_t shape;
+    uint_least16_t shape;
+    uint_least16_t key_sizew;
 
     cu_word_t (*impl)(cu_word_t intf_number, ...); /* FIXME set */
-
-    union {
-	size_t key_size;
-	cu_clop(key_hash_fn, cu_hash_t, void *obj);
-    } u0;
 };
 
 extern cuoo_type_t cuooP_type_type;
@@ -133,7 +129,7 @@ CU_SINLINE cuoo_shape_t cuoo_type_shape(cuoo_type_t type)
 #define cuoo_type_impl_ptr(type, ...) ((void *)(type)->impl(__VA_ARGS__))
 
 CU_SINLINE cu_bool_t cuoo_type_is_hctype(cuoo_type_t type)
-{ return type->u0.key_size; }
+{ return type->key_sizew; }
 
 CU_SINLINE cu_bool_t cuoo_type_is_metatype(cuoo_type_t type)
 { return type->shape == CUOO_SHAPE_METATYPE; }
@@ -156,9 +152,8 @@ void cuoo_type_init_general_hcs(cuoo_type_t type, cuoo_shape_t shape,
 				cuoo_impl_t impl, cuex_t e, size_t key_size);
 /*!Initialise \a type to be used for hash-consed objects with hash function \a
  * key_hash_fn. */
-void cuoo_type_init_general_hcf(cuoo_type_t type, cuoo_shape_t shape,
-				cuoo_impl_t impl, cuex_t e,
-				cu_clop(key_hash_fn, cu_hash_t, void *));
+void cuoo_type_init_general_hcv(cuoo_type_t type, cuoo_shape_t shape,
+				cuoo_impl_t impl, cuex_t e);
 
 /*!Construct \a type as an opaque type for non-hash-consed objects. */
 void cuoo_type_init_opaque(cuoo_type_t type, cuoo_impl_t impl);
@@ -170,8 +165,7 @@ void cuoo_type_init_opaque_hcs(cuoo_type_t type, cuoo_impl_t impl,
 
 /*!Construct \a type as an opaque type for hash-consed object with hash
  * function \a key_hash_fn. */
-void cuoo_type_init_opaque_hcf(cuoo_type_t type, cuoo_impl_t impl,
-			       cu_clop(key_hash_fn, cu_hash_t, void *));
+void cuoo_type_init_opaque_hcv(cuoo_type_t type, cuoo_impl_t impl);
 
 /*!Creates a type for non-hash-consed objects. */
 cuoo_type_t cuoo_type_new_opaque(cuoo_impl_t impl);
@@ -182,8 +176,7 @@ cuoo_type_t cuoo_type_new_opaque_hcs(cuoo_impl_t impl, size_t key_size);
 
 /*!Creates a type for hash-consed objects of with hash function
  * \a key_hash_fn. */
-cuoo_type_t cuoo_type_new_opaque_hcf(cuoo_impl_t impl,
-				     cu_clop(key_hash_fn, cu_hash_t, void *));
+cuoo_type_t cuoo_type_new_opaque_hcv(cuoo_impl_t impl);
 
 
 cuoo_type_t cuoo_type_new_metatype(cuoo_impl_t impl);
