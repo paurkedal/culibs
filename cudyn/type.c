@@ -92,6 +92,17 @@ cudyn_elmtype_new(cuoo_shape_t shape, cuoo_impl_t impl,
     return t;
 }
 
+static cu_word_t
+elmtype_impl(cu_word_t intf_number, ...)
+{
+    switch (intf_number) {
+	case CUOO_INTF_TO_STR_FN:
+	    return (cu_word_t)cuoo_type_to_str_default;
+	default:
+	    return CUOO_IMPL_NONE;
+    }
+}
+
 
 /* Array Types
  * =========== */
@@ -534,7 +545,7 @@ cudynP_type_init()
     cudynP_cuex_type = cuoo_type_new_opaque(cuoo_impl_none);
     cudynP_ptrtype_type = cuoo_type_new_metatype_hcs(
 	cuoo_impl_none, sizeof(struct cudyn_ptrtype_s) - CUOO_HCOBJ_SHIFT);
-    cudynP_elmtype_type = cuoo_type_new_metatype(cuoo_impl_none);
+    cudynP_elmtype_type = cuoo_type_new_metatype(elmtype_impl);
     cudynP_arrtype_type = cuoo_type_new_metatype_hce(cuoo_impl_none);
     cudynP_tuptype_type = cuoo_type_new_metatype_hce(tuptype_impl);
     cudynP_duntype_type = cuoo_type_new_metatype_hce(cuoo_impl_none);

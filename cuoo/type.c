@@ -23,10 +23,31 @@
 #include <cu/debug.h>
 #include <cu/wordarr.h>
 #include <cu/ptr.h>
+#include <cu/str.h>
 
-#ifndef NDEBUG
-#  define CUEX_DEBUG_HCONS
-#endif
+char const *
+cuoo_shape_name(cuoo_shape_t shape)
+{
+    switch (shape) {
+	case CUOO_SHAPE_OPAQUE:		return "opaque";
+	case CUOO_SHAPE_OPAQUE_HCV:	return "opaque_hcv";
+	case CUOO_SHAPE_METATYPE:	return "metatype";
+	case CUOO_SHAPE_SCALAR_BOOL:	return "bool";
+	case CUOO_SHAPE_SCALAR_CHAR:	return "char";
+	case CUOO_SHAPE_SCALAR_METAINT:	return "cuex_meta_t";
+	case CUOO_SHAPE_SCALAR_UINT8:	return "uint8_t";
+	case CUOO_SHAPE_SCALAR_INT8:	return "int8_t";
+	case CUOO_SHAPE_SCALAR_UINT16:	return "uint16_t";
+	case CUOO_SHAPE_SCALAR_INT16:	return "int16_t";
+	case CUOO_SHAPE_SCALAR_UINT32:	return "uint32_t";
+	case CUOO_SHAPE_SCALAR_INT32:	return "int32_t";
+	case CUOO_SHAPE_SCALAR_UINT64:	return "uint64_t";
+	case CUOO_SHAPE_SCALAR_INT64:	return "int64_t";
+	case CUOO_SHAPE_SCALAR_FLOAT:	return "float";
+	case CUOO_SHAPE_SCALAR_DOUBLE:	return "double";
+	default:			return NULL;
+    }
+}
 
 void
 cuoo_type_init_general(cuoo_type_t type, cuoo_shape_t shape,
@@ -107,6 +128,30 @@ cuoo_type_new_opaque_hcv(cuoo_impl_t impl)
     cuoo_type_t type = cuoo_onew(cuoo_type);
     cuoo_type_init_opaque_hcv(type, impl);
     return type;
+}
+
+cu_str_t
+cuoo_type_to_str_default(cuoo_type_t type)
+{
+    cuoo_shape_t shape = cuoo_type_shape(type);
+    char const *name = cuoo_shape_name(shape);
+    if (cuoo_shape_is_scalar(shape))
+	return cu_str_new_cstr(name);
+    else if (name)
+	return cu_str_new_fmt("__%s_%p", name, type);
+    else
+	return cu_str_new_fmt("__type_%p", type);
+}
+
+static cu_word_t
+type_impl(cu_word_t intf_number, ...)
+{
+    switch (intf_number) {
+	case CUOO_INTF_TO_STR_FN:
+	    return (cu_word_t)cuoo_type_to_str_default;
+	default:
+	    return CUOO_IMPL_NONE;
+    }
 }
 
 
@@ -263,6 +308,6 @@ cuooP_type_init()
 #if CUOO_ENABLE_KEYED_PROP
     cucon_umap_init(&cuooP_property_map);
 #endif
-    cuooP_type_type = cuoo_type_new_self_instance_hcb(
-	CUOO_SHAPE_METATYPE, cuoo_impl_none);
+    cuooP_type_type = cuoo_type_new_self_instance_hcb(CUOO_SHAPE_METATYPE,
+						      type_impl);
 }

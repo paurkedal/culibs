@@ -75,6 +75,15 @@ typedef uint_fast16_t cuoo_shape_t;
 
 #define CUOO_SHAPE_CULIBS_END		0x100
 
+/*!A textual name for \a shape, or \c NULL if unimplemented. Mainly useful for
+ * the scalar types where the returned string corresponds with the C type name,
+ * other cases may be unimplemented. */
+char const *cuoo_shape_name(cuoo_shape_t shape);
+
+CU_SINLINE cu_bool_t
+cuoo_shape_is_scalar(cuoo_shape_t shape)
+{ return CUOO_SHAPE_SCALAR_MIN <= shape && shape <= CUOO_SHAPE_SCALAR_MAX; }
+
 /*!The dynamic type (base) struct. */
 struct cuoo_type_s
 {
@@ -187,6 +196,9 @@ cuoo_type_t cuoo_type_new_metatype_hce(cuoo_impl_t impl);
 
 /*!A new type of types which are hash-consed with key size \a key_size. */
 cuoo_type_t cuoo_type_new_metatype_hcs(cuoo_impl_t impl, size_t key_size);
+
+/*!A default implementation of \c CUOO_INTF_TO_STR_FN. */
+cu_str_t cuoo_type_to_str_default(cuoo_type_t type);
 
 
 /* Objects
