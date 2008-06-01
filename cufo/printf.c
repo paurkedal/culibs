@@ -296,6 +296,7 @@ break_flags:
 		    else
 			snprintf(outbuf, outcap, new_fmt, width, prec,
 				 cu_va_ref_arg(va_ref, long));
+		    break;
 		case CUFO_PRILENGTH_LONG_LONG:
 		    if (prec == -1)
 			snprintf(outbuf, outcap, new_fmt, width,

@@ -58,6 +58,12 @@ print_page(cufo_stream_t fos)
     cufo_logf(fos, &facility, "This is a %s message.", "log");
     cufo_logf(fos, &facility, "%: This is a log message with a location %d.",
 	      cu_sref_new_cstr("example.csv", 34, -1), 88);
+    for (j = 0; j < 4; ++j) {
+	i = (j + 100)*(j + 7) % 1000;
+	cufo_printf(fos, "Int format test: "
+		    "%hd = %d = %ld = %-4hd = %4d = %4ld = %+4lx\n",
+		    (short)i, i, (long)i, (short)i, i, (long)i, (long)i);
+    }
 }
 
 void
