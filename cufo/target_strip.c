@@ -43,10 +43,10 @@ ts_write(cufo_stream_t fos, void const *wr_buf, size_t wr_size)
 	return wz;
 }
 
-static void
+static cu_bool_t
 ts_enter(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 {
-    /* Nothing to do. */
+    return cu_false;
 }
 
 static void

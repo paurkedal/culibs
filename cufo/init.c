@@ -26,6 +26,7 @@ void cufoP_tagdefs_init(void);
 void cufoP_attrdefs_init(void);
 void cufoP_textstyle_default_init(void);
 void cufoP_printf_init(void);
+void cufoP_init_formats(void);
 
 cufo_stream_t cufoP_stderr;
 cufo_stream_t cufoP_stderr_bug;
@@ -91,18 +92,6 @@ cu_clop_def(default_log_binder, cu_bool_t, cu_log_facility_t facility)
 }
 
 void
-print_wstring(cufo_stream_t fos, cufo_prispec_t spec, void *p)
-{
-    cufo_print_wstring(fos, p);
-}
-
-void
-print_str(cufo_stream_t fos, cufo_prispec_t spec, void *p)
-{
-    cufo_print_str(fos, p);
-}
-
-void
 cufo_init(void)
 {
     CU_RETURN_UNLESS_FIRST_CALL;
@@ -119,6 +108,5 @@ cufo_init(void)
     cufoP_stderr_bug = cufo_open_text_fd("UTF-8", NULL, 2);
     cu_register_log_binder(cu_clop_ref(default_log_binder));
 
-    cufo_register_ptr_format("wstring", print_wstring);
-    cufo_register_ptr_format("str", print_str);
+    cufoP_init_formats();
 }

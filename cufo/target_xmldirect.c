@@ -91,7 +91,7 @@ xd_raw_write(cufo_stream_t os, char const *buf, size_t len)
 	cu_bugf("Sink should but did not consume all raw data.");
 }
 
-static void
+static cu_bool_t
 xd_enter(cufo_stream_t os, cufo_tag_t tag, va_list va)
 {
     char const *name;
@@ -151,6 +151,7 @@ xd_enter(cufo_stream_t os, cufo_tag_t tag, va_list va)
     cu_buffer_write(&buf, ">", 1);
     xd_raw_write(os, cu_buffer_content_start(&buf),
 		 cu_buffer_content_size(&buf));
+    return cu_true;
 }
 
 static void

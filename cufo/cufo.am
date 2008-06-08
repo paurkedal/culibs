@@ -13,6 +13,7 @@ cufo_sources = \
 	cufo/attr.c \
 	cufo/attrdefs.c \
 	cufo/init.c \
+	cufo/init_formats.c \
 	cufo/printf.c \
 	cufo/stream.c \
 	cufo/stream_open.c \

@@ -57,7 +57,7 @@ typedef void (*cufo_print_ptr_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 struct cufo_target_s
 {
     size_t (*write)(cufo_stream_t fos, void const *data, size_t size);
-    void (*enter)(cufo_stream_t fos, cufo_tag_t tag, va_list va);
+    cu_bool_t (*enter)(cufo_stream_t fos, cufo_tag_t tag, va_list va);
     void (*leave)(cufo_stream_t fos, cufo_tag_t);
     void *(*close)(cufo_stream_t fos);
     void (*flush)(cufo_stream_t fos);
@@ -204,9 +204,9 @@ void cufo_print_ex(cufo_stream_t fos, cuex_t e);
 
 void cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e);
 
-void cufoP_entera(cufo_stream_t fos, cufo_tag_t tag, ...);
+cu_bool_t cufoP_entera(cufo_stream_t fos, cufo_tag_t tag, ...);
 
-void cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va);
+cu_bool_t cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va);
 
 #define cufo_enter(fos, tag) cufoP_entera(fos, tag, NULL)
 #define cufo_entera(fos, tag, ...) cufoP_entera(fos, tag, __VA_ARGS__, NULL)
@@ -233,6 +233,8 @@ void cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
 		   cu_sref_t sref, char const *fmt, va_list va);
 
 void cufo_register_ptr_format(char const *key, cufo_print_ptr_fn_t fn);
+
+void cufo_register_va_format(char const *key, cufo_print_fn_t fn);
 
 /*!@}*/
 CU_END_DECLARATIONS

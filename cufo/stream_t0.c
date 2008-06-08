@@ -39,7 +39,7 @@ print_page(cufo_stream_t fos)
     cufo_leaveln(fos, cufoT_title);
 
     cufo_entera(fos, cufoT_para, cufoA_class("test-cls"));
-    cufo_printf(fos, "Hello %<mellow%> world.\n", cufoT_italic);
+    cufo_printf(fos, "Hello%(ld/sup) %<mellow%> world.\n", -52L, cufoT_italic);
     cufo_print_wstring(fos, CU_WSTRING_C("Hello wide world.\n"));
     cufo_leaveln(fos, cufoT_para);
 
@@ -47,7 +47,9 @@ print_page(cufo_stream_t fos)
     for (i = 1; i < 100; i *= 2)
 	for (j = 1; j < 10; j *= 2) {
 	    double x = i/(double)j;
-	    cufo_printf(fos, "%3d / %-2d = %4.2g = %5.2lf\n", i, j, x, x);
+	    cufo_printf(fos,
+			"%(d/sup)%<X%>%(d/sub) = %3d / %-2d = %4.2g = %5.2lf\n",
+			i, cufoT_italic, j, i, j, x, x);
 	}
     cufo_printf(fos, "%c %lc (alpha) < > &\n", '*', (cu_wint_t)0x3b1);
     for (i = 0x2200; i < 0x2210; ++i)
@@ -59,9 +61,9 @@ print_page(cufo_stream_t fos)
     cufo_logf(fos, &facility, "%: This is a log message with a location %d.",
 	      cu_sref_new_cstr("example.csv", 34, -1), 88);
     for (j = 0; j < 4; ++j) {
-	i = (j + 100)*(j + 7) % 1000;
+	i = (j + 1)*(j + 7)*(j + 1) % 10000;
 	cufo_printf(fos, "Int format test: "
-		    "%hd = %d = %ld = %-4hd = %4d = %4ld = %+4lx\n",
+		    "%4hd = %4d = %+4ld = %-4hd = %d = %+ld = %#lx\n",
 		    (short)i, i, (long)i, (short)i, i, (long)i, (long)i);
     }
 }

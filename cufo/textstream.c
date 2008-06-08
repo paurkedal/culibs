@@ -261,7 +261,7 @@ tx_styler_insert(cufo_textstream_t tos, cu_wstring_t s)
 		    cu_wstring_length(s)*sizeof(cu_wchar_t));
 }
 
-static void
+static cu_bool_t
 tx_enter(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 {
     cucon_hzmap_node_t styler_node;
@@ -276,7 +276,10 @@ tx_enter(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 	s = (*styler->enter)(tos, tag, va);
 	if (s)
 	    tx_styler_insert(tos, s);
+	return cu_true;
     }
+    else
+	return cu_false;
 }
 
 static void

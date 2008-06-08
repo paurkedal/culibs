@@ -367,7 +367,7 @@ cufo_space(cufo_stream_t fos)
     }
 }
 
-void
+cu_bool_t
 cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 {
 #ifdef CUCONF_DEBUG_CLIENT
@@ -376,22 +376,24 @@ cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
     tag_stack->tag = tag;
     fos->tag_stack = tag_stack;
 #endif
-    (*fos->target->enter)(fos, tag, va);
+    return (*fos->target->enter)(fos, tag, va);
 }
 
-void
+cu_bool_t
 cufoP_entera(cufo_stream_t fos, cufo_tag_t tag, ...)
 {
+    cu_bool_t capable;
+    va_list va;
 #ifdef CUCONF_DEBUG_CLIENT
     cufoP_tag_stack_t tag_stack = cu_gnew(struct cufoP_tag_stack_s);
     tag_stack->next = fos->tag_stack;
     tag_stack->tag = tag;
     fos->tag_stack = tag_stack;
 #endif
-    va_list va;
     va_start(va, tag);
-    (*fos->target->enter)(fos, tag, va);
+    capable = (*fos->target->enter)(fos, tag, va);
     va_end(va);
+    return capable;
 }
 
 void
