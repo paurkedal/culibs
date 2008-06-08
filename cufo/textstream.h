@@ -29,13 +29,16 @@ CU_BEGIN_DECLARATIONS
  * "cufo/stream.h".
  */
 
+#define CUFO_ENTER_CONTROL_SEQ 0x91
+#define CUFO_LEAVE_CONTROL_SEQ 0x92
+
 /*!The text-stream struct for use by text-stylers. */
 struct cufo_textstream_s
 {
     cu_inherit (cufo_stream_s);
     struct cu_buffer_s buf;
     cu_dsink_t sink;
-    int col;
+    int buffered_width;
 
     cufo_textstyle_t style;
 
@@ -70,6 +73,9 @@ struct cufo_textstyle_s
     size_t stream_size;
     cu_clop(stream_init, void, cufo_textstream_t tos);
     struct cucon_hzmap_s tag_to_styler;
+    cu_wstring_t (*default_enter)(cufo_textstream_t tos, cufo_tag_t tag,
+				  va_list attrs);
+    cu_wstring_t (*default_leave)(cufo_textstream_t tos, cufo_tag_t tag);
 };
 
 /*!Initialises \a style with the given stream size and stream initialiser.  \a

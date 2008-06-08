@@ -30,21 +30,42 @@
 #include <cu/int.h>
 #include <cu/memory.h>
 #include <cu/wstring.h>
+#include <cu/conf.h>
 #include <string.h>
 
 #define TX_STREAM(os) cu_from(cufo_textstream, cufo_stream, os)
 
+#ifdef CUCONF_DEBUG_SELF
+#  define TX_DEBUG 1
+#endif
+
 static cu_bool_t
 tx_raw_write(cufo_textstream_t tos, cu_wchar_t const *arr, size_t len)
 {
-    size_t size_wr;
-    size_t size = len*sizeof(cu_wchar_t);
-    size_wr = cu_dsink_write(tos->sink, arr, size);
-    if (size_wr != size) {
-	if (size_wr == (size_t)-1)
-	    return cu_false;
-	else
-	    cu_bugf("Sink should but did not consume all data.");
+    while (len) {
+	size_t size_wr;
+	size_t size;
+	size_t frag_len;
+
+	while (*arr == CUFO_ENTER_CONTROL_SEQ ||
+	       *arr == CUFO_LEAVE_CONTROL_SEQ) {
+	    ++arr;
+	    --len;
+	}
+	for (frag_len = 0; frag_len < len; ++frag_len)
+	    if (arr[frag_len] == CUFO_ENTER_CONTROL_SEQ ||
+		arr[frag_len] == CUFO_LEAVE_CONTROL_SEQ)
+		break;
+
+	size = frag_len*sizeof(cu_wchar_t);
+	size_wr = cu_dsink_write(tos->sink, arr, size);
+	if (size_wr != size) {
+	    if (size_wr == (size_t)-1)
+		return cu_false;
+	    else
+		cu_bugf("Sink should but did not consume all data.");
+	}
+	len -= frag_len;
     }
     return cu_true;
 }
@@ -136,28 +157,73 @@ tx_tiedness(cufo_textstream_t tos, cu_wint_t ch0, cu_wint_t ch1)
 	return 0.8;
 }
 
+#ifdef TX_DEBUG
+static void
+tx_check_buffered_width(cufo_textstream_t tos)
+{
+    cu_wchar_t *s = cu_buffer_content_start(&tos->buf);
+    cu_wchar_t *s_end = cu_buffer_content_end(&tos->buf);
+    int col = 0;
+    while (s < s_end) {
+	if (*s == CUFO_ENTER_CONTROL_SEQ) {
+	    do {
+		++s;
+		cu_debug_assert(s < s_end);
+	    } while (*s != CUFO_LEAVE_CONTROL_SEQ);
+	    ++s;
+	} else {
+	    ++s;
+	    ++col;
+	}
+    }
+    cu_debug_assert(col == tos->buffered_width);
+}
+#else
+#define tx_check_buffered_width(tos) ((void)0)
+#endif
+
+/* Examine [s, s + len) for the best place to break the line.  Return the
+ * offset within s in *pos_out, and return the number of columns in
+ * [s, s + *pos_out]. */
 static int
-tx_find_break(cufo_textstream_t tos, cu_wchar_t const *s, size_t len, size_t *pos_out)
+tx_find_break(cufo_textstream_t tos, int text_width,
+	      cu_wchar_t const *s, size_t len, size_t *pos_out)
 {
     size_t n = len;
     double bv_min = 1e9;
-    double dist_badness_diff = 1.0/len;
-    double dist_badness = 0.0;
-    int bv_pos = len;
+    double dist_badness_diff = -1.0/text_width;
+    double dist_badness = 1.0;
+    int bv_pos = 0;
+    int bv_col = 0, col = 0;
     cu_debug_assert(len);
-    while (--n) {
-	double break_badness = tx_tiedness(tos, s[n - 1], s[n]);
-	double bv = dist_badness + break_badness;
+    cu_wchar_t last_char = 0x20;
+
+    for (n = 0; n < len; ++n) {
+	double break_badness, bv;
+	if (s[n] == CUFO_ENTER_CONTROL_SEQ) {
+	    do {
+		++n;
+		cu_debug_assert(n < len);
+	    } while (s[n] != CUFO_LEAVE_CONTROL_SEQ);
+	    continue;
+	}
+	break_badness = tx_tiedness(tos, last_char, s[n]);
+	last_char = s[n];
+	bv = dist_badness + break_badness;
 	if (bv < bv_min) {
 	    bv_min = bv;
 	    bv_pos = n;
+	    bv_col = col;
 	}
 	dist_badness += dist_badness_diff;
+	++col;
     }
-    while (bv_pos > 0 && cutext_iswspace(s[bv_pos - 1]))
+    while (bv_pos > 0 && cutext_iswspace(s[bv_pos - 1])) {
 	--bv_pos;
+	--bv_col;
+    }
     *pos_out = bv_pos;
-    return bv_pos; /* column */
+    return bv_col;
 }
 
 static cu_bool_t
@@ -167,12 +233,13 @@ tx_write_line_wrap(cufo_textstream_t tos)
     size_t len;
     size_t pos_br;
     int col_diff;
+    int text_width = tos->right_margin - tos->left_margin;
 
     len = cu_buffer_content_size(&tos->buf)/sizeof(cu_wchar_t);
     if (tos->cont_eol_insert)
-	len -= tx_wstring_width(tos->cont_eol_insert);
+	text_width -= tx_wstring_width(tos->cont_eol_insert);
     s = cu_buffer_content_start(&tos->buf);
-    col_diff = tx_find_break(tos, s, len, &pos_br);
+    col_diff = tx_find_break(tos, text_width, s, len, &pos_br);
     if (!tx_indent(tos))
 	return cu_false;
     if (!tx_raw_write(tos, s, pos_br))
@@ -181,8 +248,10 @@ tx_write_line_wrap(cufo_textstream_t tos)
 	if (!tx_raw_write(tos, cu_wstring_array(tos->cont_eol_insert),
 			  cu_wstring_length(tos->cont_eol_insert)))
 	    return cu_false;
+    tx_check_buffered_width(tos);
     cu_buffer_incr_content_start(&tos->buf, pos_br*sizeof(cu_wchar_t));
-    tos->col -= col_diff;
+    tos->buffered_width -= col_diff;
+    tx_check_buffered_width(tos);
     tos->is_cont = cu_true;
     return tx_newline(tos);
 }
@@ -197,7 +266,7 @@ tx_write_line_nl(cufo_textstream_t tos)
     if (!tx_raw_write(tos, s, len))
 	return cu_false;
     cu_buffer_clear(&tos->buf);
-    tos->col = 0;
+    tos->buffered_width = 0;
     tos->is_cont = cu_false;
     return tx_newline(tos);
 }
@@ -208,7 +277,7 @@ tx_strip_leading_space(cufo_textstream_t tos)
     cu_wchar_t *s = cu_buffer_content_start(&tos->buf);
     cu_wchar_t *s_end = cu_buffer_content_end(&tos->buf);
     while (s < s_end && cutext_iswspace(*s)) {
-	--tos->col;
+	--tos->buffered_width;
 	++s;
     }
     cu_buffer_set_content_start(&tos->buf, s);
@@ -235,11 +304,11 @@ tx_write(cufo_stream_t fos, void const *req_data, size_t req_size)
 		frag_start = ++s_cur;
 		break;
 	    default:
-		++tos->col;
+		++tos->buffered_width;
 		++s_cur;
 		break;
 	}
-	if (tos->col > usable_width) {
+	if (tos->buffered_width > usable_width) {
 	    cu_buffer_write(&tos->buf, frag_start,
 			    cu_ptr_diff(s_cur, frag_start));
 	    if (!tx_write_line_wrap(tos))
@@ -256,9 +325,12 @@ tx_write(cufo_stream_t fos, void const *req_data, size_t req_size)
 static void
 tx_styler_insert(cufo_textstream_t tos, cu_wstring_t s)
 {
-    /* TODO: Interference with word wrap and sync issues. */
+    static cu_wchar_t const ecs = CUFO_ENTER_CONTROL_SEQ;
+    static cu_wchar_t const lcs = CUFO_LEAVE_CONTROL_SEQ;
+    cu_buffer_write(&tos->buf, &ecs, sizeof(cu_wchar_t));
     cu_buffer_write(&tos->buf, cu_wstring_array(s),
 		    cu_wstring_length(s)*sizeof(cu_wchar_t));
+    cu_buffer_write(&tos->buf, &lcs, sizeof(cu_wchar_t));
 }
 
 static cu_bool_t
@@ -278,6 +350,15 @@ tx_enter(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 	    tx_styler_insert(tos, s);
 	return cu_true;
     }
+    else if (tos->style->default_enter) {
+	cu_wstring_t s = (*tos->style->default_enter)(tos, tag, va);
+	if (s) {
+	    tx_styler_insert(tos, s);
+	    return cu_true;
+	}
+	else
+	    return cu_false;
+    }
     else
 	return cu_false;
 }
@@ -295,6 +376,10 @@ tx_leave(cufo_stream_t fos, cufo_tag_t tag)
 	cu_wstring_t s;
 	styler = cu_from(cufo_textstyler, cucon_hzmap_node, styler_node);
 	s = (*styler->leave)(tos, tag);
+	if (s)
+	    tx_styler_insert(tos, s);
+    } else if (tos->style->default_leave) {
+	cu_wstring_t s = (*tos->style->default_leave)(tos, tag);
 	if (s)
 	    tx_styler_insert(tos, s);
     }
@@ -341,7 +426,7 @@ tx_stream_init(cufo_textstream_t tos, char const *encoding, cu_dsink_t target_si
     cufo_stream_init(cu_to(cufo_stream, tos), encoding, &tx_target);
     cu_buffer_init(&tos->buf, 128);
     tos->sink = target_sink;
-    tos->col = 0;
+    tos->buffered_width = 0;
     tos->is_cont = cu_false;
     tos->style = style;
     tos->tabstop = 8;
