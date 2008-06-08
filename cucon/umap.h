@@ -221,7 +221,7 @@ CU_SINLINE cu_bool_t cucon_umap_find_void(cucon_umap_t map, uintptr_t key)
 
 /*!Call \a cb on each key-value pair in \a map. */
 void cucon_umap_iter_mem(cucon_umap_t map,
-			cu_clop(cb, void, uintptr_t key, void *value));
+			 cu_clop(cb, void, uintptr_t key, void *value));
 /* TODO. cucon_umap_iter_ptr */
 
 cu_bool_t cucon_umap_conj_general(cucon_umap_t map, size_t node_offset,
