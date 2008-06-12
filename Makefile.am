@@ -2,9 +2,7 @@
 #
 culibsdir = $(includedir)/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
 pkgconfigdir = $(libdir)/pkgconfig
-docdir = $(datadir)/doc
-pkgdocdir = $(docdir)/$(PACKAGE_NAME)-$(PACKAGE_VERSION)
-htmldir = $(pkgdocdir)/html
+htmldir = $(docdir)/html
 
 
 # Common Flags

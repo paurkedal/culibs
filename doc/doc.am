@@ -25,7 +25,7 @@ install-doc-doxy: doc/Doxyfile $(all_doxyfiles) doc/fixed_footer.html
 	    input="$$input $$x"; \
 	done; \
 	sed \
-	    -e "s|^OUTPUT_DIRECTORY *=.*|OUTPUT_DIRECTORY = $(DESTDIR)$(pkgdocdir)|" \
+	    -e "s|^OUTPUT_DIRECTORY *=.*|OUTPUT_DIRECTORY = $(DESTDIR)$(docdir)|" \
 	    -e "s|^INPUT *=.*|INPUT =$$input|" \
 	    doc/Doxyfile >doc/Doxyfile.install
 	doxygen doc/Doxyfile.install
@@ -33,11 +33,8 @@ install-doc-doxy: doc/Doxyfile $(all_doxyfiles) doc/fixed_footer.html
 	    && mv index.html frameset.html \
 	    && sed >index.html -r -e 's;(<!--)?/if-noframe/(-->)?;;g' main.html
 	install -m644 $(srcdir)/doc/gplv3-127x51.png '$(DESTDIR)$(htmldir)/'
-	install -m644 doc/culibs.doxytags '$(DESTDIR)$(pkgdocdir)/'
-install-doc-link: install-doc-dirs
-	rm -f $(DESTDIR)$(docdir)/$(PACKAGE_NAME)
-	ln -sf $(PACKAGE_NAME)-$(PACKAGE_VERSION) $(DESTDIR)$(docdir)/$(PACKAGE_NAME)
-install-doc-html:
+	install -m644 doc/culibs.doxytags '$(DESTDIR)$(docdir)/'
+install-doc-html: install-doc-dirs
 	install -m644 $(srcdir)/doc/bdwgc-rn.html $(DESTDIR)$(htmldir)/
 
 doc/fixed_footer.html: doc/culibs_footer.html
