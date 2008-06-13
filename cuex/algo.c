@@ -27,6 +27,7 @@
 #include <cuex/subst.h>
 #include <cuex/compound.h>
 #include <cuex/intf.h>
+#include <cuex/labelling.h>
 #include <cu/memory.h>
 #include <cu/idr.h>
 #include <cu/int.h>
@@ -600,21 +601,69 @@ free_vars_conj(cuex_t ex, cuex_qcset_t qcset, cucon_pset_t excl,
 	if (cuex_og_scoping_contains(meta)) {
 	    size_t i, r = cuex_opr_r(meta);
 	    cuex_t var = cuex_opn_at(ex, 0);
-	    cu_bool_t nonshadow;
 	    cu_debug_assert(cuex_opr_r(meta) > 0);
-	    nonshadow = cucon_pset_insert(excl, var);
-	    for (i = 1; i < r; ++i)
-		if (!free_vars_conj(cuex_opn_at(ex, i), qcset, excl, fn)) {
-		    if (nonshadow)
-			cucon_pset_erase(excl, var);
-		    return cu_false;
+	    if (cuex_is_labelling(var)) {
+		cu_ptr_source_t src;
+		cuex_t pair;
+		size_t var_count;
+		cuex_t *unshadowed_vars;
+
+		src = cuex_labelling_comm_iter_source(var);
+		var_count = cu_ptr_source_count(src);
+		unshadowed_vars = cu_salloc((var_count + 1)*sizeof(cuex_t));
+		unshadowed_vars += var_count;
+		*unshadowed_vars = NULL;
+		src = cuex_labelling_comm_iter_source(var);
+		while ((pair = cu_ptr_source_get(src))) {
+		    cuex_t v = cuex_opn_at(pair, 0);
+		    if (cucon_pset_insert(excl, v))
+			*--unshadowed_vars = v;
 		}
-	    if (nonshadow)
-		cucon_pset_erase(excl, var);
+		src = cuex_labelling_comm_iter_source(var);
+		while ((pair = cu_ptr_source_get(src))) {
+		    cuex_t vp = cuex_opn_at(pair, 1);
+		    if (!free_vars_conj(vp, qcset, excl, fn)) {
+			i = 0;
+			goto failed;
+		    }
+		}
+		for (i = 1; i < r; ++i)
+		    if (!free_vars_conj(cuex_opn_at(ex, i), qcset, excl, fn))
+			break;
+failed:
+		while (*unshadowed_vars)
+		    cucon_pset_erase(excl, *unshadowed_vars++);
+		return i == r;
+	    }
+	    else {
+		cu_bool_t not_shadowed;
+		not_shadowed = cucon_pset_insert(excl, var);
+		for (i = 1; i < r; ++i)
+		    if (!free_vars_conj(cuex_opn_at(ex, i), qcset, excl, fn)) {
+			if (not_shadowed)
+			    cucon_pset_erase(excl, var);
+			return cu_false;
+		    }
+		if (not_shadowed)
+		    cucon_pset_erase(excl, var);
+	    }
 	}
 	else
 	    CUEX_OPN_CONJ_RETURN(meta, ex, subex,
 		    free_vars_conj(subex, qcset, excl, fn));
+    }
+    else if (cuex_meta_is_type(meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(meta);
+	cu_word_t c_impl = cuoo_type_impl(type, CUEX_INTF_COMPOUND);
+	if (c_impl != CUOO_IMPL_NONE) {
+	    cu_ptr_source_t src;
+	    cuex_t ep;
+	    src = cuex_compound_pref_iter_source((cuex_intf_compound_t)c_impl,
+						 ex);
+	    while ((ep = cu_ptr_source_get(src)))
+		if (!free_vars_conj(ep, qcset, excl, fn))
+		    return cu_false;
+	}
     }
     else if (cuex_is_varmeta(meta) &&
 	     cuex_qcset_contains(qcset, cuex_varmeta_qcode(meta))) {

@@ -26,6 +26,7 @@
 #include <cuex/set.h>
 #include <cuex/monoid.h>
 #include <cuoo/intf.h>
+#include <cu/size.h>
 
 
 static cu_mutex_t type_glck = CU_MUTEX_INITIALISER;
@@ -231,6 +232,7 @@ tuptype_finish_sigprod_glck(cudyn_tuptype_t t, cuex_t ex, cuoo_layout_t lyo)
 static void
 tuptype_cct_glck(cudyn_tuptype_t t)
 {
+    size_t size;
     cuoo_layout_t lyo;
     cuex_t ex;
 
@@ -290,9 +292,10 @@ tuptype_cct_glck(cudyn_tuptype_t t)
 	lyo = cuoo_type_layout(t0);
 	cu_debug_assert(lyo);
     }
+    size = cuoo_layout_size(lyo);
     cuoo_type_init_general_hcs(cu_to2(cuoo_type, cudyn_inltype, t),
 			       CUOO_SHAPE_TUPTYPE, cuoo_impl_none, ex,
-			       cuoo_layout_size(lyo));
+			       cu_size_mulceil(size, sizeof(cu_word_t)));
     AO_store_release_write(&cu_to(cudyn_inltype, t)->layout, (AO_t)lyo);
 }
 

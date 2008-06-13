@@ -167,8 +167,13 @@ cuex_t cuex_binary_inject_left(cuex_meta_t opr, cuex_t ex, cuex_t lhs);
  * quantified as one of \a qcset, except for those in \a excl.  \a excl may be
  * \c NULL.  The second argument to \a fn is \a excl augmented with locally
  * bound variables at the current spot.
- * \note
- * \a excl must me local to the thread, as it is modified and restored by the
+ *
+ * A variable which is the first operand of a scoping group, or which is a
+ * label in a labelling at said position, is considered to be bound in the
+ * remaining operands and in the right-hand sides of the labelling.  This
+ * algorithm supports compounds.
+ *
+ * \note \a excl must be thread local, as it is modified and restored by the
  * algorithm. */
 cu_bool_t
 cuex_free_vars_conj(cuex_t ex, cuex_qcset_t qcset, cucon_pset_t excl,
