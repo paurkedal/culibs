@@ -40,7 +40,7 @@ workqseg_end(cuflowP_workqseg_t wqs)
 }
 
 void
-cuflow_workq_cct(cuflow_workq_t wq)
+cuflow_workq_init(cuflow_workq_t wq)
 {
 #if 0
     cuflowP_workqseg_t seg = cu_gnew(struct cuflowP_workqseg_s);

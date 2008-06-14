@@ -57,7 +57,7 @@ struct cuflow_gflexq_entry_s
 };
 
 /*!Construct \a flexq with initial priority \a initpri. */
-void cuflow_gflexq_cct(cuflow_gflexq_t flexq, cuflow_priority_t initpri);
+void cuflow_gflexq_init(cuflow_gflexq_t flexq, cuflow_priority_t initpri);
 
 /*!Return an empty queue with initial priority \a initpri. */
 cuflow_gflexq_t cuflow_gflexq_new(cuflow_priority_t initpri);

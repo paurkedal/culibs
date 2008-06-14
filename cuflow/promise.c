@@ -19,8 +19,8 @@
 #include <cuflow/gflexq.h>
 
 void
-cuflow_promise_cct(cuflow_promise_t promise,
-		   cu_clop(initiator, void, cuflow_promise_t promise))
+cuflow_promise_init(cuflow_promise_t promise,
+		    cu_clop(initiator, void, cuflow_promise_t promise))
 {
     promise->state = cuflow_promise_state_latent;
     promise->u0.initiator = initiator;

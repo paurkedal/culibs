@@ -31,3 +31,16 @@ s/\<cucon_arr_cct_size\>/cucon_arr_init_size/g
 s/\<cucon_parr_cct_empty\>/cucon_parr_init_empty/g
 s/\<cucon_parr_cct_size\>/cucon_parr_init_size/g
 s/\<cucon_parr_cct_fill\>/cucon_parr_init_fill/g
+
+s/\<cuex_subst_cct\>/cuex_subst_init/g
+s/\<cuex_subst_cct_nonidem\>/cuex_subst_init_nonidem/g
+s/\<cuex_subst_cct_uw\>/cuex_subst_cct_uw/g
+s/\<cuex_subst_cct_e\>/cuex_subst_cct_e/g
+s/\<cuex_subst_cct_n\>/cuex_subst_cct_n/g
+s/\<cuex_otab_cct\>/cuex_otab_init/g
+
+s/\<cuflow_promise_cct\>/cuflow_promise_init/g
+s/\<cuflow_gflexq_cct\>/cuflow_gflexq_init/g
+s/\<cuflow_workq_cct\>/cuflow_workq_init/g
+
+s/\<custo_fread_str_cct\>/custo_fread_str_init/g

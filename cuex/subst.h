@@ -96,16 +96,16 @@ struct cuex_subst_s
 
 /*!Construct \a subst where variables of quantisation in \a qcset are
  * unifiable (substitutable). */
-void cuex_subst_cct(cuex_subst_t subst, cuex_qcset_t qcset);
+void cuex_subst_init(cuex_subst_t subst, cuex_qcset_t qcset);
 
-void cuex_subst_cct_nonidem(cuex_subst_t subst, cuex_qcset_t qcset);
+void cuex_subst_init_nonidem(cuex_subst_t subst, cuex_qcset_t qcset);
 
-CU_SINLINE void cuex_subst_cct_uw(cuex_subst_t subst)
-{ cuex_subst_cct(subst, cuex_qcset_uw); }
-CU_SINLINE void cuex_subst_cct_e(cuex_subst_t subst)
-{ cuex_subst_cct(subst, cuex_qcset_e); }
-CU_SINLINE void cuex_subst_cct_n(cuex_subst_t subst)
-{ cuex_subst_cct(subst, cuex_qcset_n); }
+CU_SINLINE void cuex_subst_init_uw(cuex_subst_t subst)
+{ cuex_subst_init(subst, cuex_qcset_uw); }
+CU_SINLINE void cuex_subst_init_e(cuex_subst_t subst)
+{ cuex_subst_init(subst, cuex_qcset_e); }
+CU_SINLINE void cuex_subst_init_n(cuex_subst_t subst)
+{ cuex_subst_init(subst, cuex_qcset_n); }
 
 /*!Return a substitution with \a qcset as the quantisation of
  * variables which are substitutable.  */
@@ -317,6 +317,11 @@ cu_bool_t cuex_subst_mark_all_feedback(cuex_subst_t subst);
 #endif
 
 /*!@}*/
+#define cuex_subst_cct		cuex_subst_init
+#define cuex_subst_cct_nonidem	cuex_subst_init_nonidem
+#define cuex_subst_cct_uw	cuex_subst_init_uw
+#define cuex_subst_cct_e	cuex_subst_init_e
+#define cuex_subst_cct_n	cuex_subst_init_n
 CU_END_DECLARATIONS
 
 #endif

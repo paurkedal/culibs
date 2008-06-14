@@ -24,15 +24,15 @@
 
 CU_BEGIN_DECLARATIONS
 
-cu_bool_fast_t custo_fwrite_uintmax(uintmax_t i, FILE *file);
-cu_bool_fast_t custo_fread_uintmax(uintmax_t *i, FILE *file);
-cu_bool_fast_t custo_fwrite_intmax(intmax_t i, FILE *file);
-cu_bool_fast_t custo_fread_intmax(intmax_t *i, FILE *file);
+cu_bool_t custo_fwrite_uintmax(uintmax_t i, FILE *file);
+cu_bool_t custo_fread_uintmax(uintmax_t *i, FILE *file);
+cu_bool_t custo_fwrite_intmax(intmax_t i, FILE *file);
+cu_bool_t custo_fread_intmax(intmax_t *i, FILE *file);
 
 /* Serialisation of strings */
-cu_bool_fast_t custo_fread_str_cct(cu_str_t str, FILE *file);
+cu_bool_t custo_fread_str_init(cu_str_t str, FILE *file);
 cu_str_t custo_fread_str_new(FILE *file);
-cu_bool_fast_t custo_fwrite_str(cu_str_t str, FILE *file);
+cu_bool_t custo_fwrite_str(cu_str_t str, FILE *file);
 
 CU_END_DECLARATIONS
 

@@ -104,7 +104,7 @@ state_new(int r, cuex_t e)
 	     cucon_listnode_next(cu_to(cucon_listnode, state))))
 
 static void
-block_cct(block_t block)
+block_init(block_t block)
 {
     block->state_count = 0;
     cucon_list_init(&block->state_list);
@@ -411,7 +411,7 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 	/* Locate or create the block */
 	if (cucon_pmap_insert_mem(ekey_to_block, ekey,
 				  sizeof(struct block_s), &block)) {
-	    block_cct(block);
+	    block_init(block);
 	    cu_dprintf("cuex.optimal_fold", "New block %p: %!", block, e);
 	} else
 	    cu_dprintf("cuex.optimal_fold", "Old block %p: %!", block, e);
@@ -483,7 +483,7 @@ refine_partition(int r_max, struct cucon_pset_s *pending_arr)
 		    /* Construct a new block to split j into. */
 		    block_k = cu_gnew(struct block_s);
 		    block_j->target = block_k;
-		    block_cct(block_k);
+		    block_init(block_k);
 
 		    /* Add block j and, by implication from target link, k to
 		     * update chain */
@@ -733,7 +733,7 @@ cuex_optimal_fold(cuex_t e)
     sp_max = cu_salloc(sizeof(struct initial_frame_s)*depth);
     sp_max += depth;
     cucon_pmap_init(&ekey_to_block);
-    block_cct(&lambdavar_block);
+    block_init(&lambdavar_block);
     fvmap = cuex_unfolded_fv_sets(e, -1);
     top_state = initial_partition(e, sp_max, sp_max, &ekey_to_block,
 				  &lambdavar_block, r_max, pending_arr,

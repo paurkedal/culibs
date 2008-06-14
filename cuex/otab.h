@@ -59,9 +59,9 @@ cuex_otab_t cuex_otab_new(int width,
 			  void (*error)(cuex_otab_t tab, cu_sref_t sref,
 					char const *msg, ...));
 
-void cuex_otab_cct(cuex_otab_t tab, int width,
-		   void (*error)(cuex_otab_t tab, cu_sref_t sref,
-				 char const *msg, ...));
+void cuex_otab_init(cuex_otab_t tab, int width,
+		    void (*error)(cuex_otab_t tab, cu_sref_t sref,
+				  char const *msg, ...));
 
 CU_SINLINE void cuex_otab_set_extern(cuex_otab_t tab, cu_bool_t is_extern)
 { tab->is_extern = is_extern; }

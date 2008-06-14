@@ -46,7 +46,7 @@ cuflow_workq_fn_t cuflowP_workq_pop_front(cuflow_workq_t wq);
 void cuflowP_workq_advance_tail(cuflow_workq_t wq);
 
 /*!Construct a work queue. */
-void cuflow_workq_cct(cuflow_workq_t wq);
+void cuflow_workq_init(cuflow_workq_t wq);
 
 /*!Append a task to the end of \a wq. */
 CU_SINLINE void

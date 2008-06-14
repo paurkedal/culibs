@@ -105,7 +105,7 @@ main()
 
     pthread_key_create(&thread_info_key, NULL);
     srand48(time(NULL));
-    cuflow_promise_cct(&promise, initiator);
+    cuflow_promise_init(&promise, initiator);
     for (i_th = 0; i_th < TH_CNT; ++i_th) {
 	struct thread_info_s *ti = &thread_info[i_th];
 	ti->i_th = i_th;

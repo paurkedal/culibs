@@ -73,8 +73,8 @@ struct cuflow_promise_s
 /*!Construct \a promise which will be fulfilled by calling \a initiator
  * and performing any work which it passes onto the work queue of \a
  * promise. */
-void cuflow_promise_cct(cuflow_promise_t promise,
-			cu_clop(initiator, void, cuflow_promise_t));
+void cuflow_promise_init(cuflow_promise_t promise,
+			 cu_clop(initiator, void, cuflow_promise_t));
 
 void cuflowP_promise_process(cuflow_promise_t promise,
 			     cuflow_promise_state_t state);

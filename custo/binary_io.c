@@ -56,7 +56,7 @@
 
 #if 0 /* Encoding 0.  Not in use. */
 
-cu_bool_fast_t
+cu_bool_t
 custo_fwrite_uintmax(uintmax_t n, FILE *out)
 {
 #define MAX_CODED_SIZE (sizeof(uintmax_t)*8/7 + 1)
@@ -72,7 +72,7 @@ custo_fwrite_uintmax(uintmax_t n, FILE *out)
 #undef MAX_CODED_SIZE
 }
 
-cu_bool_fast_t
+cu_bool_t
 custo_fread_uintmax(uintmax_t *pn, FILE *in)
 {
     uintmax_t n = 0;
@@ -87,7 +87,7 @@ custo_fread_uintmax(uintmax_t *pn, FILE *in)
     return cu_true;
 }
 
-cu_bool_fast_t
+cu_bool_t
 custo_fwrite_intmax(intmax_t sn, FILE *out)
 {
 #define MAX_CODED_SIZE (sizeof(uintmax_t)*8/7 + 2)
@@ -112,7 +112,7 @@ custo_fwrite_intmax(intmax_t sn, FILE *out)
 #undef MAX_CODED_SIZE
 }
 
-cu_bool_fast_t
+cu_bool_t
 custo_fread_intmax(intmax_t *pn, FILE *in)
 {
     uintmax_t n;
@@ -136,7 +136,7 @@ custo_fread_intmax(intmax_t *pn, FILE *in)
 
 #else /* Encoding 1. */
 
-cu_bool_fast_t
+cu_bool_t
 custo_fwrite_uintmax(uintmax_t n, FILE *out)
 {
 #define BUF_SIZE (sizeof(uintmax_t) + sizeof(uintmax_t)/8 + 1)
@@ -166,7 +166,7 @@ custo_fwrite_uintmax(uintmax_t n, FILE *out)
 #undef BUF_SIZE
 }
 
-cu_bool_fast_t
+cu_bool_t
 custo_fread_uintmax(uintmax_t *pn, FILE *in)
 {
 #define BUF_SIZE sizeof(uintmax_t)
@@ -205,7 +205,7 @@ custo_fread_uintmax(uintmax_t *pn, FILE *in)
 #undef BUF_SIZE
 }
 
-cu_bool_fast_t
+cu_bool_t
 custo_fwrite_intmax(intmax_t ns, FILE *out)
 {
 #define BUF_SIZE (sizeof(uintmax_t) + sizeof(uintmax_t)/8 + 1)
@@ -238,7 +238,7 @@ custo_fwrite_intmax(intmax_t ns, FILE *out)
 #undef BUF_SIZE
 }
 
-cu_bool_fast_t
+cu_bool_t
 custo_fread_intmax(intmax_t *pn, FILE *in)
 {
 #define BUF_SIZE sizeof(uintmax_t)
@@ -300,8 +300,8 @@ custo_fread_intmax(intmax_t *pn, FILE *in)
 /* Strings
  * ------- */
 
-cu_bool_fast_t
-custo_fread_str_construct(cu_str_t str, FILE *file)
+cu_bool_t
+custo_fread_str_init(cu_str_t str, FILE *file)
 {
     uintmax_t n;
     if (!custo_fread_uintmax(&n, file))
@@ -316,11 +316,11 @@ cu_str_t
 custo_fread_str_new(FILE *file)
 {
     cu_str_t str = cu_gnew(struct cu_str_s);
-    custo_fread_str_construct(str, file);
+    custo_fread_str_init(str, file);
     return str;
 }
 
-cu_bool_fast_t
+cu_bool_t
 custo_fwrite_str(cu_str_t str, FILE *file)
 {
     custo_fwrite_uintmax(str->len, file);

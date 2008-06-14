@@ -34,63 +34,63 @@
 #define FILL_TUB_NUM 2
 #define FILL_TUB_DENOM 3
 
-typedef struct cu_hcset_s *cu_hcset_t;
-typedef struct cu_hcnode_s *cu_hcnode_t;
-typedef union cu_hclink_u cu_hclink_t;
+typedef struct cuooP_hcset_s *cuooP_hcset_t;
+typedef struct cuooP_hcnode_s *cuooP_hcnode_t;
+typedef union cuooP_hclink_u cuooP_hclink_t;
 
-union cu_hclink_u
+union cuooP_hclink_u
 {
-    cu_hcnode_t node;
+    cuooP_hcnode_t node;
     cu_hidden_ptr_t obj;
 };
 
-struct cu_hcnode_s
+struct cuooP_hcnode_s
 {
     cu_hidden_ptr_t obj;
-    cu_hclink_t next;
+    cuooP_hclink_t next;
 };
 
-struct cu_hcset_s
+struct cuooP_hcset_s
 {
     cu_mutex_t mutex;
     size_t mask;
     size_t insert_cnt;
-    cu_hclink_t *arr;
+    cuooP_hclink_t *arr;
 };
 
-static struct cu_hcset_s cuooP_hcset;
+static struct cuooP_hcset_s cuooP_hcset;
 
-CU_SINLINE cu_hclink_t *
-cu_hcset_link(cu_hcset_t hcset, cu_hash_t hash)
+CU_SINLINE cuooP_hclink_t *
+cuooP_hcset_link(cuooP_hcset_t hcset, cu_hash_t hash)
 {
     return &hcset->arr[hcset->mask & hash];
 }
 
 CU_SINLINE void
-cu_hcset_lock(cu_hcset_t hcset)
+cuooP_hcset_lock(cuooP_hcset_t hcset)
 {
     cu_mutex_lock(&hcset->mutex);
 }
 
 CU_SINLINE void
-cu_hcset_unlock(cu_hcset_t hcset)
+cuooP_hcset_unlock(cuooP_hcset_t hcset)
 {
     cu_mutex_unlock(&hcset->mutex);
 }
 
-void cu_hcset_adjust(cu_hcset_t hcset);
+void cuooP_hcset_adjust(cuooP_hcset_t hcset);
 
 static void
-hcset_insert(cu_hcset_t hcset, void *obj)
+hcset_insert(cuooP_hcset_t hcset, void *obj)
 {
     cu_hash_t hash = cuex_key_hash(obj);
-    cu_hclink_t *arr = hcset->arr;
-    cu_hclink_t *new_link = &arr[hash & hcset->mask];
+    cuooP_hclink_t *arr = hcset->arr;
+    cuooP_hclink_t *new_link = &arr[hash & hcset->mask];
     if (new_link->node) {
 	if ((uintptr_t)new_link->node & 1) {  /* tail object */
 	    void *coll_obj = cu_weakptr_get(&new_link->obj);
 	    if (coll_obj) {
-		cu_hcnode_t new_node = cu_gnew(struct cu_hcnode_s);
+		cuooP_hcnode_t new_node = cu_gnew(struct cuooP_hcnode_s);
 		cu_weakptr_dct_even(&new_link->obj);
 		cu_weakptr_init(&new_node->obj, obj);
 		cu_weakptr_init(&new_node->next.obj, coll_obj);
@@ -100,7 +100,7 @@ hcset_insert(cu_hcset_t hcset, void *obj)
 		cu_weakptr_set_even(&new_link->obj, obj);
 	}
 	else {
-	    cu_hcnode_t new_node = cu_gnew(struct cu_hcnode_s);
+	    cuooP_hcnode_t new_node = cu_gnew(struct cuooP_hcnode_s);
 	    cu_weakptr_init(&new_node->obj, obj);
 	    new_node->next.node = new_link->node;
 	    new_link->node = new_node;
@@ -111,13 +111,13 @@ hcset_insert(cu_hcset_t hcset, void *obj)
 }
 
 static void
-hcset_resize_locked(cu_hcset_t hcset, size_t cnt)
+hcset_resize_locked(cuooP_hcset_t hcset, size_t cnt)
 {
     size_t size = cu_ulong_exp2_ceil_log2(3*cnt);
     size_t mask = size - 1;
-    cu_hclink_t *arr = cu_galloc(sizeof(void *)*size);
-    cu_hclink_t *link;
-    cu_hclink_t *link_end;
+    cuooP_hclink_t *arr = cu_galloc(sizeof(void *)*size);
+    cuooP_hclink_t *link;
+    cuooP_hclink_t *link_end;
     memset(arr, 0, sizeof(void *)*size);
     link = hcset->arr;
     link_end = link + hcset->mask + 1;
@@ -125,9 +125,9 @@ hcset_resize_locked(cu_hcset_t hcset, size_t cnt)
     hcset->mask = mask;
     while (link != link_end) {
 	void *obj;
-	cu_hclink_t *l = link;
+	cuooP_hclink_t *l = link;
 	while (((uintptr_t)l->node & 1) == 0) {  /* nodes (or NULL) */
-	    cu_hcnode_t node = l->node;
+	    cuooP_hcnode_t node = l->node;
 	    if (!node)
 		goto next_link;
 	    obj = cu_weakptr_get(&node->obj);
@@ -146,19 +146,19 @@ hcset_resize_locked(cu_hcset_t hcset, size_t cnt)
 }
 
 void
-cu_hcset_adjust(cu_hcset_t hcset)
+cuooP_hcset_adjust(cuooP_hcset_t hcset)
 {
-    cu_hclink_t *link = hcset->arr;
-    cu_hclink_t *link_end = link + hcset->mask + 1;
+    cuooP_hclink_t *link = hcset->arr;
+    cuooP_hclink_t *link_end = link + hcset->mask + 1;
     size_t cnt = 0;
     size_t cap;
-    cu_hcset_lock(hcset);
+    cuooP_hcset_lock(hcset);
 
     /* Remove links for disappeared objects, and count the remaining. */
     while (link != link_end) {
-	cu_hclink_t *l = link;
+	cuooP_hclink_t *l = link;
 	while (((uintptr_t)l->node & 1) == 0) {  /* loop over collision links */
-	    cu_hcnode_t node = l->node;
+	    cuooP_hcnode_t node = l->node;
 	    if (!node)
 		goto next_link;
 	    if (!node->obj) {
@@ -193,27 +193,27 @@ cu_hcset_adjust(cu_hcset_t hcset)
 	hcset_resize_locked(hcset,
 		cu_ulong_exp2_ceil_log2(cnt*FILL_TUB_DENOM/FILL_TUB_NUM));
     hcset->insert_cnt = 0;
-    cu_hcset_unlock(hcset);
+    cuooP_hcset_unlock(hcset);
 }
 
 static void *
 halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
        cu_clop(init_nonkey, void, void *))
 {
-    cu_hcobj_t obj;
+    cuooP_hcobj_t obj;
     cu_hash_t hash = cu_wordarr_hash(key_sizew, key, meta);
-    cu_hclink_t *link;
+    cuooP_hclink_t *link;
     cu_hidden_ptr_t *obj_link = NULL;
-    cu_hcnode_t node;
+    cuooP_hcnode_t node;
 
-    cu_hcset_lock(&cuooP_hcset);
-    link = cu_hcset_link(&cuooP_hcset, hash);
+    cuooP_hcset_lock(&cuooP_hcset);
+    link = cuooP_hcset_link(&cuooP_hcset, hash);
     while (((uintptr_t)(node = link->node) & 1) == 0 && node) {
 	obj = cu_weakptr_get(&node->obj);
 	if (obj) {
 	    if (cuex_meta(obj) == meta
 		    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
-		cu_hcset_unlock(&cuooP_hcset);
+		cuooP_hcset_unlock(&cuooP_hcset);
 		return obj;
 	    }
 	}
@@ -226,12 +226,12 @@ halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
 	if (obj) {
 	    if (cuex_meta(obj) == meta
 		    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
-		cu_hcset_unlock(&cuooP_hcset);
+		cuooP_hcset_unlock(&cuooP_hcset);
 		return obj;
 	    }
 	    else if (!obj_link) {
 		cu_weakptr_clear_even(&link->obj);
-		node = cu_gnew(struct cu_hcnode_s);
+		node = cu_gnew(struct cuooP_hcnode_s);
 		cu_weakptr_init(&node->obj, obj);
 		link->node = node;
 		obj_link = &node->next.obj;
@@ -246,9 +246,9 @@ halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
     cu_call(init_nonkey, obj);
     cu_weakptr_init(obj_link, obj);
     ++cuooP_hcset.insert_cnt;
-    cu_hcset_unlock(&cuooP_hcset);
+    cuooP_hcset_unlock(&cuooP_hcset);
     if (cuooP_hcset.insert_cnt*4 > cuooP_hcset.mask)
-	cu_hcset_adjust(&cuooP_hcset);
+	cuooP_hcset_adjust(&cuooP_hcset);
     return obj;
 }
 

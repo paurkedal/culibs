@@ -54,9 +54,9 @@ cu_clop_def(simplerange_cmp, int, void *lhs, void *rhs)
 }
 
 static cu_bool_t
-simplerange_cct(cuex_otab_t tab, cuex_otab_simplerange_t self,
-		cuex_otab_range_t super,
-		cuex_meta_t rel_min, cuex_meta_t rel_maxp1);
+simplerange_init(cuex_otab_t tab, cuex_otab_simplerange_t self,
+		 cuex_otab_range_t super,
+		 cuex_meta_t rel_min, cuex_meta_t rel_maxp1);
 
 
 static cuex_otab_def_t
@@ -82,8 +82,8 @@ otab_allocdef(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
 }
 
 void
-cuex_otab_cct(cuex_otab_t tab, int width,
-	      void (*error)(cuex_otab_t, cu_sref_t, char const *msg, ...))
+cuex_otab_init(cuex_otab_t tab, int width,
+	       void (*error)(cuex_otab_t, cu_sref_t, char const *msg, ...))
 {
     cuex_otab_range_t all;
     cucon_pmap_init(&tab->env);
@@ -110,7 +110,7 @@ cuex_otab_new(int width,
 	      void (*error)(cuex_otab_t, cu_sref_t, char const *msg, ...))
 {
     cuex_otab_t tab = cu_gnew(struct cuex_otab_s);
-    cuex_otab_cct(tab, width, error);
+    cuex_otab_init(tab, width, error);
     return tab;
 }
 
@@ -139,9 +139,9 @@ report_conflict(cuex_otab_t tab,
 }
 
 static cu_bool_t
-simplerange_cct(cuex_otab_t tab, cuex_otab_simplerange_t self,
-		cuex_otab_range_t super,
-		cuex_meta_t min, cuex_meta_t maxp1)
+simplerange_init(cuex_otab_t tab, cuex_otab_simplerange_t self,
+		 cuex_otab_range_t super,
+		 cuex_meta_t min, cuex_meta_t maxp1)
 {
     cu_bool_t status = cu_true;
     cuex_otab_simplerange_t below, equal, above;
@@ -196,8 +196,8 @@ cuex_otab_defrange(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
     if (!def)
 	return NULL;
     rng = cu_from2(cuex_otab_range, cuex_otab_simplerange, cuex_otab_def, def);
-    if (!simplerange_cct(tab, cu_to(cuex_otab_simplerange, rng),
-			 super, rel_min, rel_maxp1))
+    if (!simplerange_init(tab, cu_to(cuex_otab_simplerange, rng),
+			  super, rel_min, rel_maxp1))
 	return NULL;
     cucon_list_init(&rng->prop_list);
     cucon_list_init(&rng->opr_list);
@@ -258,8 +258,8 @@ cuex_otab_reserve(cuex_otab_t tab, cu_sref_t sref, cuex_otab_range_t super,
 			sizeof(struct cuex_otab_reservation_s));
     rsv = cu_from2(cuex_otab_reservation, cuex_otab_simplerange,
 		   cuex_otab_def, def);
-    if (!simplerange_cct(tab, cu_to(cuex_otab_simplerange, rsv),
-			 super, rel_min, rel_maxp1))
+    if (!simplerange_init(tab, cu_to(cuex_otab_simplerange, rsv),
+			  super, rel_min, rel_maxp1))
 	return cu_false;
     rsv->is_full = is_full;
     cucon_arr_init_empty(&rsv->freemask);
@@ -574,7 +574,7 @@ print_std_range(cuex_otab_t otab, cuex_otab_range_t range,
 	else
 	    fprintf(out_c,
 		    "  {CUCON_UMAP_NODE_INIT(%s%s), \"%s\", "
-		    "%s_cache_size, %s_cache_cct, %d},\n",
+		    "%s_cache_size, %s_cache_init, %d},\n",
 		    opr_ucname, arity0_arg, opr_name,
 		    opr_name, opr_name, flags);
 

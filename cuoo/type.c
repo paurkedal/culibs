@@ -261,7 +261,7 @@ cuoo_prop_set(cuex_t ex, cuoo_propkey_t key, void *val)
 {
     uintptr_t *props;
     size_t req_size = sizeof(uintptr_t)*cuooP_next_propkey;
-    cu_hcobj_set_has_prop(ex);
+    cuooP_hcobj_set_has_prop(ex);
     cu_mutex_lock(&cuooP_property_mutex);
     if (cucon_umap_insert_mem(&cuooP_property_map, ~(uintptr_t)ex,
 			      req_size, &props)) {

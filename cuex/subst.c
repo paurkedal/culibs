@@ -106,8 +106,8 @@ static void cuexP_subst_check(cuex_subst_t subst);
  * ------------ */
 
 CU_SINLINE void
-cuexP_subst_cct(cuex_subst_t subst, cuex_subst_t src_subst,
-		cuex_qcset_t qcset, cu_bool_t is_idem)
+cuexP_subst_init(cuex_subst_t subst, cuex_subst_t src_subst,
+		 cuex_qcset_t qcset, cu_bool_t is_idem)
 {
     subst->clone_cnt = 1;
     subst->shadow_access_cnt = 0;
@@ -118,30 +118,30 @@ cuexP_subst_cct(cuex_subst_t subst, cuex_subst_t src_subst,
 }
 
 void
-cuex_subst_cct(cuex_subst_t subst, cuex_qcset_t qcset)
+cuex_subst_init(cuex_subst_t subst, cuex_qcset_t qcset)
 {
-    cuexP_subst_cct(subst, NULL, qcset, cu_true);
+    cuexP_subst_init(subst, NULL, qcset, cu_true);
 }
 
 cuex_subst_t
 cuex_subst_new(cuex_qcset_t qcset)
 {
     cuex_subst_t subst = cu_gnew(struct cuex_subst_s);
-    cuexP_subst_cct(subst, NULL, qcset, cu_true);
+    cuexP_subst_init(subst, NULL, qcset, cu_true);
     return subst;
 }
 
 void
-cuex_subst_cct_nonidem(cuex_subst_t subst, cuex_qcset_t qcset)
+cuex_subst_init_nonidem(cuex_subst_t subst, cuex_qcset_t qcset)
 {
-    cuexP_subst_cct(subst, NULL, qcset, cu_false);
+    cuexP_subst_init(subst, NULL, qcset, cu_false);
 }
 
 cuex_subst_t
 cuex_subst_new_nonidem(cuex_qcset_t qcset)
 {
     cuex_subst_t subst = cu_gnew(struct cuex_subst_s);
-    cuexP_subst_cct(subst, NULL, qcset, cu_false);
+    cuexP_subst_init(subst, NULL, qcset, cu_false);
     return subst;
 }
 
@@ -152,12 +152,12 @@ cuex_subst_new_clone(cuex_subst_t src_subst, cuex_qcset_t qcset)
     while (src_subst && cucon_pmap_size(&src_subst->var_to_veqv) == 0)
 	src_subst = src_subst->shadowed;
     if (src_subst) {
-	cuexP_subst_cct(subst, src_subst, qcset, src_subst->is_idem);
+	cuexP_subst_init(subst, src_subst, qcset, src_subst->is_idem);
 	++src_subst->clone_cnt;
 	cu_debug_assert(qcset == src_subst->qcset);
     }
     else
-	cuexP_subst_cct(subst, src_subst, qcset, cu_true);
+	cuexP_subst_init(subst, src_subst, qcset, cu_true);
     return subst;
 }
 

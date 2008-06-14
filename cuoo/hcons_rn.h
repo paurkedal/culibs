@@ -54,21 +54,21 @@ CU_BEGIN_DECLARATIONS
  * granularity to avoid wasting cache.
  *
  * 32 bit platforms (using cu_rarex_t):
- *     sizeof(struct cu_hcset_s) = 64 bytes
+ *     sizeof(struct cuooP_hcset_s) = 64 bytes
  *     CU_HCSET_LOG_CNT = 4:  16 hash sets gives 1 kiB
  *     CU_HCSET_LOG_CNT = 7: 128 hash sets gives 8 kiB
  * 64 bit platforms (using cu_rarex_t):
- *     sizeof(struct cu_hcset_s) = 128 bytes
+ *     sizeof(struct cuooP_hcset_s) = 128 bytes
  *     CU_HCSET_LOG_CNT = 4:  16 hash sets gives  2 kiB
  *     CU_HCSET_LOG_CNT = 7: 128 hash sets gives 16 kiB
  */
 #define CU_HCSET_CNT (1 << CU_HCSET_LOG_CNT)
 
-typedef struct cu_hcset_s *cu_hcset_t;
-struct cu_hcset_s
+typedef struct cuooP_hcset_s *cuooP_hcset_t;
+struct cuooP_hcset_s
 {
     size_t mask;
-    cu_hcobj_t *arr;
+    cuooP_hcobj_t *arr;
     size_t cnt;
 #ifdef CUCONF_ENABLE_THREADS
 # if CU_HCSET_USE_RAREX
@@ -78,31 +78,31 @@ struct cu_hcset_s
 # endif
 #endif
 };
-extern struct cu_hcset_s cuooP_hcset[CU_HCSET_CNT];
+extern struct cuooP_hcset_s cuooP_hcset_arr[CU_HCSET_CNT];
 
 #if CUOO_HC_GENERATION
 
 extern AO_t cuooP_hcons_generation;
 
 CU_SINLINE cu_bool_t
-cu_hcobj_is_marked(cu_hcobj_t obj)
+cuooP_hcobj_is_marked(cuooP_hcobj_t obj)
 { return obj->generation >= AO_load_read(&cuooP_hcons_generation); }
 
 CU_SINLINE void
-cu_hcobj_unmark_lck(cu_hcobj_t obj)
+cuooP_hcobj_unmark_lck(cuooP_hcobj_t obj)
 {}
 
 CU_SINLINE void
-cu_hcobj_mark_lck(cu_hcobj_t obj)
+cuooP_hcobj_mark_lck(cuooP_hcobj_t obj)
 { obj->generation = AO_load_read(&cuooP_hcons_generation)
 		  | (obj->generation & 1); }
 
 CU_SINLINE void
-cu_hcobj_set_has_prop(cu_hcobj_t obj)
+cuooP_hcobj_set_has_prop(cuooP_hcobj_t obj)
 { AO_or(&obj->generation, 1); }
 
 CU_SINLINE cu_bool_t
-cu_hcobj_has_prop(cu_hcobj_t obj)
+cuooP_hcobj_has_prop(cuooP_hcobj_t obj)
 { return obj->generation & 1; }
 
 #elif CUOO_HC_USE_GC_MARK
@@ -111,109 +111,109 @@ int GC_is_marked(void *);
 void GC_set_mark_bit(void *);
 
 CU_SINLINE cu_bool_t
-cu_hcobj_is_marked(cu_hcobj_t obj)
+cuooP_hcobj_is_marked(cuooP_hcobj_t obj)
 { return GC_is_marked(obj); }
 
 CU_SINLINE void
-cu_hcobj_unmark_lck(cu_hcobj_t obj)
+cuooP_hcobj_unmark_lck(cuooP_hcobj_t obj)
 {}
 
 CU_SINLINE void
-cu_hcobj_mark_lck(cu_hcobj_t obj)
+cuooP_hcobj_mark_lck(cuooP_hcobj_t obj)
 { GC_set_mark_bit(obj); }
 
 #else
 
 CU_SINLINE cu_bool_t
-cu_hcobj_is_marked(cu_hcobj_t obj)
+cuooP_hcobj_is_marked(cuooP_hcobj_t obj)
 { return ((uintptr_t)obj->hcset_next & 1); }
 
 CU_SINLINE void
-cu_hcobj_unmark_lck(cu_hcobj_t obj)
+cuooP_hcobj_unmark_lck(cuooP_hcobj_t obj)
 { obj->hcset_next = obj->hcset_next & ~(AO_t)1; }
 
 CU_SINLINE void
-cu_hcobj_mark_lck(cu_hcobj_t obj)
+cuooP_hcobj_mark_lck(cuooP_hcobj_t obj)
 { obj->hcset_next = obj->hcset_next | 1; }
 
 CU_SINLINE void
-cu_hcobj_set_has_prop(cu_hcobj_t obj)
+cuooP_hcobj_set_has_prop(cuooP_hcobj_t obj)
 { AO_or(&obj->hcset_next, 2); }
 
 CU_SINLINE cu_bool_t
-cu_hcobj_has_prop(cu_hcobj_t obj)
+cuooP_hcobj_has_prop(cuooP_hcobj_t obj)
 { return obj->hcset_next & 2; }
 
 #endif
 
 
-void cu_hcset_cct(cu_hcset_t hcset);
+void cuooP_hcset_init(cuooP_hcset_t hcset);
 
-CU_SINLINE cu_hcset_t
-cu_hcset(cu_hash_t hash)
+CU_SINLINE cuooP_hcset_t
+cuooP_hcset(cu_hash_t hash)
 {
 #if CU_HCSET_CNT > 1
-    return &cuooP_hcset[hash >> (sizeof(cu_hash_t)*8 - CU_HCSET_LOG_CNT)];
+    return &cuooP_hcset_arr[hash >> (sizeof(cu_hash_t)*8 - CU_HCSET_LOG_CNT)];
 #else
-    return &cuooP_hcset[0];
+    return &cuooP_hcset_arr[0];
 #endif
 }
 
 #ifdef CUCONF_ENABLE_THREADS
 # if CU_HCSET_USE_RAREX
-CU_SINLINE void		cu_hcset_lock_read(cu_hcset_t hcset)
+CU_SINLINE void		cuooP_hcset_lock_read(cuooP_hcset_t hcset)
 { cu_rarex_lock_read(&hcset->rarex); }
-CU_SINLINE void		cu_hcset_unlock_read(cu_hcset_t hcset)
+CU_SINLINE void		cuooP_hcset_unlock_read(cuooP_hcset_t hcset)
 { cu_rarex_unlock_read(&hcset->rarex); }
-CU_SINLINE void		cu_hcset_lock_write(cu_hcset_t hcset)
+CU_SINLINE void		cuooP_hcset_lock_write(cuooP_hcset_t hcset)
 { cu_rarex_lock_write(&hcset->rarex); }
-CU_SINLINE cu_bool_t	cu_hcset_trylock_write(cu_hcset_t hcset)
+CU_SINLINE cu_bool_t	cuooP_hcset_trylock_write(cuooP_hcset_t hcset)
 { return cu_rarex_trylock_write(&hcset->rarex); }
-CU_SINLINE void		cu_hcset_unlock_write(cu_hcset_t hcset)
+CU_SINLINE void		cuooP_hcset_unlock_write(cuooP_hcset_t hcset)
 { cu_rarex_unlock_write(&hcset->rarex); }
-CU_SINLINE cu_bool_t	cu_hcset_try_promote_lock(cu_hcset_t hcset)
+CU_SINLINE cu_bool_t	cuooP_hcset_try_promote_lock(cuooP_hcset_t hcset)
 { return cu_rarex_try_promote(&hcset->rarex); }
 # else
-CU_SINLINE void		cu_hcset_lock_read(cu_hcset_t hcset)
+CU_SINLINE void		cuooP_hcset_lock_read(cuooP_hcset_t hcset)
 { cu_mutex_lock(&hcset->mutex); }
-CU_SINLINE void		cu_hcset_unlock_read(cu_hcset_t hcset)
+CU_SINLINE void		cuooP_hcset_unlock_read(cuooP_hcset_t hcset)
 { cu_mutex_unlock(&hcset->mutex); }
-CU_SINLINE void		cu_hcset_lock_write(cu_hcset_t hcset)
+CU_SINLINE void		cuooP_hcset_lock_write(cuooP_hcset_t hcset)
 { cu_mutex_lock(&hcset->mutex); }
-CU_SINLINE cu_bool_t	cu_hcset_trylock_write(cu_hcset_t hcset)
+CU_SINLINE cu_bool_t	cuooP_hcset_trylock_write(cuooP_hcset_t hcset)
 { return cu_mutex_trylock(&hcset->mutex); }
-CU_SINLINE void		cu_hcset_unlock_write(cu_hcset_t hcset)
+CU_SINLINE void		cuooP_hcset_unlock_write(cuooP_hcset_t hcset)
 { cu_mutex_unlock(&hcset->mutex); }
-CU_SINLINE cu_bool_t	cu_hcset_try_promote_lock(cu_hcset_t hcset)
+CU_SINLINE cu_bool_t	cuooP_hcset_try_promote_lock(cuooP_hcset_t hcset)
 { return cu_true; }
 # endif
 #else
-CU_SINLINE void		cu_hcset_lock_read(cu_hcset_t hcset) {}
-CU_SINLINE void		cu_hcset_unlock_read(cu_hcset_t hcset) {}
-CU_SINLINE void		cu_hcset_lock_write(cu_hcset_t hcset) {}
-CU_SINLINE cu_bool_t	cu_hcset_trylock_write(cu_hcset_t hcset)
+CU_SINLINE void		cuooP_hcset_lock_read(cuooP_hcset_t hcset) {}
+CU_SINLINE void		cuooP_hcset_unlock_read(cuooP_hcset_t hcset) {}
+CU_SINLINE void		cuooP_hcset_lock_write(cuooP_hcset_t hcset) {}
+CU_SINLINE cu_bool_t	cuooP_hcset_trylock_write(cuooP_hcset_t hcset)
 { return cu_true; }
-CU_SINLINE void		cu_hcset_unlock_write(cu_hcset_t hcset) {}
-CU_SINLINE cu_bool_t	cu_hcset_try_promote_lock(cu_hcset_t hcset)
+CU_SINLINE void		cuooP_hcset_unlock_write(cuooP_hcset_t hcset) {}
+CU_SINLINE cu_bool_t	cuooP_hcset_try_promote_lock(cuooP_hcset_t hcset)
 { return cu_true; }
 #endif
 
 #if !CUOO_HC_ADJUST_IN_INSERT_ERASE
-void cu_hcset_adjust(cu_hcset_t hcset);
-void cu_hcset_adjust_wlck(cu_hcset_t hcset);
+void cuooP_hcset_adjust(cuooP_hcset_t hcset);
+void cuooP_hcset_adjust_wlck(cuooP_hcset_t hcset);
 #endif
 
-CU_SINLINE cu_hcobj_t
-cu_hcset_hasheqv_begin(cu_hcset_t hcset, cu_hash_t hash)
+CU_SINLINE cuooP_hcobj_t
+cuooP_hcset_hasheqv_begin(cuooP_hcset_t hcset, cu_hash_t hash)
 { return hcset->arr[hash & hcset->mask]; }
 
-CU_SINLINE cu_hcobj_t
-cu_hcset_hasheqv_next(cu_hcobj_t obj)
+CU_SINLINE cuooP_hcobj_t
+cuooP_hcset_hasheqv_next(cuooP_hcobj_t obj)
 {
 #if CUOO_HC_GENERATION || CUOO_HC_USE_GC_MARK
-    return (cu_hcobj_t)~obj->hcset_next;
+    return (cuooP_hcobj_t)~obj->hcset_next;
 #else
-    return (cu_hcobj_t)~(obj->hcset_next | 3);
+    return (cuooP_hcobj_t)~(obj->hcset_next | 3);
 #endif
 }
 

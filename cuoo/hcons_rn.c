@@ -54,7 +54,7 @@ static int_least64_t _noncoll_count = 0;
 #endif
 
 void
-cu_hcset_cct(cu_hcset_t hcset)
+cuooP_hcset_init(cuooP_hcset_t hcset)
 {
     hcset->mask = CAP_MIN - 1;
     hcset->arr = ARR_ALLOC(sizeof(void *)*CAP_MIN);
@@ -70,22 +70,22 @@ cu_hcset_cct(cu_hcset_t hcset)
 }
 
 static void
-cu_hcset_shrink_wlck(cu_hcset_t hcset, size_t new_cap, cu_hcobj_t *new_arr)
+cuooP_hcset_shrink_wlck(cuooP_hcset_t hcset, size_t new_cap, cuooP_hcobj_t *new_arr)
 {
     cu_hash_t hash;
     size_t old_cap = hcset->mask + 1;
     size_t new_mask = new_cap - 1;
-    cu_hcobj_t *old_arr = hcset->arr;
-    cu_hcobj_t *old_arr_end = old_arr + old_cap;
+    cuooP_hcobj_t *old_arr = hcset->arr;
+    cuooP_hcobj_t *old_arr_end = old_arr + old_cap;
     cu_debug_assert(0 < new_cap && new_cap < old_cap);
     memset(new_arr, 0, sizeof(void *)*new_cap);
     cu_debug_inform("New cap = %d\n", new_cap);
     hash = 0;
     while (old_arr != old_arr_end) {
-	cu_hcobj_t obj = *old_arr;
+	cuooP_hcobj_t obj = *old_arr;
 	while (obj) {
-	    cu_hcobj_t next_obj = cu_hcset_hasheqv_next(obj);
-	    cu_hcobj_t *p = &new_arr[hash & new_mask];
+	    cuooP_hcobj_t next_obj = cuooP_hcset_hasheqv_next(obj);
+	    cuooP_hcobj_t *p = &new_arr[hash & new_mask];
 	    cu_debug_assert(GC_base(obj) == (void *)obj - sizeof(cuex_meta_t));
 #if CUOO_HC_GENERATION || CUOO_HC_USE_GC_MARK
 	    obj->hcset_next = ~(AO_t)*p;
@@ -104,21 +104,21 @@ cu_hcset_shrink_wlck(cu_hcset_t hcset, size_t new_cap, cu_hcobj_t *new_arr)
 }
 
 static void
-cu_hcset_grow_wlck(cu_hcset_t hcset, size_t new_cap, cu_hcobj_t *new_arr)
+cuooP_hcset_grow_wlck(cuooP_hcset_t hcset, size_t new_cap, cuooP_hcobj_t *new_arr)
 {
     size_t old_cap = hcset->mask + 1;
     size_t new_mask = new_cap - 1;
-    cu_hcobj_t *old_arr = hcset->arr;
-    cu_hcobj_t *old_arr_end = old_arr + old_cap;
+    cuooP_hcobj_t *old_arr = hcset->arr;
+    cuooP_hcobj_t *old_arr_end = old_arr + old_cap;
     cu_debug_assert(new_cap > old_cap);
     memset(new_arr, 0, sizeof(void *)*new_cap);
     cu_debug_inform("New cap = %d\n", new_cap);
     while (old_arr != old_arr_end) {
-	cu_hcobj_t obj = *old_arr;
+	cuooP_hcobj_t obj = *old_arr;
 	while (obj) {
-	    cu_hcobj_t next_obj = cu_hcset_hasheqv_next(obj);
+	    cuooP_hcobj_t next_obj = cuooP_hcset_hasheqv_next(obj);
 	    cu_hash_t hash = cuex_key_hash(obj);
-	    cu_hcobj_t *p = &new_arr[hash & new_mask];
+	    cuooP_hcobj_t *p = &new_arr[hash & new_mask];
 	    cu_debug_assert(GC_base(obj) == (void *)obj - sizeof(cuex_meta_t));
 #if CUOO_HC_GENERATION || CUOO_HC_USE_GC_MARK
 	    obj->hcset_next = ~(AO_t)*p;
@@ -136,26 +136,26 @@ cu_hcset_grow_wlck(cu_hcset_t hcset, size_t new_cap, cu_hcobj_t *new_arr)
 }
 
 void
-cu_hcset_adjust_wlck(cu_hcset_t hcset)
+cuooP_hcset_adjust_wlck(cuooP_hcset_t hcset)
 {
     size_t mask, cnt, new_cap;
-    cu_hcobj_t *new_arr;
+    cuooP_hcobj_t *new_arr;
     mask = hcset->mask;
     cnt = hcset->cnt;
     if (cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER) {
 	new_cap = (mask + 1)*2;
-	new_arr = ARR_ALLOC(sizeof(cu_hcobj_t *)*new_cap);
-	cu_hcset_grow_wlck(hcset, new_cap, new_arr);
+	new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
+	cuooP_hcset_grow_wlck(hcset, new_cap, new_arr);
     }
     else if (cnt*FILL_MIN_DENOM < mask*FILL_MIN_NUMER && mask > CAP_MIN) {
 	new_cap = cu_ulong_exp2_ceil_log2(cnt*FILL_MIN_DENOM/FILL_MIN_NUMER);
-	new_arr = ARR_ALLOC(sizeof(cu_hcobj_t *)*new_cap);
-	cu_hcset_shrink_wlck(hcset, new_cap, new_arr);
+	new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
+	cuooP_hcset_shrink_wlck(hcset, new_cap, new_arr);
     }
 }
 
 void
-cu_hcset_adjust(cu_hcset_t hcset)
+cuooP_hcset_adjust(cuooP_hcset_t hcset)
 {
 #if 0
     /* This version makes a tentative choice whether to resize by reading from
@@ -166,30 +166,30 @@ cu_hcset_adjust(cu_hcset_t hcset)
     size_t cnt = hcset->cnt;
     if (cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER) {
 	size_t new_cap = (mask + 1)*2;
-	cu_hcobj_t *new_arr = ARR_ALLOC(sizeof(void *)*new_cap);
-	cu_hcset_lock_write(hcset);
+	cuooP_hcobj_t *new_arr = ARR_ALLOC(sizeof(void *)*new_cap);
+	cuooP_hcset_lock_write(hcset);
 	if (hcset->cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER &&
 	    new_cap - 1 > hcset->mask) {
-	    cu_hcset_grow_wlck(hcset, new_cap, new_arr);
-	    cu_hcset_unlock_write(hcset);
+	    cuooP_hcset_grow_wlck(hcset, new_cap, new_arr);
+	    cuooP_hcset_unlock_write(hcset);
 	}
 	else {
-	    cu_hcset_unlock_write(hcset);
+	    cuooP_hcset_unlock_write(hcset);
 	    ARR_FREE(new_arr);
 	}
     }
     else if (cnt*FILL_MIN_DENOM < mask*FILL_MIN_NUMER && mask > CAP_MIN) {
 	size_t new_cap
 	    = cu_ulong_exp2_ceil_log2(cnt*FILL_MIN_DENOM/FILL_MIN_NUMER);
-	cu_hcobj_t *new_arr = ARR_ALLOC(sizeof(void *)*new_cap);
-	cu_hcset_lock_write(hcset);
+	cuooP_hcobj_t *new_arr = ARR_ALLOC(sizeof(void *)*new_cap);
+	cuooP_hcset_lock_write(hcset);
 	if (hcset->cnt*FILL_MIN_DENOM < hcset->mask*FILL_MIN_NUMER &&
 	    new_cap - 1 < hcset->mask) {
-	    cu_hcset_shrink_wlck(hcset, new_cap, new_arr);
-	    cu_hcset_unlock_write(hcset);
+	    cuooP_hcset_shrink_wlck(hcset, new_cap, new_arr);
+	    cuooP_hcset_unlock_write(hcset);
 	}
 	else {
-	    cu_hcset_unlock_write(hcset);
+	    cuooP_hcset_unlock_write(hcset);
 	    ARR_FREE(new_arr);
 	}
     }
@@ -205,8 +205,8 @@ cu_hcset_adjust(cu_hcset_t hcset)
      * reclaims from pages it needs for a specific allocation, it is safe.  In
      * any case the malloc option (see top) should be safe. */
     size_t mask, cnt, new_cap;
-    cu_hcobj_t *new_arr;
-    cu_hcset_lock_read(hcset);
+    cuooP_hcobj_t *new_arr;
+    cuooP_hcset_lock_read(hcset);
     mask = hcset->mask;
     cnt = hcset->cnt;
     if (cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER)
@@ -214,35 +214,35 @@ cu_hcset_adjust(cu_hcset_t hcset)
     else if (cnt*FILL_MIN_DENOM < mask*FILL_MIN_NUMER && mask > CAP_MIN)
 	new_cap = cu_ulong_exp2_ceil_log2(cnt*FILL_MIN_DENOM/FILL_MIN_NUMER);
     else {
-	cu_hcset_unlock_read(hcset);
+	cuooP_hcset_unlock_read(hcset);
 	return;
     }
-    if (!cu_hcset_try_promote_lock(hcset)) {
-	cu_hcset_unlock_read(hcset);
+    if (!cuooP_hcset_try_promote_lock(hcset)) {
+	cuooP_hcset_unlock_read(hcset);
 	return;
     }
-    new_arr = ARR_ALLOC(sizeof(cu_hcobj_t *)*new_cap);
+    new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
     if (cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER)
-	cu_hcset_grow_wlck(hcset, new_cap, new_arr);
+	cuooP_hcset_grow_wlck(hcset, new_cap, new_arr);
     else
-	cu_hcset_shrink_wlck(hcset, new_cap, new_arr);
-    cu_hcset_unlock_write(hcset);
+	cuooP_hcset_shrink_wlck(hcset, new_cap, new_arr);
+    cuooP_hcset_unlock_write(hcset);
 #endif
 }
 
 CU_SINLINE void
-cu_hcset_hasheqv_erase_wlck(cu_hcset_t hcset, cu_hash_t hash,
-			    cu_hcobj_t obj)
+cuooP_hcset_hasheqv_erase_wlck(cuooP_hcset_t hcset, cu_hash_t hash,
+			    cuooP_hcobj_t obj)
 {
     size_t cnt;
-    cu_hcobj_t *p = &hcset->arr[hash & hcset->mask];
+    cuooP_hcobj_t *p = &hcset->arr[hash & hcset->mask];
     cu_debug_assert(*p);
     if (*p == obj)
-	*p = cu_hcset_hasheqv_next(obj);
+	*p = cuooP_hcset_hasheqv_next(obj);
     else {
-	cu_hcobj_t obj0 = *p;
-	cu_hcobj_t obj1;
-	while ((obj1 = cu_hcset_hasheqv_next(obj0)) != obj) {
+	cuooP_hcobj_t obj0 = *p;
+	cuooP_hcobj_t obj1;
+	while ((obj1 = cuooP_hcset_hasheqv_next(obj0)) != obj) {
 	    cu_debug_assert(obj1);
 	    obj0 = obj1;
 	}
@@ -260,12 +260,12 @@ cu_hcset_hasheqv_erase_wlck(cu_hcset_t hcset, cu_hash_t hash,
     if (cnt*FILL_MIN_DENOM < hcset->mask*FILL_MIN_NUMER
 	    && hcset->mask > CAP_MIN) {
 	size_t new_cap;
-	cu_hcobj_t *new_arr;
+	cuooP_hcobj_t *new_arr;
 	new_cap = cu_ulong_exp2_ceil_log2(cnt*FILL_MAX_DENOM/FILL_MAX_NUMER);
 	if (new_cap < CAP_MIN)
 	    new_cap = CAP_MIN;
-	new_arr = ARR_ALLOC(sizeof(cu_hcobj_t *)*new_cap);
-	cu_hcset_shrink_wlck(hcset, new_cap, new_arr);
+	new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
+	cuooP_hcset_shrink_wlck(hcset, new_cap, new_arr);
     }
 #endif
 }
@@ -283,10 +283,10 @@ cu_hcset_hasheqv_erase_wlck(cu_hcset_t hcset, cu_hash_t hash,
 void *
 cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
 {
-    cu_hcobj_t *slot, obj;
+    cuooP_hcobj_t *slot, obj;
     size_t mask;
     cu_hash_t hash;
-    cu_hcset_t hcset;
+    cuooP_hcset_t hcset;
     size_t sizeg;
 
     /* The size to allocate in words is 1 + CUOO_HCOBJ_SHIFTW + key_sizew, then
@@ -301,17 +301,17 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
 	cu_debug_assert(cuoo_is_type(type) && cuoo_type_is_hctype(type));
     }
 #endif
-    hcset = cu_hcset(hash);
-    cu_hcset_lock_write(hcset);
+    hcset = cuooP_hcset(hash);
+    cuooP_hcset_lock_write(hcset);
     mask = hcset->mask;
 
     /* If present, return existing object. */
     slot = &hcset->arr[hash & hcset->mask];
-    for (obj = *slot; obj; obj = cu_hcset_hasheqv_next(obj)) {
+    for (obj = *slot; obj; obj = cuooP_hcset_hasheqv_next(obj)) {
 	if (cuex_meta(obj) == meta
 	    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
-	    cu_hcobj_mark_lck(obj);
-	    cu_hcset_unlock_write(hcset);
+	    cuooP_hcobj_mark_lck(obj);
+	    cuooP_hcset_unlock_write(hcset);
 	    return obj;
 	}
     }
@@ -320,8 +320,8 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
 #if CUOO_HC_ADJUST_IN_INSERT_ERASE
     if (hcset->cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER) {
 	size_t new_cap = (mask + 1)*2;
-	cu_hcobj_t *new_arr = ARR_ALLOC(sizeof(cu_hcobj_t *)*new_cap);
-	cu_hcset_grow_wlck(hcset, new_cap, new_arr);
+	cuooP_hcobj_t *new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
+	cuooP_hcset_grow_wlck(hcset, new_cap, new_arr);
 	slot = &new_arr[hash & hcset->mask];
     }
 #endif
@@ -334,7 +334,7 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
     cu_debug_assert((uintptr_t)obj->hcset_next != 0);
     *slot = obj;
     ++hcset->cnt;
-    cu_hcset_unlock_write(hcset);
+    cuooP_hcset_unlock_write(hcset);
 
     return obj;
 }
@@ -343,10 +343,10 @@ void *
 cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
 		  cu_clop(init_nonkey, void, void *))
 {
-    cu_hcobj_t *slot, obj;
+    cuooP_hcobj_t *slot, obj;
     size_t mask;
     cu_hash_t hash;
-    cu_hcset_t hcset;
+    cuooP_hcset_t hcset;
 
     cu_debug_assert(meta);
     hash = cu_wordarr_hash(key_sizew, key, meta);
@@ -356,17 +356,17 @@ cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
 	cu_debug_assert(cuoo_is_type(type) && cuoo_type_is_hctype(type));
     }
 #endif
-    hcset = cu_hcset(hash);
-    cu_hcset_lock_write(hcset);
+    hcset = cuooP_hcset(hash);
+    cuooP_hcset_lock_write(hcset);
     mask = hcset->mask;
 
     /* If present, return existing object. */
     slot = &hcset->arr[hash & hcset->mask];
-    for (obj = *slot; obj; obj = cu_hcset_hasheqv_next(obj)) {
+    for (obj = *slot; obj; obj = cuooP_hcset_hasheqv_next(obj)) {
 	if (cuex_meta(obj) == meta
 	    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
-	    cu_hcobj_mark_lck(obj);
-	    cu_hcset_unlock_write(hcset);
+	    cuooP_hcobj_mark_lck(obj);
+	    cuooP_hcset_unlock_write(hcset);
 	    return obj;
 	}
     }
@@ -375,8 +375,8 @@ cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
 #if CUOO_HC_ADJUST_IN_INSERT_ERASE
     if (hcset->cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER) {
 	size_t new_cap = (mask + 1)*2;
-	cu_hcobj_t *new_arr = ARR_ALLOC(sizeof(cu_hcobj_t *)*new_cap);
-	cu_hcset_grow_wlck(hcset, new_cap, new_arr);
+	cuooP_hcobj_t *new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
+	cuooP_hcset_grow_wlck(hcset, new_cap, new_arr);
 	slot = &new_arr[hash & hcset->mask];
     }
 #endif
@@ -390,7 +390,7 @@ cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
     cu_debug_assert((uintptr_t)obj->hcset_next != 0);
     *slot = obj;
     ++hcset->cnt;
-    cu_hcset_unlock_write(hcset);
+    cuooP_hcset_unlock_write(hcset);
 
     return obj;
 }
@@ -405,14 +405,14 @@ cuooP_hcons_disclaim_proc(void *obj, void *null)
 {
     cuex_meta_t meta;
     cu_hash_t hash;
-    cu_hcset_t hcset;
+    cuooP_hcset_t hcset;
 
     meta = *(cuex_meta_t *)obj - 1;
     if (cuex_meta_kind(meta) == cuex_meta_kind_ignore)
 	return 0;
     obj = (cuex_meta_t *)obj + 1;
 #ifdef CUOO_ENABLE_KEYED_PROP
-    if (cu_hcobj_has_prop(obj)) {
+    if (cuooP_hcobj_has_prop(obj)) {
 	cu_mutex_lock(&cuooP_property_mutex);
 	cucon_umap_erase(&cuooP_property_map, ~(uintptr_t)obj);
 	cu_mutex_unlock(&cuooP_property_mutex);
@@ -420,31 +420,31 @@ cuooP_hcons_disclaim_proc(void *obj, void *null)
 #endif
 #if CU_HCSET_CNT > 1
     hash = cuex_key_hash(obj);
-    hcset = cu_hcset(hash);
-    if (!cu_hcset_trylock_write(hcset))
+    hcset = cuooP_hcset(hash);
+    if (!cuooP_hcset_trylock_write(hcset))
 	return 1;
-    else if (cu_hcobj_is_marked(obj)) {
-	cu_hcobj_unmark_lck(obj);
-	cu_hcset_unlock_write(hcset);
+    else if (cuooP_hcobj_is_marked(obj)) {
+	cuooP_hcobj_unmark_lck(obj);
+	cuooP_hcset_unlock_write(hcset);
 	return 1;
     }
     else {
-	cu_hcset_hasheqv_erase_wlck(hcset, hash, obj);
-	cu_hcset_unlock_write(hcset);
+	cuooP_hcset_hasheqv_erase_wlck(hcset, hash, obj);
+	cuooP_hcset_unlock_write(hcset);
     }
 #else
-    hcset = cu_hcset(0);
-    if (!cu_hcset_trylock_write(hcset))
+    hcset = cuooP_hcset(0);
+    if (!cuooP_hcset_trylock_write(hcset))
 	return 1;
-    if (cu_hcobj_is_marked(obj)) {
-	cu_hcobj_unmark_lck(obj);
-	cu_hcset_unlock_write(hcset);
+    if (cuooP_hcobj_is_marked(obj)) {
+	cuooP_hcobj_unmark_lck(obj);
+	cuooP_hcset_unlock_write(hcset);
 	return 1;
     }
     else {
 	hash = cuex_key_hash(obj);
-	cu_hcset_hasheqv_erase_wlck(hcset, hash, obj);
-	cu_hcset_unlock_write(hcset);
+	cuooP_hcset_hasheqv_erase_wlck(hcset, hash, obj);
+	cuooP_hcset_unlock_write(hcset);
     }
 #endif
 #ifdef CUOO_INTF_FINALISE
@@ -457,7 +457,7 @@ cuooP_hcons_disclaim_proc(void *obj, void *null)
     return 0;
 }
 
-struct cu_hcset_s cuooP_hcset[CU_HCSET_CNT];
+struct cuooP_hcset_s cuooP_hcset_arr[CU_HCSET_CNT];
 
 #if CUOO_HC_GENERATION
 AO_t cuooP_hcons_generation = 0;
@@ -495,7 +495,7 @@ cuooP_hcons_init()
     GC_start_call_back = cu_gc_start_callback;
 #endif
     for (i = 0; i < CU_HCSET_CNT; ++i)
-	cu_hcset_cct(&cuooP_hcset[i]);
+	cuooP_hcset_init(&cuooP_hcset_arr[i]);
 #if CUPRIV_ENABLE_COLL_STATS
     atexit(coll_stats);
 #endif
