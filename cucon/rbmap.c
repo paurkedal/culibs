@@ -19,9 +19,9 @@
 #include <cu/memory.h>
 
 void
-cucon_rbmap_cct(cucon_rbmap_t map, cu_clop(cmp, int, void *, void *))
+cucon_rbmap_init(cucon_rbmap_t map, cu_clop(cmp, int, void *, void *))
 {
-    cucon_rbtree_cct(cu_to(cucon_rbtree, map));
+    cucon_rbtree_init(cu_to(cucon_rbtree, map));
     map->cmp = cmp;
 }
 
@@ -29,7 +29,7 @@ cucon_rbmap_t
 cucon_rbmap_new(cu_clop(cmp, int, void *, void *))
 {
     cucon_rbmap_t map = cu_gnew(struct cucon_rbmap_s);
-    cucon_rbtree_cct(cu_to(cucon_rbtree, map));
+    cucon_rbtree_init(cu_to(cucon_rbtree, map));
     map->cmp = cmp;
     return map;
 }

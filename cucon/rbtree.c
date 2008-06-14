@@ -48,7 +48,7 @@
 #define IS_RED(node) !IS_BLACK(node)
 
 void
-cucon_rbtree_cct(cucon_rbtree_t tree)
+cucon_rbtree_init(cucon_rbtree_t tree)
 {
     tree->root = NULL;
 }
@@ -1042,10 +1042,10 @@ cucon_rbtree_dump_as_graphviz(cucon_rbtree_t tree,
 }
 
 static void
-cuconP_rbnode_for_mem(cucon_rbnode_t node, cu_clop(cb, void, void *))
+cuconP_rbnode_iter_mem(cucon_rbnode_t node, cu_clop(cb, void, void *))
 {
     while (node) {
-	cuconP_rbnode_for_mem(node->left, cb);
+	cuconP_rbnode_iter_mem(node->left, cb);
 	cu_call(cb, CU_ALIGNED_PTR_END(node));
 	node = node->right;
     }
@@ -1054,14 +1054,14 @@ cuconP_rbnode_for_mem(cucon_rbnode_t node, cu_clop(cb, void, void *))
 void
 cucon_rbtree_iter_mem(cucon_rbtree_t tree, cu_clop(cb, void, void *))
 {
-    cuconP_rbnode_for_mem(tree->root, cb);
+    cuconP_rbnode_iter_mem(tree->root, cb);
 }
 
 static void
-cuconP_rbnode_for_ptr(cucon_rbnode_t node, cu_clop(cb, void, void *))
+cuconP_rbnode_iter_ptr(cucon_rbnode_t node, cu_clop(cb, void, void *))
 {
     while (node) {
-	cuconP_rbnode_for_ptr(node->left, cb);
+	cuconP_rbnode_iter_ptr(node->left, cb);
 	cu_call(cb, *(void**)CU_ALIGNED_PTR_END(node));
 	node = node->right;
     }
@@ -1070,7 +1070,39 @@ cuconP_rbnode_for_ptr(cucon_rbnode_t node, cu_clop(cb, void, void *))
 void
 cucon_rbtree_iter_ptr(cucon_rbtree_t tree, cu_clop(cb, void, void *))
 {
-    cuconP_rbnode_for_ptr(tree->root, cb);
+    cuconP_rbnode_iter_ptr(tree->root, cb);
+}
+
+static void
+cuconP_rbnode_rev_iter_mem(cucon_rbnode_t node, cu_clop(cb, void, void *))
+{
+    while (node) {
+	cuconP_rbnode_rev_iter_mem(node->right, cb);
+	cu_call(cb, CU_ALIGNED_PTR_END(node));
+	node = node->left;
+    }
+}
+
+void
+cucon_rbtree_rev_iter_mem(cucon_rbtree_t tree, cu_clop(cb, void, void *))
+{
+    cuconP_rbnode_rev_iter_mem(tree->root, cb);
+}
+
+static void
+cuconP_rbnode_rev_iter_ptr(cucon_rbnode_t node, cu_clop(cb, void, void *))
+{
+    while (node) {
+	cuconP_rbnode_rev_iter_ptr(node->right, cb);
+	cu_call(cb, *(void**)CU_ALIGNED_PTR_END(node));
+	node = node->left;
+    }
+}
+
+void
+cucon_rbtree_rev_iter_ptr(cucon_rbtree_t tree, cu_clop(cb, void, void *))
+{
+    cuconP_rbnode_rev_iter_ptr(tree->root, cb);
 }
 
 static cu_bool_t
@@ -1107,4 +1139,40 @@ cu_bool_t
 cucon_rbtree_conj_ptr(cucon_rbtree_t tree, cu_clop(cb, cu_bool_t, void *))
 {
     return cuconP_rbnode_conj_ptr(tree->root, cb);
+}
+
+static cu_bool_t
+cuconP_rbnode_rev_conj_mem(cucon_rbnode_t node, cu_clop(cb, cu_bool_t, void *))
+{
+    while (node) {
+	if (!cuconP_rbnode_rev_conj_mem(node->right, cb))
+	    return cu_false;
+	if (!cu_call(cb, CU_ALIGNED_PTR_END(node)))
+	    return cu_false;
+	node = node->left;
+    }
+    return cu_true;
+}
+cu_bool_t
+cucon_rbtree_rev_conj_mem(cucon_rbtree_t tree, cu_clop(cb, cu_bool_t, void *))
+{
+    return cuconP_rbnode_rev_conj_mem(tree->root, cb);
+}
+
+static cu_bool_t
+cuconP_rbnode_rev_conj_ptr(cucon_rbnode_t node, cu_clop(cb, cu_bool_t, void *))
+{
+    while (node) {
+	if (!cuconP_rbnode_rev_conj_ptr(node->right, cb))
+	    return cu_false;
+	if (!cu_call(cb, *(void **)CU_ALIGNED_PTR_END(node)))
+	    return cu_false;
+	node = node->left;
+    }
+    return cu_true;
+}
+cu_bool_t
+cucon_rbtree_rev_conj_ptr(cucon_rbtree_t tree, cu_clop(cb, cu_bool_t, void *))
+{
+    return cuconP_rbnode_rev_conj_ptr(tree->root, cb);
 }

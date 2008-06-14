@@ -90,7 +90,7 @@ cu_str_onew()
 }
 
 void
-cu_str_cct_charr(cu_str_t str, char const *ptr, size_t n)
+cu_str_init_charr(cu_str_t str, char const *ptr, size_t n)
 {
     str->arr = cu_galloc_a(n + 1);
     str->len = n;
@@ -261,7 +261,7 @@ cu_str_append_str(cu_str_t x, cu_str_t y)
 }
 
 void
-cu_str_cct_2str(cu_str_t str, cu_str_t x, cu_str_t y)
+cu_str_init_2str(cu_str_t str, cu_str_t x, cu_str_t y)
 {
     size_t newsz = x->len + y->len;
     if (newsz > x->cap) {
@@ -283,20 +283,20 @@ cu_str_t
 cu_str_new_2str(cu_str_t x, cu_str_t y)
 {
     cu_str_t str = cu_gnew(struct cu_str_s);
-    cu_str_cct_2str(str, x, y);
+    cu_str_init_2str(str, x, y);
     return str;
 }
 cu_str_t
 cu_str_onew_2str(cu_str_t x, cu_str_t y)
 {
     cu_str_t str = cuoo_onew(cu_str);
-    cu_str_cct_2str(str, x, y);
+    cu_str_init_2str(str, x, y);
     return str;
 }
 
 void
-cu_str_cct_2charr(cu_str_t str,
-		     char const *s0, size_t n0, char const *s1, size_t n1)
+cu_str_init_2charr(cu_str_t str,
+		   char const *s0, size_t n0, char const *s1, size_t n1)
 {
     size_t n = n0 + n1 + 1;
     str->arr = cu_galloc(n);
@@ -309,21 +309,21 @@ cu_str_t
 cu_str_new_2charr(char const *s0, size_t n0, char const *s1, size_t n1)
 {
     cu_str_t str = cu_gnew(struct cu_str_s);
-    cu_str_cct_2charr(str, s0, n0, s1, n1);
+    cu_str_init_2charr(str, s0, n0, s1, n1);
     return str;
 }
 cu_str_t
 cu_str_onew_2charr(char const *s0, size_t n0, char const *s1, size_t n1)
 {
     cu_str_t str = cuoo_onew(cu_str);
-    cu_str_cct_2charr(str, s0, n0, s1, n1);
+    cu_str_init_2charr(str, s0, n0, s1, n1);
     return str;
 }
 
 void
-cu_str_cct_3charr(cu_str_t str,
-		     char const *s0, size_t n0, char const *s1, size_t n1,
-		     char const *s2, size_t n2)
+cu_str_init_3charr(cu_str_t str,
+		   char const *s0, size_t n0, char const *s1, size_t n1,
+		   char const *s2, size_t n2)
 {
     size_t n = n0 + n1 + n2 + 1;
     str->arr = cu_galloc(n);
@@ -335,23 +335,23 @@ cu_str_cct_3charr(cu_str_t str,
 }
 cu_str_t
 cu_str_new_3charr(char const *s0, size_t n0, char const *s1, size_t n1,
-		     char const *s2, size_t n2)
+		  char const *s2, size_t n2)
 {
     cu_str_t str = cu_gnew(struct cu_str_s);
-    cu_str_cct_3charr(str, s0, n0, s1, n1, s2, n2);
+    cu_str_init_3charr(str, s0, n0, s1, n1, s2, n2);
     return str;
 }
 cu_str_t
 cu_str_onew_3charr(char const *s0, size_t n0, char const *s1, size_t n1,
-		      char const *s2, size_t n2)
+		   char const *s2, size_t n2)
 {
     cu_str_t str = cuoo_onew(cu_str);
-    cu_str_cct_3charr(str, s0, n0, s1, n1, s2, n2);
+    cu_str_init_3charr(str, s0, n0, s1, n1, s2, n2);
     return str;
 }
 
 void
-cu_str_cct_str_cstr(cu_str_t str, cu_str_t x, char const *y)
+cu_str_init_str_cstr(cu_str_t str, cu_str_t x, char const *y)
 {
     size_t n_y = strlen(y);
     size_t n_str = x->len + n_y;
@@ -369,19 +369,19 @@ cu_str_t
 cu_str_new_str_cstr(cu_str_t x, char const *y)
 {
     cu_str_t str = cu_gnew(struct cu_str_s);
-    cu_str_cct_str_cstr(str, x, y);
+    cu_str_init_str_cstr(str, x, y);
     return str;
 }
 cu_str_t
 cu_str_onew_str_cstr(cu_str_t x, char const *y)
 {
     cu_str_t str = cuoo_onew(cu_str);
-    cu_str_cct_str_cstr(str, x, y);
+    cu_str_init_str_cstr(str, x, y);
     return str;
 }
 
 void
-cu_str_cct_cstr_str(cu_str_t str, char const *x, cu_str_t y)
+cu_str_init_cstr_str(cu_str_t str, char const *x, cu_str_t y)
 {
     size_t n_x = strlen(x);
     size_t n_new = n_x + y->len;
@@ -395,14 +395,14 @@ cu_str_t
 cu_str_new_cstr_str(char const *x, cu_str_t y)
 {
     cu_str_t str = cu_gnew(struct cu_str_s);
-    cu_str_cct_cstr_str(str, x, y);
+    cu_str_init_cstr_str(str, x, y);
     return str;
 }
 cu_str_t
 cu_str_onew_cstr_str(char const *x, cu_str_t y)
 {
     cu_str_t str = cuoo_onew(cu_str);
-    cu_str_cct_cstr_str(str, x, y);
+    cu_str_init_cstr_str(str, x, y);
     return str;
 }
 
@@ -418,7 +418,7 @@ cu_str_onew_2cstr(char const *x, char const *y)
 }
 
 void
-cu_str_cct_str_char(cu_str_t str, cu_str_t x, char c)
+cu_str_init_str_char(cu_str_t str, cu_str_t x, char c)
 {
     size_t n = x->len + 1;
     str->len = n;
@@ -435,40 +435,40 @@ cu_str_t
 cu_str_new_str_char(cu_str_t x, char c)
 {
     cu_str_t str = cu_gnew(struct cu_str_s);
-    cu_str_cct_str_char(str, x, c);
+    cu_str_init_str_char(str, x, c);
     return str;
 }
 cu_str_t
 cu_str_onew_str_char(cu_str_t x, char c)
 {
     cu_str_t str = cuoo_onew(cu_str);
-    cu_str_cct_str_char(str, x, c);
+    cu_str_init_str_char(str, x, c);
     return str;
 }
 
 void
-cu_str_cct_vfmt(cu_str_t str, char const *fmt, va_list va)
+cu_str_init_vfmt(cu_str_t str, char const *fmt, va_list va)
 {
     size_t size;
     char *buf;
     FILE *out = open_memstream(&buf, &size);
     vfprintf(out, fmt, va);
     fclose(out);
-    cu_str_cct_charr(str, buf, size);
+    cu_str_init_charr(str, buf, size);
     free(buf);
 }
 cu_str_t
 cu_str_new_vfmt(char const *fmt, va_list va)
 {
     cu_str_t str = cu_gnew(struct cu_str_s);
-    cu_str_cct_vfmt(str, fmt, va);
+    cu_str_init_vfmt(str, fmt, va);
     return str;
 }
 cu_str_t
 cu_str_onew_vfmt(char const *fmt, va_list va)
 {
     cu_str_t str = cuoo_onew(cu_str);
-    cu_str_cct_vfmt(str, fmt, va);
+    cu_str_init_vfmt(str, fmt, va);
     return str;
 }
 

@@ -19,9 +19,9 @@
 #include <cu/diag.h>
 
 void
-cucon_parr_cct_fill(cucon_parr_t arr, size_t size, void *ptr)
+cucon_parr_init_fill(cucon_parr_t arr, size_t size, void *ptr)
 {
-    cucon_parr_cct_size(arr, size);
+    cucon_parr_init_size(arr, size);
     cucon_parr_fill_all(arr, ptr);
 }
 

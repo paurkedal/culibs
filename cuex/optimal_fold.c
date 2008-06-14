@@ -85,7 +85,7 @@ state_new(int r, cuex_t e)
 {
     state_t state = cu_galloc(sizeof(struct state_s) + (r - 1)*sizeof(state_t));
     cu_debug_assert(e);
-    cucon_parr_cct_empty(&state->invtran);
+    cucon_parr_init_empty(&state->invtran);
     state->e = e;
     state->block = NULL;
     state->r = r;

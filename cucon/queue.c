@@ -22,7 +22,7 @@
 #define CHUNK_SIZE 4096
 
 void
-cucon_queue_cct(cucon_queue_t q)
+cucon_queue_init(cucon_queue_t q)
 {
     struct cucon_queue_node_s *new_node;
     q->front = q->back
@@ -35,7 +35,7 @@ cucon_queue_t
 cucon_queue_new()
 {
     cucon_queue_t q = cu_gnew(struct cucon_queue_s);
-    cucon_queue_cct(q);
+    cucon_queue_init(q);
     return q;
 }
 

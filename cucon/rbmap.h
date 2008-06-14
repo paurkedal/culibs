@@ -37,7 +37,7 @@ struct cucon_rbmap_s
 
 /*!Construct \a map where \a cmp is a total ordering over keys
  * as indicated by a return of -1 for ‘<’, 0 for ‘=’ and 1 for ‘>’. */
-void cucon_rbmap_cct(cucon_rbmap_t map, cu_clop(cmp, int, void *, void *));
+void cucon_rbmap_init(cucon_rbmap_t map, cu_clop(cmp, int, void *, void *));
 
 /*!Return a map where keys are ordered according to \a cmp, which
  * returns -1 for ‘<’, 0 for ‘=’ and 1 for ‘>’. */
@@ -78,6 +78,8 @@ cu_bool_t cucon_rbmap_conj_ptr(cucon_rbmap_t map,
 			       cu_clop(cb, cu_bool_t, void *key, void *val));
 
 CU_END_DECLARATIONS
+
+#define cucon_rbmap_cct		cucon_rbmap_init
 
 /*!@}*/
 #endif

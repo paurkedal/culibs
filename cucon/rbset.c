@@ -21,9 +21,9 @@
 #include <cu/clos.h>
 
 void
-cucon_rbset_cct(cucon_rbset_t rbset, cu_clop(cmp, int, void *, void *))
+cucon_rbset_init(cucon_rbset_t rbset, cu_clop(cmp, int, void *, void *))
 {
-    cucon_rbtree_cct(cu_upcast(cucon_rbtree_s, rbset));
+    cucon_rbtree_init(cu_upcast(cucon_rbtree_s, rbset));
     rbset->cmp = cmp;
 }
 
@@ -31,15 +31,15 @@ cucon_rbset_t
 cucon_rbset_new(cu_clop(cmp, int, void *, void *))
 {
     cucon_rbset_t rbset = cu_gnew(struct cucon_rbset_s);
-    cucon_rbtree_cct(cu_upcast(cucon_rbtree_s, rbset));
+    cucon_rbtree_init(cu_upcast(cucon_rbtree_s, rbset));
     rbset->cmp = cmp;
     return rbset;
 }
 
 void
-cucon_rbset_cct_str_cmp(cucon_rbset_t rbset)
+cucon_rbset_init_str_cmp(cucon_rbset_t rbset)
 {
-    cucon_rbset_cct(rbset, (cu_clop(, int, void *, void *))cu_str_cmp_clop);
+    cucon_rbset_init(rbset, (cu_clop(, int, void *, void *))cu_str_cmp_clop);
 }
 
 cucon_rbset_t

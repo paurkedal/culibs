@@ -38,13 +38,13 @@ struct cucon_arr_s
 };
 
 /*!Construct an empty array. */
-void cucon_arr_cct_empty(cucon_arr_t arr);
+void cucon_arr_init_empty(cucon_arr_t arr);
 
 /*!Return a new empty array. */
 cucon_arr_t cucon_arr_new_empty(void);
 
 /*!Construct an array with \a size initial elements. */
-void cucon_arr_cct_size(cucon_arr_t arr, size_t size);
+void cucon_arr_init_size(cucon_arr_t arr, size_t size);
 
 /*!Return a new array with \a size initial elements. */
 cucon_arr_t cucon_arr_new_size(size_t size);
@@ -114,6 +114,8 @@ CU_SINLINE void *cucon_arr_end(cucon_arr_t arr)
 { return arr->carr + arr->size; }
 
 /*!@}*/
+#define cucon_arr_cct_empty	cucon_arr_init_empty
+#define cucon_arr_cct_size	cucon_arr_init_size
 CU_END_DECLARATIONS
 
 #endif

@@ -35,20 +35,20 @@ struct cucon_parr_s
     struct cucon_arr_s arr;
 };
 
-/*!\copydoc cucon_arr_cct_empty */
+/*!\copydoc cucon_arr_init_empty */
 CU_SINLINE void
-cucon_parr_cct_empty(cucon_parr_t arr)
-{ cucon_arr_cct_empty(&arr->arr); }
+cucon_parr_init_empty(cucon_parr_t arr)
+{ cucon_arr_init_empty(&arr->arr); }
 
 /*!\copydoc cucon_arr_new_empty */
 CU_SINLINE cucon_parr_t
 cucon_parr_new_empty(void)
 { return (cucon_parr_t)cucon_arr_new_empty(); }
 
-/*!\copydoc cucon_arr_cct_size */
+/*!\copydoc cucon_arr_init_size */
 CU_SINLINE void
-cucon_parr_cct_size(cucon_parr_t arr, size_t size)
-{ cucon_arr_cct_size(&arr->arr, size*sizeof(void *)); }
+cucon_parr_init_size(cucon_parr_t arr, size_t size)
+{ cucon_arr_init_size(&arr->arr, size*sizeof(void *)); }
 
 /*!\copydoc cucon_arr_new_size */
 CU_SINLINE cucon_parr_t
@@ -56,7 +56,7 @@ cucon_parr_new_size(size_t size)
 { return (cucon_parr_t)cucon_arr_new_size(size*sizeof(void *)); }
 
 /*!Construct a \a arr as an array of \a size elements all equal to \a ptr. */
-void cucon_parr_cct_fill(cucon_parr_t arr, size_t size, void *ptr);
+void cucon_parr_init_fill(cucon_parr_t arr, size_t size, void *ptr);
 
 /*!Returns an array of \a size elements all equal to \a ptr. */
 cucon_parr_t cucon_parr_new_fill(size_t size, void *ptr);
@@ -148,6 +148,9 @@ cucon_parr_end(cucon_parr_t arr)
 { return cucon_arr_end(&arr->arr); }
 
 /*!@}*/
+#define cucon_parr_cct_empty	cucon_parr_init_empty
+#define cucon_parr_cct_size	cucon_parr_init_size
+#define cucon_parr_cct_fill	cucon_parr_init_fill
 CU_END_DECLARATIONS
 
 #endif

@@ -72,7 +72,7 @@ struct cucon_rbtree_s
 };
 
 /*!Construct an empty tree. */
-void cucon_rbtree_cct(cucon_rbtree_t tree);
+void cucon_rbtree_init(cucon_rbtree_t tree);
 
 /*!Return an empty tree. */
 cucon_rbtree_t cucon_rbtree_new(void);
@@ -224,20 +224,40 @@ cucon_rbtree_nearest2p(cucon_rbtree_t tree,
 		       cucon_rbnode_t *equal_out,
 		       cucon_rbnode_t *above_out);
 
-/*!Calls \a cb\c (value) for each \c val in the tree from the minimum
- * element to the maximum. */
+/*!Applies \a cb to the pointers to slots of \a tree in order. */
 void cucon_rbtree_iter_mem(cucon_rbtree_t tree, cu_clop(cb, void, void *val));
-/*!Call \a cb\c (value) for each \c val in the tree, in order. */
+
+/*!Applies \a cb to pointers stored in the slots of \a tree in order. */
 void cucon_rbtree_iter_ptr(cucon_rbtree_t tree, cu_clop(cb, void, void *val));
 
-/*!Call \a cb\c (value) in order, long as it returns \c cu_true and return
- * the conjunction of the results. */
+/*!Applies \a cb to the pointers to slots of \a tree in reverse order. */
+void cucon_rbtree_rev_iter_mem(cucon_rbtree_t tree, cu_clop(cb, void, void *));
+
+/*!Applies \a cb to pointers stored in the slots of \a tree in reverse
+ * order. */
+void cucon_rbtree_rev_iter_ptr(cucon_rbtree_t tree, cu_clop(cb, void, void *));
+
+/*!Applies \a cb on each value of \a tree in order, exiting immediately with
+ * false as soon as \a cb returns false, otherwise returns true. */
 cu_bool_t cucon_rbtree_conj_mem(cucon_rbtree_t tree,
 				cu_clop(cb, cu_bool_t, void *value));
-/*!Sequential conjunction of \a cb\c (ptr) over ordered slots assumed to
- * be pointers \c ptr. */
+
+/*!Applies \a cb on each pointer stored in the value slots of \a tree in order,
+ * exiting immediately with false as soon as \c cb returns false, otherwise
+ * returns true. */
 cu_bool_t cucon_rbtree_conj_ptr(cucon_rbtree_t tree,
 				cu_clop(cb, cu_bool_t, void *value));
+
+/*!Applies \a cb on each value of \a tree in reverse order, exiting immediately
+ * with false as soon as \a cb returns false, otherwise returns true. */
+cu_bool_t cucon_rbtree_rev_conj_mem(cucon_rbtree_t tree,
+				    cu_clop(cb, cu_bool_t, void *value));
+
+/*!Applies \a cb on each pointer stored in the value slots of \a tree in
+ * reverse order, exiting immediately with false as soon as \c cb returns
+ * false, otherwise returns true. */
+cu_bool_t cucon_rbtree_rev_conj_ptr(cucon_rbtree_t tree,
+				    cu_clop(cb, cu_bool_t, void *value));
 
 /*!Debug dump of \a tree an graphviz format. */
 void cucon_rbtree_dump_as_graphviz(cucon_rbtree_t tree,
@@ -245,6 +265,9 @@ void cucon_rbtree_dump_as_graphviz(cucon_rbtree_t tree,
 				   FILE *out);
 
 /*!@}*/
+
+#define cucon_rbtree_cct	cucon_rbtree_init
+
 CU_END_DECLARATIONS
 
 #endif

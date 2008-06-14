@@ -21,7 +21,7 @@
 #include <string.h>
 
 void
-cucon_arr_cct_empty(cucon_arr_t arr)
+cucon_arr_init_empty(cucon_arr_t arr)
 {
     arr->size = 0;
     arr->cap = 0;
@@ -32,12 +32,12 @@ cucon_arr_t
 cucon_arr_new_empty(void)
 {
     cucon_arr_t arr = cu_gnew(struct cucon_arr_s);
-    cucon_arr_cct_empty(arr);
+    cucon_arr_init_empty(arr);
     return arr;
 }
 
 void
-cucon_arr_cct_size(cucon_arr_t arr, size_t size)
+cucon_arr_init_size(cucon_arr_t arr, size_t size)
 {
     arr->size = size;
     arr->cap = size;
@@ -48,7 +48,7 @@ cucon_arr_t
 cucon_arr_new_size(size_t size)
 {
     cucon_arr_t arr = cu_gnew(struct cucon_arr_s);
-    cucon_arr_cct_size(arr, size);
+    cucon_arr_init_size(arr, size);
     return arr;
 }
 

@@ -95,7 +95,7 @@ cuex_otab_cct(cuex_otab_t tab, int width,
     SIMPLERANGE(all)->range_low_bit = 0;
     SIMPLERANGE(all)->range_min = 0;
     SIMPLERANGE(all)->range_maxp1 = 1 << width;
-    cucon_rbset_cct(&SIMPLERANGE(all)->subrange_set, simplerange_cmp);
+    cucon_rbset_init(&SIMPLERANGE(all)->subrange_set, simplerange_cmp);
     cucon_list_init(&all->prop_list);
     cucon_list_init(&all->opr_list);
     tab->name = NULL;
@@ -163,7 +163,7 @@ simplerange_cct(cuex_otab_t tab, cuex_otab_simplerange_t self,
 	    return cu_false;
 	}
     }
-    cucon_rbset_cct(&self->subrange_set, simplerange_cmp);
+    cucon_rbset_init(&self->subrange_set, simplerange_cmp);
     cucon_rbset_nearest(&SIMPLERANGE(super)->subrange_set, self,
 			    &below, &equal, &above);
     if (equal) {
@@ -262,7 +262,7 @@ cuex_otab_reserve(cuex_otab_t tab, cu_sref_t sref, cuex_otab_range_t super,
 			 super, rel_min, rel_maxp1))
 	return cu_false;
     rsv->is_full = is_full;
-    cucon_arr_cct_empty(&rsv->freemask);
+    cucon_arr_init_empty(&rsv->freemask);
     cucon_bitvect_init_fill(&rsv->all_freemask, rel_maxp1 - rel_min, cu_true);
     cucon_bitvect_init_fill(&rsv->multi_freemask, rel_maxp1 - rel_min, cu_true);
     return cu_true;

@@ -96,7 +96,7 @@ cu_gc_base(void *ptr)
 }
 
 CU_SINLINE void
-cuP_dbginfo_cct(cuP_dbginfo_t hdr, char const *file, int line)
+cuP_dbginfo_init(cuP_dbginfo_t hdr, char const *file, int line)
 {
     hdr->name = file;
     hdr->line = line;

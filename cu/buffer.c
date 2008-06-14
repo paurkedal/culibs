@@ -38,10 +38,10 @@ cu_buffer_new(size_t init_cap)
 }
 
 void
-cu_buffer_init_drop(cu_buffer_t buf_cct, cu_buffer_t buf_dct)
+cu_buffer_init_drop(cu_buffer_t buf_init, cu_buffer_t buf_drop)
 {
-    memcpy(buf_cct, buf_dct, sizeof(struct cu_buffer_s));
-    memset(buf_dct, 0, sizeof(struct cu_buffer_s));
+    memcpy(buf_init, buf_drop, sizeof(struct cu_buffer_s));
+    memset(buf_drop, 0, sizeof(struct cu_buffer_s));
 }
 
 void

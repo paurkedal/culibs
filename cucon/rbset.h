@@ -42,10 +42,10 @@ struct cucon_rbset_s
 
 /*!Construct \a rbset where \a cmp is a total ordering over elements
  * as indicated by a return of -1 for ‘<’, 0 for ‘=’, and 1 for ‘>’. */
-void cucon_rbset_cct(cucon_rbset_t rbset, cu_clop(cmp, int, void *, void *));
+void cucon_rbset_init(cucon_rbset_t rbset, cu_clop(cmp, int, void *, void *));
 
 /*!Return set where elements are compared according to \a cmp (cf.
- * \ref cucon_rbset_cct). */
+ * \ref cucon_rbset_init). */
 cucon_rbset_t cucon_rbset_new(cu_clop(cmp, int, void *, void *));
 
 /*!True iff \a set is empty. */
@@ -53,7 +53,7 @@ CU_SINLINE cu_bool_t cucon_rbset_is_empty(cucon_rbset_t set)
 { return cucon_rbtree_is_empty(cu_to(cucon_rbtree, set)); }
 
 /*!Construct \a rbset as an empty set of strings, using \a cu_str_cmp. */
-void cucon_rbset_cct_str_cmp(cucon_rbset_t rbset);
+void cucon_rbset_init_str_cmp(cucon_rbset_t rbset);
 
 /*!Return an empty set of string, using \a cu_str_cmp. */
 cucon_rbset_t cucon_rbset_new_str_cmp(void);
@@ -91,12 +91,33 @@ void cucon_rbset_nearest(cucon_rbset_t set, void *key,
 			 cu_ptr_ptr_t equal_out,
 			 cu_ptr_ptr_t above_out);
 
-/*!Do a sequential conjunction of \a cb over keys in \a rbset. */
+/*!Applies \a cb to each element of \a set in order. */
+CU_SINLINE void
+cucon_rbset_iter(cucon_rbset_t set, cu_clop(cb, void, void *))
+{ cucon_rbtree_iter_ptr(cu_to(cucon_rbtree, set), cb); }
+
+/*!Applies \a cb to each element of \a set in reverse order. */
+CU_SINLINE void
+cucon_rbset_rev_iter(cucon_rbset_t set, cu_clop(cb, void, void *))
+{ cucon_rbtree_rev_iter_ptr(cu_to(cucon_rbtree, set), cb); }
+
+/*!Applies \a cb to each element of \a set in order, exiting with false as soon
+ * as \a cb returns false, otherwise returns true. */
 CU_SINLINE cu_bool_t
-cucon_rbset_conj(cucon_rbset_t rbset, cu_clop(cb, cu_bool_t, void *key))
-{ return cucon_rbtree_conj_ptr(cu_upcast(cucon_rbtree_s, rbset), cb); }
+cucon_rbset_conj(cucon_rbset_t set, cu_clop(cb, cu_bool_t, void *key))
+{ return cucon_rbtree_conj_ptr(cu_to(cucon_rbtree, set), cb); }
+
+/*!Applies \a cb to each element of \a set in reverse order, exiting
+ * immediately with false if \a cb returns false, otherwise returns true. */
+CU_SINLINE cu_bool_t
+cucon_rbset_rev_conj(cucon_rbset_t set, cu_clop(cb, cu_bool_t, void *))
+{ return cucon_rbtree_rev_conj_ptr(cu_to(cucon_rbtree, set), cb); }
 
 /*!@}*/
+
+#define cucon_rbset_cct		cucon_rbset_init
+#define cucon_rbset_cct_str_cmp	cucon_rbset_init_str_cmp
+
 CU_END_DECLARATIONS
 
 #endif

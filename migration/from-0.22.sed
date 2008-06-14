@@ -20,3 +20,14 @@ s/\<cuoo_typekind_\(\w\w\+\)/CUOO_SHAPE_\U\1/g
 s/\<cuoo_typekind_t\>/cuoo_shape_t/g
 s/\<cuoo_type_typekind\>/cuoo_type_shape/g
 s/\<cuoo_type_is_typeoftypes\>/cuoo_type_is_metatype/g
+
+s/\<cucon_rbtree_cct\>/cucon_rbtree_init/g
+s/\<cucon_rbset_cct\>/cucon_rbset_init/g
+s/\<cucon_rbset_cct_str_cmp\>/cucon_rbset_init_str_cmp/g
+s/\<cucon_queue_cct\>/cucon_queue_init/g
+
+s/\<cucon_arr_cct_empty\>/cucon_arr_init_empty/g
+s/\<cucon_arr_cct_size\>/cucon_arr_init_size/g
+s/\<cucon_parr_cct_empty\>/cucon_parr_init_empty/g
+s/\<cucon_parr_cct_size\>/cucon_parr_init_size/g
+s/\<cucon_parr_cct_fill\>/cucon_parr_init_fill/g

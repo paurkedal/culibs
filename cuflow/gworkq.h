@@ -53,7 +53,7 @@ typedef int cuflow_priority_t;
 
 /*!The priority of common tasks with no specific need. */
 #define cuflow_priority_normal		 7
-	/* NB! Update cu/tstate.c:cuP_tstate_cct_glck if changed. */
+	/* NB! Update cu/tstate.c:cuP_tstate_init_glck if changed. */
 
 /*!The priority of tasks which are to be run only when there is nothing
  * else to do. */

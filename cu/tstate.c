@@ -26,7 +26,7 @@ pthread_mutex_t cuP_global_mutex = CU_MUTEX_INITIALISER;
 cuP_tstate_t cuP_tstate_chain = NULL;
 
 static void
-cuP_tstate_cct_glck(cuP_tstate_t st)
+cuP_tstate_init_glck(cuP_tstate_t st)
 {
     memset(st, 0, sizeof(struct cuP_tstate_s));
 
@@ -80,7 +80,7 @@ __thread struct cuP_tstate_s cuP_tstate_var;
 void
 cuP_tstate_initialise_glck(void)
 {
-    cuP_tstate_cct_glck(&cuP_tstate_var);
+    cuP_tstate_init_glck(&cuP_tstate_var);
     cuP_tstate_initialised = 1;
     pthread_setspecific(cuP_tstate_key, &cuP_tstate_var);
 	/* because we need the destructor */
@@ -102,7 +102,7 @@ cuP_tstate_new_glck()
      * uncollectable and free it from the pthread key destructor. */
     cuP_tstate_t tstate;
     tstate = cu_gnew_u(struct cuP_tstate_s);
-    cuP_tstate_cct_glck(tstate);
+    cuP_tstate_init_glck(tstate);
     switch (pthread_setspecific(cuP_tstate_key, tstate)) {
     case 0:
 	break;
@@ -153,7 +153,7 @@ struct cuP_tstate_s cuP_tstate_global;
 void
 cuP_tstate_init(void)
 {
-    cuP_tstate_cct_glck(&cuP_tstate_global);
+    cuP_tstate_init_glck(&cuP_tstate_global);
 }
 
 #endif /* !CUCONF_ENABLE_THREADS */

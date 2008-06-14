@@ -41,7 +41,7 @@ struct cucon_queue_s
     char *back_cap_end;
 };
 
-void cucon_queue_cct(cucon_queue_t q);
+void cucon_queue_init(cucon_queue_t q);
 cucon_queue_t cucon_queue_new(void);
 
 CU_SINLINE cu_bool_fast_t
@@ -87,5 +87,5 @@ cucon_queue_pop_mem(cucon_queue_t q, size_t size)
 	((void)(*(void **)cucon_queue_push_mem(q, sizeof(void *)) = (ptr)))
 
 CU_END_DECLARATIONS
-
+#define cucon_queue_cct cucon_queue_init
 #endif
