@@ -193,6 +193,21 @@ void cuex_free_vars_erase(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
  * excluding \a excl if non-\c NULL. */
 int cuex_free_vars_count(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl);
 
+/*!Transforms \a e by replacing each free variable of quantification among \a
+ * qcset with their mapping under \a f.  \a excl is the current set of variable
+ * considered bound; it's modified in-place and restored. */
+cuex_t
+cuex_free_vars_tran(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
+		    cu_clop(f, cuex_t, cuex_t, cucon_pset_t));
+
+/*!Returns the result of substituting each free variable in \a e which has
+ * quantification among \a qcset and occurs in the domain of \a subst, with
+ * their respective mapping from \a subst.  \a excl is the current set of
+ * variables considered bound; it's modified in-place and restored. */
+cuex_t
+cuex_free_vars_tran_pmap(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
+			 cucon_pmap_t subst);
+
 /*!Returns \a e if \a vars is empty, else return
  * <tt>cuex_opn(\a opr, \e v, vars ∖ * {\e v})</tt> for some \e v in
  * \a vars.  \pre \a opr must be binary. */

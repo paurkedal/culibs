@@ -39,6 +39,7 @@ noinst_HEADERS += \
 
 cuex_sources = \
 	cuex/algo.c \
+	cuex/algo_fv.c \
 	cuex/atree.c \
 	cuex/binding.c \
 	cuex/compound.c \
