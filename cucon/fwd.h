@@ -52,6 +52,7 @@ typedef struct cucon_rpmap_s		*cucon_rpmap_t;		/* rpmap.h */
 typedef struct cucon_rumap_s		*cucon_rumap_t;		/* rumap.h */
 typedef struct cucon_slink_s		*cucon_slink_t;		/* slink.h */
 typedef struct cucon_stack_s		*cucon_stack_t;		/* stack.h */
+typedef struct cucon_stack_itr_s	*cucon_stack_itr_t;	/* stack.h */
 typedef struct cucon_umap_s		*cucon_umap_t;		/* umap.h */
 typedef struct cucon_uset_s		*cucon_uset_t;		/* uset.h */
 typedef struct cucon_ucmap_s		*cucon_ucmap_t;		/* ucmap.h */

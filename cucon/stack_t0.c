@@ -16,7 +16,7 @@
  */
 
 #include <cucon/stack.h>
-#include <assert.h>
+#include <cu/test.h>
 #include <string.h>
 
 int
@@ -26,10 +26,14 @@ main()
     int i;
     struct cucon_stack_s stack;
     struct cucon_stack_s stack_cp;
+    struct cucon_stack_itr_s itr;
 
     cu_init();
 
     cucon_stack_init(&stack);
+    cucon_stack_itr_init(&itr, &stack);
+    cu_test_assert(cucon_stack_itr_get(&itr, 1) == NULL);
+    cu_test_assert(cucon_stack_itr_get_ptr(&itr) == NULL);
 
     for (i = 2; i < 32; ++i) {
 	int j;
@@ -42,19 +46,28 @@ main()
 
     for (i = 0; i < 7000; ++i)
 	CUCON_STACK_PUSH(&stack, int, i);
+    cucon_stack_itr_init(&itr, &stack);
+    i = 7000;
+    while (i-- > 0) {
+	int *slot = cucon_stack_itr_get(&itr, sizeof(int));
+	cu_test_assert(slot);
+	cu_test_assert_int_eq(*slot, i);
+    }
+    cu_test_assert(!cucon_stack_itr_get(&itr, sizeof(int)));
+
     i = 7000;
     while (i > 5000) {
 	--i;
-	assert(CUCON_STACK_TOP(&stack, int) == i);
+	cu_test_assert(CUCON_STACK_TOP(&stack, int) == i);
 	CUCON_STACK_POP(&stack, int);
     }
     cucon_stack_continuous_top(&stack, sizeof(int)*4500);
     while (i > 0) {
 	--i;
-	assert(CUCON_STACK_TOP(&stack, int) == i);
+	cu_test_assert(CUCON_STACK_TOP(&stack, int) == i);
 	CUCON_STACK_POP(&stack, int);
     }
-    assert(cucon_stack_is_empty(&stack));
+    cu_test_assert(cucon_stack_is_empty(&stack));
 
 
     for (i = 0; i < 7000; ++i)
@@ -63,7 +76,7 @@ main()
     memset(ptr, 0, sizeof(int)*6000);
     i = 6000;
     while (i > 0) {
-	assert(CUCON_STACK_TOP(&stack, int) == 0);
+	cu_test_assert(CUCON_STACK_TOP(&stack, int) == 0);
 	CUCON_STACK_POP(&stack, int);
 	--i;
     }
@@ -71,10 +84,10 @@ main()
     cucon_stack_init_copy(&stack_cp, &stack);
     while (i > 0) {
 	--i;
-	assert(CUCON_STACK_TOP(&stack, int) == i);
-	assert(CUCON_STACK_TOP(&stack_cp, int) == i);
+	cu_test_assert(CUCON_STACK_TOP(&stack, int) == i);
+	cu_test_assert(CUCON_STACK_TOP(&stack_cp, int) == i);
 	CUCON_STACK_POP(&stack, int);
 	CUCON_STACK_POP(&stack_cp, int);
     }
-    return 0;
+    return !!cu_test_bug_count();
 }

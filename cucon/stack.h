@@ -139,14 +139,37 @@ CU_SINLINE cucon_stack_mark_t cucon_stack_mark(cucon_stack_t stack)
 void cucon_stack_unwind_to_mark(cucon_stack_t sk, cucon_stack_mark_t mark);
 
 
+/*!Stack iterator struct. */
+struct cucon_stack_itr_s
+{
+    /* Turning to next fragment is eager, except that the last one is kept. */
+    cucon_stack_t stack;
+    char *sp;
+};
+
+/*!Initialise \a itr for iterating from top to bottom of \a stack. */
+void cucon_stack_itr_init(cucon_stack_itr_t itr, cucon_stack_t stack);
+
+/*!Get the next \a size bytes stack fragment referred by \a itr and increment
+ * \a itr. */
+void *cucon_stack_itr_get(cucon_stack_itr_t itr, size_t size);
+
+/*!Get the next pointer at \a itr and increment \a itr by the pointer size. */
+void *cucon_stack_itr_get_ptr(cucon_stack_itr_t itr);
+
+void cucon_stack_itr_advance(cucon_stack_itr_t itr, size_t size);
+
+
 /* == Iterators == */
 
+/*!\deprecated Use \ref cucon_stack_itr_s. */
 typedef struct cucon_stack_it_s
 {
     cucon_stack_t stack;
     char *sp;
 } cucon_stack_it_t;
 
+/*!\deprecated Use \ref cucon_stack_itr_s. */
 CU_SINLINE cucon_stack_it_t
 cucon_stack_begin(cucon_stack_t stack)
 {
@@ -156,11 +179,13 @@ cucon_stack_begin(cucon_stack_t stack)
     return it;
 }
 
+/*!\deprecated Use \ref cucon_stack_itr_s. */
 CU_SINLINE cu_bool_t cucon_stack_it_is_end(cucon_stack_it_t it)
 { return it.sp == cuconP_STACK_NOADDRESS; }
 
 void cuconP_stack_it_fix(cucon_stack_it_t *it);
 
+/*!\deprecated Use \ref cucon_stack_itr_s. */
 CU_SINLINE void
 cucon_stack_it_advance(cucon_stack_it_t *it, size_t size)
 {
@@ -169,7 +194,9 @@ cucon_stack_it_advance(cucon_stack_it_t *it, size_t size)
 	cuconP_stack_it_fix(it);
 }
 
+/*!\deprecated Use \ref cucon_stack_itr_s. */
 #define cucon_stack_it_get(it) ((void *)CU_MARG(cucon_stack_it_t, it).sp)
+/*!\deprecated Use \ref cucon_stack_itr_s. */
 #define cucon_stack_it_get_ptr(it) CUCON_STACK_IT_GET(it, void *)
 
 
@@ -188,14 +215,16 @@ cucon_stack_it_advance(cucon_stack_it_t *it, size_t size)
 /* Free 'sizeof(elt_t)' bytes. */
 #define CUCON_STACK_POP(stack, elt_t) cucon_stack_free((stack), sizeof(elt_t))
 
+/*!\deprecated Use \ref cucon_stack_itr_s. */
 #define CUCON_STACK_IT_ADVANCE(it, elt_t) \
 	cucon_stack_it_advance(it, sizeof(elt_t))
 
+/*!\deprecated Use \ref cucon_stack_itr_s. */
 #define CUCON_STACK_IT_GET(it, elt_t) (*(elt_t*)cucon_stack_it_get(it))
 
-/*\deprecated Use \ref cucon_stack_init. */
+/*!\deprecated Use \ref cucon_stack_init. */
 #define cucon_stack_cct		cucon_stack_init
-/*\deprecated Use \ref cucon_stack_init_copy. */
+/*!\deprecated Use \ref cucon_stack_init_copy. */
 #define cucon_stack_cct_copy	cucon_stack_init_copy
 
 /*!@}*/
