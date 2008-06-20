@@ -57,7 +57,7 @@ void cu_set_verbosity(int verbosity);
 
 
 /*!Prints an internal error and aborts. */
-void cu_bugf(char const *fmt, ...) CU_ATTR_NORETURN;
+void cu_bugf_n(char const *fmt, ...) CU_ATTR_NORETURN;
 
 /*!Prints an internal error with reference to source code and aborts. */
 void cu_bugf_at(cu_sref_t, char const *fmt, ...) CU_ATTR_NORETURN;
@@ -65,6 +65,8 @@ void cu_bugf_at(cu_sref_t, char const *fmt, ...) CU_ATTR_NORETURN;
 /*!Prints an internal error with reference to source code and aborts. */
 void cu_bugf_fl(char const *file, int line,
 		char const *msg, ...) CU_ATTR_NORETURN;
+
+#define cu_bugf(...) cu_bugf_fl(__FILE__, __LINE__, __VA_ARGS__)
 
 #define cu_bug_unreachable() \
     cu_bugf_fl(__FILE__, __LINE__, \

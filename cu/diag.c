@@ -221,7 +221,7 @@ cu_bugf_at(cu_sref_t srf, char const* msg, ...)
     cu_vlogf_at(&g_log_facility_arr[FI_BUG], srf, msg, va);
     unlock_logs();
     va_end(va);
-    abort();
+    cu_debug_abort();
 }
 
 void
@@ -232,11 +232,11 @@ cu_bugf_fl(char const *file, int line, char const *msg, ...)
     va_start(va, msg);
     cu_vlogf_at(&g_log_facility_arr[FI_BUG], srf, msg, va);
     va_end(va);
-    abort();
+    cu_debug_abort();
 }
 
 void
-cu_bugf(char const* msg, ...)
+cu_bugf_n(char const* msg, ...)
 {
     va_list va;
     va_start(va, msg);
@@ -244,7 +244,7 @@ cu_bugf(char const* msg, ...)
     cu_vlogf(&g_log_facility_arr[FI_BUG], msg, va);
     unlock_logs();
     va_end(va);
-    abort();
+    cu_debug_abort();
 }
 
 int cuP_verbosity = 10;

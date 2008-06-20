@@ -358,8 +358,9 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 	    token = STRING;
 	    cu_sref_next(sref);
 	    for (;;) {
+		char ch_out;
 		cu_sref_advance_char(sref, ch);
-		ch = fgetc(in);
+		ch = ch_out = fgetc(in);
 		if (ch == EOF) {
 		    ++state->error_cnt;
 		    cu_errf_at(loc_out, "End of file while parsing string.");
@@ -379,10 +380,10 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 		}
 		else if (ch == '\\') {
 		    cu_sref_advance_char(sref, ch);
-		    ch = fgetc(in);
+		    ch = ch_out = fgetc(in);
 		    switch (ch) {
-			case 'n': ch = '\n'; break;
-			case 't': ch = '\t'; break;
+			case 'n': ch_out = '\n'; break;
+			case 't': ch_out = '\t'; break;
 			case '"': case '\\': break;
 			default:
 			    ++state->error_cnt;
@@ -390,7 +391,7 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 			    break;
 		    }
 		}
-		cu_str_append_char(str, ch);
+		cu_str_append_char(str, ch_out);
 	    }
 	    cu_sref_next(sref);
 	    val_out->str = str;

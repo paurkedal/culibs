@@ -38,7 +38,10 @@ CU_BEGIN_DECLARATIONS
  * \a l levels.  That is, with \a l = 0 binds to the immediate surronding
  * binding site. */
 CU_SINLINE cuex_t cuex_hole(int l)
-{ return cuex_opn(CUEX_O0_HOLE | CUEX_OA_HOLE_INDEX(l)); }
+{
+    cu_debug_assert(l >= 0);
+    return cuex_opn(CUEX_O0_HOLE | CUEX_OA_HOLE_INDEX(l));
+}
 
 CU_SINLINE cu_bool_t
 cuex_is_hole(cuex_t e)
