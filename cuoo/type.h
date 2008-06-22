@@ -29,8 +29,6 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_type_h cuoo/type.h: Operations and Dynamically Typed Objects
  * @{ \ingroup cuoo_mod */
 
-typedef uint_fast16_t cuoo_shape_t;
-
 /*!To be or-ed into shapes for types which use a custom hash function in place
  * of a fixed size. */
 #define CUOO_SHAPEFLAG_HCV		UINT16_C(0x8000)
@@ -82,7 +80,17 @@ char const *cuoo_shape_name(cuoo_shape_t shape);
 
 CU_SINLINE cu_bool_t
 cuoo_shape_is_scalar(cuoo_shape_t shape)
-{ return CUOO_SHAPE_SCALAR_MIN <= shape && shape <= CUOO_SHAPE_SCALAR_MAX; }
+{
+    shape &= ~CUOO_SHAPEFLAG_MASK;
+    return CUOO_SHAPE_SCALAR_MIN <= shape && shape <= CUOO_SHAPE_SCALAR_MAX;
+}
+
+CU_SINLINE cu_bool_t
+cuoo_shape_is_opaque(cuoo_shape_t shape)
+{
+    shape &= ~CUOO_SHAPEFLAG_MASK;
+    return shape == CUOO_SHAPE_OPAQUE;
+}
 
 /*!The dynamic type (base) struct. */
 struct cuoo_type_s

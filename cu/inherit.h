@@ -39,8 +39,8 @@
 #define cu_set_virtual(base_s, ptr, vbase) \
 	((void)((ptr)->_vbase_##base_s = vbase))
 
-#define cu_base_offset(sub_s, base_s) \
-	offsetof(struct sub_s, _base_##base_s)
+#define cu_base_offset(sup, base) \
+	offsetof(struct sup##_s, _base_##base##_s)
 
 #define cu_to(b1, o) (&(o)->_base_##b1##_s)
 #define cu_to2(b2, b1, o) cu_to(b2, cu_to(b1, o))

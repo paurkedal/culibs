@@ -311,7 +311,6 @@ cudyn_load(cuoo_type_t t, void *p)
 	default:
 	    /* none, proto, ctortype, arrtype, tuptype, sigtype, duntype,
 	     * sngtype */
-	    cu_bugf("Unimplemented");
 	    return NULL;
     }
 }

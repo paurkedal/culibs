@@ -123,6 +123,10 @@ void *cuooP_hxalloc_clear_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
     ((struct prefix##_s *) \
      cuoo_halloc(prefix##_type(), cuoo_hctem_key_size(prefix), &(key)))
 
+#define cuoo_hctem_new_of_type(prefix, key, type) \
+    ((struct prefix##_s *) \
+     cuoo_halloc(type, cuoo_hctem_key_size(prefix), &(key)))
+
 #ifndef CU_IN_DOXYGEN
 CU_SINLINE void *
 cuexP_halloc(cuex_meta_t meta, size_t key_size, void *key)
