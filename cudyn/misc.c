@@ -157,6 +157,27 @@ cudynP_double_impl(cu_word_t intf, ...)
 }
 
 
+/* == unit == */
+
+cudyn_elmtype_t cudynP_unit_type;
+cuex_t cudynP_unit_value;
+
+static cu_str_t
+cudynP_unit_to_str(void *val)
+{
+    return cu_str_new_cstr("()");
+}
+
+static cu_word_t
+cudynP_unit_impl(cu_word_t intf_number, ...)
+{
+    switch (intf_number) {
+	case CUOO_INTF_TO_STR_FN: return (cu_word_t)cudynP_unit_to_str;
+	default: return CUOO_IMPL_NONE;
+    }
+}
+
+
 /* == cu_bool_t == */
 
 cudyn_elmtype_t cudynP_bool_type;
@@ -281,6 +302,8 @@ cudyn_load(cuoo_type_t t, void *p)
 	case CUOO_SHAPE_PTRTYPE:
 	    return cudyn_ptr(cudyn_ptrtype_from_type(t), p);
 
+	case CUOO_SHAPE_UNIT:
+	    return cudyn_unit_value();
 	case CUOO_SHAPE_SCALAR_BOOL:
 	    return cudyn_bool(*(cu_bool_t *)p);
 	case CUOO_SHAPE_SCALAR_UINT8:
@@ -318,6 +341,7 @@ cudyn_load(cuoo_type_t t, void *p)
 void
 cudynP_misc_init()
 {
+    /* Integers */
     CUDYN_ETYPEARR_INIT(int8,   INT8,	uint8_t,  SINT, &ffi_type_schar)
     CUDYN_ETYPEARR_INIT(uint8,  UINT8,	uint8_t,  UINT, &ffi_type_uchar)
     CUDYN_ETYPEARR_INIT(int16,  INT16,	int16_t,  SINT, &ffi_type_sshort)
@@ -326,14 +350,25 @@ cudynP_misc_init()
     CUDYN_ETYPEARR_INIT(uint32, UINT32,	uint32_t, UINT, &ffi_type_uint)
     CUDYN_ETYPEARR_INIT(int64,  INT64,	int64_t,  SINT, &ffi_type_slong)
     CUDYN_ETYPEARR_INIT(uint64, UINT64,	uint64_t, UINT, &ffi_type_ulong)
+
+    /* Floats */
     CUDYN_ETYPEARR_INIT(float,  FLOAT,	float,   FLOAT, &ffi_type_float)
     CUDYN_ETYPEARR_INIT(double, DOUBLE,	double,  FLOAT, &ffi_type_double)
 
+    /* Unit */
+    cudynP_unit_type = cudyn_elmtype_new(CUOO_SHAPE_UNIT, cudynP_unit_impl,
+					 0, 0, &ffi_type_void);
+    cuoo_prop_define_ptr(cuoo_raw_c_name_prop(), cudynP_unit_type,
+			 cu_idr_by_cstr("void"));
+    cudynP_unit_value = cuoo_oalloc(cudyn_unit_type(), 0);
+	/* OBS, keys size 0 indicates no hashcons support in type. */
+
+    /* Bool */
     CUDYN_ETYPE_INIT(bool, BOOL, int, BOOL, &ffi_type_sint)
     cudynP_true = cudyn_bool(1);
     cudynP_false = cudyn_bool(0);
 
+    /* Misc */
     CUDYN_ETYPEARR_INIT(char, CHAR, char, SINT, &ffi_type_schar)
-
     CUDYN_ETYPEARR_INIT(metaint, METAINT, cuex_meta_t, UINT, &ffi_type_ulong);
 }

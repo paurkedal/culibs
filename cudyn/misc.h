@@ -58,6 +58,19 @@ CUDYN_ETYPEARR_DCLN(uint64, uint64_t)
 /* Other Elementary Types
  * ---------------------- */
 
+/* Unit */
+
+extern cudyn_elmtype_t cudynP_unit_type;
+extern cuex_t cudynP_unit_value;
+
+CU_SINLINE cuoo_type_t cudyn_unit_type()
+{ return cudyn_elmtype_to_type(cudynP_unit_type); }
+
+CU_SINLINE cuex_t cudyn_unit_value()
+{ return cudynP_unit_value; }
+
+/* Bool */
+
 extern cudyn_elmtype_t cudynP_bool_type;
 
 CU_SINLINE cuoo_type_t cudyn_bool_type()
@@ -81,12 +94,16 @@ extern cuex_t cudynP_false;
 #define cudyn_true() cudynP_true
 #define cudyn_false() cudynP_false
 
+/* Float */
 
 CUDYN_ETYPEARR_DCLN(float, float)
 CUDYN_ETYPEARR_DCLN(double, double)
 
-/* This is meant for charaters. */
+/* Char (text) */
+
 CUDYN_ETYPEARR_DCLN(char, char)
+
+/* Misc */
 
 CUDYN_ARRTYPE_DCLN(cuex, cuex_t)
 CUDYN_ETYPEARR_DCLN(metaint, cuex_meta_t)

@@ -32,6 +32,7 @@ cuoo_shape_name(cuoo_shape_t shape)
 	case CUOO_SHAPE_OPAQUE:		return "opaque";
 	case CUOO_SHAPE_OPAQUE_HCV:	return "opaque_hcv";
 	case CUOO_SHAPE_METATYPE:	return "metatype";
+	case CUOO_SHAPE_UNIT:		return "void";
 	case CUOO_SHAPE_SCALAR_BOOL:	return "bool";
 	case CUOO_SHAPE_SCALAR_CHAR:	return "char";
 	case CUOO_SHAPE_SCALAR_METAINT:	return "cuex_meta_t";

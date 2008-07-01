@@ -53,6 +53,7 @@ CU_BEGIN_DECLARATIONS
 #define CUOO_SHAPE_PTRTYPE		0x08
 #define CUOO_SHAPE_ARRTYPE		0x09
 #define CUOO_SHAPE_TUPTYPE		0x0a
+#define CUOO_SHAPE_UNIT			0x0f
 
 /* inline types: elementary */
 #define CUOO_SHAPE_SCALAR_MIN		0x10
