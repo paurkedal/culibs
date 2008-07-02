@@ -36,6 +36,8 @@ cu_clop_def(value_merge, cuex_t, cuex_t e0, cuex_t e1)
 { return cuex_monoid_product(CUEX_O2_TUPLE, e0, e1); }
 
 #define atree_find(T, l) cuex_atree_find(get_key, T, (cu_word_t)(l))
+#define atree_find_index(T, l) \
+	cuex_atree_find_index(get_key, T, (cu_word_t)(l))
 #define atree_insert(T, e) cuex_atree_insert(get_key, T, e)
 #define atree_erase(T, l) cuex_atree_erase(get_key, T, (cu_word_t)(l))
 #define atree_find_erase(pT, l) \
@@ -137,6 +139,25 @@ cuex_labelling_find(cuex_t L, cuex_t l)
 	return cuex_opn_at(e, 1);
     else
 	return NULL;
+}
+
+size_t
+cuex_labelling_find_index(cuex_t L, cuex_t l)
+{
+    cuex_t e;
+    if (!cuex_is_labelling(L))
+	cu_bugf("First argument of cuex_labelling_find_index must be a "
+		"labelling.");
+    return atree_find_index(LABELLING(L)->atree, l);
+}
+
+size_t
+cuex_labelling_card(cuex_t L)
+{
+    cuex_t e;
+    if (!cuex_is_labelling(L))
+	cu_bugf("First argument of cuex_labelling_card must be a labelling.");
+    return cuex_atree_card(LABELLING(L)->atree);
 }
 
 cuex_t

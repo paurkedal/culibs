@@ -74,6 +74,10 @@ cuex_t cuex_labelling_deep_insert(cu_clop(merge, cuex_t, cuex_t, cuex_t),
 /*!Returns the mapping of \a l in \a L, or \c NULL if none. */
 cuex_t cuex_labelling_find(cuex_t L, cuex_t l);
 
+/*!Returns the index of \a l in \a L, or \c (size_t)-1 if not found.  Note that
+ * the complexity of this call is linear in the cardinality of \a L. */
+size_t cuex_labelling_find_index(cuex_t L, cuex_t l);
+
 /*!Returns the result of erasing the mapping from \a l in \a L if present,
  * otherwise returs \a L. */
 cuex_t cuex_labelling_erase(cuex_t L, cuex_t l);

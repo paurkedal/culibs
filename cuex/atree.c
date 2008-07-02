@@ -23,6 +23,8 @@
 #include <cu/int.h>
 #include <cu/algo.h>
 
+static size_t atree_card(cuex_t tree);
+
 cu_clop_def(get_key_0, cu_word_t, cuex_t e)
 {
     cu_debug_assert(cuex_meta_is_opr(cuex_meta(e)) &&
@@ -224,6 +226,31 @@ tail_call:
 	    }
 	}
     }
+}
+
+size_t
+cuex_atree_find_index(cu_clop(get_key, cu_word_t, cuex_t),
+		      cuex_t tree, cu_word_t key)
+{
+    size_t index = 0;
+    if (cuex_atree_is_empty(tree))
+	return (size_t)-1;
+    while (cuex_meta(tree) == anode_meta) {
+	cu_word_t centre = NODE(tree)->centre;
+	if ((cu_word_t)key < centre) {
+	    if ((cu_word_t)key < centre_to_min(centre))
+		return (size_t)-1;
+	    tree = NODE(tree)->left;
+	} else {
+	    if (key > centre_to_max(centre))
+		return (size_t)-1;
+	    index += atree_card(NODE(tree)->left);
+	    tree = NODE(tree)->right;
+	}
+    }
+    if (cu_call(get_key, tree) != key)
+	return -1;
+    return index;
 }
 
 static cuex_t
@@ -1197,6 +1224,26 @@ cuex_atree_depth(cuex_t tree)
 	return 0;
     else
 	return atree_depth(tree);
+}
+
+static size_t
+atree_card(cuex_t tree)
+{
+    size_t card = 1;
+    while (cuex_meta(tree) == anode_meta) {
+	card += atree_card(NODE(tree)->left);
+	tree = NODE(tree)->right;
+    }
+    return card;
+}
+
+size_t
+cuex_atree_card(cuex_t tree)
+{
+    if (cuex_atree_is_empty(tree))
+	return 0;
+    else
+	return atree_card(tree);
 }
 
 

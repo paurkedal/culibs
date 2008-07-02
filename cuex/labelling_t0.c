@@ -123,6 +123,36 @@ test_expand(int N, cu_bool_t do_print)
     cu_test_assert(cuex_labelling_contract_all(L_e) == L);
 }
 
+void
+test_find_index(int N, cu_bool_t do_print)
+{
+    int n;
+    cuex_t L = cuex_labelling_empty();
+    char *found_arr;
+    for (n = 0; n < N; ++n) {
+	char ls[6 + sizeof(int)*3];
+	sprintf(ls, "l%d", n);
+	L = cuex_labelling_insert(L, cu_idr_by_cstr(ls), cudyn_int(n));
+    }
+    cu_test_assert(cuex_labelling_card(L) == N);
+    found_arr = cu_salloc(sizeof(char)*N);
+    memset(found_arr, 0, N);
+    if (do_print)
+	printf("cuex_labelling_find_index check, N = %d\n", N);
+    for (n = 0; n < N; ++n) {
+	size_t index;
+	char ls[6 + sizeof(int)*3];
+	sprintf(ls, "l%d", n);
+	index = cuex_labelling_find_index(L, cu_idr_by_cstr(ls));
+	cu_test_assert(index != (size_t)-1);
+	cu_test_assert(index < N);
+	cu_debug_assert(found_arr[index] == 0);
+	found_arr[index] = 1;
+	if (do_print)
+	    printf("\t%s at index %d\n", ls, index);
+    }
+}
+
 int
 main()
 {
@@ -135,5 +165,13 @@ main()
     test_expand(2, cu_true);
     test_expand(8, cu_true);
     test_expand(1000, cu_false);
+    test_find_index(0, cu_false);
+    test_find_index(1, cu_false);
+    test_find_index(2, cu_true);
+    test_find_index(3, cu_false);
+    test_find_index(6, cu_true);
+    test_find_index(10, cu_false);
+    test_find_index(100, cu_false);
+    test_find_index(1000, cu_false);
     return cu_test_bug_count()? 2 : 0;
 }

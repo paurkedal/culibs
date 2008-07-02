@@ -105,6 +105,13 @@ cuex_t
 cuex_atree_find(cu_clop(get_key, cu_word_t, cuex_t),
 		cuex_t tree, cu_word_t key);
 
+/*!As \ref cuex_atree_find, but returns the index of \a key, or \c (size_t)-1
+ * if not found.  Note that the complexity of this call is linear in the
+ * cardinality of \a tree. */
+size_t
+cuex_atree_find_index(cu_clop(get_key, cu_word_t, cuex_t),
+		      cuex_t tree, cu_word_t key);
+
 /*!If the key of \a value is not already in \a tree, returns the result of
  * inserting \a value into \a tree, else returns \a tree. */
 cuex_t
@@ -335,6 +342,10 @@ cuex_t cuex_atree_isokey_image_kv(cuex_t tree,
  * singletons have depth 0.  A tree node has depth one plus the maximum of the
  * depths of its branches. */
 int cuex_atree_depth(cuex_t tree);
+
+/*!Cardinality (number of elements) of \a tree.  Note that the complexity of
+ * this call is linear in the cardinality of \a tree. */
+size_t cuex_atree_card(cuex_t tree);
 
 size_t cuex_atree_itr_size(cuex_t tree);
 void cuex_atree_itr_init(void *itr, cuex_t tree);
