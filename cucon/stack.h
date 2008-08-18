@@ -66,8 +66,17 @@ size_t cucon_stack_size(cucon_stack_t stack);
 CU_SINLINE size_t cucon_stack_size_ptr(cucon_stack_t stack)
 { return cucon_stack_size(stack)/sizeof(void *); }
 
+CU_SINLINE size_t cucon_stack_size_int(cucon_stack_t stack)
+{ return cucon_stack_size(stack)/sizeof(int); }
+
 /*!Returns a pointer to an object \a pos bytes down the stack. */
 void *cucon_stack_at(cucon_stack_t stack, size_t pos);
+
+CU_SINLINE void *cucon_stack_at_ptr(cucon_stack_t stack, size_t pos)
+{ return *(void **)cucon_stack_at(stack, pos*sizeof(void *)); }
+
+CU_SINLINE int cucon_stack_at_int(cucon_stack_t stack, size_t pos)
+{ return *(int *)cucon_stack_at(stack, pos*sizeof(int)); }
 
 /*!Returns a pointer to the top object on \a stack. */
 CU_SINLINE void *cucon_stack_top(cucon_stack_t stack)
@@ -76,6 +85,9 @@ CU_SINLINE void *cucon_stack_top(cucon_stack_t stack)
 /*!Returns the top object on \a stack, assuming it is a pointer. */
 CU_SINLINE void *cucon_stack_top_ptr(cucon_stack_t stack)
 { return *(void **)cucon_stack_top(stack); }
+
+CU_SINLINE int cucon_stack_top_int(cucon_stack_t stack)
+{ return *(int *)cucon_stack_top(stack); }
 
 /*!Make sure at least \a size bytes from the top of the stack is
  * continuous, reallocating if necessary, and return a pointer to the
@@ -113,12 +125,22 @@ CU_SINLINE void cucon_stack_free_ptr(cucon_stack_t stack)
 CU_SINLINE void cucon_stack_push_ptr(cucon_stack_t stack, void *ptr)
 { *(void **)cucon_stack_alloc(stack, sizeof(void *)) = ptr; }
 
+CU_SINLINE void cucon_stack_push_int(cucon_stack_t stack, int i)
+{ *(int *)cucon_stack_alloc(stack, sizeof(int)) = i; }
+
 /*!Pop and return a pointer from the top of \a stack. */
 CU_SINLINE void *cucon_stack_pop_ptr(cucon_stack_t stack)
 {
-    void **p = cucon_stack_top(stack);
+    void *p = cucon_stack_top_ptr(stack);
     cucon_stack_free(stack, sizeof(void *));
-    return *p;
+    return p;
+}
+
+CU_SINLINE int cucon_stack_pop_int(cucon_stack_t stack)
+{
+    int i = cucon_stack_top_int(stack);
+    cucon_stack_free(stack, sizeof(int));
+    return i;
 }
 
 
