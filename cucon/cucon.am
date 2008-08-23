@@ -66,6 +66,7 @@ cucon_doxyfiles = \
 
 cucon_check_programs = \
 	cucon/bitvect_t0 \
+	cucon/frame_b0 \
 	cucon/frame_t0 \
 	cucon/hzmap_b0 \
 	cucon/hzmap_b1 \
@@ -87,6 +88,7 @@ cucon_check_programs = \
 	cucon/rbtree_t0 \
 	cucon/rbtree_t1 \
 	cucon/rumap_t0 \
+	cucon/stack_b0 \
 	cucon/stack_t0 \
 	cucon/ucmap_b0 \
 	cucon/ucset_b0 \
@@ -98,6 +100,8 @@ cucon_norun_check_programs =
 
 cucon_bitvect_t0_SOURCES = cucon/bitvect_t0.c
 cucon_bitvect_t0_LDADD = libcubase.la
+cucon_frame_b0_SOURCES = cucon/frame_b0.c
+cucon_frame_b0_LDADD = libcubase.la
 cucon_frame_t0_SOURCES = cucon/frame_t0.c
 cucon_frame_t0_LDADD = libcubase.la
 cucon_hset_t0_SOURCES = cucon/hset_t0.c
@@ -140,6 +144,8 @@ cucon_rbtree_t1_SOURCES = cucon/rbtree_t1.c
 cucon_rbtree_t1_LDADD = libcubase.la
 cucon_rumap_t0_SOURCES = cucon/rumap_t0.c
 cucon_rumap_t0_LDADD = libcubase.la
+cucon_stack_b0_SOURCES = cucon/stack_b0.c
+cucon_stack_b0_LDADD = libcubase.la
 cucon_stack_t0_SOURCES = cucon/stack_t0.c
 cucon_stack_t0_LDADD = libcubase.la
 cucon_ucmap_b0_SOURCES = cucon/ucmap_b0.c
