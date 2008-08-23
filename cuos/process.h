@@ -82,7 +82,11 @@ cu_str_t cuos_shell_escape_cstr(char const *cstr);
 /*!Print out \a argv to \a out. */
 void cuos_argv_fprint(char const **argv, FILE *out);
 
-/* @} */
+/*!@} */
+
+/* Backward compat. */
+#define cuos_argv_cct_strlist		cuos_argv_init_strlist
+
 CU_END_DECLARATIONS
 
 #endif

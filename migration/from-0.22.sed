@@ -44,3 +44,13 @@ s/\<cuflow_gflexq_cct\>/cuflow_gflexq_init/g
 s/\<cuflow_workq_cct\>/cuflow_workq_init/g
 
 s/\<custo_fread_str_cct\>/custo_fread_str_init/g
+
+s/\<cutext_src_cct\>/cutext_src_init/g
+s/\<cutext_src_cct_move\>/cutext_src_init_grab/g
+s/\<cutext_src_new_move\>/cutext_src_new_grab/g
+s/\<cutext_ucs4src_cct\>/cutext_ucs4src_init/g
+s/\<cutext_ucs4src_cct_detect\>/cutext_ucs4src_init_detect/g
+
+s/\<cu_rarex_cct\>/cu_rarex_init/g
+
+s/\<cuos_argv_cct_strlist\>/cuos_argv_init_strlist/g

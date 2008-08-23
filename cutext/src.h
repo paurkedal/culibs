@@ -33,11 +33,11 @@ struct cutext_src_s
     cutext_producer_t produce;
 };
 
-void cutext_src_cct(cutext_src_t, cutext_producer_t);
+void cutext_src_init(cutext_src_t, cutext_producer_t);
 cutext_src_t cutext_src_new(cutext_producer_t);
 
-void cutext_src_cct_move(cutext_src_t src_cct, cutext_src_t src_dct);
-cutext_src_t cutext_src_new_move(cutext_src_t src_dct);
+void cutext_src_init_grab(cutext_src_t src_init, cutext_src_t src_drop);
+cutext_src_t cutext_src_new_grab(cutext_src_t src_drop);
 
 /* Internal */
 cutext_status_t cutextP_src_lookahead(cutext_src_t src, size_t size);
@@ -85,6 +85,11 @@ cutext_encoding_t cutext_encoding_by_name(char const *cstr);
  * with either a byte order mark or an ASCII character.  UCS-2 and
  * UCS-2LE will be wrongly detected as UTF-16 and UTF-16LE rsp. */
 cutext_encoding_t cutext_src_detect_chenc(cutext_src_t src);
+
+/* Backwards compatibility. */
+#define cutext_src_cct		cutext_src_init
+#define cutext_src_cct_move	cutext_src_init_grab
+#define cutext_src_new_move	cutext_src_new_grab
 
 CU_END_DECLARATIONS
 

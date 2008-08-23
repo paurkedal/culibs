@@ -62,7 +62,7 @@ cuooP_hcset_init(cuooP_hcset_t hcset)
     hcset->cnt = 0;
 #ifdef CUCONF_ENABLE_THREADS
 # if CU_HCSET_USE_RAREX
-    cu_rarex_cct(&hcset->rarex);
+    cu_rarex_init(&hcset->rarex);
 # else
     cu_mutex_init(&hcset->mutex);
 # endif

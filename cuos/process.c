@@ -203,7 +203,7 @@ cuos_call_prog_fd(char const *prg, char const *const *argv,
 }
 
 void
-cuos_argv_cct_strlist(char const **argv, cucon_list_t lst)
+cuos_argv_init_strlist(char const **argv, cucon_list_t lst)
 {
     cucon_listnode_t it;
     for (it = cucon_list_begin(lst);

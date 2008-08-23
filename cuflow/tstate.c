@@ -33,7 +33,7 @@ tstate_dct(cuflow_tstate_t tstate)
 }
 
 static void
-tstate_cct(cuflow_tstate_t tstate)
+tstate_init(cuflow_tstate_t tstate)
 {
     cuflowP_exeq_init_tstate(tstate);
     cu_mutex_lock(&cuflowP_tstate_chain_mutex);
@@ -60,7 +60,7 @@ cu_clop_def0(tstate_cleanup, void)
 void
 cuflowP_tstate_initialise(void)
 {
-    tstate_cct(&cuflowP_tstate);
+    tstate_init(&cuflowP_tstate);
     cu_thread_atexit(tstate_cleanup);
     cuflowP_tstate_initialised = cu_true;
 }
@@ -73,7 +73,7 @@ cuflow_tstate_t
 cuflowP_tstate_initialise(void)
 {
     cuflow_tstate_t tstate = cu_gnew_u(struct cuflow_tstate_s);
-    tstate_cct(tstate);
+    tstate_init(tstate);
     pthread_setspecific(cuflowP_tstate_key, tstate);
     return tstate;
 }

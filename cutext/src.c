@@ -28,7 +28,7 @@
 size_t cutextP_buffer_limit = 1000000;
 
 void
-cutext_src_cct(cutext_src_t src, cutext_producer_t producer)
+cutext_src_init(cutext_src_t src, cutext_producer_t producer)
 {
     cu_buffer_init(&src->buf, 4096);
     src->produce = producer;
@@ -38,23 +38,23 @@ cutext_src_t
 cutext_src_new(cutext_producer_t producer)
 {
     cutext_src_t src = cu_gnew(struct cutext_src_s);
-    cutext_src_cct(src, producer);
+    cutext_src_init(src, producer);
     return src;
 }
 
 void
-cutext_src_cct_move(cutext_src_t src_cct, cutext_src_t src_dct)
+cutext_src_init_grab(cutext_src_t src_init, cutext_src_t src_drop)
 {
-    cu_buffer_init_drop(&src_cct->buf, &src_dct->buf);
-    src_cct->produce = src_dct->produce;
-    src_dct->produce = cu_clop_null;
+    cu_buffer_init_drop(&src_init->buf, &src_drop->buf);
+    src_init->produce = src_drop->produce;
+    src_drop->produce = cu_clop_null;
 }
 
 cutext_src_t
-cutext_src_new_move(cutext_src_t src_dct)
+cutext_src_new_grab(cutext_src_t src_drop)
 {
     cutext_src_t src = cu_gnew(struct cutext_src_s);
-    cutext_src_cct_move(src, src_dct);
+    cutext_src_init_grab(src, src_drop);
     return src;
 }
 

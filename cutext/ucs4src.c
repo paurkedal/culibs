@@ -22,10 +22,10 @@
 #include <string.h>
 
 void
-cutext_ucs4src_cct(cutext_ucs4src_t ucs4src, cutext_producer_t producer,
-		   cu_str_t path, int line, int column)
+cutext_ucs4src_init(cutext_ucs4src_t ucs4src, cutext_producer_t producer,
+		    cu_str_t path, int line, int column)
 {
-    cutext_src_cct(&ucs4src->src, producer);
+    cutext_src_init(&ucs4src->src, producer);
     ucs4src->properties = NULL;
     if (cutext_src_lookahead(&ucs4src->src, 4)
 	== cutext_status_eos)
@@ -39,7 +39,7 @@ cutext_ucs4src_new(cutext_producer_t producer,
 		   cu_str_t path, int line, int column)
 {
     cutext_ucs4src_t ucs4src = cu_gnew(struct cutext_ucs4src_s);
-    cutext_ucs4src_cct(ucs4src, producer, path, line, column);
+    cutext_ucs4src_init(ucs4src, producer, path, line, column);
     return ucs4src;
 }
 
@@ -101,19 +101,19 @@ cu_clos_def(header_strchar,
 }
 
 void
-cutext_ucs4src_cct_detect(cutext_ucs4src_t ucs4src,
-			  cutext_producer_t producer,
-			  cu_str_t path, int line, int column)
+cutext_ucs4src_init_detect(cutext_ucs4src_t ucs4src,
+			   cutext_producer_t producer,
+			   cu_str_t path, int line, int column)
 {
     cutext_encoding_t chenc;
     cu_wchar_t *s;
     cu_wchar_t ch;
-    cutext_src_cct(&ucs4src->src, producer);
+    cutext_src_init(&ucs4src->src, producer);
     ucs4src->properties = NULL;
     chenc = cutext_src_detect_chenc(&ucs4src->src);
     if (chenc != CUTEXT_ENCODING_UCS4HOST) {
-	cutext_src_t src = cutext_src_new_move(&ucs4src->src);
-	cutext_src_cct(&ucs4src->src,
+	cutext_src_t src = cutext_src_new_grab(&ucs4src->src);
+	cutext_src_init(&ucs4src->src,
 		       cutext_producer_new_iconv(src, chenc,
 						 CUTEXT_ENCODING_UCS4HOST));
     }
@@ -211,7 +211,7 @@ cutext_ucs4src_new_detect(cutext_producer_t producer,
 			  cu_str_t path, int line, int column)
 {
     cutext_ucs4src_t ucs4src = cu_gnew(struct cutext_ucs4src_s);
-    cutext_ucs4src_cct_detect(ucs4src, producer, path, line, column);
+    cutext_ucs4src_init_detect(ucs4src, producer, path, line, column);
     return ucs4src;
 }
 

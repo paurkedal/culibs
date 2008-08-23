@@ -37,16 +37,16 @@ struct cutext_ucs4src_s
 
 /* Create an UCS-4 source from 'producer'.  The three last parameters
  * are used only to construct a cu_sref_t. */
-void cutext_ucs4src_cct(cutext_ucs4src_t ucs4src, cutext_producer_t producer,
-			cu_str_t path, int line, int column);
+void cutext_ucs4src_init(cutext_ucs4src_t ucs4src, cutext_producer_t producer,
+			 cu_str_t path, int line, int column);
 cutext_ucs4src_t cutext_ucs4src_new(cutext_producer_t producer,
 				    cu_str_t path, int line, int column);
 
 /* Create an UCS-4 source from 'producer' with conversion from an detected
  * character set among UTF-8, UTF-16, UTF-16LE, UCS-4 or UCS-4LE. */
-void cutext_ucs4src_cct_detect(cutext_ucs4src_t usc4src,
-			       cutext_producer_t producer,
-			       cu_str_t path, int line, int column);
+void cutext_ucs4src_init_detect(cutext_ucs4src_t usc4src,
+				cutext_producer_t producer,
+				cu_str_t path, int line, int column);
 cutext_ucs4src_t cutext_ucs4src_new_detect(cutext_producer_t producer,
 					   cu_str_t path,
 					   int line, int column);
@@ -133,6 +133,10 @@ cutext_ucs4src_get(cutext_ucs4src_t ucs4src)
     cutext_ucs4src_advance(ucs4src, 1);
     return ch;
 }
+
+/* Backward compat. */
+#define cutext_ucs4src_cct		cutext_ucs4src_init
+#define cutext_ucs4src_cct_detect	cutext_ucs4src_init_detect
 
 CU_END_DECLARATIONS
 
