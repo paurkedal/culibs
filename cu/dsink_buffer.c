@@ -25,8 +25,8 @@
 
 #define WRITE_THRESHOLD 512
 
-typedef struct bufsink_s *bufsink_t;
-struct bufsink_s
+typedef struct _bufsink_s *_bufsink_t;
+struct _bufsink_s
 {
     cu_inherit (cu_dsink_s);
     cu_dsink_t subsink;
@@ -34,7 +34,7 @@ struct bufsink_s
 };
 
 static cu_word_t
-bufsink_flush(bufsink_t sink)
+_bufsink_flush(_bufsink_t sink)
 {
     size_t size_wr;
     size_wr = cu_dsink_write(sink->subsink,
@@ -55,9 +55,9 @@ bufsink_flush(bufsink_t sink)
 }
 
 static size_t
-bufsink_write(cu_dsink_t sink_, void const *data, size_t size)
+_bufsink_write(cu_dsink_t sink_, void const *data, size_t size)
 {
-    bufsink_t sink = cu_from(bufsink, cu_dsink, sink_);
+    _bufsink_t sink = cu_from(_bufsink, cu_dsink, sink_);
     size_t size_left;
 
     if (!sink->subsink)
@@ -77,7 +77,7 @@ bufsink_write(cu_dsink_t sink_, void const *data, size_t size)
 
 	/* Write as much of current buffer as possible. */
 	if (cu_buffer_content_size(&sink->buf) >= WRITE_THRESHOLD) {
-	    if (bufsink_flush(sink) == CU_DSINK_ST_FAILURE)
+	    if (_bufsink_flush(sink) == CU_DSINK_ST_FAILURE)
 		return (size_t)-1;
 	}
 	else
@@ -88,10 +88,10 @@ bufsink_write(cu_dsink_t sink_, void const *data, size_t size)
     return size;
 }
 
-cu_word_t
-bufsink_control(cu_dsink_t sink_, int fc, va_list va)
+static cu_word_t
+_bufsink_control(cu_dsink_t sink_, int fc, va_list va)
 {
-    bufsink_t sink = cu_from(bufsink, cu_dsink, sink_);
+    _bufsink_t sink = cu_from(_bufsink, cu_dsink, sink_);
     switch (fc) {
 	case CU_DSINK_FN_IS_CLOGFREE:
 	    return CU_DSINK_ST_SUCCESS;
@@ -107,7 +107,7 @@ bufsink_control(cu_dsink_t sink_, int fc, va_list va)
 	default:
 	    if (sink->subsink) {
 		if (fc & 1)
-		    bufsink_flush(sink);
+		    _bufsink_flush(sink);
 		return cu_dsink_control_va(sink->subsink, fc, va);
 	    }
 	    else
@@ -118,8 +118,8 @@ bufsink_control(cu_dsink_t sink_, int fc, va_list va)
 cu_dsink_t
 cu_dsink_stack_buffer(cu_dsink_t subsink)
 {
-    bufsink_t sink = cu_gnew(struct bufsink_s);
-    cu_dsink_init(cu_to(cu_dsink, sink), bufsink_control, bufsink_write);
+    _bufsink_t sink = cu_gnew(struct _bufsink_s);
+    cu_dsink_init(cu_to(cu_dsink, sink), _bufsink_control, _bufsink_write);
     sink->subsink = subsink;
     cu_buffer_init(&sink->buf, WRITE_THRESHOLD*2);
     return cu_to(cu_dsink, sink);

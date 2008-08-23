@@ -24,29 +24,29 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-typedef struct fd_sink_s *fd_sink_t;
-struct fd_sink_s
+typedef struct _fd_sink_s *_fd_sink_t;
+struct _fd_sink_s
 {
     cu_inherit (cu_dsink_s);
     int fd;
 };
 
-#define FD_SINK(sink) cu_from(fd_sink, cu_dsink, sink)
+#define FD_SINK(sink) cu_from(_fd_sink, cu_dsink, sink)
 
-size_t
-fd_sink_write(cu_dsink_t sink, void const *data, size_t size)
+static size_t
+_fd_sink_write(cu_dsink_t sink, void const *data, size_t size)
 {
     return write(FD_SINK(sink)->fd, data, size);
 }
 
-cu_word_t
-fd_sink_control_if_not_close(cu_dsink_t sink, int cmd, va_list va)
+static cu_word_t
+_fd_sink_control_if_not_close(cu_dsink_t sink, int cmd, va_list va)
 {
     return CU_DSINK_ST_UNIMPL;
 }
 
-cu_word_t
-fd_sink_control_if_close(cu_dsink_t sink, int cmd, va_list va)
+static cu_word_t
+_fd_sink_control_if_close(cu_dsink_t sink, int cmd, va_list va)
 {
     switch (cmd) {
 	case CU_DSINK_FN_DISCARD:
@@ -61,9 +61,9 @@ fd_sink_control_if_close(cu_dsink_t sink, int cmd, va_list va)
 cu_dsink_t
 cuos_dsink_fdopen(int fd)
 {
-    fd_sink_t sink = cu_gnew(struct fd_sink_s);
+    _fd_sink_t sink = cu_gnew(struct _fd_sink_s);
     cu_dsink_init(cu_to(cu_dsink, sink),
-		  fd_sink_control_if_not_close, fd_sink_write);
+		  _fd_sink_control_if_not_close, _fd_sink_write);
     sink->fd = fd;
     return cu_to(cu_dsink, sink);
 }
@@ -71,9 +71,9 @@ cuos_dsink_fdopen(int fd)
 cu_dsink_t
 cuos_dsink_fdopen_close(int fd)
 {
-    fd_sink_t sink = cu_gnew(struct fd_sink_s);
+    _fd_sink_t sink = cu_gnew(struct _fd_sink_s);
     cu_dsink_init(cu_to(cu_dsink, sink),
-		  fd_sink_control_if_close, fd_sink_write);
+		  _fd_sink_control_if_close, _fd_sink_write);
     sink->fd = fd;
     return cu_to(cu_dsink, sink);
 }

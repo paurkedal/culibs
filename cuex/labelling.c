@@ -144,7 +144,6 @@ cuex_labelling_find(cuex_t L, cuex_t l)
 size_t
 cuex_labelling_find_index(cuex_t L, cuex_t l)
 {
-    cuex_t e;
     if (!cuex_is_labelling(L))
 	cu_bugf("First argument of cuex_labelling_find_index must be a "
 		"labelling.");
@@ -154,7 +153,6 @@ cuex_labelling_find_index(cuex_t L, cuex_t l)
 size_t
 cuex_labelling_card(cuex_t L)
 {
-    cuex_t e;
     if (!cuex_is_labelling(L))
 	cu_bugf("First argument of cuex_labelling_card must be a labelling.");
     return cuex_atree_card(LABELLING(L)->atree);

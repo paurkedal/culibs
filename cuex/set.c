@@ -34,13 +34,13 @@ struct cuex_set_s
 #define SET(x) ((cuex_set_t)(x))
 
 
-cu_clop_def(set_key, cu_word_t, cuex_t e)
+cu_clop_def(_set_key, cu_word_t, cuex_t e)
 {
     return (cu_word_t)e;
 }
 
 static cuex_t
-set_new(cuex_t atree)
+_set_new(cuex_t atree)
 {
     cuoo_hctem_decl(cuex_set, tem);
     cuoo_hctem_init(cuex_set, tem);
@@ -51,7 +51,7 @@ set_new(cuex_t atree)
 cuex_t
 cuex_singleton_set(cuex_t e)
 {
-    return set_new(cuex_atree_singleton(e));
+    return _set_new(cuex_atree_singleton(e));
 }
 
 cuex_t
@@ -59,7 +59,7 @@ cuex_set_insert(cuex_t S, cuex_t e)
 {
     if (!cuex_is_set(S))
 	cu_bugf("cuex_set_insert, first arg: expected a set, got %!.", S);
-    return set_new(cuex_atree_insert(set_key, SET(S)->atree, e));
+    return _set_new(cuex_atree_insert(_set_key, SET(S)->atree, e));
 }
 
 cuex_t
@@ -67,7 +67,7 @@ cuex_set_erase(cuex_t S, cuex_t e)
 {
     if (!cuex_is_set(S))
 	cu_bugf("cuex_set_erase, first arg: expected a set, got %!.", S);
-    return set_new(cuex_atree_erase(set_key, SET(S)->atree, (cu_word_t)e));
+    return _set_new(cuex_atree_erase(_set_key, SET(S)->atree, (cu_word_t)e));
 }
 
 cuex_t
@@ -77,8 +77,8 @@ cuex_set_union(cuex_t S0, cuex_t S1)
 	cu_bugf("cuex_set_union, first arg: expected a set, got %!.", S0);
     if (!cuex_is_set(S1))
 	cu_bugf("cuex_set_union, second arg: expected a set, got %!.", S1);
-    return set_new(cuex_atree_left_union(set_key,
-					 SET(S0)->atree, SET(S1)->atree));
+    return _set_new(cuex_atree_left_union(_set_key,
+					  SET(S0)->atree, SET(S1)->atree));
 }
 
 cuex_t
@@ -88,8 +88,8 @@ cuex_set_isecn(cuex_t S0, cuex_t S1)
 	cu_bugf("cuex_set_isecn, first arg: expected a set, got %!.", S0);
     if (!cuex_is_set(S1))
 	cu_bugf("cuex_set_isecn, second arg: expected a set, got %!.", S1);
-    return set_new(cuex_atree_left_isecn(set_key,
-					 SET(S0)->atree, SET(S1)->atree));
+    return _set_new(cuex_atree_left_isecn(_set_key,
+					  SET(S0)->atree, SET(S1)->atree));
 }
 
 cu_bool_t
@@ -97,7 +97,7 @@ cuex_set_contains(cuex_t S, cuex_t e)
 {
     if (!cuex_is_set(S))
 	cu_bugf("cuex_set_contains, first arg: expected a set, got %!.", S);
-    return !!cuex_atree_find(set_key, SET(S)->atree, (cu_word_t)e);
+    return !!cuex_atree_find(_set_key, SET(S)->atree, (cu_word_t)e);
 }
 
 cu_bool_t
@@ -107,7 +107,7 @@ cuex_set_subeq(cuex_t S0, cuex_t S1)
 	cu_bugf("cuex_set_subeq, first arg: expected a set, got %!.", S0);
     if (!cuex_is_set(S1))
 	cu_bugf("cuex_set_subeq, second arg: expected a set, got %!.", S1);
-    return cuex_atree_subseteq(set_key, SET(S0)->atree, SET(S1)->atree);
+    return cuex_atree_subseteq(_set_key, SET(S0)->atree, SET(S1)->atree);
 }
 
 cu_order_t
@@ -117,7 +117,7 @@ cuex_set_order(cuex_t S0, cuex_t S1)
 	cu_bugf("cuex_set_order, first arg: expected a set, got %!.", S0);
     if (!cuex_is_set(S1))
 	cu_bugf("cuex_set_order, second arg: expected a set, got %!.", S1);
-    return cuex_atree_order(set_key, SET(S0)->atree, SET(S1)->atree);
+    return cuex_atree_order(_set_key, SET(S0)->atree, SET(S1)->atree);
 }
 
 
@@ -160,7 +160,7 @@ comm_build_sinktor_put(cu_ptr_sink_t sink, void *e)
 {
     comm_build_sinktor_t self
 	= cu_from2(comm_build_sinktor, cu_ptr_sinktor, cu_ptr_sink, sink);
-    self->new_atree = cuex_atree_insert(set_key, self->new_atree, e);
+    self->new_atree = cuex_atree_insert(_set_key, self->new_atree, e);
 }
 
 static void *
@@ -168,7 +168,7 @@ comm_build_sinktor_finish(cu_ptr_sinktor_t sinktor)
 {
     comm_build_sinktor_t self
 	= cu_from(comm_build_sinktor, cu_ptr_sinktor, sinktor);
-    return set_new(self->new_atree);
+    return _set_new(self->new_atree);
 }
 
 static cu_ptr_sinktor_t
@@ -193,7 +193,7 @@ comm_union_sinktor(cuex_intf_compound_t impl, cuex_t S)
     return cu_to(cu_ptr_sinktor, self);
 }
 
-static struct cuex_intf_compound_s set_compound = {
+static struct cuex_intf_compound_s _set_compound = {
     .flags = CUEX_COMPOUNDFLAG_PREFER_COMM
 	   | CUEX_COMPOUNDFLAG_COMM_IDEMPOTENT,
     .comm_iter_source = &comm_iter_source,
@@ -204,8 +204,8 @@ static struct cuex_intf_compound_s set_compound = {
 
 /* == Interface Dispatch == */
 
-void
-set_print(void *S, FILE *out)
+static void
+_set_print(void *S, FILE *out)
 {
     int i = 0;
     void *itr = cu_salloc(cuex_atree_itr_size(S));
@@ -218,13 +218,13 @@ set_print(void *S, FILE *out)
 }
 
 static cu_word_t
-set_dispatch(cu_word_t intf_number, ...)
+_set_dispatch(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUOO_INTF_PRINT_FN:
-	    return (cu_word_t)&set_print;
+	    return (cu_word_t)&_set_print;
 	case CUEX_INTF_COMPOUND:
-	    return (cu_word_t)&set_compound;
+	    return (cu_word_t)&_set_compound;
 	default:
 	    return CUOO_IMPL_NONE;
     }
@@ -238,8 +238,8 @@ cuex_t cuexP_set_empty;
 void
 cuexP_set_init()
 {
-    cuex_intf_compound_finish(&set_compound);
+    cuex_intf_compound_finish(&_set_compound);
     cuexP_set_type = cuoo_type_new_opaque_hcs(
-	set_dispatch, sizeof(struct cuex_set_s) - CUOO_HCOBJ_SHIFT);
-    cuexP_set_empty = set_new(cuex_atree_empty());
+	_set_dispatch, sizeof(struct cuex_set_s) - CUOO_HCOBJ_SHIFT);
+    cuexP_set_empty = _set_new(cuex_atree_empty());
 }

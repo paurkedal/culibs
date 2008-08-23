@@ -488,8 +488,8 @@ default_type(cuex_t ex)
     return t;
 }
 
-cuoo_type_t
-dispatch_type(cuex_t ex, cu_bool_t have_lock)
+static cuoo_type_t
+_dispatch_type(cuex_t ex, cu_bool_t have_lock)
 {
     if (cuoo_is_type(ex))
 	return ex;
@@ -519,13 +519,13 @@ dispatch_type(cuex_t ex, cu_bool_t have_lock)
 cuoo_type_t
 cuoo_type_glck(cuex_t ex)
 {
-    return dispatch_type(ex, cu_true);
+    return _dispatch_type(ex, cu_true);
 }
 
 cuoo_type_t
 cuoo_type(cuex_t ex)
 {
-    return dispatch_type(ex, cu_false);
+    return _dispatch_type(ex, cu_false);
 }
 
 

@@ -262,7 +262,7 @@ monoid_print(void *x, FILE *out)
 
 /* == Dispatch == */
 
-struct cuex_intf_compound_s compound_impl = {
+static struct cuex_intf_compound_s _compound_impl = {
     .flags = CUEX_COMPOUNDFLAG_PREFER_NCOMM
 	   | CUEX_COMPOUNDFLAG_NCOMM_FILTERABLE_IMAGE
 	   | CUEX_COMPOUNDFLAG_NCOMM_EXPANSIVE_IMAGE,
@@ -270,12 +270,12 @@ struct cuex_intf_compound_s compound_impl = {
     .ncomm_build_sinktor = build_sinktor,
 };
 
-cu_word_t
-monoid_dispatch(cu_word_t intf_number, ...)
+static cu_word_t
+_monoid_dispatch(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUEX_INTF_COMPOUND:
-	    return (cu_word_t)&compound_impl;
+	    return (cu_word_t)&_compound_impl;
 	case CUOO_INTF_PRINT_FN:
 	    return (cu_word_t)monoid_print;
 	default:
@@ -288,7 +288,7 @@ cuoo_type_t cuexP_monoid_type;
 void
 cuexP_monoid_init(void)
 {
-    cuex_intf_compound_finish(&compound_impl);
+    cuex_intf_compound_finish(&_compound_impl);
     cuexP_monoid_type = cuoo_type_new_opaque_hcs(
-	monoid_dispatch, sizeof(struct cuex_monoid_s) - CUOO_HCOBJ_SHIFT);
+	_monoid_dispatch, sizeof(struct cuex_monoid_s) - CUOO_HCOBJ_SHIFT);
 }
