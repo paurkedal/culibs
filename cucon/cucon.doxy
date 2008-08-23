@@ -1,10 +1,15 @@
 /*!
-\defgroup cucon_linear_mod Lists, Stacks, and Arrays
+
+\defgroup cucon_linear_mod Linear Containers (lists, stacks, arrays)
 \ingroup cucon_mod
 
-\defgroup cucon_maps_and_sets_mod Trees, Maps, and Sets
+\defgroup cucon_maps_and_sets_mod Associative Containers (trees, maps, sets)
 \ingroup cucon_mod
 
 \defgroup cucon_misc_mod Miscellaneous
 \ingroup cucon_mod
+
+\defgroup cucon_deprecated_mod Deprecated (Subject to Removal)
+\ingroup cucon_mod
+
 */

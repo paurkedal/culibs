@@ -27,7 +27,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_logchain cucon/logchain.h: Chained chunks of memory with logarithmic time access
- * @{\ingroup cucon_linear_mod
+ * @{\ingroup cucon_deprecated_mod
  * \deprecated Use \ref cucon_frame_h */
 
 #define cuconP_LOGCHAIN_LINK(logchain, i) (((void **)(logchain))[-i-1])
@@ -46,7 +46,7 @@ void *cuconP_logchain_find_nontrivial(void *, size_t, size_t);
  * 'src_depth'.  Pre: 'src_depth ≤ dst_depth' */
 CU_SINLINE void *
 cucon_logchain_find(void *src_lch, cucon_logchain_depth_t src_depth,
-		  cucon_logchain_depth_t dst_depth)
+		    cucon_logchain_depth_t dst_depth)
 {
     if (src_depth == dst_depth)
 	return src_lch;

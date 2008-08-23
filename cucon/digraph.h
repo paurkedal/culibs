@@ -38,7 +38,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_digraph cucon/digraph.h: Directed and Undirected Graphs (deprecated)
- * @{\ingroup cucon_misc_mod
+ * @{\ingroup cucon_deprecated_mod
  * \deprecated Replaced by the \ref cugra_mod "cugra" library.
  */
 

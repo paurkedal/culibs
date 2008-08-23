@@ -24,15 +24,15 @@
 #include <stdio.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cucon_rbtree cucon/rbtree.h: Back-Link-Free Red-Black Trees
+/*!\defgroup cucon_rbtree cucon/rbtree.h: Red-Black Trees
  * @{\ingroup cucon_maps_and_sets_mod
  *
  * \note This is a somewhat unstable low-level API used to define more
  * friendly APIs like \ref cucon_rbset_h and \ref cucon_rbmap_h, so you
  * probably want to use those instead.
  *
- * This is usual algorithm, but without back-links on the nodes so that
- * it is possible to make constant time copies by sharing nodes.
+ * This is usual algorithm, but without back-links on the nodes to allow purely
+ * constructive updates if desired.
  * The comparison predicate is passed to the accessors and mutators.
  * This makes it possible to define both sets and maps in terms of these
  * trees, and it is also a way to allow keys to be stored directly on
