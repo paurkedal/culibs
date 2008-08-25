@@ -23,6 +23,7 @@
 #include <cuex/intf.h>
 #include <cucon/list.h>
 #include <cucon/pmap.h>
+#include <cucon/stack.h>
 #include <cu/int.h>
 #include <cu/ptr_seq.h>
 #include <limits.h>
@@ -58,6 +59,60 @@ cuexP_bfree_adjusted(cuex_t e, int l_diff, int l_top)
     }
     return e;
 }
+
+cuex_t
+cuex_reindex_by_int_stack(cuex_t e,
+			  int stack_top_level, int stack_span,
+			  cucon_stack_t stack)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    if (cuex_meta_is_opr(e_meta)) {
+	if (cuex_og_hole_contains(e_meta)) {
+	    int i = cuex_oa_hole_index(e_meta);
+	    if (i >= stack_top_level) {
+		int j = i - stack_top_level;
+		int stack_size = cucon_stack_size_int(stack);
+		int l_out;
+		if (j >= stack_size)
+		    l_out = j - stack_size + stack_span;
+		else
+		    l_out = cucon_stack_at_int(stack, j);
+		return cuex_hole(l_out + stack_top_level);
+	    }
+	    else
+		return e;
+	}
+	else {
+	    if (cuex_og_binder_contains(e_meta))
+		++stack_top_level;
+	    CUEX_OPN_TRAN(e_meta, e, ep,
+			  cuex_reindex_by_int_stack(ep, stack_top_level,
+						    stack_span, stack));
+	    return e;
+	}
+    }
+    else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t e_type = cuoo_type_from_meta(e_meta);
+	cu_word_t comp = cuoo_type_impl(e_type, CUEX_INTF_COMPOUND);
+	if (comp != CUOO_IMPL_NONE) {
+	    cuex_t ep;
+	    cu_ptr_junctor_t jct;
+	    jct = cuex_compound_pref_image_junctor(
+			(cuex_intf_compound_t)comp, e);
+	    while ((ep = cu_ptr_junctor_get(jct))) {
+		ep = cuex_reindex_by_int_stack(ep, stack_top_level,
+					       stack_span, stack);
+		cu_ptr_junctor_put(jct, ep);
+	    }
+	    return cu_ptr_junctor_finish(jct);
+	}
+	else
+	    return e;
+    }
+    else
+	return e;
+}
+
 
 int
 cuex_max_binding_depth(cuex_t e)

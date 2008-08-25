@@ -77,6 +77,9 @@ cuex_t cuexP_bfree_adjusted(cuex_t e, int l_diff, int l_top);
 CU_SINLINE cuex_t cuex_bfree_adjusted(cuex_t e, int l_diff)
 { return cuexP_bfree_adjusted(e, l_diff, -1); }
 
+cuex_t cuex_reindex_by_int_stack(cuex_t e, int stack_top_level,
+				 int stack_span, cucon_stack_t stack);
+
 /*!The maximum number of binding sites, according to \ref
  * cuex_og_binder_contains, which needs to be crossed to reach a leaf of
  * \a e. */
