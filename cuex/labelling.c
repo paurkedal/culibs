@@ -24,6 +24,7 @@
 #include <cuex/monoid.h>
 #include <cuoo/halloc.h>
 #include <cuoo/properties.h>
+#include <cufo/stream.h>
 #include <cu/ptr_seq.h>
 
 #define l_o2_label cuex_o2_metapair
@@ -367,11 +368,37 @@ static void
 labelling_print(void *L, FILE *out)
 {
     labelling_print_elt_t cl;
-    fputc('(', out);
+    fputc('{', out);
     cl.out = out;
     cl.index = 0;
     cuex_atree_iter(LABELLING(L)->atree, labelling_print_elt_prep(&cl));
-    fputc(')', out);
+    fputc('}', out);
+}
+
+cu_clos_def(labelling_foprint_elt, cu_prot(void, cuex_t e),
+  ( cufo_stream_t fos;
+    int index; ))
+{
+    cu_clos_self(labelling_foprint_elt);
+    cuex_t l, x;
+    if (self->index++)
+	cufo_puts(self->fos, ", ");
+    cu_debug_assert(cuex_meta_is_opr(cuex_meta(e)) &&
+		    cuex_opr_r(cuex_meta(e)) >= 2);
+    l = cuex_opn_at(e, 0);
+    x = cuex_opn_at(e, 1);
+    cufo_printf(self->fos, "%!: %!", l, x);
+}
+
+static void
+labelling_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *L)
+{
+    labelling_foprint_elt_t cl;
+    cufo_putc(fos, '{');
+    cl.fos = fos;
+    cl.index = 0;
+    cuex_atree_iter(LABELLING(L)->atree, labelling_foprint_elt_prep(&cl));
+    cufo_putc(fos, '}');
 }
 
 
@@ -602,6 +629,8 @@ labelling_impl(cu_word_t intf_number, ...)
     switch (intf_number) {
 	case CUOO_INTF_PRINT_FN:
 	    return (cu_word_t)labelling_print;
+	case CUOO_INTF_FOPRINT_FN:
+	    return (cu_word_t)labelling_foprint;
 	case CUEX_INTF_COMPOUND:
 	    return (cu_word_t)&labelling_compound;
 	default:
