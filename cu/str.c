@@ -943,11 +943,15 @@ str_print(cuex_t ex, FILE *out)
     fprintf(out, "%s", s);
 }
 
+/* Assigned by cufo_init(). */
+cu_word_t cuP_str_foprint = CUOO_IMPL_NONE;
+
 static cu_word_t
 str_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
         case CUOO_INTF_PRINT_FN: return (cu_word_t)str_print;
+	case CUOO_INTF_FOPRINT_FN: return cuP_str_foprint;
         default: return CUOO_IMPL_NONE;
     }
 }

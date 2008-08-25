@@ -45,9 +45,9 @@
 #define CUFO_PRILENGTH_PTRDIFF 8
 #define CUFO_PRILENGTH_LONG_DOUBLE 9
 
-#define FORMAT_MAP_KEYSIZE 8
+#define FORMAT_MAP_KEYSIZE 16
 #define FORMAT_MAP_KEYSIZEW \
-    ((FORMAT_MAP_KEYSIZE + sizeof(cu_word_t) - 1)/FORMAT_MAP_KEYSIZE)
+    ((FORMAT_MAP_KEYSIZE + sizeof(cu_word_t) - 1)/sizeof(cu_word_t))
 
 typedef struct cufoP_tag_stack_s *cufoP_tag_stack_t;
 struct cufoP_tag_stack_s
@@ -77,7 +77,7 @@ insert_format(char const *key)
     cucon_hzmap_node_t node;
     cu_word_t wkey[FORMAT_MAP_KEYSIZEW];
     size_t len = strlen(key);
-    if (len > sizeof(wkey))
+    if (len > FORMAT_MAP_KEYSIZE)
 	cu_bugf("Format key '%s' is too long, max length is %d",
 		key, FORMAT_MAP_KEYSIZE);
     memset(wkey, 0, sizeof(wkey));

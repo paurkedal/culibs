@@ -63,8 +63,10 @@ cu_wstring_of_arr_ref_o(cu_wchar_t const *arr, size_t len)
     return s;
 }
 
-cu_wstring_t
-cu_wstring_of_chararr(char const *arr, size_t len)
+static cu_wstring_t
+_wstring_of_chararr_helper(char const *arr, size_t len,
+			   cu_wstring_t (*construct)(cu_wchar_t const *arr,
+						     size_t len))
 {
     iconv_t cd = cu_iconv_for_char_to_wchar();
     cu_wchar_t *buf = cu_salloc(len*sizeof(cu_wchar_t));
@@ -83,7 +85,19 @@ cu_wstring_of_chararr(char const *arr, size_t len)
 	}
     }
     cu_debug_assert(outcap % sizeof(cu_wchar_t) == 0);
-    return cu_wstring_of_arr(buf, len - outcap/sizeof(cu_wchar_t));
+    return (*construct)(buf, len - outcap/sizeof(cu_wchar_t));
+}
+
+cu_wstring_t
+cu_wstring_of_chararr(char const *arr, size_t len)
+{
+    return _wstring_of_chararr_helper(arr, len, cu_wstring_of_arr);
+}
+
+cu_wstring_t
+cu_wstring_of_chararr_o(char const *arr, size_t len)
+{
+    return _wstring_of_chararr_helper(arr, len, cu_wstring_of_arr_o);
 }
 
 cu_wstring_t
@@ -221,12 +235,17 @@ wstring_print(void *o, FILE *out)
     fprintf(out, "#[cu_wstring @ %p]", o); /* TODO */
 }
 
+/* This is set by cufo_init(). */
+cu_word_t cuP_wstring_foprint = CUOO_IMPL_NONE;
+
 static cu_word_t
 wstring_dispatch(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN:
 	    return (cu_word_t)wstring_print;
+	case CUOO_INTF_FOPRINT_FN:
+	    return cuP_wstring_foprint;
 	default:
 	    return CUOO_IMPL_NONE;
     }

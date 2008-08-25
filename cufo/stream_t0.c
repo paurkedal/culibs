@@ -34,6 +34,9 @@ void
 print_page(cufo_stream_t fos)
 {
     int i, j;
+    cu_wstring_t wstring;
+    cu_str_t str;
+
     cufo_entera(fos, cufoT_title, cufoA_id("main-title"));
     cufo_puts(fos, "Test Output of libcufo Formatter\n");
     cufo_leaveln(fos, cufoT_title);
@@ -66,6 +69,13 @@ print_page(cufo_stream_t fos)
 		    "%4hd = %4d = %+4ld = %-4hd = %d = %+ld = %#lx\n",
 		    (short)i, i, (long)i, (short)i, i, (long)i, (long)i);
     }
+
+    wstring = CU_WSTRING_C_O("\"quoted\" and \\backslashed.\tΓρεεκ.\n");
+    str = cu_str_onew_cstr("\"quoted\" and \\backslashed.\tΓρεεκ.\n");
+    cufo_printf(fos, "%%(wstring/r) format: %(wstring/r)\n", wstring);
+    cufo_printf(fos, "%%! wstring format:   %!\n", wstring);
+    cufo_printf(fos, "%%(str/r) format: %(str/r)\n", str);
+    cufo_printf(fos, "%%! str format:   %!\n", str);
 }
 
 void

@@ -41,8 +41,11 @@ struct cu_wstring_s
 #ifdef CU_WCHAR_IS_STDC
 #  define CU_WSTRING_C(s) \
 	  cu_wstring_of_arr(L##s, sizeof(L##s)/sizeof(cu_wchar_t) - 1)
+#  define CU_WSTRING_C_O(s) \
+	  cu_wstring_of_arr_o(L##s, sizeof(L##s)/sizeof(cu_wchar_t) - 1)
 #else
 #  define CU_WSTRING_C(s) cu_wstring_of_chararr(s, sizeof(s) - 1)
+#  define CU_WSTRING_C_O(s) cu_wstring_of_chararr_o(s, sizeof(s) - 1)
 #endif
 
 /*!Dynamic type of a \a cu_wstring_t. Only strings returned by functions ending
@@ -80,6 +83,8 @@ cu_wstring_t cu_wstring_of_arr_ref(cu_wchar_t const *arr, size_t len);
 cu_wstring_t cu_wstring_of_arr_ref_o(cu_wchar_t const *arr, size_t len);
 
 cu_wstring_t cu_wstring_of_chararr(char const *arr, size_t len);
+
+cu_wstring_t cu_wstring_of_chararr_o(char const *arr, size_t len);
 
 cu_wstring_t cu_wstring_of_charstr(char const *str);
 

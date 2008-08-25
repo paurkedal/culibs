@@ -17,22 +17,26 @@
 
 #include <cufo/stream.h>
 #include <cufo/tagdefs.h>
+#include <cutext/wctype.h>
+#include <cu/wstring.h>
+#include <cu/str.h>
+#include <ctype.h>
 
 static void
-print_wstring(cufo_stream_t fos, cufo_prispec_t spec, void *p)
+_print_wstring(cufo_stream_t fos, cufo_prispec_t spec, void *p)
 {
     cufo_print_wstring(fos, p);
 }
 
 static void
-print_str(cufo_stream_t fos, cufo_prispec_t spec, void *p)
+_print_str(cufo_stream_t fos, cufo_prispec_t spec, void *p)
 {
     cufo_print_str(fos, p);
 }
 
 static void
-print_script(cufo_stream_t fos, cufo_prispec_t spec, long x, cufo_tag_t tag,
-	     char const **digits, char const *minus)
+_print_script(cufo_stream_t fos, cufo_prispec_t spec, long x, cufo_tag_t tag,
+	      char const **digits, char const *minus)
 {
     if (cufo_enter(fos, tag))
 	cufo_printf(fos, "%ld", x);
@@ -52,53 +56,113 @@ print_script(cufo_stream_t fos, cufo_prispec_t spec, long x, cufo_tag_t tag,
     cufo_leave(fos, tag);
 }
 
+static char const *_sub_digits[] = {
+    "₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"
+};
+
+static char const *_sup_digits[] = {
+    "⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"
+};
+
 static void
-print_d_sub(cufo_stream_t fos, cufo_prispec_t spec, cu_va_ref_t va_ref)
+_print_d_sub(cufo_stream_t fos, cufo_prispec_t spec, cu_va_ref_t va_ref)
 {
     int x = cu_va_ref_arg(va_ref, int);
-    static char const *digits[] = {
-	"₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"
-    };
-    print_script(fos, spec, x, cufoT_subscript, digits, "₋");
+    _print_script(fos, spec, x, cufoT_subscript, _sub_digits, "₋");
 }
 
 static void
-print_d_sup(cufo_stream_t fos, cufo_prispec_t spec, cu_va_ref_t va_ref)
+_print_d_sup(cufo_stream_t fos, cufo_prispec_t spec, cu_va_ref_t va_ref)
 {
     int x = cu_va_ref_arg(va_ref, int);
-    static char const *digits[] = {
-	"⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"
-    };
-    print_script(fos, spec, x, cufoT_superscript, digits, "⁻");
+    _print_script(fos, spec, x, cufoT_superscript, _sup_digits, "⁻");
 }
 
 static void
-print_ld_sub(cufo_stream_t fos, cufo_prispec_t spec, cu_va_ref_t va_ref)
+_print_ld_sub(cufo_stream_t fos, cufo_prispec_t spec, cu_va_ref_t va_ref)
 {
     long x = cu_va_ref_arg(va_ref, long);
-    static char const *digits[] = {
-	"₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"
-    };
-    print_script(fos, spec, x, cufoT_subscript, digits, "₋");
+    _print_script(fos, spec, x, cufoT_subscript, _sub_digits, "₋");
 }
 
 static void
-print_ld_sup(cufo_stream_t fos, cufo_prispec_t spec, cu_va_ref_t va_ref)
+_print_ld_sup(cufo_stream_t fos, cufo_prispec_t spec, cu_va_ref_t va_ref)
 {
     long x = cu_va_ref_arg(va_ref, long);
-    static char const *digits[] = {
-	"⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"
-    };
-    print_script(fos, spec, x, cufoT_superscript, digits, "⁻");
+    _print_script(fos, spec, x, cufoT_superscript, _sup_digits, "⁻");
+}
+
+extern cu_word_t cuP_wstring_foprint;
+extern cu_word_t cuP_str_foprint;
+
+static void
+_wstring_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
+{
+    int i, n = cu_wstring_length(ptr);
+    cufo_putwc(fos, 0x75); /* u */
+    cufo_putwc(fos, 0x22); /* " */
+    for (i = 0; i < n; ++i) {
+	cu_wint_t ch = cu_wstring_at(ptr, i);
+	if (ch == 0x5c || ch == 0x22) { /* backslash or solidus */
+	    cufo_putwc(fos, 0x5c);
+	    cufo_putwc(fos, ch);
+	}
+	else if (!cutext_iswprint(ch))
+	    switch (ch) {
+		case 0x09: cufo_puts(fos, "\\t"); break;
+		case 0x0a: cufo_puts(fos, "\\n"); break;
+		case 0x0b: cufo_puts(fos, "\\v"); break;
+		default:
+		    if (ch < 0x10000)
+			cufo_printf(fos, "\\u%04x", ch);
+		    else
+			cufo_printf(fos, "\\U%06x", ch);
+		    break;
+	    }
+	else
+	    cufo_putwc(fos, ch);
+    }
+    cufo_putwc(fos, 0x22);
+}
+
+static void
+_str_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
+{
+    int i, n = cu_str_size(ptr);
+    cufo_putc(fos, '"');
+    for (i = 0; i < n; ++i) {
+	char ch = cu_str_at(ptr, i);
+	if (ch == '\\' || ch == '"') {
+	    cufo_putc(fos, '\\');
+	    cufo_putc(fos, ch);
+	}
+	else if ((unsigned char)ch < 0x80 && !isprint(ch))
+	    switch (ch) {
+		case '\t': cufo_puts(fos, "\\t"); break;
+		case '\n': cufo_puts(fos, "\\n"); break;
+		case '\v': cufo_puts(fos, "\\v"); break;
+		default:
+		    cufo_printf(fos, "\\x%02x", (unsigned char)ch);
+		    break;
+	    }
+	else
+	    cufo_putc(fos, ch);
+    }
+    cufo_putc(fos, '"');
 }
 
 void
 cufoP_init_formats()
 {
-    cufo_register_ptr_format("wstring", print_wstring);
-    cufo_register_ptr_format("str", print_str);
-    cufo_register_va_format("d/sub", print_d_sub);
-    cufo_register_va_format("d/sup", print_d_sup);
-    cufo_register_va_format("ld/sub", print_ld_sub);
-    cufo_register_va_format("ld/sup", print_ld_sup);
+    cufo_register_ptr_format("wstring", _print_wstring);
+    cufo_register_ptr_format("wstring/r", _wstring_foprint);
+    cufo_register_ptr_format("str", _print_str);
+    cufo_register_ptr_format("str/r", _str_foprint);
+    cufo_register_va_format("d/sub", _print_d_sub);
+    cufo_register_va_format("d/sup", _print_d_sup);
+    cufo_register_va_format("ld/sub", _print_ld_sub);
+    cufo_register_va_format("ld/sup", _print_ld_sup);
+
+    cuP_wstring_foprint = (cu_word_t)_wstring_foprint;
+    cuP_str_foprint = (cu_word_t)_str_foprint;
 }
