@@ -51,6 +51,8 @@ struct cufo_prispec_s
 typedef void (*cufo_print_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 				cu_va_ref_t va_ref);
 
+/*!The type of a \ref CUOO_INTF_FOPRINT_FN callback used to print dynamic
+ * objects to a formatted stream. */
 typedef void (*cufo_print_ptr_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 				    void *ptr);
 

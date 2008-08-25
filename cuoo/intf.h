@@ -38,9 +38,16 @@ CU_BEGIN_DECLARATIONS
 
 #define CUOO_INTF_FINALISE	0x11
 #define CUOO_INTF_SERIALISABLE	0x12	/* cuoo_serialisable_t */
+
+/*!\deprecated Use \ref CUOO_INTF_FOPRINT_FN. */
 #define CUOO_INTF_PRINT_FN	0x13	/* void (*)(void *, FILE *) */
-#define CUOO_INTF_FOPRINT_FN	0x14	/* cufo_print_ptr_fn_t */
-#define CUOO_INTF_TO_STR_FN	0x15	/* cu_str_t (*)(void *) */
+
+/*!A libcufo format function of type \ref cufo_print_ptr_fn_t. */
+#define CUOO_INTF_FOPRINT_FN	0x14
+
+/*!An object to \ref cu_str_s "cu_str_t" conversion function of type
+ * <tt>cu_str_t (*)(void *)</tt>. */
+#define CUOO_INTF_TO_STR_FN	0x15
 
 /*!An interface dispatch which conistently returns \ref CUOO_IMPL_NONE. */
 cu_word_t cuoo_impl_none(cu_word_t intf_number, ...);
