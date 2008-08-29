@@ -177,6 +177,9 @@ void *cu_buffer_produce(cu_buffer_t buf, size_t incr);
 
 void cu_buffer_write(cu_buffer_t buf, void const *data, size_t size);
 
+#define cu_buffer_put(buf, data_t, data) \
+    (*(data_t *)cu_buffer_produce(buf, sizeof(data_t)) = (data))
+
 /*!@}*/
 CU_END_DECLARATIONS
 
