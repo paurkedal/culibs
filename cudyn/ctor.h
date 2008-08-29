@@ -20,6 +20,7 @@
 
 #include <cudyn/fwd.h>
 #include <cuoo/type.h>
+#include <cu/ptr.h>
 
 CU_BEGIN_DECLARATIONS
 
@@ -75,7 +76,7 @@ CU_SINLINE cu_bool_t cudyn_is_ctor(cuex_t ex)
 
 /*!The enumerator of \a ctor. */
 CU_SINLINE unsigned int cudyn_ctor_num(cuex_t ctor)
-{ return *((unsigned int *)((void *)ctor + CUOO_HCOBJ_SHIFT)); }
+{ return *((unsigned int *)(cu_ptr_add(ctor, CUOO_HCOBJ_SHIFT))); }
 
 CU_END_DECLARATIONS
 

@@ -134,7 +134,8 @@ typedef enum {
 
 /*!The quantification of variables of \a meta. */
 #define cuex_varmeta_qcode(meta)					\
-    (((meta) & CUEXP_VARMETA_QCODE_MASK) >> CUEXP_VARMETA_QCODE_SHIFT)
+    ((cuex_qcode_t)							\
+     (((meta) & CUEXP_VARMETA_QCODE_MASK) >> CUEXP_VARMETA_QCODE_SHIFT))
 
 
 #define cuex_varmeta_index(meta)					\
@@ -162,7 +163,8 @@ CU_SINLINE cu_bool_t	cuex_is_var(cuex_t ex)
 /*!Returns a new variable with quantisation \a qcode.  The variable has
  * no properties besides its type, and pointer equality. */
 CU_SINLINE cuex_var_t	cuex_var_new(cuex_qcode_t qcode)
-{ return cuexP_oalloc(cuex_varmeta_kqi(cuex_varkind_svar, qcode, 0), 0); }
+{ return (cuex_var_t)cuexP_oalloc(cuex_varmeta_kqi(cuex_varkind_svar,
+						   qcode, 0), 0); }
 
 /*!Creates an existential variable. */
 #define cuex_var_new_e() cuex_var_new(cuex_qcode_e)
@@ -205,7 +207,7 @@ CU_SINLINE cuex_var_t	cuex_var_new(cuex_qcode_t qcode)
 /*!Create a variable with quantisation \a quant and an associated integer
  * \a index. */
 CU_SINLINE cuex_var_t cuex_ivar(cuex_qcode_t qcode, unsigned int index)
-{ return cuexP_halloc(cuex_ivarmeta(qcode, index), 0, NULL); }
+{ return (cuex_var_t)cuexP_halloc(cuex_ivarmeta(qcode, index), 0, NULL); }
 #define cuex_ivar_e(i) cuex_ivar(cuex_qcode_e, i)
 #define cuex_ivar_u(i) cuex_ivar(cuex_qcode_u, i)
 #define cuex_ivar_w(i) cuex_ivar(cuex_qcode_w, i)
@@ -227,7 +229,7 @@ CU_SINLINE unsigned int	cuex_ivar_index(cuex_var_t var)
 /*!A variable which refers to component \a index of the LHS \ref
  * CUEX_OR_TUPLE of the closest surrounding \ref CUEX_O2_RBIND node. */
 CU_SINLINE cuex_var_t cuex_rvar(unsigned int index)
-{ return cuexP_halloc(cuex_rvarmeta(index), 0, NULL); }
+{ return (cuex_var_t)cuexP_halloc(cuex_rvarmeta(index), 0, NULL); }
 
 /*!\copydoc cuex_ivar_index. */
 #define cuex_rvar_index(var) cuex_ivar_index(var)
@@ -260,18 +262,19 @@ cuex_meta_t cuex_register_xvarkind(cuex_meta_t subkind, unsigned int wsize,
 
 /*!True iff \a meta is describes an extended variable kind. */
 CU_SINLINE cu_bool_t
-cuex_is_xvarmeta(meta)
+cuex_is_xvarmeta(cuex_meta_t meta)
 { return cuex_is_varmeta_k(meta, cuex_varkind_xvar); }
 
 /*!True iff \a meta is an extended variable kind meta of with the given subkind. */
 CU_SINLINE cu_bool_t
-cuex_is_xvarmeta_k(meta, subkind)
+cuex_is_xvarmeta_k(cuex_meta_t meta, cuex_varkind_t subkind)
 { return cuex_is_varmeta_ki(meta, cuex_varkind_xvar, subkind); }
 
 /*!True iff \a meta is an extended variable kind meta of the given subkind and
  * quantification. */
 CU_SINLINE cu_bool_t
-cuex_is_xvarmeta_kq(meta, subkind, qcode)
+cuex_is_xvarmeta_kq(cuex_meta_t meta, cuex_varkind_t subkind,
+		    cuex_qcode_t qcode)
 { return cuex_is_varmeta_kqi(meta, cuex_varkind_xvar, qcode, subkind); }
 
 /*!Extracts the subkind of \a meta which is assumed to describe an extended

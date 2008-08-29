@@ -123,7 +123,7 @@ void cucon_parr_resize_exactmax_fill(cucon_parr_t arr, size_t size, void *ptr);
 CU_SINLINE void
 cucon_parr_append_gp(cucon_parr_t arr, void *elt)
 {
-    void **p = cucon_arr_extend_gp(&arr->arr, sizeof(void *));
+    void **p = (void **)cucon_arr_extend_gp(&arr->arr, sizeof(void *));
     *p = elt;
 }
 
@@ -139,13 +139,13 @@ void cucon_parr_fill_range(cucon_parr_t arr,
  * \see cucon_parr_end */
 CU_SINLINE void **
 cucon_parr_begin(cucon_parr_t arr)
-{ return cucon_arr_begin(&arr->arr); }
+{ return (void **)cucon_arr_begin(&arr->arr); }
 
 /*!A pointer past the end of the internal array.
  * \see cucon_parr_begin */
 CU_SINLINE void **
 cucon_parr_end(cucon_parr_t arr)
-{ return cucon_arr_end(&arr->arr); }
+{ return (void **)cucon_arr_end(&arr->arr); }
 
 /*!@}*/
 #define cucon_parr_cct_empty	cucon_parr_init_empty

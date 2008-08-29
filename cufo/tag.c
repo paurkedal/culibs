@@ -24,13 +24,13 @@ cufo_namespace_t cufoP_culibs_namespace;
 cuoo_type_t cufoP_tag_type;
 
 cufo_tag_t
-cufo_tag(cufo_namespace_t namespace, char const *name)
+cufo_tag(cufo_namespace_t ns, char const *name)
 {
     cufo_tag_t tag;
     cuoo_hctem_decl(cufo_tag, tem);
     cuoo_hctem_init(cufo_tag, tem);
     tag = cuoo_hctem_get(cufo_tag, tem);
-    tag->namespace = namespace;
+    tag->ns = ns;
     tag->idr = cu_idr_by_cstr(name);
     return cuoo_hctem_new(cufo_tag, tem);
 }

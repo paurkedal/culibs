@@ -35,14 +35,14 @@ CU_SINLINE cuoo_prop_t cuoo_raw_c_name_prop()
 { return &cuooP_raw_c_name_prop; }
 
 CU_SINLINE cu_idr_t cuoo_raw_c_name(cuex_t ex)
-{ return cuoo_prop_get_ptr(cuoo_raw_c_name_prop(), ex); }
+{ return (cu_idr_t)cuoo_prop_get_ptr(cuoo_raw_c_name_prop(), ex); }
 
 /* Source references. */
 CU_SINLINE cuoo_prop_t cuoo_sref_prop()
 { return &cuooP_sref_prop; }
 
 CU_SINLINE cu_sref_t cuoo_sref(cuex_t ex)
-{ return cuoo_prop_get_ptr(cuoo_sref_prop(), ex); }
+{ return (cu_sref_t)cuoo_prop_get_ptr(cuoo_sref_prop(), ex); }
 
 void cuoo_sref_push(cuex_t ex, cu_sref_t head);
 

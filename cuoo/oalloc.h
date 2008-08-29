@@ -37,7 +37,7 @@ void *cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg);
 CU_SINLINE void *
 cuexP_oalloc(cuex_meta_t meta, size_t size)
 {
-    cuex_meta_t *p = cu_galloc(size + sizeof(cuex_meta_t));
+    cuex_meta_t *p = (cuex_meta_t *)cu_galloc(size + sizeof(cuex_meta_t));
     *p = meta + 1;
     cu_debug_assert(((uintptr_t)*p & 3) != 0);
     return p + 1;
@@ -49,7 +49,7 @@ cuexP_oalloc(cuex_meta_t meta, size_t size)
 CU_SINLINE void *
 cuoo_oalloc(cuoo_type_t type, size_t size)
 {
-    cuex_meta_t *p = cu_galloc(size + sizeof(cuex_meta_t));
+    cuex_meta_t *p = (cuex_meta_t *)cu_galloc(size + sizeof(cuex_meta_t));
     *p = cuoo_type_to_meta(type) + 1;
     cu_debug_assert(((uintptr_t)*p & 3) != 0);
     return p + 1;
@@ -61,7 +61,7 @@ cuoo_oalloc(cuoo_type_t type, size_t size)
 CU_SINLINE void *
 cuoo_oalloc_self_instance(size_t size)
 {
-    cuex_meta_t *p = cu_galloc(size + sizeof(cuex_meta_t));
+    cuex_meta_t *p = (cuex_meta_t *)cu_galloc(size + sizeof(cuex_meta_t));
     *p = cuoo_type_to_meta((cuoo_type_t)(p + 1)) + 1;
     return p + 1;
 }

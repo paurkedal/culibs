@@ -24,6 +24,7 @@
 #include <cudyn/typetpl.h>
 #include <cudyn/type.h>
 #include <cu/idr.h>
+#include <cu/ptr.h>
 #include <stdlib.h>
 #include <stdint.h>
 

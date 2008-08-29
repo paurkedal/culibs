@@ -24,6 +24,7 @@
 #include <cu/inherit.h>
 #include <cu/conf.h>
 #include <cu/memory.h>
+#include <stdint.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_type_h cuoo/type.h: Operations and Dynamically Typed Objects
@@ -161,17 +162,20 @@ CU_SINLINE cu_bool_t cuoo_type_is_nonptr_inltype(cuoo_type_t type)
 CU_SINLINE cu_bool_t cuoo_type_is_proto(cuoo_type_t type)
 { return type->shape == CUOO_SHAPE_PROTO; }
 
-/*!Initialise \a type to be used for non-hash-consed objects. */
+/*!Initialise \a type to be used for non-hash-consed objects.  \a shape is a
+ * tag indicating the encoding of objects of this type.  \a atype is an
+ * optional analytic type of the stored objects. */
 void cuoo_type_init_general(cuoo_type_t type, cuoo_shape_t shape,
-			    cuoo_impl_t impl, cuex_t e);
+			    cuoo_impl_t impl, cuex_t atype);
 /*!Initialise \a type to be used for hash-consed objects of size
  * \a key_size, excluding the CU_HCOBJ header. */
 void cuoo_type_init_general_hcs(cuoo_type_t type, cuoo_shape_t shape,
-				cuoo_impl_t impl, cuex_t e, size_t key_size);
+				cuoo_impl_t impl, cuex_t atype,
+				size_t key_size);
 /*!Initialise \a type to be used for hash-consed objects with hash function \a
  * key_hash_fn. */
 void cuoo_type_init_general_hcv(cuoo_type_t type, cuoo_shape_t shape,
-				cuoo_impl_t impl, cuex_t e);
+				cuoo_impl_t impl, cuex_t atype);
 
 /*!Construct \a type as an opaque type for non-hash-consed objects. */
 void cuoo_type_init_opaque(cuoo_type_t type, cuoo_impl_t impl);

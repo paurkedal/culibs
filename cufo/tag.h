@@ -36,12 +36,12 @@ CU_SINLINE cufo_namespace_t cufo_namespace(char const *url)
 { return (cufo_namespace_t)cu_idr_by_cstr(url); }
 
 CU_SINLINE cu_idr_t
-cufo_namespace_url_idr(cufo_namespace_t namespace)
-{ return (cu_idr_t)namespace; }
+cufo_namespace_url_idr(cufo_namespace_t ns)
+{ return (cu_idr_t)ns; }
 
 CU_SINLINE char const *
-cufo_namespace_url(cufo_namespace_t namespace)
-{ return cu_idr_to_cstr(cufo_namespace_url_idr(namespace)); }
+cufo_namespace_url(cufo_namespace_t ns)
+{ return cu_idr_to_cstr(cufo_namespace_url_idr(ns)); }
 
 CU_SINLINE cufo_namespace_t cufo_culibs_namespace(void)
 { return cufoP_culibs_namespace; }
@@ -49,7 +49,7 @@ CU_SINLINE cufo_namespace_t cufo_culibs_namespace(void)
 struct cufo_tag_s
 {
     CUOO_HCOBJ
-    cufo_namespace_t namespace;
+    cufo_namespace_t ns;
     cu_idr_t idr;
 };
 
@@ -58,11 +58,11 @@ cufo_tag_type()
 { return cufoP_tag_type; }
 
 cufo_tag_t
-cufo_tag(cufo_namespace_t namespace, char const *name);
+cufo_tag(cufo_namespace_t ns, char const *name);
 
 CU_SINLINE cufo_namespace_t
 cufo_tag_space(cufo_tag_t tag)
-{ return tag->namespace; }
+{ return tag->ns; }
 
 CU_SINLINE char const *
 cufo_tag_name(cufo_tag_t tag)

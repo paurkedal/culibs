@@ -61,7 +61,7 @@ cucon_rumap_t cucon_rumap_mref(cucon_rumap_t rmap, uintptr_t key);
 CU_SINLINE cucon_rumap_t
 cucon_rumap_cref(cucon_rumap_t rmap, uintptr_t key)
 {
-    return cucon_umap_find_mem(&rmap->branches, key);
+    return (cucon_rumap_t)cucon_umap_find_mem(&rmap->branches, key);
 }
 
 

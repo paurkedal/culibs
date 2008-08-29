@@ -61,7 +61,7 @@ cutext_ucs4src_getprop_by_key(cutext_ucs4src_t ucs4src, char const *key)
 {
     if (!ucs4src->properties)
 	return NULL;
-    return cucon_pmap_find_ptr(ucs4src->properties, key);
+    return (cu_str_t)cucon_pmap_find_ptr(ucs4src->properties, key);
 }
 
 CU_SINLINE cu_str_t
@@ -69,7 +69,7 @@ cutext_ucs4src_getprop_by_cstr(cutext_ucs4src_t ucs4src, char const *key)
 {
     if (!ucs4src->properties)
 	return NULL;
-    return cucon_pmap_find_ptr(ucs4src->properties, cu_struniq(key));
+    return (cu_str_t)cucon_pmap_find_ptr(ucs4src->properties, cu_struniq(key));
 }
 
 CU_SINLINE cu_sref_t
@@ -117,7 +117,7 @@ cutext_ucs4src_peek_arr(cutext_ucs4src_t ucs4src, size_t size)
     if (size > avail)
 	return cutextP_ucs4src_peek_arr(ucs4src, size);
     else
-	return ucs4src->src.buf.content_start;
+	return (cu_wchar_t *)ucs4src->src.buf.content_start;
 }
 
 /* Internal */

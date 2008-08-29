@@ -86,6 +86,9 @@ cuex_t cuex_labelling_erase(cuex_t L, cuex_t l);
  * returns the value of the mapping, otherwise returns \c NULL. */
 cuex_t cuex_labelling_find_erase(cuex_t *L, cuex_t l);
 
+/*!Returns the cardinality of \a L.  Note that the complexity is linear. */
+size_t cuex_labelling_card(cuex_t L);
+
 /*!Forms the union of \a L0 and \a L1 considering elements equal if they have
  * the same label.  For elements present in both labellings, those from |a L0
  * are used in the result. */

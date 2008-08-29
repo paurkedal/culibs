@@ -69,8 +69,7 @@ void cu_debug_enable_backtrace_on_signal(void);
 /*
  *  Debug Messages
  */
-void cuP_debug_msg(const char *, int, const char *, cu_debug_flags_t,
-		    const char *, ...);
+void cuP_debug_msg(const char *, int, const char *, int, const char *, ...);
 extern void (*cuP_debug_bug_report)(const char *, int, const char *, ...);
 
 void cu_findent(FILE *fp, int i);

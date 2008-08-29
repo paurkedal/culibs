@@ -82,7 +82,7 @@ CU_BEGIN_DECLARATIONS
     CU_SINLINE type_t							\
     cudyn_to_##NAME(cuex_t e)						\
     {									\
-	return *(type_t *)((void *)e + CUOO_HCOBJ_SHIFT);		\
+	return *(type_t *)(cu_ptr_add(e, CUOO_HCOBJ_SHIFT));		\
     }
 
 #define CUDYN_ETYPE_DEFN(NAME, type_t)					\
@@ -119,7 +119,7 @@ CU_BEGIN_DECLARATIONS
     CU_SINLINE cuex_t cudyn_##NAME(type_t x)				\
     { return cudyn_##IMPLNAME(x); }					\
     CU_SINLINE type_t cudyn_to_##NAME(cuex_t e)				\
-    { return cudyn_to_##IMPLNAME(e); }
+    { return (type_t)cudyn_to_##IMPLNAME(e); }
 
 #define cudyn_condsize_none ((size_t)-1)
 
@@ -175,7 +175,7 @@ CU_BEGIN_DECLARATIONS
 									\
     CU_SINLINE type_t *							\
     cudyn_##NAME##arr_arr(cuex_t e)					\
-    { return (type_t *)((void *)e + CUOO_HCOBJ_SHIFT); }		\
+    { return (type_t *)(cu_ptr_add(e, CUOO_HCOBJ_SHIFT)); }		\
 									\
     CU_SINLINE type_t							\
     cudyn_##NAME##arr_at(cuex_t e, size_t i)				\
@@ -219,7 +219,7 @@ CU_BEGIN_DECLARATIONS
     CU_SINLINE int cudyn_##NAME##_condsize(cuex_t e)			\
     { return cudyn_##IMPLNAME##arr_condsize(e); }			\
     CU_SINLINE cuex_t cudyn_##NAME##arr(size_t cnt, type_t *arr)	\
-    { return cudyn_##IMPLNAME##arr(cnt, (void *)arr); }			\
+    { return cudyn_##IMPLNAME##arr(cnt, (IMPLNAME##_t *)arr); }		\
     CU_SINLINE type_t *cudyn_##NAME##arr_arr(cuex_t e)			\
     { return (type_t *)cudyn_##IMPLNAME##arr_arr(e); }
 

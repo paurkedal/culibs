@@ -19,6 +19,15 @@
 #include <cucon/slink.h>
 
 cucon_slink_t
+cucon_slink_prepend_mem(cucon_slink_t rest, size_t size)
+{
+    cucon_slink_t l;
+    l = cu_galloc(cu_aligned_ceil(sizeof(struct cucon_slink_s)) + size);
+    l->next = rest;
+    return l;
+}
+
+cucon_slink_t
 cucon_slink_prepend_ptr(cucon_slink_t slink, void *ptr)
 {
     cucon_slink_t l = cu_galloc(cu_aligned_ceil(sizeof(struct cucon_slink_s))

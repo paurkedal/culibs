@@ -159,7 +159,8 @@ norun_check_programs += \
 	$(cutext_norun_check_programs) \
 	$(custo_norun_check_programs) \
 	$(cuex_norun_check_programs) \
-	$(cudyn_norun_check_programs)
+	$(cudyn_norun_check_programs) \
+	test_cplusplus
 
 doxyfiles = doc/main.doxy \
 	$(cu_doxyfiles) \
@@ -172,6 +173,27 @@ built_doxyfiles = \
 
 check_PROGRAMS = $(check_programs) $(norun_check_programs)
 TESTS =		 $(check_programs)
+
+BUILT_SOURCES += test_cplusplus.cc
+test_cplusplus_SOURCES = test_cplusplus.cc
+test_cplusplus_CXXFLAGS = \
+	-D__STDC_LIMIT_MACROS \
+	-D__STDC_CONSTANT_MACROS \
+	-DCUCON_USE_DEPRECATED_DIGRAPH_H
+test_cplusplus_exclude = \
+	cucon/digraph.h | \
+	cuflow/cont*.h | cuflow/cache.h | cuflow/wind_setjmp.h
+test_cplusplus.cc: Makefile.am
+	@echo Creating $@.
+	( \
+	    for hdr in $(nobase_culibs_HEADERS); do \
+		case $$hdr in \
+		    $(test_cplusplus_exclude)) :;; \
+		    *) echo "#include <$$hdr>";; \
+		esac; \
+	      done; \
+	      echo "int main() { return 0; }" \
+	 ) >$@
 
 
 # Build Infrastructure

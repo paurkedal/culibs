@@ -102,7 +102,10 @@ CU_SINLINE void cucon_pmap_init_copy_node(
 /* TODO. Fix key argument. */
 
 CU_SINLINE cucon_pmap_node_t cucon_pmap_node_alloc(size_t slot_size)
-{ return cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_pmap_node_s) + slot_size); }
+{
+    return (cucon_pmap_node_t)cu_galloc(
+		CU_ALIGNED_SIZEOF(struct cucon_pmap_node_s) + slot_size);
+}
 
 CU_SINLINE void *cucon_pmap_node_get_mem(cucon_pmap_node_t node)
 { return node + 1; }

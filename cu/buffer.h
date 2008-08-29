@@ -80,7 +80,8 @@ cu_buffer_storage_end(cu_buffer_t buf)
 
 CU_SINLINE size_t
 cu_buffer_storage_size(cu_buffer_t buf)
-{ return cu_buffer_storage_end(buf) - cu_buffer_storage_start(buf); }
+{ return cu_ptr_diff(cu_buffer_storage_end(buf),
+		     cu_buffer_storage_start(buf)); }
 
 /*!The number of bytes from the start of the buffer contents to the end of the
  * end of the current buffer storage. */

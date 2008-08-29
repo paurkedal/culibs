@@ -25,6 +25,7 @@ CU_BEGIN_DECLARATIONS
 #include <cu/clos.h>
 #include <cuflow/cont.h>
 #include <cu/conf.h>
+#include <cu/debug.h>
 #include <string.h>
 #include <malloc.h>
 #include <assert.h>
@@ -59,14 +60,6 @@ void cuflowP_fatal(char const* fmt, ...) CU_ATTR_NORETURN;
 
 void cuflowP_mismatched_flow(char const *where, cuflow_mode_t org_flow)
     CU_ATTR_NORETURN;
-
-#define cu_debug_unreachable()					\
-    do {								\
-	fprintf(stderr,							\
-		"%s:%d: This line should not have been reached.\n",	\
-		__FILE__, __LINE__);					\
-	abort();							\
-    } while (0)
 
 /*
  *  Global state

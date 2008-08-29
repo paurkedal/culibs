@@ -20,6 +20,7 @@
 
 #include <cuoo/fwd.h>
 #include <cu/conf.h>
+#include <cu/inherit.h>
 #include <atomic_ops.h>
 
 CU_BEGIN_DECLARATIONS

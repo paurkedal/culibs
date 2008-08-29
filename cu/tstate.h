@@ -113,7 +113,7 @@ cuP_tstate_t cuP_tstate_new_glck(void);
 CU_SINLINE cuP_tstate_t
 cuP_tstate(void)
 {
-    cuP_tstate_t tstate = pthread_getspecific(cuP_tstate_key);
+    cuP_tstate_t tstate = (cuP_tstate_t)pthread_getspecific(cuP_tstate_key);
     if (!tstate)
 	tstate = cuP_tstate_new();
     return tstate;
@@ -121,7 +121,7 @@ cuP_tstate(void)
 CU_SINLINE cuP_tstate_t
 cuP_tstate_glck(void)
 {
-    cuP_tstate_t tstate = pthread_getspecific(cuP_tstate_key);
+    cuP_tstate_t tstate = (cuP_tstate_t)pthread_getspecific(cuP_tstate_key);
     if (!tstate)
 	tstate = cuP_tstate_new_glck();
     return tstate;

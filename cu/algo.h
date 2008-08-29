@@ -34,7 +34,7 @@ typedef enum {
 
 CU_SINLINE cu_order_t
 cu_order_rev(cu_order_t order)
-{ return order ^ (order >> 2); }
+{ return (cu_order_t)(order ^ (order >> 2)); }
 
 CU_SINLINE void
 cu_ptr_swap(cu_ptr_ptr_t p0, cu_ptr_ptr_t p1)

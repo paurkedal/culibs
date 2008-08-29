@@ -73,15 +73,15 @@ typedef enum {
 
 /*!Returns the union \a S0 ∪ \a S1. */
 CU_SINLINE cuex_qcset_t cuex_qcset_union(cuex_qcset_t S0, cuex_qcset_t S1)
-{ return S0 | S1; }
+{ return (cuex_qcset_t)(S0 | S1); }
 
 /*!Returns the intersection \a S0 ∩ \a S1. */
 CU_SINLINE cuex_qcset_t cuex_qcset_isecn(cuex_qcset_t S0, cuex_qcset_t S1)
-{ return S0 & S1; }
+{ return (cuex_qcset_t)(S0 & S1); }
 
 /*!Returns the singular set {qc}. */
 CU_SINLINE cuex_qcset_t cuex_qcset_singleton(cuex_qcode_t qc)
-{ return 1 << qc; }
+{ return (cuex_qcset_t)(1 << qc); }
 
 /*!True iff qc ∈ S. */
 CU_SINLINE cu_bool_t cuex_qcset_contains(cuex_qcset_t S, cuex_qcode_t qc)
@@ -89,7 +89,7 @@ CU_SINLINE cu_bool_t cuex_qcset_contains(cuex_qcset_t S, cuex_qcode_t qc)
 
 /*!Returns cuex_qcode_top ∖ S. */
 CU_SINLINE cuex_qcset_t cuex_qcset_complement(cuex_qcset_t S)
-{ return ~S; }
+{ return (cuex_qcset_t)~S; }
 
 /*!@}*/
 CU_END_DECLARATIONS

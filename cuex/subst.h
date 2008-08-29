@@ -58,7 +58,7 @@ CU_SINLINE cuex_t cuex_veqv_value(cuex_veqv_t vq) { return vq->value; }
 
 /*!The primary variable of \a vq. */
 CU_SINLINE cuex_var_t cuex_veqv_primary_var(cuex_veqv_t vq)
-{ return cucon_slink_get_ptr(vq->var_link); }
+{ return (cuex_var_t)cucon_slink_get_ptr(vq->var_link); }
 
 /*!After calling \ref cuex_subst_mark_min_feedback or \ref
  * cuex_subst_mark_all_feedback, and before any further change to the
@@ -81,7 +81,7 @@ CU_SINLINE cuex_veqv_it_t cuex_veqv_it_next(cuex_veqv_it_t it)
 
 /*!The variable at \a it. */
 CU_SINLINE cuex_var_t cuex_veqv_it_get(cuex_veqv_it_t it)
-{ return cucon_slink_get_ptr(it); }
+{ return (cuex_var_t)cucon_slink_get_ptr(it); }
 
 /*!The representation of a substitution. */
 struct cuex_subst_s

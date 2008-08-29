@@ -62,7 +62,8 @@ cuflow_tstate_t cuflowP_tstate_initialise(void);
 CU_SINLINE cuflow_tstate_t
 cuflow_tstate()
 {
-    cuflow_tstate_t tstate = pthread_getspecific(cuflowP_tstate_key);
+    cuflow_tstate_t tstate;
+    tstate = (cuflow_tstate_t)pthread_getspecific(cuflowP_tstate_key);
     if (!tstate)
 	tstate = cuflowP_tstate_initialise();
     return tstate;

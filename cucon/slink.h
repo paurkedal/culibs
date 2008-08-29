@@ -34,14 +34,7 @@ struct cucon_slink_s
 /*!Prepend a node with slot size \a size in front of \a rest, and return the
  * result.  Use \ref cucon_slink_mem to obtain a pointer to the allocated slot.
  */
-CU_SINLINE cucon_slink_t
-cucon_slink_prepend_mem(cucon_slink_t rest, size_t size)
-{
-    cucon_slink_t l;
-    l = cu_galloc(cu_aligned_ceil(sizeof(struct cucon_slink_s)) + size);
-    l->next = rest;
-    return l;
-}
+cucon_slink_t cucon_slink_prepend_mem(cucon_slink_t rest, size_t size);
 
 /*!Prepend a node in front of \a rest with a slot containing \a ptr, and return
  * the result.  */

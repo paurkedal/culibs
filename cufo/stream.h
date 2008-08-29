@@ -163,7 +163,7 @@ cufo_fast_putc(cufo_stream_t fos, char ch)
 {
     char *s;
     cu_debug_assert(!fos->is_wide);
-    s = cufo_stream_produce(fos, 1);
+    s = (char *)cufo_stream_produce(fos, 1);
     *s = ch;
 }
 
@@ -172,7 +172,7 @@ cufo_fast_putwc(cufo_stream_t fos, cu_wchar_t wc)
 {
     cu_wchar_t *s;
     cu_debug_assert(fos->is_wide);
-    s = cufo_stream_produce(fos, sizeof(cu_wchar_t));
+    s = (cu_wchar_t *)cufo_stream_produce(fos, sizeof(cu_wchar_t));
     *s = wc;
 }
 

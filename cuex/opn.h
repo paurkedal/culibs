@@ -53,33 +53,27 @@ cuex_opn_by_arr(cuex_meta_t opr, cuex_t *arr)
 {
     if (cu_expect_false(cuex_opr_has_ctor(opr)))
 	return cuexP_opn_by_arr_with_ctor(opr, arr);
-    return cuexP_halloc_raw(
+    return (cuex_opn_t)cuexP_halloc_raw(
 	opr,
 	CUOO_HCOBJ_KEY_SIZEW(cuex_opr_r(opr)*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	arr);
 }
 
 /*!Returns the arity of the operator of \a opn. */
-CU_SINLINE cu_rank_t cuex_opn_arity(cuex_opn_t opn)
+CU_SINLINE cu_rank_t cuex_opn_arity(cuex_t opn)
 { return cuex_opr_r(cuex_meta(opn)); }
 
 /*!Returns operand \a i of \a opn, counting from zero. */
-CU_SINLINE cuex_t cuex_opn_at(cuex_opn_t opn, int i)
-{ return opn->operand_arr[i]; }
+CU_SINLINE cuex_t cuex_opn_at(cuex_t opn, int i)
+{ return ((cuex_opn_t)opn)->operand_arr[i]; }
 
 /*!Returns the start of the operand array of \a opn. */
-CU_SINLINE cuex_t *cuex_opn_begin(cuex_opn_t opn)
-{ return opn->operand_arr; }
+CU_SINLINE cuex_t *cuex_opn_begin(cuex_t opn)
+{ return ((cuex_opn_t)opn)->operand_arr; }
 
 /*!Returns past-the-end of the operand array. */
-CU_SINLINE cuex_t *cuex_opn_end(cuex_opn_t opn)
-{ return opn->operand_arr + cuex_opr_r(cuex_meta(opn)); }
-
-CU_SINLINE void *cuex_opn_cache_r(cuex_opn_t opn, cu_rank_t r)
-{ return opn->operand_arr + r; }
-
-CU_SINLINE void *cuex_opn_cache(cuex_opn_t opn)
-{ return opn->operand_arr + cuex_opn_r(opn); }
+CU_SINLINE cuex_t *cuex_opn_end(cuex_t opn)
+{ return ((cuex_opn_t)opn)->operand_arr + cuex_opr_r(cuex_meta(opn)); }
 
 /*!A template for iterating over operands of an operation.
  * Given an operation \a opn with operator \a opr, bind each operand to

@@ -89,10 +89,10 @@ cu_findent(FILE *fp, int i)
 
 void
 cuP_debug_msg(const char *file, int line, const char *kind,
-	      cu_debug_flags_t f, const char *fmt, ...)
+	      int fl, const char *fmt, ...)
 {
     va_list va;
-    if ((debug_flags & f) != f) return;
+    if ((debug_flags & fl) != fl) return;
     fprintf(stderr, "%s:%d: %s: ", file, line, kind);
     cu_findent(stderr, debug_indentation);
     va_start(va, fmt);

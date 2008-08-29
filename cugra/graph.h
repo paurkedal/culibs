@@ -86,6 +86,13 @@ struct cugra_arc_s
     struct cugra_adjlink_s adj[2];
 };
 
+/* Offset of the cugra_adjlink_s.link inside a cugra_arc_s. */
+#define CUGRAP_ARC_ADJLINK_LINK_OFFSET(dir)		\
+      ( offsetof(struct cugra_arc_s, adj[0])		\
+      + sizeof(struct cugra_adjlink_s)*(dir)		\
+      + offsetof(struct cugra_adjlink_s, link) )
+
+
 /*!Construct \a G as an empty graph.  This constructor does not support the
  * \ref CUGRA_GFLAG_SIMPLEARCED flag, use \ref cugra_graph_new in that case. */
 void cugra_graph_init(cugra_graph_t G, unsigned int gflags);
@@ -250,16 +257,16 @@ cugra_arc_is_loop(cugra_arc_t a)
 CU_SINLINE cugra_arc_t
 cugra_vertex_arcs_begin(cugra_direction_t dir, cugra_vertex_t v)
 {
-    return cu_ptr_add(v->adj_link[dir].next,
-		      -offsetof(struct cugra_arc_s, adj[dir].link));
+    return (cugra_arc_t)cu_ptr_sub(v->adj_link[dir].next,
+				   CUGRAP_ARC_ADJLINK_LINK_OFFSET(dir));
 }
 
 /*!A past-the-end mark for incident arcs with direction \a dir from \a v. */
 CU_SINLINE cugra_arc_t
 cugra_vertex_arcs_end(cugra_direction_t dir, cugra_vertex_t v)
 {
-    return cu_ptr_add(&v->adj_link[dir],
-		      -offsetof(struct cugra_arc_s, adj[dir].link));
+    return (cugra_arc_t)cu_ptr_sub(&v->adj_link[dir],
+				   CUGRAP_ARC_ADJLINK_LINK_OFFSET(dir));
 }
 
 /*!The next incident arc with direction \a dir from the terminal of \a e
@@ -267,8 +274,8 @@ cugra_vertex_arcs_end(cugra_direction_t dir, cugra_vertex_t v)
 CU_SINLINE cugra_arc_t
 cugra_vertex_arcs_next(cugra_direction_t dir, cugra_arc_t e)
 {
-    return cu_ptr_add(e->adj[dir].link.next,
-		      -offsetof(struct cugra_arc_s, adj[dir].link));
+    return (cugra_arc_t)cu_ptr_sub(e->adj[dir].link.next,
+				   CUGRAP_ARC_ADJLINK_LINK_OFFSET(dir));
 }
 
 /*!The first out-arc of \a v. */
@@ -298,22 +305,22 @@ CU_SINLINE cugra_arc_t cugra_vertex_inarcs_next(cugra_arc_t e)
 /*!The first of the sequence of all vertices of \a G. */
 CU_SINLINE cugra_vertex_t cugra_graph_vertices_begin(cugra_graph_t G)
 {
-    return cu_ptr_add(G->vertices.next,
-		      -offsetof(struct cugra_vertex_s, in_graph));
+    return (cugra_vertex_t)cu_ptr_add(G->vertices.next,
+			-offsetof(struct cugra_vertex_s, in_graph));
 }
 
 /*!An end marker of the sequence of all vertices in \a G. */
 CU_SINLINE cugra_vertex_t cugra_graph_vertices_end(cugra_graph_t G)
 {
-    return cu_ptr_add(&G->vertices,
-		      -offsetof(struct cugra_vertex_s, in_graph));
+    return (cugra_vertex_t)cu_ptr_add(&G->vertices,
+			-offsetof(struct cugra_vertex_s, in_graph));
 }
 
 /*!The vertex after \a v in the sequence of all vertices of a graph. */
 CU_SINLINE cugra_vertex_t cugra_graph_vertices_next(cugra_vertex_t v)
 {
-    return cu_ptr_add(v->in_graph.next,
-		      -offsetof(struct cugra_vertex_s, in_graph));
+    return (cugra_vertex_t)cu_ptr_add(v->in_graph.next,
+			-offsetof(struct cugra_vertex_s, in_graph));
 }
 
 /*!The first of the sequence of all arcs of \a G. */

@@ -149,7 +149,7 @@ test_find_index(int N, cu_bool_t do_print)
 	cu_debug_assert(found_arr[index] == 0);
 	found_arr[index] = 1;
 	if (do_print)
-	    printf("\t%s at index %d\n", ls, index);
+	    printf("\t%s at index %zd\n", ls, index);
     }
 }
 

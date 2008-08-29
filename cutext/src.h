@@ -45,7 +45,7 @@ cutext_status_t cutextP_src_lookahead(cutext_src_t src, size_t size);
 CU_SINLINE cutext_status_t
 cutext_src_lookahead(cutext_src_t src, size_t size)
 {
-    if (src->buf.content_end - src->buf.content_start < size)
+    if (cu_ptr_diff(src->buf.content_end, src->buf.content_start) < size)
 	return cutextP_src_lookahead(src, size);
     else
 	return cutext_status_ok;
@@ -60,13 +60,13 @@ cutext_src_data_end(cutext_src_t src) { return src->buf.content_end; }
 CU_SINLINE size_t
 cutext_src_data_size(cutext_src_t src)
 {
-    return src->buf.content_end - src->buf.content_start;
+    return cu_ptr_diff(src->buf.content_end, src->buf.content_start);
 }
 
 CU_SINLINE void
 cutext_src_advance(cutext_src_t src, size_t size)
 {
-    src->buf.content_start += size;
+    src->buf.content_start = cu_ptr_add(src->buf.content_start, size);
     cu_debug_assert(src->buf.content_start <= src->buf.content_end);
 }
 
