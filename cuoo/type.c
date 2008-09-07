@@ -50,6 +50,27 @@ cuoo_shape_name(cuoo_shape_t shape)
     }
 }
 
+size_t
+cuoo_shape_valsize(cuoo_shape_t shape)
+{
+    switch (shape) {
+	case CUOO_SHAPE_UNIT:
+	    return 0;
+	case CUOO_SHAPE_PTRTYPE:
+	    return sizeof(void *);
+	case CUOO_SHAPE_SCALAR_INT8:  case CUOO_SHAPE_SCALAR_UINT8:
+	    return sizeof(uint8_t);
+	case CUOO_SHAPE_SCALAR_INT16: case CUOO_SHAPE_SCALAR_UINT16:
+	    return sizeof(uint16_t);
+	case CUOO_SHAPE_SCALAR_INT32: case CUOO_SHAPE_SCALAR_UINT32:
+	    return sizeof(uint32_t);
+	case CUOO_SHAPE_SCALAR_INT64: case CUOO_SHAPE_SCALAR_UINT64:
+	    return sizeof(uint64_t);
+	default:
+	    return (size_t)-1;
+    }
+}
+
 void
 cuoo_type_init_general(cuoo_type_t type, cuoo_shape_t shape,
 		       cuoo_impl_t impl, cuex_t expr)

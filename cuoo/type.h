@@ -80,6 +80,10 @@ CU_BEGIN_DECLARATIONS
  * other cases may be unimplemented. */
 char const *cuoo_shape_name(cuoo_shape_t shape);
 
+/*!The size of values of types with shape \a shape, or \c (size_t)-1 if
+ * unknown.  This is defined for scalar shapes. */
+size_t cuoo_shape_valsize(cuoo_shape_t shape);
+
 CU_SINLINE cu_bool_t
 cuoo_shape_is_scalar(cuoo_shape_t shape)
 {
