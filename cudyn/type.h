@@ -109,7 +109,7 @@ CU_SINLINE cuoo_type_t cudyn_elmtype_type()
 
 /*!True iff \a t is a \c cudyn_elmtype_t. */
 CU_SINLINE cu_bool_t cuoo_type_is_elmtype(cuoo_type_t t)
-{ return cuoo_type_shape(t) >= CUOO_SHAPE_SCALAR_MIN; }
+{ return cuoo_shape_is_scalar(cuoo_type_shape(t)); }
 
 #define cudyn_elmtype_to_type(t) \
     cu_to2(cuoo_type, cudyn_inltype, t)

@@ -57,7 +57,6 @@ CU_BEGIN_DECLARATIONS
 #define CUOO_SHAPE_UNIT			0x0f
 
 /* inline types: elementary */
-#define CUOO_SHAPE_SCALAR_MIN		0x10
 #define CUOO_SHAPE_SCALAR_BOOL		0x10
 #define CUOO_SHAPE_SCALAR_CHAR		0x11
 #define CUOO_SHAPE_SCALAR_METAINT	0x12
@@ -71,7 +70,13 @@ CU_BEGIN_DECLARATIONS
 #define CUOO_SHAPE_SCALAR_INT64		0x1d
 #define CUOO_SHAPE_SCALAR_FLOAT		0x1e
 #define CUOO_SHAPE_SCALAR_DOUBLE	0x1f
-#define CUOO_SHAPE_SCALAR_MAX		0x1f
+
+#define CUOO_SHAPE_MIN_SCALAR_INT	CUOO_SHAPE_SCALAR_UINT8
+#define CUOO_SHAPE_MAX_SCALAR_INT	CUOO_SHAPE_SCALAR_INT64
+#define CUOO_SHAPE_MIN_SCALAR_FP	CUOO_SHAPE_SCALAR_FLOAT
+#define CUOO_SHAPE_MAX_SCALAR_FP	CUOO_SHAPE_SCALAR_DOUBLE
+#define CUOO_SHAPE_MIN_SCALAR		CUOO_SHAPE_SCALAR_BOOL
+#define CUOO_SHAPE_MAX_SCALAR		CUOO_SHAPE_MAX_SCALAR_FP
 
 #define CUOO_SHAPE_CULIBS_END		0x100
 
@@ -84,18 +89,39 @@ char const *cuoo_shape_name(cuoo_shape_t shape);
  * unknown.  This is defined for scalar shapes. */
 size_t cuoo_shape_valsize(cuoo_shape_t shape);
 
-CU_SINLINE cu_bool_t
-cuoo_shape_is_scalar(cuoo_shape_t shape)
-{
-    shape &= ~CUOO_SHAPEFLAG_MASK;
-    return CUOO_SHAPE_SCALAR_MIN <= shape && shape <= CUOO_SHAPE_SCALAR_MAX;
-}
-
+/*!True if \a shape indicates an opaque struct. */
 CU_SINLINE cu_bool_t
 cuoo_shape_is_opaque(cuoo_shape_t shape)
 {
     shape &= ~CUOO_SHAPEFLAG_MASK;
     return shape == CUOO_SHAPE_OPAQUE;
+}
+
+/*!True if \a shape indicates a scalar type. */
+CU_SINLINE cu_bool_t
+cuoo_shape_is_scalar(cuoo_shape_t shape)
+{
+    shape &= ~CUOO_SHAPEFLAG_MASK;
+    return shape >= CUOO_SHAPE_MIN_SCALAR
+	&& shape <= CUOO_SHAPE_MAX_SCALAR;
+}
+
+/*!True if \a shape indicates an integer type, excluding bool and char. */
+CU_SINLINE cu_bool_t
+cuoo_shape_is_scalar_int(cuoo_shape_t shape)
+{
+    shape &= ~CUOO_SHAPEFLAG_MASK;
+    return shape >= CUOO_SHAPE_MIN_SCALAR_INT
+	&& shape <= CUOO_SHAPE_MAX_SCALAR_INT;
+}
+
+/*!True if \a shape indicates a floating point type. */
+CU_SINLINE cu_bool_t
+cuoo_shape_is_scalar_fp(cuoo_shape_t shape)
+{
+    shape &= ~CUOO_SHAPEFLAG_MASK;
+    return shape >= CUOO_SHAPE_MIN_SCALAR_FP
+	&& shape <= CUOO_SHAPE_MAX_SCALAR_FP;
 }
 
 /*!The dynamic type (base) struct. */
