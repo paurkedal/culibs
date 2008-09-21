@@ -36,7 +36,6 @@
 #include <cucon/pset.h>
 #include <string.h>
 #include <assert.h>
-#include <ffi.h>
 
 #undef cuex_binary_inject_left
 

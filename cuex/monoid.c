@@ -74,6 +74,15 @@ cuex_monoid_product(cuex_meta_t mult, cuex_t x, cuex_t y)
 }
 
 cuex_t
+cuex_monoid_from_array(cuex_meta_t mult, cuex_t *array, size_t count)
+{
+    if (count == 1)
+	return array[0];
+    else
+	return make_monoid(mult, cuex_ltree_from_array(array, count));
+}
+
+cuex_t
 cuex_monoid_product_over_source(cuex_meta_t mult, cu_ptr_source_t source)
 {
     cuex_t ltree = cuex_ltree_from_source(source);

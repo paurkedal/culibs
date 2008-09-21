@@ -87,9 +87,6 @@ cuex_is_monoid_product(cuex_meta_t mult, cuex_t x)
 { return cuex_is_monoid(mult, x)
      && !cuex_ltree_is_empty(((cuex_monoid_t)x)->ltree); }
 
-/*!The identity element of the monoid induced by \a mult. */
-cuex_t cuex_monoid_identity(cuex_meta_t mult);
-
 /*!True iff \a x is the identity of the monoid operator \a mult. */
 CU_SINLINE cu_bool_t
 cuex_is_monoid_identity(cuex_meta_t mult, cuex_t x)
@@ -97,6 +94,13 @@ cuex_is_monoid_identity(cuex_meta_t mult, cuex_t x)
     return cuex_is_monoid(mult, x)
 	&& cuex_ltree_is_empty(((cuex_monoid_t)x)->ltree);
 }
+
+/*!Returns a \a mult monoid of \a factor_count factors from \a factor_arr. */
+cuex_t cuex_monoid_from_array(cuex_meta_t mult,
+			      cuex_t *factor_arr, size_t factor_count);
+
+/*!The identity element of the monoid induced by \a mult. */
+cuex_t cuex_monoid_identity(cuex_meta_t mult);
 
 /*!Returns \a x * \a y, where * = \a mult. */
 cuex_t cuex_monoid_product(cuex_meta_t mult, cuex_t x, cuex_t y);

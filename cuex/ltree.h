@@ -114,6 +114,8 @@ cu_ptr_source_t cuex_ltree_slice_source(cuex_t x, size_t i, size_t j);
 
 cuex_t cuex_ltree_from_source(cu_ptr_source_t source);
 
+cuex_t cuex_ltree_from_array(cuex_t *elt_array, size_t elt_count);
+
 cuex_t cuex_ltree_append_from_source(cuex_t tree0, cu_ptr_source_t source1);
 
 /*!@}*/

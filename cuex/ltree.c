@@ -215,6 +215,15 @@ cuex_ltree_from_source(cu_ptr_source_t source)
     return cuex_ltree_append_from_source(cuex_ltree_empty(), source);
 }
 
+cuex_t
+cuex_ltree_from_array(cuex_t *elt_array, size_t elt_count)
+{
+    struct cu_ptr_array_source_s src;
+    cu_ptr_array_source_init(&src, elt_array, elt_array + elt_count);
+    return cuex_ltree_append_from_source(cuex_ltree_empty(),
+					 cu_to(cu_ptr_source, &src));
+}
+
 size_t
 cuex_ltree_size(cuex_t x)
 {
