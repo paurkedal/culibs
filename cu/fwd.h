@@ -157,6 +157,7 @@ typedef struct cu_dsink_s	*cu_dsink_t;		/* dsink.h */
 typedef struct cu_dsource_s	*cu_dsource_t;		/* dsource.h */
 typedef struct cu_idr_s		*cu_idr_t;		/* idr.h */
 typedef struct cu_log_facility_s*cu_log_facility_t;	/* logging.h */
+typedef struct cu_ptr_array_source_s *cu_ptr_array_source_t; /* ptr_seq.h */
 typedef struct cu_ptr_source_s	*cu_ptr_source_t;	/* ptr_seq.h */
 typedef struct cu_ptr_sink_s	*cu_ptr_sink_t;		/* ptr_seq.h */
 typedef struct cu_ptr_junction_s*cu_ptr_junction_t;	/* ptr_seq.h */

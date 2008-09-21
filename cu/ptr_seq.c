@@ -74,6 +74,20 @@ cu_ptr_source_sink_short(cu_ptr_source_t source, cu_ptr_sink_t sink)
 	cu_ptr_sink_put(sink, elt);
 }
 
+void **
+cu_ptr_source_store(cu_ptr_source_t source, size_t array_size,
+		    void **array_out)
+{
+    void *elt;
+    while (array_size--) {
+	elt = cu_ptr_source_get(source);
+	if (!elt)
+	    break;
+	(*array_out++) = elt;
+    }
+    return array_out;
+}
+
 void
 cu_ptr_junction_short(cu_ptr_junction_t junction)
 {
@@ -256,4 +270,33 @@ cu_ptr_junctor_from_source_sinktor(cu_ptr_source_t source,
     self->source = source;
     self->sinktor = sinktor;
     return cu_to(cu_ptr_junctor, self);
+}
+
+/* Array source */
+
+static void *
+_ptr_array_source_get(cu_ptr_source_t src_)
+{
+    cu_ptr_array_source_t src;
+    src = cu_from(cu_ptr_array_source, cu_ptr_source, src_);
+    if (src->cur == src->end)
+	return NULL;
+    else
+	return *src->cur++;
+}
+
+void
+cu_ptr_array_source_init(cu_ptr_array_source_t src, void **begin, void **end)
+{
+    cu_ptr_source_init(cu_to(cu_ptr_source, src), _ptr_array_source_get);
+    src->cur = begin;
+    src->end = end;
+}
+
+cu_ptr_source_t
+cu_ptr_source_from_array(void **begin, void **end)
+{
+    cu_ptr_array_source_t src = cu_gnew(struct cu_ptr_array_source_s);
+    cu_ptr_array_source_init(src, begin, end);
+    return cu_to(cu_ptr_source, src);
 }

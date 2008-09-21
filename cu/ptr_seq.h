@@ -40,6 +40,8 @@ CU_BEGIN_DECLARATIONS
  * a junctor.
  */
 
+/*!\name API */
+
 /*!A pointer sequence source. */
 struct cu_ptr_source_s
 {
@@ -200,7 +202,9 @@ CU_SINLINE cu_ptr_sink_t
 cu_ptr_junctor_sink(cu_ptr_junctor_t junctor)
 { return cu_to2(cu_ptr_sink, cu_ptr_junction, junctor); }
 
-/*!\name cu_ptr_seq_adaptors_mod Adaptors
+/*!@}*/
+
+/*!\name Adaptors
  *@{*/
 
 cu_ptr_junction_t cu_ptr_junction_from_source_sink(cu_ptr_source_t source,
@@ -209,9 +213,22 @@ cu_ptr_junction_t cu_ptr_junction_from_source_sink(cu_ptr_source_t source,
 cu_ptr_junctor_t cu_ptr_junctor_from_source_sinktor(cu_ptr_source_t source,
 						    cu_ptr_sinktor_t sinktor);
 
+struct cu_ptr_array_source_s
+{
+    cu_inherit (cu_ptr_source_s);
+    void **cur, **end;
+};
+
+/*!A source which fetches pointers from [\a begin, \a end). */
+void cu_ptr_array_source_init(cu_ptr_array_source_t src,
+			      void **begin, void **end);
+
+/*!A source which fetches pointers from [\a begin, \a end). */
+cu_ptr_source_t cu_ptr_source_from_array(void **begin, void **end);
+
 /*!@}*/
 
-/*!\name cu_ptr_seq_algo_mod Basic Algorithms
+/*!\name Basic Algorithms
  *@{*/
 
 /*!Counts the number of remaining elements on \a source, draining it in the
@@ -238,6 +255,12 @@ int cu_ptr_source_compare(cu_clop(f, int, void *, void *),
 
 /*!Transfers the remaining elements in \a source to \a sink. */
 void cu_ptr_source_sink_short(cu_ptr_source_t source, cu_ptr_sink_t sink);
+
+/*!Stores up to \a array_size pointers from \a source into an array of pointers
+ * starting at \a array_out, and returns a pointer past the last assigned
+ * element. */
+void **cu_ptr_source_store(cu_ptr_source_t source, size_t array_size,
+			   void **array_out);
 
 /*!Transfers the remaining elements of the source of \a junction to its
  * \a sink. This is equivalent to \ref cu_ptr_source_sink_short applied to

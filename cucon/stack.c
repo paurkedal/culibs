@@ -16,6 +16,7 @@
  */
 
 #include <cucon/stack.h>
+#include <cu/ptr_seq.h>
 #include <cu/memory.h>
 #include <cu/util.h>
 #include <cu/diag.h>
@@ -270,4 +271,26 @@ cucon_stack_itr_advance(cucon_stack_itr_t itr, size_t size)
 	itr->stack = prev;
 	itr->sp = prev->sp + left;
     }
+}
+
+struct _stack_ptr_source_s
+{
+    cu_inherit (cu_ptr_source_s);
+    struct cucon_stack_itr_s itr;
+};
+
+static void *
+_stack_ptr_source_get(cu_ptr_source_t src)
+{
+    return cucon_stack_itr_get_ptr(
+		&cu_from(_stack_ptr_source, cu_ptr_source, src)->itr);
+}
+
+cu_ptr_source_t
+cucon_stack_ptr_source(cucon_stack_t stack)
+{
+    struct _stack_ptr_source_s *src = cu_gnew(struct _stack_ptr_source_s);
+    cu_ptr_source_init(cu_to(cu_ptr_source, src), _stack_ptr_source_get);
+    cucon_stack_itr_init(&src->itr, stack);
+    return cu_to(cu_ptr_source, src);
 }

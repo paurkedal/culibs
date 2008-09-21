@@ -160,6 +160,7 @@ CU_SINLINE cucon_stack_mark_t cucon_stack_mark(cucon_stack_t stack)
  * created. */
 void cucon_stack_unwind_to_mark(cucon_stack_t sk, cucon_stack_mark_t mark);
 
+/* == Iteration == */
 
 /*!Stack iterator struct. */
 struct cucon_stack_itr_s
@@ -180,6 +181,10 @@ void *cucon_stack_itr_get(cucon_stack_itr_t itr, size_t size);
 void *cucon_stack_itr_get_ptr(cucon_stack_itr_t itr);
 
 void cucon_stack_itr_advance(cucon_stack_itr_t itr, size_t size);
+
+/*!Assuming the elements of \a stack are pointers, returns a pointer source of
+ * all the elements. */
+cu_ptr_source_t cucon_stack_ptr_source(cucon_stack_t stack);
 
 
 /* == Iterators == */
