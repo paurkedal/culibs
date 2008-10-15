@@ -93,8 +93,8 @@ cuex_monoid_product_over_source(cuex_meta_t mult, cu_ptr_source_t source)
 }
 
 cuex_t
-cuex_monoid_right_multiply_source(cuex_meta_t mult,
-				  cuex_t x, cu_ptr_source_t y_source)
+cuex_monoid_rightmult_source(cuex_meta_t mult,
+			     cuex_t x, cu_ptr_source_t y_source)
 {
     if (cuex_is_monoid(mult, x)) {
 	if (cuex_ltree_is_empty(MONOID(x)->ltree)) {
@@ -117,6 +117,15 @@ cuex_monoid_right_multiply_source(cuex_meta_t mult,
 	else
 	    return make_monoid(mult, ltree);
     }
+}
+
+cuex_t
+cuex_monoid_rightmult_array(cuex_meta_t mult, cuex_t x,
+			    cuex_t *array, size_t count)
+{
+    struct cu_ptr_array_source_s src;
+    cu_ptr_array_source_init(&src, array, array + count);
+    return cuex_monoid_rightmult_source(mult, x, cu_to(cu_ptr_source, &src));
 }
 
 size_t

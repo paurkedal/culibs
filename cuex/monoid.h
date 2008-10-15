@@ -108,8 +108,11 @@ cuex_t cuex_monoid_product(cuex_meta_t mult, cuex_t x, cuex_t y);
 cuex_t cuex_monoid_product_over_source(cuex_meta_t mult,
 				       cu_ptr_source_t source);
 
-cuex_t cuex_monoid_right_multiply_source(cuex_meta_t mult,
-					 cuex_t x, cu_ptr_source_t source);
+cuex_t cuex_monoid_rightmult_source(cuex_meta_t mult,
+				    cuex_t x, cu_ptr_source_t source);
+
+cuex_t cuex_monoid_rightmult_array(cuex_meta_t mult, cuex_t x,
+				   cuex_t *array, size_t count);
 
 /*!The number of generators in the factorisation of \a x with respect to
  * the operator \a mult. */
