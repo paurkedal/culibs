@@ -81,11 +81,19 @@ CU_BEGIN_DECLARATIONS
 /* Scalar Types
  * ------------ */
 
-/* Booleans */
+/*!The integer type used to pass around booleans. */
 typedef unsigned int cu_bool_t;
+
+/*!\deprecated Use \ref cu_bool_t. */
 typedef unsigned int cu_bool_fast_t;
+
+/*!The smallest integer type which can hold a boolean. */
 typedef unsigned char cu_bool_least_t;
+
+/*!A non-zero integer value used to represent true. */
 #define cu_true 1
+
+/*!The integer value 0 used to represent false. */
 #define cu_false 0
 
 typedef void *cu_ptr_t;
@@ -93,7 +101,8 @@ typedef void *cu_ptr_t;
 /* Used in argument list instead of 'void **' to avoid cast warnings. */
 typedef void *cu_ptr_ptr_t;
 
-/* Used as generic function pointer. */
+/*!The type conventionally used for generic function pointers.  This shall be
+ * cast back to the actual function pointer type when used. */
 typedef void (*cu_fnptr_t)();
 
 /* A type which can hold the size of bounded-size objects.  Holds the size of
@@ -101,6 +110,7 @@ typedef void (*cu_fnptr_t)();
  * bit platforms. */
 typedef unsigned int cu_shortsize_t;
 typedef unsigned int cu_rank_t;
+#define CU_RANK_MAX UINT_MAX
 
 /* A fastest and shortest types which can hold 'log2(size)' for any
  * 'size' in 'size_t'. */
@@ -108,7 +118,7 @@ typedef unsigned int cu_logsize_fast_t;
 typedef unsigned char cu_logsize_least_t;
 #define cu_logsize_width 6
 
-/*!An unsigned integer used for narrow (non-cryptographic) hashes. */
+/*!An unsigned integer used for weak (non-cryptographic) hashes. */
 typedef unsigned long int cu_hash_t;
 
 /*!\c sizeof(cu_hash_t) as a const literal. */
@@ -171,15 +181,10 @@ typedef struct cu_wstring_s	*cu_wstring_t;		/* wstring.h */
 /* Declarations of Some Common Functions
  * ------------------------------------- */
 
-/* init.c */
+/*!Initialises the \ref cu_mod "cu" module.  This must be called at least once
+ * before using cu_* functions.  It is automatically called by the
+ * initialisation functions of dependent modules. */
 void cu_init(void);
-
-/* cstr.c */
-char const *cu_struniq(char const *str);
-char const *cu_struniq_int(int);
-size_t cu_struniq_string_count(void);
-char *cu_wcstombs(wchar_t const *wcs);
-wchar_t *cu_mbstowcs(char const *str);
 
 /*!@}*/
 CU_END_DECLARATIONS

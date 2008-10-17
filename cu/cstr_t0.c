@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cu/fwd.h>
 #include <cu/memory.h>
+#include <cu/cstr.h>
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

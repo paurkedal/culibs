@@ -20,9 +20,14 @@
 
 #include <cu/fwd.h>
 
-cu_bool_t	cu_cstr_eq(char const *, char const *);
-cu_hash_t	cu_cstr_hash(char const *);
-cu_hash_t	cu_cstr_hash_x(char const *, cu_hash_t);
+CU_BEGIN_DECLARATIONS
+
+char const *cu_struniq(char const *str);
+char const *cu_struniq_int(int);
+
+cu_bool_t cu_cstr_eq(char const *, char const *);
+cu_hash_t cu_cstr_hash(char const *);
+cu_hash_t cu_cstr_hash_x(char const *, cu_hash_t);
 
 extern cu_clop(cu_cstr_eq_clop, cu_bool_t, char *, char *);
 extern cu_clop(cu_cstr_hash_clop, cu_hash_t, char *);
@@ -30,5 +35,10 @@ extern cu_clop(cu_cstr_hash_clop, cu_hash_t, char *);
 char *cu_cstr_new_copy(char const *cstr);
 char *cu_cstr_toupper(char *cstr);
 char *cu_cstr_tolower(char *cstr);
+
+char *cu_wcstombs(wchar_t const *wcs); /*!<\deprecated */
+wchar_t *cu_mbstowcs(char const *str); /*!<\deprecated */
+
+CU_END_DECLARATIONS
 
 #endif
