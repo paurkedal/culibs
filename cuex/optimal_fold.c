@@ -32,6 +32,8 @@
 #include <cu/inherit.h>
 #include <cu/ptr_seq.h>
 
+cu_dlog_def(_file, "dtag=cuex.optimal_fold");
+
 typedef struct state_s *state_t;
 typedef struct block_s *block_t;
 typedef struct initial_frame_s *initial_frame_t;
@@ -53,16 +55,17 @@ struct selectset_s
     size_t state_count;
 };
 
+/* Holds various information about an element of a partition. */
 struct block_s
 {
     /* The current set of states of this block.  The states are incrementally
-     * moved over to the target block during the iteration over t ∈ Δ a s where
-     * s ∈ C i a. */
+     * moved over to the target block during the iteration over t ∈ δ⁻¹(s, a)
+     * where s ∈ C(i, a). */
     struct cucon_list_s state_list; /* of state_s nodes */
     size_t state_count;
 
-    /* The set C i a = { s | s ∈ B i ∧ ∃t δ a t = s }, regenerated from scratch
-     * on each iteration for changed blocks. */
+    /* The set C(i, a) = { s | s ∈ B(i) ∧ ∃t δ(a, t) = s }, regenerated from
+     * scratch on each iteration for changed blocks. */
     size_t selectset_count;
     struct selectset_s *selectset_arr; /* of cucon_slink_t of state_t */
 
@@ -89,8 +92,7 @@ state_new(int r, cuex_t e)
     state->e = e;
     state->block = NULL;
     state->r = r;
-    cu_dprintf("cuex.optimal_fold",
-	       "New state %p; r = %d, e = %!", state, r, e);
+    cu_dlogf(_file, "New state %p; r = %d, e = %!", state, r, e);
     return state;
 }
 
@@ -123,8 +125,7 @@ block_insert_state(block_t block, state_t state)
 	&block->state_list, cu_to(cucon_listnode, state));
     ++block->state_count;
     state->block = block;
-    cu_dprintf("cuex.optimal_fold",
-	       "Added state %p to block %p", state, block);
+    cu_dlogf(_file, "Added state %p to block %p", state, block);
 }
 
 /* Update the selectset_arr of block after splitting it. */
@@ -144,9 +145,8 @@ block_update(block_t block)
 	block->selectset_arr[a].state_count = 0;
 	block->selectset_arr[a].state_link = NULL;
     }
-    /* Compute block->selectset_arr[a] = { state | Δ state a ≠ ∅ }. */
-    cu_dprintf("cuex.optimal_fold",
-	       "Update block %p, r_max = %d", block, r_max);
+    /* Compute block->selectset_arr[a] = { state | δ⁻¹(state, a) ≠ ∅ }. */
+    cu_dlogf(_file, "Update block %p, r_max = %d", block, r_max);
     for_states_in_block(state, block) {
 	cucon_slink_t *itr_invtran;
 	struct selectset_s *itr_selectset;
@@ -157,7 +157,7 @@ block_update(block_t block)
 	    --a;
 	    --itr_invtran;
 	    --itr_selectset;
-	    if (*itr_invtran) { /* Δ state a ≠ ∅ so state ∈ C i a */
+	    if (*itr_invtran) { /* δ⁻¹(state, a) ≠ ∅ so state ∈ C(i, a) */
 		++itr_selectset->state_count;
 		itr_selectset->state_link =
 		    cucon_slink_prepend_ptr(itr_selectset->state_link, state);
@@ -196,14 +196,15 @@ link_substate(state_t state, cu_rank_t a, cu_rank_t b, state_t substate)
     cu_debug_assert(a < state->r);
     state->sub[a] = substate;
 
-    /* Insert 'state ∈ Δ b substate' */
+    /* Insert 'state ∈ δ⁻¹(substate, b)' */
     if (cucon_parr_size(&substate->invtran) <= b)
 	cucon_parr_resize_exactmax_fill(&substate->invtran,
 					b + 1, NULL);
     invlink = cucon_parr_ref_at(&substate->invtran, b);
     *invlink = cucon_slink_prepend_ptr(*invlink, state);
-    cu_dprintf("cuex.optimal_fold", "Inserting %p ∈ Δ %d %p (a = %d, r_max = %d)",
-	       state, b, substate, a, cucon_parr_size(&substate->invtran));
+    cu_dlogf(_file,
+	     "Inserting %p ∈ δ⁻¹(%p, %d) (a = %d, r_max = %d)",
+	     state, substate, b, a, cucon_parr_size(&substate->invtran));
 }
 
 static void
@@ -247,8 +248,7 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
     e_meta = cuex_meta(e);
     if (e_meta == CUEX_O1_MU) {
 	sp_mu = --sp;
-	cu_dprintf("cuex.optimal_fold",
-		   "Pushing μ-frame, new level %d", sp_max - sp);
+	cu_dlogf(_file, "Pushing μ-frame, new level %d", sp_max - sp);
 	sp_mu->e = e;
 #ifndef CU_NDEBUG
 	sp_mu->state = NULL;
@@ -279,8 +279,7 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 	    cu_debug_assert(!sp_mu || index != 0);
 	    cu_debug_assert(sp_ref->state != NULL);
 	    state = sp_ref->state;
-	    cu_dprintf("cuex.optimal_fold", "Ref μ variable, index=%d; %!",
-		       index, sp_ref->e);
+	    cu_dlogf(_file, "Ref μ variable, index=%d; %!", index, sp_ref->e);
 	    cu_debug_assert(sp_ref->mfvset);
 	    add_fv_cb.sp = sp;
 	    add_fv_cb.sp_max = sp_max;
@@ -293,8 +292,7 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 	    state = state_new(1, e);
 	    block_insert_state(lambdavar_block, state);
 	    link_substate(state, 0, 0, sp_ref->state);
-	    cu_dprintf("cuex.optimal_fold", "Ref λ variable, index=%d; %!",
-		       index, sp_ref->e);
+	    cu_dlogf(_file, "Ref λ variable, index=%d; %!", index, sp_ref->e);
 	    upframe_add_fv(sp, sp_max, index);
 	}
 	if (sp_mu)
@@ -324,15 +322,14 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 		cu_debug_assert(e_meta != CUEX_O1_MU);
 		++mudepth;
 		--sp;
-		cu_dprintf("cuex.optimal_fold",
-			   "Pushing λ-frame, new level %d", sp_max - sp);
+		cu_dlogf(_file, "Pushing λ-frame, new level %d", sp_max - sp);
 		sp->state = state;
 		sp->e = e;
 		sp->mfvset = NULL;
 		cucon_uset_init(&sp->fvset);
 	    }
 
-	    /* Process subexpressions and add transitions for δ and Δ. */
+	    /* Process subexpressions and add transitions for δ and δ⁻¹. */
 	    for (a = 0; a < r; ++a) {
 		if (cuex_opn_at(ekey, a) != cuex_o0_metanull())
 		    state->sub[a] = NULL;
@@ -348,8 +345,8 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 	    }
 
 	    if (cuex_og_binder_contains(e_meta)) {
-		cu_dprintf("cuex.optimal_fold",
-			   "%& = FV(%!)\n", cucon_uset_print, &sp->fvset, e);
+		cu_dlogf(_file,
+			 "%& = FV(%!)\n", cucon_uset_print, &sp->fvset, e);
 		ekey = cuex_o2_metapair(
 		    ekey, cuex_hole(cucon_uset_size(&sp->fvset)));
 	    }
@@ -361,7 +358,7 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 		cuex_intf_compound_t impl;
 		cu_ptr_source_t source;
 		cuex_t ep;
-		cu_dprintf("cuex.optimal_fold", "Found compound %!.", e);
+		cu_dlogf(_file, "Found compound %!.", e);
 
 		/* Deal with compounds.  This is analogous to operations,
 		 * except that we use the commutative view in order to avoid
@@ -412,9 +409,9 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 	if (cucon_pmap_insert_mem(ekey_to_block, ekey,
 				  sizeof(struct block_s), &block)) {
 	    block_init(block);
-	    cu_dprintf("cuex.optimal_fold", "New block %p: %!", block, e);
+	    cu_dlogf(_file, "New block %p: %!", block, e);
 	} else
-	    cu_dprintf("cuex.optimal_fold", "Old block %p: %!", block, e);
+	    cu_dlogf(_file, "Old block %p: %!", block, e);
 	block_insert_state(block, state);
     }
     return state;
@@ -430,7 +427,7 @@ cu_clos_def(add_pending_block, cu_prot(void, void const *key, void *block),
     cu_clos_self(add_pending_block);
     block_update(block);
     cu_debug_assert(((block_t)block)->selectset_count <= self->r_max);
-    cu_dprintf("cuex.optimal_fold", "Seeding with block %p", block);
+    cu_dlogf(_file, "Seeding with block %p", block);
     for (a = 0; a < self->r_max; ++a)
 	/* We're allowed to omit one block from each pending_arr, but
 	 * it won't affect the n log n complexity for this initial
@@ -465,9 +462,9 @@ refine_partition(int r_max, struct cucon_pset_s *pending_arr)
     while (pick(r_max, pending_arr, &a, &block)) {
 	block_t update_chain = NULL;
 	cucon_slink_t itr_state = block->selectset_arr[a].state_link;
-	cu_dprintf("cuex.optimal_fold",
-		   "Splitting on %d-triggered transitions to block %p",
-		   a, block);
+	cu_dlogf(_file,
+		 "Splitting on %d-triggered transitions to block %p",
+		 a, block);
 	while (itr_state) {
 	    state_t state = cucon_slink_ptr(itr_state);
 	    cucon_slink_t itr_invtran = cucon_parr_at(&state->invtran, a);
@@ -498,9 +495,9 @@ refine_partition(int r_max, struct cucon_pset_s *pending_arr)
 		cucon_list_append_init_node(&block_k->state_list,
 					    cu_to(cucon_listnode, statep));
 		statep->block = block_k;
-		cu_dprintf("cuex.optimal_fold",
-			   "Moved state %p from block %p to block %p.",
-			   statep, block_j, block_k);
+		cu_dlogf(_file,
+			 "Moved state %p from block %p to block %p.",
+			 statep, block_j, block_k);
 
 		itr_invtran = cucon_slink_next(itr_invtran);
 	    }
@@ -588,13 +585,12 @@ reconstruct_binding(block_t block)
      * Note that μ-variables have been replaced by direct links, so they don't
      * trigger here. */
     if (cuex_og_hole_contains(e_meta)) {
-	cu_dprintf("cuex.optimal_fold", "λ-variable on state %p", state);
+	cu_dlogf(_file, "λ-variable on state %p", state);
 	return;
     }
 
     if (block->level == -2 && !cuex_og_metaregular_contains(e_meta)) {
-	cu_dprintf("cuex.optimal_fold",
-		   "reconstruct_binding: back ref on %p.", block);
+	cu_dlogf(_file, "reconstruct_binding: back ref on %p.", block);
 	block->need_mubind = cu_true;
 	return;
     }
