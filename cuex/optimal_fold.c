@@ -34,59 +34,42 @@
 
 cu_dlog_def(_file, "dtag=cuex.optimal_fold");
 
-typedef struct state_s *state_t;
-typedef struct block_s *block_t;
-typedef struct initial_frame_s *initial_frame_t;
-typedef struct selectset_s *selectset_t;
+typedef struct _block_s *_block_t;
+typedef struct _buildframe_s *_buildframe_t;
+typedef struct _buildstate_s *_buildstate_t;
+typedef struct _state_s *_state_t;
+typedef struct _state_set_s *_state_set_t;
 
-struct state_s
+
+/* States
+ * ====== */
+
+struct _state_s
 {
     cu_inherit (cucon_listnode_s);
-    block_t block;
-    struct cucon_parr_s invtran; /* of cucon_slink_t of state_t */
+    _block_t block;
+    struct cucon_parr_s invtran; /* of cucon_slink_t of _state_t */
     cuex_t e;
     size_t r;
-    state_t sub[1];
+    _state_t sub[1];
 };
 
-struct selectset_s
+struct _state_set_s
 {
     cucon_slink_t state_link;
     size_t state_count;
 };
 
-/* Holds various information about an element of a partition. */
-struct block_s
+CU_SINLINE _state_t
+_state_from_node(cucon_listnode_t node)
+{ return cu_from(_state, cucon_listnode, node); }
+
+/* Creates a new state with the given arity and expression. */
+static _state_t
+_state_new(int r, cuex_t e)
 {
-    /* The current set of states of this block.  The states are incrementally
-     * moved over to the target block during the iteration over t ∈ δ⁻¹(s, a)
-     * where s ∈ C(i, a). */
-    struct cucon_list_s state_list; /* of state_s nodes */
-    size_t state_count;
-
-    /* The set C(i, a) = { s | s ∈ B(i) ∧ ∃t δ(a, t) = s }, regenerated from
-     * scratch on each iteration for changed blocks. */
-    size_t selectset_count;
-    struct selectset_s *selectset_arr; /* of cucon_slink_t of state_t */
-
-    /* The target block being built.  This is allocated on demand, which also
-     * triggers linking the block on an update link. */
-    block_t target;
-    block_t next_to_update;
-
-    /* For rebuilding expression. */
-    cu_bool_t need_mubind;
-    int level;
-};
-
-CU_SINLINE state_t
-state_from_node(cucon_listnode_t node)
-{ return cu_from(state, cucon_listnode, node); }
-
-static state_t
-state_new(int r, cuex_t e)
-{
-    state_t state = cu_galloc(sizeof(struct state_s) + (r - 1)*sizeof(state_t));
+    _state_t state;
+    state = cu_galloc(sizeof(struct _state_s) + (r - 1)*sizeof(_state_t));
     cu_debug_assert(e);
     cucon_parr_init_empty(&state->invtran);
     state->e = e;
@@ -96,100 +79,11 @@ state_new(int r, cuex_t e)
     return state;
 }
 
-/* Initial block for all λ-variables. */
-#define LAMBDAVAR_BLOCK 0
-
-#define for_states_in_block(state, block)				\
-    for (state = state_from_node(cucon_list_begin(&block->state_list));	\
-	 state != state_from_node(cucon_list_end(&block->state_list));	\
-	 state = state_from_node(					\
-	     cucon_listnode_next(cu_to(cucon_listnode, state))))
-
+/* Connects "state --[a]--> substate" with "b" as the index of the backlink.
+ * Usually "a = b", but "b = 0" is used for setlike expressions.  "a" must be
+ * smaller than the arity for the source state. */
 static void
-block_init(block_t block)
-{
-    block->state_count = 0;
-    cucon_list_init(&block->state_list);
-    block->target = NULL;
-    /* block->selectset_arr is created by block_update */
-    /* block->next_to_update is used internally in refine_partition */
-
-    block->need_mubind = cu_false;
-    block->level = -1;
-}
-
-static void
-block_insert_state(block_t block, state_t state)
-{
-    cucon_list_append_init_node(
-	&block->state_list, cu_to(cucon_listnode, state));
-    ++block->state_count;
-    state->block = block;
-    cu_dlogf(_file, "Added state %p to block %p", state, block);
-}
-
-/* Update the selectset_arr of block after splitting it. */
-static void
-block_update(block_t block)
-{
-    cu_rank_t a, r_max = 0;
-    state_t state;
-    for_states_in_block(state, block) {
-	int a = cucon_parr_size(&state->invtran);
-	if (a > r_max)
-	    r_max = a;
-    }
-    block->selectset_count = r_max;
-    block->selectset_arr = cu_galloc(sizeof(struct selectset_s)*r_max);
-    for (a = 0; a < r_max; ++a) {
-	block->selectset_arr[a].state_count = 0;
-	block->selectset_arr[a].state_link = NULL;
-    }
-    /* Compute block->selectset_arr[a] = { state | δ⁻¹(state, a) ≠ ∅ }. */
-    cu_dlogf(_file, "Update block %p, r_max = %d", block, r_max);
-    for_states_in_block(state, block) {
-	cucon_slink_t *itr_invtran;
-	struct selectset_s *itr_selectset;
-	a = cucon_parr_size(&state->invtran);
-	itr_invtran = cucon_parr_ref_at(&state->invtran, a);
-	itr_selectset = block->selectset_arr + a;
-	while (a > 0) {
-	    --a;
-	    --itr_invtran;
-	    --itr_selectset;
-	    if (*itr_invtran) { /* δ⁻¹(state, a) ≠ ∅ so state ∈ C(i, a) */
-		++itr_selectset->state_count;
-		itr_selectset->state_link =
-		    cucon_slink_prepend_ptr(itr_selectset->state_link, state);
-	    }
-	}
-    }
-}
-
-struct initial_frame_s
-{
-    state_t state;
-    cuex_t e;
-    struct cucon_uset_s fvset;
-    cucon_uset_t mfvset;
-};
-
-static cuex_t
-strip(cuex_t e)
-{
-    cuex_meta_t e_meta = cuex_meta(e);
-    if (cuex_meta_is_opr(e_meta))
-	return cuex_o0_metanull();
-    else if (cuex_meta_is_type(e_meta)) {
-	cuoo_type_t type = cuoo_type_from_meta(e_meta);
-	if (cuoo_type_impl(type, CUEX_INTF_COMPOUND))
-	    return cuex_o0_metanull();
-    }
-    return e;
-}
-
-static void
-link_substate(state_t state, cu_rank_t a, cu_rank_t b, state_t substate)
+_state_connect(_state_t state, cu_rank_t a, cu_rank_t b, _state_t substate)
 {
     cucon_slink_t *invlink;
 
@@ -207,36 +101,203 @@ link_substate(state_t state, cu_rank_t a, cu_rank_t b, state_t substate)
 	     state, substate, b, a, cucon_parr_size(&substate->invtran));
 }
 
-static void
-upframe_add_fv(initial_frame_t sp, initial_frame_t sp_max, int index)
+
+/* Blocks
+ * ====== */
+
+/* Holds various information about an element of a partition. */
+struct _block_s
 {
-    while (index > 0 && sp < sp_max) {
+    /* The current set of states of this block.  The states are incrementally
+     * moved over to the target block during the iteration over t ∈ δ⁻¹(s, a)
+     * where s ∈ C(i, a). */
+    struct cucon_list_s state_list; /* of _state_s nodes */
+    size_t state_count;
+
+    /* The set C(i, a) = { s | s ∈ B(i) ∧ ∃t δ(a, t) = s }, regenerated from
+     * scratch on each iteration for changed blocks. */
+    size_t occur_set_count;
+    struct _state_set_s *occur_set_arr; /* of cucon_slink_t of _state_t */
+
+    /* The target block being built.  This is allocated on demand, which also
+     * triggers linking the block on an update link. */
+    _block_t target;
+    _block_t next_to_update;
+
+    /* For rebuilding expression. */
+    cu_bool_t need_mubind;
+    int level;
+};
+
+/* Initial block for all λ-variables. */
+#define LAMBDAVAR_BLOCK 0
+
+#define _for_states_in_block(state, block)				\
+    for (state = _state_from_node(cucon_list_begin(&block->state_list));\
+	 state != _state_from_node(cucon_list_end(&block->state_list));	\
+	 state = _state_from_node(					\
+	     cucon_listnode_next(cu_to(cucon_listnode, state))))
+
+static void
+_block_init(_block_t block)
+{
+    block->state_count = 0;
+    cucon_list_init(&block->state_list);
+    block->target = NULL;
+    /* block->occur_set_arr is created by _block_reindex */
+    /* block->next_to_update is used internally in _refine_partition */
+
+    block->need_mubind = cu_false;
+    block->level = -1;
+}
+
+static void
+_block_insert_state(_block_t block, _state_t state)
+{
+    cucon_list_append_init_node(
+	&block->state_list, cu_to(cucon_listnode, state));
+    ++block->state_count;
+    state->block = block;
+    cu_dlogf(_file, "Added state %p to block %p", state, block);
+}
+
+/* Update the "occur_set_arr" of block after splitting it. */
+static void
+_block_reindex(_block_t block)
+{
+    cu_rank_t a, r_max = 0;
+    _state_t state;
+    _for_states_in_block(state, block) {
+	int a = cucon_parr_size(&state->invtran);
+	if (a > r_max)
+	    r_max = a;
+    }
+    block->occur_set_count = r_max;
+    block->occur_set_arr = cu_galloc(sizeof(struct _state_set_s)*r_max);
+    for (a = 0; a < r_max; ++a) {
+	block->occur_set_arr[a].state_count = 0;
+	block->occur_set_arr[a].state_link = NULL;
+    }
+    /* Compute "block->occur_set_arr[a] = { state | δ⁻¹(state, a) ≠ ∅ }". */
+    cu_dlogf(_file, "Update block %p, r_max = %d", block, r_max);
+    _for_states_in_block(state, block) {
+	cucon_slink_t *itr_invtran;
+	struct _state_set_s *itr_selectset;
+	a = cucon_parr_size(&state->invtran);
+	itr_invtran = cucon_parr_ref_at(&state->invtran, a);
+	itr_selectset = block->occur_set_arr + a;
+	while (a > 0) {
+	    --a;
+	    --itr_invtran;
+	    --itr_selectset;
+	    if (*itr_invtran) { /* δ⁻¹(state, a) ≠ ∅ so state ∈ C(i, a) */
+		++itr_selectset->state_count;
+		itr_selectset->state_link =
+		    cucon_slink_prepend_ptr(itr_selectset->state_link, state);
+	    }
+	}
+    }
+}
+
+
+/* Partition State
+ * =============== */
+
+struct _buildframe_s
+{
+    _state_t state;
+    cuex_t e;
+    struct cucon_uset_s fvset;
+    cucon_uset_t mfvset;
+};
+
+struct _buildstate_s
+{
+    int r_max;
+
+    /* Maps from pruned expressions to the block of the initial partition where
+     * the corresponding state belongs. */
+    struct cucon_pmap_s ekey_to_block;
+
+    /* This block contains the states of all λ-variables.  Each of these states
+     * link back to the state of the expression binding the variable. */
+    struct _block_s lambdavar_block;
+
+    /* Maps from each μ-path to a cucon_uset_s of indices of the free
+     * λ-variables which are free in that μ-expression. */
+    cucon_pmap_t fvmap;
+
+    /* The biggest stack address, points just after the bottom element. */
+    _buildframe_t sp_max;
+};
+
+static cu_bool_t
+_buildstate_init(_buildstate_t bst, cuex_t e)
+{
+    int depth;
+    int r_max = cuex_max_arity(e);
+    if (r_max == 0)
+	return cu_false;
+    if (r_max < 2)
+	r_max = 2; /* label nodes for commutative view of labellings */
+    depth = cuex_max_binding_depth(e);
+    if (depth == 0)
+	return cu_false;
+    bst->r_max = r_max;
+    cucon_pmap_init(&bst->ekey_to_block);
+    _block_init(&bst->lambdavar_block);
+    bst->fvmap = cuex_unfolded_fv_sets(e, -1);
+    bst->sp_max = cu_galloc(sizeof(struct _buildframe_s)*depth);
+    bst->sp_max += depth;
+    return cu_true;
+}
+
+
+/* Initial Partition
+ * ================= */
+
+static cuex_t
+strip(cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    if (cuex_meta_is_opr(e_meta))
+	return cuex_o0_metanull();
+    else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(e_meta);
+	if (cuoo_type_impl(type, CUEX_INTF_COMPOUND))
+	    return cuex_o0_metanull();
+    }
+    return e;
+}
+
+static void
+_add_FV_to_parent_frames(_buildframe_t sp, _buildframe_t sp_max, int var_bi)
+{
+    while (var_bi > 0 && sp < sp_max) {
 	if (!sp->mfvset) {
-	    if (!cucon_uset_insert(&sp->fvset, index))
+	    if (!cucon_uset_insert(&sp->fvset, var_bi))
 		return;
 	}
-	--index;
+	--var_bi;
 	++sp;
     }
 }
 
-cu_clos_def(upframe_add_fv_clos, cu_prot(void, uintptr_t index),
-    ( initial_frame_t sp, sp_max;
+cu_clos_def(_add_FV_to_parent_frames_clos, cu_prot(void, uintptr_t var_bi),
+    ( _buildframe_t sp, sp_max;
       int shift; ))
 {
-    cu_clos_self(upframe_add_fv_clos);
-    upframe_add_fv(self->sp, self->sp_max, index + self->shift);
+    cu_clos_self(_add_FV_to_parent_frames_clos);
+    _add_FV_to_parent_frames(self->sp, self->sp_max, var_bi + self->shift);
 }
 
-static state_t
-initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
-		  cucon_pmap_t ekey_to_block, block_t lambdavar_block,
-		  int r_max, struct cucon_pset_s *pending_arr,
-		  int mudepth, cuex_t mupath, cucon_pmap_t fvmap)
+static _state_t
+_build_partition(_buildstate_t bst, cuex_t e, _buildframe_t sp,
+		 int mudepth, cuex_t mupath)
 {
     cuex_meta_t e_meta;
-    initial_frame_t sp_mu;
-    state_t state;
+    _buildframe_t sp_mu;
+    _state_t state;
     int a, r;
 
     /* == μ-Bind ==
@@ -248,57 +309,60 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
     e_meta = cuex_meta(e);
     if (e_meta == CUEX_O1_MU) {
 	sp_mu = --sp;
-	cu_dlogf(_file, "Pushing μ-frame, new level %d", sp_max - sp);
+	cu_dlogf(_file, "Pushing μ-frame, new level %d", bst->sp_max - sp);
 	sp_mu->e = e;
 #ifndef CU_NDEBUG
 	sp_mu->state = NULL;
 #endif
 	mupath = cuex_mupath_pair(mudepth + 1, mupath, e);
 	mudepth = 0;
-	sp_mu->mfvset = cucon_pmap_find_mem(fvmap, mupath);
+	sp_mu->mfvset = cucon_pmap_find_mem(bst->fvmap, mupath);
 	cu_debug_assert(sp_mu->mfvset);
 	e = cuex_opn_at(e, 0);
 	e_meta = cuex_meta(e);
-    } else
+    }
+    else
 	sp_mu = NULL;
 
     if (cuex_meta_is_opr(e_meta) && cuex_og_hole_contains(e_meta)) {
-	int index;
-	initial_frame_t sp_ref;
+	int var_bi;
+	_buildframe_t sp_ref;
 
 	/* == λ- and μ-Variables == */
 
-	index = cuex_oa_hole_index(e_meta);
-	sp_ref = sp + index;
-	cu_debug_assert(sp_ref < sp_max); /* TODO */
+	var_bi = cuex_oa_hole_index(e_meta);
+	sp_ref = sp + var_bi;
+	cu_debug_assert(sp_ref < bst->sp_max); /* TODO */
 	cu_debug_assert(sp_ref->state);
 	if (cuex_meta(sp_ref->e) == CUEX_O1_MU) {
-	    upframe_add_fv_clos_t add_fv_cb;
+	    _add_FV_to_parent_frames_clos_t add_fv_cb;
 
 	    /* μ-variable are equivalent to what they refer to */
-	    cu_debug_assert(!sp_mu || index != 0);
+	    cu_debug_assert(!sp_mu || var_bi != 0);
 	    cu_debug_assert(sp_ref->state != NULL);
 	    state = sp_ref->state;
-	    cu_dlogf(_file, "Ref μ variable, index=%d; %!", index, sp_ref->e);
+	    cu_dlogf(_file, "Ref μ variable, index=%d; %!", var_bi, sp_ref->e);
 	    cu_debug_assert(sp_ref->mfvset);
 	    add_fv_cb.sp = sp;
-	    add_fv_cb.sp_max = sp_max;
-	    add_fv_cb.shift = index;
+	    add_fv_cb.sp_max = bst->sp_max;
+	    add_fv_cb.shift = var_bi;
 	    cucon_uset_iter(sp_ref->mfvset,
-			    upframe_add_fv_clos_prep(&add_fv_cb));
-	} else { /* e is a λ variable */
+			    _add_FV_to_parent_frames_clos_prep(&add_fv_cb));
+	}
+	else { /* e is a λ variable */
 	    /* λ-variables have individual states in a shared block.  We
 	     * synthetically link the point of reference as a substate. */
-	    state = state_new(1, e);
-	    block_insert_state(lambdavar_block, state);
-	    link_substate(state, 0, 0, sp_ref->state);
-	    cu_dlogf(_file, "Ref λ variable, index=%d; %!", index, sp_ref->e);
-	    upframe_add_fv(sp, sp_max, index);
+	    state = _state_new(1, e);
+	    _block_insert_state(&bst->lambdavar_block, state);
+	    _state_connect(state, 0, 0, sp_ref->state);
+	    cu_dlogf(_file, "Ref λ variable, index=%d; %!", var_bi, sp_ref->e);
+	    _add_FV_to_parent_frames(sp, bst->sp_max, var_bi);
 	}
 	if (sp_mu)
 	    sp_mu->state = state;
-    } else {
-	block_t block;
+    }
+    else {
+	_block_t block;
 	cuex_t ekey = e;
 
 	/* == Structural Expressions and λ-Bind == */
@@ -307,8 +371,8 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 
 	    /* Allocate a new state. */
 	    r = cuex_opr_r(e_meta);
-	    cu_debug_assert(r <= r_max);
-	    state = state_new(r, e);
+	    cu_debug_assert(r <= bst->r_max);
+	    state = _state_new(r, e);
 
 	    /* If we had a surrounding μ-bind, set it's state. */
 	    if (sp_mu)
@@ -322,7 +386,8 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 		cu_debug_assert(e_meta != CUEX_O1_MU);
 		++mudepth;
 		--sp;
-		cu_dlogf(_file, "Pushing λ-frame, new level %d", sp_max - sp);
+		cu_dlogf(_file, "Pushing λ-frame, new level %d",
+			 bst->sp_max - sp);
 		sp->state = state;
 		sp->e = e;
 		sp->mfvset = NULL;
@@ -334,13 +399,11 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 		if (cuex_opn_at(ekey, a) != cuex_o0_metanull())
 		    state->sub[a] = NULL;
 		else {
-		    state_t substate;
+		    _state_t substate;
 
-		    substate = initial_partition(cuex_opn_at(e, a), sp, sp_max,
-						 ekey_to_block, lambdavar_block,
-						 r_max, pending_arr,
-						 mudepth, mupath, fvmap);
-		    link_substate(state, a, a, substate);
+		    substate = _build_partition(bst, cuex_opn_at(e, a), sp,
+						mudepth, mupath);
+		    _state_connect(state, a, a, substate);
 		}
 	    }
 
@@ -368,7 +431,7 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 		    r = cuex_compound_size(impl, e);
 
 		    /* Allocate a new state, update any surrounding μ-bind. */
-		    state = state_new(r, e);
+		    state = _state_new(r, e);
 		    if (sp_mu)
 			sp_mu->state = state;
 
@@ -383,14 +446,13 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 			    state->sub[a] = NULL;
 			}
 			else {
-			    state_t substate;
+			    _state_t substate;
 
-			    substate = initial_partition(
-				ep, sp, sp_max, ekey_to_block, lambdavar_block,
-				r_max, pending_arr, mudepth, mupath, fvmap);
+			    substate = _build_partition(bst, ep, sp,
+							mudepth, mupath);
 			    /* The back-refereces all gets the same tag (0) since
 			     * we use the commutative view of the compound. */
-			    link_substate(state, a, 0, substate);
+			    _state_connect(state, a, 0, substate);
 			}
 		    }
 		    cu_debug_assert(a == r);
@@ -399,34 +461,38 @@ initial_partition(cuex_t e, initial_frame_t sp, initial_frame_t sp_max,
 	    }
 	    if (!state) { /* fall-through from above block */
 		/* Allocate a new state, update any surrounding μ-bind. */
-		state = state_new(0, e);
+		state = _state_new(0, e);
 		if (sp_mu)
 		    sp_mu->state = state;
 	    }
 	}
 
 	/* Locate or create the block */
-	if (cucon_pmap_insert_mem(ekey_to_block, ekey,
-				  sizeof(struct block_s), &block)) {
-	    block_init(block);
+	if (cucon_pmap_insert_mem(&bst->ekey_to_block, ekey,
+				  sizeof(struct _block_s), &block)) {
+	    _block_init(block);
 	    cu_dlogf(_file, "New block %p: %!", block, e);
 	} else
 	    cu_dlogf(_file, "Old block %p: %!", block, e);
-	block_insert_state(block, state);
+	_block_insert_state(block, state);
     }
     return state;
 }
 
-/* This function is run on the blocks before refine_partition to prepare the
- * initial work and call block_update on the blocks. */
-cu_clos_def(add_pending_block, cu_prot(void, void const *key, void *block),
+
+/* Partition Refinement
+ * ==================== */
+
+/* This function is run on the blocks before _refine_partition to prepare the
+ * initial work and call _block_reindex on the blocks. */
+cu_clos_def(_add_pending_block, cu_prot(void, void const *key, void *block),
     ( cu_rank_t r_max;
       struct cucon_pset_s *pending_arr; ))
 {
     cu_rank_t a;
-    cu_clos_self(add_pending_block);
-    block_update(block);
-    cu_debug_assert(((block_t)block)->selectset_count <= self->r_max);
+    cu_clos_self(_add_pending_block);
+    _block_reindex(block);
+    cu_debug_assert(((_block_t)block)->occur_set_count <= self->r_max);
     cu_dlogf(_file, "Seeding with block %p", block);
     for (a = 0; a < self->r_max; ++a)
 	/* We're allowed to omit one block from each pending_arr, but
@@ -436,41 +502,46 @@ cu_clos_def(add_pending_block, cu_prot(void, void const *key, void *block),
 	cucon_pset_insert(&self->pending_arr[a], block);
 }
 
+/* Pick the next operand number and block by which to refine the partition. */
 static cu_bool_t
-pick(int r_max, struct cucon_pset_s *pending_arr, int *a, block_t *block_out)
+_pick_block(int r_max, struct cucon_pset_s *pending_arr,
+	    int *a_inout, _block_t *block_out)
 {
-    int ap = *a;
+    int ap = *a_inout;
     do {
 	while (!cucon_pset_is_empty(&pending_arr[ap])) {
 	    *block_out = cucon_pset_pop_any(&pending_arr[ap]);
-	    if ((*block_out)->selectset_count > ap) {
-		*a = ap;
+	    if ((*block_out)->occur_set_count > ap) {
+		*a_inout = ap;
 		return cu_true;
 	    }
 	}
 	ap = (ap + 1) % r_max;
-    } while (ap != *a);
+    } while (ap != *a_inout);
     return cu_false;
 }
 
+/* Iteratively refine the partition until it's stable.  pending_arr[i] is the
+ * set of blocks which will be use to refine the partition, based on operand
+ * number i of the states. */
 static void
-refine_partition(int r_max, struct cucon_pset_s *pending_arr)
+_refine_partition(int r_max, struct cucon_pset_s *pending_arr)
 {
-    block_t block;
+    _block_t block;
     int a = 0;
 
-    while (pick(r_max, pending_arr, &a, &block)) {
-	block_t update_chain = NULL;
-	cucon_slink_t itr_state = block->selectset_arr[a].state_link;
+    while (_pick_block(r_max, pending_arr, &a, &block)) {
+	_block_t update_chain = NULL;
+	cucon_slink_t itr_state = block->occur_set_arr[a].state_link;
 	cu_dlogf(_file,
 		 "Splitting on %d-triggered transitions to block %p",
 		 a, block);
 	while (itr_state) {
-	    state_t state = cucon_slink_ptr(itr_state);
+	    _state_t state = cucon_slink_ptr(itr_state);
 	    cucon_slink_t itr_invtran = cucon_parr_at(&state->invtran, a);
 	    while (itr_invtran) {
-		state_t statep;
-		block_t block_j, block_k;
+		_state_t statep;
+		_block_t block_j, block_k;
 		statep = cucon_slink_ptr(itr_invtran);
 		block_j = statep->block;	/* selectal block */
 		block_k = block_j->target;	/* block to move statep to */
@@ -478,9 +549,9 @@ refine_partition(int r_max, struct cucon_pset_s *pending_arr)
 		/* Allocate block_k if necessary. */
 		if (!block_k) {
 		    /* Construct a new block to split j into. */
-		    block_k = cu_gnew(struct block_s);
+		    block_k = cu_gnew(struct _block_s);
 		    block_j->target = block_k;
-		    block_init(block_k);
+		    _block_init(block_k);
 
 		    /* Add block j and, by implication from target link, k to
 		     * update chain */
@@ -505,24 +576,24 @@ refine_partition(int r_max, struct cucon_pset_s *pending_arr)
 	}
 	while (update_chain) {
 	    cu_rank_t ap, ap_max;
-	    block_t block_j = update_chain;
-	    block_t block_k = update_chain->target;
-	    block_update(block_j);
-	    block_update(block_k);
+	    _block_t block_j = update_chain;
+	    _block_t block_k = update_chain->target;
+	    _block_reindex(block_j);
+	    _block_reindex(block_k);
 
 	    /* For each input, schedule block j or k. */
-	    ap_max = block_j->selectset_count;
-	    if (block_k->selectset_count > ap_max)
-		ap_max = block_k->selectset_count;
-	    cu_debug_assert(block_k->selectset_count <= r_max);
-	    for (ap = 0; ap < block_k->selectset_count; ++ap) {
+	    ap_max = block_j->occur_set_count;
+	    if (block_k->occur_set_count > ap_max)
+		ap_max = block_k->occur_set_count;
+	    cu_debug_assert(block_k->occur_set_count <= r_max);
+	    for (ap = 0; ap < block_k->occur_set_count; ++ap) {
 		/* We only need to use one of the blocks for further
 		 * refinement.  Choose the smallest one. */
 		size_t cnt_j, cnt_k;
-		cnt_j = block_j->selectset_count <= ap
-		      ? 0 : block_j->selectset_arr[ap].state_count;
-		cnt_k = block_k->selectset_count <= ap
-		      ? 0 : block_k->selectset_arr[ap].state_count;
+		cnt_j = block_j->occur_set_count <= ap
+		      ? 0 : block_j->occur_set_arr[ap].state_count;
+		cnt_k = block_k->occur_set_count <= ap
+		      ? 0 : block_k->occur_set_arr[ap].state_count;
 		if (cnt_j == 0) {
 		    if (cucon_pset_erase(&pending_arr[ap], block_j) && cnt_k)
 			cucon_pset_insert(&pending_arr[ap], block_k);
@@ -544,20 +615,24 @@ refine_partition(int r_max, struct cucon_pset_s *pending_arr)
     }
 }
 
+
+/* Reconstruction of μ-Expression
+ * ============================== */
+
 static void
-reconstruct_binding(block_t block)
+reconstruct_binding(_block_t block)
 {
     cuex_meta_t e_meta;
-    state_t state;
+    _state_t state;
 
     /* Debug Output */
 #ifndef CU_NDEBUG
     cu_debug_assert(!cucon_list_is_empty(&block->state_list));
     if (cu_debug_key("cuex.optimal_fold")) {
 	cu_fprintf(stderr, "BLOCK %p\n", block);
-	if (block->target != (block_t)-1) {
+	if (block->target != (_block_t)-1) {
 	    int a, r;
-	    for_states_in_block(state, block) {
+	    _for_states_in_block(state, block) {
 		cu_fprintf(stderr, "  STATE %p; %!\n", state, state->e);
 		e_meta = cuex_meta(state->e);
 		r = state->r;
@@ -574,11 +649,11 @@ reconstruct_binding(block_t block)
 		}
 	    }
 	}
-	block->target = (block_t)-1;
+	block->target = (_block_t)-1;
     }
 #endif
 
-    state = state_from_node(cucon_list_begin(&block->state_list));
+    state = _state_from_node(cucon_list_begin(&block->state_list));
     e_meta = cuex_meta(state->e);
 
     /* Skip back-references for λ-variables, as they already have bind nodes.
@@ -606,14 +681,14 @@ reconstruct_binding(block_t block)
 }
 
 static cuex_t
-reconstruct(block_t block, int level)
+reconstruct(_block_t block, int level)
 {
     cuex_t e;
     cuex_meta_t e_meta;
-    state_t state;
+    _state_t state;
 
     cu_debug_assert(!cucon_list_is_empty(&block->state_list));
-    state = state_from_node(cucon_list_begin(&block->state_list));
+    state = _state_from_node(cucon_list_begin(&block->state_list));
     e = state->e;
     e_meta = cuex_meta(e);
     if (cuex_meta_is_opr(e_meta)) {
@@ -626,8 +701,8 @@ reconstruct(block_t block, int level)
 	    return cuex_hole(level - block->level);
 	}
 	if (cuex_og_hole_contains(e_meta)) {  /* On a λ-variable */
-	    state_t state_ref = state->sub[0];
-	    block_t block_ref = state_ref->block;
+	    _state_t state_ref = state->sub[0];
+	    _block_t block_ref = state_ref->block;
 	    cu_debug_assert(cuex_og_binder_contains(cuex_meta(state_ref->e)));
 	    cu_debug_assert(block_ref->level + 1 <= level);
 	    return cuex_hole(level - block_ref->level - 1);
@@ -700,46 +775,32 @@ reconstruct(block_t block, int level)
     return e;
 }
 
+
+/* API
+ * === */
+
 cuex_t
 cuex_optimal_fold(cuex_t e)
 {
-    struct cucon_pmap_s ekey_to_block;
-    struct block_s lambdavar_block;
-    int depth;
-    struct initial_frame_s *sp_max;
+    int a;
+    struct _buildstate_s bst;
+    _state_t top_state;
+    _add_pending_block_t apb_cb;
     struct cucon_pset_s *pending_arr;
-    int a, r_max;
-    state_t top_state;
-    add_pending_block_t apb_cb;
-    cucon_pmap_t fvmap;
-
-    r_max = cuex_max_arity(e);
-    if (r_max == 0)
-	return e;
-    if (r_max < 2)
-	r_max = 2; /* label nodes for commutative view of labellings */
-    depth = cuex_max_binding_depth(e);
-    if (depth == 0)
-	return e;
-    pending_arr = cu_salloc(sizeof(struct cucon_pset_s)*r_max);
-    for (a = 0; a < r_max; ++a)
-	cucon_pset_init(&pending_arr[a]);
 
     /* Create initial partition. */
-    sp_max = cu_salloc(sizeof(struct initial_frame_s)*depth);
-    sp_max += depth;
-    cucon_pmap_init(&ekey_to_block);
-    block_init(&lambdavar_block);
-    fvmap = cuex_unfolded_fv_sets(e, -1);
-    top_state = initial_partition(e, sp_max, sp_max, &ekey_to_block,
-				  &lambdavar_block, r_max, pending_arr,
-				  0, cuex_mupath_null(), fvmap);
+    if (!_buildstate_init(&bst, e))
+	return e;
+    top_state = _build_partition(&bst, e, bst.sp_max, 0, cuex_mupath_null());
 
     /* Refine partition. */
-    apb_cb.r_max = r_max;
+    pending_arr = cu_salloc(sizeof(struct cucon_pset_s)*bst.r_max);
+    for (a = 0; a < bst.r_max; ++a)
+	cucon_pset_init(&pending_arr[a]);
+    apb_cb.r_max = bst.r_max;
     apb_cb.pending_arr = pending_arr;
-    cucon_pmap_iter_mem(&ekey_to_block, add_pending_block_prep(&apb_cb));
-    refine_partition(r_max, pending_arr);
+    cucon_pmap_iter_mem(&bst.ekey_to_block, _add_pending_block_prep(&apb_cb));
+    _refine_partition(bst.r_max, pending_arr);
 
     /* Re-construct expression. */
     reconstruct_binding(top_state->block);
