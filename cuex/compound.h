@@ -221,6 +221,26 @@ cuex_t cuex_compound_image(cuex_intf_compound_t impl, cuex_t C,
 			   cu_clop(f, cuex_t, cuex_t));
 #endif
 
+/*!Returns an ordered sequence over immediate subexpressions of \a e.  For
+ * operations, yields the opreands in order (as returned by \ref cuex_opn_at).
+ * For compounds, returns the non-commutative source of the compound, or \c
+ * NULL if the compound only has a commutative view.  Returns the empty
+ * interator for atomic expressions. */
+cu_ptr_source_t cuex_ncomm_source(cuex_t e);
+
+/*!Returns an unordered sequence over immediate subexpressions of \a e.  For
+ * operations, a sequence of cuex_o2_metapair are returned, where the first
+ * operand is an cudyn_int of the position, and the second is the original
+ * operand.  For compounds, the (possibly synthesised) commutative view is
+ * returned.  Returns the empty iterator for atomic expressions. */
+cu_ptr_source_t cuex_comm_source(cuex_t e);
+
+/*!Returns a sequence over \a e, using the preferred iteration source.  For
+ * operations, the operands are returned in order, as with \ref
+ * cuex_ncomm_source.  For compounds, \ref cuex_compound_pref_iter_source is
+ * used.  Returns the empty iterator for atomic expressions. */
+cu_ptr_source_t cuex_pref_source(cuex_t e);
+
 /*!@}*/
 CU_END_DECLARATIONS
 

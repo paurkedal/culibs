@@ -19,6 +19,8 @@
 #include <cuex/oprinfo.h>
 #include <cuex/compound.h>
 #include <cuex/intf.h>
+#include <cuex/oprdefs.h>
+#include <cudyn/misc.h>
 #include <cuoo/halloc.h>
 #include <cu/ptr_seq.h>
 
@@ -244,4 +246,55 @@ cuex_image_cfn(cuex_t (*f)(cuex_t), cuex_t e)
 	    cu_debug_unreachable();
 	    return NULL;
     }
+}
+
+void *
+_opn_ncomm_source_get(cu_ptr_source_t base)
+{
+    cuex_opn_source_t src = cu_from(cuex_opn_source, cu_ptr_source, base);
+    return cuex_opn_at(src->e, src->i++);
+}
+
+void
+cuex_opn_ncomm_source_init(cuex_opn_source_t src, cuex_t e)
+{
+    cu_debug_assert(cuex_meta_is_opr(cuex_meta(e)));
+    src->i = 0;
+    src->e = e;
+    cu_ptr_source_init(cu_to(cu_ptr_source, src), _opn_ncomm_source_get);
+}
+
+cu_ptr_source_t
+cuex_opn_ncomm_source(cuex_t e)
+{
+    cuex_opn_source_t src;
+    src = cu_gnew(struct cuex_opn_source_s);
+    cuex_opn_ncomm_source_init(src, e);
+    return cu_to(cu_ptr_source, src);
+}
+
+void *
+_opn_comm_source_get(cu_ptr_source_t base)
+{
+    cuex_opn_source_t src = cu_from(cuex_opn_source, cu_ptr_source, base);
+    int i = src->i++;
+    return cuex_o2_metapair(cudyn_int(i), cuex_opn_at(src->e, i));
+}
+
+void
+cuex_opn_comm_source_init(cuex_opn_source_t src, cuex_t e)
+{
+    cu_debug_assert(cuex_meta_is_opr(cuex_meta(e)));
+    src->i = 0;
+    src->e = e;
+    cu_ptr_source_init(cu_to(cu_ptr_source, src), _opn_comm_source_get);
+}
+
+cu_ptr_source_t
+cuex_opn_comm_source(cuex_t e)
+{
+    cuex_opn_source_t src;
+    src = cu_gnew(struct cuex_opn_source_s);
+    cuex_opn_comm_source_init(src, e);
+    return cu_to(cu_ptr_source, src);
 }

@@ -22,6 +22,7 @@
 #include <cuex/ex.h>
 #include <cuoo/halloc.h>
 #include <cu/clos.h>
+#include <cu/ptr_seq.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_opn_h cuex/opn.h: Additional Interface for Operations
@@ -193,6 +194,21 @@ cuex_t cuex_image(cu_clop(f, cuex_t, cuex_t), cuex_t e);
 /*!A variant of \ref cuex_image specialised for a simple C function without
  * context. */
 cuex_t cuex_image_cfn(cuex_t (*f)(cuex_t), cuex_t e);
+
+struct cuex_opn_source_s
+{
+    cu_inherit (cu_ptr_source_s);
+    int i;
+    cuex_t e;
+};
+
+void cuex_opn_ncomm_source_init(cuex_opn_source_t src, cuex_t e);
+
+cu_ptr_source_t cuex_opn_ncomm_source(cuex_t e);
+
+void cuex_opn_comm_source_init(cuex_opn_source_t src, cuex_t e);
+
+cu_ptr_source_t cuex_opn_comm_source(cuex_t e);
 
 /*!@}*/
 CU_END_DECLARATIONS

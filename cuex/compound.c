@@ -19,6 +19,7 @@
 #include <cuex/compound.h>
 #include <cuex/oprdefs.h>
 #include <cuex/opn.h>
+#include <cuex/intf.h>
 #include <cu/diag.h>
 #include <cu/memory.h>
 #include <cu/ptr_seq.h>
@@ -319,3 +320,58 @@ cuex_compound_image(cuex_intf_compound_t impl, cuex_t C,
     }
 }
 #endif
+
+cu_ptr_source_t
+cuex_ncomm_source(cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    if (cuex_meta_is_opr(e_meta))
+	return cuex_opn_ncomm_source(e);
+    else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(e_meta);
+	cu_word_t impl = cuoo_type_impl(type, CUEX_INTF_COMPOUND);
+	if (impl != CUOO_IMPL_NONE) {
+	    cuex_intf_compound_t comp = (cuex_intf_compound_t)impl;
+	    if (comp->ncomm_iter_source)
+		return (*comp->ncomm_iter_source)(comp, e);
+	    else
+		return NULL;
+	}
+    }
+    return cu_empty_ptr_source();
+}
+
+cu_ptr_source_t
+cuex_comm_source(cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    if (cuex_meta_is_opr(e_meta))
+	return cuex_opn_comm_source(e);
+    else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(e_meta);
+	cu_word_t impl = cuoo_type_impl(type, CUEX_INTF_COMPOUND);
+	if (impl != CUOO_IMPL_NONE) {
+	    cuex_intf_compound_t comp = (cuex_intf_compound_t)impl;
+	    cu_debug_assert(comp->comm_iter_source);
+	    return (*comp->comm_iter_source)(comp, e);
+	}
+    }
+    return cu_empty_ptr_source();
+}
+
+cu_ptr_source_t
+cuex_pref_source(cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    if (cuex_meta_is_opr(e_meta))
+	return cuex_opn_ncomm_source(e);
+    else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(e_meta);
+	cu_word_t impl = cuoo_type_impl(type, CUEX_INTF_COMPOUND);
+	if (impl != CUOO_IMPL_NONE) {
+	    cuex_intf_compound_t comp = (cuex_intf_compound_t)impl;
+	    return cuex_compound_pref_iter_source(comp, e);
+	}
+    }
+    return cu_empty_ptr_source();
+}

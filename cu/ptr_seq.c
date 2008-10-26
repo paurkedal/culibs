@@ -17,6 +17,7 @@
 
 #include <cu/ptr_seq.h>
 #include <cu/memory.h>
+#include <cu/diag.h>
 
 size_t
 cu_ptr_source_count(cu_ptr_source_t source)
@@ -176,6 +177,51 @@ cu_ptr_junctor_filter(cu_clop(f, cu_bool_t, void *), cu_ptr_junctor_t junctor)
 	if (cu_call(f, elt))
 	    cu_ptr_junctor_put(junctor, elt);
     return cu_ptr_junctor_finish(junctor);
+}
+
+
+/* Empty Sequences */
+
+static void *
+_empty_source_get(cu_ptr_source_t source)
+{
+    return NULL;
+}
+
+static void
+_empty_sink_put(cu_ptr_sink_t sink, void *ptr)
+{
+    cu_bugf("Tried to return value to empty junctor.");
+}
+
+struct cu_ptr_source_s cuP_empty_source = {_empty_source_get};
+struct cu_ptr_sink_s cuP_empty_sink = {_empty_sink_put};
+struct cu_ptr_junction_s cuP_empty_junction = {
+    {_empty_source_get}, {_empty_sink_put}
+};
+
+struct cu_empty_ptr_junctor_s
+{
+    cu_inherit (cu_ptr_junctor_s);
+    void *result;
+};
+
+static void *
+_empty_junctor_finish(cu_ptr_junctor_t jct)
+{
+    return cu_from(cu_empty_ptr_junctor, cu_ptr_junctor, jct)->result;
+}
+
+cu_ptr_junctor_t
+cu_empty_ptr_junctor(void *result)
+{
+    struct cu_empty_ptr_junctor_s *jct;
+    jct = cu_gnew(struct cu_empty_ptr_junctor_s);
+    jct->result = result;
+    cu_ptr_junctor_init(cu_to(cu_ptr_junctor, jct),
+			_empty_source_get, _empty_sink_put,
+			_empty_junctor_finish);
+    return cu_to(cu_ptr_junctor, jct);
 }
 
 

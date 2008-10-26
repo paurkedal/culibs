@@ -204,7 +204,7 @@ cu_ptr_junctor_sink(cu_ptr_junctor_t junctor)
 
 /*!@}*/
 
-/*!\name Adaptors
+/*!\name Basic Adaptors and Implementations
  *@{*/
 
 cu_ptr_junction_t cu_ptr_junction_from_source_sink(cu_ptr_source_t source,
@@ -225,6 +225,29 @@ void cu_ptr_array_source_init(cu_ptr_array_source_t src,
 
 /*!A source which fetches pointers from [\a begin, \a end). */
 cu_ptr_source_t cu_ptr_source_from_array(void **begin, void **end);
+
+struct cu_ptr_source_s cuP_empty_ptr_source;
+struct cu_ptr_sink_s cuP_empty_ptr_sink;
+struct cu_ptr_junction_s cuP_empty_ptr_junction;
+
+/*!A source which always returns \c NULL. */
+CU_SINLINE cu_ptr_source_t cu_empty_ptr_source()
+{ return &cuP_empty_ptr_source; }
+
+/*!A sink which does not accept any items. An attempt to put an item into it is
+ * considered a bug and will cause the program to abort. */
+CU_SINLINE cu_ptr_sink_t cu_empty_ptr_sink()
+{ return &cuP_empty_ptr_sink; }
+
+/*!A junction with an empty source and an empty sink.
+ * \see cu_empty_ptr_source
+ * \see cu_empty_ptr_sink */
+CU_SINLINE cu_ptr_junction_t cu_empty_ptr_junction()
+{ return &cuP_empty_ptr_junction; }
+
+/*!A junctor with an empty source and an empty sink, which returns
+ * \a result. */
+cu_ptr_junctor_t cu_empty_ptr_junctor(void *result);
 
 /*!@}*/
 
