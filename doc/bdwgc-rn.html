@@ -34,7 +34,7 @@ bother?</p>
 
 <p>My interest in this stems from a more exotic use of the collector,
 hash-consing.  This mechanism can be implemented in terms of finalisers or
-int terms of weak-pointers, but since neither is a good fit, it's useful to
+in terms of weak-pointers, but since neither is a good fit, it's useful to
 think of hash-consing as an independent mechanism.</p>
 
 <p>Hash-consing is a
@@ -53,7 +53,7 @@ finalisation at the end of a collection, when the mark-bits are at a
 consistent state.  The actual finalisation happens later, but if the number
 of finalisers are comparable to the number of heap objects, there is still a
 significant overhead at this critical phase when threads cannot use the
-collector.  There is also a significant time and memory overhead when
+collector.  There is also a significant time and memory overhead if
 finalisation is used extensively for small objects.  In heavy
 tree-processing application, the main part of the memory may be such small
 objects.</p>
@@ -64,7 +64,7 @@ objects.</p>
 <p>The two things we want to accomplish is</p>
 <ul>
   <li>Implement a mechanism to support finalisation and hash-consing entirely
-  outside the critical point where the collector marks are consistent.</li>
+  outside the critical period when the collector marks are kept consistent.</li>
   <li>Reduce time and memory overhead.</li>
 </ul>
 <p>Roughly one phase of garbage collection is</p>
