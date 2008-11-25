@@ -208,6 +208,9 @@ struct _buildframe_s
     _state_t state;
     cuex_t e;
     struct cucon_uset_s fvset;
+
+    /* On a μ-frame this is the set of de Bruijn indices of the free
+     * λ-variables in the body of the μ-expression. */
     cucon_uset_t mfvset;
 };
 
