@@ -31,12 +31,17 @@ endif
 
 cuoo_doxyfiles =
 
+cuoo_check_programs = \
+	cuoo/halloc_t0
+
 cuoo_norun_check_programs = \
 	cuoo/hcons_b0 \
 	cuoo/layout_t0
 
 # Unused tests: cuoo/prop_t0.c
 
+cuoo_halloc_t0_SOURCES = cuoo/halloc_t0.c
+cuoo_halloc_t0_LDADD = libcubase.la
 cuoo_hcons_b0_SOURCES = cuoo/hcons_b0.c
 cuoo_hcons_b0_LDADD = libcubase.la
 cuoo_layout_t0_SOURCES = cuoo/layout_t0.c

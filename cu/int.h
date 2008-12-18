@@ -179,22 +179,29 @@ cu_word_exp2_ceil_log2(cu_word_t x)
 { return cu_word_dcover(x - CU_WORD_C(1)) + CU_WORD_C(1); }
 
 
-/*!Returns the number of bits in \a x which are set. */
+/*!Returns the number of high bits in \a x. */
 unsigned int cu_uint8_bit_count(uint_fast8_t x) CU_ATTR_PURE;
-/*!Returns the number of bits in \a x which are set. */
+
+/*!\copydoc cu_uint8_bit_count */
 unsigned int cu_uint16_bit_count(uint_fast16_t x) CU_ATTR_PURE;
-/*!Returns the number of bits in \a x which are set. */
+
+/*!\copydoc cu_uint8_bit_count */
 unsigned int cu_uint32_bit_count(uint_fast32_t x) CU_ATTR_PURE;
-/*!Returns the number of bits in \a x which are set. */
+
+/*!\copydoc cu_uint8_bit_count */
 unsigned int cu_uint64_bit_count(uint_fast64_t x) CU_ATTR_PURE;
 
-/*!Returns the number of bits in \a x which is set. */
+/*!\copydoc cu_uint8_bit_count */
 CU_SINLINE unsigned int cu_uint_bit_count(unsigned int x)
 { return CUP_UINT_NAME(cu_,bit_count)(x); }
 
-/*!Returns the number of bits in \a x which is set. */
+/*!\copydoc cu_uint8_bit_count */
 CU_SINLINE unsigned long cu_ulong_bit_count(unsigned long x)
 { return CUP_ULONG_NAME(cu_,bit_count)(x); }
+
+/*!\copydoc cu_uint8_bit_count */
+CU_SINLINE cu_word_t cu_word_bit_count(cu_word_t x)
+{ return CUP_WORD_NAME(cu_,bit_count)(x); }
 
 
 /*!Returns the exponent of the uppermost non-zero bit in \a x, that is
