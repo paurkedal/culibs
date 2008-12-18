@@ -111,8 +111,15 @@ void cucon_ucset_dump(cucon_ucset_t set, FILE *out);
 cu_bool_t cucon_ucset_conj(cucon_ucset_t set,
 			   cu_clop(cb, cu_bool_t, uintptr_t key));
 
+void cucon_ucset_iter(cucon_ucset_t set, cu_clop(f, void, uintptr_t));
+
+size_t cucon_ucset_card(cucon_ucset_t set);
+
 uintptr_t cucon_ucset_min_ukey(cucon_ucset_t set);
 uintptr_t cucon_ucset_max_ukey(cucon_ucset_t set);
+
+cucon_ucset_t cucon_ucset_image(cucon_ucset_t set,
+				cu_clop(f, uintptr_t, uintptr_t));
 
 /*!@}*/
 CU_END_DECLARATIONS

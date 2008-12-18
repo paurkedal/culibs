@@ -18,9 +18,11 @@
 #include <cufo/stream.h>
 #include <cufo/tagdefs.h>
 #include <cutext/wctype.h>
+#include <cucon/ucset.h>
 #include <cu/wstring.h>
 #include <cu/str.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 static void
 _print_wstring(cufo_stream_t fos, cufo_prispec_t spec, void *p)
@@ -92,9 +94,6 @@ _print_ld_sup(cufo_stream_t fos, cufo_prispec_t spec, cu_va_ref_t va_ref)
     _print_script(fos, spec, x, cufoT_superscript, _sup_digits, "⁻");
 }
 
-extern cu_word_t cuP_wstring_foprint;
-extern cu_word_t cuP_str_foprint;
-
 static void
 _wstring_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
 {
@@ -151,6 +150,30 @@ _str_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
     cufo_putc(fos, '"');
 }
 
+cu_clos_def(_ucset_foprint_item, cu_prot(void, uintptr_t key),
+    ( cufo_stream_t fos; size_t count; ))
+{
+    cu_clos_self(_ucset_foprint_item);
+    if (self->count++)
+	cufo_puts(self->fos, ", ");
+    cufo_printf(self->fos, "%"PRIdPTR, key);
+}
+
+static void
+_ucset_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
+{
+    _ucset_foprint_item_t cb;
+    cb.fos = fos;
+    cb.count = 0;
+    cufo_putc(fos, '{');
+    cucon_ucset_iter(ptr, _ucset_foprint_item_prep(&cb));
+    cufo_putc(fos, '}');
+}
+
+extern cu_word_t cuP_wstring_foprint;
+extern cu_word_t cuP_str_foprint;
+extern cu_word_t cuconP_ucset_foprint;
+
 void
 cufoP_init_formats()
 {
@@ -165,4 +188,5 @@ cufoP_init_formats()
 
     cuP_wstring_foprint = (cu_word_t)_wstring_foprint;
     cuP_str_foprint = (cu_word_t)_str_foprint;
+    cuconP_ucset_foprint = (cu_word_t)_ucset_foprint;
 }
