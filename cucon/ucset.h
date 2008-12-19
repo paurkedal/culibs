@@ -22,17 +22,13 @@
  * may be good if client needs quick equality between sets. */
 #define CUCON_UCSET_ENABLE_HCONS 1
 
-/* This packs close elements in bitsets at the leaves of the trees.  It
- * has little implication when elements are sparse, so enabled is generally
- * best. */
-#define CUCON_UCSET_ENABLE_BITSET 1
-
-
 #include <cucon/fwd.h>
 #include <stdio.h>
 #include <cu/clos.h>
 #if CUCON_UCSET_ENABLE_HCONS
-#include <cuoo/type.h>
+#  include <cuoo/hcobj.h>
+#else
+#  include <cuoo/fwd.h>
 #endif
 
 CU_BEGIN_DECLARATIONS
@@ -73,7 +69,6 @@ struct cucon_ucset_s
     cucon_ucset_t right;
 };
 
-#if CUCON_UCSET_ENABLE_BITSET
 #define CUPRIV_UCSET_BITSET_WORDCNT 2
 typedef struct cucon_ucset_leaf_s *cucon_ucset_leaf_t;
 struct cucon_ucset_leaf_s
@@ -86,7 +81,6 @@ struct cucon_ucset_leaf_s
     uintptr_t key;
     cu_word_t bitset[CUPRIV_UCSET_BITSET_WORDCNT];
 };
-#endif
 
 #if CUCON_UCSET_ENABLE_HCONS
 extern cuoo_type_t cuconP_ucset_type;

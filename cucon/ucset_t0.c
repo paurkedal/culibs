@@ -75,7 +75,9 @@ check()
 	    if (key > maxkey)
 		maxkey = key;
 	    treep = cucon_ucset_insert(tree, key);
+#if CUCON_UCSET_ENABLE_HCONS
 	    cu_debug_assert(got_it == (treep == tree));
+#endif
 	    cu_test_assert_int_eq(got_it, cucon_ucset_find(tree, key));
 	    cu_test_assert_size_eq(count + !got_it, cucon_ucset_card(treep));
 	    if (treep != tree) {
@@ -105,13 +107,17 @@ check()
 	iter_cb.count = 0;
 	iter_cb.seen = NULL;
 	cucon_ucset_iter(tree, _iter_check_prep(&iter_cb));
+#if CUCON_UCSET_ENABLE_HCONS
 	cu_test_assert(iter_cb.seen == tree);
+#endif
 	cu_test_assert(iter_cb.count == count);
 
 	conj_cb.count = 0;
 	conj_cb.seen = NULL;
 	cucon_ucset_conj(tree, _conj_check_prep(&conj_cb));
+#if CUCON_UCSET_ENABLE_HCONS
 	cu_test_assert(conj_cb.seen == tree);
+#endif
 	cu_test_assert(conj_cb.count == count);
     }
 }
