@@ -30,7 +30,9 @@
 #include <stdio.h>
 #include <cu/clos.h>
 #if cuconP_UCMAP_ENABLE_HCONS
-#include <cuoo/type.h>
+#  include <cuoo/hcobj.h>
+#else
+#  include <cuoo/fwd.h>
 #endif
 #include <stdint.h>
 #include <limits.h>
@@ -75,6 +77,8 @@ CU_SINLINE cuoo_type_t cucon_ucmap_type()
 { return cuconP_ucmap_type; }
 #endif
 
+#define cucon_ucmap_int_none INT_MIN
+
 /*!The empty map. */
 CU_SINLINE cucon_ucmap_t cucon_ucmap_empty() { return NULL; }
 
@@ -87,26 +91,45 @@ cucon_ucmap_t cuconP_ucmap_insert_raw(cucon_ucmap_t, uintptr_t, uintptr_t);
 /*!Return \a map with any present \a key ↦ \e oldval removed an
  * \a key ↦ \a val inserted. */
 CU_SINLINE cucon_ucmap_t
-cucon_ucmap_insert(cucon_ucmap_t map, uintptr_t key, void *val)
+cucon_ucmap_insert_ptr(cucon_ucmap_t map, uintptr_t key, void *val)
 { return cuconP_ucmap_insert_raw(map, key, (uintptr_t)val); }
 
 /*!\copydoc cucon_ucmap_insert */
 CU_SINLINE cucon_ucmap_t
 cucon_ucmap_insert_int(cucon_ucmap_t map, uintptr_t key, uintptr_t val)
-{ return cuconP_ucmap_insert_raw(map, key, val - INT_MIN); }
+{
+#if cuconP_UCMAP_EXIST_IN_LEFT
+    return cuconP_ucmap_insert_raw(map, key, val);
+#else
+    return cuconP_ucmap_insert_raw(map, key, val - cucon_ucmap_int_none);
+#endif
+}
+
+/*!If \a map has a mapping from \a key, returns the result of erasing it,
+ * otherwise returns map. */
+cucon_ucmap_t cucon_ucmap_erase(cucon_ucmap_t map, uintptr_t key);
 
 /*!The mapping for \a key in \a map or \c NULL if none. */
-void *cucon_ucmap_find(cucon_ucmap_t map, uintptr_t key);
-
-#define cucon_ucmap_int_none INT_MIN
+void *cucon_ucmap_find_ptr(cucon_ucmap_t map, uintptr_t key);
 
 /*!The mapping for \a key in \a map, or \c cucon_ucmap_int_none if not
  * found. */
 int cucon_ucmap_find_int(cucon_ucmap_t map, uintptr_t key);
 
+/*!Returns the number of elements in \a map. */
+size_t cucon_ucmap_card(cucon_ucmap_t map);
+
+/*!Call \a f for each key and value pair in \a M, assuming values are
+ * pointers. */
+void cucon_ucmap_iter_ptr(cucon_ucmap_t M, cu_clop(f, void, uintptr_t, void *));
+
+/*!Call \a f for each key and value pair in \a M, assuming values are
+ * integers. */
+void cucon_ucmap_iter_int(cucon_ucmap_t M, cu_clop(f, void, uintptr_t, int));
+
 /*!Sequential conjunction over mappings in order of increasing keys. */
-cu_bool_t cucon_ucmap_conj(cucon_ucmap_t map,
-			   cu_clop(cb, cu_bool_t, uintptr_t key, void *val));
+cu_bool_t cucon_ucmap_conj_ptr(cucon_ucmap_t map,
+			       cu_clop(f, cu_bool_t, uintptr_t, void *));
 
 /*!Sequential conjunction over mappings in order of increasing keys. */
 cu_bool_t cucon_ucmap_conj_int(cucon_ucmap_t map,
@@ -122,6 +145,7 @@ uintptr_t cucon_ucmap_max_ukey(cucon_ucmap_t map);
 void cucon_ucmap_dump(cucon_ucmap_t map, FILE *out);
 
 /*!@}*/
+
 CU_END_DECLARATIONS
 
 #endif

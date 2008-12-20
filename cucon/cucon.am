@@ -91,6 +91,7 @@ cucon_check_programs = \
 	cucon/stack_b0 \
 	cucon/stack_t0 \
 	cucon/ucmap_b0 \
+	cucon/ucmap_t0 \
 	cucon/ucset_b0 \
 	cucon/ucset_t0 \
 	cucon/uset_b0 \
@@ -150,6 +151,8 @@ cucon_stack_t0_SOURCES = cucon/stack_t0.c
 cucon_stack_t0_LDADD = libcubase.la
 cucon_ucmap_b0_SOURCES = cucon/ucmap_b0.c
 cucon_ucmap_b0_LDADD = libcubase.la
+cucon_ucmap_t0_SOURCES = cucon/ucmap_t0.c
+cucon_ucmap_t0_LDADD = libcubase.la
 cucon_ucset_b0_SOURCES = cucon/ucset_b0.c
 cucon_ucset_b0_LDADD = libcubase.la
 cucon_ucset_t0_SOURCES = cucon/ucset_t0.c

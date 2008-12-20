@@ -23,36 +23,36 @@
 #include <inttypes.h>
 
 #if cuconP_UCMAP_EXIST_IN_LEFT
-#  define node_left(t) ((cucon_ucmap_t)((uintptr_t)(t)->left & ~(uintptr_t)1))
-#  define have_value(t) ((uintptr_t)(t)->left & 1)
-#  define value_ptr(t) ((void *)(t)->value)
-#  define value_int(t) ((t)->value)
+#  define _node_left(t) ((cucon_ucmap_t)((uintptr_t)(t)->left & ~(uintptr_t)1))
+#  define _node_has_value(t) ((uintptr_t)(t)->left & 1)
+#  define _node_value_ptr(t) ((void *)(t)->value)
+#  define _node_value_int(t) ((t)->value)
 #else
-#  define node_left(t) ((t)->left)
-#  define have_value(t) (!!(t)->value)
-#  define value_ptr(t) ((void *)(t)->value)
-#  define value_int(t) ((t)->value + cucon_ucmap_int_none)
+#  define _node_left(t) ((t)->left)
+#  define _node_has_value(t) (!!(t)->value)
+#  define _node_value_ptr(t) ((void *)(t)->value)
+#  define _node_value_int(t) ((t)->value + cucon_ucmap_int_none)
 #endif
-#define node_right(t) ((t)->right)
+#define _node_right(t) ((t)->right)
 
-CU_SINLINE uintptr_t ucnode_key(cucon_ucmap_t node) { return node->key; }
+CU_SINLINE uintptr_t _node_key(cucon_ucmap_t node) { return node->key; }
 
 CU_SINLINE cu_bool_t
-key_covers(uintptr_t key0, uintptr_t key1)
+_key_covers(uintptr_t key0, uintptr_t key1)
 {
     uintptr_t mask0 = ~(key0 ^ (key0 - 1));
     return (key0 & mask0) == (key1 & mask0) && (key1 & ~mask0);
 }
 CU_SINLINE cu_bool_t
-key_coverseq(uintptr_t key0, uintptr_t key1)
+_key_coverseq(uintptr_t key0, uintptr_t key1)
 {
     uintptr_t mask0 = ~(key0 ^ (key0 - 1));
     return (key0 & mask0) == (key1 & mask0);
 }
 
-CU_SINLINE cucon_ucmap_t
-ucnode_new(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right,
-	   uintptr_t val)
+static cucon_ucmap_t
+_node_new_val(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right,
+	      uintptr_t val)
 {
 #if cuconP_UCMAP_EXIST_IN_LEFT
     left = (cucon_ucmap_t)((uintptr_t)left | 1);
@@ -75,8 +75,8 @@ ucnode_new(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right,
 #endif
 }
 
-CU_SINLINE cucon_ucmap_t
-ucnode_new_noval(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right)
+static cucon_ucmap_t
+_node_new_noval(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right)
 {
 #if cuconP_UCMAP_ENABLE_HCONS
     cuoo_hctem_decl(cucon_ucmap, tem);
@@ -96,82 +96,142 @@ ucnode_new_noval(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right)
 #endif
 }
 
+static cucon_ucmap_t
+_node_new_lr(cucon_ucmap_t src_node, cucon_ucmap_t left, cucon_ucmap_t right)
+{
+#if cuconP_UCMAP_EXIST_IN_LEFT
+    left = (cucon_ucmap_t)((uintptr_t)left | ((uintptr_t)src_node->left & 1));
+#endif
+#if cuconP_UCMAP_ENABLE_HCONS
+    cuoo_hctem_decl(cucon_ucmap, tem);
+    cuoo_hctem_init(cucon_ucmap, tem);
+    cuoo_hctem_get(cucon_ucmap, tem)->key = src_node->key;
+    cuoo_hctem_get(cucon_ucmap, tem)->left = left;
+    cuoo_hctem_get(cucon_ucmap, tem)->right = right;
+    cuoo_hctem_get(cucon_ucmap, tem)->value = src_node->value;
+    return cuoo_hctem_new(cucon_ucmap, tem);
+#else
+    cucon_ucmap_t node = cu_gnew(struct cucon_ucmap_s);
+    node->key = src_node->key;
+    node->left = left;
+    node->right = right;
+    node->value = src_node->value;
+    return node;
+#endif
+}
+
 cucon_ucmap_t
 cuconP_ucmap_insert_raw(cucon_ucmap_t node, uintptr_t key, uintptr_t val)
 {
     uintptr_t node_key;
-    if (node == NULL) {
-	return ucnode_new(key, NULL, NULL, val);
-    }
+    if (node == NULL)
+	return _node_new_val(key, NULL, NULL, val);
 
-    node_key = ucnode_key(node);
+    node_key = _node_key(node);
     if (node_key == key) {
 	if (node->value == (uintptr_t)val)
 	    return node;
 	else
-	    return ucnode_new(node->key, node_left(node), node_right(node),
-			      val);
+	    return _node_new_val(node->key,
+				 _node_left(node), _node_right(node), val);
     }
-    if (key_covers(node_key, key)) {
+    if (_key_covers(node_key, key)) {
 	if (key < node_key) {
 	    cucon_ucmap_t new_left;
-	    new_left = cuconP_ucmap_insert_raw(node_left(node), key, val);
-	    if (new_left != node_left(node))
-		return ucnode_new(node->key, new_left, node_right(node), val);
+	    new_left = cuconP_ucmap_insert_raw(_node_left(node), key, val);
+	    if (new_left != _node_left(node))
+		return _node_new_lr(node, new_left, _node_right(node));
 	    else
 		return node;
 	}
 	else {
 	    cucon_ucmap_t new_right;
-	    new_right = cuconP_ucmap_insert_raw(node_right(node), key, val);
-	    if (new_right != node_right(node))
-		return ucnode_new(node->key, node_left(node), new_right, val);
+	    new_right = cuconP_ucmap_insert_raw(_node_right(node), key, val);
+	    if (new_right != _node_right(node))
+		return _node_new_lr(node, _node_left(node), new_right);
 	    else
 		return node;
 	}
     }
 
-    if (key_covers(key, node_key)) {
+    if (_key_covers(key, node_key)) {
 	if (node_key < key)
-	    return ucnode_new(key, node, NULL, val);
+	    return _node_new_val(key, node, NULL, val);
 	else
-	    return ucnode_new(key, NULL, node, val);
+	    return _node_new_val(key, NULL, node, val);
     }
 
     else {
 	cucon_ucmap_t key_node;
 	uintptr_t j;
-	key_node = ucnode_new(key, NULL, NULL, val);
+	key_node = _node_new_val(key, NULL, NULL, val);
 	j = cu_ulong_dcover(key ^ node_key);
 	cu_debug_assert(j >= 2);
 	j = (key & ~j) | ((j + 1) >> 1);
 	if (key < node_key)
-	    return ucnode_new_noval(j, key_node, node);
+	    return _node_new_noval(j, key_node, node);
 	else
-	    return ucnode_new_noval(j, node, key_node);
+	    return _node_new_noval(j, node, key_node);
     }
 }
 
+cucon_ucmap_t
+cucon_ucmap_erase(cucon_ucmap_t node, uintptr_t key)
+{
+    uintptr_t node_key;
+    if (node == NULL)
+	return node;
+
+    node_key = _node_key(node);
+    if (node_key == key) {
+	if (_node_has_value(node))
+	    return _node_new_noval(node->key,
+				   _node_left(node), _node_right(node));
+	else
+	    return node;
+    }
+    else if (_key_covers(node_key, key)) {
+	if (key < node_key) {
+	    cucon_ucmap_t new_left;
+	    new_left = cucon_ucmap_erase(_node_left(node), key);
+	    if (new_left != _node_left(node))
+		return _node_new_lr(node, new_left, _node_right(node));
+	    else
+		return node;
+	}
+	else {
+	    cucon_ucmap_t new_right;
+	    new_right = cucon_ucmap_erase(_node_right(node), key);
+	    if (new_right != _node_right(node))
+		return _node_new_lr(node, _node_left(node), new_right);
+	    else
+		return node;
+	}
+    }
+    else
+	return node;
+}
+
 void *
-cucon_ucmap_find(cucon_ucmap_t node, uintptr_t key)
+cucon_ucmap_find_ptr(cucon_ucmap_t node, uintptr_t key)
 {
     uintptr_t node_key;
 tailcall:
     if (!node)
 	return NULL;
-    node_key = ucnode_key(node);
+    node_key = _node_key(node);
     if (key == node_key) {
 #if cuconP_UCMAP_EXIST_IN_LEFT
-	if (!have_value(node))
+	if (!_node_has_value(node))
 	    return NULL;
 #endif
-	return value_ptr(node);
+	return _node_value_ptr(node);
     }
-    if (key_coverseq(node_key, key)) {
+    if (_key_coverseq(node_key, key)) {
 	if (key < node_key)
-	    node = node_left(node);
+	    node = _node_left(node);
 	else
-	    node = node_right(node);
+	    node = _node_right(node);
 	goto tailcall;
     }
     else
@@ -185,36 +245,75 @@ cucon_ucmap_find_int(cucon_ucmap_t node, uintptr_t key)
 tailcall:
     if (!node)
 	return cucon_ucmap_int_none;
-    node_key = ucnode_key(node);
+    node_key = _node_key(node);
     if (key == node_key) {
 #if cuconP_UCMAP_EXIST_IN_LEFT
-	if (!have_value(node))
+	if (!_node_has_value(node))
 	    return cucon_ucmap_int_none;
 #endif
-	return value_int(node);
+	return _node_value_int(node);
     }
-    if (key_coverseq(node_key, key)) {
+    if (_key_coverseq(node_key, key)) {
 	if (key < node_key)
-	    node = node_left(node);
+	    node = _node_left(node);
 	else
-	    node = node_right(node);
+	    node = _node_right(node);
 	goto tailcall;
     }
     else
 	return cucon_ucmap_int_none;
 }
 
-cu_bool_t
-cucon_ucmap_conj(cucon_ucmap_t node,
-		 cu_clop(cb, cu_bool_t, uintptr_t key, void *val))
+size_t
+cucon_ucmap_card(cucon_ucmap_t node)
+{
+    size_t count = 0;
+    while (node) {
+	count += cucon_ucmap_card(_node_left(node));
+	if (_node_has_value(node))
+	    ++count;
+	node = _node_right(node);
+    }
+    return count;
+}
+
+void
+cucon_ucmap_iter_ptr(cucon_ucmap_t node,
+		     cu_clop(f, void, uintptr_t key, void *val))
 {
     while (node) {
-	uintptr_t key = ucnode_key(node);
-	if (!cucon_ucmap_conj(node_left(node), cb))
+	uintptr_t key = _node_key(node);
+	cucon_ucmap_iter_ptr(_node_left(node), f);
+	if (_node_has_value(node))
+	    cu_call(f, key, _node_value_ptr(node));
+	node = _node_right(node);
+    }
+}
+
+void
+cucon_ucmap_iter_int(cucon_ucmap_t node,
+		     cu_clop(f, void, uintptr_t key, int val))
+{
+    while (node) {
+	uintptr_t key = _node_key(node);
+	cucon_ucmap_iter_int(_node_left(node), f);
+	if (_node_has_value(node))
+	    cu_call(f, key, _node_value_int(node));
+	node = _node_right(node);
+    }
+}
+
+cu_bool_t
+cucon_ucmap_conj_ptr(cucon_ucmap_t node,
+		     cu_clop(cb, cu_bool_t, uintptr_t key, void *val))
+{
+    while (node) {
+	uintptr_t key = _node_key(node);
+	if (!cucon_ucmap_conj_ptr(_node_left(node), cb))
 	    return cu_false;
-	if (have_value(node) && !cu_call(cb, key, value_ptr(node)))
+	if (_node_has_value(node) && !cu_call(cb, key, _node_value_ptr(node)))
 	    return cu_false;
-	node = node_right(node);
+	node = _node_right(node);
     }
     return cu_true;
 }
@@ -224,12 +323,12 @@ cucon_ucmap_conj_int(cucon_ucmap_t node,
 		     cu_clop(cb, cu_bool_t, uintptr_t key, int val))
 {
     while (node) {
-	uintptr_t key = ucnode_key(node);
-	if (!cucon_ucmap_conj_int(node_left(node), cb))
+	uintptr_t key = _node_key(node);
+	if (!cucon_ucmap_conj_int(_node_left(node), cb))
 	    return cu_false;
-	if (have_value(node) && !cu_call(cb, key, value_int(node)))
+	if (_node_has_value(node) && !cu_call(cb, key, _node_value_int(node)))
 	    return cu_false;
-	node = node_right(node);
+	node = _node_right(node);
     }
     return cu_true;
 }
@@ -242,13 +341,14 @@ cucon_pcmap_conj(cucon_pcmap_t node,
 {
     while (node) {
 #define node ((cucon_ucmap_t)node)
-	void *key = (void *)ucnode_key(node);
-	if (!cucon_pcmap_conj(node_left(node), cb))
+	void *key = (void *)_node_key(node);
+	if (!cucon_pcmap_conj(_node_left(node), cb))
 	    return cu_false;
-	if (have_value(node) && !cu_call(cb, (void *)key, value_ptr(node)))
-	    return cu_false;
+	if (_node_has_value(node))
+	    if (!cu_call(cb, (void *)key, _node_value_ptr(node)))
+		return cu_false;
 #undef node
-	node = node_right(node);
+	node = _node_right(node);
     }
     return cu_true;
 }
@@ -259,13 +359,14 @@ cucon_pcmap_conj_int(cucon_pcmap_t node,
 {
     while (node) {
 #define node ((cucon_ucmap_t)node)
-	void *key = (void *)ucnode_key(node);
-	if (!cucon_pcmap_conj_int(node_left(node), cb))
+	void *key = (void *)_node_key(node);
+	if (!cucon_pcmap_conj_int(_node_left(node), cb))
 	    return cu_false;
-	if (have_value(node) && !cu_call(cb, (void *)key, value_int(node)))
-	    return cu_false;
+	if (_node_has_value(node))
+	    if (!cu_call(cb, (void *)key, _node_value_int(node)))
+		return cu_false;
 #undef node
-	node = node_right(node);
+	node = _node_right(node);
     }
     return cu_true;
 }
@@ -278,7 +379,7 @@ cucon_ucmap_min_ukey(cucon_ucmap_t map)
     uintptr_t min = UINTPTR_MAX;
     while (map) {
 	min = map->key;
-	map = node_left(map);
+	map = _node_left(map);
     }
     return min;
 }
@@ -289,7 +390,7 @@ cucon_ucmap_max_ukey(cucon_ucmap_t map)
     uintptr_t max = 0;
     while (map) {
 	max = map->key;
-	map = node_right(map);
+	map = _node_right(map);
     }
     return max;
 }
@@ -299,15 +400,15 @@ ucmap_dump(cucon_ucmap_t tree, int ind, FILE *out)
 {
     int i = ind++;
     if (tree) {
-	ucmap_dump(node_left(tree), ind, out);
+	ucmap_dump(_node_left(tree), ind, out);
 	while (i--)
 	    fputs("  ", out);
-	if (have_value(tree))
+	if (_node_has_value(tree))
 	    fprintf(out, "+ 0x%lx ↦ %p\n",
-		    (long)ucnode_key(tree), value_ptr(tree));
+		    (long)_node_key(tree), _node_value_ptr(tree));
 	else
-	    fprintf(out, "- 0x%lx\n", (long)ucnode_key(tree));
-	ucmap_dump(node_right(tree), ind, out);
+	    fprintf(out, "- 0x%lx\n", (long)_node_key(tree));
+	ucmap_dump(_node_right(tree), ind, out);
     }
 }
 
