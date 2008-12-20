@@ -70,11 +70,15 @@ check()
 	    got_it = !!(bitset[key/WORD_WIDTH]
 			& (CU_WORD_C(1) << key%WORD_WIDTH));
 	    bitset[key/WORD_WIDTH] |= CU_WORD_C(1) << key%WORD_WIDTH;
-	    if (key < minkey)
-		minkey = key;
-	    if (key > maxkey)
-		maxkey = key;
 	    treep = cucon_ucset_insert(tree, key);
+	    if (key < minkey) {
+		minkey = key;
+		cu_debug_assert(minkey == cucon_ucset_min_ukey(treep));
+	    }
+	    if (key > maxkey) {
+		maxkey = key;
+		cu_debug_assert(maxkey == cucon_ucset_max_ukey(treep));
+	    }
 #if CUCON_UCSET_ENABLE_HCONS
 	    cu_debug_assert(got_it == (treep == tree));
 #endif

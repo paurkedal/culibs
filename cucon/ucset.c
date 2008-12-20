@@ -114,13 +114,9 @@ _ucleaf_new(uintptr_t key)
     node->key = _leaf_key(key);
     for (i = 0; i < CUPRIV_UCSET_BITSET_WORDCNT; ++i)
 	node->bitset[i] = 0;
-    if (key == node->key)
-	node->key |= 1;
-    else {
-	key &= BITSET_MASK;
-	node->bitset[key/CU_WORD_WIDTH]
-	    |= CU_WORD_C(1) << key%CU_WORD_WIDTH;
-    }
+    key &= BITSET_MASK;
+    node->bitset[key/CU_WORD_WIDTH]
+	|= CU_WORD_C(1) << key%CU_WORD_WIDTH;
 #if CUCON_UCSET_ENABLE_HCONS
     return (cucon_ucset_t)cuoo_hctem_new(cucon_ucset_leaf, tem);
 #else
@@ -144,13 +140,9 @@ _ucleaf_insert(cucon_ucset_t src_node, uintptr_t add_key)
     node->key = src_node->key;
     for (i = 0; i < CUPRIV_UCSET_BITSET_WORDCNT; ++i)
 	node->bitset[i] = ((cucon_ucset_leaf_t)src_node)->bitset[i];
-    if (add_key == (node->key & ~CU_UINTPTR_C(1)))
-	node->key |= 1;
-    else {
-	add_key &= BITSET_MASK;
-	node->bitset[add_key/CU_WORD_WIDTH]
-	    |= CU_WORD_C(1) << add_key%CU_WORD_WIDTH;
-    }
+    add_key &= BITSET_MASK;
+    node->bitset[add_key/CU_WORD_WIDTH]
+	|= CU_WORD_C(1) << add_key%CU_WORD_WIDTH;
 #if CUCON_UCSET_ENABLE_HCONS
     return (cucon_ucset_t)cuoo_hctem_new(cucon_ucset_leaf, tem);
 #else
@@ -170,50 +162,44 @@ cucon_ucset_insert(cucon_ucset_t node, uintptr_t key)
     }
 
     node_key = _ucnode_key(node);
-    if (node_key == key) {
-	if (node->key & 1)
-	    return node;
-	else if (_key_is_leaflike(key))
+    if (key == node_key) {
+	if (_key_is_leaflike(key))
 	    return _ucleaf_insert(node, key);
+	else if (node->key & 1)
+	    return node;
 	else
 	    return _ucnode_new(node->key | 1, left(node), right(node));
     }
-    if (_key_is_leaflike(node_key)) {
-	if (_key_covers(node_key, key)) {
+    else if (_key_covers(node_key, key)) {
+	if (_key_is_leaflike(node_key)) {
 	    if (_ucleaf_find(node, key))
 		return node;
 	    else
 		return _ucleaf_insert(node, key);
 	}
-    }
-    else {
-	if (_key_covers(node_key, key)) {
-	    if (key < node_key) {
-		cucon_ucset_t new_left;
-		new_left = cucon_ucset_insert(left(node), key);
-		if (new_left != left(node))
-		    return _ucnode_new(node->key, new_left, right(node));
-		else
-		    return node;
-	    }
-	    else {
-		cucon_ucset_t new_right;
-		new_right = cucon_ucset_insert(right(node), key);
-		if (new_right != right(node))
-		    return _ucnode_new(node->key, left(node), new_right);
-		else
-		    return node;
-	    }
+	else if (key < node_key) {
+	    cucon_ucset_t new_left;
+	    new_left = cucon_ucset_insert(left(node), key);
+	    if (new_left != left(node))
+		return _ucnode_new(node->key, new_left, right(node));
+	    else
+		return node;
+	}
+	else {
+	    cucon_ucset_t new_right;
+	    new_right = cucon_ucset_insert(right(node), key);
+	    if (new_right != right(node))
+		return _ucnode_new(node->key, left(node), new_right);
+	    else
+		return node;
 	}
     }
-
-    if (_key_covers(key, node_key)) {
+    else if (_key_covers(key, node_key)) {
 	if (node_key < key)
 	    return _ucnode_new(key | 1, node, NULL);
 	else
 	    return _ucnode_new(key | 1, NULL, node);
     }
-
     else {
 	cucon_ucset_t key_node;
 	uintptr_t j;
@@ -235,26 +221,20 @@ cu_bool_t
 cucon_ucset_find(cucon_ucset_t node, uintptr_t key)
 {
     uintptr_t node_key;
-tailcall:
-    if (!node)
-	return cu_false;
-    node_key = _ucnode_key(node);
-    if (_key_is_leaflike(node_key)) {
-	if (key == node_key && (node->key & 1))
-	    return cu_true;
-	return _key_coverseq(node_key, key) && _ucleaf_find(node, key);
-    }
-    if (key == node_key)
-	return !!(node->key & 1);
-    if (_key_coverseq(node_key, key)) {
-	if (key < node_key)
+    while (node) {
+	node_key = _ucnode_key(node);
+	if (!_key_coverseq(node_key, key))
+	    return cu_false;
+	else if (_key_is_leaflike(node_key))
+	    return _ucleaf_find(node, key);
+	else if (key == node_key)
+	    return !!(node->key & 1);
+	else if (key < node_key)
 	    node = left(node);
 	else
 	    node = right(node);
-	goto tailcall;
     }
-    else
-	return cu_false;
+    return cu_false;
 }
 
 cu_bool_t
@@ -264,21 +244,18 @@ cucon_ucset_conj(cucon_ucset_t node, cu_clop(cb, cu_bool_t, uintptr_t key))
 	uintptr_t key = _ucnode_key(node);
 	if (_key_is_leaflike(key)) {
 	    uintptr_t k;
-	    for (k = (key & ~BITSET_MASK); k < key; ++k)
-		if (_ucleaf_find(node, k) && !cu_call(cb, k))
-		    return cu_false;
-	    if ((node->key & 1) && !cu_call(cb, key))
-		return cu_false;
-	    for (k = key + 1; k <= (key | BITSET_MASK); ++k)
+	    for (k = (key & ~BITSET_MASK); k <= (key | BITSET_MASK); ++k)
 		if (_ucleaf_find(node, k) && !cu_call(cb, k))
 		    return cu_false;
 	    return cu_true;
 	}
-	if (!cucon_ucset_conj(node->left, cb))
-	    return cu_false;
-	if ((node->key & 1) && !cu_call(cb, key))
-	    return cu_false;
-	node = node->right;
+	else {
+	    if (!cucon_ucset_conj(node->left, cb))
+		return cu_false;
+	    if ((node->key & 1) && !cu_call(cb, key))
+		return cu_false;
+	    node = node->right;
+	}
     }
     return cu_true;
 }
@@ -290,20 +267,17 @@ cucon_ucset_iter(cucon_ucset_t node, cu_clop(f, void, uintptr_t key))
 	uintptr_t key = _ucnode_key(node);
 	if (_key_is_leaflike(key)) {
 	    uintptr_t k;
-	    for (k = (key & ~BITSET_MASK); k < key; ++k)
-		if (_ucleaf_find(node, k))
-		    cu_call(f, k);
-	    if ((node->key & 1))
-		cu_call(f, key);
-	    for (k = key + 1; k <= (key | BITSET_MASK); ++k)
+	    for (k = (key & ~BITSET_MASK); k <= (key | BITSET_MASK); ++k)
 		if (_ucleaf_find(node, k))
 		    cu_call(f, k);
 	    return;
 	}
-	if ((node->key & 1))
-	    cu_call(f, key);
-	cucon_ucset_iter(node->left, f);
-	node = node->right;
+	else {
+	    if ((node->key & 1))
+		cu_call(f, key);
+	    cucon_ucset_iter(node->left, f);
+	    node = node->right;
+	}
     }
 }
 
@@ -334,11 +308,8 @@ cucon_ucset_min_ukey(cucon_ucset_t set)
     while (set) {
 	uintptr_t key = _ucnode_key(set);
 	if (_key_is_leaflike(key)) {
-	    int i, j;
-	    j = set->key & 1
-		? CUPRIV_UCSET_BITSET_WORDCNT/2
-		: CUPRIV_UCSET_BITSET_WORDCNT;
-	    for (i = 0; i < j; ++i) {
+	    int i;
+	    for (i = 0; i < CUPRIV_UCSET_BITSET_WORDCNT; ++i) {
 		uintptr_t x = ((cucon_ucset_leaf_t)set)->bitset[i];
 		if (x)
 		    return (key & ~BITSET_MASK) + cu_ulong_log2_lowbit(x)
@@ -359,11 +330,8 @@ cucon_ucset_max_ukey(cucon_ucset_t set)
     while (set) {
 	uintptr_t key = _ucnode_key(set);
 	if (_key_is_leaflike(key)) {
-	    int i, j;
-	    j = set->key & 1
-		? CUPRIV_UCSET_BITSET_WORDCNT/2
-		: 0;
-	    for (i = CUPRIV_UCSET_BITSET_WORDCNT - 1; i >= j; --i) {
+	    int i;
+	    for (i = CUPRIV_UCSET_BITSET_WORDCNT - 1; i >= 0; --i) {
 		uintptr_t x = ((cucon_ucset_leaf_t)set)->bitset[i];
 		if (x)
 		    return (key & ~BITSET_MASK) + cu_ulong_floor_log2(x)
