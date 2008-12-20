@@ -89,6 +89,21 @@ _ucleaf_find(cucon_ucset_t node, uintptr_t key)
 	      & (CU_WORD_C(1) << (key%CU_WORD_WIDTH)));
 }
 
+#if !CUCON_UCSET_ENABLE_HCONS
+static cu_bool_t
+_ucleaf_eq(cucon_ucset_t lhs, cucon_ucset_t rhs)
+{
+    int k;
+    if (lhs->key != rhs->key)
+	return cu_false;
+    for (k = 0; k < CUPRIV_UCSET_BITSET_WORDCNT; ++k)
+	if (((cucon_ucset_leaf_t)lhs)->bitset[k] !=
+	    ((cucon_ucset_leaf_t)rhs)->bitset[k])
+	    return cu_false;
+    return cu_true;
+}
+#endif
+
 static size_t
 _ucleaf_card(cucon_ucset_t node)
 {
@@ -149,6 +164,74 @@ _ucleaf_insert(cucon_ucset_t src_node, uintptr_t add_key)
     return (cucon_ucset_t)node;
 #endif
 }
+
+CU_SINLINE cucon_ucset_t
+_ucleaf_filter(cucon_ucset_t src_node, cu_clop(f, cu_bool_t, uintptr_t))
+{
+    int i, key;
+    cu_bool_t have_change = cu_false, have_nonzero = cu_false;
+#if CUCON_UCSET_ENABLE_HCONS
+    cucon_ucset_leaf_t node;
+    cuoo_hctem_decl(cucon_ucset_leaf, tem);
+    cuoo_hctem_init(cucon_ucset_leaf, tem);
+    node = cuoo_hctem_get(cucon_ucset_leaf, tem);
+#else
+    cucon_ucset_leaf_t node = cu_gnew(struct cucon_ucset_leaf_s);
+#endif
+    node->key = src_node->key;
+    key = node->key & ~BITSET_MASK;
+    for (i = 0; i < CUPRIV_UCSET_BITSET_WORDCNT; ++i) {
+	cu_word_t bit;
+	cu_word_t bits = ((cucon_ucset_leaf_t)src_node)->bitset[i];
+	for (bit = 1; bit; bit <<= 1) {
+	    if (bits & bit) {
+		if (!cu_call(f, key)) {
+		    bits &= ~bit;
+		    have_change = cu_true;
+		}
+	    }
+	    ++key;
+	}
+	if (bits != 0)
+	    have_nonzero = cu_true;
+	node->bitset[i] = bits;
+    }
+    if (have_change) {
+	if (have_nonzero) {
+#if CUCON_UCSET_ENABLE_HCONS
+	    return (cucon_ucset_t)cuoo_hctem_new(cucon_ucset_leaf, tem);
+#else
+	    return (cucon_ucset_t)node;
+#endif
+	}
+	else
+	    return NULL;
+    }
+    else
+	return src_node;
+}
+
+#if !CUCON_UCSET_ENABLE_HCONS
+cu_bool_t
+cucon_ucset_eq(cucon_ucset_t set0, cucon_ucset_t set1)
+{
+    while (set0 != set1) {
+	if (!set0 || !set1)
+	    return cu_false;
+	else if (set0->key != set1->key)
+	    return cu_false;
+	else if (_key_is_leaflike(_ucnode_key(set0)))
+	    return _ucleaf_eq(set0, set1);
+	else if (!cucon_ucset_eq(set0->left, set1->left))
+	    return cu_false;
+	else {
+	    set0 = set0->right;
+	    set1 = set1->right;
+	}
+    }
+    return cu_true;
+}
+#endif
 
 cucon_ucset_t
 cucon_ucset_insert(cucon_ucset_t node, uintptr_t key)
@@ -281,6 +364,29 @@ cucon_ucset_iter(cucon_ucset_t node, cu_clop(f, void, uintptr_t key))
     }
 }
 
+cucon_ucset_t
+cucon_ucset_filter(cucon_ucset_t node, cu_clop(f, cu_bool_t, uintptr_t key))
+{
+    while (node) {
+	uintptr_t key = _ucnode_key(node);
+	if (_key_is_leaflike(key))
+	    return _ucleaf_filter(node, f);
+	else {
+	    cucon_ucset_t left = cucon_ucset_filter(node->left, f);
+	    cucon_ucset_t right = cucon_ucset_filter(node->right, f);
+	    if ((node->key & 1) && cu_call(f, key))
+		return _ucnode_new(key | 1, left, right);
+	    else if (!left)
+		return right;
+	    else if (!right)
+		return left;
+	    else
+		return _ucnode_new(key, left, right);
+	}
+    }
+    return NULL;
+}
+
 size_t
 cucon_ucset_card(cucon_ucset_t node)
 {
@@ -359,6 +465,24 @@ cucon_ucset_image(cucon_ucset_t set, cu_clop(f, uintptr_t, uintptr_t))
     _ucset_image_helper_t cb;
     cb.image = NULL;
     cucon_ucset_iter(set, _ucset_image_helper_prep(&cb));
+    return cb.image;
+}
+
+cu_clos_def(_ucset_filter_image_helper, cu_prot(void, uintptr_t key),
+    ( cucon_ucset_t image;
+      cu_clop(f, cu_bool_t, uintptr_t *); ))
+{
+    cu_clos_self(_ucset_filter_image_helper);
+    if (cu_call(self->f, &key))
+	self->image = cucon_ucset_insert(self->image, key);
+}
+
+cucon_ucset_t
+cucon_ucset_filter_image(cucon_ucset_t set, cu_clop(f, cu_bool_t, uintptr_t *))
+{
+    _ucset_filter_image_helper_t cb;
+    cb.image = NULL;
+    cucon_ucset_iter(set, _ucset_filter_image_helper_prep(&cb));
     return cb.image;
 }
 

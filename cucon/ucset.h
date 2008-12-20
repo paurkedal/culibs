@@ -92,28 +92,54 @@ CU_SINLINE cuoo_type_t cucon_ucset_leaf_type()
 { return cuconP_ucset_leaf_type; }
 #endif
 
+/*!True iff \a set0 and \a set1 contains exactly the same elements. */
+#if CUCON_UCSET_ENABLE_HCONS
+CU_SINLINE cu_bool_t
+cucon_ucset_eq(cucon_ucset_t set0, cucon_ucset_t set1)
+{ return set0 == set1; }
+#else
+cu_bool_t cucon_ucset_eq(cucon_ucset_t set0, cucon_ucset_t set1);
+#endif
+
 /*!Return \a set with \a key inserted. */
 cucon_ucset_t cucon_ucset_insert(cucon_ucset_t set, uintptr_t key);
 
 /*!True iff \a key ∈ \a set. */
 cu_bool_t cucon_ucset_find(cucon_ucset_t set, uintptr_t key);
 
-/*!Debug dump of \a set. */
-void cucon_ucset_dump(cucon_ucset_t set, FILE *out);
-
 /*!Sequential conjunction over elements in increasing order. */
 cu_bool_t cucon_ucset_conj(cucon_ucset_t set,
 			   cu_clop(cb, cu_bool_t, uintptr_t key));
 
+/*!Calls \a f for each element of \a set. */
 void cucon_ucset_iter(cucon_ucset_t set, cu_clop(f, void, uintptr_t));
 
+/*!Returns the cardinality of \a set. */
 size_t cucon_ucset_card(cucon_ucset_t set);
 
+/*!Returns the minimum element of \a, considering elements to be unsigned. */
 uintptr_t cucon_ucset_min_ukey(cucon_ucset_t set);
+
+/*!Returns the maximum element of \a, considering elements to be unsigned. */
 uintptr_t cucon_ucset_max_ukey(cucon_ucset_t set);
 
+/*!Returns {\e x | \e x ∈ \a set ∧ \a f(\e x)}. */
+cucon_ucset_t cucon_ucset_filter(cucon_ucset_t set,
+				 cu_clop(f, cu_bool_t, uintptr_t));
+
+/*!Returns {\a f(\e x) | \e x ∈ \a set}. */
 cucon_ucset_t cucon_ucset_image(cucon_ucset_t set,
 				cu_clop(f, uintptr_t, uintptr_t));
+
+/*!Combines \ref cucon_ucset_filter and cucon_ucset_image in one operation.  \a
+ * f is passed a pointer to each key in \a set.  If it returns false, the
+ * element is skipped, otherwise the key at the pointer passed to \a f, which
+ * may be modified by \a f, is included in the result. */
+cucon_ucset_t cucon_ucset_filter_image(cucon_ucset_t set,
+				       cu_clop(f, cu_bool_t, uintptr_t *));
+
+/*!Debug dump of \a set. */
+void cucon_ucset_dump(cucon_ucset_t set, FILE *out);
 
 /*!@}*/
 CU_END_DECLARATIONS

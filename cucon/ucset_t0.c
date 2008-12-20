@@ -18,6 +18,7 @@
 #include <cucon/ucset.h>
 #include <cu/debug.h>
 #include <cu/test.h>
+#include <cu/int.h>
 #include <string.h>
 
 #define CHECK_SIZE 0x100
@@ -48,18 +49,33 @@ cu_clos_def(_iter_check, cu_prot(void, uintptr_t key),
     ++self->count;
 }
 
+cu_clos_def(_filter_check, cu_prot(cu_bool_t, uintptr_t key),
+    ( size_t count;
+      cucon_ucset_t filtered; ))
+{
+    cu_clos_self(_filter_check);
+    if (cu_ulong_bit_count(key) & 1) {
+	self->filtered = cucon_ucset_insert(self->filtered, key);
+	++self->count;
+	return cu_true;
+    }
+    else
+	return cu_false;
+}
+
 void
 check()
 {
     int i;
     static cu_word_t bitset[CHECK_MOD/WORD_WIDTH];
     for (i = 0; i < CHECK_REPEAT; ++i) {
-	cucon_ucset_t tree = NULL;
+	cucon_ucset_t tree = NULL, treep;
 	int j;
 	uintptr_t minkey = UINTPTR_MAX;
 	uintptr_t maxkey = 0;
 	_conj_check_t conj_cb;
 	_iter_check_t iter_cb;
+	_filter_check_t filter_cb;
 	size_t count = 0;
 
 	memset(bitset, 0, sizeof(bitset));
@@ -79,15 +95,12 @@ check()
 		maxkey = key;
 		cu_debug_assert(maxkey == cucon_ucset_max_ukey(treep));
 	    }
-#if CUCON_UCSET_ENABLE_HCONS
-	    cu_debug_assert(got_it == (treep == tree));
-#endif
+	    cu_debug_assert(got_it == cucon_ucset_eq(treep, tree));
 	    cu_test_assert_int_eq(got_it, cucon_ucset_find(tree, key));
 	    cu_test_assert_size_eq(count + !got_it, cucon_ucset_card(treep));
-	    if (treep != tree) {
+	    if (!got_it)
 		++count;
-		tree = treep;
-	    }
+	    tree = treep;
 	    cu_test_assert(cucon_ucset_find(tree, key));
 	}
 
@@ -108,21 +121,26 @@ check()
 	cu_test_assert(minkey == cucon_ucset_min_ukey(tree));
 	cu_test_assert(maxkey == cucon_ucset_max_ukey(tree));
 
+	/* Check cucon_ucset_iter. */
 	iter_cb.count = 0;
 	iter_cb.seen = NULL;
 	cucon_ucset_iter(tree, _iter_check_prep(&iter_cb));
-#if CUCON_UCSET_ENABLE_HCONS
-	cu_test_assert(iter_cb.seen == tree);
-#endif
+	cu_test_assert(cucon_ucset_eq(iter_cb.seen, tree));
 	cu_test_assert(iter_cb.count == count);
 
+	/* Check cucon_ucset_conj. */
 	conj_cb.count = 0;
 	conj_cb.seen = NULL;
 	cucon_ucset_conj(tree, _conj_check_prep(&conj_cb));
-#if CUCON_UCSET_ENABLE_HCONS
-	cu_test_assert(conj_cb.seen == tree);
-#endif
+	cu_test_assert(cucon_ucset_eq(conj_cb.seen, tree));
 	cu_test_assert(conj_cb.count == count);
+
+	/* Check cucon_ucset_filter. */
+	filter_cb.count = 0;
+	filter_cb.filtered = NULL;
+	treep = cucon_ucset_filter(tree, _filter_check_prep(&filter_cb));
+	cu_test_assert_size_eq(filter_cb.count, cucon_ucset_card(treep));
+	cu_test_assert(cucon_ucset_eq(treep, filter_cb.filtered));
     }
 }
 
