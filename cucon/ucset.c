@@ -94,8 +94,7 @@ static cu_bool_t
 _ucleaf_eq(cucon_ucset_t lhs, cucon_ucset_t rhs)
 {
     int k;
-    if (lhs->key != rhs->key)
-	return cu_false;
+    cu_debug_assert(lhs->key == rhs->key);
     for (k = 0; k < CUPRIV_UCSET_BITSET_WORDCNT; ++k)
 	if (((cucon_ucset_leaf_t)lhs)->bitset[k] !=
 	    ((cucon_ucset_leaf_t)rhs)->bitset[k])
@@ -103,6 +102,18 @@ _ucleaf_eq(cucon_ucset_t lhs, cucon_ucset_t rhs)
     return cu_true;
 }
 #endif
+
+static cu_bool_t
+_ucleaf_subeq(cucon_ucset_t lhs, cucon_ucset_t rhs)
+{
+    int k;
+    cu_debug_assert(lhs->key == rhs->key);
+    for (k = 0; k < CUPRIV_UCSET_BITSET_WORDCNT; ++k)
+	if (((cucon_ucset_leaf_t)lhs)->bitset[k] &
+	    ~((cucon_ucset_leaf_t)rhs)->bitset[k])
+	    return cu_false;
+    return cu_true;
+}
 
 static size_t
 _ucleaf_card(cucon_ucset_t node)
@@ -232,6 +243,39 @@ cucon_ucset_eq(cucon_ucset_t set0, cucon_ucset_t set1)
     return cu_true;
 }
 #endif
+
+cu_bool_t
+cucon_ucset_subeq(cucon_ucset_t lhs, cucon_ucset_t rhs)
+{
+    while (lhs != rhs) {
+	uintptr_t lhs_key, rhs_key;
+	if (!lhs)
+	    return cu_true;
+	if (!rhs)
+	    return cu_false;
+	lhs_key = _ucnode_key(lhs);
+	rhs_key = _ucnode_key(rhs);
+	if (lhs_key == rhs_key) {
+	    if (_key_is_leaflike(lhs_key))
+		return _ucleaf_subeq(lhs, rhs);
+	    if ((lhs->key & 1) > (rhs->key & 1))
+		return cu_false;
+	    if (!cucon_ucset_subeq(lhs->left, rhs->right))
+		return cu_false;
+	    lhs = lhs->right;
+	    rhs = rhs->right;
+	}
+	else if (_key_covers(rhs_key, lhs_key)) {
+	    if (lhs_key < rhs_key)
+		return cucon_ucset_subeq(lhs, rhs->left);
+	    else
+		return cucon_ucset_subeq(lhs, rhs->right);
+	}
+	else
+	    return cu_false;
+    }
+    return cu_true;
+}
 
 cucon_ucset_t
 cucon_ucset_insert(cucon_ucset_t node, uintptr_t key)

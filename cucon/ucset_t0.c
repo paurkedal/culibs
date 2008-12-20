@@ -98,8 +98,12 @@ check()
 	    cu_debug_assert(got_it == cucon_ucset_eq(treep, tree));
 	    cu_test_assert_int_eq(got_it, cucon_ucset_find(tree, key));
 	    cu_test_assert_size_eq(count + !got_it, cucon_ucset_card(treep));
-	    if (!got_it)
+	    if (got_it)
+		cu_test_assert(cucon_ucset_eq(tree, treep));
+	    else {
 		++count;
+		cu_test_assert(cucon_ucset_subeq(tree, treep));
+	    }
 	    tree = treep;
 	    cu_test_assert(cucon_ucset_find(tree, key));
 	}
@@ -141,6 +145,7 @@ check()
 	treep = cucon_ucset_filter(tree, _filter_check_prep(&filter_cb));
 	cu_test_assert_size_eq(filter_cb.count, cucon_ucset_card(treep));
 	cu_test_assert(cucon_ucset_eq(treep, filter_cb.filtered));
+	cu_test_assert(cucon_ucset_subeq(treep, tree));
     }
 }
 
