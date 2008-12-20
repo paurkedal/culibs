@@ -107,6 +107,15 @@ cu_bool_t cucon_ucset_subeq(cucon_ucset_t set0, cucon_ucset_t set1);
 /*!Return \a set with \a key inserted. */
 cucon_ucset_t cucon_ucset_insert(cucon_ucset_t set, uintptr_t key);
 
+/*!Returns \a set0 ∪ \a set1. */
+cucon_ucset_t cucon_ucset_union(cucon_ucset_t set0, cucon_ucset_t set1);
+
+/*!Returns \a set0 ∩ \a set1. */
+cucon_ucset_t cucon_ucset_isecn(cucon_ucset_t set0, cucon_ucset_t set1);
+
+/*!Returns \a set0 ∖ \a set1. */
+cucon_ucset_t cucon_ucset_setminus(cucon_ucset_t set0, cucon_ucset_t set1);
+
 /*!True iff \a key ∈ \a set. */
 cu_bool_t cucon_ucset_find(cucon_ucset_t set, uintptr_t key);
 

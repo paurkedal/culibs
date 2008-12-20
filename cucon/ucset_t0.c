@@ -69,7 +69,7 @@ check()
     int i;
     static cu_word_t bitset[CHECK_MOD/WORD_WIDTH];
     for (i = 0; i < CHECK_REPEAT; ++i) {
-	cucon_ucset_t tree = NULL, treep;
+	cucon_ucset_t U = NULL, Up, S[3] = {NULL, NULL, NULL}, S01, S12, S1p;
 	int j;
 	uintptr_t minkey = UINTPTR_MAX;
 	uintptr_t maxkey = 0;
@@ -80,40 +80,47 @@ check()
 
 	memset(bitset, 0, sizeof(bitset));
 	for (j = 0; j < CHECK_SIZE; ++j) {
+	    int choice;
 	    unsigned long key = lrand48()%(CHECK_MOD/2 - 1);
-	    cuex_t treep;
+	    cuex_t Up;
 	    cu_bool_t got_it;
+
 	    got_it = !!(bitset[key/WORD_WIDTH]
 			& (CU_WORD_C(1) << key%WORD_WIDTH));
 	    bitset[key/WORD_WIDTH] |= CU_WORD_C(1) << key%WORD_WIDTH;
-	    treep = cucon_ucset_insert(tree, key);
+	    Up = cucon_ucset_insert(U, key);
 	    if (key < minkey) {
 		minkey = key;
-		cu_debug_assert(minkey == cucon_ucset_min_ukey(treep));
+		cu_debug_assert(minkey == cucon_ucset_min_ukey(Up));
 	    }
 	    if (key > maxkey) {
 		maxkey = key;
-		cu_debug_assert(maxkey == cucon_ucset_max_ukey(treep));
+		cu_debug_assert(maxkey == cucon_ucset_max_ukey(Up));
 	    }
-	    cu_debug_assert(got_it == cucon_ucset_eq(treep, tree));
-	    cu_test_assert_int_eq(got_it, cucon_ucset_find(tree, key));
-	    cu_test_assert_size_eq(count + !got_it, cucon_ucset_card(treep));
+	    cu_debug_assert(got_it == cucon_ucset_eq(Up, U));
+	    cu_test_assert_int_eq(got_it, cucon_ucset_find(U, key));
+	    cu_test_assert_size_eq(count + !got_it, cucon_ucset_card(Up));
 	    if (got_it)
-		cu_test_assert(cucon_ucset_eq(tree, treep));
+		cu_test_assert(cucon_ucset_eq(U, Up));
 	    else {
 		++count;
-		cu_test_assert(cucon_ucset_subeq(tree, treep));
+		cu_test_assert(cucon_ucset_subeq(U, Up));
 	    }
-	    tree = treep;
-	    cu_test_assert(cucon_ucset_find(tree, key));
+	    U = Up;
+	    cu_test_assert(cucon_ucset_find(U, key));
+
+	    if (!got_it) {
+		choice = lrand48() % 3;
+		S[choice] = cucon_ucset_insert(S[choice], key);
+	    }
 	}
 
 	for (j = 0; j < CHECK_MOD; ++j) {
 	    cu_bool_t bit = !!(bitset[j/WORD_WIDTH]
 			       & (CU_WORD_C(1) << j%WORD_WIDTH));
-	    cu_bool_t find = cucon_ucset_find(tree, j);
+	    cu_bool_t find = cucon_ucset_find(U, j);
 	    if (bit != find) {
-		cucon_ucset_dump(tree, stdout);
+		cucon_ucset_dump(U, stdout);
 		printf(bit
 		       ? "Did not find inserted bit %d\n"
 		       : "Found bit %d which was not inserted\n", j);
@@ -121,31 +128,54 @@ check()
 	    }
 	}
 
-	cu_test_assert_size_eq(count, cucon_ucset_card(tree));
-	cu_test_assert(minkey == cucon_ucset_min_ukey(tree));
-	cu_test_assert(maxkey == cucon_ucset_max_ukey(tree));
+	cu_test_assert_size_eq(count, cucon_ucset_card(U));
+	cu_test_assert(minkey == cucon_ucset_min_ukey(U));
+	cu_test_assert(maxkey == cucon_ucset_max_ukey(U));
+	for (j = 0; j < 3; ++j)
+	    cu_test_assert(cucon_ucset_subeq(S[j], U));
 
 	/* Check cucon_ucset_iter. */
 	iter_cb.count = 0;
 	iter_cb.seen = NULL;
-	cucon_ucset_iter(tree, _iter_check_prep(&iter_cb));
-	cu_test_assert(cucon_ucset_eq(iter_cb.seen, tree));
+	cucon_ucset_iter(U, _iter_check_prep(&iter_cb));
+	cu_test_assert(cucon_ucset_eq(iter_cb.seen, U));
 	cu_test_assert(iter_cb.count == count);
 
 	/* Check cucon_ucset_conj. */
 	conj_cb.count = 0;
 	conj_cb.seen = NULL;
-	cucon_ucset_conj(tree, _conj_check_prep(&conj_cb));
-	cu_test_assert(cucon_ucset_eq(conj_cb.seen, tree));
+	cucon_ucset_conj(U, _conj_check_prep(&conj_cb));
+	cu_test_assert(cucon_ucset_eq(conj_cb.seen, U));
 	cu_test_assert(conj_cb.count == count);
 
 	/* Check cucon_ucset_filter. */
 	filter_cb.count = 0;
 	filter_cb.filtered = NULL;
-	treep = cucon_ucset_filter(tree, _filter_check_prep(&filter_cb));
-	cu_test_assert_size_eq(filter_cb.count, cucon_ucset_card(treep));
-	cu_test_assert(cucon_ucset_eq(treep, filter_cb.filtered));
-	cu_test_assert(cucon_ucset_subeq(treep, tree));
+	Up = cucon_ucset_filter(U, _filter_check_prep(&filter_cb));
+	cu_test_assert_size_eq(filter_cb.count, cucon_ucset_card(Up));
+	cu_test_assert(cucon_ucset_eq(Up, filter_cb.filtered));
+	cu_test_assert(cucon_ucset_subeq(Up, U));
+
+	/* Check union. */
+	S01 = cucon_ucset_union(S[0], S[1]);
+	S12 = cucon_ucset_union(S[1], S[2]);
+	cu_test_assert(cucon_ucset_subeq(S[0], S01));
+	cu_test_assert(cucon_ucset_subeq(S[1], S01));
+	cu_test_assert(cucon_ucset_subeq(S[1], S12));
+	cu_test_assert(cucon_ucset_subeq(S[2], S12));
+	Up = cucon_ucset_union(S01, S[2]);
+	cu_test_assert(cucon_ucset_eq(Up, U));
+	Up = cucon_ucset_union(S12, S[0]);
+	cu_test_assert(cucon_ucset_eq(Up, U));
+
+	/* Check intersection. */
+	S1p = cucon_ucset_isecn(S01, S12);
+	cu_test_assert(cucon_ucset_eq(S1p, S[1]));
+
+	/* Check set minus. */
+	cu_test_assert(cucon_ucset_eq(S01, cucon_ucset_setminus(U, S[2])));
+	cu_test_assert(cucon_ucset_eq(S12, cucon_ucset_setminus(U, S[0])));
+	cu_test_assert(cucon_ucset_eq(S[0], cucon_ucset_setminus(S01, S[1])));
     }
 }
 
