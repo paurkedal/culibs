@@ -1,4 +1,4 @@
-AC_INIT(culibs, 0.22.1, [urkedal@nbi.dk])
+AC_INIT(culibs, 0.22.2, [urkedal@nbi.dk])
 m4_pattern_forbid([^CUAC_])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([aclocal])
