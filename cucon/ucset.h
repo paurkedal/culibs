@@ -132,10 +132,12 @@ void cucon_ucset_iter(cucon_ucset_t set, cu_clop(f, void, uintptr_t));
 /*!Returns the cardinality of \a set. */
 size_t cucon_ucset_card(cucon_ucset_t set);
 
-/*!Returns the minimum element of \a, considering elements to be unsigned. */
+/*!Returns the minimum element of \a set, considering elements to be
+ * unsigned. */
 uintptr_t cucon_ucset_min_ukey(cucon_ucset_t set);
 
-/*!Returns the maximum element of \a, considering elements to be unsigned. */
+/*!Returns the maximum element of \a set, considering elements to be
+ * unsigned. */
 uintptr_t cucon_ucset_max_ukey(cucon_ucset_t set);
 
 /*!Returns {\e x | \e x ∈ \a set ∧ \a f(\e x)}. */

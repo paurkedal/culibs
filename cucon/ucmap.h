@@ -94,7 +94,7 @@ CU_SINLINE cucon_ucmap_t
 cucon_ucmap_insert_ptr(cucon_ucmap_t map, uintptr_t key, void *val)
 { return cuconP_ucmap_insert_raw(map, key, (uintptr_t)val); }
 
-/*!\copydoc cucon_ucmap_insert */
+/*!\copydoc cucon_ucmap_insert_ptr */
 CU_SINLINE cucon_ucmap_t
 cucon_ucmap_insert_int(cucon_ucmap_t map, uintptr_t key, uintptr_t val)
 {
