@@ -155,7 +155,6 @@ _ucleaf_new(uintptr_t key)
 CU_SINLINE cucon_ucset_t
 _ucleaf_insert(cucon_ucset_t src_node, uintptr_t add_key)
 {
-    int i;
 #if CUCON_UCSET_ENABLE_HCONS
     cucon_ucset_leaf_t node;
     cuoo_hctem_decl(cucon_ucset_leaf, tem);
@@ -165,10 +164,8 @@ _ucleaf_insert(cucon_ucset_t src_node, uintptr_t add_key)
     cucon_ucset_leaf_t node = cu_gnew(struct cucon_ucset_leaf_s);
 #endif
     cu_debug_assert(_leaf_key(add_key) == (src_node->key & ~(uintptr_t)1));
-    node->key = src_node->key;
-    for (i = 0; i < CUPRIV_UCSET_BITSET_WORDCNT; ++i)
-	node->bitset[i] = ((cucon_ucset_leaf_t)src_node)->bitset[i];
     add_key &= BITSET_MASK;
+    memcpy(node, src_node, sizeof(struct cucon_ucset_leaf_s));
     node->bitset[add_key/CU_WORD_WIDTH]
 	|= CU_WORD_C(1) << add_key%CU_WORD_WIDTH;
 #if CUCON_UCSET_ENABLE_HCONS
@@ -176,6 +173,47 @@ _ucleaf_insert(cucon_ucset_t src_node, uintptr_t add_key)
 #else
     return (cucon_ucset_t)node;
 #endif
+}
+
+CU_SINLINE cucon_ucset_t
+_ucleaf_erase(cucon_ucset_t src_node, uintptr_t del_key)
+{
+    int i;
+    cu_word_t bit, bits;
+#if CUCON_UCSET_ENABLE_HCONS
+    cucon_ucset_leaf_t node;
+    cuoo_hctem_decl(cucon_ucset_leaf, tem);
+#else
+    cucon_ucset_leaf_t node;
+#endif
+
+    cu_debug_assert(_key_is_leaflike(del_key));
+    cu_debug_assert(_key_is_leaflike(_ucnode_key(src_node)));
+    cu_debug_assert(_leaf_key(del_key) == (src_node->key & ~(uintptr_t)1));
+    del_key &= BITSET_MASK;
+    bits = ((cucon_ucset_leaf_t)src_node)->bitset[del_key/CU_WORD_WIDTH];
+    bit = CU_WORD_C(1) << del_key%CU_WORD_WIDTH;
+    if (!(bits & bit))
+	return src_node;
+    bits &= ~bit;
+
+#if CUCON_UCSET_ENABLE_HCONS
+    cuoo_hctem_init(cucon_ucset_leaf, tem);
+    node = cuoo_hctem_get(cucon_ucset_leaf, tem);
+#else
+    node = cu_gnew(struct cucon_ucset_leaf_s);
+#endif
+    memcpy(node, src_node, sizeof(struct cucon_ucset_leaf_s));
+    node->bitset[del_key/CU_WORD_WIDTH] = bits;
+    for (i = 0; i < CUPRIV_UCSET_BITSET_WORDCNT; ++i)
+	if (node->bitset[i]) {
+#if CUCON_UCSET_ENABLE_HCONS
+	    return (cucon_ucset_t)cuoo_hctem_new(cucon_ucset_leaf, tem);
+#else
+	    return (cucon_ucset_t)node;
+#endif
+	}
+    return NULL;
 }
 
 CU_SINLINE cucon_ucset_t
@@ -397,16 +435,14 @@ cucon_ucset_insert(cucon_ucset_t node, uintptr_t key)
 		return _ucleaf_insert(node, key);
 	}
 	else if (key < node_key) {
-	    cucon_ucset_t new_left;
-	    new_left = cucon_ucset_insert(left(node), key);
+	    cucon_ucset_t new_left = cucon_ucset_insert(left(node), key);
 	    if (new_left != left(node))
 		return _ucnode_new(node->key, new_left, right(node));
 	    else
 		return node;
 	}
 	else {
-	    cucon_ucset_t new_right;
-	    new_right = cucon_ucset_insert(right(node), key);
+	    cucon_ucset_t new_right = cucon_ucset_insert(right(node), key);
 	    if (new_right != right(node))
 		return _ucnode_new(node->key, left(node), new_right);
 	    else
@@ -434,6 +470,57 @@ cucon_ucset_insert(cucon_ucset_t node, uintptr_t key)
 	else
 	    return _ucnode_new(j, node, key_node);
     }
+}
+
+cucon_ucset_t
+cucon_ucset_erase(cucon_ucset_t node, uintptr_t key)
+{
+    uintptr_t node_key;
+    if (node == NULL)
+	return NULL;
+    node_key = _ucnode_key(node);
+    if (key == node_key) {
+	if (_key_is_leaflike(node_key))
+	    return _ucleaf_erase(node, key);
+	else if (node->key & 1) {
+	    if (left(node) == NULL)
+		return right(node);
+	    if (right(node) == NULL)
+		return left(node);
+	    return _ucnode_new(node->key & ~CU_UINTPTR_C(1),
+			       left(node), right(node));
+	}
+	else
+	    return node;
+    }
+    else if (_key_covers(node_key, key)) {
+	if (_key_is_leaflike(node_key))
+	    return _ucleaf_erase(node, key);
+	else if (key < node_key) {
+	    cucon_ucset_t new_left = cucon_ucset_erase(left(node), key);
+	    if (new_left != left(node)) {
+		if (new_left == NULL && right(node) == NULL
+			&& !(node->key & 1))
+		    return NULL;
+		return _ucnode_new(node->key, new_left, right(node));
+	    }
+	    else
+		return node;
+	}
+	else {
+	    cucon_ucset_t new_right = cucon_ucset_erase(right(node), key);
+	    if (new_right != right(node)) {
+		if (new_right == NULL && left(node) == NULL
+			&& !(node->key & 1))
+		    return NULL;
+		return _ucnode_new(node->key, left(node), new_right);
+	    }
+	    else
+		return node;
+	}
+    }
+    else
+	return node;
 }
 
 cucon_ucset_t

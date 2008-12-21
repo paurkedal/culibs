@@ -103,8 +103,9 @@ check()
 	    if (got_it)
 		cu_test_assert(cucon_ucset_eq(U, Up));
 	    else {
-		++count;
 		cu_test_assert(cucon_ucset_subeq(U, Up));
+		cu_test_assert(cucon_ucset_eq(cucon_ucset_erase(Up, key), U));
+		++count;
 	    }
 	    U = Up;
 	    cu_test_assert(cucon_ucset_find(U, key));
