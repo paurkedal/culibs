@@ -226,9 +226,9 @@ void cu_ptr_array_source_init(cu_ptr_array_source_t src,
 /*!A source which fetches pointers from [\a begin, \a end). */
 cu_ptr_source_t cu_ptr_source_from_array(void **begin, void **end);
 
-struct cu_ptr_source_s cuP_empty_ptr_source;
-struct cu_ptr_sink_s cuP_empty_ptr_sink;
-struct cu_ptr_junction_s cuP_empty_ptr_junction;
+extern struct cu_ptr_source_s cuP_empty_ptr_source;
+extern struct cu_ptr_sink_s cuP_empty_ptr_sink;
+extern struct cu_ptr_junction_s cuP_empty_ptr_junction;
 
 /*!A source which always returns \c NULL. */
 CU_SINLINE cu_ptr_source_t cu_empty_ptr_source()

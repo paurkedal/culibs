@@ -194,9 +194,9 @@ _empty_sink_put(cu_ptr_sink_t sink, void *ptr)
     cu_bugf("Tried to return value to empty junctor.");
 }
 
-struct cu_ptr_source_s cuP_empty_source = {_empty_source_get};
-struct cu_ptr_sink_s cuP_empty_sink = {_empty_sink_put};
-struct cu_ptr_junction_s cuP_empty_junction = {
+struct cu_ptr_source_s cuP_empty_ptr_source = {_empty_source_get};
+struct cu_ptr_sink_s cuP_empty_ptr_sink = {_empty_sink_put};
+struct cu_ptr_junction_s cuP_empty_ptr_junction = {
     {_empty_source_get}, {_empty_sink_put}
 };
 
