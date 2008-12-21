@@ -174,9 +174,9 @@ check()
 	cu_test_assert(cucon_ucset_eq(S1p, S[1]));
 
 	/* Check set minus. */
-	cu_test_assert(cucon_ucset_eq(S01, cucon_ucset_setminus(U, S[2])));
-	cu_test_assert(cucon_ucset_eq(S12, cucon_ucset_setminus(U, S[0])));
-	cu_test_assert(cucon_ucset_eq(S[0], cucon_ucset_setminus(S01, S[1])));
+	cu_test_assert(cucon_ucset_eq(S01, cucon_ucset_compl(U, S[2])));
+	cu_test_assert(cucon_ucset_eq(S12, cucon_ucset_compl(U, S[0])));
+	cu_test_assert(cucon_ucset_eq(S[0], cucon_ucset_compl(S01, S[1])));
     }
 }
 

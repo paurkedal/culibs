@@ -36,10 +36,10 @@ cucon_pcmap_is_empty(cucon_pcmap_t map) { return map == NULL; }
 /*!Return \a map with \a key ↦ \a val inserted.  If \a map contains
  * a mapping from \a key, it is replaced. */
 CU_SINLINE cucon_pcmap_t
-cucon_pcmap_insert(cucon_pcmap_t map, void *key, void *val)
+cucon_pcmap_insert_ptr(cucon_pcmap_t map, void *key, void *val)
 {
-    return (cucon_pcmap_t)cucon_ucmap_insert((cucon_ucmap_t)map,
-					     (uintptr_t)key, val);
+    return (cucon_pcmap_t)cucon_ucmap_insert_ptr((cucon_ucmap_t)map,
+						 (uintptr_t)key, val);
 }
 
 /*!\copydoc cucon_pcmap_insert */
@@ -55,7 +55,7 @@ cucon_pcmap_insert_int(cucon_pcmap_t map, void *key, int val)
 /*!Return the mapping of \a key in \a map, or \c NULL if none. */
 CU_SINLINE void *
 cucon_pcmap_find(cucon_pcmap_t map, void *key)
-{ return cucon_ucmap_find((cucon_ucmap_t)map, (uintptr_t)key); }
+{ return cucon_ucmap_find_ptr((cucon_ucmap_t)map, (uintptr_t)key); }
 
 /*!Return the mapping of \a key in \a map, or \c (uintptr_t)-1 of none. */
 CU_SINLINE int
@@ -66,10 +66,10 @@ cucon_pcmap_find_int(cucon_pcmap_t map, void *key)
 
 /*!Sequentially conjunct \a cb over mappings in increasing key order. */
 CU_SINLINE cu_bool_t
-cucon_pcmap_conj(cucon_pcmap_t map,
-		 cu_clop(cb, cu_bool_t, void *key, void *val))
-{ return cucon_ucmap_conj((cucon_ucmap_t)map,
-			  (cu_clop(, cu_bool_t, uintptr_t, void *))cb); }
+cucon_pcmap_conj_ptr(cucon_pcmap_t map,
+		     cu_clop(cb, cu_bool_t, void *key, void *val))
+{ return cucon_ucmap_conj_ptr((cucon_ucmap_t)map,
+			      (cu_clop(, cu_bool_t, uintptr_t, void *))cb); }
 
 /*!Sequentially conjunct \a cb over mappings in increasing key order. */
 CU_SINLINE cu_bool_t
@@ -81,8 +81,8 @@ cucon_pcmap_conj_int(cucon_pcmap_t map,
 
 /*!Sequentially conjunct \a cb over mappings in increasing key order. */
 cu_bool_t
-cucon_pcmap_conj(cucon_pcmap_t map,
-		 cu_clop(cb, cu_bool_t, void *key, void *val));
+cucon_pcmap_conj_ptr(cucon_pcmap_t map,
+		     cu_clop(cb, cu_bool_t, void *key, void *val));
 
 /*!Sequentially conjunct \a cb over mappings in increasing key order. */
 cu_bool_t

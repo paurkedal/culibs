@@ -336,13 +336,13 @@ cucon_ucmap_conj_int(cucon_ucmap_t node,
 #if CUCONF_SIZEOF_INTPTR_T != CUCONF_SIZEOF_VOID_P
 
 cu_bool_t
-cucon_pcmap_conj(cucon_pcmap_t node,
-		 cu_clop(cb, cu_bool_t, void *key, void *val))
+cucon_pcmap_conj_ptr(cucon_pcmap_t node,
+		     cu_clop(cb, cu_bool_t, void *key, void *val))
 {
     while (node) {
 #define node ((cucon_ucmap_t)node)
 	void *key = (void *)_node_key(node);
-	if (!cucon_pcmap_conj(_node_left(node), cb))
+	if (!cucon_pcmap_conj_ptr(_node_left(node), cb))
 	    return cu_false;
 	if (_node_has_value(node))
 	    if (!cu_call(cb, (void *)key, _node_value_ptr(node)))

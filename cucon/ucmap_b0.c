@@ -53,7 +53,7 @@ bench(cu_bool_t enable_umap, cu_bool_t enable_ucmap)
 	    int j = lrand48() % MOD;
 	    if (enable_ucmap) {
 		ubt_tfind -= clock();
-		cucon_ucmap_find(tree, j);
+		cucon_ucmap_find_ptr(tree, j);
 		ubt_tfind += clock();
 	    }
 	    if (enable_umap) {

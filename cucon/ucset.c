@@ -607,7 +607,7 @@ cucon_ucset_isecn(cucon_ucset_t lhs, cucon_ucset_t rhs)
 }
 
 cucon_ucset_t
-cucon_ucset_setminus(cucon_ucset_t lhs, cucon_ucset_t rhs)
+cucon_ucset_compl(cucon_ucset_t lhs, cucon_ucset_t rhs)
 {
     uintptr_t lhs_key, rhs_key;
 
@@ -623,8 +623,8 @@ cucon_ucset_setminus(cucon_ucset_t lhs, cucon_ucset_t rhs)
 	    return _ucleaf_minus(lhs, rhs);
 	else {
 	    uintptr_t key = lhs->key & ~(rhs->key & CU_UINTPTR_C(1));
-	    cucon_ucset_t left = cucon_ucset_setminus(lhs->left, rhs->left);
-	    cucon_ucset_t right = cucon_ucset_setminus(lhs->right, rhs->right);
+	    cucon_ucset_t left = cucon_ucset_compl(lhs->left, rhs->left);
+	    cucon_ucset_t right = cucon_ucset_compl(lhs->right, rhs->right);
 	    if (!(key & 1)) {
 		if (!left)  return right;
 		if (!right) return left;
@@ -634,19 +634,19 @@ cucon_ucset_setminus(cucon_ucset_t lhs, cucon_ucset_t rhs)
     }
     else if (_key_covers(lhs_key, rhs_key)) {
 	if (rhs_key < lhs_key) {
-	    cucon_ucset_t left = cucon_ucset_setminus(lhs->left, rhs);
+	    cucon_ucset_t left = cucon_ucset_compl(lhs->left, rhs);
 	    return _ucnode_new(lhs->key, left, lhs->right);
 	}
 	else {
-	    cucon_ucset_t right = cucon_ucset_setminus(lhs->right, rhs);
+	    cucon_ucset_t right = cucon_ucset_compl(lhs->right, rhs);
 	    return _ucnode_new(lhs->key, lhs->left, right);
 	}
     }
     else if (_key_covers(rhs_key, lhs_key)) {
 	if (lhs_key < rhs_key)
-	    return cucon_ucset_setminus(lhs, rhs->left);
+	    return cucon_ucset_compl(lhs, rhs->left);
 	else
-	    return cucon_ucset_setminus(lhs, rhs->right);
+	    return cucon_ucset_compl(lhs, rhs->right);
     }
     else
 	return lhs;
