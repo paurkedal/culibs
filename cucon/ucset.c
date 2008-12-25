@@ -18,6 +18,7 @@
 #include <cucon/ucset.h>
 #include <cu/memory.h>
 #include <cu/int.h>
+#include <cu/ptr.h>
 #include <cuoo/halloc.h>
 #include <cuoo/intf.h>
 #include <inttypes.h>
@@ -126,6 +127,24 @@ _ucleaf_card(cucon_ucset_t node)
     return card;
 }
 
+static cu_bool_t
+_ucleaf_is_singleton(cucon_ucset_t node)
+{
+    int k;
+    for (k = 0; k < CUPRIV_UCSET_BITSET_WORDCNT; ++k) {
+	size_t cnt = cu_word_bit_count(((cucon_ucset_leaf_t)node)->bitset[k]);
+	if (cnt > 1)
+	    return cu_false;
+	else if (cnt) {
+	    while (++k < CUPRIV_UCSET_BITSET_WORDCNT)
+		if (((cucon_ucset_leaf_t)node)->bitset[k])
+		    return cu_false;
+	    return cu_true;
+	}
+    }
+    return cu_false;
+}
+
 CU_SINLINE cucon_ucset_t
 _ucleaf_new(uintptr_t key)
 {
@@ -165,7 +184,9 @@ _ucleaf_insert(cucon_ucset_t src_node, uintptr_t add_key)
 #endif
     cu_debug_assert(_leaf_key(add_key) == (src_node->key & ~(uintptr_t)1));
     add_key &= BITSET_MASK;
-    memcpy(node, src_node, sizeof(struct cucon_ucset_leaf_s));
+    memcpy(cu_ptr_add(node, CUOO_HCOBJ_SHIFT),
+	   cu_ptr_add(src_node, CUOO_HCOBJ_SHIFT),
+	   sizeof(struct cucon_ucset_leaf_s) - CUOO_HCOBJ_SHIFT);
     node->bitset[add_key/CU_WORD_WIDTH]
 	|= CU_WORD_C(1) << add_key%CU_WORD_WIDTH;
 #if CUCON_UCSET_ENABLE_HCONS
@@ -203,7 +224,9 @@ _ucleaf_erase(cucon_ucset_t src_node, uintptr_t del_key)
 #else
     node = cu_gnew(struct cucon_ucset_leaf_s);
 #endif
-    memcpy(node, src_node, sizeof(struct cucon_ucset_leaf_s));
+    memcpy(cu_ptr_add(node, CUOO_HCOBJ_SHIFT),
+	   cu_ptr_add(src_node, CUOO_HCOBJ_SHIFT),
+	   sizeof(struct cucon_ucset_leaf_s) - CUOO_HCOBJ_SHIFT);
     node->bitset[del_key/CU_WORD_WIDTH] = bits;
     for (i = 0; i < CUPRIV_UCSET_BITSET_WORDCNT; ++i)
 	if (node->bitset[i]) {
@@ -408,6 +431,25 @@ cucon_ucset_subeq(cucon_ucset_t lhs, cucon_ucset_t rhs)
 }
 
 cucon_ucset_t
+cucon_ucset_singleton(uintptr_t key)
+{
+    if (_key_is_leaflike(key))
+	return _ucleaf_new(key);
+    else
+	return _ucnode_new(key | 1, NULL, NULL);
+}
+
+cu_bool_t
+cucon_ucset_is_singleton(cucon_ucset_t set)
+{
+    uintptr_t key = _ucnode_key(set);
+    if (_key_is_leaflike(key))
+	return _ucleaf_is_singleton(set);
+    else
+	return set->left == NULL && set->right == NULL;
+}
+
+cucon_ucset_t
 cucon_ucset_insert(cucon_ucset_t node, uintptr_t key)
 {
     uintptr_t node_key;
@@ -462,7 +504,7 @@ cucon_ucset_insert(cucon_ucset_t node, uintptr_t key)
 	    key_node = _ucleaf_new(key);
 	else
 	    key_node = _ucnode_new(key | 1, NULL, NULL);
-	j = cu_ulong_dcover(key ^ node_key);
+	j = cu_uintptr_dcover(key ^ node_key);
 	cu_debug_assert(j >= 2);
 	j = (key & ~j) | ((j + 1) >> 1);
 	if (key < node_key)
@@ -559,7 +601,7 @@ cucon_ucset_union(cucon_ucset_t lhs, cucon_ucset_t rhs)
 	return cucon_ucset_union(rhs, lhs);
     else {
 	uintptr_t j;
-	j = cu_ulong_dcover(lhs_key ^ rhs_key);
+	j = cu_uintptr_dcover(lhs_key ^ rhs_key);
 	cu_debug_assert(j >= 2);
 	j = (lhs_key & ~j) | ((j + 1) >> 1);
 	if (lhs_key < rhs_key)
@@ -768,9 +810,9 @@ cucon_ucset_min_ukey(cucon_ucset_t set)
 	if (_key_is_leaflike(key)) {
 	    int i;
 	    for (i = 0; i < CUPRIV_UCSET_BITSET_WORDCNT; ++i) {
-		uintptr_t x = ((cucon_ucset_leaf_t)set)->bitset[i];
+		cu_word_t x = ((cucon_ucset_leaf_t)set)->bitset[i];
 		if (x)
-		    return (key & ~BITSET_MASK) + cu_ulong_log2_lowbit(x)
+		    return (key & ~BITSET_MASK) + cu_word_log2_lowbit(x)
 			 + i*CU_WORD_WIDTH;
 	    }
 	    return key;
@@ -790,9 +832,9 @@ cucon_ucset_max_ukey(cucon_ucset_t set)
 	if (_key_is_leaflike(key)) {
 	    int i;
 	    for (i = CUPRIV_UCSET_BITSET_WORDCNT - 1; i >= 0; --i) {
-		uintptr_t x = ((cucon_ucset_leaf_t)set)->bitset[i];
+		cu_word_t x = ((cucon_ucset_leaf_t)set)->bitset[i];
 		if (x)
-		    return (key & ~BITSET_MASK) + cu_ulong_floor_log2(x)
+		    return (key & ~BITSET_MASK) + cu_word_floor_log2(x)
 			 + i*CU_WORD_WIDTH;
 	    }
 	    return key;

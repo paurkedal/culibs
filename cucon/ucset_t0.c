@@ -97,6 +97,12 @@ check()
 		maxkey = key;
 		cu_debug_assert(maxkey == cucon_ucset_max_ukey(Up));
 	    }
+	    if (j == 0) {
+		cu_debug_assert(cucon_ucset_is_singleton(Up));
+		cu_debug_assert(cucon_ucset_singleton(key) == Up);
+	    }
+	    else if (!got_it)
+		cu_debug_assert(!cucon_ucset_is_singleton(Up));
 	    cu_debug_assert(got_it == cucon_ucset_eq(Up, U));
 	    cu_test_assert_int_eq(got_it, cucon_ucset_find(U, key));
 	    cu_test_assert_size_eq(count + !got_it, cucon_ucset_card(Up));

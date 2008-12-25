@@ -104,6 +104,19 @@ cu_bool_t cucon_ucset_eq(cucon_ucset_t set0, cucon_ucset_t set1);
 /*!True iff \a set0 ⊆ \a set1. */
 cu_bool_t cucon_ucset_subeq(cucon_ucset_t set0, cucon_ucset_t set1);
 
+/*!Returs the empty set (\c NULL). */
+CU_SINLINE cucon_ucset_t cucon_ucset_empty(void) { return NULL; }
+
+/*!True iff \a set is the empty set. */
+CU_SINLINE cu_bool_t cucon_ucset_is_empty(cucon_ucset_t set)
+{ return set == NULL; }
+
+/*!Returns the singleton set {\a key}. */
+cucon_ucset_t cucon_ucset_singleton(uintptr_t key);
+
+/*True iff \a set is a singleton set. */
+cu_bool_t cucon_ucset_is_singleton(cucon_ucset_t set);
+
 /*!Return \a set with \a key inserted. */
 cucon_ucset_t cucon_ucset_insert(cucon_ucset_t set, uintptr_t key);
 

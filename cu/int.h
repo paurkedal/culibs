@@ -43,6 +43,14 @@ CU_BEGIN_DECLARATIONS
 #  error Unexpected CUCONF_SIZEOF_LONG
 #endif
 
+#if CUCONF_SIZEOF_INTPTR_T == 4
+#  define CUP_UINTPTR_NAME(prefix, name) prefix##uint32_##name
+#elif CUCONF_SIZEOF_INTPTR_T == 8
+#  define CUP_UINTPTR_NAME(prefix, name) prefix##uint64_##name
+#else
+#  error Unexpected CUCONF_SIZEOF_UINTPTR_T
+#endif
+
 #if CU_WORD_SIZE == 4
 #  define CUP_WORD_NAME(prefix, name) prefix##uint32_##name
 #elif CU_WORD_SIZE == 8
@@ -112,6 +120,10 @@ CU_SINLINE unsigned int cu_uint_dcover(unsigned int x)
 /*!\copydoc cu_uint8_dcover */
 CU_SINLINE unsigned long cu_ulong_dcover(unsigned long x)
 { return CUP_ULONG_NAME(cu_,dcover)(x); }
+
+/*!\copydoc cu_uint8_dcover */
+CU_SINLINE uintptr_t cu_uintptr_dcover(uintptr_t x)
+{ return CUP_UINTPTR_NAME(cu_,dcover)(x); }
 
 /*!\copydoc cu_uint8_dcover */
 CU_SINLINE cu_word_t cu_word_dcover(cu_word_t x)
@@ -217,6 +229,9 @@ unsigned int cu_uint64_floor_log2(uint_fast64_t x) CU_ATTR_PURE;
 unsigned int cu_uint_floor_log2(unsigned int x) CU_ATTR_PURE;
 /*!\copydoc cu_uint8_floor_log2*/
 unsigned int cu_ulong_floor_log2(unsigned long x) CU_ATTR_PURE;
+/*!\copydoc cu_uint8_floor_log2*/
+CU_SINLINE unsigned int cu_word_floor_log2(cu_word_t x)
+{ return CUP_WORD_NAME(cu_,floor_log2)(x); }
 
 /*!Returns the exponent of the lowermost non-zero bit in \a x. */
 CU_SINLINE unsigned int
@@ -256,6 +271,11 @@ cu_uint_log2_lowbit(unsigned int x)
 CU_SINLINE unsigned int
 cu_ulong_log2_lowbit(unsigned long x)
 { return CUP_ULONG_NAME(cu_,log2_lowbit)(x); }
+
+/*!\copydoc cu_uint8_log2_lowbit*/
+CU_SINLINE unsigned int
+cu_word_log2_lowbit(cu_word_t x)
+{ return CUP_WORD_NAME(cu_,log2_lowbit)(x); }
 
 
 /* Network Byte Order and Host Byte Order Conversion
