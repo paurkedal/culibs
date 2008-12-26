@@ -131,6 +131,8 @@ typedef unsigned long int cu_hash_t;
 typedef uintptr_t cu_word_t;
 
 #define CU_WORD_WIDTH CUCONF_WIDTHOF_INTPTR_T
+#define CU_WORD_P2WIDTH CUCONF_P2WIDTHOF_INTPTR_T
+#define CU_WORD_LOG2_P2WIDTH CUCONF_LOG2_P2WIDTHOF_INTPTR_T
 #define CU_WORD_SIZE CUCONF_SIZEOF_INTPTR_T
 #define CU_WORD_C(x) ((cu_word_t)x##UL)
 #define CU_PRIdWORD PRIdPTR

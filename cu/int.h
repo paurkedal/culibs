@@ -272,6 +272,11 @@ CU_SINLINE unsigned int
 cu_ulong_log2_lowbit(unsigned long x)
 { return CUP_ULONG_NAME(cu_,log2_lowbit)(x); }
 
+/*!\copydoc cu_intptr_log2_lowbit*/
+CU_SINLINE unsigned int
+cu_uintptr_log2_lowbit(uintptr_t x)
+{ return CUP_UINTPTR_NAME(cu_,log2_lowbit)(x); }
+
 /*!\copydoc cu_uint8_log2_lowbit*/
 CU_SINLINE unsigned int
 cu_word_log2_lowbit(cu_word_t x)

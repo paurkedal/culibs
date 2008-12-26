@@ -69,7 +69,8 @@ struct cucon_ucset_s
     cucon_ucset_t right;
 };
 
-#define CUPRIV_UCSET_BITSET_WORDCNT 2
+#define CUPRIV_UCSET_BITSET_LOG2_SIZEW 1
+#define CUPRIV_UCSET_BITSET_SIZEW (1 << CUPRIV_UCSET_BITSET_LOG2_SIZEW)
 typedef struct cucon_ucset_leaf_s *cucon_ucset_leaf_t;
 struct cucon_ucset_leaf_s
 {
@@ -79,7 +80,7 @@ struct cucon_ucset_leaf_s
     CUOO_OBJ
 #endif
     uintptr_t key;
-    cu_word_t bitset[CUPRIV_UCSET_BITSET_WORDCNT];
+    cu_word_t bitset[CUPRIV_UCSET_BITSET_SIZEW];
 };
 
 #if CUCON_UCSET_ENABLE_HCONS
@@ -170,6 +171,23 @@ cucon_ucset_t cucon_ucset_filter_image(cucon_ucset_t set,
 
 /*!Debug dump of \a set. */
 void cucon_ucset_dump(cucon_ucset_t set, FILE *out);
+
+struct cucon_ucset_itr_s
+{
+    int sp, pos;
+    cucon_ucset_t node_stack[1];
+};
+
+size_t cucon_ucset_itr_size(cucon_ucset_t set);
+
+void cucon_ucset_itr_init(cucon_ucset_itr_t itr, cucon_ucset_t set);
+
+cucon_ucset_itr_t cucon_ucset_itr_new(cucon_ucset_t set);
+
+CU_SINLINE cu_bool_t cucon_ucset_itr_at_end(cucon_ucset_itr_t itr)
+{ return itr->sp < 0; }
+
+uintptr_t cucon_ucset_itr_get(cucon_ucset_itr_t itr);
 
 /*!@}*/
 CU_END_DECLARATIONS

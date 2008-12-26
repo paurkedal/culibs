@@ -57,6 +57,7 @@ typedef struct cucon_umap_s		*cucon_umap_t;		/* umap.h */
 typedef struct cucon_uset_s		*cucon_uset_t;		/* uset.h */
 typedef struct cucon_ucmap_s		*cucon_ucmap_t;		/* ucmap.h */
 typedef struct cucon_ucset_s		*cucon_ucset_t;		/* ucset.h */
+typedef struct cucon_ucset_itr_s	*cucon_ucset_itr_t;	/* ucset.h */
 typedef struct cucon_wmap_s		*cucon_wmap_t;		/* wmap.h */
 
 void cucon_init(void);

@@ -41,12 +41,17 @@ cu_clos_def(_conj_check, cu_prot(cu_bool_t, uintptr_t key),
 
 cu_clos_def(_iter_check, cu_prot(void, uintptr_t key),
     ( size_t count;
-      cucon_ucset_t seen; ))
+      cucon_ucset_t seen;
+      cucon_ucset_itr_t itr; ))
 {
     cu_clos_self(_iter_check);
     cucon_ucset_t seen = cucon_ucset_insert(self->seen, key);
+    uintptr_t keyp;
     self->seen = seen;
     ++self->count;
+    cu_test_assert(!cucon_ucset_itr_at_end(self->itr));
+    keyp = cucon_ucset_itr_get(self->itr);
+    cu_test_assert(keyp == key);
 }
 
 cu_clos_def(_filter_check, cu_prot(cu_bool_t, uintptr_t key),
@@ -144,9 +149,11 @@ check()
 	/* Check cucon_ucset_iter. */
 	iter_cb.count = 0;
 	iter_cb.seen = NULL;
+	iter_cb.itr = cucon_ucset_itr_new(U);
 	cucon_ucset_iter(U, _iter_check_prep(&iter_cb));
 	cu_test_assert(cucon_ucset_eq(iter_cb.seen, U));
 	cu_test_assert(iter_cb.count == count);
+	cu_test_assert(cucon_ucset_itr_at_end(iter_cb.itr));
 
 	/* Check cucon_ucset_conj. */
 	conj_cb.count = 0;
