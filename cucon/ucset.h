@@ -153,13 +153,19 @@ cucon_ucset_t cucon_ucset_image(cucon_ucset_t set,
 cucon_ucset_t cucon_ucset_filter_image(cucon_ucset_t set,
 				       cu_clop(f, cu_bool_t, uintptr_t *));
 
-/*!Returns the set {\e x + \a diff | \e x ∈ \a set ∧ \a cut_min ≤ \e x + \a
- * diff ≤ \a cut_max}. */
-cucon_ucset_t cucon_ucset_cut_add_const(cucon_ucset_t set, intptr_t diff,
-					uintptr_t cut_min, uintptr_t cut_max);
+/*!Returns the set {\e x + \a diff | \e x ∈ \a set ∧ \a clip_min ≤ \e x ≤ \a
+ * clip_max}. */
+cucon_ucset_t cucon_ucset_translate_uclip(cucon_ucset_t set, intptr_t diff,
+					  uintptr_t clip_min,
+					  uintptr_t clip_max);
+
+/*!\copydoc cucon_ucset_translate_uclip*/
+cucon_ucset_t cucon_ucset_translate_sclip(cucon_ucset_t set, intptr_t diff,
+					  intptr_t clip_min,
+					  intptr_t clip_max);
 
 /*!Returns the set {\e x + \a diff | \e x ∈ \a set}. */
-cucon_ucset_t cucon_ucset_add_const(cucon_ucset_t set, intptr_t diff);
+cucon_ucset_t cucon_ucset_translate(cucon_ucset_t set, intptr_t diff);
 
 /*!Debug dump of \a set. */
 void cucon_ucset_dump(cucon_ucset_t set, FILE *out);

@@ -522,7 +522,7 @@ cucon_ucset_insert(cucon_ucset_t node, uintptr_t key)
 	    key_node = _ucnode_new(key | 1, NULL, NULL);
 	j = cu_uintptr_dcover(key ^ node_key);
 	cu_debug_assert(j >= 2);
-	j = (key & ~j) | ((j + 1) >> 1);
+	j = (key & ~j) | ((j >> 1) + 1);
 	if (key < node_key)
 	    return _ucnode_new(j, key_node, node);
 	else
@@ -619,7 +619,7 @@ cucon_ucset_union(cucon_ucset_t lhs, cucon_ucset_t rhs)
 	uintptr_t j;
 	j = cu_uintptr_dcover(lhs_key ^ rhs_key);
 	cu_debug_assert(j >= 2);
-	j = (lhs_key & ~j) | ((j + 1) >> 1);
+	j = (lhs_key & ~j) | ((j >> 1) + 1);
 	if (lhs_key < rhs_key)
 	    return _ucnode_new(j, lhs, rhs);
 	else
@@ -899,7 +899,7 @@ cucon_ucset_filter_image(cucon_ucset_t set, cu_clop(f, cu_bool_t, uintptr_t *))
 static cucon_ucset_t
 _ucleaf_from_monotonic(cu_clop(f, cu_bool_t, uintptr_t *),
 		       cu_bool_t *have_next, uintptr_t *next_key,
-		       uintptr_t cut_max)
+		       uintptr_t clip_max)
 {
     cucon_ucset_leaf_t leaf;
     uintptr_t key, max_key;
@@ -912,7 +912,7 @@ _ucleaf_from_monotonic(cu_clop(f, cu_bool_t, uintptr_t *),
 #endif
     cu_debug_assert(*have_next);
     leaf->key = (*next_key & ~BITSET_MASK) | ((BITSET_MASK + 1) >> 1);
-    max_key = cu_uintptr_min(cut_max, *next_key | BITSET_MASK);
+    max_key = cu_uintptr_min(clip_max, *next_key | BITSET_MASK);
     memset(leaf->bitset, 0, sizeof(leaf->bitset));
     while (*have_next && (key = *next_key) <= max_key) {
 	key &= BITSET_MASK;
@@ -930,83 +930,131 @@ _ucleaf_from_monotonic(cu_clop(f, cu_bool_t, uintptr_t *),
 static cucon_ucset_t
 _ucset_from_monotonic(cu_clop(f, cu_bool_t, uintptr_t *),
 		      cu_bool_t *have_next, uintptr_t *next_key,
-		      uintptr_t cut_max)
+		      uintptr_t clip_max)
 {
-    cucon_ucset_t left;
+    cucon_ucset_t left, right;
     uintptr_t left_key;
     if (!*have_next)
 	return NULL;
     if (_key_is_leaflike(*next_key)) {
-	left = _ucleaf_from_monotonic(f, have_next, next_key, cut_max);
+	left = _ucleaf_from_monotonic(f, have_next, next_key, clip_max);
 	left_key = _ucnode_key(left);
+    }
+    else if (*next_key == 0) {
+	*have_next = cu_call(f, next_key);
+	right = _ucset_from_monotonic(f, have_next, next_key, clip_max);
+	return _ucnode_new(1, NULL, right);
     }
     else {
 	left = NULL;
-	left_key = *next_key;
+	left_key = *next_key - 1;
     }
-    while (*have_next && *next_key <= cut_max) {
-	uintptr_t span_lmask = cu_uintptr_dcover(left_key ^ *next_key);
+    while (*have_next && *next_key <= clip_max) {
+	uintptr_t key_diff = left_key ^ *next_key;
+	uintptr_t span_lmask = key_diff ? cu_uintptr_dcover(key_diff)
+					: ~CU_UINTPTR_C(0);
 	uintptr_t span_min = left_key & ~span_lmask;
 	uintptr_t span_max = left_key | span_lmask;
-	uintptr_t span_key = span_min + ((span_lmask + 1) >> 1);
-	cucon_ucset_t right;
+	uintptr_t span_key = span_min + ((span_lmask >> 1) + 1);
 	if (span_key == *next_key) {
 	    span_key |= 1;
 	    *have_next = cu_call(f, next_key);
 	}
-	right = _ucset_from_monotonic(f, have_next, next_key,
-				      cu_uintptr_max(cut_max, span_max));
+	cu_debug_assert(span_max <= clip_max);
+	cu_debug_assert(left_key != *next_key);
+	right = _ucset_from_monotonic(f, have_next, next_key, span_max);
 	left = _ucnode_new(span_key, left, right);
     }
     return left;
 }
 
-cu_clos_def(_ucset_add_const_helper, cu_prot(cu_bool_t, uintptr_t *val_out),
-    ( cucon_ucset_itr_t itr; ))
+cu_clos_def(_ucset_translate_helper, cu_prot(cu_bool_t, uintptr_t *val_out),
+    ( cucon_ucset_itr_t itr;
+      intptr_t diff;
+      uintptr_t clip_max;
+      cu_bool_t cut_have_next;
+      uintptr_t cut_next_val; ))
 {
-    cu_clos_self(_ucset_add_const_helper);
+    cu_clos_self(_ucset_translate_helper);
+    uintptr_t val;
     if (cucon_ucset_itr_at_end(self->itr))
 	return cu_false;
-    else {
-	*val_out = cucon_ucset_itr_get(self->itr);
-	return cu_true;
+    val = cucon_ucset_itr_get(self->itr);
+    if (val > self->clip_max) {
+	self->cut_next_val = val + self->diff;
+	self->cut_have_next = cu_true;
+	return cu_false;
     }
+    *val_out = val + self->diff;
+    return cu_true;
 }
 
 cucon_ucset_t
-cucon_ucset_cut_add_const(cucon_ucset_t set, intptr_t diff,
-			  uintptr_t cut_min, uintptr_t cut_max)
+cucon_ucset_translate_uclip(cucon_ucset_t set, intptr_t diff,
+			    uintptr_t clip_min, uintptr_t clip_max)
 {
-    _ucset_add_const_helper_t cb;
+    _ucset_translate_helper_t cb;
     uintptr_t next_key;
+    cu_bool_t have_next;
+    cucon_ucset_t S0, S1;
+
+    _ucset_translate_helper_init(&cb);
+    cb.diff = diff;
     cb.itr = cu_salloc(cucon_ucset_itr_size(set));
     cucon_ucset_itr_init(cb.itr, set);
-    while (!cucon_ucset_itr_at_end(cb.itr)) {
+
+    /* Skip elements in [0, clip_min - 1). */
+    do {
+	if (cucon_ucset_itr_at_end(cb.itr))
+	    return NULL;
 	next_key = cucon_ucset_itr_get(cb.itr);
-	if (next_key > cut_max)
-	    break;
-	if (next_key >= cut_min) {
-	    cu_bool_t have_next = cu_true;
-	    return _ucset_from_monotonic(_ucset_add_const_helper_prep(&cb),
-					 &have_next, &next_key, cut_max);
-	}
+	if (next_key > clip_max)
+	    return NULL;
+    } while (next_key < clip_min);
+    have_next = cu_true;
+    next_key += diff;
+
+    /* Process elements in [clip_min, - diff). */
+    cb.clip_max = - diff - 1;
+    cb.cut_have_next = cu_false;
+    if (cb.clip_max < clip_max) {
+	S0 = _ucset_from_monotonic(_ucset_translate_helper_ref(&cb),
+				   &have_next, &next_key, UINTPTR_MAX);
+	have_next = cb.cut_have_next;
+	next_key = cb.cut_next_val;
     }
-    return NULL;
+    else
+	S0 = NULL;
+
+    /* Process elements in [- diff, clip_max]. */
+    cb.clip_max = clip_max;
+    S1 = _ucset_from_monotonic(_ucset_translate_helper_prep(&cb),
+			       &have_next, &next_key, UINTPTR_MAX);
+
+    /* Return the union. */
+    return cucon_ucset_union(S0, S1);
 }
 
 cucon_ucset_t
-cucon_ucset_add_const(cucon_ucset_t set, intptr_t diff)
+cucon_ucset_translate_sclip(cucon_ucset_t set, intptr_t diff,
+			    intptr_t clip_min, intptr_t clip_max)
 {
-    _ucset_add_const_helper_t cb;
-    cu_bool_t have_next = cu_true;
-    uintptr_t next_key;
-    if (set == NULL)
+    if (clip_min > clip_max)
 	return NULL;
-    cb.itr = cu_salloc(cucon_ucset_itr_size(set));
-    cucon_ucset_itr_init(cb.itr, set);
-    next_key = cucon_ucset_itr_get(cb.itr);
-    return _ucset_from_monotonic(_ucset_add_const_helper_prep(&cb),
-				 &have_next, &next_key, UINTPTR_MAX);
+    else if ((clip_min < 0) == (clip_max < 0))
+	return cucon_ucset_translate_uclip(set, diff, clip_min, clip_max);
+    else {
+	cucon_ucset_t S0, S1;
+	S0 = cucon_ucset_translate_uclip(set, diff, 0, clip_max);
+	S1 = cucon_ucset_translate_uclip(set, diff, clip_min, UINTPTR_MAX);
+	return cucon_ucset_union(S0, S1);
+    }
+}
+
+cucon_ucset_t
+cucon_ucset_translate(cucon_ucset_t set, intptr_t diff)
+{
+    return cucon_ucset_translate_uclip(set, diff, 0, UINTPTR_MAX);
 }
 
 static void
