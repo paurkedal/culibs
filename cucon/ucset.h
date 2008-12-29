@@ -32,14 +32,12 @@
 #endif
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cucon_ucset_h cucon/ucset.h: Unsigned Integer Constructive Sets
+/*!\defgroup cucon_ucset_h cucon/ucset.h: Constructive Integer Sets
  * @{\ingroup cucon_maps_and_sets_mod
- * cucon_ucset_t implements sets of integers.
- * It is based on binary trees with a structure based on the bit-pattern
- * of the integer keys.
- * As an optimalisation for dense sets, the trees are replaced by
- * bit-patters at the lowest level without significantly hurting performance
- * for sparse sets.  The main features are
+ * This provides constructive tests of integers, implemented as a trie of
+ * bitsets.
+ * It is thus suitable to represent both sparse and dense sets.
+ * The main features are
  * <ul>
  *   <li>O(1) copy since modifications are non-destructive</li>
  *   <li>Search and insert complexity ranges from <i>O</i>(log <i>n</i>)
@@ -101,7 +99,7 @@ CU_SINLINE cu_bool_t cucon_ucset_is_empty(cucon_ucset_t set)
 /*!Returns the singleton set {\a key}. */
 cucon_ucset_t cucon_ucset_singleton(uintptr_t key);
 
-/*True iff \a set is a singleton set. */
+/*!True iff \a set is a singleton set. */
 cu_bool_t cucon_ucset_is_singleton(cucon_ucset_t set);
 
 /*!Return \a set with \a key inserted. */
@@ -155,9 +153,12 @@ cucon_ucset_t cucon_ucset_image(cucon_ucset_t set,
 cucon_ucset_t cucon_ucset_filter_image(cucon_ucset_t set,
 				       cu_clop(f, cu_bool_t, uintptr_t *));
 
+/*!Returns the set {\e x + \a diff | \e x ∈ \a set ∧ \a cut_min ≤ \e x + \a
+ * diff ≤ \a cut_max}. */
 cucon_ucset_t cucon_ucset_cut_add_const(cucon_ucset_t set, intptr_t diff,
 					uintptr_t cut_min, uintptr_t cut_max);
 
+/*!Returns the set {\e x + \a diff | \e x ∈ \a set}. */
 cucon_ucset_t cucon_ucset_add_const(cucon_ucset_t set, intptr_t diff);
 
 /*!Debug dump of \a set. */
@@ -169,15 +170,21 @@ struct cucon_ucset_itr_s
     cucon_ucset_t node_stack[1];
 };
 
+/*!Returns the size needed and interator over the elements of \a set.  */
 size_t cucon_ucset_itr_size(cucon_ucset_t set);
 
+/*!Initialises \a itr for iteration over \a set.  The memory at \a itr must be
+ * at least the size reported by \ref cucon_ucset_itr_size(\a set). */
 void cucon_ucset_itr_init(cucon_ucset_itr_t itr, cucon_ucset_t set);
 
+/*!Returns an iterator over the elements of \a set. */
 cucon_ucset_itr_t cucon_ucset_itr_new(cucon_ucset_t set);
 
+/*!True iff \a itr is past the last element. */
 CU_SINLINE cu_bool_t cucon_ucset_itr_at_end(cucon_ucset_itr_t itr)
 { return itr->sp < 0; }
 
+/*!Returns and advances over the next element of \a itr. */
 uintptr_t cucon_ucset_itr_get(cucon_ucset_itr_t itr);
 
 /*!@}*/

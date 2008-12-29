@@ -42,7 +42,7 @@ cucon_pcmap_insert_ptr(cucon_pcmap_t map, void *key, void *val)
 						 (uintptr_t)key, val);
 }
 
-/*!\copydoc cucon_pcmap_insert */
+/*!\copydoc cucon_pcmap_insert_ptr */
 CU_SINLINE cucon_pcmap_t
 cucon_pcmap_insert_int(cucon_pcmap_t map, void *key, int val)
 {
