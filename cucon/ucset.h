@@ -69,20 +69,6 @@ struct cucon_ucset_s
     cucon_ucset_t right;
 };
 
-#define CUPRIV_UCSET_BITSET_LOG2_SIZEW 1
-#define CUPRIV_UCSET_BITSET_SIZEW (1 << CUPRIV_UCSET_BITSET_LOG2_SIZEW)
-typedef struct cucon_ucset_leaf_s *cucon_ucset_leaf_t;
-struct cucon_ucset_leaf_s
-{
-#if CUCON_UCSET_ENABLE_HCONS
-    CUOO_HCOBJ
-#else
-    CUOO_OBJ
-#endif
-    uintptr_t key;
-    cu_word_t bitset[CUPRIV_UCSET_BITSET_SIZEW];
-};
-
 #if CUCON_UCSET_ENABLE_HCONS
 extern cuoo_type_t cuconP_ucset_type;
 CU_SINLINE cuoo_type_t cucon_ucset_type()
@@ -168,6 +154,11 @@ cucon_ucset_t cucon_ucset_image(cucon_ucset_t set,
  * may be modified by \a f, is included in the result. */
 cucon_ucset_t cucon_ucset_filter_image(cucon_ucset_t set,
 				       cu_clop(f, cu_bool_t, uintptr_t *));
+
+cucon_ucset_t cucon_ucset_cut_add_const(cucon_ucset_t set, intptr_t diff,
+					uintptr_t cut_min, uintptr_t cut_max);
+
+cucon_ucset_t cucon_ucset_add_const(cucon_ucset_t set, intptr_t diff);
 
 /*!Debug dump of \a set. */
 void cucon_ucset_dump(cucon_ucset_t set, FILE *out);

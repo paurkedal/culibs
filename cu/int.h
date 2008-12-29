@@ -59,39 +59,60 @@ CU_BEGIN_DECLARATIONS
 #  error Unexpected CU_WORD_SIZE
 #endif
 
-/*!The larger or \a x and \a y. */
-CU_SINLINE int cu_int_max(int x, int y) { return x > y? x : y; }
-
 /*!The smaller of \a x and \a y. */
-CU_SINLINE int cu_int_min(int x, int y) { return x < y? x : y; }
+CU_SINLINE int cu_int_min(int x, int y)
+{ return x < y? x : y; }
+
+/*!The larger or \a x and \a y. */
+CU_SINLINE int cu_int_max(int x, int y)
+{ return x > y? x : y; }
+
+/*!\copydoc cu_int_min*/
+CU_SINLINE unsigned int cu_uint_min(unsigned int x, unsigned int y)
+{ return x < y? x : y; }
+
+/*!\copydoc cu_int_max*/
+CU_SINLINE unsigned int cu_uint_max(unsigned int x, unsigned int y)
+{ return x > y? x : y; }
+
+/*!\copydoc cu_int_min*/
+CU_SINLINE long cu_long_min(long x, long y)
+{ return x < y? x : y; }
+
+/*!\copydoc cu_int_max*/
+CU_SINLINE long cu_long_max(long x, long y)
+{ return x > y? x : y; }
+
+/*!\copydoc cu_int_min*/
+CU_SINLINE unsigned long cu_ulong_min(unsigned long x, unsigned long y)
+{ return x < y? x : y; }
+
+/*!\copydoc cu_int_max*/
+CU_SINLINE unsigned long cu_ulong_max(unsigned long x, unsigned long y)
+{ return x > y? x : y; }
+
+/*!\copydoc cu_int_min*/
+CU_SINLINE intptr_t cu_intptr_min(intptr_t x, intptr_t y)
+{ return x < y? x : y; }
+
+/*!\copydoc cu_int_max*/
+CU_SINLINE intptr_t cu_intptr_max(intptr_t x, intptr_t y)
+{ return x > y? x : y; }
+
+/*!\copydoc cu_int_min*/
+CU_SINLINE uintptr_t cu_uintptr_min(uintptr_t x, uintptr_t y)
+{ return x < y? x : y; }
+
+/*!\copydoc cu_int_max*/
+CU_SINLINE uintptr_t cu_uintptr_max(uintptr_t x, uintptr_t y)
+{ return x > y? x : y; }
+
 
 /*!The absolute value af \a x. */
 CU_SINLINE int cu_int_abs(int x) { return x >= 0? x : -x; }
 
-/*!The larger of \a x and \a y. */
-CU_SINLINE unsigned int cu_uint_max(unsigned int x, unsigned int y)
-{ return x > y? x : y; }
-
-/*!The smaller of \a x and \a y. */
-CU_SINLINE unsigned int cu_uint_min(unsigned int x, unsigned int y)
-{ return x < y? x : y; }
-
-/*!The larger or \a x and \a y. */
-CU_SINLINE long cu_long_max(long x, long y) { return x > y? x : y; }
-
-/*!The smaller of \a x and \a y. */
-CU_SINLINE long cu_long_min(long x, long y) { return x < y? x : y; }
-
 /*!The absolute value af \a x. */
 CU_SINLINE long cu_long_abs(long x) { return x >= 0? x : -x; }
-
-/*!The larger of \a x and \a y. */
-CU_SINLINE unsigned long cu_ulong_max(unsigned long x, unsigned long y)
-{ return x > y? x : y; }
-
-/*!The smaller of \a x and \a y. */
-CU_SINLINE unsigned long cu_ulong_min(unsigned long x, unsigned long y)
-{ return x < y? x : y; }
 
 /*!Returns ⌈\a x/\a y⌉. */
 CU_SINLINE unsigned int cu_uint_ceil_div(unsigned int x, unsigned int y)

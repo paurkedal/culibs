@@ -41,7 +41,10 @@ cu_clos_def(_conj_check, cu_prot(cu_bool_t, uintptr_t key),
 
 cu_clos_def(_iter_check, cu_prot(void, uintptr_t key),
     ( size_t count;
+      intptr_t diff;
+      uintptr_t cut_min, cut_max;
       cucon_ucset_t seen;
+      cucon_ucset_t cut_add_out;
       cucon_ucset_itr_t itr; ))
 {
     cu_clos_self(_iter_check);
@@ -52,6 +55,8 @@ cu_clos_def(_iter_check, cu_prot(void, uintptr_t key),
     cu_test_assert(!cucon_ucset_itr_at_end(self->itr));
     keyp = cucon_ucset_itr_get(self->itr);
     cu_test_assert(keyp == key);
+    if (self->cut_min <= key && key <= self->cut_max)
+	self->cut_add_out = cucon_ucset_insert(self->cut_add_out, key);
 }
 
 cu_clos_def(_filter_check, cu_prot(cu_bool_t, uintptr_t key),
@@ -150,10 +155,17 @@ check()
 	iter_cb.count = 0;
 	iter_cb.seen = NULL;
 	iter_cb.itr = cucon_ucset_itr_new(U);
+	iter_cb.diff = lrand48() % 1024;
+	iter_cb.cut_min = lrand48() % 1024;
+	iter_cb.cut_max = lrand48() % 1024;
+	iter_cb.cut_add_out = NULL;
 	cucon_ucset_iter(U, _iter_check_prep(&iter_cb));
 	cu_test_assert(cucon_ucset_eq(iter_cb.seen, U));
 	cu_test_assert(iter_cb.count == count);
 	cu_test_assert(cucon_ucset_itr_at_end(iter_cb.itr));
+	Up = cucon_ucset_cut_add_const(U, iter_cb.diff,
+				       iter_cb.cut_min, iter_cb.cut_max);
+	cu_test_assert(Up == iter_cb.cut_add_out);
 
 	/* Check cucon_ucset_conj. */
 	conj_cb.count = 0;
