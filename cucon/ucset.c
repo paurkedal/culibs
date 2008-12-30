@@ -897,6 +897,125 @@ cucon_ucset_filter_image(cucon_ucset_t set, cu_clop(f, cu_bool_t, uintptr_t *))
 }
 
 static cucon_ucset_t
+_ucleaf_uclip(cucon_ucset_t node, uintptr_t clip_min, uintptr_t clip_max)
+{
+    uintptr_t node_key = node->key;
+    uintptr_t node_min = node_key & ~BITSET_MASK;
+    uintptr_t node_max = node_key | BITSET_MASK;
+    if (clip_max < node_min || clip_min > node_max)
+	return NULL;
+    else if (clip_min <= node_min && clip_max >= node_max)
+	return node;
+    else {
+	int i;
+	uintptr_t bs_min, bs_max;
+	cucon_ucset_leaf_t new_leaf;
+	cu_bool_t is_empty = cu_true;
+#if CUCON_UCSET_ENABLE_HCONS
+	cuoo_hctem_decl(cucon_ucset_leaf, tem);
+	cuoo_hctem_init(cucon_ucset_leaf, tem);
+	new_leaf = cuoo_hctem_get(cucon_ucset_leaf, tem);
+#else
+	new_leaf = cu_gnew(struct cucon_ucset_leaf_s);
+#endif
+	bs_min = node_min;
+	bs_max = node_min + CU_WORD_P2WIDTH;
+	for (i = 0; i < BITSET_SIZEW; ++i) {
+	    if (clip_min >= bs_max || clip_max <= bs_min)
+		new_leaf->bitset[i] = 0;
+	    else {
+		cu_word_t bitset;
+		uintptr_t mask = ~CU_UINTPTR_C(0);
+		if (clip_min > bs_min)
+		    mask &= ~((CU_UINTPTR_C(1) << (clip_min - bs_min)) - 1);
+		if (clip_max < bs_max)
+		    mask &= (CU_UINTPTR_C(2) << (clip_max - bs_min)) - 1;
+		bitset = ((cucon_ucset_leaf_t)node)->bitset[i] & mask;
+		new_leaf->bitset[i] = bitset;
+		if (bitset)
+		    is_empty = cu_false;
+	    }
+	    bs_min = bs_max;
+	    bs_max += CU_WORD_P2WIDTH;
+	}
+	if (is_empty)
+	    return NULL;
+	new_leaf->key = node->key;
+#if CUCON_UCSET_ENABLE_HCONS
+	return cuoo_hctem_new(cucon_ucset_leaf, tem);
+#else
+	return (cucon_ucset_t)new_leaf;
+#endif
+    }
+}
+
+static cucon_ucset_t
+_ucset_uclip(cucon_ucset_t node, uintptr_t clip_min, uintptr_t clip_max)
+{
+    uintptr_t node_key, node_mask, node_min, node_max;
+tail_call:
+    if (node == NULL)
+	return NULL;
+    node_key = _ucnode_key(node);
+    node_mask = node_key ^ (node_key - 1);
+    node_min = node_key & ~node_mask;
+    node_max = node_key | node_mask;
+    if (clip_min <= node_min && node_max <= clip_max)
+	return node;
+    else if (clip_max < node_min)
+	return NULL;
+    else if (clip_min > node_max)
+	return NULL;
+    else if (_key_is_leaflike(node_key))
+	return _ucleaf_uclip(node, clip_min, clip_max);
+    else if (clip_max < node_key) {
+	node = node->left;
+	goto tail_call;
+    }
+    else if (clip_min > node_key) {
+	node = node->right;
+	goto tail_call;
+    }
+    else {
+	cucon_ucset_t new_left, new_right;
+	cu_debug_assert(clip_min <= node_key && node_key <= clip_max);
+	new_left = _ucset_uclip(node->left, clip_min, clip_max);
+	new_right = _ucset_uclip(node->right, clip_min, clip_max);
+	if (node->key & 1)
+	    return _ucnode_new(node->key, new_left, new_right);
+	else if (!new_left)
+	    return new_right;
+	else if (!new_right)
+	    return new_left;
+	else
+	    return _ucnode_new(node->key, new_left, new_right);
+    }
+}
+
+cucon_ucset_t
+cucon_ucset_uclip(cucon_ucset_t node, uintptr_t clip_min, uintptr_t clip_max)
+{
+    if (clip_min > clip_max)
+	return NULL;
+    else
+	return _ucset_uclip(node, clip_min, clip_max);
+}
+
+cucon_ucset_t
+cucon_ucset_sclip(cucon_ucset_t node, intptr_t clip_min, intptr_t clip_max)
+{
+    if (clip_min > clip_max)
+	return NULL;
+    else if ((clip_min < 0) == (clip_max < 0))
+	return _ucset_uclip(node, clip_min, clip_max);
+    else {
+	cucon_ucset_t S0 = _ucset_uclip(node, 0, clip_max);
+	cucon_ucset_t S1 = _ucset_uclip(node, clip_min, UINTPTR_MAX);
+	return cucon_ucset_union(S0, S1);
+    }
+}
+
+static cucon_ucset_t
 _ucleaf_from_monotonic(cu_clop(f, cu_bool_t, uintptr_t *),
 		       cu_bool_t *have_next, uintptr_t *next_key,
 		       uintptr_t clip_max)
@@ -1057,6 +1176,41 @@ cucon_ucset_translate(cucon_ucset_t set, intptr_t diff)
     return cucon_ucset_translate_uclip(set, diff, 0, UINTPTR_MAX);
 }
 
+cu_clos_def(_ucset_fprint_helper, cu_prot(void, uintptr_t x),
+    ( FILE *out;
+      char const *format;
+      int i; ))
+{
+    cu_clos_self(_ucset_fprint_helper);
+    if (self->i++)
+	fputs(", ", self->out);
+    fprintf(self->out, self->format, x);
+}
+
+void
+cucon_ucset_fprint_uintptr(cucon_ucset_t set, FILE *out)
+{
+    _ucset_fprint_helper_t cb;
+    cb.out = out;
+    cb.format = "%"PRIuPTR;
+    cb.i = 0;
+    fputc('{', out);
+    cucon_ucset_iter(set, _ucset_fprint_helper_prep(&cb));
+    fputc('}', out);
+}
+
+void
+cucon_ucset_fprint_intptr(cucon_ucset_t set, FILE *out)
+{
+    _ucset_fprint_helper_t cb;
+    cb.out = out;
+    cb.format = "%"PRIdPTR;
+    cb.i = 0;
+    fputc('{', out);
+    cucon_ucset_iter(set, _ucset_fprint_helper_prep(&cb));
+    fputc('}', out);
+}
+
 static void
 _ucset_dump(cucon_ucset_t tree, int ind, FILE *out)
 {
@@ -1100,8 +1254,11 @@ cucon_ucset_dump(cucon_ucset_t tree, FILE *out)
 size_t
 cucon_ucset_itr_size(cucon_ucset_t set)
 {
-    uintptr_t key = _ucnode_key(set);
+    uintptr_t key;
     int l;
+    if (!set)
+	return sizeof(struct cucon_ucset_itr_s) - sizeof(cucon_ucset_t);
+    key = _ucnode_key(set);
     if (_key_is_leaflike(key))
 	l = 1;
     else if (key == 0)

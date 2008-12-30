@@ -153,6 +153,14 @@ cucon_ucset_t cucon_ucset_image(cucon_ucset_t set,
 cucon_ucset_t cucon_ucset_filter_image(cucon_ucset_t set,
 				       cu_clop(f, cu_bool_t, uintptr_t *));
 
+/*!Returns \a set ∩ [clip_min, clip_max], using unsigned comparison. */
+cucon_ucset_t cucon_ucset_uclip(cucon_ucset_t set,
+				uintptr_t clip_min, uintptr_t clip_max);
+
+/*!Returns \a set ∩ [clip_min, clip_max], using signed comparison. */
+cucon_ucset_t cucon_ucset_sclip(cucon_ucset_t set,
+				intptr_t clip_min, intptr_t clip_max);
+
 /*!Returns the set {\e x + \a diff | \e x ∈ \a set ∧ \a clip_min ≤ \e x ≤ \a
  * clip_max}. */
 cucon_ucset_t cucon_ucset_translate_uclip(cucon_ucset_t set, intptr_t diff,
@@ -166,6 +174,14 @@ cucon_ucset_t cucon_ucset_translate_sclip(cucon_ucset_t set, intptr_t diff,
 
 /*!Returns the set {\e x + \a diff | \e x ∈ \a set}. */
 cucon_ucset_t cucon_ucset_translate(cucon_ucset_t set, intptr_t diff);
+
+/*!Print \a set to \a out as a set of unsigend integers using normal set
+ * notation. */
+void cucon_ucset_fprint_uintptr(cucon_ucset_t set, FILE *out);
+
+/*!Print \a set to \a out as a set of signed integers using normal set
+ * notation. */
+void cucon_ucset_fprint_intptr(cucon_ucset_t set, FILE *out);
 
 /*!Debug dump of \a set. */
 void cucon_ucset_dump(cucon_ucset_t set, FILE *out);

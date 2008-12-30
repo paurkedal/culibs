@@ -80,11 +80,12 @@ check()
     int i;
     static cu_word_t bitset[CHECK_MOD/WORD_WIDTH];
     for (i = 0; i < CHECK_REPEAT; ++i) {
-	cucon_ucset_t U = NULL, Ut, Up, Upp;
+	cucon_ucset_t U = NULL, Ut, Uc, Uct, Up, Upp;
 	cucon_ucset_t S[3] = {NULL, NULL, NULL}, S01, S12, S1p;
 	int j;
 	uintptr_t minkey = UINTPTR_MAX;
 	uintptr_t maxkey = 0;
+	uintptr_t cut_min, cut_max;
 	_conj_check_t conj_cb;
 	_iter_check_t iter_cb;
 	_filter_check_t filter_cb;
@@ -158,28 +159,34 @@ check()
 	iter_cb.seen = NULL;
 	iter_cb.itr = cucon_ucset_itr_new(U);
 	iter_cb.diff = lrand48() % 1024 - 512;
-	iter_cb.cut_min = lrand48() % 1024 - 512;
-	iter_cb.cut_max = lrand48() % 1024 - 512;
+	iter_cb.cut_min = cut_min = lrand48() % 1024 - 512;
+	iter_cb.cut_max = cut_max = lrand48() % 1024 - 512;
 	iter_cb.cut_add_out = NULL;
 	cucon_ucset_iter(U, _iter_check_prep(&iter_cb));
 	cu_test_assert(cucon_ucset_eq(iter_cb.seen, U));
 	cu_test_assert(iter_cb.count == count);
 	cu_test_assert(cucon_ucset_itr_at_end(iter_cb.itr));
-	Up = cucon_ucset_translate_uclip(U, iter_cb.diff,
-					iter_cb.cut_min, iter_cb.cut_max);
+	Up = cucon_ucset_translate_uclip(U, iter_cb.diff, cut_min, cut_max);
 	Ut = cucon_ucset_translate(U, iter_cb.diff);
 	cu_test_assert(cucon_ucset_eq(Up, iter_cb.cut_add_out));
-	if (((intptr_t)iter_cb.cut_min < 0) ==
-	    ((intptr_t)iter_cb.cut_max < 0)) {
+	Uc = cucon_ucset_uclip(U, cut_min, cut_max);
+	Uct = cucon_ucset_translate(Uc, iter_cb.diff);
+	cu_test_assert(cucon_ucset_eq(Up, Uct));
+	if (((intptr_t)cut_min < 0) == ((intptr_t)cut_max < 0)) {
 	    Upp = cucon_ucset_translate_sclip(U, iter_cb.diff,
-					     iter_cb.cut_min, iter_cb.cut_max);
+					      cut_min, cut_max);
 	    cu_test_assert(cucon_ucset_eq(Upp, Up));
+	    Uc = cucon_ucset_sclip(U, cut_min, cut_max);
+	    Uct = cucon_ucset_translate(Uc, iter_cb.diff);
+	    cu_test_assert(cucon_ucset_eq(Uct, Up));
 	}
-	else if ((intptr_t)iter_cb.cut_max < (intptr_t)iter_cb.cut_min) {
+	else if ((intptr_t)cut_max < (intptr_t)cut_min) {
 	    Upp = cucon_ucset_translate_sclip(U, iter_cb.diff,
-					     iter_cb.cut_max + 1,
-					     iter_cb.cut_min - 1);
+					      cut_max + 1, cut_min - 1);
 	    cu_test_assert(cucon_ucset_eq(Upp, cucon_ucset_compl(Ut, Up)));
+	    Uc = cucon_ucset_sclip(U, cut_max + 1, cut_min - 1);
+	    Uct = cucon_ucset_translate(Uc, iter_cb.diff);
+	    cu_test_assert(cucon_ucset_eq(Uct, Upp));
 	}
 
 	/* Check cucon_ucset_conj. */
