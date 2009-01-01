@@ -21,9 +21,18 @@
 #include <cu/int.h>
 #include <string.h>
 
-#define CHECK_SIZE 0x100
-#define CHECK_MOD CHECK_SIZE
-#define CHECK_REPEAT 1000
+#define CHECK_REPEAT	500
+
+#define FULL_COUNT	0x140
+#define DENSE_COUNT	0x100
+#define DENSE_MIN	-0x80
+#define DENSE_MOD	0x200
+#define DENSE_MAX	(DENSE_MIN + DENSE_MOD)
+
+#define TC_DIFF_MIN	-512
+#define TC_DIFF_SPAN	1024
+#define TC_CUT_MIN	-512
+#define TC_CUT_SPAN	1024
 
 #define WORD_WIDTH (sizeof(cu_word_t)*8)
 
@@ -33,7 +42,7 @@ cu_clos_def(_conj_check, cu_prot(cu_bool_t, uintptr_t key),
 {
     cu_clos_self(_conj_check);
     cucon_ucset_t seen = cucon_ucset_insert(self->seen, key);
-    cu_debug_assert(seen != self->seen);
+    cu_test_assert(seen != self->seen);
     self->seen = seen;
     ++self->count;
     return cu_true;
@@ -78,7 +87,7 @@ void
 check()
 {
     int i;
-    static cu_word_t bitset[CHECK_MOD/WORD_WIDTH];
+    static cu_word_t bitset[DENSE_MOD/WORD_WIDTH];
     for (i = 0; i < CHECK_REPEAT; ++i) {
 	cucon_ucset_t U = NULL, Ut, Uc, Uct, Up, Upp;
 	cucon_ucset_t S[3] = {NULL, NULL, NULL}, S01, S12, S1p;
@@ -92,32 +101,45 @@ check()
 	size_t count = 0;
 
 	memset(bitset, 0, sizeof(bitset));
-	for (j = 0; j < CHECK_SIZE; ++j) {
+	for (j = 0; j < FULL_COUNT; ++j) {
 	    int choice;
-	    unsigned long key = lrand48()%(CHECK_MOD/2 - 1);
+	    uintptr_t ukey;
+	    uintptr_t key;
 	    cuex_t Up;
 	    cu_bool_t got_it;
 
-	    got_it = !!(bitset[key/WORD_WIDTH]
-			& (CU_WORD_C(1) << key%WORD_WIDTH));
-	    bitset[key/WORD_WIDTH] |= CU_WORD_C(1) << key%WORD_WIDTH;
+	    if (j < DENSE_COUNT) {
+		ukey = lrand48() % DENSE_MOD;
+		key = ukey + DENSE_MIN;
+		got_it = !!(bitset[ukey/WORD_WIDTH]
+			    & (CU_WORD_C(1) << ukey%WORD_WIDTH));
+	    }
+	    else {
+		key = lrand48();
+		got_it = cucon_ucset_find(U, key);
+	    }
+	    if (DENSE_MIN <= (intptr_t)key && (intptr_t)key < DENSE_MAX) {
+		ukey = key - DENSE_MIN;
+		bitset[ukey/WORD_WIDTH] |= CU_WORD_C(1) << ukey%WORD_WIDTH;
+	    }
+
 	    Up = cucon_ucset_insert(U, key);
 	    if (key < minkey) {
 		minkey = key;
-		cu_debug_assert(minkey == cucon_ucset_min_ukey(Up));
+		cu_test_assert(minkey == cucon_ucset_min_ukey(Up));
 	    }
 	    if (key > maxkey) {
 		maxkey = key;
-		cu_debug_assert(maxkey == cucon_ucset_max_ukey(Up));
+		cu_test_assert(maxkey == cucon_ucset_max_ukey(Up));
 	    }
 	    if (j == 0) {
-		cu_debug_assert(cucon_ucset_is_singleton(Up));
-		cu_debug_assert(cucon_ucset_singleton(key) == Up);
+		cu_test_assert(cucon_ucset_is_singleton(Up));
+		cu_test_assert(cucon_ucset_eq(cucon_ucset_singleton(key), Up));
 	    }
 	    else if (!got_it)
-		cu_debug_assert(!cucon_ucset_is_singleton(Up));
-	    cu_debug_assert(got_it == cucon_ucset_eq(Up, U));
+		cu_test_assert(!cucon_ucset_is_singleton(Up));
 	    cu_test_assert_int_eq(got_it, cucon_ucset_find(U, key));
+	    cu_test_assert(got_it == cucon_ucset_eq(Up, U));
 	    cu_test_assert_size_eq(count + !got_it, cucon_ucset_card(Up));
 	    if (got_it)
 		cu_test_assert(cucon_ucset_eq(U, Up));
@@ -135,10 +157,11 @@ check()
 	    }
 	}
 
-	for (j = 0; j < CHECK_MOD; ++j) {
+	for (j = 0; j < DENSE_MOD; ++j) {
 	    cu_bool_t bit = !!(bitset[j/WORD_WIDTH]
 			       & (CU_WORD_C(1) << j%WORD_WIDTH));
-	    cu_bool_t find = cucon_ucset_find(U, j);
+	    uintptr_t key = j + DENSE_MIN;
+	    cu_bool_t find = cucon_ucset_find(U, key);
 	    if (bit != find) {
 		cucon_ucset_dump(U, stdout);
 		printf(bit
@@ -158,9 +181,9 @@ check()
 	iter_cb.count = 0;
 	iter_cb.seen = NULL;
 	iter_cb.itr = cucon_ucset_itr_new(U);
-	iter_cb.diff = lrand48() % 1024 - 512;
-	iter_cb.cut_min = cut_min = lrand48() % 1024 - 512;
-	iter_cb.cut_max = cut_max = lrand48() % 1024 - 512;
+	iter_cb.diff = lrand48() % TC_DIFF_SPAN + TC_DIFF_MIN;
+	iter_cb.cut_min = cut_min = lrand48() % TC_CUT_SPAN + TC_CUT_MIN;
+	iter_cb.cut_max = cut_max = lrand48() % TC_CUT_SPAN - TC_CUT_MIN;
 	iter_cb.cut_add_out = NULL;
 	cucon_ucset_iter(U, _iter_check_prep(&iter_cb));
 	cu_test_assert(cucon_ucset_eq(iter_cb.seen, U));
