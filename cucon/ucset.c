@@ -21,6 +21,7 @@
 #include <cu/ptr.h>
 #include <cuoo/halloc.h>
 #include <cuoo/intf.h>
+#include <cuoo/hcobj.h>
 #include <inttypes.h>
 
 #define BITSET_LOG2_SIZEW 1
@@ -28,6 +29,30 @@
 #define BITSET_LOG2_WIDTH (BITSET_LOG2_SIZEW + CU_WORD_LOG2_P2WIDTH)
 #define BITSET_WIDTH (BITSET_SIZEW*CU_WORD_P2WIDTH)
 #define BITSET_MASK  (BITSET_WIDTH - 1)
+#define LEAFLIKE_ZERO 1
+
+struct cucon_ucset_s
+{
+#if CUCON_UCSET_ENABLE_HCONS
+    CUOO_HCOBJ
+#else
+    CUOO_OBJ
+#endif
+    uintptr_t key;
+    cucon_ucset_t left;
+    cucon_ucset_t right;
+};
+
+#if CUCON_UCSET_ENABLE_HCONS
+static cuoo_type_t _ucset_type;
+static cuoo_type_t _ucset_leaf_type;
+
+CU_SINLINE cuoo_type_t cucon_ucset_type()
+{ return _ucset_type; }
+
+CU_SINLINE cuoo_type_t cucon_ucset_leaf_type()
+{ return _ucset_leaf_type; }
+#endif
 
 typedef struct cucon_ucset_leaf_s *cucon_ucset_leaf_t;
 struct cucon_ucset_leaf_s
@@ -46,7 +71,11 @@ CU_SINLINE cu_bool_t
 _key_covers(uintptr_t key0, uintptr_t key1)
 {
     uintptr_t mask0 = ~(key0 ^ (key0 - CU_UINTPTR_C(1)));
+#ifdef LEAFLIKE_ZERO
+    return key0 && (key0 & mask0) == (key1 & mask0) && ((key1 & ~mask0) || !key1);
+#else
     return (key0 & mask0) == (key1 & mask0) && (key1 & ~mask0);
+#endif
 }
 CU_SINLINE cu_bool_t
 _key_coverseq(uintptr_t key0, uintptr_t key1)
@@ -58,12 +87,13 @@ _key_coverseq(uintptr_t key0, uintptr_t key1)
 CU_SINLINE cu_bool_t
 _key_is_leaflike(uintptr_t key)
 {
-    if (key) {
-	uintptr_t mask = key ^ (key - CU_UINTPTR_C(1));
-	return mask < CU_WORD_P2WIDTH*BITSET_SIZEW;
-    }
-    else
-	return cu_false;
+    uintptr_t mask;
+#ifdef LEAFLIKE_ZERO
+    if (!key)
+	return cu_true;
+#endif
+    mask = key ^ (key - CU_UINTPTR_C(1));
+    return mask < CU_WORD_P2WIDTH*BITSET_SIZEW;
 }
 
 CU_SINLINE uintptr_t
@@ -448,6 +478,49 @@ cucon_ucset_subeq(cucon_ucset_t lhs, cucon_ucset_t rhs)
     return cu_true;
 }
 
+cu_bool_t
+cucon_ucset_disjoint(cucon_ucset_t lhs, cucon_ucset_t rhs)
+{
+    while (lhs && rhs) {
+	uintptr_t lhs_key, rhs_key;
+	if (lhs == rhs)
+	    return cu_false;
+	lhs_key = _ucnode_key(lhs);
+	rhs_key = _ucnode_key(rhs);
+	if (lhs_key == rhs_key) {
+	    if (_key_is_leaflike(lhs_key)) {
+		int i;
+		for (i = 0; i < BITSET_SIZEW; ++i)
+		    if (((cucon_ucset_leaf_t)lhs)->bitset[i] &
+			((cucon_ucset_leaf_t)rhs)->bitset[i])
+			return cu_false;
+		return cu_true;
+	    }
+	    else if ((unsigned int)lhs->key & (unsigned int)rhs->key & 1)
+		return cu_false;
+	    else if (!cucon_ucset_disjoint(lhs->left, rhs->left))
+		return cu_false;
+	    lhs = lhs->right;
+	    rhs = rhs->right;
+	}
+	else if (_key_covers(rhs_key, lhs_key)) {
+	    if (lhs_key < rhs_key)
+		rhs = rhs->left;
+	    else
+		rhs = rhs->right;
+	}
+	else if (_key_covers(lhs_key, rhs_key)) {
+	    if (rhs_key < lhs_key)
+		lhs = lhs->left;
+	    else
+		lhs = lhs->right;
+	}
+	else
+	    return cu_true;
+    }
+    return cu_true;
+}
+
 cucon_ucset_t
 cucon_ucset_singleton(uintptr_t key)
 {
@@ -824,7 +897,7 @@ cucon_ucset_card(cucon_ucset_t node)
 #endif
 
 uintptr_t
-cucon_ucset_min_ukey(cucon_ucset_t set)
+cucon_ucset_umin(cucon_ucset_t set)
 {
     uintptr_t min = UINTPTR_MAX;
     while (set) {
@@ -846,7 +919,7 @@ cucon_ucset_min_ukey(cucon_ucset_t set)
 }
 
 uintptr_t
-cucon_ucset_max_ukey(cucon_ucset_t set)
+cucon_ucset_umax(cucon_ucset_t set)
 {
     uintptr_t max = 0;
     while (set) {
@@ -865,6 +938,77 @@ cucon_ucset_max_ukey(cucon_ucset_t set)
 	set = set->right;
     }
     return max;
+}
+
+intptr_t
+cucon_ucset_smin(cucon_ucset_t node)
+{
+    uintptr_t node_key;
+    intptr_t min_key;
+    if (node == NULL)
+	return INTPTR_MAX;
+    min_key = INTPTR_MAX;
+    node_key = _ucnode_key(node);
+#ifndef LEAFLIKE_ZERO
+    if (node_key == 0) {
+	if (node->key & 1)
+	    min_key = 0;
+	node = node->right;
+	if (node == NULL)
+	    return min_key;
+	node_key = _ucnode_key(node);
+    }
+#endif
+    if (node_key == INTPTR_MIN) {
+	if (node->key & 1)
+	    return INTPTR_MIN;
+	if (node->right)
+	    node = node->right;
+	else {
+	    node = node->left;
+	    if (node == NULL)
+		return min_key;
+	}
+    }
+    else if ((intptr_t)node_key > min_key)
+	return 0;
+    return cucon_ucset_umin(node);
+}
+
+intptr_t
+cucon_ucset_smax(cucon_ucset_t node)
+{
+    uintptr_t node_key;
+    intptr_t max_key;
+    if (node == NULL)
+	return INTPTR_MIN;
+    max_key = INTPTR_MIN;
+    node_key = _ucnode_key(node);
+#ifndef LEAFLIKE_ZERO
+    if (node_key == 0) {
+	if (node->key & 1)
+	    max_key = 0;
+	node = node->right;
+	if (node == NULL)
+	    return max_key;
+	node_key = _ucnode_key(node);
+    }
+#endif
+    if (node_key == INTPTR_MIN) {
+	if (node->left)
+	    node = node->left;
+	else if (max_key == 0)
+	    return 0;
+	else {
+	    node = node->right;
+	    if (node == NULL)
+		return max_key;
+	}
+    }
+    else if ((intptr_t)node_key < max_key)
+	return 0;
+
+    return cucon_ucset_umax(node);
 }
 
 cu_clos_def(_ucset_image_helper, cu_prot(void, uintptr_t key),
@@ -1066,11 +1210,13 @@ _ucset_from_monotonic(cu_clop(f, cu_bool_t, uintptr_t *),
 	left = _ucleaf_from_monotonic(f, have_next, next_key, clip_max);
 	left_key = _ucnode_key(left);
     }
+#ifndef LEAFLIKE_ZERO
     else if (*next_key == 0) {
 	*have_next = cu_call(f, next_key);
 	right = _ucset_from_monotonic(f, have_next, next_key, clip_max);
 	return _ucnode_new(1, NULL, right);
     }
+#endif
     else {
 	left = NULL;
 	left_key = *next_key - 1;
@@ -1272,8 +1418,10 @@ cucon_ucset_itr_size(cucon_ucset_t set)
     key = _ucnode_key(set);
     if (_key_is_leaflike(key))
 	l = 1;
+#ifndef LEAFLIKE_ZERO
     else if (key == 0)
 	l = CUCONF_WIDTHOF_INTPTR_T + BITSET_LOG2_WIDTH + 2;
+#endif
     else
 	l = cu_uintptr_log2_lowbit(key) - BITSET_LOG2_WIDTH + 2;
     return sizeof(struct cucon_ucset_itr_s) + (l - 1)*sizeof(cucon_ucset_t);
@@ -1403,19 +1551,14 @@ _ucset_impl(cu_word_t intf_number, ...)
     }
 }
 
-#if CUCON_UCSET_ENABLE_HCONS
-cuoo_type_t cuconP_ucset_type;
-cuoo_type_t cuconP_ucset_leaf_type;
-#endif
-
 void
 cuconP_ucset_init()
 {
     cu_debug_assert_once();
 #if CUCON_UCSET_ENABLE_HCONS
-    cuconP_ucset_type = cuoo_type_new_opaque_hcs(
+    _ucset_type = cuoo_type_new_opaque_hcs(
 	_ucset_impl, sizeof(struct cucon_ucset_s) - CUOO_HCOBJ_SHIFT);
-    cuconP_ucset_leaf_type = cuoo_type_new_opaque_hcs(
+    _ucset_leaf_type = cuoo_type_new_opaque_hcs(
 	_ucset_impl, sizeof(struct cucon_ucset_leaf_s) - CUOO_HCOBJ_SHIFT);
 #endif
 }

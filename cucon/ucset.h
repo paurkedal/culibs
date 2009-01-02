@@ -18,18 +18,13 @@
 #ifndef CUCON_UCSET_H
 #define CUCON_UCSET_H
 
-/* This tuning option has a significant performance hit on insertions, but
- * may be good if client needs quick equality between sets. */
+/* This tuning option has a significant constant performance hit on insertions,
+ * but reduced memory usage and provides O(1) equality. */
 #define CUCON_UCSET_ENABLE_HCONS 1
 
 #include <cucon/fwd.h>
 #include <stdio.h>
 #include <cu/clos.h>
-#if CUCON_UCSET_ENABLE_HCONS
-#  include <cuoo/hcobj.h>
-#else
-#  include <cuoo/fwd.h>
-#endif
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_ucset_h cucon/ucset.h: Constructive Integer Sets
@@ -55,28 +50,6 @@ CU_BEGIN_DECLARATIONS
  * \ref cucon_pmap_h "cucon/pmap.h": This hash map can also be used as a set.
  */
 
-struct cucon_ucset_s
-{
-#if CUCON_UCSET_ENABLE_HCONS
-    CUOO_HCOBJ
-#else
-    CUOO_OBJ
-#endif
-    uintptr_t key;
-    cucon_ucset_t left;
-    cucon_ucset_t right;
-};
-
-#if CUCON_UCSET_ENABLE_HCONS
-extern cuoo_type_t cuconP_ucset_type;
-CU_SINLINE cuoo_type_t cucon_ucset_type()
-{ return cuconP_ucset_type; }
-
-extern cuoo_type_t cuconP_ucset_leaf_type;
-CU_SINLINE cuoo_type_t cucon_ucset_leaf_type()
-{ return cuconP_ucset_leaf_type; }
-#endif
-
 /*!True iff \a set0 and \a set1 contains exactly the same elements. */
 #if CUCON_UCSET_ENABLE_HCONS
 CU_SINLINE cu_bool_t
@@ -88,6 +61,9 @@ cu_bool_t cucon_ucset_eq(cucon_ucset_t set0, cucon_ucset_t set1);
 
 /*!True iff \a set0 ⊆ \a set1. */
 cu_bool_t cucon_ucset_subeq(cucon_ucset_t set0, cucon_ucset_t set1);
+
+/*!True iff \a set0 ∩ \a set1 = ∅. */
+cu_bool_t cucon_ucset_disjoint(cucon_ucset_t set0, cucon_ucset_t set1);
 
 /*!Returs the empty set (\c NULL). */
 CU_SINLINE cucon_ucset_t cucon_ucset_empty(void) { return NULL; }
@@ -130,13 +106,17 @@ void cucon_ucset_iter(cucon_ucset_t set, cu_clop(f, void, uintptr_t));
 /*!Returns the cardinality of \a set. */
 size_t cucon_ucset_card(cucon_ucset_t set);
 
-/*!Returns the minimum element of \a set, considering elements to be
- * unsigned. */
-uintptr_t cucon_ucset_min_ukey(cucon_ucset_t set);
+/*!Returns the minimum element of \a set, using unsigned comparison. */
+uintptr_t cucon_ucset_umin(cucon_ucset_t set);
 
-/*!Returns the maximum element of \a set, considering elements to be
- * unsigned. */
-uintptr_t cucon_ucset_max_ukey(cucon_ucset_t set);
+/*!Returns the maximum element of \a set, using unsigned comparison. */
+uintptr_t cucon_ucset_umax(cucon_ucset_t set);
+
+/*!Returns the minimum element of \a set, using signed comparison. */
+intptr_t cucon_ucset_smin(cucon_ucset_t set);
+
+/*!Returns the maximum element of \a set, using signed comparison. */
+intptr_t cucon_ucset_smax(cucon_ucset_t set);
 
 /*!Returns {\e x | \e x ∈ \a set ∧ \a f(\e x)}. */
 cucon_ucset_t cucon_ucset_filter(cucon_ucset_t set,

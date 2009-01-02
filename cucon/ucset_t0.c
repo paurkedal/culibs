@@ -92,8 +92,11 @@ check()
 	cucon_ucset_t U = NULL, Ut, Uc, Uct, Up, Upp;
 	cucon_ucset_t S[3] = {NULL, NULL, NULL}, S01, S12, S1p;
 	int j;
-	uintptr_t minkey = UINTPTR_MAX;
-	uintptr_t maxkey = 0;
+	uintptr_t key;
+	uintptr_t umin = UINTPTR_MAX;
+	uintptr_t umax = 0;
+	intptr_t smin = INTPTR_MAX;
+	intptr_t smax = INTPTR_MIN;
 	uintptr_t cut_min, cut_max;
 	_conj_check_t conj_cb;
 	_iter_check_t iter_cb;
@@ -104,8 +107,7 @@ check()
 	for (j = 0; j < FULL_COUNT; ++j) {
 	    int choice;
 	    uintptr_t ukey;
-	    uintptr_t key;
-	    cuex_t Up;
+	    cucon_ucset_t Up;
 	    cu_bool_t got_it;
 
 	    if (j < DENSE_COUNT) {
@@ -124,14 +126,16 @@ check()
 	    }
 
 	    Up = cucon_ucset_insert(U, key);
-	    if (key < minkey) {
-		minkey = key;
-		cu_test_assert(minkey == cucon_ucset_min_ukey(Up));
-	    }
-	    if (key > maxkey) {
-		maxkey = key;
-		cu_test_assert(maxkey == cucon_ucset_max_ukey(Up));
-	    }
+
+	    if (key < umin)		umin = key;
+	    if (key > umax)		umax = key;
+	    if ((intptr_t)key < smin)	smin = key;
+	    if ((intptr_t)key > smax)	smax = key;
+	    cu_test_assert(umin == cucon_ucset_umin(Up));
+	    cu_test_assert(umax == cucon_ucset_umax(Up));
+	    cu_test_assert(smin == cucon_ucset_smin(Up));
+	    cu_test_assert(smax == cucon_ucset_smax(Up));
+
 	    if (j == 0) {
 		cu_test_assert(cucon_ucset_is_singleton(Up));
 		cu_test_assert(cucon_ucset_eq(cucon_ucset_singleton(key), Up));
@@ -172,8 +176,6 @@ check()
 	}
 
 	cu_test_assert_size_eq(count, cucon_ucset_card(U));
-	cu_test_assert(minkey == cucon_ucset_min_ukey(U));
-	cu_test_assert(maxkey == cucon_ucset_max_ukey(U));
 	for (j = 0; j < 3; ++j)
 	    cu_test_assert(cucon_ucset_subeq(S[j], U));
 
@@ -247,6 +249,14 @@ check()
 	cu_test_assert(cucon_ucset_eq(S01, cucon_ucset_compl(U, S[2])));
 	cu_test_assert(cucon_ucset_eq(S12, cucon_ucset_compl(U, S[0])));
 	cu_test_assert(cucon_ucset_eq(S[0], cucon_ucset_compl(S01, S[1])));
+
+	/* Disjoint */
+	cu_test_assert(cucon_ucset_disjoint(S[0], S[1]));
+	cu_test_assert(cucon_ucset_is_empty(S[1]) ==
+		       cucon_ucset_disjoint(S01, S12));
+	key = lrand48();
+	cu_test_assert(!cucon_ucset_disjoint(cucon_ucset_insert(S[0], key),
+					     cucon_ucset_insert(S[1], key)));
     }
 }
 
