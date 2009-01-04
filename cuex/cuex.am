@@ -13,6 +13,7 @@ cuex_headers = \
 	cuex/labelling.h \
 	cuex/ltree.h \
 	cuex/monoid.h \
+	cuex/occurtree.h \
 	cuex/opn.h \
 	cuex/opntpl.h \
 	cuex/oprinfo.h \
@@ -51,6 +52,7 @@ cuex_sources = \
 	cuex/labelling.c \
 	cuex/ltree.c \
 	cuex/monoid.c \
+	cuex/occurtree.c \
 	cuex/opntpl.c \
 	cuex/opn.c \
 	cuex/oprinfo.c \
@@ -104,6 +106,7 @@ cuex_check_programs = \
 	cuex/binding_t0 \
 	cuex/labelling_t0 \
 	cuex/monoid_t0 \
+	cuex/occurtree_t0 \
 	cuex/opn_t0 \
 	cuex/optimal_fold_t0 \
 	cuex/semilattice_t0 \
@@ -129,6 +132,8 @@ cuex_monoid_t0_SOURCES = cuex/monoid_t0.c
 cuex_monoid_t0_LDADD = libcuex.la
 cuex_labelling_t0_SOURCES = cuex/labelling_t0.c
 cuex_labelling_t0_LDADD = libcuex.la
+cuex_occurtree_t0_SOURCES = cuex/occurtree_t0.c
+cuex_occurtree_t0_LDADD = libcuex.la
 cuex_opn_t0_SOURCES = cuex/opn_t0.c
 cuex_opn_t0_LDADD = libcuex.la -lm
 cuex_optimal_fold_t0_SOURCES = cuex/optimal_fold_t0.c
