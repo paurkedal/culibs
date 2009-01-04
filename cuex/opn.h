@@ -181,6 +181,10 @@ cuex_opn_t cuex_opn2_left(cuex_meta_t opr, cuex_t x, cuex_t y);
  * \pre \a opr is a binary operator. */
 cuex_opn_t cuex_opn2_right(cuex_meta_t opr, cuex_t x, cuex_t y);
 
+/*!The arity if \a e is an operator, the compound size if \a e is a compound,
+ * otherwise 0. */
+cu_rank_t cuex_arity(cuex_t e);
+
 /*!If \a e is an operation or a \ref cuex_compound_h "compound", then iterate
  * over it as long as \a f returns true, and return true iff it finish.
  * Otherwise, return true. */

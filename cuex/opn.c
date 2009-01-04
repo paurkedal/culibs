@@ -152,6 +152,20 @@ cuex_opn2_right(cuex_meta_t opr, cuex_t x, cuex_t y)
     return cuex_opn(opr, x, y);
 }
 
+cu_rank_t
+cuex_arity(cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    if (cuex_meta_is_opr(e_meta))
+	return cuex_opr_r(e_meta);
+    else if (cuex_meta_is_type(e_meta)) {
+	cuex_intf_compound_t ci;
+	ci = cuex_type_compound(cuoo_type_from_meta(e_meta));
+	if (ci)
+	    return cuex_compound_size(ci, e);
+    }
+    return 0;
+}
 
 cu_bool_t
 cuex_conj(cuex_t e, cu_clop(pred, cu_bool_t, cuex_t))

@@ -19,6 +19,7 @@
 #define CUEX_COMPOUND_H
 
 #include <cuex/fwd.h>
+#include <cuex/intf.h>
 #include <cu/clos.h>
 
 CU_BEGIN_DECLARATIONS
@@ -182,6 +183,11 @@ struct cuex_intf_compound_s
     cuex_t (*comm_find)(cuex_intf_compound_t, cuex_t C, cuex_t key);
 #endif
 };
+
+/*!Returns the compound implementation of \a type, or \c NULL if not
+ * implemented for this type. */
+CU_SINLINE cuex_intf_compound_t cuex_type_compound(cuoo_type_t type)
+{ return cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND); }
 
 /*!Verifies that \a impl has been correctly initialised, and may synthesise
  * some missing fields as indicated in \ref cuex_intf_compound_s. */
