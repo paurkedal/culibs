@@ -20,7 +20,7 @@
 #include <cucon/slink.h>
 #include <cucon/pset.h>
 #include <cucon/pmap.h>
-#include <cucon/uset.h>
+#include <cucon/ucset.h>
 #include <cuex/semilattice.h>
 #include <cuex/ex.h>
 #include <cuex/opn.h>
@@ -29,6 +29,7 @@
 #include <cuex/algo.h>
 #include <cuex/compound.h>
 #include <cuex/intf.h>
+#include <cuex/occurtree.h>
 #include <cu/inherit.h>
 #include <cu/ptr_seq.h>
 
@@ -207,12 +208,13 @@ struct _buildframe_s
 {
     _state_t state;
     cuex_t e;
-    struct cucon_uset_s fvset;
-
-    /* On a μ-frame this is the set of de Bruijn indices of the free
-     * λ-variables in the body of the μ-expression. */
-    cucon_uset_t mfvset;
 };
+
+CU_SINLINE cu_bool_t
+_buildframe_is_mubind(_buildframe_t bf)
+{
+    return cuex_meta(bf->e) == CUEX_O1_MU;
+}
 
 struct _buildstate_s
 {
@@ -225,10 +227,6 @@ struct _buildstate_s
     /* This block contains the states of all λ-variables.  Each of these states
      * link back to the state of the expression binding the variable. */
     struct _block_s lambdavar_block;
-
-    /* Maps from each μ-path to a cucon_uset_s of indices of the free
-     * λ-variables which are free in that μ-expression. */
-    cucon_pmap_t fvmap;
 
     /* The biggest stack address, points just after the bottom element. */
     _buildframe_t sp_max;
@@ -249,7 +247,6 @@ _buildstate_init(_buildstate_t bst, cuex_t e)
     bst->r_max = r_max;
     cucon_pmap_init(&bst->ekey_to_block);
     _block_init(&bst->lambdavar_block);
-    bst->fvmap = cuex_unfolded_fv_sets(e, -1);
     bst->sp_max = cu_galloc(sizeof(struct _buildframe_s)*depth);
     bst->sp_max += depth;
     return cu_true;
@@ -273,35 +270,17 @@ strip(cuex_t e)
     return e;
 }
 
-static void
-_add_FV_to_parent_frames(_buildframe_t sp, _buildframe_t sp_max, int var_bi)
-{
-    while (var_bi > 0 && sp < sp_max) {
-	if (!sp->mfvset) {
-	    if (!cucon_uset_insert(&sp->fvset, var_bi))
-		return;
-	}
-	--var_bi;
-	++sp;
-    }
-}
-
-cu_clos_def(_add_FV_to_parent_frames_clos, cu_prot(void, uintptr_t var_bi),
-    ( _buildframe_t sp, sp_max;
-      int shift; ))
-{
-    cu_clos_self(_add_FV_to_parent_frames_clos);
-    _add_FV_to_parent_frames(self->sp, self->sp_max, var_bi + self->shift);
-}
-
 static _state_t
-_build_partition(_buildstate_t bst, cuex_t e, _buildframe_t sp,
+_build_partition(_buildstate_t bst, cuex_occurtree_t ot, _buildframe_t sp,
 		 int mudepth, cuex_t mupath)
 {
+    cuex_t e;
     cuex_meta_t e_meta;
     _buildframe_t sp_mu;
     _state_t state;
     int a, r;
+
+    e = cuex_occurtree_expr(ot);
 
     /* == μ-Bind ==
      *
@@ -319,8 +298,7 @@ _build_partition(_buildstate_t bst, cuex_t e, _buildframe_t sp,
 #endif
 	mupath = cuex_mupath_pair(mudepth + 1, mupath, e);
 	mudepth = 0;
-	sp_mu->mfvset = cucon_pmap_find_mem(bst->fvmap, mupath);
-	cu_debug_assert(sp_mu->mfvset);
+	ot = cuex_occurtree_at(ot, 0);
 	e = cuex_opn_at(e, 0);
 	e_meta = cuex_meta(e);
     }
@@ -337,20 +315,13 @@ _build_partition(_buildstate_t bst, cuex_t e, _buildframe_t sp,
 	sp_ref = sp + var_bi;
 	cu_debug_assert(sp_ref < bst->sp_max); /* TODO */
 	cu_debug_assert(sp_ref->state);
-	if (cuex_meta(sp_ref->e) == CUEX_O1_MU) {
-	    _add_FV_to_parent_frames_clos_t add_fv_cb;
-
+	if (_buildframe_is_mubind(sp_ref)) {
 	    /* μ-variable are equivalent to what they refer to */
 	    cu_debug_assert(!sp_mu || var_bi != 0);
 	    cu_debug_assert(sp_ref->state != NULL);
 	    state = sp_ref->state;
 	    cu_dlogf(_file, "Ref μ variable, index=%d; %!", var_bi, sp_ref->e);
-	    cu_debug_assert(sp_ref->mfvset);
-	    add_fv_cb.sp = sp;
-	    add_fv_cb.sp_max = bst->sp_max;
-	    add_fv_cb.shift = var_bi;
-	    cucon_uset_iter(sp_ref->mfvset,
-			    _add_FV_to_parent_frames_clos_prep(&add_fv_cb));
+	    cu_debug_assert(_buildframe_is_mubind(sp_ref));
 	}
 	else { /* e is a λ variable */
 	    /* λ-variables have individual states in a shared block.  We
@@ -359,7 +330,6 @@ _build_partition(_buildstate_t bst, cuex_t e, _buildframe_t sp,
 	    _block_insert_state(&bst->lambdavar_block, state);
 	    _state_connect(state, 0, 0, sp_ref->state);
 	    cu_dlogf(_file, "Ref λ variable, index=%d; %!", var_bi, sp_ref->e);
-	    _add_FV_to_parent_frames(sp, bst->sp_max, var_bi);
 	}
 	if (sp_mu)
 	    sp_mu->state = state;
@@ -393,8 +363,6 @@ _build_partition(_buildstate_t bst, cuex_t e, _buildframe_t sp,
 			 bst->sp_max - sp);
 		sp->state = state;
 		sp->e = e;
-		sp->mfvset = NULL;
-		cucon_uset_init(&sp->fvset);
 	    }
 
 	    /* Process subexpressions and add transitions for δ and δ⁻¹. */
@@ -404,17 +372,23 @@ _build_partition(_buildstate_t bst, cuex_t e, _buildframe_t sp,
 		else {
 		    _state_t substate;
 
-		    substate = _build_partition(bst, cuex_opn_at(e, a), sp,
+		    substate = _build_partition(bst, cuex_occurtree_at(ot, a), sp,
 						mudepth, mupath);
 		    _state_connect(state, a, a, substate);
 		}
 	    }
 
 	    if (cuex_og_binder_contains(e_meta)) {
-		cu_dlogf(_file,
-			 "%& = FV(%!)\n", cucon_uset_print, &sp->fvset, e);
-		ekey = cuex_o2_metapair(
-		    ekey, cuex_hole(cucon_uset_size(&sp->fvset)));
+		int count = 0;
+		cucon_ucset_t free_vars = cuex_occurtree_free_vars(ot);
+		cucon_ucset_itr_t itr = cucon_ucset_itr_new(free_vars);
+		while (!cucon_ucset_itr_at_end(itr)) {
+		    _buildframe_t sp_ref = sp + cucon_ucset_itr_get(itr) + 1;
+		    cu_debug_assert(sp_ref < bst->sp_max);
+		    if (!_buildframe_is_mubind(sp_ref))
+			++count;
+		}
+		ekey = cuex_o2_metapair(ekey, cuex_hole(count));
 	    }
 	}
 	else {
@@ -450,8 +424,10 @@ _build_partition(_buildstate_t bst, cuex_t e, _buildframe_t sp,
 			}
 			else {
 			    _state_t substate;
+			    cuex_occurtree_t subot = cuex_occurtree_at(ot, a);
+			    cu_debug_assert(cuex_occurtree_expr(subot) == ep);
 
-			    substate = _build_partition(bst, ep, sp,
+			    substate = _build_partition(bst, subot, sp,
 							mudepth, mupath);
 			    /* The back-refereces all gets the same tag (0) since
 			     * we use the commutative view of the compound. */
@@ -790,11 +766,13 @@ cuex_optimal_fold(cuex_t e)
     _state_t top_state;
     _add_pending_block_t apb_cb;
     struct cucon_pset_s *pending_arr;
+    cuex_occurtree_t ot;
 
     /* Create initial partition. */
     if (!_buildstate_init(&bst, e))
 	return e;
-    top_state = _build_partition(&bst, e, bst.sp_max, 0, cuex_mupath_null());
+    ot = cuex_unfolded_occurtree(e, cu_true);
+    top_state = _build_partition(&bst, ot, bst.sp_max, 0, cuex_mupath_null());
 
     /* Refine partition. */
     pending_arr = cu_salloc(sizeof(struct cucon_pset_s)*bst.r_max);
