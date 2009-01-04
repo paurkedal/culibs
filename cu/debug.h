@@ -24,6 +24,7 @@
 #include <cu/inherit.h>
 #include <cu/logging.h>
 #include <stdio.h>
+#include <signal.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_debug cu/debug.h: Utilities for Debugging
@@ -73,9 +74,16 @@ void cuP_debug_msg(const char *, int, const char *, int, const char *, ...);
 extern void (*cuP_debug_bug_report)(const char *, int, const char *, ...);
 
 void cu_findent(FILE *fp, int i);
-void cu_debug_abort(void) CU_ATTR_NORETURN;
-//#define cu_debug_abort() abort()
+void cuP_debug_prep_abort(void);
+void cu_debug_abort(void);
 void cu_debug_trap(void);
+#ifndef CU_NDEBUG
+   /* These macros shadow the above functions.  They provide a slight
+    * convenience while debugging, as there is one less stack frame in the
+    * resulting core dump. */
+#  define cu_debug_abort() (cuP_debug_prep_abort(), raise(SIGABRT))
+#  define cu_debug_trap(void) raise(SIGTRAP)
+#endif
 
 #ifndef CU_NDEBUG
 

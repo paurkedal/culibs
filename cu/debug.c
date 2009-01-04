@@ -121,7 +121,7 @@ void (*cuP_debug_bug_report)(const char *, int, const char *, ...)
 
 #ifdef CUCONF_HAVE_LIBUNWIND
 static int
-backtrace()
+_backtrace()
 {
     int err;
     unw_context_t context;
@@ -138,6 +138,7 @@ backtrace()
     }
     err = unw_step(&cursor); /* skip backtrace() */
     err = unw_step(&cursor); /* skip cu_debug_abort() */
+    fprintf(stderr, "Stack trace (inner calls first):\n");
     while (err > 0) {
 #define PROC_NAME_MAX 1024
         char proc_name[PROC_NAME_MAX] = "";
@@ -152,26 +153,30 @@ backtrace()
 	    return -1;
         }
         unw_get_proc_name(&cursor, proc_name, PROC_NAME_MAX, &proc_name_off);
+	if (strncmp(proc_name, "cu_bugf_", 8) != 0) {
 #if 0
-        fprintf(stderr,
-		"FRAME ip = 0x%lx, sp = 0x%lx\n"
-		"IN PROCEDURE %s (offset 0x%x)\n"
-		"\tip_range = [0x%lx, 0x%lx)\n"
-		"\tlsda = 0x%lx, handler = 0x%lx, gp = 0x%lx\n"
-		"\tflags = 0x%lx, format = 0x%x\n\n",
-		(unsigned long)ip, (unsigned long)sp,
-		proc_name, proc_name_off,
-		(unsigned long)info.start_ip, (unsigned long)info.end_ip,
-		(unsigned long)info.lsda,
-		(unsigned long)info.handler,
-		(unsigned long)info.gp,
-		(unsigned long)info.flags,
-		info.format);
+	    fprintf(stderr,
+		    "FRAME ip = 0x%lx, sp = 0x%lx\n"
+		    "IN PROCEDURE %s (offset 0x%x)\n"
+		    "\tip_range = [0x%lx, 0x%lx)\n"
+		    "\tlsda = 0x%lx, handler = 0x%lx, gp = 0x%lx\n"
+		    "\tflags = 0x%lx, format = 0x%x\n\n",
+		    (unsigned long)ip, (unsigned long)sp,
+		    proc_name, proc_name_off,
+		    (unsigned long)info.start_ip, (unsigned long)info.end_ip,
+		    (unsigned long)info.lsda,
+		    (unsigned long)info.handler,
+		    (unsigned long)info.gp,
+		    (unsigned long)info.flags,
+		    info.format);
 #else
-	fprintf(stderr,
-		"    called from %s+0x%lx\n",
-		proc_name, (unsigned long)proc_name_off);
+	    fprintf(stderr,
+		    "    %s + 0x%lx\n",
+		    proc_name, (unsigned long)proc_name_off);
 #endif
+	}
+	if (strcmp(proc_name, "main") == 0)
+	    break;
         err = unw_step(&cursor);
 #undef PROC_NAME_MAX
     }
@@ -183,27 +188,29 @@ backtrace()
 }
 #endif
 
-#ifndef cu_debug_abort
 void
-cu_debug_abort()
+cuP_debug_prep_abort()
 {
     if (cu_debug_is_enabled(cu_debug_soft_exit_flag))
 	exit(1);
-    else {
 #ifdef CUCONF_HAVE_LIBUNWIND
-	backtrace();
+    else
+	_backtrace();
 #endif
-	abort();
-    }
 }
-#endif
 
 void
-cu_debug_trap()
+(cu_debug_abort)()
+{
+    cuP_debug_prep_abort();
+    abort();
+}
+
+void
+(cu_debug_trap)()
 {
     raise(SIGTRAP);
 }
-
 
 
 static struct cucon_hset_s debug_keys;

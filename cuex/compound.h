@@ -18,6 +18,7 @@
 #ifndef CUEX_COMPOUND_H
 #define CUEX_COMPOUND_H
 
+#include <cuoo/type.h>
 #include <cuex/fwd.h>
 #include <cuex/intf.h>
 #include <cu/clos.h>
