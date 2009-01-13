@@ -189,7 +189,7 @@ _backtrace()
 #endif
 
 void
-cuP_debug_prep_abort()
+cu_debug_abort()
 {
     if (cu_debug_is_enabled(cu_debug_soft_exit_flag))
 	exit(1);
@@ -197,17 +197,11 @@ cuP_debug_prep_abort()
     else
 	_backtrace();
 #endif
+    raise(SIGABRT);
 }
 
 void
-(cu_debug_abort)()
-{
-    cuP_debug_prep_abort();
-    abort();
-}
-
-void
-(cu_debug_trap)()
+cu_debug_trap()
 {
     raise(SIGTRAP);
 }

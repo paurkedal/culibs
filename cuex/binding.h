@@ -37,9 +37,10 @@ CU_BEGIN_DECLARATIONS
 /*!An expression which is bound to the surrounding binding site after skipping
  * \a l levels.  That is, with \a l = 0 binds to the immediate surronding
  * binding site. */
-CU_SINLINE cuex_t cuex_hole(int l)
+CU_SINLINE cuex_t
+cuex_hole(int l)
 {
-    cu_debug_assert(l >= 0);
+    cu_debug_assert(0 <= l && l < (1 << CUEX_OA_HOLE_INDEX_WIDTH));
     return cuex_opn(CUEX_O0_HOLE | CUEX_OA_HOLE_INDEX(l));
 }
 
