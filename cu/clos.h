@@ -21,7 +21,7 @@
 #include <cu/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/* \defgroup cu_clos_h cu/clos.h:
+/* \defgroup cu_clos_h cu/clos.h: Abstraction of Closure Construction and Use
  *@{\ingroup cu_base_mod */
 
 #define cuPP_splice(argl...) argl

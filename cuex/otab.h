@@ -26,7 +26,7 @@
 #include <cucon/bitvect.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuex_otab_h cuex/otab.h:
+/*!\defgroup cuex_otab_h cuex/otab.h: Operator Definition Support
  *@{\ingroup cuex_internal_mod */
 
 typedef enum {
