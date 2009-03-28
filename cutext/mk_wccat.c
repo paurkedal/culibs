@@ -16,8 +16,6 @@
  */
 
 #include <cutext/wccat.h>
-#include <cuos/path.h>
-#include <cuos/fs.h>
 #include <cu/wchar.h>
 #include <cu/clos.h>
 #include <argp.h>

@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cuos/dsink.h>
 #include <cu/inherit.h>
 #include <cu/dsink.h>
 #include <cu/diag.h>
@@ -26,18 +25,18 @@
 
 #define IC_WRITE_BUFSIZE 2048
 
-typedef struct ic_dsink_s *ic_dsink_t;
-struct ic_dsink_s
+typedef struct _iconv_dsink_s *_iconv_dsink_t;
+struct _iconv_dsink_s
 {
     cu_inherit (cu_dsink_s);
     cu_dsink_t target_sink;
     iconv_t cd;
 };
 
-#define IC_DSINK(sink) cu_from(ic_dsink, cu_dsink, sink)
+#define IC_DSINK(sink) cu_from(_iconv_dsink, cu_dsink, sink)
 
 static size_t
-ic_write(cu_dsink_t sink, void const *data_start, size_t data_size)
+_iconv_write(cu_dsink_t sink, void const *data_start, size_t data_size)
 {
     char buf[IC_WRITE_BUFSIZE];
     char *src_ptr = (char *)data_start;
@@ -84,7 +83,7 @@ ic_write(cu_dsink_t sink, void const *data_start, size_t data_size)
 }
 
 static cu_word_t
-ic_control(cu_dsink_t sink, int fn, va_list va)
+_iconv_control(cu_dsink_t sink, int fn, va_list va)
 {
     cu_word_t res = cu_dsink_control_va(IC_DSINK(sink)->target_sink, fn, va);
     switch (fn) {
@@ -97,11 +96,12 @@ ic_control(cu_dsink_t sink, int fn, va_list va)
 }
 
 cu_dsink_t
-cutext_dsink_open_iconv(char const *source_encoding, char const *target_encoding,
-		      cu_dsink_t target_sink)
+cutext_dsink_open_iconv(char const *source_encoding,
+			char const *target_encoding,
+			cu_dsink_t target_sink)
 {
-    ic_dsink_t sink = cu_gnew(struct ic_dsink_s);
-    cu_dsink_init(cu_to(cu_dsink, sink), ic_control, ic_write);
+    _iconv_dsink_t sink = cu_gnew(struct _iconv_dsink_s);
+    cu_dsink_init(cu_to(cu_dsink, sink), _iconv_control, _iconv_write);
     sink->target_sink = target_sink;
     sink->cd = iconv_open(target_encoding, source_encoding);
     if (sink->cd == (iconv_t)-1)
