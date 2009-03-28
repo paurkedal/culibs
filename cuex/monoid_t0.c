@@ -92,6 +92,7 @@ main()
 	y_sinktor = impl->ncomm_build_sinktor(impl, identity);
 	for (i = 0; i < j; ++i) {
 	    cuex_t ei = cudyn_int(i);
+	    cu_test_assert_size_eq(cuex_monoid_factor_count(OPR, x), i);
 	    x = cuex_monoid_product(OPR, x, ei);
 	    cu_ptr_sinktor_put(y_sinktor, ei);
 	}

@@ -227,21 +227,23 @@ cuex_ltree_from_array(cuex_t *elt_array, size_t elt_count)
 size_t
 cuex_ltree_size(cuex_t x)
 {
-    if (cuexP_is_ltree_node(x)) {
+    size_t accu = 0;
+    while (!cuex_ltree_is_empty(x)) {
 	cuex_meta_t meta = cuex_meta(x);
-	unsigned int k = cuexP_oa_ltree_depth(meta);
-	cu_rank_t r = cuex_opr_r(meta);
+	unsigned int k;
+	cu_rank_t r;
+
+	if (!cuex_is_oR_ltree(meta))
+	    return accu + 1;
+	k = cuexP_oa_ltree_depth(meta);
+	r = cuex_opr_r(meta);
 	cu_debug_assert(k > 0);
-	if (r == 0) {
-	    cu_debug_assert(k == 1);
-	    return 0;
-	}
+	cu_debug_assert(r > 0);
 	--r;
-	return r*(1 << (LOG2_FANOUT*(k - 1)))
-	     + cuex_ltree_size(cuex_opn_at(x, r));
+	accu += r*(1 << (LOG2_FANOUT*(k - 1)));
+	x = cuex_opn_at(x, r);
     }
-    else
-	return 1;
+    return accu;
 }
 
 cuex_t
