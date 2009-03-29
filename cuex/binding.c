@@ -60,6 +60,68 @@ cuexP_bfree_adjusted(cuex_t e, int l_diff, int l_top)
     return e;
 }
 
+void
+cuex_bfree_iter(cuex_t e, cu_clop(f, void, int, int), int l_top)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    if (cuex_meta_is_opr(e_meta)) {
+	if (cuex_og_hole_contains(e_meta)) {
+	    int l = cuex_oa_hole_index(e_meta);
+	    if (l >= l_top)
+		cu_call(f, l, l_top);
+	}
+	else {
+	    if (cuex_og_binder_contains(e_meta))
+		++l_top;
+	    CUEX_OPN_ITER(e_meta, e, ep, cuex_bfree_iter(ep, f, l_top));
+	}
+    }
+    else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(e_meta);
+	cuex_intf_compound_t impl;
+	impl = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (impl) {
+	    cuex_t ep;
+	    cu_ptr_source_t src;
+	    src = cuex_compound_pref_iter_source(impl, e);
+	    while ((ep = cu_ptr_source_get(src)))
+		cuex_bfree_iter(ep, f, l_top);
+	}
+    }
+}
+
+cuex_t
+cuex_bfree_tran(cuex_t e, cu_clop(f, cuex_t, int, int), int l_top)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    if (cuex_meta_is_opr(e_meta)) {
+	if (cuex_og_hole_contains(e_meta)) {
+	    int l = cuex_oa_hole_index(e_meta);
+	    if (l >= l_top)
+		return cu_call(f, l, l_top);
+	}
+	else {
+	    if (cuex_og_binder_contains(e_meta))
+		++l_top;
+	    CUEX_OPN_TRAN(e_meta, e, ep, cuex_bfree_tran(ep, f, l_top));
+	}
+    }
+    else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(e_meta);
+	cuex_intf_compound_t impl;
+	impl = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (impl) {
+	    cuex_t ep;
+	    cu_ptr_junctor_t ij;
+	    ij = cuex_compound_pref_image_junctor(impl, e);
+	    while ((ep = cu_ptr_junctor_get(ij)))
+		cu_ptr_junctor_put(ij, cuex_bfree_tran(ep, f, l_top));
+	    return cu_ptr_junctor_finish(ij);
+	}
+    }
+    return e;
+}
+
 cuex_t
 cuex_reindex_by_int_stack(cuex_t e,
 			  int stack_top_level, int stack_span,

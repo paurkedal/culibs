@@ -78,6 +78,17 @@ cuex_t cuexP_bfree_adjusted(cuex_t e, int l_diff, int l_top);
 CU_SINLINE cuex_t cuex_bfree_adjusted(cuex_t e, int l_diff)
 { return cuexP_bfree_adjusted(e, l_diff, -1); }
 
+/*!Calls \a f(\e lr, \e lr_top) for free hole in \a e, where \e lr is the hole
+ * index and \e lr_top is \a l_top plus the binding depth of the hole.  \a
+ * l_top is the initial top level to consider free, typically 0. */
+void cuex_bfree_iter(cuex_t e, cu_clop(f, void, int, int), int l_top);
+
+/*!Transforms \a e by replacing each free hole with \a f (\e lr, \e lr_top),
+ * where \e lr is the hole index and \e lr_top is \a l_top plus the binding
+ * depth of the hole.  \a l_top is the top level relative to \a e to consider
+ * free, typically 0. */
+cuex_t cuex_bfree_tran(cuex_t e, cu_clop(f, cuex_t, int, int), int l_top);
+
 cuex_t cuex_reindex_by_int_stack(cuex_t e, int stack_top_level,
 				 int stack_span, cucon_stack_t stack);
 
