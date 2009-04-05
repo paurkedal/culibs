@@ -24,6 +24,7 @@ void cudynP_init(void);
 void cuexP_atree_init(void);
 void cuexP_ex_init(void);
 void cuexP_monoid_init(void);
+void cuexP_tmonoid_init(void);
 void cuexP_labelling_init(void);
 void cuexP_semilattice_init(void);
 void cuexP_set_init(void);
@@ -49,6 +50,7 @@ cuex_init()
     cuexP_var_init();
     cuexP_atree_init();
     cuexP_monoid_init();
+    cuexP_tmonoid_init();
     cuexP_labelling_init();
     cuexP_semilattice_init();
     cuexP_set_init();

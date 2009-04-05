@@ -26,6 +26,7 @@ cuex_headers = \
 	cuex/subst.h \
 	cuex/ssfn.h \
 	cuex/str_algo.h \
+	cuex/tmonoid.h \
 	cuex/test.h \
 	cuex/tpvar.h \
 	cuex/tuple.h \
@@ -66,6 +67,7 @@ cuex_sources = \
 	cuex/subst_algo.c \
 	cuex/ssfn.c \
 	cuex/str_algo.c \
+	cuex/tmonoid.c \
 	cuex/tpvar.c \
 	cuex/tuple.c \
 	cuex/tvar.c \
@@ -115,6 +117,7 @@ cuex_check_programs = \
 	cuex/subst_algo_t0 \
 	cuex/ssfn_t0 \
 	cuex/str_algo_t0 \
+	cuex/tmonoid_t0 \
 	cuex/unfolded_fv_sets_t0 \
 	cuex/var_t0
 
@@ -150,6 +153,8 @@ cuex_subst_t0_SOURCES = cuex/subst_t0.c
 cuex_subst_t0_LDADD = libcuex.la
 cuex_subst_algo_t0_SOURCES = cuex/subst_algo_t0.c
 cuex_subst_algo_t0_LDADD = libcuex.la
+cuex_tmonoid_t0_SOURCES = cuex/tmonoid_t0.c
+cuex_tmonoid_t0_LDADD = libcuex.la
 cuex_unfolded_fv_sets_t0_SOURCES = cuex/unfolded_fv_sets_t0.c
 cuex_unfolded_fv_sets_t0_LDADD = libcuex.la
 cuex_var_t0_SOURCES = cuex/var_t0.c
