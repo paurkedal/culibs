@@ -49,14 +49,14 @@ main()
     /* Check construction and iteration */
     x = cuex_monoid_identity(OPR);
     cu_test_assert(cuex_is_monoid_identity(OPR, x));
-    cu_test_assert(cuex_is_monoid(OPR, x));
+    cu_test_assert(cuex_is_monoid_nongen(OPR, x));
     x = cuex_monoid_product(OPR, x, cudyn_int(0));
-    cu_test_assert(!cuex_is_monoid_product(OPR, x));
+    cu_test_assert(!cuex_is_monoid_composite(OPR, x));
     cuex_test_assert_eq(x, cudyn_int(0));
     for (i = 1; i < N; ++i) {
 	x = cuex_monoid_product(OPR, x, cudyn_int(i));
-	cu_test_assert(cuex_is_monoid_product(OPR, x));
-	cu_test_assert_int_eq(cuex_monoid_factor_count(OPR, x), i + 1);
+	cu_test_assert(cuex_is_monoid_composite(OPR, x));
+	cu_test_assert_int_eq(cuex_monoid_length(OPR, x), i + 1);
 	cuex_monoid_itr_init_full(OPR, &it, x);
 	for (j = 0; j <= i; ++j) {
 	    cuex_monoid_itr_t it_r;
@@ -81,6 +81,7 @@ main()
 	cuex_test_assert_eq(cuex_monoid_factor_slice(OPR, x, j, N), z);
     }
 
+    /* Check iterative construction. */
     for (j = 0; j < N; ++j) {
 	cuex_t identity = cuex_monoid_identity(OPR);
 	cuex_t x = cuex_monoid_identity(OPR);
@@ -92,7 +93,7 @@ main()
 	y_sinktor = impl->ncomm_build_sinktor(impl, identity);
 	for (i = 0; i < j; ++i) {
 	    cuex_t ei = cudyn_int(i);
-	    cu_test_assert_size_eq(cuex_monoid_factor_count(OPR, x), i);
+	    cu_test_assert_size_eq(cuex_monoid_length(OPR, x), i);
 	    x = cuex_monoid_product(OPR, x, ei);
 	    cu_ptr_sinktor_put(y_sinktor, ei);
 	}

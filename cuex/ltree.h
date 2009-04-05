@@ -20,6 +20,7 @@
 
 #include <cuex/opn.h>
 #include <cuex/oprdefs.h>
+#include <cufo/fwd.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_ltree_h cuex/ltree.h: Left-Packed Trees (Low-Level API)
@@ -58,6 +59,9 @@ CU_SINLINE cu_bool_t cuex_ltree_is_empty(cuex_t tree) { return tree == NULL; }
 CU_SINLINE cu_bool_t cuex_ltree_is_singleton(cuex_t tree)
 { return tree != NULL && !cuex_is_oR_ltree(cuex_meta(tree)); }
 
+CU_SINLINE cu_bool_t cuex_ltree_is_composite(cuex_t tree)
+{ return tree != NULL && cuex_is_oR_ltree(cuex_meta(tree)); }
+
 CU_SINLINE cu_bool_t cuexP_is_ltree_node(cuex_t tree)
 { return cuex_is_oR_ltree(cuex_meta(tree)); }
 
@@ -81,7 +85,6 @@ size_t cuex_ltree_size(cuex_t tree);
 /*!Calls \a fn on each element of \a tree sequentially as long as the result is
  * true, and returns true iff \a fn mapped all elements to true. */
 cu_bool_t cuex_ltree_forall(cu_clop(fn, cu_bool_t, cuex_t), cuex_t tree);
-
 
 /*!Opaque iterator type to be initialised with \ref cuex_ltree_itr_init_full or
  * \ref cuex_ltree_itr_init_slice. */
@@ -117,6 +120,12 @@ cuex_t cuex_ltree_from_source(cu_ptr_source_t source);
 cuex_t cuex_ltree_from_array(cuex_t *elt_array, size_t elt_count);
 
 cuex_t cuex_ltree_append_from_source(cuex_t tree0, cu_ptr_source_t source1);
+
+void cuex_ltree_fprint(FILE *out, cuex_t ltree,
+		       char const *fmt_init, char const *fmt_cont);
+
+void cuex_ltree_foprint(cufo_stream_t fos, cuex_t ltree,
+			char const *fmt_init, char const *fmt_cont);
 
 /*!@}*/
 CU_END_DECLARATIONS

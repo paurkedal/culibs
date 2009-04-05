@@ -312,7 +312,7 @@ cuex_labelling_expand_all(cuex_t e)
 cuex_t
 cuex_labelling_contract_all(cuex_t e)
 {
-    if (cuex_is_monoid(CUEX_O2_TUPLE, e)) {
+    if (cuex_is_monoid_nongen(CUEX_O2_TUPLE, e)) {
 	cuex_t ep, L, M;
 	struct cuex_monoid_itr_s itr;
 	cuex_monoid_itr_init_full(CUEX_O2_TUPLE, &itr, e);

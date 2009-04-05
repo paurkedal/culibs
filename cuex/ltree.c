@@ -16,6 +16,7 @@
  */
 
 #include <cuex/ltree.h>
+#include <cufo/stream.h>
 #include <cu/int.h>
 #include <cu/ptr_seq.h>
 
@@ -474,4 +475,57 @@ cuex_ltree_slice_source(cuex_t x, size_t i, size_t j)
     cu_ptr_source_init(cu_to(cu_ptr_source, self), iter_source_get);
     cuex_ltree_itr_init_slice(&self->itr, x, i, j);
     return cu_to(cu_ptr_source, self);
+}
+
+
+/* == Printing == */
+
+cu_clos_def(_ltree_fprint_helper, cu_prot(cu_bool_t, cuex_t elt),
+    ( FILE *out;
+      int count;
+      char const *fmt_init, *fmt_cont; ))
+{
+    cu_clos_self(_ltree_fprint_helper);
+    if (self->count++ == 0)
+	cu_fprintf(self->out, self->fmt_init, elt);
+    else
+	cu_fprintf(self->out, self->fmt_cont, elt);
+    return cu_true;
+}
+
+void
+cuex_ltree_fprint(FILE *out, cuex_t ltree,
+		  char const *fmt_init, char const *fmt_cont)
+{
+    _ltree_fprint_helper_t cb;
+    cb.out = out;
+    cb.count = 0;
+    cb.fmt_init = fmt_init;
+    cb.fmt_cont = fmt_cont;
+    cuex_ltree_forall(_ltree_fprint_helper_prep(&cb), ltree);
+}
+
+cu_clos_def(_ltree_foprint_helper, cu_prot(cu_bool_t, cuex_t elt),
+    ( cufo_stream_t fos;
+      int count;
+      char const *fmt_init, *fmt_cont; ))
+{
+    cu_clos_self(_ltree_foprint_helper);
+    if (self->count++ == 0)
+	cufo_printf(self->fos, self->fmt_init, elt);
+    else
+	cufo_printf(self->fos, self->fmt_cont, elt);
+    return cu_true;
+}
+
+void
+cuex_ltree_foprint(cufo_stream_t fos, cuex_t ltree,
+		   char const *fmt_init, char const *fmt_cont)
+{
+    _ltree_foprint_helper_t cb;
+    cb.fos = fos;
+    cb.count = 0;
+    cb.fmt_init = fmt_init;
+    cb.fmt_cont = fmt_cont;
+    cuex_ltree_forall(_ltree_foprint_helper_prep(&cb), ltree);
 }

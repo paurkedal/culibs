@@ -17,15 +17,14 @@
 
 #include <cuex/monoid.h>
 #include <cuex/compound.h>
-#include <cuex/intf.h>
 #include <cuex/oprinfo.h>
+#include <cufo/stream.h>
 #include <cucon/list.h>
-#include <cu/ptr_seq.h>
 
 #define MONOID(x) ((cuex_monoid_t)(x))
 
 static cuex_t
-make_monoid(cuex_meta_t mult, cuex_t ltree)
+_monoid_wrap(cuex_meta_t mult, cuex_t ltree)
 {
     cuoo_hctem_decl(cuex_monoid, tem);
     cuoo_hctem_init(cuex_monoid, tem);
@@ -37,21 +36,17 @@ make_monoid(cuex_meta_t mult, cuex_t ltree)
 cuex_t 
 cuex_monoid_identity(cuex_meta_t mult)
 {
-    cuoo_hctem_decl(cuex_monoid, tem);
-    cuoo_hctem_init(cuex_monoid, tem);
-    cuoo_hctem_get(cuex_monoid, tem)->opr = mult;
-    cuoo_hctem_get(cuex_monoid, tem)->ltree = cuex_ltree_empty();
-    return cuoo_hctem_new(cuex_monoid, tem);
+    return _monoid_wrap(mult, cuex_ltree_empty());
 }
 
 cuex_t
 cuex_monoid_product(cuex_meta_t mult, cuex_t x, cuex_t y)
 {
     cuex_t ltree;
-    if (cuex_is_monoid(mult, x)) {
+    if (cuex_is_monoid_nongen(mult, x)) {
 	if (cuex_ltree_is_empty(MONOID(x)->ltree))
 	    return y;
-	else if (cuex_is_monoid(mult, y)) {
+	else if (cuex_is_monoid_nongen(mult, y)) {
 	    if (cuex_ltree_is_empty(MONOID(y)->ltree))
 		return x;
 	    else
@@ -61,7 +56,7 @@ cuex_monoid_product(cuex_meta_t mult, cuex_t x, cuex_t y)
 	    ltree = cuex_ltree_concat(MONOID(x)->ltree, y);
     }
     else {
-	if (cuex_is_monoid(mult, y)) {
+	if (cuex_is_monoid_nongen(mult, y)) {
 	    if (cuex_ltree_is_empty(MONOID(y)->ltree))
 		return x;
 	    else
@@ -70,7 +65,22 @@ cuex_monoid_product(cuex_meta_t mult, cuex_t x, cuex_t y)
 	else
 	    ltree = cuex_ltree_concat(x, y);
     }
-    return make_monoid(mult, ltree);
+    return _monoid_wrap(mult, ltree);
+}
+
+cuex_t
+cuex_monoid_rightmult(cuex_meta_t mult, cuex_t x, cuex_t y)
+{
+    cuex_t ltree;
+    if (cuex_is_monoid_nongen(mult, x)) {
+	if (cuex_ltree_is_empty(MONOID(x)->ltree))
+	    return y;
+	else
+	    ltree = cuex_ltree_concat(MONOID(x)->ltree, y);
+    }
+    else
+	ltree = cuex_ltree_concat(x, y);
+    return _monoid_wrap(mult, ltree);
 }
 
 cuex_t
@@ -79,35 +89,35 @@ cuex_monoid_from_array(cuex_meta_t mult, cuex_t *array, size_t count)
     if (count == 1)
 	return array[0];
     else
-	return make_monoid(mult, cuex_ltree_from_array(array, count));
+	return _monoid_wrap(mult, cuex_ltree_from_array(array, count));
 }
 
 cuex_t
-cuex_monoid_product_over_source(cuex_meta_t mult, cu_ptr_source_t source)
+cuex_monoid_from_source(cuex_meta_t mult, cu_ptr_source_t source)
 {
     cuex_t ltree = cuex_ltree_from_source(source);
     if (cuex_ltree_is_singleton(ltree))
 	return ltree;
     else
-	return make_monoid(mult, ltree);
+	return _monoid_wrap(mult, ltree);
 }
 
 cuex_t
 cuex_monoid_rightmult_source(cuex_meta_t mult,
 			     cuex_t x, cu_ptr_source_t y_source)
 {
-    if (cuex_is_monoid(mult, x)) {
+    if (cuex_is_monoid_nongen(mult, x)) {
 	if (cuex_ltree_is_empty(MONOID(x)->ltree)) {
 	    cuex_t ltree = cuex_ltree_from_source(y_source);
 	    if (cuex_ltree_is_singleton(ltree))
 		return ltree;
 	    else
-		return make_monoid(mult, ltree);
+		return _monoid_wrap(mult, ltree);
 	}
 	else {
 	    cuex_t ltree;
 	    ltree = cuex_ltree_append_from_source(MONOID(x)->ltree, y_source);
-	    return make_monoid(mult, ltree);
+	    return _monoid_wrap(mult, ltree);
 	}
     }
     else {
@@ -115,7 +125,7 @@ cuex_monoid_rightmult_source(cuex_meta_t mult,
 	if (cuex_ltree_is_singleton(ltree))
 	    return ltree;
 	else
-	    return make_monoid(mult, ltree);
+	    return _monoid_wrap(mult, ltree);
     }
 }
 
@@ -129,9 +139,9 @@ cuex_monoid_rightmult_array(cuex_meta_t mult, cuex_t x,
 }
 
 size_t
-cuex_monoid_factor_count(cuex_meta_t mult, cuex_t x)
+cuex_monoid_length(cuex_meta_t mult, cuex_t x)
 {
-    if (cuex_is_monoid(mult, x))
+    if (cuex_is_monoid_nongen(mult, x))
 	return cuex_ltree_size(MONOID(x)->ltree);
     else
 	return 1;
@@ -140,7 +150,7 @@ cuex_monoid_factor_count(cuex_meta_t mult, cuex_t x)
 cuex_t
 cuex_monoid_factor_at(cuex_meta_t mult, cuex_t x, size_t i)
 {
-    if (cuex_is_monoid(mult, x))
+    if (cuex_is_monoid_nongen(mult, x))
 	return cuex_ltree_at(MONOID(x)->ltree, i);
     else if (i == 0)
 	return x;
@@ -154,12 +164,12 @@ cuex_monoid_factor_slice(cuex_meta_t mult, cuex_t x, size_t i, size_t j)
 {
     if (i == j)
 	return cuex_monoid_identity(mult);
-    else if (cuex_is_monoid(mult, x)) {
+    else if (cuex_is_monoid_nongen(mult, x)) {
 	cuex_t e = cuex_ltree_slice(MONOID(x)->ltree, i, j);
 	if (i + 1 == j)
 	    return e;
 	else
-	    return make_monoid(mult, e);
+	    return _monoid_wrap(mult, e);
     }
     else if (i == 0 && j == 1)
 	return x;
@@ -172,7 +182,7 @@ void
 cuex_monoid_itr_init_full(cuex_meta_t mult,
 			  cuex_monoid_itr_t *itr, cuex_t e)
 {
-    if (cuex_is_monoid(mult, e))
+    if (cuex_is_monoid_nongen(mult, e))
 	cuex_ltree_itr_init_full(&itr->sub, ((cuex_monoid_t)e)->ltree);
     else
 	cuex_ltree_itr_init_full(&itr->sub, e);
@@ -183,7 +193,7 @@ cuex_monoid_itr_init_slice(cuex_meta_t mult,
 			   cuex_monoid_itr_t *itr, cuex_t e,
 			   size_t i, size_t j)
 {
-    if (cuex_is_monoid(mult, e))
+    if (cuex_is_monoid_nongen(mult, e))
 	cuex_ltree_itr_init_slice(&itr->sub, ((cuex_monoid_t)e)->ltree, i, j);
     else
 	cuex_ltree_itr_init_slice(&itr->sub, e, i, j);
@@ -193,7 +203,7 @@ cuex_monoid_itr_init_slice(cuex_meta_t mult,
 /* == Factor Sources == */
 
 static cu_ptr_source_t
-factor_source(cuex_intf_compound_t impl, cuex_t x)
+_factor_source(cuex_intf_compound_t impl, cuex_t x)
 {
     return cuex_ltree_full_source(MONOID(x)->ltree);
 }
@@ -201,7 +211,7 @@ factor_source(cuex_intf_compound_t impl, cuex_t x)
 cu_ptr_source_t
 cuex_any_monoid_factor_source(cuex_t x, size_t i, size_t j)
 {
-    if (cuex_is_any_monoid(x))
+    if (cuex_is_any_monoid_nongen(x))
 	return cuex_ltree_slice_source(MONOID(x)->ltree, i, j);
     else
 	return cuex_ltree_slice_source(x, i, j);
@@ -210,8 +220,8 @@ cuex_any_monoid_factor_source(cuex_t x, size_t i, size_t j)
 
 /* == Build Sinktor == */
 
-typedef struct build_sinktor_s *build_sinktor_t;
-struct build_sinktor_s
+typedef struct _build_sinktor_s *_build_sinktor_t;
+struct _build_sinktor_s
 {
     cu_inherit (cu_ptr_sinktor_s);
     cuex_meta_t mult;
@@ -219,32 +229,32 @@ struct build_sinktor_s
 };
 
 static void
-build_sinktor_put(cu_ptr_sink_t sink, void *x)
+_build_sinktor_put(cu_ptr_sink_t sink, void *x)
 {
-    build_sinktor_t self;
-    self = cu_from2(build_sinktor, cu_ptr_sinktor, cu_ptr_sink, sink);
+    _build_sinktor_t self;
+    self = cu_from2(_build_sinktor, cu_ptr_sinktor, cu_ptr_sink, sink);
     cucon_list_append_ptr(&self->l, x);
 };
 
 static void *
-build_sinktor_finish(cu_ptr_sinktor_t sinktor)
+_build_sinktor_finish(cu_ptr_sinktor_t sinktor)
 {
-    build_sinktor_t self = cu_from(build_sinktor, cu_ptr_sinktor, sinktor);
+    _build_sinktor_t self = cu_from(_build_sinktor, cu_ptr_sinktor, sinktor);
     if (cucon_list_is_singleton(&self->l))
 	return cucon_list_front_ptr(&self->l);
     else {
 	cu_ptr_source_t source = cucon_list_source_ptr(&self->l);
-	return cuex_monoid_product_over_source(self->mult, source);
+	return cuex_monoid_from_source(self->mult, source);
     }
 }
 
 static cu_ptr_sinktor_t
-build_sinktor(cuex_intf_compound_t impl, void *tpl)
+_build_sinktor(cuex_intf_compound_t impl, void *tpl)
 {
-    build_sinktor_t self = cu_gnew(struct build_sinktor_s);
+    _build_sinktor_t self = cu_gnew(struct _build_sinktor_s);
     cu_ptr_sinktor_init(cu_to(cu_ptr_sinktor, self),
-			build_sinktor_put, build_sinktor_finish);
-    cu_debug_assert(cuex_is_any_monoid(tpl));
+			_build_sinktor_put, _build_sinktor_finish);
+    cu_debug_assert(cuex_is_any_monoid_nongen(tpl));
     self->mult = MONOID(tpl)->opr;
     cucon_list_init(&self->l);
     return cu_to(cu_ptr_sinktor, self);
@@ -253,28 +263,26 @@ build_sinktor(cuex_intf_compound_t impl, void *tpl)
 
 /* == Printing == */
 
-cu_clos_def(monoid_print_item, cu_prot(cu_bool_t, cuex_t factor),
-	    (FILE *out; int count;))
-{
-    cu_clos_self(monoid_print_item);
-    if (self->count++)
-	fputs(", ", self->out);
-    cu_fprintf(self->out, "%!", factor);
-    return cu_true;
-}
-
 static void
-monoid_print(void *x, FILE *out)
+_monoid_print(void *x, FILE *out)
 {
-    monoid_print_item_t cb;
     cuex_oprinfo_t oprinfo;
-    cb.out = out;
-    cb.count = 0;
     oprinfo = cuex_oprinfo(MONOID(x)->opr);
     cu_debug_assert(oprinfo);
     fprintf(out, "%s:[", cuex_oprinfo_name(oprinfo));
-    cuex_ltree_forall(monoid_print_item_prep(&cb), MONOID(x)->ltree);
+    cuex_ltree_fprint(out, MONOID(x)->ltree, "%!", ", %!");
     fputs("]", out);
+}
+
+static void
+_monoid_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *x)
+{
+    cuex_oprinfo_t oprinfo;
+    oprinfo = cuex_oprinfo(MONOID(x)->opr);
+    cu_debug_assert(oprinfo);
+    cufo_printf(fos, "%s:[", cuex_oprinfo_name(oprinfo));
+    cuex_ltree_foprint(fos, MONOID(x)->ltree, "%!", ", %!");
+    cufo_putc(fos, ']');
 }
 
 
@@ -284,8 +292,8 @@ static struct cuex_intf_compound_s _compound_impl = {
     .flags = CUEX_COMPOUNDFLAG_PREFER_NCOMM
 	   | CUEX_COMPOUNDFLAG_NCOMM_FILTERABLE_IMAGE
 	   | CUEX_COMPOUNDFLAG_NCOMM_EXPANSIVE_IMAGE,
-    .ncomm_iter_source = factor_source,
-    .ncomm_build_sinktor = build_sinktor,
+    .ncomm_iter_source = _factor_source,
+    .ncomm_build_sinktor = _build_sinktor,
 };
 
 static cu_word_t
@@ -295,7 +303,9 @@ _monoid_dispatch(cu_word_t intf_number, ...)
 	case CUEX_INTF_COMPOUND:
 	    return (cu_word_t)&_compound_impl;
 	case CUOO_INTF_PRINT_FN:
-	    return (cu_word_t)monoid_print;
+	    return (cu_word_t)_monoid_print;
+	case CUOO_INTF_FOPRINT_FN:
+	    return (cu_word_t)_monoid_foprint;
 	default:
 	    return CUOO_IMPL_NONE;
     }
