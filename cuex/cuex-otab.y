@@ -329,7 +329,8 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 	    } else {
 		ch = fgetc(in);
 		if (ch == 'r') {
-		    val_out->i = -1;
+		    val_out->opr.has_ctor = cu_false;
+		    val_out->opr.r = -1;
 		    token = OPERATOR;
 		} else {
 		    ungetc(ch, in);
