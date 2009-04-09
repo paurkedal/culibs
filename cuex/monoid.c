@@ -148,11 +148,11 @@ cuex_monoid_length(cuex_meta_t mult, cuex_t x)
 }
 
 cuex_t
-cuex_monoid_factor_at(cuex_meta_t mult, cuex_t x, size_t i)
+cuex_monoid_factor_at(cuex_meta_t mult, cuex_t x, ptrdiff_t i)
 {
     if (cuex_is_monoid_nongen(mult, x))
 	return cuex_ltree_at(MONOID(x)->ltree, i);
-    else if (i == 0)
+    else if (i == 0 || i == -1)
 	return x;
     else
 	cu_bugf("cuex_monoid_factor_at: "
@@ -160,22 +160,26 @@ cuex_monoid_factor_at(cuex_meta_t mult, cuex_t x, size_t i)
 }
 
 cuex_t
-cuex_monoid_factor_slice(cuex_meta_t mult, cuex_t x, size_t i, size_t j)
+cuex_monoid_factor_slice(cuex_meta_t mult, cuex_t x, ptrdiff_t i, ptrdiff_t j)
 {
-    if (i == j)
-	return cuex_monoid_identity(mult);
-    else if (cuex_is_monoid_nongen(mult, x)) {
+    if (cuex_is_monoid_nongen(mult, x)) {
 	cuex_t e = cuex_ltree_slice(MONOID(x)->ltree, i, j);
-	if (i + 1 == j)
+	if (cuex_ltree_is_singleton(e))
 	    return e;
 	else
 	    return _monoid_wrap(mult, e);
     }
-    else if (i == 0 && j == 1)
-	return x;
-    else
-	cu_bugf("cuex_monoid_factor_slice: "
-		"Indices [%d, %d) out of range for monoid generator.", i, j);
+    else {
+	if (i < 0) ++i;
+	if (j < 0) ++j;
+	if (i == j)
+	    return cuex_monoid_identity(mult);
+	else if (i == 0 && (j == 1 || j == CUEX_MONOID_END))
+	    return x;
+	else
+	    cu_bugf("cuex_monoid_factor_slice: Indices [%d, %d) out of range "
+		    "for monoid generator.", i, j);
+    }
 }
 
 void
@@ -191,7 +195,7 @@ cuex_monoid_itr_init_full(cuex_meta_t mult,
 void
 cuex_monoid_itr_init_slice(cuex_meta_t mult,
 			   cuex_monoid_itr_t *itr, cuex_t e,
-			   size_t i, size_t j)
+			   ptrdiff_t i, ptrdiff_t j)
 {
     if (cuex_is_monoid_nongen(mult, e))
 	cuex_ltree_itr_init_slice(&itr->sub, ((cuex_monoid_t)e)->ltree, i, j);
@@ -209,7 +213,7 @@ _factor_source(cuex_intf_compound_t impl, cuex_t x)
 }
 
 cu_ptr_source_t
-cuex_any_monoid_factor_source(cuex_t x, size_t i, size_t j)
+cuex_any_monoid_factor_source(cuex_t x, ptrdiff_t i, ptrdiff_t j)
 {
     if (cuex_is_any_monoid_nongen(x))
 	return cuex_ltree_slice_source(MONOID(x)->ltree, i, j);

@@ -248,10 +248,14 @@ cuex_ltree_size(cuex_t x)
 }
 
 cuex_t
-cuex_ltree_at(cuex_t x, size_t i)
+cuex_ltree_at(cuex_t x, ptrdiff_t i)
 {
     if (cuex_ltree_is_empty(x))
 	cu_bugf("cuex_ltree_at called on empty tree.");
+    if (i < 0) {
+	i += cuex_ltree_size(x);
+	cu_debug_assert(i >= 0);
+    }
     while (cuexP_is_ltree_node(x)) {
 	unsigned int k;
 	size_t subnode_size, j;
@@ -281,24 +285,27 @@ cuex_ltree_last(cuex_t x)
 }
 
 static cuex_t
-cuex_ltree_prefix(cuex_t x, size_t n)
+cuex_ltree_prefix(cuex_t x, ptrdiff_t n)
 {
+    if (n < 0)
+	n += cuex_ltree_size(x);
     if (n == 0)
 	return cuex_ltree_empty();
 tailcall:
     if (cuexP_is_ltree_node(x)) {
-	unsigned int k = cuexP_oa_ltree_depth(cuex_meta(x));
+	int k = cuexP_oa_ltree_depth(cuex_meta(x));
 	cuex_t v[FANOUT];
-	size_t subnode_size = 1 << LOG2_FANOUT*(k - 1);
-	size_t m = n / subnode_size;
-	size_t l = n % subnode_size;
-	size_t i;
+	ptrdiff_t subnode_size = 1 << LOG2_FANOUT*(k - 1);
+	ptrdiff_t m = n / subnode_size;
+	ptrdiff_t l = n % subnode_size;
+	ptrdiff_t i;
 	if (m == 0) {
 	    x = cuex_opn_at(x, 0);
 	    goto tailcall;
 	}
 	if (m == 1 && l == 0)
 	    return cuex_opn_at(x, 0);
+	cu_debug_assert(m <= FANOUT);
 	for (i = 0; i < m; ++i)
 	    v[i] = cuex_opn_at(x, i);
 	if (l) {
@@ -312,14 +319,26 @@ tailcall:
 }
 
 cuex_t
-cuex_ltree_slice(cuex_t x, size_t i, size_t j)
+cuex_ltree_slice(cuex_t x, ptrdiff_t i, ptrdiff_t j)
 {
     cuex_ltree_itr_t it;
-    cu_debug_assert(i <= j);
-    if (j == 0)
+    if (i < 0) {
+	size_t n = cuex_ltree_size(x);
+	i += n;
+	if (j < 0)
+	    j += n;
+    }
+    else if (j < 0)
+	j += cuex_ltree_size(x);
+
+    if (i == j)
 	return cuex_ltree_empty();
-    if (i == 0)
-	return cuex_ltree_prefix(x, j);
+    if (i == 0) {
+	if (j == CUEX_LTREE_END)
+	    return x;
+	else
+	    return cuex_ltree_prefix(x, j);
+    }
     cuex_ltree_itr_init_slice(&it, x, i, j);
     return ltree_fresh(CUEXP_OA_LTREE_DEPTH_MAXP - 1, &it);
 }
@@ -374,8 +393,19 @@ cuex_ltree_itr_init_full(cuex_ltree_itr_t *itr, cuex_t x)
 }
 
 void
-cuex_ltree_itr_init_slice(cuex_ltree_itr_t *itr, cuex_t x, size_t i, size_t j)
+cuex_ltree_itr_init_slice(cuex_ltree_itr_t *itr, cuex_t x,
+			  ptrdiff_t i, ptrdiff_t j)
 {
+    if (i < 0) {
+	size_t n = cuex_ltree_size(x);
+	i += n;
+	if (j < 0)
+	    j += n;
+    }
+    else if (j < 0)
+	j += cuex_ltree_size(x);
+    cu_debug_assert(0 <= i && i <= j);
+
     itr->i_cur = i;
     if (cuex_ltree_is_empty(x))
 	itr->i_end = 0;
@@ -402,7 +432,7 @@ cuex_ltree_itr_init_slice(cuex_ltree_itr_t *itr, cuex_t x, size_t i, size_t j)
     if (j < itr->i_end)
 	itr->i_end = j;
     else
-	cu_debug_assert(j == itr->i_end || j == SIZE_MAX);
+	cu_debug_assert(j == itr->i_end || j == CUEX_LTREE_END);
     itr->stack[0] = x;
 }
 
@@ -469,7 +499,7 @@ cuex_ltree_full_source(cuex_t x)
 }
 
 cu_ptr_source_t
-cuex_ltree_slice_source(cuex_t x, size_t i, size_t j)
+cuex_ltree_slice_source(cuex_t x, ptrdiff_t i, ptrdiff_t j)
 {
     iter_source_t self = cu_gnew(struct iter_source_s);
     cu_ptr_source_init(cu_to(cu_ptr_source, self), iter_source_get);

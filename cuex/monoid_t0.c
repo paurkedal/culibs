@@ -31,8 +31,7 @@ int
 main()
 {
     cuex_t x;
-    int i;
-    int j;
+    int L, i;
     cuex_monoid_itr_t it;
     cuex_init();
 
@@ -48,41 +47,56 @@ main()
 
     /* Check construction and iteration */
     x = cuex_monoid_identity(OPR);
-    cu_test_assert(cuex_is_monoid_identity(OPR, x));
-    cu_test_assert(cuex_is_monoid_nongen(OPR, x));
-    x = cuex_monoid_product(OPR, x, cudyn_int(0));
-    cu_test_assert(!cuex_is_monoid_composite(OPR, x));
-    cuex_test_assert_eq(x, cudyn_int(0));
-    for (i = 1; i < N; ++i) {
-	x = cuex_monoid_product(OPR, x, cudyn_int(i));
-	cu_test_assert(cuex_is_monoid_composite(OPR, x));
-	cu_test_assert_int_eq(cuex_monoid_length(OPR, x), i + 1);
+    for (L = 0; L < N; ++L) {
+	if (L == 0) {
+	    cu_test_assert(cuex_is_monoid_nongen(OPR, x));
+	    cu_test_assert(cuex_is_monoid_identity(OPR, x));
+	    cu_test_assert(!cuex_is_monoid_composite(OPR, x));
+	}
+	else if (L == 1) {
+	    cuex_test_assert_eq(x, cudyn_int(0));
+	    cu_test_assert(!cuex_is_monoid_nongen(OPR, x));
+	    cu_test_assert(!cuex_is_monoid_identity(OPR, x));
+	    cu_test_assert(!cuex_is_monoid_composite(OPR, x));
+	}
+	else {
+	    cu_test_assert(cuex_is_monoid_nongen(OPR, x));
+	    cu_test_assert(!cuex_is_monoid_identity(OPR, x));
+	    cu_test_assert(cuex_is_monoid_composite(OPR, x));
+	}
+	cu_test_assert_int_eq(cuex_monoid_length(OPR, x), L);
 	cuex_monoid_itr_init_full(OPR, &it, x);
-	for (j = 0; j <= i; ++j) {
+	for (i = 0; i < L; ++i) {
 	    cuex_monoid_itr_t it_r;
-	    cuex_test_assert_eq(cuex_monoid_itr_get(&it), cudyn_int(j));
-	    cuex_test_assert_eq(cuex_monoid_factor_at(OPR, x, j), cudyn_int(j));
-	    cuex_monoid_itr_init_slice(OPR, &it_r, x, j, SIZE_MAX);
-	    cuex_test_assert_eq(cuex_monoid_itr_get(&it_r), cudyn_int(j));
+	    cuex_test_assert_eq(cuex_monoid_itr_get(&it), cudyn_int(i));
+	    cuex_test_assert_eq(cuex_monoid_factor_at(OPR, x, i), cudyn_int(i));
+	    cuex_test_assert_eq(cuex_monoid_factor_at(OPR, x, i - L),
+				cudyn_int(i));
+	    cuex_monoid_itr_init_slice(OPR, &it_r, x, i, CUEX_MONOID_END);
+	    cuex_test_assert_eq(cuex_monoid_itr_get(&it_r), cudyn_int(i));
 	}
 	cuex_test_assert_eq(cuex_monoid_itr_get(&it), NULL);
+	x = cuex_monoid_product(OPR, x, cudyn_int(L));
     }
 
     /* Check associativity */
-    for (j = 0; j < N; ++j) {
+    for (L = 0; L < N; ++L) {
 	cuex_t y = cuex_monoid_identity(OPR);
 	cuex_t z = cuex_monoid_identity(OPR);
-	for (i = 0; i < j; ++i)
+	for (i = 0; i < L; ++i)
 	    y = cuex_monoid_product(OPR, y, cudyn_int(i));
-	for (i = j; i < N; ++i)
+	for (i = L; i < N; ++i)
 	    z = cuex_monoid_product(OPR, z, cudyn_int(i));
 	cuex_test_assert_eq(x, cuex_monoid_product(OPR, y, z));
-	cuex_test_assert_eq(cuex_monoid_factor_slice(OPR, x, 0, j), y);
-	cuex_test_assert_eq(cuex_monoid_factor_slice(OPR, x, j, N), z);
+	cuex_test_assert_eq(cuex_monoid_factor_slice(OPR, x, 0, L), y);
+	cuex_test_assert_eq(cuex_monoid_factor_slice(OPR, x, 0, L - N), y);
+	cuex_test_assert_eq(cuex_monoid_factor_slice(OPR, x, L, N), z);
+	cuex_test_assert_eq(
+	    cuex_monoid_factor_slice(OPR, x, L - N, CUEX_MONOID_END), z);
     }
 
     /* Check iterative construction. */
-    for (j = 0; j < N; ++j) {
+    for (L = 0; L < N; ++L) {
 	cuex_t identity = cuex_monoid_identity(OPR);
 	cuex_t x = cuex_monoid_identity(OPR);
 	cuex_t y;
@@ -91,7 +105,7 @@ main()
 	cu_ptr_junctor_t z_junctor;
 	impl = cuoo_type_impl_ptr(cuex_monoid_type(), CUEX_INTF_COMPOUND);
 	y_sinktor = impl->ncomm_build_sinktor(impl, identity);
-	for (i = 0; i < j; ++i) {
+	for (i = 0; i < L; ++i) {
 	    cuex_t ei = cudyn_int(i);
 	    cu_test_assert_size_eq(cuex_monoid_length(OPR, x), i);
 	    x = cuex_monoid_product(OPR, x, ei);
@@ -99,7 +113,7 @@ main()
 	}
 	y = cu_ptr_sinktor_finish(y_sinktor);
 	cuex_test_assert_eq(x, y);
-	if (j != 1) {
+	if (L != 1) {
 	    z_junctor = cuex_compound_pref_image_junctor(impl, x);
 	    cu_ptr_junction_short(cu_to(cu_ptr_junction, z_junctor));
 	    cuex_test_assert_eq(x, cu_ptr_junctor_finish(z_junctor));

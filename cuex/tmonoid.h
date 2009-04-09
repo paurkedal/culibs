@@ -51,6 +51,10 @@ struct cuex_tmonoid_s
     cuex_t ltree;
 };
 
+/*!Special value for the upper bound in slicing operations to indicate slicing
+ * to the end. */
+#define CUEX_TMONOID_END CUEX_LTREE_END
+
 extern cuoo_type_t cuexP_tmonoid_type;
 
 /*!The object type of the members of tagged monoids. */
@@ -122,11 +126,11 @@ cuex_t cuex_tmonoid_rightmult_array(cuex_t x, cuex_t *array, size_t count);
 
 size_t cuex_tmonoid_length(cuex_t x);
 
-cuex_t cuex_tmonoid_factor_at(cuex_t x, size_t i);
+cuex_t cuex_tmonoid_factor_at(cuex_t x, ptrdiff_t i);
 
-cuex_t cuex_tmonoid_factor_slice(cuex_t x, size_t i, size_t j);
+cuex_t cuex_tmonoid_factor_slice(cuex_t x, ptrdiff_t i, ptrdiff_t j);
 
-cu_ptr_source_t cuex_tmonoid_factor_source(cuex_t x, size_t i, size_t j);
+cu_ptr_source_t cuex_tmonoid_factor_source(cuex_t x, ptrdiff_t i, ptrdiff_t j);
 
 struct cuex_tmonoid_itr_s { struct cuex_ltree_itr_s sub; };
 typedef struct cuex_tmonoid_itr_s cuex_tmonoid_itr_t;
@@ -134,7 +138,7 @@ typedef struct cuex_tmonoid_itr_s cuex_tmonoid_itr_t;
 void cuex_tmonoid_itr_init_full(cuex_tmonoid_itr_t *itr, cuex_t x);
 
 void cuex_tmonoid_itr_init_slice(cuex_tmonoid_itr_t *itr, cuex_t x,
-				 size_t i, size_t j);
+				 ptrdiff_t i, ptrdiff_t j);
 
 CU_SINLINE cuex_t cuex_tmonoid_itr_get(cuex_tmonoid_itr_t *itr)
 { return cuex_ltree_itr_get(&itr->sub); }

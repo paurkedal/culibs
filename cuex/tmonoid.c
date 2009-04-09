@@ -100,14 +100,14 @@ cuex_tmonoid_length(cuex_t x)
 }
 
 cuex_t
-cuex_tmonoid_factor_at(cuex_t x, size_t i)
+cuex_tmonoid_factor_at(cuex_t x, ptrdiff_t i)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     return cuex_ltree_at(TMONOID(x)->ltree, i);
 }
 
 cuex_t
-cuex_tmonoid_factor_slice(cuex_t x, size_t i, size_t j)
+cuex_tmonoid_factor_slice(cuex_t x, ptrdiff_t i, ptrdiff_t j)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     return _tmonoid_wrap(TMONOID(x)->opr,
@@ -123,14 +123,14 @@ cuex_tmonoid_itr_init_full(cuex_tmonoid_itr_t *itr, cuex_t x)
 
 void
 cuex_tmonoid_itr_init_slice(cuex_tmonoid_itr_t *itr, cuex_t x,
-			      size_t i, size_t j)
+			    ptrdiff_t i, ptrdiff_t j)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     cuex_ltree_itr_init_slice(&itr->sub, TMONOID(x)->ltree, i, j);
 }
 
 cu_ptr_source_t
-cuex_tmonoid_factor_source(cuex_t x, size_t i, size_t j)
+cuex_tmonoid_factor_source(cuex_t x, ptrdiff_t i, ptrdiff_t j)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     return cuex_ltree_slice_source(x, i, j);
@@ -145,7 +145,7 @@ _factor_source(cuex_intf_compound_t impl, cuex_t x)
 }
 
 cu_ptr_source_t
-cuex_any_tmonoid_factor_source(cuex_t x, size_t i, size_t j)
+cuex_any_tmonoid_factor_source(cuex_t x, ptrdiff_t i, ptrdiff_t j)
 {
     if (cuex_any_tmonoid_contains(x))
 	return cuex_ltree_slice_source(TMONOID(x)->ltree, i, j);

@@ -38,6 +38,9 @@ CU_BEGIN_DECLARATIONS
     (CUEXP_OR_LTREE(arity) | CUEXP_OA_LTREE_DEPTH(depth))
 #define CUEXP_OA_LTREE_DEPTH_MAXP (1 << CUEXP_OA_LTREE_DEPTH_WIDTH)
 
+/*!Special value to indicate no end limit in slice functions. */
+#define CUEX_LTREE_END PTRDIFF_MAX
+
 CU_SINLINE cu_bool_t
 cuex_is_oR_ltree(cuex_meta_t opr)
 {
@@ -67,7 +70,7 @@ CU_SINLINE cu_bool_t cuexP_is_ltree_node(cuex_t tree)
 
 /*!Returns element number \a i of \a tree.
  * \pre \a tree must be non-empty and \a i must be within its range. */
-cuex_t cuex_ltree_at(cuex_t tree, size_t i);
+cuex_t cuex_ltree_at(cuex_t tree, ptrdiff_t i);
 
 /*!Returns the last element of \a tree.
  * \pre \a tree must be non-empty. */
@@ -76,8 +79,9 @@ cuex_t cuex_ltree_last(cuex_t tree);
 /*!Returns the concatenation of \a tree0 and \a tree1. */
 cuex_t cuex_ltree_concat(cuex_t tree0, cuex_t tree1);
 
-/*!Returns the slice of \a tree for indices [\a start, \a end). */
-cuex_t cuex_ltree_slice(cuex_t tree, size_t start, size_t end);
+/*!Returns the slice of \a tree for indices [\a start, \a end).  Negative
+ * indices are taken to be relative to the end. */
+cuex_t cuex_ltree_slice(cuex_t tree, ptrdiff_t start, ptrdiff_t end);
 
 /*!Return the number of elements in \a tree. */
 size_t cuex_ltree_size(cuex_t tree);
@@ -99,9 +103,10 @@ typedef struct cuex_ltree_itr_s cuex_ltree_itr_t;
 /*!Construct \a itr to iterate over all elements of \a tree. */
 void cuex_ltree_itr_init_full(cuex_ltree_itr_t *itr, cuex_t tree);
 
-/*!Construct \a itr to iterate over elements \a start to \a end of \a tree. */
+/*!Construct \a itr to iterate over elements \a start to \a end of \a tree.
+ * Relative indices are taken to be relative to the end. */
 void cuex_ltree_itr_init_slice(cuex_ltree_itr_t *itr, cuex_t tree,
-			       size_t start, size_t end);
+			       ptrdiff_t start, ptrdiff_t end);
 
 /*!True iff \a itr is at the end of its range. */
 CU_SINLINE cu_bool_t cuex_ltree_itr_is_end(cuex_ltree_itr_t *itr)
@@ -113,7 +118,7 @@ cuex_t cuex_ltree_itr_get(cuex_ltree_itr_t *itr);
 
 cu_ptr_source_t cuex_ltree_full_source(cuex_t x);
 
-cu_ptr_source_t cuex_ltree_slice_source(cuex_t x, size_t i, size_t j);
+cu_ptr_source_t cuex_ltree_slice_source(cuex_t x, ptrdiff_t i, ptrdiff_t j);
 
 cuex_t cuex_ltree_from_source(cu_ptr_source_t source);
 

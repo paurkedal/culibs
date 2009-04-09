@@ -39,6 +39,10 @@ struct cuex_monoid_s
     cuex_t ltree;
 };
 
+/*!Special value for the end position of slicing operations to indicate slicing
+ * to the end. */
+#define CUEX_MONOID_END CUEX_LTREE_END
+
 extern cuoo_type_t cuexP_monoid_type;
 
 /*!The object type of elements of monoid compounds. */
@@ -130,18 +134,21 @@ cuex_t cuex_monoid_rightmult_array(cuex_meta_t mult, cuex_t x,
 size_t cuex_monoid_length(cuex_meta_t mult, cuex_t x);
 
 /*!Factor number \a i (counting from 0) of the factorisation of \a x
- * with respect to \a mult.
- * \pre \a i ≤ \ref cuex_monoid_length(\a mult, \a x) */
-cuex_t cuex_monoid_factor_at(cuex_meta_t mult, cuex_t x, size_t i);
+ * with respect to \a mult.  If \a i is negative it's taken to be relative to
+ * just past the last factor of \a x.
+ * \pre \e N ≤ \a i < \e N where \e N = \ref cuex_monoid_length(\a mult, \a x) */
+cuex_t cuex_monoid_factor_at(cuex_meta_t mult, cuex_t x, ptrdiff_t i);
 
 /*!The monoid of factors \a i inclusive to \a j exclusive of the
  * factorisation of \a x, considering the operator \a mult.
  * \pre \a i ≤ \a j ≤ \ref cuex_monoid_length(\a mult, \a x) */
-cuex_t cuex_monoid_factor_slice(cuex_meta_t mult, cuex_t x, size_t i, size_t j);
+cuex_t cuex_monoid_factor_slice(cuex_meta_t mult, cuex_t x,
+				ptrdiff_t i, ptrdiff_t j);
 
 /*!Returns a source which provides the factors \a i inclusive to \a j exclusive
  * in the factorisation of \a x with respect to \a mult. */
-cu_ptr_source_t cuex_any_monoid_factor_source(cuex_t e, size_t i, size_t j);
+cu_ptr_source_t cuex_any_monoid_factor_source(cuex_t e,
+					      ptrdiff_t i, ptrdiff_t j);
 
 struct cuex_monoid_itr_s { struct cuex_ltree_itr_s sub; };
 typedef struct cuex_monoid_itr_s cuex_monoid_itr_t;
@@ -154,7 +161,7 @@ void cuex_monoid_itr_init_full(cuex_meta_t mult,
  * \a i and stopping at number \a j. */
 void cuex_monoid_itr_init_slice(cuex_meta_t mult,
 				cuex_monoid_itr_t *itr, cuex_t x,
-				size_t i, size_t j);
+				ptrdiff_t i, ptrdiff_t j);
 
 /*!Pops the next expression off \a itr or returns \c NULL if \a itr is
  * empty. */
