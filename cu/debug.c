@@ -170,9 +170,11 @@ _backtrace()
 		    (unsigned long)info.flags,
 		    info.format);
 #else
-	    fprintf(stderr,
-		    "    %s + 0x%lx\n",
-		    proc_name, (unsigned long)proc_name_off);
+	    if (strlen(proc_name))
+		fprintf(stderr, "    %s + %#lx\n",
+			proc_name, (unsigned long)proc_name_off);
+	    else
+		fprintf(stderr, "    %#lx\n", (unsigned long)proc_name_off);
 #endif
 	}
 	if (strcmp(proc_name, "main") == 0)

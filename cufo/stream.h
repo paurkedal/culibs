@@ -94,6 +94,8 @@ cu_bool_t cufo_stream_init(cufo_stream_t fos, char const *encoding,
 cu_bool_t cufo_stream_clientstate(cufo_stream_t fos, void const *key,
 				  size_t state_size, cu_ptr_ptr_t state_out);
 
+cu_bool_t cufo_stream_drop_clientstate(cufo_stream_t fos, void const *key);
+
 /*!Returns the last character written to \a fos if it was an ASCII character,
  * otherwise returns 0.  This is mainly inteded as a convenient way for a
  * client to check if it has written out spaces or newlines, instead of keeping

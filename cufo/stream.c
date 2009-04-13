@@ -102,6 +102,13 @@ cufo_stream_clientstate(cufo_stream_t fos, void const *key,
     return st;
 }
 
+cu_bool_t
+cufo_stream_drop_clientstate(cufo_stream_t fos, void const *key)
+{
+    cu_word_t wkey = (cu_word_t)key;
+    return cucon_hzmap_erase(&fos->clientstate_map, &wkey);
+}
+
 void *
 cufoP_stream_produce(cufo_stream_t fos, size_t len)
 {

@@ -66,7 +66,9 @@ cucon_frame_at(void *frame, size_t frame_cnt)
 	return frame;
 
     cur_depth = cucon_frame_depth(frame);
-    cu_debug_assert(frame_cnt <= cur_depth);
+    if (frame_cnt >= cur_depth)
+	return NULL;
+
     dst_depth = cur_depth - frame_cnt;
     pow2_bit = 1;
     bit = 0;
