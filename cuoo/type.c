@@ -32,7 +32,7 @@ cuoo_shape_name(cuoo_shape_t shape)
 	case CUOO_SHAPE_OPAQUE:		return "opaque";
 	case CUOO_SHAPE_OPAQUE_HCV:	return "opaque_hcv";
 	case CUOO_SHAPE_METATYPE:	return "metatype";
-	case CUOO_SHAPE_UNIT:		return "void";
+	case CUOO_SHAPE_UNIT:		return "unit";
 	case CUOO_SHAPE_SCALAR_BOOL:	return "bool";
 	case CUOO_SHAPE_SCALAR_CHAR:	return "char";
 	case CUOO_SHAPE_SCALAR_METAINT:	return "cuex_meta_t";
@@ -157,7 +157,7 @@ cuoo_type_to_str_default(cuoo_type_t type)
 {
     cuoo_shape_t shape = cuoo_type_shape(type);
     char const *name = cuoo_shape_name(shape);
-    if (cuoo_shape_is_scalar(shape))
+    if (cuoo_shape_is_singleton(shape))
 	return cu_str_new_cstr(name);
     else if (name)
 	return cu_str_new_fmt("__%s_%p", name, type);

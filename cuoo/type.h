@@ -124,6 +124,15 @@ cuoo_shape_is_scalar_fp(cuoo_shape_t shape)
 	&& shape <= CUOO_SHAPE_MAX_SCALAR_FP;
 }
 
+/*!True iff there is exactly one type for this shape. */
+CU_SINLINE cu_bool_t
+cuoo_shape_is_singleton(cuoo_shape_t shape)
+{
+    shape &= ~CUOO_SHAPEFLAG_MASK;
+    return shape == CUOO_SHAPE_UNIT
+	|| (shape >= CUOO_SHAPE_MIN_SCALAR && shape <= CUOO_SHAPE_MAX_SCALAR);
+}
+
 /*!The dynamic type (base) struct. */
 struct cuoo_type_s
 {

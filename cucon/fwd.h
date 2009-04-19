@@ -25,6 +25,7 @@ CU_BEGIN_DECLARATIONS
  * @{\ingroup cucon_mod */
 
 typedef struct cucon_arr_s		*cucon_arr_t;		/* arr.h */
+typedef struct cucon_bitvect_s		*cucon_bitvect_t;	/* bitvect.h */
 typedef struct cucon_digraph_s		*cucon_digraph_t;	/* digraph.h */
 typedef struct cucon_digraph_vertex_s	*cucon_digraph_vertex_t;/* digraph.h */
 typedef struct cucon_digraph_edge_s	*cucon_digraph_edge_t;	/* digraph.h */

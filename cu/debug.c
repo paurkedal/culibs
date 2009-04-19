@@ -200,6 +200,7 @@ cu_debug_abort()
 	_backtrace();
 #endif
     raise(SIGABRT);
+    abort();
 }
 
 void

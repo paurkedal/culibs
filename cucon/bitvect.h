@@ -24,8 +24,6 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_bitvect cucon/bitvect.h: Compact vectors of bools/bits
  * @{\ingroup cucon_linear_mod */
 
-typedef struct cucon_bitvect_s *cucon_bitvect_t;
-
 typedef unsigned int cuconP_bitvect_word_t;
 #define cuconP_bitvect_word_width (sizeof(cuconP_bitvect_word_t)*8)
 

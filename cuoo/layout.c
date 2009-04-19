@@ -241,8 +241,7 @@ layout_new_pack(cuoo_layout_t lyo, cu_offset_t bitsize, cu_offset_t bitalign,
 #      elif CU_WORD_WIDTH < 128
 #	 error Unexpected CU_WORD_WIDTH, check the configuration.
 #      else
-#	 error Word width > 128? Very impressive! This was written in the start
-#        error of the 21st century, we didn't even have 128 bit computers yet.
+#	 error Word width > 64?  Please add a case here.
 #      endif
 #    endif
 #  endif
