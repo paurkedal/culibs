@@ -69,14 +69,11 @@ CU_SINLINE cu_bool_t
 cuex_opr_is_binder(cuex_meta_t opr)
 { return cuex_og_binder_contains(opr); }
 
-cuex_t cuexP_bfree_adjusted(cuex_t e, int l_diff, int l_top);
-
 /*!For all free b-variables in \a e, increment their de Bruijn index by \a
  * l_diff.  This prepares the subexpression \a e to be substituted down
  * accross \a l_diff bind-sites, or for negative, up accross -\a l_diff
  * bind-sites. */
-CU_SINLINE cuex_t cuex_bfree_adjusted(cuex_t e, int l_diff)
-{ return cuexP_bfree_adjusted(e, l_diff, -1); }
+cuex_t cuex_bfree_adjusted(cuex_t e, int l_diff);
 
 /*!Calls \a f(\e lr, \e lr_top) for free hole in \a e, where \e lr is the hole
  * index and \e lr_top is \a l_top plus the binding depth of the hole.  \a
@@ -88,6 +85,18 @@ void cuex_bfree_iter(cuex_t e, cu_clop(f, void, int, int), int l_top);
  * depth of the hole.  \a l_top is the top level relative to \a e to consider
  * free, typically 0. */
 cuex_t cuex_bfree_tran(cuex_t e, cu_clop(f, cuex_t, int, int), int l_top);
+
+cu_bool_t cuex_bfree_match(cu_clop(f, cu_bool_t, int, cuex_t, int),
+			   cuex_t p, cuex_t e, int l_top);
+
+/*!Inserts free variables of \a e into \a set, where \a l_top (usually 0) is
+ * considered to be the first unbound level.  The index of the outermost
+ * variable is returned, or INT_MIN of there were no free variables. */
+int cuex_bfree_into_uset(cuex_t e, int l_top, cucon_uset_t set);
+
+/*!Inserts free variables of \a e into \a set limited by it's initialised size,
+ * and returns the number of unique free variables within the range. */
+int cuex_bfree_into_bitvect(cuex_t e, int l_top, cucon_bitvect_t set);
 
 cuex_t cuex_reindex_by_int_stack(cuex_t e, int stack_top_level,
 				 int stack_span, cucon_stack_t stack);

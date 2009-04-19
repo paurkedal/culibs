@@ -24,12 +24,14 @@
 #include <cucon/list.h>
 #include <cucon/pmap.h>
 #include <cucon/stack.h>
+#include <cucon/uset.h>
+#include <cucon/bitvect.h>
 #include <cu/int.h>
 #include <cu/ptr_seq.h>
 #include <limits.h>
 
-cuex_t
-cuexP_bfree_adjusted(cuex_t e, int l_diff, int l_top)
+static cuex_t
+_bfree_adjusted(cuex_t e, int l_diff, int l_top)
 {
     cuex_meta_t e_meta = cuex_meta(e);
     if (cuex_meta_is_opr(e_meta)) {
@@ -42,7 +44,7 @@ cuexP_bfree_adjusted(cuex_t e, int l_diff, int l_top)
 	    if (cuex_og_binder_contains(e_meta))
 		++l_top;
 	    CUEX_OPN_TRAN(e_meta, e, ep,
-			  cuexP_bfree_adjusted(ep, l_diff, l_top));
+			  _bfree_adjusted(ep, l_diff, l_top));
 	}
     } else if (cuex_meta_is_type(e_meta)) {
 	cuoo_type_t type = cuoo_type_from_meta(e_meta);
@@ -53,11 +55,20 @@ cuexP_bfree_adjusted(cuex_t e, int l_diff, int l_top)
 	    cu_ptr_junctor_t ij;
 	    ij = cuex_compound_pref_image_junctor(e_c, e);
 	    while ((ep = cu_ptr_junctor_get(ij)))
-		cu_ptr_junctor_put(ij, cuexP_bfree_adjusted(ep, l_diff, l_top));
+		cu_ptr_junctor_put(ij, _bfree_adjusted(ep, l_diff, l_top));
 	    return cu_ptr_junctor_finish(ij);
 	}
     }
     return e;
+}
+
+cuex_t
+cuex_bfree_adjusted(cuex_t e, int l_diff)
+{
+    if (l_diff == 0)
+	return e;
+    else
+	return _bfree_adjusted(e, l_diff, -1);
 }
 
 void
@@ -120,6 +131,96 @@ cuex_bfree_tran(cuex_t e, cu_clop(f, cuex_t, int, int), int l_top)
 	}
     }
     return e;
+}
+
+cu_bool_t
+cuex_bfree_match(cu_clop(f, cu_bool_t, int, cuex_t, int),
+		 cuex_t p, cuex_t e, int l_top)
+{
+    cuex_meta_t p_meta = cuex_meta(p);
+    if (cuex_meta_is_opr(p_meta)) {
+	if (cuex_og_hole_contains(p_meta)) {
+	    int l = cuex_oa_hole_index(p_meta);
+	    if (l >= l_top)
+		return cu_call(f, l, e, l_top);
+	    else
+		return p == e;
+	}
+	else if (p_meta != cuex_meta(e))
+	    return cu_false;
+	else {
+	    int i, r;
+	    if (cuex_og_binder_contains(p_meta))
+		++l_top;
+	    r = cuex_opr_r(p_meta);
+	    for (i = 0; i < r; ++i)
+		if (!cuex_bfree_match(f, cuex_opn_at(p, i), cuex_opn_at(e, i),
+				      l_top))
+		    return cu_false;
+	    return cu_true;
+	}
+    }
+    else if (p_meta != cuex_meta(e))
+	return cu_false;
+    else if (cuex_meta_is_type(p_meta)) {
+	cuoo_type_t type = cuoo_type_from_meta(p_meta);
+	cuex_intf_compound_t impl;
+	impl = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (impl) {
+	    cuex_t pp, ep;
+	    cu_ptr_source_t p_src, e_src;
+	    p_src = cuex_compound_pref_iter_source(impl, p);
+	    e_src = cuex_compound_pref_iter_source(impl, e);
+	    while ((pp = cu_ptr_source_get(p_src)) &&
+		   (ep = cu_ptr_source_get(e_src)))
+		if (!cuex_bfree_match(pp, ep, f, l_top))
+		    return cu_false;
+	    return cu_true;
+	}
+    }
+    return p == e;
+}
+
+cu_clos_def(_bfree_into_uset_helper, cu_prot(void, int l, int l_top),
+    ( cucon_uset_t set; int l_max; ))
+{
+    cu_clos_self(_bfree_into_uset_helper);
+    l -= l_top;
+    cucon_uset_insert(self->set, l);
+    self->l_max = cu_int_max(self->l_max, l);
+}
+
+int
+cuex_bfree_into_uset(cuex_t e, int l_top, cucon_uset_t set)
+{
+    _bfree_into_uset_helper_t cb;
+    cb.set = set;
+    cb.l_max = INT_MIN;
+    cuex_bfree_iter(e, _bfree_into_uset_helper_prep(&cb), l_top);
+    return cb.l_max;
+}
+
+cu_clos_def(_bfree_into_bitvect_helper, cu_prot(void, int l, int l_top),
+  ( cucon_bitvect_t seen; int seen_count; ))
+{
+    cu_clos_self(_bfree_into_bitvect_helper);
+    l -= l_top;
+    cu_debug_assert(l >= 0);
+    if (l >= 0 && l < cucon_bitvect_size(self->seen)
+	    && !cucon_bitvect_at(self->seen, l)) {
+	cucon_bitvect_set_at(self->seen, l, cu_true);
+	++self->seen_count;
+    }
+}
+
+int
+cuex_bfree_into_bitvect(cuex_t e, int l_top, cucon_bitvect_t seen)
+{
+    _bfree_into_bitvect_helper_t helper;
+    helper.seen_count = 0;
+    helper.seen = seen;
+    cuex_bfree_iter(e, _bfree_into_bitvect_helper_prep(&helper), l_top);
+    return helper.seen_count;
 }
 
 cuex_t
