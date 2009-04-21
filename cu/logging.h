@@ -48,10 +48,18 @@ typedef cu_clop(cu_vlogf_t, void,
 
 typedef cu_clop(cu_log_binder_t, cu_bool_t, cu_log_facility_t new_facility);
 
+/*!Facility flag to indicate process-long lifetime. */
 #define CU_LOG_FLAG_PERMANENT 1
+
+/*!Facility flag to indicate transient lifetime. */
 #define CU_LOG_FLAG_TRANSIENT 2
+
+/*!Indicates a logging facility used for debugging. */
 #define CU_LOG_FLAG_DEBUG_FACILITY 4
 
+/*!A logging facility, which combines a printf-style format callback with
+ * various meta information which said function can use to determine whether,
+ * where, and how to log. */
 struct cu_log_facility_s
 {
     cu_log_severity_t severity : 8;
@@ -61,6 +69,10 @@ struct cu_log_facility_s
     cu_log_facility_t next;
     cu_vlogf_t vlogf;
 };
+
+/*!Expands to an initialiser for \ref cu_log_facility_s. */
+#define CU_LOG_FACILITY_INITIALISER(severity, origin, keys, flags) \
+    { severity, origin, flags, keys, NULL, NULL }
 
 /*!Register a new log-binder.  A log-binder will be called with all existing
  * logs and logs created in the future.  It's purpose is to assign a suitable
