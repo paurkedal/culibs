@@ -209,32 +209,39 @@ cucon_stack_itr_init(cucon_stack_itr_t itr, cucon_stack_t stack)
     itr->sp = stack->sp;
 }
 
+static cu_bool_t
+_stack_itr_fix(cucon_stack_itr_t itr, size_t size)
+{
+    if (itr->sp == itr->stack->end) {
+	/* Turning to next fragment or fetching last element. */
+	cucon_stack_t prev = itr->stack->prev;
+	if (prev) {
+	    itr->stack = prev;
+	    itr->sp = prev->sp;
+	}
+	return cu_true;
+    } else {
+	/* Empty or bad size. */
+	itr->sp -= size;
+#ifndef CU_NDEBUG_CLIENT
+	if (itr->sp != itr->stack->end)
+	    cu_bugf("Size %zd passed to cucon_stack_itr_get but stack "
+		    "element is at most %zd bytes.",
+		    size, itr->stack->end - itr->sp);
+#endif
+	cu_debug_assert(itr->stack->prev == NULL);
+	return cu_false;
+    }
+}
+
 void *
 cucon_stack_itr_get(cucon_stack_itr_t itr, size_t size)
 {
     void *slot = itr->sp;
     itr->sp += size;
-    if (cu_expect_false(itr->sp >= itr->stack->end)) {
-	if (itr->sp == itr->stack->end) {
-	    /* Turning to next fragment or fetching last element. */
-	    cucon_stack_t prev = itr->stack->prev;
-	    if (prev) {
-		itr->stack = prev;
-		itr->sp = prev->sp;
-	    }
-	} else {
-	    /* Empty or bad size. */
-	    itr->sp -= size;
-#ifndef CU_NDEBUG_CLIENT
-	    if (itr->sp != itr->stack->end)
-		cu_bugf("Size %zd passed to cucon_stack_itr_get but stack "
-			"element is at most %zd bytes.",
-			size, itr->stack->end - itr->sp);
-#endif
-	    cu_debug_assert(itr->stack->prev == NULL);
+    if (cu_expect_false(itr->sp >= itr->stack->end))
+	if (!_stack_itr_fix(itr, size))
 	    return NULL;
-	}
-    }
     return slot;
 }
 
@@ -243,12 +250,9 @@ cucon_stack_itr_get_ptr(cucon_stack_itr_t itr)
 {
     void **slot = (void **)itr->sp;
     itr->sp += sizeof(void *);
-    if (itr->sp > itr->stack->end) {
-	itr->sp -= sizeof(void *);
-	slot = cucon_stack_itr_get(itr, sizeof(void *));
-	if (!slot)
+    if (cu_expect_false(itr->sp >= itr->stack->end))
+	if (!_stack_itr_fix(itr, sizeof(void *)))
 	    return NULL;
-    }
     return *slot;
 }
 
