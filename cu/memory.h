@@ -207,6 +207,14 @@ cu_galloc_au(size_t size)
  * cu_cgalloc. */
 #define cu_cgnew(type) ((type *)cu_cgalloc(sizeof(type)))
 
+#define cu_gnewarr(type, n)	((type *)cu_galloc(sizeof(type)*(n)))
+#define cu_gnewarr_a(type, n)	((type *)cu_galloc_a(sizeof(type)*(n)))
+#define cu_gnewarr_u(type, n)	((type *)cu_galloc_u(sizeof(type)*(n)))
+#define cu_gnewarr_au(type, n)	((type *)cu_galloc_au(sizeof(type)*(n)))
+
+#define cu_snew(type, n)	((type *)cu_salloc(sizeof(type)))
+#define cu_snewarr(type, n)	((type *)cu_salloc(sizeof(type)*(n)))
+
 
 /* Other GC facilities
  * ------------------- */
