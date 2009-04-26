@@ -211,6 +211,32 @@ cuex_ltree_append_from_source(cuex_t x, cu_ptr_source_t source)
 }
 
 cuex_t
+cuex_ltree_append_from_array(cuex_t ltree, cuex_t *arr, size_t cnt)
+{
+    struct cu_ptr_array_source_s src;
+    cu_ptr_array_source_init(&src, arr, arr + cnt);
+    return cuex_ltree_append_from_source(ltree, cu_to(cu_ptr_source, &src));
+}
+
+cuex_t
+cuex_ltree_from_valist(va_list vl)
+{
+    cuex_t ltree = cuex_ltree_empty();
+    for (;;) {
+	int i;
+	cuex_t buf[32];
+	for (i = 0; i < sizeof(buf)/sizeof(buf[0]); ++i) {
+	    buf[i] = va_arg(vl, void *);
+	    if (!buf[i])
+		break;
+	}
+	ltree = cuex_ltree_append_from_array(ltree, buf, i);
+	if (i < sizeof(buf)/sizeof(buf[0]))
+	    return ltree;
+    }
+}
+
+cuex_t
 cuex_ltree_from_source(cu_ptr_source_t source)
 {
     return cuex_ltree_append_from_source(cuex_ltree_empty(), source);

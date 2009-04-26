@@ -46,7 +46,16 @@ cuex_tmonoid_generator(cuex_meta_t mult, cuex_t x)
 }
 
 cuex_t
-cuex_tmonoid_product(cuex_t x, cuex_t y)
+cuex_tmonoid_product(cuex_meta_t mult, cuex_t x, cuex_t y)
+{
+    cu_debug_assert(cuex_tmonoid_contains(mult, x));
+    cu_debug_assert(cuex_tmonoid_contains(mult, y));
+    return _tmonoid_wrap(TMONOID(x)->opr, cuex_ltree_concat(TMONOID(x)->ltree,
+							    TMONOID(y)->ltree));
+}
+
+cuex_t
+cuex_any_tmonoid_product(cuex_t x, cuex_t y)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     cu_debug_assert(cuex_any_tmonoid_contains(y));
@@ -56,11 +65,36 @@ cuex_tmonoid_product(cuex_t x, cuex_t y)
 }
 
 cuex_t
-cuex_tmonoid_rightmult(cuex_t x, cuex_t y)
+cuex_tmonoid_rightmult(cuex_meta_t meta, cuex_t x, cuex_t y)
+{
+    cu_debug_assert(cuex_tmonoid_contains(meta, x));
+    return _tmonoid_wrap(TMONOID(x)->opr,
+			 cuex_ltree_concat(TMONOID(x)->ltree, y));
+}
+
+cuex_t
+cuex_any_tmonoid_rightmult(cuex_t x, cuex_t y)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     return _tmonoid_wrap(TMONOID(x)->opr,
 			 cuex_ltree_concat(TMONOID(x)->ltree, y));
+}
+
+cuex_t
+cuex_tmonoid_from_valist(cuex_meta_t mult, va_list vl)
+{
+    return _tmonoid_wrap(mult, cuex_ltree_from_valist(vl));
+}
+
+cuex_t
+cuex_tmonoid_from_args(cuex_meta_t mult, ...)
+{
+    cuex_t e;
+    va_list vl;
+    va_start(vl, mult);
+    e = cuex_tmonoid_from_valist(mult, vl);
+    va_end(vl);
+    return e;
 }
 
 cuex_t
@@ -76,7 +110,17 @@ cuex_tmonoid_from_source(cuex_meta_t mult, cu_ptr_source_t source)
 }
 
 cuex_t
-cuex_tmonoid_rightmult_source(cuex_t x, cu_ptr_source_t y_source)
+cuex_tmonoid_rightmult_source(cuex_meta_t mult, cuex_t x,
+			      cu_ptr_source_t y_source)
+{
+    cuex_t ltree;
+    cu_debug_assert(cuex_tmonoid_contains(mult, x));
+    ltree = cuex_ltree_append_from_source(TMONOID(x)->ltree, y_source);
+    return _tmonoid_wrap(TMONOID(x)->opr, ltree);
+}
+
+cuex_t
+cuex_any_tmonoid_rightmult_source(cuex_t x, cu_ptr_source_t y_source)
 {
     cuex_t ltree;
     cu_debug_assert(cuex_any_tmonoid_contains(x));
@@ -85,29 +129,60 @@ cuex_tmonoid_rightmult_source(cuex_t x, cu_ptr_source_t y_source)
 }
 
 cuex_t
-cuex_tmonoid_rightmult_array(cuex_t x, cuex_t *array, size_t count)
+cuex_tmonoid_rightmult_array(cuex_meta_t mult, cuex_t x,
+			     cuex_t *array, size_t count)
 {
     struct cu_ptr_array_source_s src;
     cu_ptr_array_source_init(&src, array, array + count);
-    return cuex_tmonoid_rightmult_source(x, cu_to(cu_ptr_source, &src));
+    return cuex_tmonoid_rightmult_source(mult, x, cu_to(cu_ptr_source, &src));
+}
+
+cuex_t
+cuex_any_tmonoid_rightmult_array(cuex_t x, cuex_t *array, size_t count)
+{
+    struct cu_ptr_array_source_s src;
+    cu_ptr_array_source_init(&src, array, array + count);
+    return cuex_any_tmonoid_rightmult_source(x, cu_to(cu_ptr_source, &src));
 }
 
 size_t
-cuex_tmonoid_length(cuex_t x)
+cuex_tmonoid_length(cuex_meta_t mult, cuex_t x)
+{
+    cu_debug_assert(cuex_tmonoid_contains(mult, x));
+    return cuex_ltree_size(TMONOID(x)->ltree);
+}
+
+size_t
+cuex_any_tmonoid_length(cuex_t x)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     return cuex_ltree_size(TMONOID(x)->ltree);
 }
 
 cuex_t
-cuex_tmonoid_factor_at(cuex_t x, ptrdiff_t i)
+cuex_tmonoid_factor_at(cuex_meta_t mult, cuex_t x, ptrdiff_t i)
+{
+    cu_debug_assert(cuex_tmonoid_contains(mult, x));
+    return cuex_ltree_at(TMONOID(x)->ltree, i);
+}
+
+cuex_t
+cuex_any_tmonoid_factor_at(cuex_t x, ptrdiff_t i)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     return cuex_ltree_at(TMONOID(x)->ltree, i);
 }
 
 cuex_t
-cuex_tmonoid_factor_slice(cuex_t x, ptrdiff_t i, ptrdiff_t j)
+cuex_tmonoid_factor_slice(cuex_meta_t mult, cuex_t x, ptrdiff_t i, ptrdiff_t j)
+{
+    cu_debug_assert(cuex_tmonoid_contains(mult, x));
+    return _tmonoid_wrap(TMONOID(x)->opr,
+			 cuex_ltree_slice(TMONOID(x)->ltree, i, j));
+}
+
+cuex_t
+cuex_any_tmonoid_factor_slice(cuex_t x, ptrdiff_t i, ptrdiff_t j)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     return _tmonoid_wrap(TMONOID(x)->opr,
@@ -115,22 +190,44 @@ cuex_tmonoid_factor_slice(cuex_t x, ptrdiff_t i, ptrdiff_t j)
 }
 
 void
-cuex_tmonoid_itr_init_full(cuex_tmonoid_itr_t *itr, cuex_t x)
+cuex_tmonoid_itr_init_full(cuex_meta_t mult, cuex_tmonoid_itr_t *itr, cuex_t x)
+{
+    cu_debug_assert(cuex_tmonoid_contains(mult, x));
+    cuex_ltree_itr_init_full(&itr->sub, TMONOID(x)->ltree);
+}
+
+void
+cuex_any_tmonoid_itr_init_full(cuex_tmonoid_itr_t *itr, cuex_t x)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     cuex_ltree_itr_init_full(&itr->sub, TMONOID(x)->ltree);
 }
 
 void
-cuex_tmonoid_itr_init_slice(cuex_tmonoid_itr_t *itr, cuex_t x,
+cuex_tmonoid_itr_init_slice(cuex_meta_t mult, cuex_tmonoid_itr_t *itr, cuex_t x,
 			    ptrdiff_t i, ptrdiff_t j)
+{
+    cu_debug_assert(cuex_tmonoid_contains(mult, x));
+    cuex_ltree_itr_init_slice(&itr->sub, TMONOID(x)->ltree, i, j);
+}
+
+void
+cuex_any_tmonoid_itr_init_slice(cuex_tmonoid_itr_t *itr, cuex_t x,
+				ptrdiff_t i, ptrdiff_t j)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     cuex_ltree_itr_init_slice(&itr->sub, TMONOID(x)->ltree, i, j);
 }
 
 cu_ptr_source_t
-cuex_tmonoid_factor_source(cuex_t x, ptrdiff_t i, ptrdiff_t j)
+cuex_tmonoid_factor_source(cuex_meta_t mult, cuex_t x, ptrdiff_t i, ptrdiff_t j)
+{
+    cu_debug_assert(cuex_tmonoid_contains(mult, x));
+    return cuex_ltree_slice_source(x, i, j);
+}
+
+cu_ptr_source_t
+cuex_any_tmonoid_factor_source(cuex_t x, ptrdiff_t i, ptrdiff_t j)
 {
     cu_debug_assert(cuex_any_tmonoid_contains(x));
     return cuex_ltree_slice_source(x, i, j);
@@ -143,16 +240,6 @@ _factor_source(cuex_intf_compound_t impl, cuex_t x)
 {
     return cuex_ltree_full_source(TMONOID(x)->ltree);
 }
-
-cu_ptr_source_t
-cuex_any_tmonoid_factor_source(cuex_t x, ptrdiff_t i, ptrdiff_t j)
-{
-    if (cuex_any_tmonoid_contains(x))
-	return cuex_ltree_slice_source(TMONOID(x)->ltree, i, j);
-    else
-	return cuex_ltree_slice_source(x, i, j);
-}
-
 
 /* == Build Sinktor == */
 

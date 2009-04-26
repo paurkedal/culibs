@@ -99,6 +99,10 @@ cuex_t cuex_tmonoid_identity(cuex_meta_t mult);
 /*!Creates a generator for the monoid under \a mult. */
 cuex_t cuex_tmonoid_generator(cuex_meta_t mult, cuex_t x);
 
+cuex_t cuex_tmonoid_from_valist(cuex_meta_t mult, va_list vl);
+
+cuex_t cuex_tmonoid_from_args(cuex_meta_t mult, ...);
+
 /*!Returns a tagged monoid under \a mult with untagged factors drawn from \a
  * src in order. */
 cuex_t cuex_tmonoid_from_source(cuex_meta_t mult, cu_ptr_source_t src);
@@ -110,35 +114,67 @@ cuex_t cuex_tmonoid_from_array(cuex_meta_t mult,
 
 /*!Returns \a x * \a y where * = \a mult where \a x and \a y must be members of
  * the tagged monoid under \a mult. */
-cuex_t cuex_tmonoid_product(cuex_t x, cuex_t y);
+cuex_t cuex_tmonoid_product(cuex_meta_t mult, cuex_t x, cuex_t y);
+
+/*!Like \ref cuex_tmonoid_product but only checks that \a x and \y have the
+ * same operator instead of an explicitly given one. */
+cuex_t cuex_any_tmonoid_product(cuex_t x, cuex_t y);
 
 /*!Returns \a x * \a y where * = \a mult where \a x must be a tagged monoid
  * under \a mult and \a y is treated as a single untagged factor. */
-cuex_t cuex_tmonoid_rightmult(cuex_t x, cuex_t y);
+cuex_t cuex_tmonoid_rightmult(cuex_meta_t mult, cuex_t x, cuex_t y);
+
+/*!Like \ref cuex_tmonoid_rightmult, but don't check the operator. */
+cuex_t cuex_any_tmonoid_rightmult(cuex_t x, cuex_t y);
 
 /*!The result of repeated application of \ref cuex_tmonoid_rightmult for each
  * element of \a source as its second argument. */
-cuex_t cuex_tmonoid_rightmult_source(cuex_t x, cu_ptr_source_t source);
+cuex_t cuex_tmonoid_rightmult_source(cuex_meta_t mult, cuex_t x,
+				     cu_ptr_source_t source);
+
+/*!Like \ref cuex_tmonoid_rightmult_source, but don't check the operator. */
+cuex_t cuex_any_tmonoid_rightmult_source(cuex_t x, cu_ptr_source_t source);
 
 /*!The result of repeated application of \ref cuex_tmonoid_rightmult for each
  * element of the \a count elements of the array \a array. */
-cuex_t cuex_tmonoid_rightmult_array(cuex_t x, cuex_t *array, size_t count);
+cuex_t cuex_tmonoid_rightmult_array(cuex_meta_t mult, cuex_t x,
+				    cuex_t *array, size_t count);
 
-size_t cuex_tmonoid_length(cuex_t x);
+/*!Like \ref cuex_tmonoid_rightmult_array, but don't check the operator. */
+cuex_t cuex_any_tmonoid_rightmult_array(cuex_t x, cuex_t *array, size_t count);
 
-cuex_t cuex_tmonoid_factor_at(cuex_t x, ptrdiff_t i);
+size_t cuex_tmonoid_length(cuex_meta_t mult, cuex_t x);
 
-cuex_t cuex_tmonoid_factor_slice(cuex_t x, ptrdiff_t i, ptrdiff_t j);
+size_t cuex_any_tmonoid_length(cuex_t x);
 
-cu_ptr_source_t cuex_tmonoid_factor_source(cuex_t x, ptrdiff_t i, ptrdiff_t j);
+cuex_t cuex_tmonoid_factor_at(cuex_meta_t mult, cuex_t x, ptrdiff_t i);
+
+cuex_t cuex_any_tmonoid_factor_at(cuex_t x, ptrdiff_t i);
+
+cuex_t cuex_tmonoid_factor_slice(cuex_meta_t mult, cuex_t x,
+				 ptrdiff_t i, ptrdiff_t j);
+
+cuex_t cuex_any_tmonoid_factor_slice(cuex_t x, ptrdiff_t i, ptrdiff_t j);
+
+cu_ptr_source_t cuex_tmonoid_factor_source(cuex_meta_t mult, cuex_t x,
+					   ptrdiff_t i, ptrdiff_t j);
+
+cu_ptr_source_t cuex_any_tmonoid_factor_source(cuex_t x,
+					       ptrdiff_t i, ptrdiff_t j);
 
 struct cuex_tmonoid_itr_s { struct cuex_ltree_itr_s sub; };
 typedef struct cuex_tmonoid_itr_s cuex_tmonoid_itr_t;
 
-void cuex_tmonoid_itr_init_full(cuex_tmonoid_itr_t *itr, cuex_t x);
+void cuex_tmonoid_itr_init_full(cuex_meta_t mult, cuex_tmonoid_itr_t *itr,
+				cuex_t x);
 
-void cuex_tmonoid_itr_init_slice(cuex_tmonoid_itr_t *itr, cuex_t x,
-				 ptrdiff_t i, ptrdiff_t j);
+void cuex_any_tmonoid_itr_init_full(cuex_tmonoid_itr_t *itr, cuex_t x);
+
+void cuex_tmonoid_itr_init_slice(cuex_meta_t mult, cuex_tmonoid_itr_t *itr,
+				 cuex_t x, ptrdiff_t i, ptrdiff_t j);
+
+void cuex_any_tmonoid_itr_init_slice(cuex_tmonoid_itr_t *itr,
+				     cuex_t x, ptrdiff_t i, ptrdiff_t j);
 
 CU_SINLINE cuex_t cuex_tmonoid_itr_get(cuex_tmonoid_itr_t *itr)
 { return cuex_ltree_itr_get(&itr->sub); }

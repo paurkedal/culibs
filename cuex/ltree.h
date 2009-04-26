@@ -120,11 +120,15 @@ cu_ptr_source_t cuex_ltree_full_source(cuex_t x);
 
 cu_ptr_source_t cuex_ltree_slice_source(cuex_t x, ptrdiff_t i, ptrdiff_t j);
 
+cuex_t cuex_ltree_from_valist(va_list vl);
+
 cuex_t cuex_ltree_from_source(cu_ptr_source_t source);
 
 cuex_t cuex_ltree_from_array(cuex_t *elt_array, size_t elt_count);
 
 cuex_t cuex_ltree_append_from_source(cuex_t tree0, cu_ptr_source_t source1);
+
+cuex_t cuex_ltree_append_from_array(cuex_t tree0, cuex_t *arr, size_t cnt);
 
 void cuex_ltree_fprint(FILE *out, cuex_t ltree,
 		       char const *fmt_init, char const *fmt_cont);
