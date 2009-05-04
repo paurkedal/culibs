@@ -50,6 +50,16 @@ CU_SINLINE cuoo_type_t
 cuex_monoid_type()
 { return cuexP_monoid_type; }
 
+/*!True iff \a t is the type of a monoid element. */
+CU_SINLINE cu_bool_t
+cuex_is_monoid_type(cuex_t t)
+{ return t == cuexP_monoid_type; }
+
+/*!True iff \a meta is the meta of a monoid element. */
+CU_SINLINE cu_bool_t
+cuex_is_monoid_meta(cuex_meta_t meta)
+{ return meta == cuoo_type_to_meta(cuexP_monoid_type); }
+
 /*!True iff a monoid under any operator contains \a x as a non-generator.
  * \see cuex_check_monoid
  * \see cuex_is_monoid_nongen */

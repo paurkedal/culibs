@@ -62,6 +62,16 @@ CU_SINLINE cuoo_type_t
 cuex_tmonoid_type()
 { return cuexP_tmonoid_type; }
 
+/*!True iff \a t is the type of a tagged monoid element. */
+CU_SINLINE cu_bool_t
+cuex_is_tmonoid_type(cuex_t t)
+{ return t == cuexP_tmonoid_type; }
+
+/*!True iff \a meta is the meta of a tagged monoid element. */
+CU_SINLINE cu_bool_t
+cuex_is_tmonoid_meta(cuex_meta_t meta)
+{ return meta == cuoo_type_to_meta(cuexP_tmonoid_type); }
+
 /*!True iff \a x is an element of some tagged monoid. */
 CU_SINLINE cu_bool_t
 cuex_any_tmonoid_contains(cuex_t x)
