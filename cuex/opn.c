@@ -266,7 +266,10 @@ void *
 _opn_ncomm_source_get(cu_ptr_source_t base)
 {
     cuex_opn_source_t src = cu_from(cuex_opn_source, cu_ptr_source, base);
-    return cuex_opn_at(src->e, src->i++);
+    if (src->i >= cuex_opn_arity(src->e))
+	return NULL;
+    else
+	return cuex_opn_at(src->e, src->i++);
 }
 
 void
@@ -291,8 +294,12 @@ void *
 _opn_comm_source_get(cu_ptr_source_t base)
 {
     cuex_opn_source_t src = cu_from(cuex_opn_source, cu_ptr_source, base);
-    int i = src->i++;
-    return cuex_o2_metapair(cudyn_int(i), cuex_opn_at(src->e, i));
+    if (src->i >= cuex_opn_arity(src->e))
+	return NULL;
+    else {
+	int i = src->i++;
+	return cuex_o2_metapair(cudyn_int(i), cuex_opn_at(src->e, i));
+    }
 }
 
 void

@@ -138,7 +138,9 @@ cuex_bfree_match(cu_clop(f, cu_bool_t, int, cuex_t, int),
 		 cuex_t p, cuex_t e, int l_top)
 {
     cuex_meta_t p_meta = cuex_meta(p);
-    if (cuex_meta_is_opr(p_meta)) {
+    if (p == e)
+	return cu_true;
+    else if (cuex_meta_is_opr(p_meta)) {
 	if (cuex_og_hole_contains(p_meta)) {
 	    int l = cuex_oa_hole_index(p_meta);
 	    if (l >= l_top)
