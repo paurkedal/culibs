@@ -38,13 +38,13 @@ main()
 	cuex_t y, z;
 	y = cuex_tmonoid_identity(OPR);
 	for (i = j; i < N; ++i) {
-	    z = cuex_tmonoid_rightmult(x, y);
+	    z = cuex_tmonoid_rightmult(OPR, x, y);
 	    if (i < 4)
 		cu_verbf(0, "%!\n", z);
-	    cu_test_assert_size_eq(cuex_tmonoid_length(z), j + 1);
-	    y = cuex_tmonoid_rightmult(y, cudyn_int(i));
+	    cu_test_assert_size_eq(cuex_tmonoid_length(OPR, z), j + 1);
+	    y = cuex_tmonoid_rightmult(OPR, y, cudyn_int(i));
 	}
-	x = cuex_tmonoid_rightmult(x, cudyn_int(j));
+	x = cuex_tmonoid_rightmult(OPR, x, cudyn_int(j));
     }
 
     return 2*!!cu_test_bug_count();

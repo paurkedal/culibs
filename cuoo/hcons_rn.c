@@ -197,7 +197,7 @@ cuooP_hcset_adjust(cuooP_hcset_t hcset)
     /* This version uses lock promotion, and if promotion fails, leaves the
      * capacity to be changed on next attempt.  It also avoids redundant
      * allocation when two threads tries to resize simultaneously, but at the
-     * that if the set is very buzy, it may not be resized at all.
+     * expense that if the set is very buzy, it may not be resized at all.
      *
      * NB. The ARR_ALLOC function must _not_ trigger any finalisers for the
      * objects stored hcset.  These finalisers are invoked by the collector
