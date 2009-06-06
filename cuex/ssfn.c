@@ -426,7 +426,7 @@ struct cuexP_ssfn_find_it_frame_s
 {
     cuex_ssfn_node_t node;
     cuexP_ssfn_find_it_state_t state;
-    cuex_t ex;
+    cuex_t ex, ex0;
     int i;
 };
 
@@ -584,9 +584,11 @@ enter:
 			    sizeof(struct cuexP_ssfn_find_it_frame_s));
 		frame->node = ssfn_unify_cntn(node, i);
 		frame->i = i;
+		frame->ex0 = ex0;
 		goto enter;
 	    return_in_unify_var:
 		i = frame->i;
+		ex0 = frame->ex0;
 		arg_pos = cucon_stack_at(&jargs->output, i*sizeof(cuex_t));
 		CUCON_STACK_POP(&jargs->sctr, int);
 		*arg_pos = ex0;
