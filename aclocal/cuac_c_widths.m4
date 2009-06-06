@@ -68,7 +68,7 @@ int main()
     return 0;
 }
       ], [
-	source config.sizeof
+	source ./config.sizeof
 	AC_MSG_NOTICE([$WIDTHOF_CHAR b char, $WIDTHOF_SHORT b short, $WIDTHOF_INT b int, $WIDTHOF_LONG b long, $WIDTHOF_INTPTR_T b intptr_t])
 	AC_MSG_NOTICE([$WIDTHOF_VOID_P b pointers, $WIDTHOF_FNPTR_T b function pointers, $WIDTHOF_WCHAR_T b wchar_t])
 
