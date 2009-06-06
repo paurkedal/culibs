@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cu/test.h>
 #include <cuflow/wind.h>
 #include <cuflow/except.h>
 #include <stdio.h>
@@ -36,7 +37,7 @@ void g(FILE *file, int i)
 int f(int i)
 {
     FILE *file = fopen("/etc/hosts", "r");
-    long filepos;
+    long filepos = -1;
     fprintf(stderr, "Entering f.\n");
     cuflow_wind_gotos();
     g(file, i);
@@ -46,6 +47,7 @@ int f(int i)
 rewind:
     fprintf(stderr, "Enter rewind label.\n");
     file = fopen("/etc/hosts", "r");
+    cu_test_assert(filepos != -1);
     fseek(file, filepos, SEEK_SET);
     cuflow_rewind_continue;
 unwind:

@@ -1108,6 +1108,7 @@ done:
     return do_continue;
 }
 
+#if 0
 static cu_rank_t
 cuexP_count_active_vars(cuex_t ex)
 {
@@ -1135,6 +1136,7 @@ recurse:
     }
     return sum;
 }
+#endif
 
 static cu_bool_t
 cuexP_ssfn_find_mgu(cuex_ssfn_node_t node, cuexP_ssfn_find_mgu_jargs_t jargs)

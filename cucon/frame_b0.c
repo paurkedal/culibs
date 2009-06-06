@@ -31,7 +31,7 @@ struct _frame_s
 
 #define _avg_time(n, t) ((double)(t)/((double)(n)*CLOCKS_PER_SEC))
 
-static int
+static void
 _benchmark(int N, int I)
 {
     int n, i, j;

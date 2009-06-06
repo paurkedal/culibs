@@ -375,14 +375,15 @@ cuex_otab_defopr(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
 /* Output
  * ====== */
 
+#if CUEX_OTAB_ENABLE_ARGCTOR
 static int
-print_prop_argl(cuex_otab_range_t range, cu_bool_t is_var_arity, FILE *out)
+_print_prop_argl(cuex_otab_range_t range, cu_bool_t is_var_arity, FILE *out)
 {
     cucon_listnode_t node;
     cuex_otab_range_t super = cuex_otab_range_super(range);
     int arg_index;
     if (super)
-	arg_index = print_prop_argl(super, is_var_arity, out);
+	arg_index = _print_prop_argl(super, is_var_arity, out);
     else
 	arg_index = 0;
     for (node = cucon_list_begin(&range->prop_list);
@@ -402,13 +403,13 @@ print_prop_argl(cuex_otab_range_t range, cu_bool_t is_var_arity, FILE *out)
 }
 
 static int
-print_prop_bits(cuex_otab_range_t range, FILE *out)
+_print_prop_bits(cuex_otab_range_t range, FILE *out)
 {
     cucon_listnode_t node;
     cuex_otab_range_t super = cuex_otab_range_super(range);
     int arg_index;
     if (super)
-	arg_index = print_prop_bits(super, out);
+	arg_index = _print_prop_bits(super, out);
     else
 	arg_index = 0;
     for (node = cucon_list_begin(&range->prop_list);
@@ -422,10 +423,11 @@ print_prop_bits(cuex_otab_range_t range, FILE *out)
     }
     return arg_index;
 }
+#endif
 
 static void
-print_std_range(cuex_otab_t otab, cuex_otab_range_t range,
-		FILE *out_h, FILE *out_c)
+_print_std_range(cuex_otab_t otab, cuex_otab_range_t range,
+		 FILE *out_h, FILE *out_c)
 {
     cucon_listnode_t node;
     char const *range_name = cu_idr_to_cstr(cuex_otab_range_idr(range));
@@ -578,25 +580,25 @@ print_std_range(cuex_otab_t otab, cuex_otab_range_t range,
 		    opr_ucname, arity0_arg, opr_name,
 		    opr_name, opr_name, flags);
 
-#if 0
+#if CUEX_OTAB_ENABLE_ARGCTOR
 	/* Operation */
 	fprintf(out_h, "#define %s_A", opr_ucname);
 	if (r == -1) {
 	    fputs("(r", out_h);
-	    print_prop_argl(range, cu_true, out_h);
+	    _print_prop_argl(range, cu_true, out_h);
 	}
 	else
-	    print_prop_argl(range, cu_false, out_h);
+	    _print_prop_argl(range, cu_false, out_h);
 	fputs(")\n{\n", out_h);
 	fprintf(out_h, " cuex_opr(0x%x", index);
-	print_prop_bits(range, out_h);
+	_print_prop_bits(range, out_h);
 	if (r == -1)
 	    fprintf(out_h, ", r)\n");
 	else
 	    fprintf(out_h, ", %d)\n", r);
 #endif
 
-#if 0
+#if CUEX_OTAB_ENABLE_COMPARISON
 	/* Operator comparison */
 	fprintf(out_h, "CU_SINLINE cu_bool_t %s_eq(cuex_meta_t o)\n{\n",
 		opr_name);
@@ -615,12 +617,12 @@ print_std_range(cuex_otab_t otab, cuex_otab_range_t range,
     fputc('\n', out_h);
 }
 
-cu_clos_def(print_std_sources_cb,
+cu_clos_def(_print_std_sources_cb,
 	    cu_prot(cu_bool_t, void *def),
   ( cuex_otab_t tab;
     FILE *out_h, *out_c; ))
 {
-    cu_clos_self(print_std_sources_cb);
+    cu_clos_self(_print_std_sources_cb);
     if (cuex_otab_def_idr(def))
 	cu_verbf(20, "Processing %s.",
 		cu_idr_to_cstr(cuex_otab_def_idr(def)));
@@ -629,15 +631,15 @@ cu_clos_def(print_std_sources_cb,
     switch (cuex_otab_def_kind(def)) {
 	case cuex_otab_range_kind: {
 	    cuex_otab_range_t range = cuex_otab_range_from_def(def);
-	    print_std_range(self->tab, range, self->out_h, self->out_c);
+	    _print_std_range(self->tab, range, self->out_h, self->out_c);
 	    cucon_rbset_conj(&SIMPLERANGE(range)->subrange_set,
-			     print_std_sources_cb_ref(self));
+			     _print_std_sources_cb_ref(self));
 	    break;
 	}
 	case cuex_otab_reservation_kind: {
 	    cuex_otab_reservation_t rsv = cuex_otab_reservation_from_def(def);
 	    cucon_rbset_conj(&SIMPLERANGE(rsv)->subrange_set,
-			     print_std_sources_cb_ref(self));
+			     _print_std_sources_cb_ref(self));
 	    break;
 	}
 	case cuex_otab_opr_kind:
@@ -647,22 +649,22 @@ cu_clos_def(print_std_sources_cb,
     return cu_true;
 }
 
-cu_clos_def(print_std_sources_cb1,
+cu_clos_def(_print_std_sources_cb1,
 	    cu_prot(cu_bool_t, void *def),
   ( int oa_cnt;
     int arg_cnt_max;
     cuex_meta_t arg_mask;
     FILE *out_c; ))
 {
-    cu_clos_self(print_std_sources_cb1);
+    cu_clos_self(_print_std_sources_cb1);
     switch (cuex_otab_def_kind(def)) {
 	case cuex_otab_range_kind: {
 	    cuex_otab_range_t range = cuex_otab_range_from_def(def);
 	    if (cucon_list_is_empty(&range->prop_list))
 		cucon_rbset_conj(&SIMPLERANGE(range)->subrange_set,
-				 print_std_sources_cb1_ref(self));
+				 _print_std_sources_cb1_ref(self));
 	    else {
-		print_std_sources_cb1_t cb1;
+		_print_std_sources_cb1_t cb1;
 		cuex_meta_t min = cuex_otab_range_min(range);
 		cuex_meta_t maxp = cuex_otab_range_maxp1(range);
 		cucon_listnode_t prop_node;
@@ -692,7 +694,7 @@ cu_clos_def(print_std_sources_cb1,
 		    oa_cnt > self->arg_cnt_max ? oa_cnt : self->arg_cnt_max;
 		cb1.out_c = self->out_c;
 		cucon_rbset_conj(&SIMPLERANGE(range)->subrange_set,
-				 print_std_sources_cb1_prep(&cb1));
+				 _print_std_sources_cb1_prep(&cb1));
 		self->arg_cnt_max = cb1.arg_cnt_max;
 		fprintf(self->out_c,
 			"{\n*oa_cnt = %d;\n"
@@ -705,7 +707,7 @@ cu_clos_def(print_std_sources_cb1,
 	case cuex_otab_reservation_kind: {
 	    cuex_otab_reservation_t rsv = cuex_otab_reservation_from_def(def);
 	    cucon_rbset_conj(&SIMPLERANGE(rsv)->subrange_set,
-			     print_std_sources_cb1_ref(self));
+			     _print_std_sources_cb1_ref(self));
 	    break;
 	}
 	default:
@@ -717,8 +719,8 @@ cu_clos_def(print_std_sources_cb1,
 cu_bool_t
 cuex_otab_print_std_sources(cuex_otab_t tab, cu_str_t path_h, cu_str_t path_c)
 {
-    print_std_sources_cb_t cb;
-    print_std_sources_cb1_t cb1;
+    _print_std_sources_cb_t cb;
+    _print_std_sources_cb1_t cb1;
     FILE *out_h, *out_c;
     cu_str_t tab_cpath;
     char *tab_name, *tab_ucname, *s;
@@ -774,7 +776,7 @@ cuex_otab_print_std_sources(cuex_otab_t tab, cu_str_t path_h, cu_str_t path_c)
     cb.out_h = out_h;
     cb.out_c = out_c;
     cucon_rbset_conj(&SIMPLERANGE(tab->all)->subrange_set,
-		     print_std_sources_cb_prep(&cb));
+		     _print_std_sources_cb_prep(&cb));
     fprintf(out_c,
 	    "  {CUCON_UMAP_NODE_INIT(0), NULL, 0, NULL, 0}\n"
 	    "};\n"
@@ -790,7 +792,7 @@ cuex_otab_print_std_sources(cuex_otab_t tab, cu_str_t path_h, cu_str_t path_c)
 	    "%s_decode_opr(cuex_meta_t opr, int *oa_cnt, int *oa_arr)\n{\n",
 	    tab_name);
     cucon_rbset_conj(&SIMPLERANGE(tab->all)->subrange_set,
-		     print_std_sources_cb1_prep(&cb1));
+		     _print_std_sources_cb1_prep(&cb1));
     fprintf(out_h,
 	    "/*!The maximum number of operator arguments used. */\n"
 	    "#define %s_OA_COUNT_MAX %d\n\n"

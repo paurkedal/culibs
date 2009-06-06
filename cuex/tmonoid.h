@@ -126,7 +126,7 @@ cuex_t cuex_tmonoid_from_array(cuex_meta_t mult,
  * the tagged monoid under \a mult. */
 cuex_t cuex_tmonoid_product(cuex_meta_t mult, cuex_t x, cuex_t y);
 
-/*!Like \ref cuex_tmonoid_product but only checks that \a x and \y have the
+/*!Like \ref cuex_tmonoid_product but only checks that \a x and \a y have the
  * same operator instead of an explicitly given one. */
 cuex_t cuex_any_tmonoid_product(cuex_t x, cuex_t y);
 

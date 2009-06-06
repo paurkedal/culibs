@@ -16,23 +16,24 @@
  */
 
 #include <cu/clos.h>
+#include <cu/test.h>
 #include <assert.h>
 
 cu_clos_def(my_clos, cu_prot(int, int k, double x),
     ( int i; int j; ))
 {
     cu_clos_self(my_clos);
-    assert(self->i == 1001);
-    assert(self->j == 1002);
-    assert(k == 1003);
-    assert(x == 1.1);
+    cu_test_assert(self->i == 1001);
+    cu_test_assert(self->j == 1002);
+    cu_test_assert(k == 1003);
+    cu_test_assert(x == 1.1);
     return 1004;
 }
 
 cu_clop_def(plain, int, int k, double x)
 {
-    assert(k == 1010);
-    assert(x == 1.2);
+    cu_test_assert(k == 1010);
+    cu_test_assert(x == 1.2);
     return 1011;
 }
 
@@ -66,19 +67,19 @@ main()
     clos.i = 1001;
     clos.j = 1002;
     l = cu_call(my_clos_prep(&clos), 1003, 1.1);
-    assert(l == 1004);
+    cu_test_assert(l == 1004);
 
     l = cu_call(plain, 1010, 1.2);
-    assert(l == 1011);
+    cu_test_assert(l == 1011);
 
     testfn0_init(&fn0);
     fn0.k = 10;
     fn0.l = 100;
-    assert(cu_call(testfn0_prep(&fn0), 2, 3) == 320);
+    cu_test_assert(cu_call(testfn0_prep(&fn0), 2, 3) == 320);
 
     testfn1_init(&fn1);
     fn1.n = 6;
-    assert(cu_call(testfn1_prep(&fn1), "4") == 10);
+    cu_test_assert(cu_call(testfn1_prep(&fn1), "4") == 10);
 
     return 0;
 }
