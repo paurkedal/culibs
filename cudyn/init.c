@@ -15,14 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cu/conf.h>
+
 void cudynP_type_init(void);
+#ifdef CUCONF_HAVE_LIBFFI
 void cudynP_proto_init(void);
+#endif
 void cudynP_misc_init(void);
 
 void
 cudynP_init()
 {
     cudynP_type_init();
+#ifdef CUCONF_HAVE_LIBFFI
     cudynP_proto_init();
+#endif
     cudynP_misc_init();
 }

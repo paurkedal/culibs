@@ -25,6 +25,12 @@ CU_BEGIN_DECLARATIONS
 /* \defgroup cudyn_typetpl_h cudyn/typetpl.h: Type Definition Template Macros
  * @{ \ingroup cudyn_mod */
 
+#ifdef CUCONF_HAVE_LIBFFI
+#  define CUDYN_LIBFFI_ARG(x) , x
+#else
+#  define CUDYN_LIBFFI_ARG(x)
+#endif
+
 /* Elementary Type Templates
  * ------------------------- */
 
@@ -93,8 +99,8 @@ CU_BEGIN_DECLARATIONS
     cudynP_##NAME##_type =						\
 	cudyn_elmtype_new(CUOO_SHAPE_SCALAR_##UCNAME,			\
 			  cudynP_##NAME##_impl, sizeof(type_t),		\
-			  offsetof(struct cudynP_##NAME##_aligntest, x),\
-			  ffitype);		\
+			  offsetof(struct cudynP_##NAME##_aligntest, x)	\
+			  CUDYN_LIBFFI_ARG(ffitype));			\
     cuoo_prop_define_ptr(cuoo_raw_c_name_prop(),			\
 			  cudynP_##NAME##_type,				\
 			  cu_idr_by_cstr(#type_t));

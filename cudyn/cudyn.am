@@ -2,7 +2,6 @@ cudyn_headers = \
 	cudyn/fwd.h \
 	cudyn/ctor.h \
 	cudyn/misc.h \
-	cudyn/proto.h \
 	cudyn/type.h \
 	cudyn/typetpl.h
 
@@ -10,12 +9,10 @@ cudyn_sources = \
 	cudyn/ctor.c \
 	cudyn/init.c \
 	cudyn/misc.c \
-	cudyn/proto.c \
 	cudyn/type.c
 
 cudyn_check_programs = \
 	cudyn/misc_t0 \
-	cudyn/proto_t0 \
 	cudyn/type_t0
 
 cudyn_built_doxyfiles = \
@@ -25,10 +22,16 @@ cudyn_norun_check_programs =
 
 cudyn_misc_t0_SOURCES = cudyn/misc_t0.c
 cudyn_misc_t0_LDADD = libcuex.la
-cudyn_proto_t0_SOURCES = cudyn/proto_t0.c
-cudyn_proto_t0_LDADD = libcuex.la
 cudyn_type_t0_SOURCES = cudyn/type_t0.c
 cudyn_type_t0_LDADD = libcuex.la
+
+if have_libffi
+cudyn_headers += cudyn/proto.h
+cudyn_sources += cudyn/proto.c
+cudyn_check_programs += cudyn/proto_t0
+cudyn_proto_t0_SOURCES = cudyn/proto_t0.c
+cudyn_proto_t0_LDADD = libcuex.la
+endif
 
 cudyn/misc.doxy: $(srcdir)/cudyn/misc.doxy.sh
 	$< >$@

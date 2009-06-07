@@ -23,10 +23,12 @@
 #include <cucon/pmap.h>
 #include <cucon/ucmap.h>
 #include <cudyn/fwd.h>
-#ifdef CUCONF_HAVE_LIBFFI_FFI_H
-#  include <libffi/ffi.h>
-#else
-#  include <ffi.h>
+#ifdef CUCONF_HAVE_LIBFFI
+#  ifdef CUCONF_HAVE_LIBFFI_FFI_H
+#    include <libffi/ffi.h>
+#  else
+#    include <ffi.h>
+#  endif
 #endif
 
 CU_BEGIN_DECLARATIONS
@@ -37,7 +39,9 @@ struct cudyn_inltype_s
 {
     cu_inherit (cuoo_type_s);
     AO_t layout;	/* actually cuoo_layout_t */
+#ifdef CUCONF_HAVE_LIBFFI
     AO_t ffitype;
+#endif
 };
 
 extern cuoo_type_t cudynP_cuex_type;
@@ -118,9 +122,14 @@ CU_SINLINE cu_bool_t cuoo_type_is_elmtype(cuoo_type_t t)
 
 /*!Create a unique elementary type, of which objects are \a size bytes,
  * require \a alignment bytes alignement and FFI type \a ffitype. */
+#ifdef CUCONF_HAVE_LIBFFI
 cudyn_elmtype_t cudyn_elmtype_new(cuoo_shape_t shape, cuoo_impl_t impl,
 				  cu_offset_t size, cu_offset_t alignment,
 				  ffi_type *ffitype);
+#else
+cudyn_elmtype_t cudyn_elmtype_new(cuoo_shape_t shape, cuoo_impl_t impl,
+				  cu_offset_t size, cu_offset_t alignment);
+#endif
 
 
 /*!@}

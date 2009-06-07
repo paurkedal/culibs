@@ -10,7 +10,7 @@ dnl
 AC_DEFUN([CUAC_LIB_BUDDY],
   [ AC_MSG_CHECKING([for Buddy binary decisions diagrams])
     AC_ARG_WITH([buddy],
-      [ AC_HELP_STRING([--without-buddy], [Disable linking against BuDDY.]) ],
+      [AC_HELP_STRING([--without-buddy], [Disable linking against BuDDY.])],
       [], [with_buddy=check])
     if test x"$with_buddy" != xno; then
 	CUAC_WITH_SAVED_ENV([LIBS, CPPFLAGS],

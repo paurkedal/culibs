@@ -139,10 +139,11 @@ CUAC_LIB_UNWIND
 # cuex-dependencies
 #
 if $enable_cuex; then
-    CUAC_LIB_FFI
+    CUAC_LIB_FFI([], [:], [:])
     CUAC_LIB_BUDDY([22])
 fi
 AM_CONDITIONAL([have_buddy], [$have_buddy])
+AM_CONDITIONAL([have_libffi], [$have_libffi])
 
 
 # Optional Features

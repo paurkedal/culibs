@@ -6,15 +6,16 @@ Version: @PACKAGE_VERSION@
 Release: 1
 Source0: %{name}-%{version}.tar.bz2
 License: GPL
-Group: System/Libraries
-Requires: gc libffi
+Group: Development/Libraries
+Requires: gc
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildRequires: libffi-devel gc-devel libatomic_ops-devel
+BuildRequires: gc-devel libatomic_ops-devel
+%{?use_libffi:BuildRequires: libffi-devel}
 %{?use_buddy:BuildRequires: buddy-devel}
 
 %package devel
 Summary: Garbage Collected C Libraries
-Group: Development/Libraries/C and C++
+Group: Development/Libraries
 Requires: culibs = %{version}
 
 %description
@@ -40,7 +41,7 @@ collector.
 
 %build
 export PKG_CONFIG_PATH=/usr/lib/pkgconfig
-%configure
+%configure --%{?use_libffi:with:without}-libffi
 make
 
 %install

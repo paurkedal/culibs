@@ -357,7 +357,7 @@ cudynP_misc_init()
 
     /* Unit */
     cudynP_unit_type = cudyn_elmtype_new(CUOO_SHAPE_UNIT, cudynP_unit_impl,
-					 0, 0, &ffi_type_void);
+					 0, 0 CUDYN_LIBFFI_ARG(&ffi_type_void));
     cuoo_prop_define_ptr(cuoo_raw_c_name_prop(), cudynP_unit_type,
 			 cu_idr_by_cstr("void"));
     cudynP_unit_value = cuoo_oalloc(cudyn_unit_type(), 0);

@@ -51,7 +51,9 @@ cudyn_ptrtype_from_ex(cuex_t ex)
 			       CUOO_SHAPE_PTRTYPE, cuoo_impl_none, ex,
 			       sizeof(void *));
     cu_to(cudyn_inltype, type)->layout = (AO_t)cuoo_layout_ptr;
+#ifdef CUCONF_HAVE_LIBFFI
     cu_to(cudyn_inltype, type)->ffitype = (AO_t)&ffi_type_pointer;
+#endif
     return cuoo_hctem_new(cudyn_ptrtype, tem);
 }
 
@@ -69,7 +71,9 @@ cudyn_ptrtype(cuex_t deref)
 			       CUOO_SHAPE_PTRTYPE, cuoo_impl_none, ex,
 			       sizeof(void *));
     cu_to(cudyn_inltype, type)->layout = (AO_t)cuoo_layout_ptr;
+#ifdef CUCONF_HAVE_LIBFFI
     cu_to(cudyn_inltype, type)->ffitype = (AO_t)&ffi_type_pointer;
+#endif
     return cuoo_hctem_new(cudyn_ptrtype, tem);
 }
 
@@ -77,9 +81,15 @@ cudyn_ptrtype(cuex_t deref)
 /* Elementary Types
  * ================ */
 
+#ifdef CUCONF_HAVE_LIBFFI
 cudyn_elmtype_t
 cudyn_elmtype_new(cuoo_shape_t shape, cuoo_impl_t impl,
 		  cu_offset_t size, cu_offset_t alignment, ffi_type *ffitype)
+#else
+cudyn_elmtype_t
+cudyn_elmtype_new(cuoo_shape_t shape, cuoo_impl_t impl,
+		  cu_offset_t size, cu_offset_t alignment)
+#endif
 {
     cu_offset_t bitoffset;
     cudyn_elmtype_t t = cuoo_onew(cudyn_elmtype);
@@ -89,7 +99,9 @@ cudyn_elmtype_new(cuoo_shape_t shape, cuoo_impl_t impl,
 			       impl, NULL, wsize);
     cu_to(cudyn_inltype, t)->layout
 	= (AO_t)cuoo_layout_pack_bits(NULL, size*8, alignment*8, &bitoffset);
+#ifdef CUCONF_HAVE_LIBFFI
     cu_to(cudyn_inltype, t)->ffitype = (AO_t)ffitype;
+#endif
     return t;
 }
 
