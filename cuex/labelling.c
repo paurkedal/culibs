@@ -22,6 +22,7 @@
 #include <cuex/oprdefs.h>
 #include <cuex/atree.h>
 #include <cuex/monoid.h>
+#include <cuex/iteration.h>
 #include <cuoo/halloc.h>
 #include <cuoo/properties.h>
 #include <cufo/stream.h>
@@ -306,7 +307,7 @@ cuex_labelling_expand_all(cuex_t e)
 	} else
 	    return e;
     } else
-	return cuex_image_cfn(cuex_labelling_expand_all, e);
+	return cuex_bareimg_operands(cuex_labelling_expand_all, e);
 }
 
 cuex_t
@@ -343,7 +344,7 @@ cuex_labelling_contract_all(cuex_t e)
 	cuex_t v = cuex_opn_at(e, 1);
 	return cuex_labelling_singleton(l, v);
     } else
-	return cuex_image_cfn(cuex_labelling_contract_all, e);
+	return cuex_bareimg_operands(cuex_labelling_contract_all, e);
 }
 
 

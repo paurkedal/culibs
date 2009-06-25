@@ -87,7 +87,7 @@ CU_SINLINE cuex_t *cuex_opn_end(cuex_t opn)
  * in order to determine that \a opn is in fact an operation. */
 #define CUEX_OPN_ITER(opr, opn, sub, STMT)				\
 do {									\
-    size_t cuexL_i, cuexL_r = cuex_opr_r(opr);				\
+    int cuexL_i, cuexL_r = cuex_opr_r(opr);				\
     for (cuexL_i = 0; cuexL_i < cuexL_r; ++cuexL_i) {			\
 	cuex_t sub = cuex_opn_at(opn, cuexL_i);				\
 	STMT;								\
@@ -102,11 +102,23 @@ do {									\
  * as <tt>cuex_t</tt> such that it is in scope when \a EXPR is evaluated. */
 #define CUEX_OPN_CONJ_RETURN(opr, opn, sub, EXPR)			\
 do {									\
-    size_t cuexL_i, cuexL_r = cuex_opr_r(opr);				\
+    int cuexL_i, cuexL_r = cuex_opr_r(opr);				\
     for (cuexL_i = 0; cuexL_i < cuexL_r; ++cuexL_i) {			\
 	cuex_t sub = cuex_opn_at(opn, cuexL_i);				\
 	if (!(EXPR))							\
 	    return cu_false;						\
+    }									\
+} while (0)
+
+/*!Analogous to \ref CUEX_OPN_CONJ_RETURN, but return true if \a EXPR evaluates
+ * to true. */
+#define CUEX_OPN_DISJ_RETURN(opr, opn, sub, EXPR)			\
+do {									\
+    int cuexL_i, cuexL_r = cuex_opr_r(opr);				\
+    for (cuexL_i = 0; cuexL_i < cuexL_r; ++cuexL_i) {			\
+	cuex_t sub = cuex_opn_at(opn, cuexL_i);				\
+	if (EXPR)							\
+	    return cu_true;						\
     }									\
 } while (0)
 
@@ -118,7 +130,7 @@ do {									\
  * by this macro and is in scope where \a EXPR is evaluated.  */
 #define CUEX_OPN_TRAN(opr, opn, old_sub, EXPR)				\
 do {									\
-    size_t cuexL_i, cuexL_r = cuex_opr_r(opr);				\
+    int cuexL_i, cuexL_r = cuex_opr_r(opr);				\
     for (cuexL_i = 0; cuexL_i < cuexL_r; ++cuexL_i) {			\
 	cuex_t old_sub, cuexL_new_sub;					\
 	old_sub = cuex_opn_at(opn, cuexL_i);				\
@@ -143,7 +155,7 @@ do {									\
  * \c NULL. */
 #define CUEX_OPN_TRAN_NULL(opr, opn, old_sub, EXPR)			\
 do {									\
-    size_t cuexL_i, cuexL_r = cuex_opr_r(opr);				\
+    int cuexL_i, cuexL_r = cuex_opr_r(opr);				\
     for (cuexL_i = 0; cuexL_i < cuexL_r; ++cuexL_i) {			\
 	cuex_t old_sub, cuexL_new_sub;					\
 	old_sub = cuex_opn_at(opn, cuexL_i);				\
@@ -184,20 +196,6 @@ cuex_opn_t cuex_opn2_right(cuex_meta_t opr, cuex_t x, cuex_t y);
 /*!The arity if \a e is an operator, the compound size if \a e is a compound,
  * otherwise 0. */
 cu_rank_t cuex_arity(cuex_t e);
-
-/*!If \a e is an operation or a \ref cuex_compound_h "compound", then iterate
- * over it as long as \a f returns true, and return true iff it finish.
- * Otherwise, return true. */
-cu_bool_t cuex_conj(cuex_t e, cu_clop(f, cu_bool_t, cuex_t));
-
-/*!If \a e is an operation or a \ref cuex_compound_h "compound", return the
- * result of transforming all subexpressions with \a f.
- * Otherwise, return \a e. */
-cuex_t cuex_image(cu_clop(f, cuex_t, cuex_t), cuex_t e);
-
-/*!A variant of \ref cuex_image specialised for a simple C function without
- * context. */
-cuex_t cuex_image_cfn(cuex_t (*f)(cuex_t), cuex_t e);
 
 struct cuex_opn_source_s
 {

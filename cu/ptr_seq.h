@@ -260,13 +260,19 @@ size_t cu_ptr_source_count(cu_ptr_source_t source);
 
 /*!True iff \a f maps each remaining element of \a source to true. Stops after
  * the first failure. */
-cu_bool_t cu_ptr_source_forall(cu_clop(f, cu_bool_t, void *),
-			       cu_ptr_source_t source);
+cu_bool_t cu_ptr_source_iterA(cu_clop(f, cu_bool_t, void *),
+			      cu_ptr_source_t source);
 
 /*!True iff \a f maps at least one of the remaining elements to true. Stops
  * after the first match. */
-cu_bool_t cu_ptr_source_forsome(cu_clop(f, cu_bool_t, void *),
-				cu_ptr_source_t source);
+cu_bool_t cu_ptr_source_iterE(cu_clop(f, cu_bool_t, void *),
+			      cu_ptr_source_t source);
+
+cu_bool_t cu_ptr_source_bareA(cu_bool_t (*f)(void *), cu_ptr_source_t source);
+cu_bool_t cu_ptr_source_bareE(cu_bool_t (*f)(void *), cu_ptr_source_t source);
+
+/*!Calls \a f on each element of \a source. */
+void cu_ptr_source_iter(cu_clop(f, void, void *), cu_ptr_source_t source);
 
 /*!Compares the two sources by applying \a f to each parallel pair of elements
  * drawn from \a source0 and \a source1.  At the first non-zero return by \a f,
@@ -339,5 +345,8 @@ void *cu_ptr_junctor_filter(cu_clop(f, cu_bool_t, void *),
 /*!@}*/
 /*!@}*/
 CU_END_DECLARATIONS
+
+#define cu_ptr_source_forall cu_ptr_source_iterA
+#define cu_ptr_source_forsome cu_ptr_source_iterE
 
 #endif

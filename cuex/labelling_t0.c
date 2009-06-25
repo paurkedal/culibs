@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cuex/iteration.h>
 #include <cuex/labelling.h>
 #include <cuex/opn.h>
 #include <cudyn/misc.h>
@@ -93,14 +94,14 @@ test_image(int N, cu_bool_t do_print)
 	L = cuex_labelling_insert(L, cu_idr_by_cstr(ls), cudyn_int(j));
     }
     ladd.diff = -60;
-    L0 = cuex_image(ladd_prep(&ladd), L);
+    L0 = cuex_img_operands(ladd_prep(&ladd), L);
     if (do_print)
 	cu_fprintf(stdout, "Original: %!\n   Image: %!\n", L, L0);
     lsum.sum = 0;
-    cuex_conj(L, lsum_prep(&lsum));
+    cuex_iterA_operands(lsum_prep(&lsum), L);
     cu_test_assert(lsum.sum == sum);
     lsum.sum = 0;
-    cuex_conj(L0, lsum_prep(&lsum));
+    cuex_iterA_operands(lsum_prep(&lsum), L0);
     cu_test_assert(lsum.sum == sum - 60*N);
 }
 

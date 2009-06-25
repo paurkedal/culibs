@@ -29,7 +29,7 @@ cu_ptr_source_count(cu_ptr_source_t source)
 }
 
 cu_bool_t
-cu_ptr_source_forall(cu_clop(f, cu_bool_t, void *), cu_ptr_source_t source)
+cu_ptr_source_iterA(cu_clop(f, cu_bool_t, void *), cu_ptr_source_t source)
 {
     void *elt;
     while ((elt = cu_ptr_source_get(source)))
@@ -39,13 +39,41 @@ cu_ptr_source_forall(cu_clop(f, cu_bool_t, void *), cu_ptr_source_t source)
 }
 
 cu_bool_t
-cu_ptr_source_forsome(cu_clop(f, cu_bool_t, void *), cu_ptr_source_t source)
+cu_ptr_source_iterE(cu_clop(f, cu_bool_t, void *), cu_ptr_source_t source)
 {
     void *elt;
     while ((elt = cu_ptr_source_get(source)))
 	if (cu_call(f, elt))
 	    return cu_true;
     return cu_false;
+}
+
+cu_bool_t
+cu_ptr_source_bareA(cu_bool_t (*f)(void *), cu_ptr_source_t source)
+{
+    void *elt;
+    while ((elt = cu_ptr_source_get(source)))
+	if (!(*f)(elt))
+	    return cu_false;
+    return cu_true;
+}
+
+cu_bool_t
+cu_ptr_source_bareE(cu_bool_t (*f)(void *), cu_ptr_source_t source)
+{
+    void *elt;
+    while ((elt = cu_ptr_source_get(source)))
+	if ((*f)(elt))
+	    return cu_true;
+    return cu_false;
+}
+
+void
+cu_ptr_source_iter(cu_clop(f, void, void *), cu_ptr_source_t source)
+{
+    void *elt;
+    while ((elt = cu_ptr_source_get(source)))
+	cu_call(f, elt);
 }
 
 int

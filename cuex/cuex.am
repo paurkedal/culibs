@@ -10,6 +10,7 @@ cuex_headers = \
 	cuex/fpvar.h \
 	cuex/ftype.h \
 	cuex/intf.h \
+	cuex/iteration.h \
 	cuex/labelling.h \
 	cuex/ltree.h \
 	cuex/monoid.h \
@@ -50,6 +51,7 @@ cuex_sources = \
 	cuex/fpvar.c \
 	cuex/ftype.c \
 	cuex/init.c \
+	cuex/iteration.c \
 	cuex/labelling.c \
 	cuex/ltree.c \
 	cuex/monoid.c \
