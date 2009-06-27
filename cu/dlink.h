@@ -50,6 +50,9 @@ struct cu_dlink_s
 #  define cu_debug_dlink_assert_valid(l) ((void)(l))
 #endif
 
+#define CU_DLINK_SINGLETON_DECL(cuL_var) \
+    struct cu_dlink_s cuL_var = {&cuL_var, &cuL_var}
+
 /*!Initialise \a l_init as a link with next and prev pointing to itself.  This
  * is typically used as the head of doubly linked lists. */
 CU_SINLINE void
@@ -59,7 +62,7 @@ cu_dlink_init_singleton(cu_dlink_t l_init)
 }
 
 CU_SINLINE cu_bool_t
-cu_dlink_is_singular(cu_dlink_t l)
+cu_dlink_is_singleton(cu_dlink_t l)
 { return l == l->next; }
 
 CU_SINLINE cu_bool_t
@@ -82,7 +85,7 @@ cu_dlink_erase(cu_dlink_t l)
     cu_debug_dlink_invalidate(l);
 }
 
-/*!Construct and insert \a l_init before \a l. */
+/*!Inline version of \ref cu_dlink_insert_before. */
 CU_SINLINE void
 cu_dlink_insert_before(cu_dlink_t l, cu_dlink_t l_init)
 {
@@ -93,7 +96,7 @@ cu_dlink_insert_before(cu_dlink_t l, cu_dlink_t l_init)
     l->prev = l_init;
 }
 
-/*!Construct and insert \a l_init after \a l. */
+/*!Inline version of \ref cu_dlink_insert_after. */
 CU_SINLINE void
 cu_dlink_insert_after(cu_dlink_t l, cu_dlink_t l_init)
 {
@@ -105,34 +108,16 @@ cu_dlink_insert_after(cu_dlink_t l, cu_dlink_t l_init)
 }
 
 /*!Insert the list around \a l_head before \a l and invalidate \a l_head. */
-CU_SINLINE void
-cu_dlink_insert_list_before(cu_dlink_t l, cu_dlink_t l_head)
-{
-    cu_debug_dlink_assert_valid(l);
-    cu_debug_dlink_assert_valid(l_head);
-    l_head->prev->next = l;
-    l_head->next->prev = l->prev;
-    l->prev->next = l_head->next;
-    l->prev = l_head->prev;
-    cu_debug_dlink_invalidate(l_head);
-}
+void cu_dlink_insert_list_before(cu_dlink_t l, cu_dlink_t l_head);
 
 /*!Insert the list around \a l_head after \a l and invalidate \a l_head. */
-CU_SINLINE void
-cu_dlink_insert_list_after(cu_dlink_t l, cu_dlink_t l_head)
-{
-    cu_debug_dlink_assert_valid(l);
-    cu_debug_dlink_assert_valid(l_head);
-    l_head->next->prev = l;
-    l_head->prev->next = l->next;
-    l->next->prev = l_head->prev;
-    l->next = l_head->next;
-    cu_debug_dlink_invalidate(l_head);
-}
-
-#define cu_dlink_cct_singular cu_dlink_init_singleton
+void cu_dlink_insert_list_after(cu_dlink_t l, cu_dlink_t l_head);
 
 CU_END_DECLARATIONS
 
 /*!@}*/
+
+#define cu_dlink_cct_singular cu_dlink_init_singleton
+#define cu_dlink_is_singular cu_dlink_is_singleton
+
 #endif

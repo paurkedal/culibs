@@ -51,6 +51,7 @@ cu_sources = \
 	cu/dsource.c \
 	cu/debug.c \
 	cu/diag.c \
+	cu/dlink.c \
 	cu/hash.c \
 	cu/hook.c \
 	cu/idr.c \
