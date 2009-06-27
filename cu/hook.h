@@ -50,8 +50,12 @@ void cuP_hook_append(cu_hook_node_t hook, cu_clop0(f, void));
     struct name##_s { cu_inherit (cu_hook_node_s); };			\
 									\
     /*!Initialise \a hook as an empty hook. */				\
-    CU_SINLINE void name##_init(name##_t hook)			\
+    CU_SINLINE void name##_init(name##_t hook)				\
     { cuP_hook_init((cu_hook_node_t)hook); }				\
+									\
+    /*!True iff \a hook is empty. */					\
+    CU_SINLINE cu_bool_t name##_is_empty(name##_t hook)			\
+    { return cu_dlink_is_singleton(cu_to2(cu_dlink, cu_hook_node, hook)); }\
 									\
     /*!Arrange for \a f to be called before current entries of \a hook. */\
     CU_SINLINE void name##_prepend(name##_t hook, f_decl)		\

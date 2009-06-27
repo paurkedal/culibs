@@ -17,36 +17,50 @@
 
 #include <cu/thread.h>
 #include <cu/tstate.h>
+#include <cu/hook.h>
 #include <cu/hash.h>
 #include <cu/memory.h>
 
 cu_mutex_t cuP_pmutex_arr[cuP_PMUTEX_CNT];
 
-void
-cu_pmutex_lock(void *ptr)
+typedef struct _thread_data_s {
+    void *(*cf)(void *);
+    void *cd;
+} *_thread_data_t;
+
+static struct cu_iter_hook_s _thread_entry_hook;
+static struct cu_iter_hook_s _thread_exit_hook;
+
+static void *
+_thread_start(void *subcd)
 {
-    cu_mutex_lock(cu_pmutex_mutex(ptr));
+    if (!cu_iter_hook_is_empty(&_thread_exit_hook))
+	cuP_tstate();
+    cu_iter_hook_call(&_thread_entry_hook);
+    return (*((_thread_data_t)subcd)->cf)(((_thread_data_t)subcd)->cd);
 }
 
-cu_bool_t
-cu_pmutex_trylock(void *ptr)
+int
+cu_thread_create(pthread_t *th_out, pthread_attr_t const *attrs,
+		 void *(*cf)(void *), void *cd)
 {
-    return cu_mutex_trylock(cu_pmutex_mutex(ptr));
+    _thread_data_t subcd = cu_gnew(struct _thread_data_s);
+    subcd->cf = cf;
+    subcd->cd = cd;
+    return GC_pthread_create(th_out, attrs, _thread_start, subcd);
 }
 
 void
-cuP_pmutex_unlock(void *ptr)
+cu_register_thread_init(cu_clop0(on_entry, void), cu_clop0(on_exit, void))
 {
-    cu_mutex_unlock(cu_pmutex_mutex(ptr));
+    if (!cu_clop_is_null(on_entry)) {
+	cu_call0(on_entry);
+	cu_iter_hook_append(&_thread_entry_hook, on_entry);
+    }
+    if (!cu_clop_is_null(on_exit))
+	cu_iter_hook_prepend(&_thread_exit_hook, on_exit);
 }
 
-void
-cuP_thread_init(void)
-{
-    size_t i;
-    for (i = 0; i < cuP_PMUTEX_CNT; ++i)
-	cu_mutex_init(&cuP_pmutex_arr[i]);
-}
 
 typedef struct cuP_thread_atexit_node_s *cuP_thread_atexit_node_t;
 struct cuP_thread_atexit_node_s
@@ -77,4 +91,50 @@ cuP_thread_run_atexit(cuP_tstate_t st)
 	cu_gfree_u(node);
 	node = node_next;
     }
+    cu_iter_hook_call(&_thread_exit_hook);
+}
+
+
+/* Mutex Locks
+ * =========== */
+
+void
+cu_pmutex_lock(void *ptr)
+{
+    cu_mutex_lock(cu_pmutex_mutex(ptr));
+}
+
+cu_bool_t
+cu_pmutex_trylock(void *ptr)
+{
+    return cu_mutex_trylock(cu_pmutex_mutex(ptr));
+}
+
+void
+cuP_pmutex_unlock(void *ptr)
+{
+    cu_mutex_unlock(cu_pmutex_mutex(ptr));
+}
+
+
+/* Init
+ * ==== */
+
+static void
+_thread_uninit(void)
+{
+    cu_iter_hook_call(&_thread_exit_hook);
+}
+
+void
+cuP_thread_init(void)
+{
+    int i;
+
+    cu_iter_hook_init(&_thread_entry_hook);
+    cu_iter_hook_init(&_thread_exit_hook);
+    atexit(_thread_uninit);
+
+    for (i = 0; i < cuP_PMUTEX_CNT; ++i)
+	cu_mutex_init(&cuP_pmutex_arr[i]);
 }

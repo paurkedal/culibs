@@ -52,11 +52,23 @@ int GC_pthread_detach(pthread_t thread);
 void cu_thread_atexit(cu_clop0(cleanup, void));
 
 /*!Alias for the GC wrapper for pthread_create. */
-#define cu_thread_create GC_pthread_create
+int cu_thread_create(pthread_t *thread_out, pthread_attr_t const *attrs,
+		     void *(*cf)(void *), void *cd);
+
 /*!Alias for the GC wrapper for pthread_join. */
 #define cu_thread_join GC_pthread_join
+
 /*!Alias for the GC wrapper for pthread_detach. */
 #define cu_thread_detach GC_pthread_detach
+
+/*!Calls \a on_entry and arranges for \a on_entry to be called in each newly
+ * started thread before other code, and \a on_exit to be called before the
+ * thread exits.  The \a on_entry callbacks are called in order of
+ * registration, and \a on_exit are called in reverse order of registration.
+ * Either one may be \ref cu_clop_null if it's not needed.  These callbacks
+ * only take effect in the main thread and threads which are created with \a
+ * cu_thread_create. */
+void cu_register_thread_init(cu_clop0(on_entry, void), cu_clop0(on_exit, void));
 
 /*!\deprecated*/
 #define cu_pthread_create cu_thread_create

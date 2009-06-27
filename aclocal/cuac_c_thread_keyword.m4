@@ -11,13 +11,13 @@ dnl
 dnl AC_DEFINE([HAVE_THREAD_KEYWORD])
 
 AC_DEFUN([CUAC_C_THREAD_KEYWORD],
-  [ AC_CACHE_CHECK([for __thread keyword], [cuac_have_thread_keyword],
+  [ AC_CACHE_CHECK([for __thread keyword], [_cv_cuac_have_thread_keyword],
       [ AC_COMPILE_IFELSE(
 	  [ AC_LANG_SOURCE([[__thread int i; static __thread int j;]]) ],
-	  [ cuac_have_thread_keyword=true ],
-	  [ cuac_have_thread_keyword=false ])
+	  [ _cv_cuac_have_thread_keyword=true ],
+	  [ _cv_cuac_have_thread_keyword=false ])
       ])
-    if test $cuac_have_thread_keyword = true; then
+    if test $_cv_cuac_have_thread_keyword = true; then
 	AC_DEFINE([HAVE_THREAD_KEYWORD], [1],
 		  [Defined if C compiler supports the __thread keyword.])
     fi

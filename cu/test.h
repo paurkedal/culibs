@@ -47,12 +47,14 @@ void cuP_test_bugf(char const *file, int line, char const *msg, ...);
 	    cu_test_bugf("assertion '"#EXPR"' failed.");		\
     } while (0)
 
+#define cuP_test_str(expr) cuP_test_strp(expr)
+#define cuP_test_strp(expr) #expr
 #define cu_test_assert_binary(OP, type, PRI, LHS, RHS)			\
     do {								\
 	type lhs = (LHS);						\
 	type rhs = (RHS);						\
 	if (!(OP(lhs, rhs)))						\
-	    cu_test_bugf("assertion '"#LHS" = "#RHS"' failed, "		\
+	    cu_test_bugf("assertion '"cuP_test_str(OP(LHS, RHS))"' failed, " \
 			 "LHS = %"PRI", RHS = %"PRI".", lhs, rhs);	\
     } while (0)
 
