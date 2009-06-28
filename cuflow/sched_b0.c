@@ -17,7 +17,6 @@
 
 #include <cu/test.h>
 #include <cuflow/sched.h>
-//#include <cuflow/rotary.h>
 #include <cuflow/wheel.h>
 #include <cuflow/workers.h>
 #include <cuflow/time.h>
@@ -46,7 +45,6 @@ cu_clos_def(jobC, cu_prot0(void), (int n; int r;))
     job[1].n = (self->n - 1) / 2;
     cu_call0(jobC_prep(&job[0]));
     cu_call0(jobC_prep(&job[1]));
-    cuflow_yield();
     self->r = job[0].r + job[1].r + 1;
 }
 
@@ -63,32 +61,10 @@ cu_clos_def(jobS, cu_prot0(void), (int n; int r;))
     job[0].n = self->n / 2;
     job[1].n = (self->n - 1) / 2;
     cuflow_sched_call(jobS_prep(&job[0]), &cdisj);
-    //cuflow_sched_call(jobS_prep(&job[1]), &cdisj);
     cu_call0(jobS_prep(&job[1]));
     cuflow_cdisj_wait_while(&cdisj);
     self->r = job[0].r + job[1].r + 1;
-    //printf("** %d + %d = %d\n", job[0].r, job[1].r, self->r);
 }
-
-#if 0
-cu_clos_def(jobR, cu_prot0(void), (int n; int r;))
-{
-    cu_clos_self(jobR);
-    jobR_t job[2];
-    AO_t cdisj = 0;
-
-    if (self->n == 0) {
-	self->r = 1;
-	return;
-    }
-    job[0].n = self->n / 2;
-    job[1].n = (self->n - 1) / 2;
-    cuflow_rotary_call(jobR_prep(&job[0]), &cdisj);
-    cu_call0(jobR_prep(&job[1]));
-    cuflow_cdisj_wait_while(&cdisj);
-    self->r = job[0].r + job[1].r + 1;
-}
-#endif
 
 cu_clos_def(jobW, cu_prot0(void), (int n; int r;))
 {
@@ -103,7 +79,6 @@ cu_clos_def(jobW, cu_prot0(void), (int n; int r;))
     job[0].n = self->n / 2;
     job[1].n = (self->n - 1) / 2;
     cuflow_wheel_call(jobW_prep(&job[0]), &cdisj);
-    //cuflow_wheel_call(jobW_prep(&job[1]), &cdisj);
     cu_call0(jobW_prep(&job[1]));
     cuflow_cdisj_wait_while(&cdisj);
     self->r = job[0].r + job[1].r + 1;
@@ -114,12 +89,11 @@ main()
 {
     jobC_t jobC;
     jobS_t jobS;
-//    jobR_t jobR;
     jobW_t jobW;
     time_t tF, tC, tS, tW;
     cuflow_walltime_t wtF, wtC, wtS, wtW;
     int r;
-    int n = 0x1000000;
+    int n = 0x4000000;
 
     cuflow_init();
 
@@ -146,14 +120,6 @@ main()
     tS += clock();
     wtS += cuflow_walltime();
     cu_test_assert(jobS.r == r);
-
-#if 0
-    tR = -clock();
-    jobR.n = n;
-    cu_call0(jobR_prep(&jobR));
-    tR += clock();
-    cu_test_assert(jobR.r == r);
-#endif
 
     tW = -clock();
     wtW = -cuflow_walltime();

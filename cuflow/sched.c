@@ -20,17 +20,18 @@
 #include <cuflow/workers.h>
 #include <cuflow/cdisj.h>
 
+cu_dlog_def(_file, "dtag=cuflow.sched");
 
 void
 cuflowP_sched_call(cuflow_exeq_t exeq, cu_clop0(fn, void),
 		   AO_t *cdisj)
 {
     cuflow_exeq_entry_t ent = &exeq->call_arr[exeq->head];
-    cu_dprintf("cuflow.sched",
-	       "ENQUEUE %p %ld %ld: fn=%p qsize=%ld; thread=0x%x; tstate=%p",
-	       exeq, exeq->head, exeq->tail, fn,
-	       ((exeq->head - exeq->tail - 1) & CUFLOW_EXEQ_MASK),
-	       pthread_self(), cuflow_tstate());
+    cu_dlogf(_file,
+	     "ENQUEUE %p %ld %ld: fn=%p qsize=%ld; thread=0x%lx; tstate=%p",
+	     exeq, exeq->head, exeq->tail, fn,
+	     ((exeq->head - exeq->tail - 1) & CUFLOW_EXEQ_MASK),
+	     (long)pthread_self(), cuflow_tstate());
     ent->fn = fn;
     ent->cdisj = cdisj;
     AO_fetch_and_add1(cdisj);
@@ -44,11 +45,11 @@ cuflowP_sched_call_sub1(cuflow_exeq_t exeq, cu_clop0(fn, void),
 			AO_t *cdisj)
 {
     cuflow_exeq_entry_t ent = &exeq->call_arr[exeq->head];
-    cu_dprintf("cuflow.sched",
-	       "ENQUEUE %p %ld %ld: fn=%p qsize=%ld; thread=0x%x; tstate=%p",
-	       exeq, exeq->head, exeq->tail, fn,
-	       ((exeq->head - exeq->tail - 1) & CUFLOW_EXEQ_MASK),
-	       pthread_self(), cuflow_tstate());
+    cu_dlogf(_file,
+	     "ENQUEUE %p %ld %ld: fn=%p qsize=%ld; thread=0x%lx; tstate=%p",
+	     exeq, exeq->head, exeq->tail, fn,
+	     ((exeq->head - exeq->tail - 1) & CUFLOW_EXEQ_MASK),
+	     (long)pthread_self(), cuflow_tstate());
     ent->fn = fn;
     ent->cdisj = cdisj;
     AO_store_release_write(&exeq->head, (exeq->head + 1) & CUFLOW_EXEQ_MASK);
@@ -69,10 +70,9 @@ cu_clop_edef(cuflowP_schedule, void, cu_bool_t is_global)
 	    /* The pickup_mutex atomise picking up the entry at exeq->tail and
 	     * incrementing exeq->tail. */
 	    cu_mutex_lock(&exeq->pickup_mutex);
-	    cu_dprintf("cuflow.sched",
-		       "CHECK %p %ld %ld; cnt=%ld",
-		       exeq, exeq->head, exeq->tail,
-		       ((exeq->head - exeq->tail - 1) & CUFLOW_EXEQ_MASK));
+	    cu_dlogf(_file, "CHECKQUEUE %p %ld %ld; cnt=%ld",
+		     exeq, exeq->head, exeq->tail,
+		     ((exeq->head - exeq->tail - 1) & CUFLOW_EXEQ_MASK));
 	    while (((AO_load_acquire_read(&exeq->head) - exeq->tail - 1)
 		    & CUFLOW_EXEQ_MASK) > 0) {
 		cu_clop0(fn, void);
@@ -82,9 +82,8 @@ cu_clop_edef(cuflowP_schedule, void, cu_bool_t is_global)
 		ent = &exeq->call_arr[new_tail];
 		fn = ent->fn;
 		cdisj = ent->cdisj;
-		cu_dprintf("cuflow.sched",
-			   "DEQUEUE %p %ld %ld: fn=%p",
-			   exeq, exeq->head, exeq->tail, fn);
+		cu_dlogf(_file, "DEQUEUE %p %ld %ld: fn=%p",
+			 exeq, exeq->head, exeq->tail, fn);
 		/* Atomically update tail to the benefit of
 		 * cuflow_try_sched_call. Release fence to make sure we have
 		 * read the entry before it gets overwritten by the same
@@ -93,9 +92,7 @@ cu_clop_edef(cuflowP_schedule, void, cu_bool_t is_global)
 		cuflow_workers_decr_pending();
 		cu_mutex_unlock(&exeq->pickup_mutex);
 		cu_call0(fn);
-		cu_dprintf("cuflow.sched", "Done job %p, decrementing %p.",
-			   fn, cdisj);
-		//AO_fetch_and_add_release_write(cdisj, -1);
+		cu_dlogf(_file, "Done job %p, decrementing %p.", fn, cdisj);
 		cuflow_cdisj_sub1_release_write(cdisj);
 		cu_mutex_lock(&exeq->pickup_mutex);
 	    }
@@ -104,8 +101,6 @@ cu_clop_edef(cuflowP_schedule, void, cu_bool_t is_global)
 		break;
 	    ts = cuflow_tstate_next(ts);
 	} while (ts != ts0);
-
-	//cuflow_workers_broadcast();
     }
 }
 

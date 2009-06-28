@@ -23,7 +23,7 @@
 #include <atomic_ops.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuflow_sched_types_h cuflow/sched_types.h:
+/*!\defgroup cuflow_sched_types_h cuflow/sched_types.h: SMP Parallelization Type Definitions
  *@{\ingroup cuflow_mod */
 
 /* The number of entries in each thread-local execution queue.  This must be

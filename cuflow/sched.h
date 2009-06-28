@@ -26,8 +26,16 @@
 #include <atomic_ops.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuflow_sched_h cuflow/sched.h: A Cross-CPU Work-Sharing Mechanism
- *@{\ingroup cuflow_mod */
+/*!\defgroup cuflow_sched_h cuflow/sched.h: SMP Parallelization
+ *@{\ingroup cuflow_mod
+ *
+ * This provides an efficient mechanism for sharing work across multiple CPUs
+ * or cores on an SMP system.  Before use, start some worker threads with \ref
+ * cuflow_workers_spawn_at_least or \ref cuflow_workers_spawn.  To parallelize
+ * a task, initialise a local \ref cuflow_cdisj_t \e guard to zero and request
+ * the subtasks with \ref cuflow_sched_call passing a reference to \e guard.
+ * Then use \ref cuflow_cdisj_wait_while to wait for the subtasks to finish.
+ */
 
 void cuflowP_sched_call(cuflow_exeq_t exeq, cu_clop0(fn, void), AO_t *cdisj);
 void cuflowP_sched_call_sub1(cuflow_exeq_t exeq, cu_clop0(fn, void),
