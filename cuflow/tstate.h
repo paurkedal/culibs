@@ -22,14 +22,13 @@
 #include <cu/conf.h>
 #include <cu/inherit.h>
 #include <cu/dlink.h>
+#include <cu/threadlocal.h>
 #include <cuflow/sched_types.h>
 #include <pthread.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuflow_tstate_h cuflow/tstate.h:
+/*!\defgroup cuflow_tstate_h cuflow/tstate.h: Thread-Local State
  *@{\ingroup cuflow_mod */
-
-#define CUFLOW_EXEQ_PRI_COUNT 2
 
 struct cuflow_tstate_s
 {
@@ -38,38 +37,7 @@ struct cuflow_tstate_s
     cuflow_exeqpri_t exeqpri;
 };
 
-#ifdef CUCONF_HAVE_THREAD_KEYWORD
-
-extern __thread cu_bool_t cuflowP_tstate_initialised;
-extern __thread struct cuflow_tstate_s cuflowP_tstate;
-
-void cuflowP_tstate_initialise(void);
-
-CU_SINLINE cuflow_tstate_t
-cuflow_tstate()
-{
-    if (!cuflowP_tstate_initialised)
-	cuflowP_tstate_initialise();
-    return &cuflowP_tstate;
-}
-
-#else /* !CUFLOW_HAVE_THREAD_KEYWORD */
-
-extern pthread_key_t cuflowP_tstate_key;
-
-cuflow_tstate_t cuflowP_tstate_initialise(void);
-
-CU_SINLINE cuflow_tstate_t
-cuflow_tstate()
-{
-    cuflow_tstate_t tstate;
-    tstate = (cuflow_tstate_t)pthread_getspecific(cuflowP_tstate_key);
-    if (!tstate)
-	tstate = cuflowP_tstate_initialise();
-    return tstate;
-}
-
-#endif /* !CUFLOW_HAVE_THREAD_KEYWORD */
+CU_THREADLOCAL_DECL(cuflow_tstate, cuflowP_tstate);
 
 CU_SINLINE cuflow_tstate_t
 cuflow_tstate_next(cuflow_tstate_t ts)

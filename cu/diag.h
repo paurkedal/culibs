@@ -76,6 +76,8 @@ void cu_bugf_fl(char const *file, int line,
 	       "Reached a code point which is not yet written.")
 #define cu_bug_todo(descr) cu_bugf_fl(__FILE__, __LINE__, "TODO: "descr)
 
+void cu_handle_syserror(int err_code, char const *proc_name);
+
 void cu_raise_out_of_memory(size_t size);
 
 CU_SINLINE void

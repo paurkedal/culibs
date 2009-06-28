@@ -16,6 +16,7 @@
  */
 
 #include <cu/rarex.h>
+#include <cu/thread.h>
 #include <gc/gc_pthread_redirects.h>
 #include <string.h>
 #include <stdio.h>
@@ -110,7 +111,7 @@ int main()
 	cu_rarex_init(&unit_arr[i].rarex);
     for (i = 0; i < THREAD_CNT; ++i) {
 	thread_data[i] = i;
-	int err = pthread_create(&th[i], NULL, accessor, &thread_data[i]);
+	int err = cu_pthread_create(&th[i], NULL, accessor, &thread_data[i]);
 	if (err != 0) {
 	    fprintf(stderr, "Failed to launch thread # %d: %s.\n",
 		    i, strerror(err));

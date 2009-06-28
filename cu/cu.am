@@ -29,6 +29,7 @@ cu_headers = \
 	cu/sref.h \
 	cu/str.h \
 	cu/test.h \
+	cu/threadlocal.h \
 	cu/thread.h \
 	cu/tstate.h \
 	cu/wchar.h \

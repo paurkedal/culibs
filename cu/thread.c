@@ -21,6 +21,8 @@
 #include <cu/hash.h>
 #include <cu/memory.h>
 
+cu_dlog_def(_file, "dtag=cu.thread");
+
 cu_mutex_t cuP_pmutex_arr[cuP_PMUTEX_CNT];
 
 typedef struct _thread_data_s {
@@ -28,26 +30,91 @@ typedef struct _thread_data_s {
     void *cd;
 } *_thread_data_t;
 
+typedef struct cuP_thread_atexit_node_s *_thread_atexit_node_t;
+struct cuP_thread_atexit_node_s
+{
+    _thread_atexit_node_t next;
+    cu_clop0(fn, void);
+};
+
 static struct cu_iter_hook_s _thread_entry_hook;
 static struct cu_iter_hook_s _thread_exit_hook;
+
+#ifdef CUCONF_HAVE_THREAD_KEYWORD
+static __thread cu_bool_t _thread_init_done = cu_false;
+#endif
+static pthread_key_t _thread_init_key;
+
+
+static void
+_thread_cleanup(void *null)
+{
+    cuP_tstate_t tls = cuP_tstate();
+    _thread_atexit_node_t node, node_next;
+
+    node = tls->atexit_chain;
+    while (node) {
+	cu_call0(node->fn);
+	node_next = node->next;
+	cu_gfree_u(node);
+	node = node_next;
+    }
+    cu_iter_hook_call(&_thread_exit_hook);
+}
 
 static void *
 _thread_start(void *subcd)
 {
-    if (!cu_iter_hook_is_empty(&_thread_exit_hook))
-	cuP_tstate();
+    void *ret;
+#ifdef CUCONF_HAVE_THREAD_KEYWORD
+    cu_debug_assert(!_thread_init_done);
+    _thread_init_done = cu_true;
+#endif
+    cu_dlogf(_file, "Running thread init hook from cu_pthread_create.");
     cu_iter_hook_call(&_thread_entry_hook);
-    return (*((_thread_data_t)subcd)->cf)(((_thread_data_t)subcd)->cd);
+    pthread_cleanup_push(_thread_cleanup, NULL);
+    ret = (*((_thread_data_t)subcd)->cf)(((_thread_data_t)subcd)->cd);
+    pthread_cleanup_pop(1);
+    return ret;
 }
 
 int
-cu_thread_create(pthread_t *th_out, pthread_attr_t const *attrs,
-		 void *(*cf)(void *), void *cd)
+cu_pthread_create(pthread_t *th_out, pthread_attr_t const *attrs,
+		  void *(*cf)(void *), void *cd)
 {
     _thread_data_t subcd = cu_gnew(struct _thread_data_s);
     subcd->cf = cf;
     subcd->cd = cd;
     return GC_pthread_create(th_out, attrs, _thread_start, subcd);
+}
+
+void
+cu_thread_init(void)
+{
+#ifdef CUCONF_HAVE_THREAD_KEYWORD
+    if (_thread_init_done)
+	return;
+    _thread_init_done = cu_true;
+#else
+    if (cuP_tstate() != NULL)
+	return;
+#endif
+    cu_dlogf(_file, "Running thread init hook from cu_thread_init.");
+    cu_iter_hook_call(&_thread_entry_hook);
+    pthread_setspecific(_thread_init_key, &_thread_init_key);
+}
+
+void
+cu_assert_thread_init(void)
+{
+#ifdef CUCONF_HAVE_THREAD_KEYWORD
+    if (!_thread_init_done)
+#else
+    if (cuP_tstate() == NULL)
+#endif
+	cu_bugf("Initaliasation has not not been called for this thread.  "
+		"This can be fixed by using cu_pthread_create or calling "
+		"cu_thread_init at a suitable place before this point.");
 }
 
 void
@@ -61,19 +128,11 @@ cu_register_thread_init(cu_clop0(on_entry, void), cu_clop0(on_exit, void))
 	cu_iter_hook_prepend(&_thread_exit_hook, on_exit);
 }
 
-
-typedef struct cuP_thread_atexit_node_s *cuP_thread_atexit_node_t;
-struct cuP_thread_atexit_node_s
-{
-    cuP_thread_atexit_node_t next;
-    cu_clop0(fn, void);
-};
-
 void
 cu_thread_atexit(cu_clop0(fn, void))
 {
     cuP_tstate_t tstate = cuP_tstate();
-    cuP_thread_atexit_node_t node;
+    _thread_atexit_node_t node;
     node = cu_gnew_u(struct cuP_thread_atexit_node_s);
     node->fn = fn;
     node->next = tstate->atexit_chain;
@@ -81,17 +140,19 @@ cu_thread_atexit(cu_clop0(fn, void))
 }
 
 void
-cuP_thread_run_atexit(cuP_tstate_t st)
+cu_pthread_key_create(pthread_key_t *key_out, void (*destructor)(void *))
 {
-    cuP_thread_atexit_node_t node, node_next;
-    node = st->atexit_chain;
-    while (node) {
-	cu_call0(node->fn);
-	node_next = node->next;
-	cu_gfree_u(node);
-	node = node_next;
-    }
-    cu_iter_hook_call(&_thread_exit_hook);
+    int err = pthread_key_create(key_out, destructor);
+    if (err != 0)
+	cu_handle_syserror(err, "pthread_key_create");
+}
+
+void
+cu_pthread_setspecific(pthread_key_t key, void *data)
+{
+    int err = pthread_setspecific(key, data);
+    if (err != 0)
+	cu_handle_syserror(err, "pthread_setspecific");
 }
 
 
@@ -121,9 +182,9 @@ cuP_pmutex_unlock(void *ptr)
  * ==== */
 
 static void
-_thread_uninit(void)
+_thread_atexit(void)
 {
-    cu_iter_hook_call(&_thread_exit_hook);
+    _thread_cleanup(NULL);
 }
 
 void
@@ -131,9 +192,11 @@ cuP_thread_init(void)
 {
     int i;
 
+    cu_pthread_key_create(&_thread_init_key, _thread_cleanup);
+
     cu_iter_hook_init(&_thread_entry_hook);
     cu_iter_hook_init(&_thread_exit_hook);
-    atexit(_thread_uninit);
+    atexit(_thread_atexit);
 
     for (i = 0; i < cuP_PMUTEX_CNT; ++i)
 	cu_mutex_init(&cuP_pmutex_arr[i]);

@@ -77,6 +77,8 @@ CU_BEGIN_DECLARATIONS
 #define cu_expect_false(e) cu_expect(e, cu_false)
 #define cu_expect_true(e) cu_expect(e, cu_true)
 
+#define CU_END_BOILERPLATE struct cuP_expecting_semicolor_after_boilerplate
+
 
 /* Scalar Types
  * ------------ */

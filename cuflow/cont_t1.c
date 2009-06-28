@@ -146,7 +146,7 @@ main(int argc, char** argv)
 {
     if (argc == 2)
 	sscanf(argv[1], "%d", &opt_decline);
-    cu_init();
+    cuflow_init();
     cuflow_call_in_root(alt_main, cuflow_mode_nondet);
     return 0;
 }

@@ -42,7 +42,7 @@ cu_clop_def0(_on_thread_entry, void)
     cu_test_assert_int_leq(tls->id, SPAWN_COUNT);
     cu_test_assert_int_eq(_thread_status[tls->id], 0);
     _thread_status[tls->id] = 1;
-    pthread_setspecific(_tls_key, tls);
+    cu_pthread_setspecific(_tls_key, tls);
 }
 
 cu_clop_def0(_on_thread_exit, void)
@@ -73,7 +73,11 @@ void *
 _thread_main(void *targ)
 {
     long i;
-    _tls_t tls = pthread_getspecific(_tls_key);
+    _tls_t tls;
+    if (*(int *)targ >= 2)
+	cu_thread_init(); /* 2 tests redundant call, 3 tests required call */
+    cu_assert_thread_init();
+    tls = pthread_getspecific(_tls_key);
     if (tls->id % 2)
 	cu_thread_atexit(_atexit);
     cu_test_assert_int_eq(_thread_status[tls->id], 1);
@@ -99,7 +103,7 @@ main()
     cu_init();
     pthread_key_create(&_tls_key, _tls_destruct);
     cu_register_thread_init(cu_clop_ref(_on_thread_entry),
-			 cu_clop_ref(_on_thread_exit));
+			    cu_clop_ref(_on_thread_exit));
     cu_test_assert(_tls_next_id == 1);
     cu_test_assert_int_eq(_thread_status[0], 1); /* main thread */
 
@@ -112,7 +116,10 @@ main()
 	/* Start up threads, and cancel one. */
 	for (i = 0; i < SPAWN_COUNT; ++i) {
 	    targ[i] = i;
-	    cu_thread_create(&th[i], NULL, _thread_main, &targ[i]);
+	    if (i % 4 == 3)
+		GC_pthread_create(&th[i], NULL, _thread_main, &targ[i]);
+	    else
+		cu_pthread_create(&th[i], NULL, _thread_main, &targ[i]);
 	}
 	pthread_cancel(th[j % SPAWN_COUNT]);
 

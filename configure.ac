@@ -72,10 +72,7 @@ CUAC_C_WIDTHS
 CUAC_C_VA_LIST_IS_REF
 CUAC_C_STACK_DIRECTION
 
-dnl CUAC_C_THREAD_KEYWORD
-dnl 2007-05-04 __thread storage breaks things.  It's probably not added to the
-dnl GC roots, and linking it to a global variable as done in tstate.h does not
-dnl help since it's not dynamic memory.
+CUAC_C_THREAD_KEYWORD
 
 # Check if it is valid to pass more arguments than the prototype in
 # the definition specifies.

@@ -19,80 +19,40 @@
 #include <cu/thread.h>
 #include <cu/memory.h>
 
-static pthread_mutex_t cuflowP_tstate_chain_mutex = CU_MUTEX_INITIALISER;
-static cu_dlink_t cuflowP_tstate_chain = NULL;
+static pthread_mutex_t _tstate_chain_mutex = CU_MUTEX_INITIALISER;
+static cu_dlink_t _tstate_chain = NULL;
 
 void cuflowP_exeq_init_tstate(cuflow_tstate_t);
 
 static void
-tstate_dct(cuflow_tstate_t tstate)
+_tstate_init(cuflow_tstate_t tstate)
 {
-    cu_mutex_lock(&cuflowP_tstate_chain_mutex);
-    cu_dlink_erase(cu_to(cu_dlink, tstate));
-    cu_mutex_unlock(&cuflowP_tstate_chain_mutex);
+    cuflowP_exeq_init_tstate(tstate);
+    cu_mutex_lock(&_tstate_chain_mutex);
+    if (_tstate_chain)
+	cu_dlink_insert_before(_tstate_chain, cu_to(cu_dlink, tstate));
+    else {
+	cu_dlink_init_singleton(cu_to(cu_dlink, tstate));
+	_tstate_chain = cu_to(cu_dlink, tstate);
+    }
+    cu_mutex_unlock(&_tstate_chain_mutex);
 }
 
 static void
-tstate_init(cuflow_tstate_t tstate)
+_tstate_destruct(cuflow_tstate_t tstate)
 {
-    cuflowP_exeq_init_tstate(tstate);
-    cu_mutex_lock(&cuflowP_tstate_chain_mutex);
-    if (cuflowP_tstate_chain)
-	cu_dlink_insert_before(cuflowP_tstate_chain, cu_to(cu_dlink, tstate));
-    else {
-	cuflowP_tstate_chain = cu_to(cu_dlink, tstate);
-	cu_dlink_init_singleton(cu_to(cu_dlink, tstate));
-    }
-    cu_mutex_unlock(&cuflowP_tstate_chain_mutex);
+    cu_mutex_lock(&_tstate_chain_mutex);
+    if (cu_dlink_is_singleton(cu_to(cu_dlink, tstate)))
+	_tstate_chain = NULL;
+    else
+	cu_dlink_erase(cu_to(cu_dlink, tstate));
+    cu_mutex_unlock(&_tstate_chain_mutex);
 }
 
-
-#ifdef CUCONF_HAVE_THREAD_KEYWORD
-
-__thread cu_bool_t cuflowP_tstate_initialised = cu_false;
-__thread struct cuflow_tstate_s cuflowP_tstate;
-
-cu_clop_def0(tstate_cleanup, void)
-{
-    tstate_dct(&cuflowP_tstate);
-}
-
-void
-cuflowP_tstate_initialise(void)
-{
-    tstate_init(&cuflowP_tstate);
-    cu_thread_atexit(tstate_cleanup);
-    cuflowP_tstate_initialised = cu_true;
-}
-
-#else
-
-pthread_key_t cuflowP_tstate_key;
-
-cuflow_tstate_t
-cuflowP_tstate_initialise(void)
-{
-    cuflow_tstate_t tstate = cu_gnew_u(struct cuflow_tstate_s);
-    tstate_init(tstate);
-    pthread_setspecific(cuflowP_tstate_key, tstate);
-    return tstate;
-}
-
-#endif
+CU_THREADLOCAL_DEF(cuflow_tstate, cuflowP_tstate, _tstate);
 
 void
 cuflowP_tstate_init()
 {
-#ifndef CUCONF_HAVE_THREAD_KEYWORD
-    switch (pthread_key_create(&cuflowP_tstate_key,
-			       (void (*)(void *))tstate_dct)) {
-	case EAGAIN:
-	    cu_errf("Out of thread-local keys.");
-	    exit(2);
-	case 0:
-	    break;
-	default:
-	    cu_debug_unreachable();
-    }
-#endif
+    CU_THREADLOCAL_INIT(cuflow_tstate, cuflowP_tstate, _tstate);
 }

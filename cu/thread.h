@@ -39,27 +39,36 @@ CU_BEGIN_DECLARATIONS
  * \c EPERM, whereas \c EBUSY is reported *by cu_pthread_trylock as
  * a \c cu_false return. */
 
-/* Threads
- * ======= */
+/*!\name Thread Creation and Initialisation
+ *@{*/
 
+#ifndef CU_IN_DOXYGEN
 int GC_pthread_create(pthread_t *, pthread_attr_t const *,
 		      void *(*)(void *), void *);
 int GC_pthread_join(pthread_t thread, void **retval);
 int GC_pthread_detach(pthread_t thread);
+#endif
 
-/*!Register \a cleanup to be run at exit or cancellation of the current
- * thread, and before previously registered cleanup functions. */
-void cu_thread_atexit(cu_clop0(cleanup, void));
-
-/*!Alias for the GC wrapper for pthread_create. */
-int cu_thread_create(pthread_t *thread_out, pthread_attr_t const *attrs,
-		     void *(*cf)(void *), void *cd);
+/*!A wrapper around GC_pthread_create (and thus pthread_create), which also
+ * runs thread-specific initialisation code registered with \ref
+ * cu_register_thread_init or \ref CU_THREADLOCAL_INIT. */
+int cu_pthread_create(pthread_t *thread_out, pthread_attr_t const *attrs,
+		      void *(*cf)(void *), void *cd);
 
 /*!Alias for the GC wrapper for pthread_join. */
-#define cu_thread_join GC_pthread_join
+#define cu_pthread_join GC_pthread_join
 
 /*!Alias for the GC wrapper for pthread_detach. */
-#define cu_thread_detach GC_pthread_detach
+#define cu_pthread_detach GC_pthread_detach
+
+/*!If you don't have the chance to use \a cu_pthread_create, call this function
+ * as a fall-back to perform thread-local initialisation before using functions
+ * which rely on it.  This function is idempotent, and it will also arrange for
+ * the associated cleaup functions to be called before thread exit. */
+void cu_thread_init(void);
+
+/*!Checks to make sure the thread initialisation have been run. */
+void cu_assert_thread_init(void);
 
 /*!Calls \a on_entry and arranges for \a on_entry to be called in each newly
  * started thread before other code, and \a on_exit to be called before the
@@ -67,19 +76,22 @@ int cu_thread_create(pthread_t *thread_out, pthread_attr_t const *attrs,
  * registration, and \a on_exit are called in reverse order of registration.
  * Either one may be \ref cu_clop_null if it's not needed.  These callbacks
  * only take effect in the main thread and threads which are created with \a
- * cu_thread_create. */
+ * cu_pthread_create. */
 void cu_register_thread_init(cu_clop0(on_entry, void), cu_clop0(on_exit, void));
 
-/*!\deprecated*/
-#define cu_pthread_create cu_thread_create
-/*!\deprecated*/
-#define cu_pthread_join cu_thread_join
-/*!\deprecated*/
-#define cu_pthread_detach cu_thread_detatch
+/*!Register \a cleanup to be run at exit or cancellation of the current
+ * thread, and before previously registered cleanup functions. */
+void cu_thread_atexit(cu_clop0(cleanup, void));
 
+/*!An error-checking wrapper for pthread_key_create. */
+void cu_pthread_key_create(pthread_key_t *key_out, void (*destructor)(void *));
 
-/* Mutices
- * ======= */
+/*!An error-checking wrapper for pthread_setspecific. */
+void cu_pthread_setspecific(pthread_key_t key, void *data);
+
+/*!@}*/
+/*!\name Mutices
+ *@{*/
 
 typedef pthread_mutex_t cu_mutex_t;
 
@@ -144,12 +156,14 @@ cu_mutex_unlock(pthread_mutex_t *m)
 #endif
 }
 
+/*!@}*/
+/*!\name Per-Pointer Mutices
+ *@{*/
 
-/* Per-Pointer Mutices
- * =================== */
-
+#ifndef CU_IN_DOXYGEN
 #define cuP_PMUTEX_CNT 512
 extern cu_mutex_t cuP_pmutex_arr[cuP_PMUTEX_CNT];
+#endif
 
 CU_SINLINE cu_mutex_t *cu_pmutex_mutex(void *ptr)
 { return &cuP_pmutex_arr[cu_hash_mix((cu_hash_t)ptr) % cuP_PMUTEX_CNT]; }
@@ -166,10 +180,15 @@ cu_bool_t cu_pmutex_trylock(void *ptr);
 /*!Unlock a mutex indexed by a hash mix of <tt>(cu_hash_t)\a ptr</tt>. */
 void cu_pmutex_unlock(void *ptr);
 
-/*!\deprecated Use cu_mutex_init. */
-#define cu_mutex_cct cu_mutex_init
-
+/*!@}*/
 /*!@}*/
 CU_END_DECLARATIONS
+
+#define cu_thread_create cu_pthread_create
+#define cu_thread_join cu_pthread_join
+#define cu_thread_detach cu_pthread_detatch
+
+/*!\deprecated Use cu_mutex_init. */
+#define cu_mutex_cct cu_mutex_init
 
 #endif

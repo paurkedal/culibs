@@ -126,7 +126,7 @@ main()
     t += (clock_t)test((void *)0);
 #else
     for (i = 0; i < NTHREADS; ++i) {
-	int err = GC_pthread_create(&th[i], NULL, test, (void *)i);
+	int err = cu_pthread_create(&th[i], NULL, test, (void *)i);
 	if (err)
 	    fprintf(stderr, "Could not create thread %"PRIdPTR": %s\n",
 		    i, strerror(err));

@@ -356,7 +356,7 @@ int
 main()
 {
     alt_main_t alt_main_clos;
-    cu_init();
+    cuflow_init();
     cuflow_call_in_root(alt_main_prep(&alt_main_clos), cuflow_mode_semidet);
     return 0;
 }

@@ -20,6 +20,7 @@
 
 #include <cu/fwd.h>
 #include <cu/conf.h>
+#include <cu/threadlocal.h>
 #ifdef CUCONF_HAVE_GC_GC_TINY_FL_H
 #  include <gc/gc_tiny_fl.h>
 #endif
@@ -79,69 +80,8 @@ struct cuP_tstate_s
 extern pthread_mutex_t cuP_global_mutex;
 extern cuP_tstate_t cuP_tstate_chain;
 
-#ifdef CUCONF_ENABLE_THREADS
-
-#ifdef CUCONF_HAVE_THREAD_KEYWORD
-
-extern __thread cu_bool_t cuP_tstate_initialised;
-extern __thread struct cuP_tstate_s cuP_tstate_var;
-void cuP_tstate_initialise(void);
-void cuP_tstate_initialise_glck(void);
-
-CU_SINLINE cuP_tstate_t
-cuP_tstate(void)
-{
-    if (!cuP_tstate_initialised)
-	cuP_tstate_initialise();
-    return &cuP_tstate_var;
-}
-
-CU_SINLINE cuP_tstate_t
-cuP_tstate_glck(void)
-{
-    if (!cuP_tstate_initialised)
-	cuP_tstate_initialise_glck();
-    return &cuP_tstate_var;
-}
-
-#else
-
-extern pthread_key_t cuP_tstate_key;
-cuP_tstate_t cuP_tstate_new(void);
-cuP_tstate_t cuP_tstate_new_glck(void);
-
-CU_SINLINE cuP_tstate_t
-cuP_tstate(void)
-{
-    cuP_tstate_t tstate = (cuP_tstate_t)pthread_getspecific(cuP_tstate_key);
-    if (!tstate)
-	tstate = cuP_tstate_new();
-    return tstate;
-}
-CU_SINLINE cuP_tstate_t
-cuP_tstate_glck(void)
-{
-    cuP_tstate_t tstate = (cuP_tstate_t)pthread_getspecific(cuP_tstate_key);
-    if (!tstate)
-	tstate = cuP_tstate_new_glck();
-    return tstate;
-}
-
-#endif
-
-#else /* !CUCONF_ENABLE_THREADS */
-
-extern struct cuP_tstate_s cuP_tstate_global;
-
-CU_SINLINE cuP_tstate_t
-cuP_tstate(void)
-{
-    return &cuP_tstate_global;
-}
-
+CU_THREADLOCAL_DECL(cuP_tstate, cuP_tstate);
 #define cuP_tstate_glck cuP_tstate
-
-#endif /* !CUCONF_ENABLE_THREADS */
 
 CU_END_DECLARATIONS
 

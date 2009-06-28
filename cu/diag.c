@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <errno.h>
 
 /* Diagnostic Functions
  * -------------------- */
@@ -288,6 +289,37 @@ cu_fprintf(FILE *file, char const *fmt, ...)
     va_start(va, fmt);
     cu_vfprintf(file, fmt, va);
     va_end(va);
+}
+
+void
+cu_handle_syserror(int err_code, char const *proc_name)
+{
+    char const *msg = strerror(err_code);
+    switch (err_code) {
+	case 0:
+	    cu_bugf("cu_handle_syserror called with err_code = 0.");
+
+	    /* Identify some conditions which should not arise in a valid
+	     * program. */
+#ifdef EDEADLK
+	case EDEADLK:
+#endif
+#ifdef EDOM
+	case EDOM:
+#endif
+#ifdef EFAULT
+	case EFAULT:
+#endif
+#ifdef EINVAL
+	case EINVAL:
+#endif
+	    cu_bugf("Call to %s failed: %s", proc_name, msg);
+
+	    /* Treat the rest as hard runtime errors. */
+	default:
+	    cu_errf("Call to %s failed: %s", proc_name, msg);
+	    exit(69);
+    }
 }
 
 void
