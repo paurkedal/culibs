@@ -66,6 +66,7 @@ cu_clos_def(jobS, cu_prot0(void), (int n; int r;))
     self->r = job[0].r + job[1].r + 1;
 }
 
+#ifdef CUCONF_ENABLE_EXPERIMENTAL
 cu_clos_def(jobW, cu_prot0(void), (int n; int r;))
 {
     cu_clos_self(jobW);
@@ -83,15 +84,20 @@ cu_clos_def(jobW, cu_prot0(void), (int n; int r;))
     cuflow_cdisj_wait_while(&cdisj);
     self->r = job[0].r + job[1].r + 1;
 }
+#endif
 
 int
 main()
 {
     jobC_t jobC;
     jobS_t jobS;
+    time_t tF, tC, tS;
+    cuflow_walltime_t wtF, wtC, wtS;
+#ifdef CUCONF_ENABLE_EXPERIMENTAL
     jobW_t jobW;
-    time_t tF, tC, tS, tW;
-    cuflow_walltime_t wtF, wtC, wtS, wtW;
+    time_t tW;
+    cuflow_walltime_t wtW;
+#endif
     int r;
     int n = 0x4000000;
 
@@ -121,6 +127,7 @@ main()
     wtS += cuflow_walltime();
     cu_test_assert(jobS.r == r);
 
+#ifdef CUCONF_ENABLE_EXPERIMENTAL
     tW = -clock();
     wtW = -cuflow_walltime();
     jobW.n = n;
@@ -128,6 +135,7 @@ main()
     tW += clock();
     wtW += cuflow_walltime();
     cu_test_assert(jobW.r == r);
+#endif
 
     cuflow_workers_spawn(0);
 
@@ -135,8 +143,7 @@ main()
     printf("              %10s %10s\n"
 	   "    plain fn: %10.3lg %10.3lg | %10.3lg %10.3lg\n"
 	   "  plain clos: %10.3lg %10.3lg | %10.3lg %10.3lg\n"
-	   "  sched clos: %10.3lg %10.3lg | %10.3lg %10.3lg\n"
-	   "  wheel clos: %10.3lg %10.3lg | %10.3lg %10.3lg\n",
+	   "  sched clos: %10.3lg %10.3lg | %10.3lg %10.3lg\n",
 	   "total", "per call",
 	   tF/(double)CLOCKS_PER_SEC,
 	   tF/(r*(double)CLOCKS_PER_SEC),
@@ -149,10 +156,13 @@ main()
 	   tS/(double)CLOCKS_PER_SEC,
 	   tS/(r*(double)CLOCKS_PER_SEC),
 	   wtS/(double)CUFLOW_WALLTIME_SECOND,
-	   wtS/(r*(double)CUFLOW_WALLTIME_SECOND),
+	   wtS/(r*(double)CUFLOW_WALLTIME_SECOND));
+#ifdef CUCONF_ENABLE_EXPERIMENTAL
+    printf("  wheel clos: %10.3lg %10.3lg | %10.3lg %10.3lg\n",
 	   tW/(double)CLOCKS_PER_SEC,
 	   tW/(r*(double)CLOCKS_PER_SEC),
 	   wtW/(double)CUFLOW_WALLTIME_SECOND,
 	   wtW/(r*(double)CUFLOW_WALLTIME_SECOND));
+#endif
     return 0;
 }

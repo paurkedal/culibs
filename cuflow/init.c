@@ -29,7 +29,6 @@ void cuflowP_cntn_common_init(void);
 void cuflowP_workers_init(void);
 void cuflowP_cdisj_init(void);
 void cuflowP_sched_init(void);
-//void cuflowP_rotary_init(void);
 void cuflowP_wheel_init(void);
 void cuflowP_cached_init(void);
 #endif
@@ -45,14 +44,13 @@ cuflow_init()
     cu_init();
     cuflowP_signal_init();
     cuflowP_gworkq_init();
-#ifdef CUCONF_ENABLE_EXPERIMENTAL
     cuflowP_tstate_init();
+    cuflowP_cdisj_init();
+    cuflowP_workers_init();
+    cuflowP_sched_init();	/* after: cuflowP_workers_init */
+#ifdef CUCONF_ENABLE_EXPERIMENTAL
     cuflowP_time_init();
     cuflowP_cntn_common_init();
-    cuflowP_workers_init();
-    cuflowP_cdisj_init();
-    cuflowP_sched_init();	/* after: cuflowP_workers_init */
-//    cuflowP_rotary_init();	/* after: cuflowP_workers_init */
     cuflowP_wheel_init();	/* after: cuflowP_workers_init */
     cuflowP_cached_init();
 #endif
