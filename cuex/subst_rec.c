@@ -26,6 +26,7 @@
 #include <cugra/graph.h>
 #include <cugra/graph_algo.h>
 
+cu_dlog_def(_file, "dtag=cuex.subst.rec");
 
 /* -- cuex_subst_render_idempotent */
 
@@ -97,8 +98,7 @@ cu_clos_def(mark_veqv_cb,
     vq->is_feedback_var = 1;
     for (it = cuex_veqv_begin(vq); it != cuex_veqv_end(vq);
 	    it = cuex_veqv_it_next(it)) {
-	cu_dprintf("cuex.subst.rec", "%! ↦ %!",
-		   cuex_veqv_it_get(it), vq->value),
+	cu_dlogf(_file, "%! ↦ %!", cuex_veqv_it_get(it), vq->value),
 	cucon_pmap_insert_ptr(self->var_to_rvar, cuex_veqv_it_get(it), rvar);
     }
     self->veqv_arr[self->i++] = vq;
@@ -116,16 +116,16 @@ render_idempotent_expand(cuex_subst_t sig, cucon_pset_t msc_vars,
     else if (cuex_is_varmeta(meta)) {
 	cuex_var_t rvar = cucon_pmap_find_ptr(var_to_rvar, e);
 	if (rvar) {
-	    cu_dprintf("cuex.subst.rec", "(expand) feedback: %! ↦ %!", e, rvar);
+	    cu_dlogf(_file, "(expand) feedback: %! ↦ %!", e, rvar);
 	    return rvar;
 	}
 	else if (cucon_pset_find(msc_vars, e)) {
-	    cu_dprintf("cuex.subst.rec", "(expand) strongly connected: %!", e);
+	    cu_dlogf(_file, "(expand) strongly connected: %!", e);
 	    e = cuex_subst_lookup(sig, e);
 	    cu_debug_assert(e);
 	    return render_idempotent_expand(sig, msc_vars, var_to_rvar, e);
 	}
-	cu_dprintf("cuex.subst.rec", "(expand) independent: %!", e);
+	cu_dlogf(_file, "(expand) independent: %!", e);
     }
     return e;
 }
@@ -200,7 +200,7 @@ cuex_subst_render_idempotent(cuex_subst_t sig)
 
 	/* Replace variable mappings with rbind constructs. */
 	opd_arr = cu_salloc(sizeof(cuex_t)*n_V);
-	cu_dprintf("cuex.subst.rec", "%d MSC vars", cucon_pset_size(&msc_vars));
+	cu_dlogf(_file, "%d MSC vars", cucon_pset_size(&msc_vars));
 	for (i = 0; i < n_V; ++i)
 	    opd_arr[i] = render_idempotent_expand(sig, &msc_vars, &var_to_rvar,
 						  veqv_arr[i]->value);

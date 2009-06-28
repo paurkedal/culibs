@@ -24,6 +24,8 @@
 #include <cucon/list.h>
 #include <bdd.h>
 
+cu_dlog_def(_file, "dtag=cugra.graph_mfvs");
+
 
 /* Feedback vertex set preserving graph reductions
  * ----------------------------------------------- */
@@ -95,8 +97,7 @@ init_first_approx(cugra_vertex_t v, cucon_pmap_t vinfo_map,
 	vinfo->it_num = -1;
 	cugra_vertex_for_outarcs(a, v)
 	    init_first_approx(cugra_arc_head(a), vinfo_map, index_to_vertex, B);
-	cu_dprintf("cugra.graph_mfvs",
-		   "Init %p: f(%d) := %d", v, vinfo->index, vinfo->f);
+	cu_dlogf(_file, "Init %p: f(%d) := %d", v, vinfo->index, vinfo->f);
 	vinfo->it_num = 0;
     }
     else if (vinfo->it_num == -1) { /* visiting */
@@ -113,7 +114,7 @@ MFVS_iterate(cugra_vertex_t v, cucon_pmap_t vinfo_map, int cur_it_num,
     MFVS_vinfo_t vinfo = cucon_pmap_find_mem(vinfo_map, v);
     cu_debug_assert(vinfo);
     if (vinfo->it_num != cur_it_num) {
-	cu_dprintf("cugra.graph_mfvs", "Entering vertex %p", v);
+	cu_dlogf(_file, "Entering vertex %p", v);
 	BDD tmp, g;
 	vinfo->it_num = cur_it_num;
 
@@ -134,14 +135,13 @@ MFVS_iterate(cugra_vertex_t v, cucon_pmap_t vinfo_map, int cur_it_num,
 	bdd_delref(tmp);
 	bdd_delref(g);
 	if (cu_debug_key("cugra.graph_mfvs")) {
-	    cu_dprintf("cugra.graph_mfvs", "Leaving vertex %p: f=%d",
-		       v, vinfo->f);
+	    cu_dlogf(_file, "Leaving vertex %p: f=%d", v, vinfo->f);
 	    if (cu_debug_key("cugra.graph_mfvs.verbose"))
 		bdd_printtable(vinfo->f);
 	}
     }
     else
-	cu_dprintf("cugra.graph_mfvs", "Catched vertex %p", v);
+	cu_dlogf(_file, "Catched vertex %p", v);
     return vinfo->f;
 }
 
@@ -164,7 +164,7 @@ cugra_MFVS(cugra_graph_t G_src, cucon_pset_t cutset)
     MFVS_reduce_graph(&G_dst, cutset, &vdst_to_vsrc);
     cucon_stack_init(&KG);
     cugra_move_MSC_subgraphs(&G_dst, &KG);
-    cu_dprintf("cugra.graph_mfvs", "Start MFVS.");
+    cu_dlogf(_file, "Start MFVS.");
     while (!cucon_stack_is_empty(&KG)) {
 	cucon_listnode_t it_B;
 	struct cucon_pmap_s vinfo_map;
@@ -174,8 +174,8 @@ cugra_MFVS(cugra_graph_t G_src, cucon_pset_t cutset)
 	struct cucon_umap_s index_to_vertex;
 	struct cucon_list_s B;
 	int B_cnt;
-	cu_dprintf("cugra.graph_mfvs", "MFVS: %d components on stack",
-		   CUCON_STACK_SIZE(&KG, cugra_graph_t));
+	cu_dlogf(_file, "MFVS: %d components on stack",
+		 CUCON_STACK_SIZE(&KG, cugra_graph_t));
 
 	G = CUCON_STACK_TOP(&KG, cugra_graph_t);
 	CUCON_STACK_POP(&KG, cugra_graph_t);
@@ -198,8 +198,7 @@ cugra_MFVS(cugra_graph_t G_src, cucon_pset_t cutset)
 #else
 	    g = MFVS_iterate(v, &vinfo_map, cur_it_num, &changes);
 #endif
-	    cu_dprintf("cugra.graph_mfvs", "%d changes at iteration %d.",
-		       changes, cur_it_num);
+	    cu_dlogf(_file, "%d changes at iteration %d.", changes, cur_it_num);
 	    ++cur_it_num;
 	} while (changes);
 
@@ -237,7 +236,7 @@ cugra_MFVS(cugra_graph_t G_src, cucon_pset_t cutset)
 		cu_debug_assert(v);
 		v_src = cucon_pmap_find_ptr(&vdst_to_vsrc, v);
 		cu_debug_assert(v_src);
-		cu_dprintf("cugra.graph_mfvs", "VERTEX %p", v_src);
+		cu_dlogf(_file, "VERTEX %p", v_src);
 		cucon_pset_insert(cutset, v_src);
 		partial_cutset = high;
 	    }
@@ -248,8 +247,7 @@ cugra_MFVS(cugra_graph_t G_src, cucon_pset_t cutset)
 	}
 	bdd_delref(g);
     }
-    cu_dprintf("cugra.graph_mfvs", "MFVS has %d vertices",
-	       cucon_pset_size(cutset));
+    cu_dlogf(_file, "MFVS has %d vertices", cucon_pset_size(cutset));
 }
 
 

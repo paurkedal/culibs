@@ -36,6 +36,8 @@
 #include <stdlib.h>
 #include <limits.h>
 
+cu_dlog_def(_file, "dtag=cuex.optimal_fold");
+
 #define VERBOSE 0
 #if 1
 #  define REPEAT 10000
@@ -339,7 +341,7 @@ _test(struct _clock_avg_state_s *bench_arr)
 
     memcpy(ysubi, _xsubi, sizeof(ysubi));
     e = _random_expr(0, &size_limit);
-    cu_dprintf("cuex.optimal_fold", "== First minimisation (ep) ==");
+    cu_dlogf(_file, "== First minimisation (ep) ==");
     ep = MINIMISE(e);
 
     are_eq = _depth_eq(e, ep);
@@ -367,7 +369,7 @@ _test(struct _clock_avg_state_s *bench_arr)
 
     plot_bin = epp_size/PLOT_NODECOUNT_GRAN;
     bench_arr[plot_bin].time -= clock();
-    cu_dprintf("cuex.optimal_fold", "== Second minimisation (eppp) ==");
+    cu_dlogf(_file, "== Second minimisation (eppp) ==");
     eppp = MINIMISE(epp);
     bench_arr[plot_bin].time += clock();
     ++bench_arr[plot_bin].count;

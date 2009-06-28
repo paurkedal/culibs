@@ -24,6 +24,8 @@
 #include <inttypes.h>
 #include <ctype.h>
 
+cu_dlog_def(_file, "dtag=cuex.otab");
+
 #define SIMPLERANGE(rng) cu_to(cuex_otab_simplerange, rng)
 #if 0
 #  define OFMT "CUEX_META_C(0x%"CUEX_PRIxMETA")"
@@ -282,14 +284,14 @@ cu_clos_def(alloc_in_reservation,
 	return cu_true;
     rsv = cu_from2(cuex_otab_reservation, cuex_otab_simplerange,
 		   cuex_otab_def, key);
-    cu_dprintf("cuex.otab",
-	       "RSV %p, length %d: Looking for operator in %s of arity %d.",
-	       rsv, cuex_otab_reservation_length(rsv),
-	       cu_idr_to_cstr(cuex_otab_range_idr(
-				    cuex_otab_reservation_super(rsv))),
-	       self->r);
+    cu_dlogf(_file,
+	     "RSV %p, length %d: Looking for operator in %s of arity %d.",
+	     rsv, cuex_otab_reservation_length(rsv),
+	     cu_idr_to_cstr(cuex_otab_range_idr(
+		     cuex_otab_reservation_super(rsv))),
+	     self->r);
     if (rsv->is_full) {
-	cu_dprintf("cuex.otab", "RSV %p is full.", rsv);
+	cu_dlogf(_file, "RSV %p is full.", rsv);
 	return cu_true;
     }
     if (self->r == -1) {
@@ -312,8 +314,7 @@ cu_clos_def(alloc_in_reservation,
 	    bv = cucon_arr_extend_gp(&rsv->freemask,
 				     (self->r + 1 - i)
 				     * sizeof(struct cucon_bitvect_s));
-	    cu_dprintf("cuex.otab", "RSV %p: Expanding to arity %d",
-		       rsv, self->r);
+	    cu_dlogf(_file, "RSV %p: Expanding to arity %d", rsv, self->r);
 	    do
 		cucon_bitvect_init_copy(bv++, &rsv->multi_freemask);
 	    while (++i <= self->r);
@@ -330,14 +331,12 @@ cu_clos_def(alloc_in_reservation,
 	cucon_bitvect_set_at(&rsv->all_freemask, index, cu_false);
 	index <<= cuex_otab_reservation_low_bit(rsv);
 	index += cuex_otab_reservation_min(rsv);
-	cu_dprintf("cuex.otab", "RSV %p: Allocated slot %d.",
-		   rsv, index);
+	cu_dlogf(_file, "RSV %p: Allocated slot %d.", rsv, index);
 	self->index = index;
 	return cu_false;
     }
     else {
-	cu_dprintf("cuex.otab", "RSV %p: All slots taken. 0x%lx.",
-		   rsv, bv->arr[0]);
+	cu_dlogf(_file, "RSV %p: All slots taken. 0x%lx.", rsv, bv->arr[0]);
 	return cu_true;
     }
 }

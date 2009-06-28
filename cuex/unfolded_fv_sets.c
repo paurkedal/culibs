@@ -26,6 +26,7 @@
 #include <cucon/slink.h>
 #include <cu/ptr_seq.h>
 
+cu_dlog_def(_file, "dtag=cuex.binding_info");
 
 /* Flat binding info
  * ----------------- */
@@ -116,8 +117,8 @@ cu_clos_def(uset_shifted_union_cb, cu_prot(void, uintptr_t key),
       int shift; ))
 {
     cu_clos_self(uset_shifted_union_cb);
-    cu_dprintf("cuex.binding_info", "Adding λ-variable %d due to μ %d.",
-	       key + self->shift, self->shift);
+    cu_dlogf(_file, "Adding λ-variable %d due to μ %d.",
+	     key + self->shift, self->shift);
     cucon_uset_insert(self->target, key + self->shift);
 }
 
@@ -133,11 +134,11 @@ cu_clos_def(compute_UBI_mvar, cu_prot(void, uintptr_t key),
     if (self->sp + key < self->sp_max && self->sp[key]) {
 	lvar_cb.target = self->target;
 	lvar_cb.shift = key;
-	cu_dprintf("cuex.binding_info", "Merging μ-variable %d.", key);
+	cu_dlogf(_file, "Merging μ-variable %d.", key);
 	cucon_uset_iter(self->sp[key], uset_shifted_union_cb_prep(&lvar_cb));
     } else {
 	cu_debug_assert(key != 0);
-	cu_dprintf("cuex.binding_info", "Adding λ-variable %d.", key);
+	cu_dlogf(_file, "Adding λ-variable %d.", key);
 	cucon_uset_insert(self->target, key);
     }
 }
@@ -155,13 +156,13 @@ compute_UBI(FBI_link_t fbi_link, cuex_t super_fiictx,
 
 	fbi = fbi_link->fbi;
 	fiictx = cuex_mupath_pair(fbi_link->depth, super_fiictx, fbi->e);
-	cu_dprintf("cuex.binding_info", "fiimap=%p, Processing BI for %p, %!.",
-		   fiimap, fiictx, fiictx);
+	cu_dlogf(_file, "fiimap=%p, Processing BI for %p, %!.",
+		 fiimap, fiictx, fiictx);
 	if (cucon_pmap_insert_mem(fiimap, fiictx,
 				  sizeof(struct cucon_uset_s), &lambda_vars)) {
 	    cucon_uset_t *sp = super_sp - fbi_link->depth;
 	    memset(sp + 1, 0, (fbi_link->depth - 1)*sizeof(*sp));
-	    cu_dprintf("cuex.binding_info", "Enter frame %d", sp_max - sp);
+	    cu_dlogf(_file, "Enter frame %d", sp_max - sp);
 	    cu_debug_assert(fbi_link->depth > 0);
 	    cu_debug_assert(sp >= sp_min);
 	    cucon_uset_init(lambda_vars);
@@ -173,7 +174,7 @@ compute_UBI(FBI_link_t fbi_link, cuex_t super_fiictx,
 	    /* We now know the complete set of λ variables on this frame, so we
 	     * can process subframes. */
 	    compute_UBI(fbi->sub_chain, fiictx, sp, sp_min, sp_max, fiimap);
-	    cu_dprintf("cuex.binding_info", "Leave frame %d", sp_max - sp);
+	    cu_dlogf(_file, "Leave frame %d", sp_max - sp);
 	}
 	fbi_link = fbi_link->next;
     }

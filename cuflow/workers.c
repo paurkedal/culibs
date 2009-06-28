@@ -25,6 +25,8 @@
 #include <errno.h>
 #include <atomic_ops.h>
 
+cu_dlog_def(_file, "dtag=cuflow.workers");
+
 typedef struct cuflow_worker_s *cuflow_worker_t;
 typedef struct cuflow_atjob_s *cuflow_atjob_t;
 
@@ -243,9 +245,9 @@ workers_drop_lck(int target_count)
 	cu_mutex_lock(&work_mutex);
 	worker->do_shutdown = cu_true;
 	cu_mutex_unlock(&work_mutex);
-	cu_dprintf("cuflow.workers",
-		   "Shutting down %p, workers_count=%d, workers_waiting=%d",
-		   worker, workers_count, cuflowP_workers_waiting_count);
+	cu_dlogf(_file,
+		 "Shutting down %p, workers_count=%d, workers_waiting=%d",
+		 worker, workers_count, cuflowP_workers_waiting_count);
 	cuflow_workers_broadcast();
 	pthread_join(worker->thread, NULL);
 	cu_mutex_lock(&workers_mutex);

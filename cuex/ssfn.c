@@ -33,14 +33,10 @@
 #include <string.h>
 #include <assert.h>
 
+cu_dlog_def(_file, "dtag=cuex.ssfn");
+
 #define SSFN_TUNING_AVOID_CROSS_SUBST_IN_MGU 1
 
-/* #define SSFN_ENABLE_VERBOSE_DEBUG */
-#ifdef SSFN_ENABLE_VERBOSE_DEBUG
-#  define D_PRINTF(args...) cu_fprintf(stderr, args)
-#else
-#  define D_PRINTF(args...) ((void)0)
-#endif
 
 /* Helpers
  * ------- */
@@ -1281,8 +1277,8 @@ cuexP_ssfn_find_mgu(cuex_ssfn_node_t node, cuexP_ssfn_find_mgu_jargs_t jargs)
 			|| cuex_var_qcode(cuex_var_from_ex(*arg_pos))
 			== cuex_qcode_active_s)) {
 		    jargs->subst = cuex_subst_new_uw_clone(subst_save);
-		    cu_dprintf("ssfn", "Unify for pattern var, %! = %!?\n",
-			       *arg_pos, key);
+		    cu_dlogf(_file, "Unify for pattern var, %! = %!?\n",
+			     *arg_pos, key);
 		    if (cuex_subst_unify(jargs->subst, *arg_pos, key)) {
 			CUCON_STACK_PUSH(&jargs->sctr, int,
 					 CHIB_SCTR_SPECIFIC);
@@ -1293,7 +1289,7 @@ cuexP_ssfn_find_mgu(cuex_ssfn_node_t node, cuexP_ssfn_find_mgu_jargs_t jargs)
 		    }
 		}
 		else {
-		    cu_dprintf("ssfn", "Compare %! = %!?\n", *arg_pos, key);
+		    cu_dlogf(_file, "Compare %! = %!?\n", *arg_pos, key);
 		    if (cuex_eq(*arg_pos, key)) {
 			CUCON_STACK_PUSH(&jargs->sctr, int,
 					 CHIB_SCTR_SPECIFIC);
