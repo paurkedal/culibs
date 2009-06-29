@@ -26,12 +26,6 @@
 #include <string.h>
 #include <assert.h>
 
-#if 0
-#  include <stdio.h>
-#  define D_PRINTF(args...) ((void)chi_fprintf(stderr, args))
-#else
-#  define D_PRINTF(args...) ((void)0)
-#endif
 
 static cu_mutex_t cif_mutex = CU_MUTEX_INITIALISER;
 

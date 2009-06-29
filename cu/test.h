@@ -38,8 +38,8 @@ int cu_test_bug_count(void);
 void cuP_test_vbugf(char const *file, int line, char const *msg, va_list);
 void cuP_test_bugf(char const *file, int line, char const *msg, ...);
 
-#define cu_test_bugf(args...) cuP_test_bugf(__FILE__, __LINE__, args)
-#define cu_test_vbugf(args...) cuP_test_vbugf(__FILE__, __LINE__, args)
+#define cu_test_bugf(...) cuP_test_bugf(__FILE__, __LINE__, __VA_ARGS__)
+#define cu_test_vbugf(...) cuP_test_vbugf(__FILE__, __LINE__, __VA_ARGS__)
 
 #define cu_test_assert(EXPR)						\
     do {								\

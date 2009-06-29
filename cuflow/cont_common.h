@@ -44,17 +44,9 @@ CU_BEGIN_DECLARATIONS
 #  define GC_NEW(T) malloc(sizeof(T))
 #endif
 
-/* #define CUFLOW_CONTINUATION_DEBUG */
-
 #define CUCONF_ENABLE_FLOW_CHECK 1
 
 #define CUFLOW_STACK_DELTA (CUCONF_STACK_DIRECTION*sizeof(cuflowP_stack_item_t))
-
-#ifdef CUFLOW_CONTINUATION_DEBUG
-#  define D_PRINTF(args...) fprintf(stderr, args)
-#else
-#  define D_PRINTF(args...) ((void)0)
-#endif
 
 void cuflowP_fatal(char const* fmt, ...) CU_ATTR_NORETURN;
 

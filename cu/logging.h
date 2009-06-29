@@ -22,9 +22,8 @@
 #include <stdarg.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_logging_h cu/logging.h: Logging (experimental)
- *@{\ingroup cu_mod
- * \note This is experimental and may be changed or removed.
+/*!\defgroup cu_logging_h cu/logging.h: Logging
+ *@{\ingroup cu_base_mod
  */
 
 typedef enum {

@@ -40,12 +40,6 @@
 #  define cu_bitnot_ptr(ptr) ((void*)(ptr))
 #endif
 
-#if 0
-#  define D_PRINTF(args...) (fprintf(stderr, args))
-#else
-#  define D_PRINTF(args...) ((void)0)
-#endif
-
 cu_bool_t
 cu_streq_bitnot(char const *s0, char const *s1)
 {

@@ -17,6 +17,8 @@
 
 #include <cuflow/cont_common.h>
 
+cu_dlog_edec(cuflowP_cont);
+
 
 /* Continuation
  * ------------ */
@@ -158,7 +160,7 @@ cuflow_call_with_cc(cu_clop(trunk, int, cu_clop(, void, void *), void *),
 	cuflowP_fatal("Attemted to create a continuation of point with "
 		   "%s flow.\n", cuflow_mode_name(cur_flow));
 #endif
-    D_PRINTF("Created continuation closure %p.\n", cntn_clos);
+    cu_dlogf(cuflowP_cont, "Created continuation closure %p.\n", cntn_clos);
     assert(st->onstack_cont);
     cntn_clos->cont.kind = cuflowP_cntn_kind_continuation;
     cntn_clos->cont.flags = 0;
@@ -216,10 +218,10 @@ cuflow_split(int n)
 	    cuflowP_fatal("chi_split(%d) called from %s flow.\n",
 		       n, cuflow_mode_name(cuflow_tstate_current_flow(st)));
 #endif
-	D_PRINTF("cuflow_split(%d), st = %p\n", n, st);
+	cu_dlogf(cuflowP_cont, "cuflow_split(%d), st = %p\n", n, st);
 	assert(st->onstack_cont);
 	cont = GC_MALLOC(sizeof(struct cuflow_continuation_s) + sizeof(int));
-	D_PRINTF("cont = %p, st = %p\n", cont, st);
+	cu_dlogf(cuflowP_cont, "cont = %p, st = %p\n", cont, st);
 	cont->kind = cuflowP_cntn_kind_continuation;
 	cont->flags = 0;
 	cont->up = st->onstack_cont;
@@ -233,11 +235,11 @@ cuflow_split(int n)
 	st->split_cont = cont;
 	++st->flow_count;
 
-	D_PRINTF("cuflow_split: cont = %p, st = %p\n", cont, st);
+	cu_dlogf(cuflowP_cont, "cuflow_split: cont = %p, st = %p\n", cont, st);
 	if (setjmp(cont->door) == 0) {
 	    cuflowP_set_stack_mark(cont);
 	    cuflowP_save_stack(cont);
-	    D_PRINTF("cont = %p, st = %p\n", cont, st);
+	    cu_dlogf(cuflowP_cont, "cont = %p, st = %p\n", cont, st);
 	    return 0;
 	}
 	else {
@@ -273,7 +275,7 @@ recreate_frame_and_call(cuflow_continuation_t cont)
     ptrdiff_t need = CUFLOW_STACK_DELTA*(cont->ptr_stack_item - &stack_item);
     if (need > 0)
 	recreate_frame_and_call_0(cont);
-    D_PRINTF("Restoring stack for continuation @ %p.\n", cont);
+    cu_dlogf(cuflowP_cont, "Restoring stack for continuation @ %p.\n", cont);
 
     /* Fix the 'down' links for the new stack state. */
     onstack = st->onstack_cont;
@@ -305,7 +307,8 @@ cuflow_continuation_call(cuflow_continuation_t cont)
 {
     cuflow_tstate_t st = cuflow_tstate();
     cuflow_continuation_t cont0, cont1;
-    D_PRINTF("Calling continuation @ %p [%d]\n", cont, cont->level);
+    cu_dlogf(cuflowP_cont,
+	     "Calling continuation @ %p [%d]\n", cont, cont->level);
 
 #ifdef CUCONF_ENABLE_FLOW_CHECK
     if (!cuflow_mode_allows_split_0(cuflow_tstate_current_flow(st)))
@@ -355,7 +358,7 @@ cuflow_throw(cu_ptr_t exception)
      * rethrowing, thought this will complicate handling of the much
      * used (due to rethrows) throws inside catchers. */
     if (st->opt_uncaught_backtrace) {
-	D_PRINTF("Saving exception stack.\n");
+	cu_dlogf(cuflowP_cont, "Saving exception stack.\n");
 	if (cuflow_set_cc(&st->uncaught_backtrace, NULL, 0)) {
 	    fprintf(stderr,
 		    "Uncaught exception.  "
@@ -381,7 +384,7 @@ cuflow_throw(cu_ptr_t exception)
 
     /* Then the exception is uncaught. */
     if (!cu_clop_is_null(st->uncaught_backtrace)) {
-	D_PRINTF("Uncaught exception.  "
+	cu_dlogf(cuflowP_cont, "Uncaught exception.  "
 		 "Trying to restore stack for backtrace.\n");
 	cu_call(st->uncaught_backtrace, NULL);
 	abort();

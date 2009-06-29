@@ -28,26 +28,17 @@
 /* Diagnostic Functions
  * -------------------- */
 
-static int g_error_count;
-static int g_warning_count;
+static AO_t _error_count;
+static AO_t _warning_count;
 static struct cucon_umap_s format_map;
 
-#if 0  /* Locking shall be done by vlogf implementation! */
-static cu_mutex_t g_log_mutex = CU_MUTEX_INITIALISER;
-#  define lock_logs(msg, va) cu_vlogf_mutex_lock(&g_log_mutex, msg, va)
-#  define unlock_logs() cu_mutex_unlock(&g_log_mutex)
-#else
-#  define lock_logs(msg, va) ((void)0)
-#  define unlock_logs() ((void)0)
-#endif
-
 enum {FI_VERB, FI_WARN, FI_ERR, FI_DEBUG, FI_BUG};
-static struct cu_log_facility_s g_log_facility_arr[] = {
-    {CU_LOG_INFO, CU_LOG_USER},
-    {CU_LOG_WARNING, CU_LOG_USER},
-    {CU_LOG_ERROR, CU_LOG_USER},
-    {CU_LOG_INFO, CU_LOG_LOGIC},
-    {CU_LOG_FAILURE, CU_LOG_LOGIC},
+static struct cu_log_facility_s _log_facility_arr[] = {
+    {CU_LOG_INFO,	CU_LOG_USER},
+    {CU_LOG_WARNING,	CU_LOG_USER},
+    {CU_LOG_ERROR,	CU_LOG_USER},
+    {CU_LOG_INFO,	CU_LOG_LOGIC},
+    {CU_LOG_FAILURE,	CU_LOG_LOGIC},
 };
 
 void
@@ -144,10 +135,8 @@ cu_vfprintf(FILE *file, char const* msg, va_list va)
 void
 cu_verrf_at(cu_sref_t srf, char const *msg, va_list va)
 {
-    lock_logs(msg, va);
-    ++g_error_count;
-    cu_vlogf_at(&g_log_facility_arr[FI_ERR], srf, msg, va);
-    unlock_logs();
+    AO_fetch_and_add1(&_error_count);
+    cu_vlogf_at(&_log_facility_arr[FI_ERR], srf, msg, va);
 }
 
 void
@@ -162,10 +151,8 @@ cu_errf_at(cu_sref_t srf, char const *msg, ...)
 void
 cu_verrf(char const *msg, va_list va)
 {
-    lock_logs(msg, va);
-    ++g_error_count;
-    cu_vlogf(&g_log_facility_arr[FI_ERR], msg, va);
-    unlock_logs();
+    AO_fetch_and_add1(&_error_count);
+    cu_vlogf(&_log_facility_arr[FI_ERR], msg, va);
 }
 
 void
@@ -180,10 +167,8 @@ cu_errf(char const *msg, ...)
 void
 cu_vwarnf_at(cu_sref_t srf, char const *msg, va_list va)
 {
-    lock_logs(msg, va);
-    ++g_warning_count;
-    cu_vlogf_at(&g_log_facility_arr[FI_WARN], srf, msg, va);
-    unlock_logs();
+    AO_fetch_and_add1(&_warning_count);
+    cu_vlogf_at(&_log_facility_arr[FI_WARN], srf, msg, va);
 }
 
 void
@@ -198,10 +183,8 @@ cu_warnf_at(cu_sref_t srf, char const *msg, ...)
 void
 cu_vwarnf(char const* msg, va_list va)
 {
-    lock_logs(msg, va);
-    ++g_warning_count;
-    cu_vlogf(&g_log_facility_arr[FI_WARN], msg, va);
-    unlock_logs();
+    AO_fetch_and_add1(&_warning_count);
+    cu_vlogf(&_log_facility_arr[FI_WARN], msg, va);
 }
 
 void
@@ -218,9 +201,7 @@ cu_bugf_at(cu_sref_t srf, char const* msg, ...)
 {
     va_list va;
     va_start(va, msg);
-    lock_logs(msg, va);
-    cu_vlogf_at(&g_log_facility_arr[FI_BUG], srf, msg, va);
-    unlock_logs();
+    cu_vlogf_at(&_log_facility_arr[FI_BUG], srf, msg, va);
     va_end(va);
     cu_debug_abort();
 }
@@ -231,7 +212,7 @@ cu_bugf_fl(char const *file, int line, char const *msg, ...)
     va_list va;
     cu_sref_t srf = cu_sref_new_cstr(file, line, -1);
     va_start(va, msg);
-    cu_vlogf_at(&g_log_facility_arr[FI_BUG], srf, msg, va);
+    cu_vlogf_at(&_log_facility_arr[FI_BUG], srf, msg, va);
     va_end(va);
     cu_debug_abort();
 }
@@ -241,9 +222,7 @@ cu_bugf_n(char const* msg, ...)
 {
     va_list va;
     va_start(va, msg);
-    lock_logs(msg, va);
-    cu_vlogf(&g_log_facility_arr[FI_BUG], msg, va);
-    unlock_logs();
+    cu_vlogf(&_log_facility_arr[FI_BUG], msg, va);
     va_end(va);
     cu_debug_abort();
 }
@@ -263,9 +242,7 @@ cu_verbf_at(int level, cu_sref_t srf, char const *msg, ...)
     if (level > cuP_verbosity)
 	return;
     va_start(va, msg);
-    lock_logs(msg, va);
-    cu_vlogf_at(&g_log_facility_arr[FI_VERB], srf, msg, va);
-    unlock_logs();
+    cu_vlogf_at(&_log_facility_arr[FI_VERB], srf, msg, va);
     va_end(va);
 }
 
@@ -276,9 +253,7 @@ cu_verbf(int level, char const *msg, ...)
     if (level > cuP_verbosity)
 	return;
     va_start(va, msg);
-    lock_logs(msg, va);
-    cu_vlogf(&g_log_facility_arr[FI_VERB], msg, va);
-    unlock_logs();
+    cu_vlogf(&_log_facility_arr[FI_VERB], msg, va);
     va_end(va);
 }
 
@@ -328,9 +303,8 @@ cuP_diag_init(void)
     int i;
     char *s;
 
-    for (i = 0; i < sizeof(g_log_facility_arr)/sizeof(g_log_facility_arr[0]);
-	 ++i)
-	cu_register_permanent_log(&g_log_facility_arr[i]);
+    for (i = 0; i < sizeof(_log_facility_arr)/sizeof(_log_facility_arr[0]); ++i)
+	cu_register_permanent_log(&_log_facility_arr[i]);
 
     cucon_umap_init(&format_map);
     if ((s = getenv("CU_VERBOSITY"))) {

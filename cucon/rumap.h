@@ -90,7 +90,7 @@ cucon_rumap_mref_by_uint64_arr(cucon_rumap_t rmap,
 #error (uname -a) and the compiler your used.
 #endif
 
-#define cuconP_APPLY(macro, args...) macro(args)
+#define cuconP_APPLY(macro, ...) macro(__VA_ARGS__)
 #define cuconP_RUMAP_MREF_ARR(width, rmap, key_arr, key_cnt)	\
 	cucon_rumap_mref_by_uint##width##_arr(			\
 	    rmap, (uint##width##_t *)key_arr, key_cnt)

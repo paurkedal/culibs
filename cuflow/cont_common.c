@@ -17,6 +17,9 @@
 
 #include <cuflow/cont_common.h>
 
+cu_dlog_edef(cuflowP_cont, "dtag=cuflow.cont");
+
+
 /* Diagnostics
  * ----------- */
 
@@ -167,7 +170,7 @@ cuflow_tstate_save_current_flow(cuflow_tstate_t st, cuflow_mode_t newflow,
 void
 cuflowP_save_stack(cuflow_continuation_t cont)
 {
-    D_PRINTF("Saving stack for continuation @ %p.\n", cont);
+    cu_dlogf(cuflowP_cont, "Saving stack for continuation @ %p.\n", cont);
     assert(cont->up);
     assert(CUFLOW_STACK_DELTA*(cont->ptr_stack_item - cont->up->ptr_stack_item)
 	   > 0);

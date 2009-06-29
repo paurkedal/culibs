@@ -1277,7 +1277,7 @@ cuexP_ssfn_find_mgu(cuex_ssfn_node_t node, cuexP_ssfn_find_mgu_jargs_t jargs)
 			|| cuex_var_qcode(cuex_var_from_ex(*arg_pos))
 			== cuex_qcode_active_s)) {
 		    jargs->subst = cuex_subst_new_uw_clone(subst_save);
-		    cu_dlogf(_file, "Unify for pattern var, %! = %!?\n",
+		    cu_dlogf(_file, "Unify for pattern var, %! = %!?",
 			     *arg_pos, key);
 		    if (cuex_subst_unify(jargs->subst, *arg_pos, key)) {
 			CUCON_STACK_PUSH(&jargs->sctr, int,
@@ -1289,7 +1289,7 @@ cuexP_ssfn_find_mgu(cuex_ssfn_node_t node, cuexP_ssfn_find_mgu_jargs_t jargs)
 		    }
 		}
 		else {
-		    cu_dlogf(_file, "Compare %! = %!?\n", *arg_pos, key);
+		    cu_dlogf(_file, "Compare %! = %!?", *arg_pos, key);
 		    if (cuex_eq(*arg_pos, key)) {
 			CUCON_STACK_PUSH(&jargs->sctr, int,
 					 CHIB_SCTR_SPECIFIC);

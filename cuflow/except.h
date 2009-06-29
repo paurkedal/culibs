@@ -43,14 +43,14 @@ CU_BEGIN_DECLARATIONS
     void name##_cct alops##prepend(argl, name##_t self)
 
 
-#define cuflow_xc_cct_m(xc, fn, args...) \
-    ((fn)(xc, args), (xc)->windargs.xc_key = (fn))
+#define cuflow_xc_cct_m(xc, fn, ...) \
+    ((fn)(xc, __VA_ARGS__), (xc)->windargs.xc_key = (fn))
 #define cuflow_xc_cct0_m(xc, fn) ((fn)(xc), (xc)->windargs.xc_key = (fn))
 
-#define cuflow_throw(name, args...)					\
+#define cuflow_throw(name, ...)					\
     do {								\
 	name##_t xc = GC_malloc(sizeof(struct name##_s));		\
-	cuflow_xc_cct_m(xc, name##_cct, args);				\
+	cuflow_xc_cct_m(xc, name##_cct, __VA_ARGS__);			\
 	cuflowP_throw(&xc->windargs);					\
     } while (0)
 #define cuflow_throw0(name)						\

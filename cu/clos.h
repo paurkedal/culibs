@@ -24,7 +24,7 @@ CU_BEGIN_DECLARATIONS
 /* \defgroup cu_clos_h cu/clos.h: Abstraction of Closure Construction and Use
  *@{\ingroup cu_base_mod */
 
-#define cuPP_splice(argl...) argl
+#define cuPP_splice(...) __VA_ARGS__
 #define cuPP_argl_append(argl, arg) (cuPP_splice argl, arg)
 #define cuPP_argl_prepend(argl, arg) (arg, cuPP_splice argl)
 #define cuPP_argl0_append(argl, arg) (arg)
@@ -40,20 +40,21 @@ typedef struct cu_clos_self_s *cu_clos_self_t;
 
 #define cuP_clos_formal(alops, argl) \
     cuP_jargl(alops, argl, cu_clos_self_t cuL_self)
-#define cuP_xargl(argl...) cuP_jargl(cuPP_argl_, argl, cu_clos_self_t cuL_self)
+#define cuP_xargl(...) \
+    cuP_jargl(cuPP_argl_, __VA_ARGS__, cu_clos_self_t cuL_self)
 #define cuP_xargl0() cu_clos_self_t cuL_self
 
 /* Closure Pointers */
 
-#define cu_clop(val, res_t, parl...)	res_t (**val)(parl, cu_clos_self_t)
+#define cu_clop(val, res_t, ...)	res_t (**val)(__VA_ARGS__, cu_clos_self_t)
 #define cu_clop0(val, res_t)		res_t (**val)(cu_clos_self_t)
 typedef void (**cu_clop_generic_t)();
 
 #define cu_clop_null (NULL)
 #define cu_clop_is_null(clop) ((clop) == NULL)
 
-#define cu_call(clop, args...) \
-    ((**(clop))cuP_jargl(cuPP_argl_, (args), (cu_clos_self_t)(clop)))
+#define cu_call(clop, ...) \
+    ((**(clop))cuP_jargl(cuPP_argl_, (__VA_ARGS__), (cu_clos_self_t)(clop)))
 #define cu_call0(clop) \
     ((**(clop))((cu_clos_self_t)(clop)))
 
@@ -65,17 +66,17 @@ typedef void (**cu_clop_generic_t)();
     linkage res_t name##_fn cuP_clos_formal(alops, xparl)
 #define cu_clop_ref(name) (&name##_data)
 
-#define cu_clop_def(name, res_t, parl...) \
-    cuP_clop_def(name, static, res_t, cuPP_argl_, (parl))
+#define cu_clop_def(name, res_t, ...) \
+    cuP_clop_def(name, static, res_t, cuPP_argl_, (__VA_ARGS__))
 #define cu_clop_def0(name, res_t) \
     cuP_clop_def(name, static, res_t, cuPP_argl0_, ())
-#define cu_clop_edef(name, res_t, parl...) \
-    cuP_clop_def(name,       , res_t, cuPP_argl_, (parl))
+#define cu_clop_edef(name, res_t, ...) \
+    cuP_clop_def(name,       , res_t, cuPP_argl_, (__VA_ARGS__))
 #define cu_clop_edef0(name, res_t) \
     cuP_clop_def(name,       , res_t, cuPP_argl0_, ())
 
-#define cu_clop_call_fn(clop, argl...) clop##_fn(argl, NULL)
-#define cu_clop_call_fn0(clop, argl...) clop##_fn(NULL)
+#define cu_clop_call_fn(clop, ...) clop##_fn(__VA_ARGS__, NULL)
+#define cu_clop_call_fn0(clop) clop##_fn(NULL)
 
 /* Closures Proper */
 
@@ -111,7 +112,7 @@ typedef void (**cu_clop_generic_t)();
     cuP_clos_dec(name, static, cargs, prot)				\
     cuP_clos_fun(name, static, prot)
 
-#define cu_prot(res_t, parl...)	res_t, cuPP_argl_, (parl)
+#define cu_prot(res_t, ...)	res_t, cuPP_argl_, (__VA_ARGS__)
 #define cu_prot0(res_t)		res_t, cuPP_argl0_, ()
 
 #define cu_clos_self(name) name##_t *self = cuL_self

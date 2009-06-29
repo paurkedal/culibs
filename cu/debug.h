@@ -80,12 +80,12 @@ void cu_debug_trap(void);
 extern cu_bool_t cuP_debug_is_enabled;
 
 cu_bool_t cu_debug_is_enabled(cu_debug_flags_t);
-#define cu_debug_inform(args...) \
-    cuP_debug_msg(__FILE__, __LINE__, "debug", cu_debug_flag_info, args)
-#define cu_debug_warning(args...) \
-    cuP_debug_msg(__FILE__, __LINE__, "warning", 0, args)
-#define cu_debug_error(args...) \
-    (cuP_debug_msg(__FILE__, __LINE__, "error", 0, args), cu_debug_abort())
+#define cu_debug_inform(...) \
+    cuP_debug_msg(__FILE__, __LINE__, "debug", cu_debug_flag_info, __VA_ARGS__)
+#define cu_debug_warning(...) \
+    cuP_debug_msg(__FILE__, __LINE__, "warning", 0, __VA_ARGS__)
+#define cu_debug_error(...) \
+    (cuP_debug_msg(__FILE__, __LINE__,"error",0,__VA_ARGS__), cu_debug_abort())
 #define cu_debug_assert(test) \
     ((test)? (void)0 : (void)cu_debug_error("assertion '%s' failed", #test))
 void cu_debug_indent();
@@ -101,9 +101,9 @@ void cu_debug_unindent();
 #else
 
 #define cu_debug_is_enabled(flags) cu_false
-#define cu_debug_inform(args...) ((void)0)
-#define cu_debug_warning(args...) ((void)0)
-#define cu_debug_error(args...)						\
+#define cu_debug_inform(...) ((void)0)
+#define cu_debug_warning(...) ((void)0)
+#define cu_debug_error(...)						\
     (cuP_debug_bug_report(__FILE__, __LINE__, args), cu_debug_abort())
 #define cu_debug_assert(test) ((void)0)
 #define cu_debug_indent() ((void)0)
@@ -119,12 +119,12 @@ void cu_debug_unindent();
 
 #ifndef CU_NDEBUG
 void cuP_dprintf(char const *, int, char const *, char const *, ...);
-#define cu_dprintf(args...) cuP_dprintf(__FILE__, __LINE__, args)
+#define cu_dprintf(...) cuP_dprintf(__FILE__, __LINE__, __VA_ARGS__)
 cu_bool_t cu_debug_key(char const *key);
 void cu_debug_enable_key(char const *key);
 void cu_debug_disable_key(char const *key);
 #else
-#define cu_dprintf(args...) ((void)0)
+#define cu_dprintf(...) ((void)0)
 #define cu_debug_key(key) cu_false
 #define cu_debug_enable_key(key) ((void)0)
 #define cu_debug_disable_key(key) ((void)0)

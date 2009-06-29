@@ -23,7 +23,7 @@
 #include <string.h>
 
 static void
-log_also(cu_sref_t sref, char const *skind)
+_log_also(cu_sref_t sref, char const *skind)
 {
     if (!sref)
 	return;
@@ -37,13 +37,13 @@ log_also(cu_sref_t sref, char const *skind)
     }
 }
 
-cu_clop_def(cuP_null_vlogf, void,
+cu_clop_def(_noop_vlogf, void,
 	    cu_log_facility_t facility, cu_sref_t loc,
 	    char const *fmt, va_list va)
 {
 }
 
-cu_clop_def(cuP_default_vlogf, void,
+cu_clop_def(_default_vlogf, void,
 	    cu_log_facility_t facility, cu_sref_t loc,
 	    char const *fmt, va_list va)
 {
@@ -131,17 +131,17 @@ cu_clop_def(cuP_default_vlogf, void,
     /* Print the also-lines when loc is passed to an _at function for backwards
      * compatibility.  Pending solution for the new %: format. */
     if (loc)
-	log_also(loc, skind);
+	_log_also(loc, skind);
 }
 
-cu_clop_def(cuP_default_log_binder, cu_bool_t, cu_log_facility_t facility)
+cu_clop_def(_default_log_binder, cu_bool_t, cu_log_facility_t facility)
 {
-    facility->vlogf = cuP_default_vlogf;
+    facility->vlogf = _default_vlogf;
     return cu_true;
 }
 
-static cu_log_binder_t cuP_log_binder = cu_clop_ref(cuP_default_log_binder);
-static cu_log_facility_t cuP_log_facility_chain = NULL;
+static cu_log_binder_t _current_log_binder = cu_clop_ref(_default_log_binder);
+static cu_log_facility_t _permanent_facility_chain = NULL;
 
 cu_bool_t cuP_debug_facility_enabled(cu_log_facility_t facility);
 
@@ -149,28 +149,28 @@ cu_log_binder_t
 cu_register_log_binder(cu_log_binder_t log_binder)
 {
     cu_log_facility_t facility;
-    cu_log_binder_t old_log_binder = cuP_log_binder;
-    cuP_log_binder = log_binder;
-    for (facility = cuP_log_facility_chain; facility;
+    cu_log_binder_t old_log_binder = _current_log_binder;
+    _current_log_binder = log_binder;
+    for (facility = _permanent_facility_chain; facility;
 	 facility = facility->next)
 	if (!(facility->flags & CU_LOG_FLAG_DEBUG_FACILITY) ||
 	    cuP_debug_facility_enabled(facility))
-	    cu_call(cuP_log_binder, facility);
+	    cu_call(_current_log_binder, facility);
 	else
-	    facility->vlogf = cu_clop_ref(cuP_null_vlogf);
+	    facility->vlogf = cu_clop_ref(_noop_vlogf);
     return old_log_binder;
 }
 
 void
 cu_register_permanent_log(cu_log_facility_t facility)
 {
-    facility->next = cuP_log_facility_chain;
-    cuP_log_facility_chain = facility;
+    facility->next = _permanent_facility_chain;
+    _permanent_facility_chain = facility;
     if (!(facility->flags & CU_LOG_FLAG_DEBUG_FACILITY) ||
 	cuP_debug_facility_enabled(facility))
-	cu_call(cuP_log_binder, facility);
+	cu_call(_current_log_binder, facility);
     else
-	facility->vlogf = cu_clop_ref(cuP_null_vlogf);
+	facility->vlogf = cu_clop_ref(_noop_vlogf);
 }
 
 void
@@ -178,13 +178,13 @@ cu_register_transient_log(cu_log_facility_t facility)
 {
     if (!(facility->flags & CU_LOG_FLAG_DEBUG_FACILITY) ||
 	cuP_debug_facility_enabled(facility))
-	cu_call(cuP_log_binder, facility);
+	cu_call(_current_log_binder, facility);
     else
-	facility->vlogf = cu_clop_ref(cuP_null_vlogf);
+	facility->vlogf = cu_clop_ref(_noop_vlogf);
 }
 
 static void
-prepare_facility(cu_log_facility_t facility)
+_prepare_facility(cu_log_facility_t facility)
 {
     if (facility->flags & CU_LOG_FLAG_PERMANENT)
 	cu_register_permanent_log(facility);
@@ -198,7 +198,7 @@ void
 cu_vlogf(cu_log_facility_t facility, char const *fmt, va_list va)
 {
     if (!facility->vlogf)
-	prepare_facility(facility);
+	_prepare_facility(facility);
     cu_call(facility->vlogf, facility, NULL, fmt, va);
 }
 
@@ -207,7 +207,7 @@ cu_vlogf_at(cu_log_facility_t facility, cu_sref_t loc,
 	    char const *fmt, va_list va)
 {
     if (!facility->vlogf)
-	prepare_facility(facility);
+	_prepare_facility(facility);
     cu_call(facility->vlogf, facility, loc, fmt, va);
 }
 

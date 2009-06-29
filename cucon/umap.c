@@ -32,6 +32,7 @@
 #include <limits.h>
 #include <inttypes.h>
 
+cu_dlog_def(_file, "dtag=cucon.umap");
 
 /* Tuning options
  * ============== */
@@ -72,13 +73,6 @@ typedef unsigned long cucon_pmap_hash_t;
 /* This should be fast on 64 bit architectures. */
 #define HASH4(key) (((uint64_t)(key))*PRIME0 >> 21)
 #define HASH(key) HASH2((cucon_pmap_hash_t)(key))
-
-
-#if 0
-#  define D_PRINTF(args...) fprintf(stderr, args)
-#else
-#  define D_PRINTF(args...) ((void)0)
-#endif
 
 
 /* Implementation
@@ -242,12 +236,13 @@ set_capacity(cucon_umap_t umap, size_t new_cap)
      * called, but to be really sure, check if 'cu_galloc' decided to
      * invoke more invokations of 'key_finaliser' on 'umap'.  */
     if (old_cap != umap->mask + 1) {
-	D_PRINTF("cucon_umap_t capacity has already changed, returning.\n");
+	cu_dlogf(_file, "Capacity has already changed, returning.");
 	cu_gfree(new_arr);
 	return;
     }
 
-    D_PRINTF("Changing capacity of #[cucon_umap_t @%p size=%d] from %d to %d.\n",
+    cu_dlogf(_file,
+	     "Changing capacity of (cucon_umap_t)%p size=%z from %z to %z.",
 	     umap, umap->size, old_cap, new_cap);
     umap->mask = new_mask = new_cap - 1;
     umap->arr = new_arr;
