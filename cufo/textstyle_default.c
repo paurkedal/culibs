@@ -26,34 +26,34 @@ struct dtx_stream_s
 };
 #define STATE(tstate) cu_from(dtx_stream, cufo_textstream, tstate)
 
-cu_clop_def(stream_init, void, cufo_textstream_t tos)
+cu_clop_def(_stream_init, void, cufo_textstream_t tos)
 {
 }
 
-cu_wstring_t
-indent_enter(cufo_textstream_t tos, cufo_tag_t tag, va_list attrs)
+static cu_wstring_t
+_indent_enter(cufo_textstream_t tos, cufo_tag_t tag, va_list attrs)
 {
     tos->left_margin += 4;
     return NULL;
 }
 
-cu_wstring_t
-indent_leave(cufo_textstream_t tos, cufo_tag_t tag)
+static cu_wstring_t
+_indent_leave(cufo_textstream_t tos, cufo_tag_t tag)
 {
     tos->left_margin -= 4;
     return NULL;
 }
 
-cu_wstring_t
-codepre_enter(cufo_textstream_t tos, cufo_tag_t tag, va_list attrs)
+static cu_wstring_t
+_codepre_enter(cufo_textstream_t tos, cufo_tag_t tag, va_list attrs)
 {
     tos->cont_eol_insert = CU_WSTRING_C(" \\");
     tos->cont_indent = 8;
     return NULL;
 }
 
-cu_wstring_t
-codepre_leave(cufo_textstream_t tos, cufo_tag_t tag)
+static cu_wstring_t
+_codepre_leave(cufo_textstream_t tos, cufo_tag_t tag)
 {
     if (tos->is_cont) {
 	cufo_newline(cu_to(cufo_stream, tos));
@@ -64,8 +64,8 @@ codepre_leave(cufo_textstream_t tos, cufo_tag_t tag)
     return NULL;
 }
 
-CUFO_TEXTSTYLER_STATIC(indent);
-CUFO_TEXTSTYLER_STATIC(codepre);
+CUFO_TEXTSTYLER_STATIC(_indent);
+CUFO_TEXTSTYLER_STATIC(_codepre);
 
 struct cufo_textstyle_s cufoP_default_textstyle;
 
@@ -73,10 +73,10 @@ void
 cufoP_textstyle_default_init(void)
 {
     cufo_textstyle_init(&cufoP_default_textstyle, sizeof(struct dtx_stream_s),
-			cu_clop_ref(stream_init));
+			cu_clop_ref(_stream_init));
 #define B(tag) \
 	cufo_textstyle_bind_static(&cufoP_default_textstyle, \
-				   cufoT_##tag, &tag##_styler)
+				   cufoT_##tag, &_##tag##_styler)
     B(indent);
     B(codepre);
 #undef B

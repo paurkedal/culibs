@@ -275,12 +275,6 @@ extern cu_clop(cu_str_hash_clop, cu_hash_t, cu_str_t);
 extern cu_clop(cu_str_cmp_clop,        int, cu_str_t, cu_str_t);
 extern cu_clop(cu_str_coll_clop,       int, cu_str_t, cu_str_t);
 
-/* obsolete These are useful when creating sets and maps of string keys.
-cu_bool_t cu_nonclos(cu_str_eq_nonclos)(void *, void *);
-cu_hash_t cu_nonclos(cu_str_hash_nonclos)(void *);
-int cu_nonclos(cu_str_cmp_nonclos)(void *, void *);
-int cu_nonclos(cu_str_coll_nonclos)(void *, void *); */
-
 /*!\deprecated Use \ref cu_str_init. */
 #define cu_str_cct		cu_str_init
 /*!\deprecated Use \ref cu_str_init_static_cstr. */
