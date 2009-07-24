@@ -104,7 +104,7 @@ void cu_debug_unindent();
 #define cu_debug_inform(...) ((void)0)
 #define cu_debug_warning(...) ((void)0)
 #define cu_debug_error(...)						\
-    (cuP_debug_bug_report(__FILE__, __LINE__, args), cu_debug_abort())
+    (cuP_debug_bug_report(__FILE__, __LINE__, __VA_ARGS__), cu_debug_abort())
 #define cu_debug_assert(test) ((void)0)
 #define cu_debug_indent() ((void)0)
 #define cu_debug_unindent() ((void)0)
