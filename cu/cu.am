@@ -21,6 +21,7 @@ cu_headers = \
 	cu/int.h \
 	cu/logging.h \
 	cu/memory.h \
+	cu/box.h \
 	cu/ptr.h \
 	cu/ptr_seq.h \
 	cu/rarex.h \
@@ -60,6 +61,7 @@ cu_sources = \
 	cu/int.c \
 	cu/logging.c \
 	cu/memory.c \
+	cu/box.c \
 	cu/ptr_seq.c \
 	cu/rarex.c \
 	cu/scratch.c \
@@ -81,6 +83,8 @@ cu_check_programs = \
 	cu/hook_t0 \
 	cu/idr_t0 \
 	cu/int_t0 \
+	cu/box_t0 \
+	cu/box_b0 \
 	cu/ptr_t0 \
 	cu/thread_t0 \
 	cu/rarex_t0 \
@@ -113,6 +117,10 @@ cu_int_b0_SOURCES = cu/int_b0.c
 cu_int_b0_LDADD = libcubase.la
 cu_int_t0_SOURCES = cu/int_t0.c
 cu_int_t0_LDADD = libcubase.la
+cu_box_t0_SOURCES = cu/box_t0.c
+cu_box_t0_LDADD = libcubase.la
+cu_box_b0_SOURCES = cu/box_b0.c
+cu_box_b0_LDADD = libcubase.la
 cu_ptr_t0_SOURCES = cu/ptr_t0.c
 cu_ptr_t0_LDADD = libcubase.la
 cu_thread_t0_SOURCES = cu/thread_t0.c
