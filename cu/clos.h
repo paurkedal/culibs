@@ -19,6 +19,7 @@
 #define CU_CLOS_H
 
 #include <cu/fwd.h>
+#include <cu/util.h>
 
 CU_BEGIN_DECLARATIONS
 /* \defgroup cu_clos_h cu/clos.h: Abstraction of Closure Construction and Use
@@ -78,7 +79,7 @@ typedef void (**cu_clop_generic_t)();
 #define cu_clop_call_fn(clop, ...) clop##_fn(__VA_ARGS__, NULL)
 #define cu_clop_call_fn0(clop) clop##_fn(NULL)
 
-/* Closures Proper */
+/* Closures Implementations as Standalone Objects */
 
 #define cuP_clos_dec(name, linkage, cargs, res_t, alops, parl)		\
     typedef struct name##_s name##_t;					\
@@ -116,6 +117,19 @@ typedef void (**cu_clop_generic_t)();
 #define cu_prot0(res_t)		res_t, cuPP_argl0_, ()
 
 #define cu_clos_self(name) name##_t *self = cuL_self
+
+/* Closure Implementations as Struct Members */
+
+#define cu_clom_fun(fn, res_t, ...) \
+    static res_t fn cuP_jargl(cuPP_argl_,(__VA_ARGS__),cu_clos_self_t cuL_self)
+#define cu_clom_fun0(fn, res_t) \
+    static res_t fn cuP_jargl(cuPP_argl0_, (), cu_clos_self_t cuL_self)
+#define cu_clom_decl(f, res_t, ...) res_t (*f)(__VA_ARGS__, cu_clos_self_t)
+#define cu_clom_decl0(f, res_t) res_t (*f)(cu_clos_self_t)
+#define cu_clom_self(name, field) \
+    struct name##_s *self = cu_ptr_context(struct name##_s, field, cuL_self)
+#define cu_clom_init(obj, field, fn) ((obj)->field = (fn))
+#define cu_clom_ref(obj, field) &(obj)->field
 
 /* @}*/
 CU_END_DECLARATIONS
