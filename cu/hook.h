@@ -24,7 +24,7 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_hook_h cu/hook.h: Hooks; Templates and Common Instances
- *@{\ingroup cu_mod */
+ *@{\ingroup cu_util_mod */
 
 /*!A node of a hook for use in hook implementations. */
 typedef struct cu_hook_node_s *cu_hook_node_t;

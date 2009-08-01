@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cu/pack.h>
+#include <cu/box.h>
 #include <cu/test.h>
 #include <string.h>
 #include <limits.h>
