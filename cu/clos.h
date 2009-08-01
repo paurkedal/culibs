@@ -21,9 +21,9 @@
 #include <cu/fwd.h>
 #include <cu/util.h>
 
+#ifndef CU_IN_DOXYGEN /* Put documentation in cu/clos.doxy */
+
 CU_BEGIN_DECLARATIONS
-/* \defgroup cu_clos_h cu/clos.h: Abstraction of Closure Construction and Use
- *@{\ingroup cu_base_mod */
 
 #define cuPP_splice(...) __VA_ARGS__
 #define cuPP_argl_append(argl, arg) (cuPP_splice argl, arg)
@@ -131,7 +131,8 @@ typedef void (**cu_clop_generic_t)();
 #define cu_clom_init(obj, field, fn) ((obj)->field = (fn))
 #define cu_clom_ref(obj, field) &(obj)->field
 
-/* @}*/
 CU_END_DECLARATIONS
+
+#endif /* !CU_IN_DOXYGEN */
 
 #endif

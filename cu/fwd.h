@@ -79,6 +79,17 @@ CU_BEGIN_DECLARATIONS
 
 #define CU_END_BOILERPLATE struct cuP_expecting_semicolor_after_boilerplate
 
+#ifdef CU_IN_DOXYGEN
+#  define CU_DOXY_AID(fake, ...)					\
+/** \par "Real Definition"						*/\
+/** The following is the actual definition.  It was omitted above	*/\
+/** since it is unparsable to the documentation generator.		*/\
+/** \code __VA_ARGS__ \endcode						*/\
+    fake
+#else
+#  define CU_DOXY_AID(fake, ...) __VA_ARGS__
+#endif
+
 
 /* Scalar Types
  * ------------ */
