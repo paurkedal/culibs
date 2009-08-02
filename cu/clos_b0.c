@@ -26,36 +26,42 @@
 #endif
 #include <time.h>
 
+#define PLAIN_CONTEXT_FIRST CU_CLOS_CONTEXT_FIRST
 
 #define N_ITERATE 1000
-#define N_REPEAT_OUTER 100
+#define N_REPEAT_OUTER 400
 #define N_REPEAT_INNER 1000
 
-int f(int x)
+static int _f_func(int x)
 {
     return 2*x + 1;
 }
 
-cu_clop_def(f_clop, int, int x)
+cu_clop_def(_f_clop, int, int x)
 {
     return 2*x + 1;
 }
 
-int g_plain(int *context, int x)
+static int 
+#if PLAIN_CONTEXT_FIRST
+_g_func(int *context, int x)
+#else
+_g_func(int x, int *context)
+#endif
 {
     *context += x;
     return *context;
 }
 
-cu_clos_def(g_clos, cu_prot(int, int x), (int context;))
+cu_clos_def(_g_clos, cu_prot(int, int x), (int context;))
 {
-    cu_clos_self(g_clos);
+    cu_clos_self(_g_clos);
     self->context += x;
     return self->context;
 }
 
 int
-test_simple_plain(int (*fn)(int), int *context)
+_iter_func_noctx(int (*fn)(int), int *context)
 {
     int i;
     int r = 0;
@@ -65,7 +71,25 @@ test_simple_plain(int (*fn)(int), int *context)
 }
 
 int
-test_clos(cu_clop(clptr, int, int))
+#if PLAIN_CONTEXT_FIRST
+_iter_func_ctx(int (*fn)(int *context, int), int *context)
+#else
+_iter_func_ctx(int (*fn)(int, int *context), int *context)
+#endif
+{
+    int i;
+    int r = 0;
+    for (i = 0; i < N_ITERATE; ++i)
+#if PLAIN_CONTEXT_FIRST
+	r = fn(context, r);
+#else
+	r = fn(r, context);
+#endif
+    return r;
+}
+
+int
+_iter_clos(cu_clop(clptr, int, int))
 {
     int i;
     int r = 0;
@@ -74,63 +98,54 @@ test_clos(cu_clop(clptr, int, int))
     return r;
 }
 
-int
-test_context_plain(int (*fn)(int *context, int),
-		   int *context)
-{
-    int i;
-    int r = 0;
-    for (i = 0; i < N_ITERATE; ++i)
-	r = fn(context, r);
-    return r;
-}
 
-
-int
-submain()
+static int
+_bench()
 {
+    static const double t_scale =
+	1.0/((double)CLOCKS_PER_SEC*N_REPEAT_OUTER*N_REPEAT_INNER*N_ITERATE);
     int i, j;
     int *g_context = GC_malloc(sizeof(int));
-    clock_t t_c_plain = 0, t_s_plain = 0;
+    clock_t t_c_func = 0, t_s_func = 0;
     clock_t t_c_clos = 0, t_s_clos = 0;
-    g_clos_t g_clos;
-    cu_clop(g_clop, int, int) = g_clos_prep(&g_clos);
+    _g_clos_t _g_clos;
+    cu_clop(g_clop, int, int) = _g_clos_prep(&_g_clos);
     *g_context = 0;
 
     for (j = 0; j < N_REPEAT_OUTER; ++j) {
-	t_s_plain -= clock();
+	t_s_func -= clock();
 	for (i = 0; i < N_REPEAT_INNER; ++i)
-	    test_simple_plain(f, NULL);
-	t_s_plain += clock();
+	    _iter_func_noctx(_f_func, NULL);
+	t_s_func += clock();
 
-	t_c_plain -= clock();
+	t_c_func -= clock();
 	for (i = 0; i < N_REPEAT_INNER; ++i)
-	    test_context_plain(g_plain, g_context);
-	t_c_plain += clock();
+	    _iter_func_ctx(_g_func, g_context);
+	t_c_func += clock();
 
 	t_s_clos -= clock();
 	for (i = 0; i < N_REPEAT_INNER; ++i)
-	    test_clos(f_clop);
+	    _iter_clos(_f_clop);
 	t_s_clos += clock();
 
 	t_c_clos -= clock();
 	for (i = 0; i < N_REPEAT_INNER; ++i)
-	    test_clos(g_clop);
+	    _iter_clos(g_clop);
 	t_c_clos += clock();
     }
 
     printf("\n         %10s     %10s\n"
-	   "     plain %10lf s %10lf s\n"
-	   "      clos %10lf s %10lf s\n"
-	   "clos/plain %10lf   %10lf\n\n",
+	   "     plain %10.3lg s %10.3lg s\n"
+	   "      clos %10.3lg s %10.3lg s\n"
+	   "clos/plain %10.3lf   %10.3lf\n\n",
 	   "simple",
 	   "with cxt",
-	   t_s_plain/(double)CLOCKS_PER_SEC,
-	   t_c_plain/(double)CLOCKS_PER_SEC,
-	   t_s_clos/(double)CLOCKS_PER_SEC,
-	   t_c_clos/(double)CLOCKS_PER_SEC,
-	   t_s_clos/(double)t_s_plain,
-	   t_c_clos/(double)t_c_plain);
+	   t_s_func*t_scale,
+	   t_c_func*t_scale,
+	   t_s_clos *t_scale,
+	   t_c_clos *t_scale,
+	   t_s_clos/(double)t_s_func,
+	   t_c_clos/(double)t_c_func);
     return 0;
 }
 
@@ -138,6 +153,6 @@ int
 main()
 {
     cu_init();
-    submain();
+    _bench();
     return 0;
 }

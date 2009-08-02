@@ -22,6 +22,7 @@
 #include <cu/util.h>
 
 #ifndef CU_IN_DOXYGEN /* Put documentation in cu/clos.doxy */
+#define CU_CLOS_CONTEXT_FIRST 1
 
 CU_BEGIN_DECLARATIONS
 
@@ -33,10 +34,10 @@ CU_BEGIN_DECLARATIONS
 
 typedef struct cu_clos_self_s *cu_clos_self_t;
 
-#if 1
-#  define cuP_jargl(alops, argl, self) alops##append(argl, self)
-#else
+#if CU_CLOS_CONTEXT_FIRST
 #  define cuP_jargl(alops, argl, self) alops##prepend(argl, self)
+#else
+#  define cuP_jargl(alops, argl, self) alops##append(argl, self)
 #endif
 
 #define cuP_clos_formal(alops, argl) \
@@ -47,8 +48,10 @@ typedef struct cu_clos_self_s *cu_clos_self_t;
 
 /* Closure Pointers */
 
-#define cu_clop(val, res_t, ...)	res_t (**val)(__VA_ARGS__, cu_clos_self_t)
-#define cu_clop0(val, res_t)		res_t (**val)(cu_clos_self_t)
+#define cu_clop(val, res_t, ...) \
+    res_t (**val)cuP_jargl(cuPP_argl_, (__VA_ARGS__), cu_clos_self_t)
+#define cu_clop0(val, res_t) \
+    res_t (**val)(cu_clos_self_t)
 typedef void (**cu_clop_generic_t)();
 
 #define cu_clop_null (NULL)
@@ -57,7 +60,7 @@ typedef void (**cu_clop_generic_t)();
 #define cu_call(clop, ...) \
     ((**(clop))cuP_jargl(cuPP_argl_, (__VA_ARGS__), (cu_clos_self_t)(clop)))
 #define cu_call0(clop) \
-    ((**(clop))((cu_clos_self_t)(clop)))
+    ((**(clop))cuP_jargl(cuPP_argl0_, (), ((cu_clos_self_t)(clop))))
 
 #define cuP_clop_def(name, linkage, res_t, alops, xparl)		\
     linkage res_t name##_fn cuP_clos_formal(alops, xparl);		\
