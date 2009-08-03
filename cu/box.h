@@ -82,10 +82,13 @@ cuP_box_word(cu_word_t w)
     box.as_word = w;
     return box;
 }
-#    define cuP_unbox_ptr(box)  ((box).as_ptr)
-#    define cuP_unbox_fptr(box) ((box).as_fptr)
-#    define cuP_unbox_word(box) ((box).as_word)
-#  endif /* CU_IN_DOXYGEN */
+#    define cuP_unbox_ptr(box)		((box).as_ptr)
+#    define cuP_unbox_fptr(box)		((box).as_fptr)
+#    define cuP_unbox_word(box)		((box).as_word)
+#    define CUP_BOX_PTR_INIT(ptr)	{ .as_ptr  = (ptr)  }
+#    define CUP_BOX_FPTR_INIT(fptr)	{ .as_fptr = (fptr) }
+#    define CUP_BOX_WORD_INIT(word)	{ .as_word = (word) }
+#  endif /* !CU_IN_DOXYGEN */
 
 /** A boilerplate to emit a definition of a function \a fn for boxing a large
  ** type \a type using garbage collected storage. */
@@ -102,12 +105,15 @@ cuP_box_word(cu_word_t w)
 #else /* !CU_BOX_IS_UNION */
 
 typedef cu_word_t cu_box_t;
-#  define cuP_box_ptr(val)	((cu_box_t)(val))
-#  define cuP_box_fptr(val)	((cu_box_t)(val))
-#  define cuP_box_word(val)	((cu_box_t)(val))
-#  define cuP_unbox_ptr(box)	(box)
-#  define cuP_unbox_fptr(box)	(box)
-#  define cuP_unbox_word(box)	(box)
+#  define cuP_box_ptr(val)		((cu_box_t)(val))
+#  define cuP_box_fptr(val)		((cu_box_t)(val))
+#  define cuP_box_word(val)		((cu_box_t)(val))
+#  define cuP_unbox_ptr(box)		(box)
+#  define cuP_unbox_fptr(box)		(box)
+#  define cuP_unbox_word(box)		(box)
+#  define CUP_BOX_PTR_INIT(ptr)		cuP_box_ptr(ptr)
+#  define CUP_BOX_FPTR_INIT(fptr)	cuP_box_fptr(fptr)
+#  define CUP_BOX_WORD_INIT(word)	cuP_box_word(word)
 
 #define CU_BOX_GNEW_TEMPLATE(fn, type)					\
     cu_box_t fn(type x)							\
@@ -118,7 +124,7 @@ typedef cu_word_t cu_box_t;
     }									\
     CU_END_BOILERPLATE
 
-#endif /* CU_BOX_IS_UNION */
+#endif /* !CU_BOX_IS_UNION */
 
 cu_box_t cu_box_galloc(size_t size, void *addr);
 #define cu_box_gnew(type, obj) cu_box_galloc(sizeof(type), &(obj))
@@ -127,14 +133,22 @@ cu_box_t cu_box_galloc(size_t size, void *addr);
  ** @{ */
 
 /*!Boxes a pointer of the specified type. */
-#define cu_box_ptr(type, ptr)	cuP_box_ptr((void *)(1? (ptr) : (type)(ptr)))
+#define cu_box_ptr(type, ptr)		cuP_box_ptr(1? (ptr) : (type)(ptr))
 /*!Unboxes a pointer of the specified type. */
 #define cu_unbox_ptr(type, box)		((type)cuP_unbox_ptr(box))
+/** An initialiser for a pointer box. */
+#define CU_BOX_PTR_INIT(type, ptr) CUP_BOX_PTR_INIT(1? (ptr) : (type)(ptr))
+/** A \c NULL pointer box initialiser. */
+#define CU_BOX_NULL_PTR_INIT		CUP_BOX_PTR_INIT(NULL)
 
 /*!Boxes a function pointer of the specified type. */
-#define cu_box_fptr(type, fp)	cuP_box_fptr((cu_fnptr_t)(1? (fp) : (type)(fp)))
+#define cu_box_fptr(type, fp) cuP_box_fptr((cu_fnptr_t)(1? (fp) : (type)(fp)))
 /*!Unboxes a function pointer of the specified type. */
 #define cu_unbox_fptr(type, box)	((type)cuP_unbox_fptr(box))
+/** An initialiser for a function pointer box. */
+#define CU_BOX_FPTR_INIT(type, fptr) CUP_BOX_FPTR_INIT(1? (fptr) : (type)(fptr))
+/** A \c NULL function pointer box initialiser. */
+#define CU_BOX_NULL_FPTR_INIT		CUP_BOX_FPTR_INIT(NULL)
 
 /*!Boxes a closure pointer of the specified type. */
 #define cu_box_clop(type, cp)		cu_box_ptr(type,  cp)
@@ -145,6 +159,8 @@ cu_box_t cu_box_galloc(size_t size, void *addr);
 #define cu_box_enum(type, i)		cuP_box_word(1? (i) : (type)(i))
 /*!Unboxes an enum of the given type. */
 #define cu_unbox_enum(type, box)	((type)cuP_unbox_word(box))
+/** An initialiser for a box if enum type \a type. */
+#define CU_BOX_ENUM_INIT(type, i)	CUP_BOX_WORD_INIT(1? (i) : (type)(i))
 
 /** @}
  ** \name Integer Types

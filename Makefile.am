@@ -183,7 +183,7 @@ test_cplusplus_CXXFLAGS = \
 test_cplusplus_exclude = \
 	cucon/digraph.h | \
 	cuflow/cont*.h | cuflow/cache.h | cuflow/wind_setjmp.h
-test_cplusplus.cc: Makefile.am
+test_cplusplus.cc: Makefile.in
 	@echo Creating $@.
 	( \
 	    for hdr in $(nobase_culibs_HEADERS); do \
