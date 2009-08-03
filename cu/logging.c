@@ -57,13 +57,13 @@ cu_clop_def(_default_vlogf, void,
     have_debug_loc = facility->flags & CU_LOG_FLAG_DEBUG_FACILITY;
     have_any_loc = have_fmt_loc || have_debug_loc || loc;
 #ifdef CUCONF_COMPACT_LOG
-    switch (facility->origin) {
+    switch (cu_log_facility_origin(facility)) {
 	case CU_LOG_LOGIC:	s0 = 'l'; break;
 	case CU_LOG_SYSTEM:	s0 = 's'; break;
 	case CU_LOG_USER:	s0 = 'u'; break;
 	default:		s0 = '?'; break;
     }
-    switch (facility->severity) {
+    switch (cu_log_facility_severity(facility)) {
 	case CU_LOG_DEBUG:	s1 = 'd'; break;
 	case CU_LOG_INFO:	s1 = 'i'; break;
 	case CU_LOG_NOTICE:	s1 = 'n'; break;
@@ -76,13 +76,13 @@ cu_clop_def(_default_vlogf, void,
     sprintf(skind, "[%c/%c] ", s0, s1);
     fprintf(stderr, "[%c/%c] ", s0, s1);
 #else
-    switch (facility->origin) {
+    switch (cu_log_facility_origin(facility)) {
 	case CU_LOG_LOGIC:	s0 = "logic"; break;
 	case CU_LOG_SYSTEM:	s0 = "sys"; break;
 	case CU_LOG_USER:	s0 = NULL; break;
 	default:		s0 = "?"; break;
     }
-    switch (facility->severity) {
+    switch (cu_log_facility_severity(facility)) {
 	case CU_LOG_DEBUG:	s1 = "debug"; break;
 	case CU_LOG_INFO:	s1 = "info"; break;
 	case CU_LOG_NOTICE:	s1 = "notice"; break;

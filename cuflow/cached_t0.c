@@ -20,7 +20,7 @@
 #include <cuflow/workers.h>
 #include <cu/test.h>
 
-cuflow_cached_sdecl(plus, (int x; int y;), (int z;))
+cuflow_cached_sdecl(plus, (int x; int y;), (int z;));
 
 cuflow_cached_sdef(plus)
 {

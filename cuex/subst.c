@@ -225,7 +225,7 @@ cu_clos_def(cuexP_subst_merge_cb_copy,
     }
 #undef var
 #undef veqv
-};  
+}
 
 static void
 cuexP_subst_merge(cuex_subst_t dst)
@@ -879,10 +879,10 @@ cuex_subst_dump(cuex_subst_t subst, FILE *file)
     cu_clop(cb_clop, void, void const *, void *)
 	= cuex_subst_dump_cb_prep(&cb);
     cb.file = file;
-    fprintf(file, "subst @ %p (qcset = %x, %s)\n", subst,
+    fprintf(file, "subst @ %p (qcset = %x, %s)\n", (void *)subst,
 	    subst->qcset, subst->is_idem? "idem" : "nonidem");
     while (subst) {
-	fprintf(file, "    frame @ %p\n", subst);
+	fprintf(file, "    frame @ %p\n", (void *)subst);
 	cucon_pmap_iter_ptr(&subst->var_to_veqv, cb_clop);
 	subst = subst->shadowed;
     }

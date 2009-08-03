@@ -20,6 +20,7 @@
 #include <cu/memory.h>
 #include <cu/debug.h>
 #include <cu/int.h>
+#include <cu/ptr.h>
 #include <assert.h>
 #include <string.h>
 
@@ -107,7 +108,8 @@ cucon_logchain_galloc(cucon_logchain_depth_t depth, size_t size,
     if (depth == 0)
 	return cu_galloc(size);
     n_link = cu_uint_log2_lowbit(depth) + 1;
-    lch = cu_galloc(n_link*sizeof(void *) + size) + n_link*sizeof(void *);
+    lch = cu_ptr_add(cu_galloc(n_link*sizeof(void *) + size),
+		     n_link*sizeof(void *));
     cuconP_debug_logchain_set_depth(lch, depth);
     pow2_bit = 1;
     for (i = 0; i < n_link; ++i) {

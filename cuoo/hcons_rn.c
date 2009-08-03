@@ -86,7 +86,8 @@ cuooP_hcset_shrink_wlck(cuooP_hcset_t hcset, size_t new_cap, cuooP_hcobj_t *new_
 	while (obj) {
 	    cuooP_hcobj_t next_obj = cuooP_hcset_hasheqv_next(obj);
 	    cuooP_hcobj_t *p = &new_arr[hash & new_mask];
-	    cu_debug_assert(GC_base(obj) == (void *)obj - sizeof(cuex_meta_t));
+	    cu_debug_assert(GC_base(obj) ==
+			    cu_ptr_sub(obj, sizeof(cuex_meta_t)));
 #if CUOO_HC_GENERATION || CUOO_HC_USE_GC_MARK
 	    obj->hcset_next = ~(AO_t)*p;
 #else
@@ -119,7 +120,8 @@ cuooP_hcset_grow_wlck(cuooP_hcset_t hcset, size_t new_cap, cuooP_hcobj_t *new_ar
 	    cuooP_hcobj_t next_obj = cuooP_hcset_hasheqv_next(obj);
 	    cu_hash_t hash = cuex_key_hash(obj);
 	    cuooP_hcobj_t *p = &new_arr[hash & new_mask];
-	    cu_debug_assert(GC_base(obj) == (void *)obj - sizeof(cuex_meta_t));
+	    cu_debug_assert(GC_base(obj) ==
+			    cu_ptr_sub(obj, sizeof(cuex_meta_t)));
 #if CUOO_HC_GENERATION || CUOO_HC_USE_GC_MARK
 	    obj->hcset_next = ~(AO_t)*p;
 #else

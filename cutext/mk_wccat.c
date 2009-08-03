@@ -53,7 +53,7 @@ codepoint_iter(char const *in_path, cu_clop(f, void, codepoint_info_t))
     while (fgets(s0, BUF_SIZE, in)) {
 	char *s1, *s2, *s3;
 	size_t s1len;
-	int codepoint;
+	unsigned int codepoint;
 	cutext_wccat_t wccat;
 
 	s1 = strchr(s0, ';'); if (!s1) goto error; *s1++ = 0;
@@ -189,7 +189,7 @@ static struct argp_option main_opts[] = {
 	"Path to output file or base directory for multiple outputs."},
     {NULL, 'b', "BASE_DIR", 0,
 	"Base directory required for \"blocks\" mode."},
-    {}
+    {NULL}
 };
 static struct argp main_argp = {
     main_opts, main_parseopt, "MODE INPUT"

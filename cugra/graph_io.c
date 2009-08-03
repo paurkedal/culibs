@@ -27,7 +27,7 @@ cugra_graph_fwrite_dot(cugra_graph_t G,
 {
     cugra_vertex_t v;
     char const *arc_fmt;
-    fprintf(fout, "digraph g%p {\n", G);
+    fprintf(fout, "digraph g%p {\n", (void *)G);
     if (cu_clop_is_null(arc_label))
 	arc_fmt = cugra_graph_is_directed(G)
 	    ? "v%p->v%p;\n" : "v%p->v%p[dir=none];\n";

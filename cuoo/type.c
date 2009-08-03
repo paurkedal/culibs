@@ -259,7 +259,7 @@ cuex_key_hash(void *obj)
 	default:
 	    cu_debug_unreachable();
     }
-    return cu_wordarr_hash(key_sizew, obj + CUOO_HCOBJ_SHIFT, meta);
+    return cu_wordarr_hash(key_sizew, cu_ptr_add(obj, CUOO_HCOBJ_SHIFT), meta);
 }
 
 

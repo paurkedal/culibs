@@ -24,6 +24,7 @@
 #include <cu/int.h>
 #include <cu/idr.h>
 #include <cu/util.h>
+#include <cu/ptr.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -649,7 +650,7 @@ cucon_umap_conj_general(cucon_umap_t map, size_t node_offset,
     for (i = 0; i <= map->mask; ++i) {
 	cucon_umap_node_t node = map->arr[i];
 	while (node) {
-	    if (!cu_call(cb, node->key, (void *)node - node_offset))
+	    if (!cu_call(cb, node->key, cu_ptr_sub(node, node_offset)))
 		return cu_false;
 	    node = node->next;
 	}
@@ -666,7 +667,7 @@ cucon_pmap_conj_general(cucon_pmap_t map, size_t node_offset,
 	cucon_umap_node_t node = map->impl.arr[i];
 	while (node) {
 	    if (!cu_call(cb, (void const *)node->key,
-			 (void *)node - node_offset))
+			 cu_ptr_sub(node, node_offset)))
 		return cu_false;
 	    node = node->next;
 	}
@@ -882,14 +883,14 @@ cucon_umap_hash_mem(cucon_umap_t umap, size_t slot_size)
 	while (node != NULL) {
 	    cu_hash_t subhash = HASH(node->key);
 	    void *slot = CU_ALIGNED_PTR_END(node);
-	    void *stop = slot + slot_size;
+	    void *stop = cu_ptr_add(slot, slot_size);
 	    /* If slot_size is not a multiple of sizeof(cu_word_t), we
 	     * rely on the fact the the GC will allocate in multiples
 	     * of words and clear the allocated memory.  The following
 	     * simply includes the zero-padding. */
 	    while (slot < stop) {
 		subhash = HASH(subhash + *(cu_word_t *)slot);
-		slot += sizeof(cu_word_t);
+		slot = cu_ptr_add(slot, sizeof(cu_word_t));
 	    }
 	    hash += subhash;
 	    node = node->next;
@@ -1106,7 +1107,7 @@ cucon_pmap_dump_idr_ptr(cucon_pmap_t map, FILE *out)
 {
     dump_idr_ptr_cb_t cb;
     cb.out = out;
-    fprintf(out, "cucon_pmap_t @ %p:\n", map);
+    fprintf(out, "cucon_pmap_t @ %p:\n", (void *)map);
     cucon_pmap_iter_ptr(map,
 			(cu_clop(, void, void const *, void *))
 			dump_idr_ptr_cb_prep(&cb));

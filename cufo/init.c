@@ -75,8 +75,8 @@ cu_clos_def(default_vlogf_bug,
 
 cu_clop_def(default_log_binder, cu_bool_t, cu_log_facility_t facility)
 {
-    if (facility->severity == CU_LOG_FAILURE &&
-	facility->origin == CU_LOG_LOGIC) {
+    if (cu_log_facility_severity(facility) == CU_LOG_FAILURE &&
+	cu_log_facility_origin(facility) == CU_LOG_LOGIC) {
 	default_vlogf_bug_t *vlogf = cu_gnew(default_vlogf_bug_t);
 	vlogf->fos = cufoP_stderr_bug;
 	vlogf->fos_mutex = &cufoP_stderr_bug_mutex;

@@ -39,15 +39,15 @@ typedef enum {
 #define cuflowP_cntn_flag_invalid 1
 struct cuflow_continuation_s
 {
-    cuflowP_cntn_kind_t	kind : 8;
+    unsigned int	kind : 8;  /* Actual type is cuflowP_cntn_kind_t. */
     unsigned int	flags : 8;
-    cuflow_continuation_t	up;
-    cuflow_continuation_t	down;
+    cuflow_continuation_t up;
+    cuflow_continuation_t down;
     jmp_buf		door;
     int			level;
-    cuflowP_stack_item_t*	ptr_stack_item;
+    cuflowP_stack_item_t *ptr_stack_item;
     size_t		stack_size;
-    char*		stack_data;
+    char *		stack_data;
     cu_clop0(on_entry, void);
     cu_clop0(on_exit, void);
     cu_clop(on_xc, void, void *);

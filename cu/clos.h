@@ -107,8 +107,14 @@ typedef void (**cu_clop_generic_t)();
 #define cuP_clos_fun(name, linkage, res_t, alops, parl)			\
     res_t name##_fn cuP_jargl(alops, parl, name##_t *cuL_self)
 
-#define cu_clos_dec(name, prot, cargs)	cuP_clos_dec(name, static, cargs, prot)
-#define cu_clos_edec(name, prot, cargs) cuP_clos_dec(name, extern, cargs, prot)
+#define cu_clos_dec(name, prot, cargs)					\
+    cuP_clos_dec(name, static, cargs, prot)				\
+    CU_END_BOILERPLATE
+
+#define cu_clos_edec(name, prot, cargs)					\
+    cuP_clos_dec(name, extern, cargs, prot)				\
+    CU_END_BOILERPLATE
+
 #define cu_clos_fun(name, prot)		cuP_clos_fun(name, static, prot)
 #define cu_clos_efun(name, prot)	cuP_clos_fun(name, extern, prot)
 

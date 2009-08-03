@@ -110,7 +110,7 @@ cucon_hzset_forall(cu_clop(f, cu_bool_t, void const *key), cucon_hzset_t set)
 /*!Filter out all elements of \a set which \a f maps to false. */
 CU_SINLINE void
 cucon_hzset_filter(cu_clop(f, cu_bool_t, void const *key), cucon_hzset_t set)
-{ return cucon_hzmap_filter_keys(f, &set->impl); }
+{ cucon_hzmap_filter_keys(f, &set->impl); }
 
 struct cucon_hzset_itr_s
 {

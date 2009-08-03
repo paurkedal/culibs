@@ -257,7 +257,7 @@ _build_sinktor_put(cu_ptr_sink_t sink, void *x)
     _build_sinktor_t self;
     self = cu_from2(_build_sinktor, cu_ptr_sinktor, cu_ptr_sink, sink);
     cucon_list_append_ptr(&self->l, x);
-};
+}
 
 static void *
 _build_sinktor_finish(cu_ptr_sinktor_t sinktor)

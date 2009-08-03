@@ -17,6 +17,7 @@
 
 #include <cu/buffer.h>
 #include <cu/memory.h>
+#include <cu/ptr.h>
 #include <string.h>
 
 void
@@ -26,7 +27,7 @@ cu_buffer_init(cu_buffer_t buf, size_t init_cap)
     buf->storage_start = p;
     buf->content_start = p;
     buf->content_end = p;
-    buf->storage_end = p + init_cap;
+    buf->storage_end = cu_ptr_add(p, init_cap);
 }
 
 cu_buffer_t
@@ -60,8 +61,8 @@ cuP_buffer_fix_fullcap(cu_buffer_t buf, size_t fullcap)
     void *content_start = buf->content_start;
     void *content_end = buf->content_end;
     void *storage_end = buf->storage_end;
-    size_t content_size = content_end - content_start;
-    if (storage_end - storage_start >= 2*fullcap) {
+    size_t content_size = cu_ptr_diff(content_end, content_start);
+    if (cu_ptr_diff(storage_end, storage_start) >= 2*fullcap) {
 	memmove(storage_start, content_start, content_size);
 	buf->content_start = storage_start;
 	buf->content_end = cu_ptr_add(storage_start, content_size);

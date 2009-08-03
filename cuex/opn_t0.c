@@ -93,12 +93,12 @@ simple_test()
     cuex_t arr[] = { opn0, opn1 };
     GC_register_finalizer(opn01, report, NULL, NULL, NULL);
     save = opn01;
-    printf("%p\n", opn01);
+    printf("%p\n", (void *)opn01);
     cu_test_assert(cuex_opn(cuex_opr(1, 0)) == opn0);
     cu_test_assert(cuex_opn(cuex_opr(3, 2), opn0, opn1) == opn01);
     GC_gcollect();
     //test(NULL);
-    printf("%p, %p, %p\n", opn01, opn0, opn1);
+    printf("%p, %p, %p\n", (void *)opn01, (void *)opn0, (void *)opn1);
     cu_test_assert(cuex_opn(cuex_opr(1, 0)) == opn0);
     cu_test_assert(cuex_opn(cuex_opr(3, 2), opn0, opn1) == opn01);
     cu_test_assert(cuex_opn_by_arr(cuex_opr(3, 2), arr) == opn01);

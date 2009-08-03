@@ -45,13 +45,17 @@ CU_BEGIN_DECLARATIONS
  * used as part of a \ref cuex_subst_s. */
 struct cuex_veqv_s
 {
-    cuex_qcode_t qcode : 8;
+    unsigned int qcode : 8;	/* Actual type is cuex_qcode_t. */
     cu_bool_t is_feedback_var : 1;
     cucon_slink_t var_link;
     cuex_t value;
 };
 
 typedef cucon_slink_t cuex_veqv_it_t;
+
+/** The quantification of variables in \a vq. */
+CU_SINLINE cuex_qcode_t
+cuex_veqv_qcode(cuex_veqv_t vq) { return (cuex_qcode_t)vq->qcode; }
 
 /*!The value of variables in \a vq or \c NULL if unknown. */
 CU_SINLINE cuex_t cuex_veqv_value(cuex_veqv_t vq) { return vq->value; }
@@ -90,7 +94,7 @@ struct cuex_subst_s
     size_t shadow_access_cnt;
     cuex_subst_t shadowed;
     struct cucon_pmap_s var_to_veqv;
-    cuex_qcset_t qcset : 8;
+    unsigned int qcset : 8;	/* Actual type is cuex_qcset_t. */
     cu_bool_least_t is_idem;
 };
 
@@ -133,11 +137,12 @@ CU_SINLINE cuex_subst_t cuex_subst_new_n_clone(cuex_subst_t src_subst)
 cuex_subst_t cuex_subst_new_copy(cuex_subst_t src_subst);
 
 CU_SINLINE cuex_qcset_t cuex_subst_active_qcset(cuex_subst_t subst)
-{ return subst->qcset; }
+{ return (cuex_qcset_t)subst->qcset; }
 
 CU_SINLINE cu_bool_t
 cuex_subst_is_active_varmeta(cuex_subst_t subst, cuex_meta_t varmeta)
-{ return cuex_qcset_contains(subst->qcset, cuex_varmeta_qcode(varmeta)); }
+{ return cuex_qcset_contains(cuex_subst_active_qcset(subst),
+			     cuex_varmeta_qcode(varmeta)); }
 
 /*!Merge all relevant bindings from inherited substitutions of \a subst into
  * \a subst, and drop the inheritance. */

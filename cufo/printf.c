@@ -623,8 +623,8 @@ cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
 	      cu_sref_t loc, char const *fmt, va_list va)
 {
     cufo_entera(fos, cufoT_logentry,
-		cufoA_logorigin(facility->origin),
-		cufoA_logseverity(facility->severity));
+		cufoA_logorigin(cu_log_facility_origin(facility)),
+		cufoA_logseverity(cu_log_facility_severity(facility)));
     if (facility->flags & CU_LOG_FLAG_DEBUG_FACILITY) {
 	char const *file = va_arg(va, char const *);
 	int line = va_arg(va, int);

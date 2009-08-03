@@ -20,6 +20,7 @@
 #include <cu/memory.h>
 #include <cu/util.h>
 #include <cu/diag.h>
+#include <cu/ptr.h>
 
 #include <assert.h>
 #include <string.h>
@@ -150,13 +151,13 @@ cucon_stack_continuous_top(cucon_stack_t stack, size_t size)
 	} while (n > 0);
 	size -= n;
 	new_begin = cu_galloc(size);
-	new_end = new_begin + size;
+	new_end = cu_ptr_add(new_begin, size);
 	sp = new_begin;
 	stack1 = stack;
 	do {
 	    n = stack1->end - stack1->sp;
 	    memcpy(sp, stack1->sp, n);
-	    sp += n;
+	    sp = cu_ptr_add(sp, n);
 	    stack1 = stack1->prev;
 	} while (stack1 != stack0);
 	memcpy(sp, stack1->sp, stack1->end - stack1->sp);

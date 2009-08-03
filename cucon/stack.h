@@ -222,7 +222,7 @@ cucon_stack_it_advance(cucon_stack_it_t *it, size_t size)
 }
 
 /*!\deprecated Use \ref cucon_stack_itr_s. */
-#define cucon_stack_it_get(it) ((void *)CU_MARG(cucon_stack_it_t, it).sp)
+CU_SINLINE void *cucon_stack_it_get(cucon_stack_it_t it) { return it.sp; }
 /*!\deprecated Use \ref cucon_stack_itr_s. */
 #define cucon_stack_it_get_ptr(it) CUCON_STACK_IT_GET(it, void *)
 

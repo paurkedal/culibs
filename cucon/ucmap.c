@@ -415,7 +415,7 @@ ucmap_dump(cucon_ucmap_t tree, int ind, FILE *out)
 void
 cucon_ucmap_dump(cucon_ucmap_t tree, FILE *out)
 {
-    fprintf(out, "cucon_ucmap_t @ %p\n", tree);
+    fprintf(out, "cucon_ucmap_t @ %p\n", (void *)tree);
     ucmap_dump(tree, 2, out);
 }
 

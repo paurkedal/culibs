@@ -61,8 +61,8 @@ typedef cu_clop(cu_log_binder_t, cu_bool_t, cu_log_facility_t new_facility);
  * where, and how to log. */
 struct cu_log_facility_s
 {
-    cu_log_severity_t severity : 8;
-    cu_log_origin_t origin : 8;
+    unsigned int severity : 8;	/* Actual type is cu_log_severity_t. */
+    unsigned int origin : 8;	/* Actual type is cu_log_origin_t. */
     unsigned int flags : 16;
     char const **keys;
     cu_log_facility_t next;
@@ -72,6 +72,18 @@ struct cu_log_facility_s
 /*!Expands to an initialiser for \ref cu_log_facility_s. */
 #define CU_LOG_FACILITY_INITIALISER(severity, origin, keys, flags) \
     { severity, origin, flags, keys, NULL, NULL }
+
+CU_SINLINE cu_log_severity_t
+cu_log_facility_severity(cu_log_facility_t facility)
+{ return (cu_log_severity_t)facility->severity; }
+
+CU_SINLINE cu_log_origin_t
+cu_log_facility_origin(cu_log_facility_t facility)
+{ return (cu_log_origin_t)facility->origin; }
+
+CU_SINLINE unsigned int
+cu_log_facility_flags(cu_log_facility_t facility)
+{ return facility->flags; }
 
 /*!Register a new log-binder.  A log-binder will be called with all existing
  * logs and logs created in the future.  It's purpose is to assign a suitable

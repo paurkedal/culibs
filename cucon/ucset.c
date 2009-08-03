@@ -1404,7 +1404,7 @@ _ucset_dump(cucon_ucset_t tree, int ind, FILE *out)
 void
 cucon_ucset_dump(cucon_ucset_t tree, FILE *out)
 {
-    fprintf(out, "cucon_ucset_t @ %p\n", tree);
+    fprintf(out, "cucon_ucset_t @ %p\n", (void *)tree);
     _ucset_dump(tree, 2, out);
 }
 

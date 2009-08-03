@@ -64,7 +64,7 @@ CU_SINLINE cucon_pmap_t cucon_pmap_new(void)
 
 /*!Construct \a dst as a copy of \a src but dropping all value slots. */
 CU_SINLINE void cucon_pmap_init_copy_void(cucon_pmap_t dst, cucon_pmap_t src)
-{ return cucon_umap_init_copy_void(&dst->impl, &src->impl); }
+{ cucon_umap_init_copy_void(&dst->impl, &src->impl); }
 
 /*!Return a copy of \a src after dropping all value slots. */
 CU_SINLINE cucon_pmap_t cucon_pmap_new_copy_void(cucon_pmap_t src)
@@ -261,7 +261,7 @@ cucon_pmap_assign_isecn_union(cucon_pmap_t map0, cucon_pmap_t map1)
 /*!\copydoc cucon_umap_move_isecn */
 CU_SINLINE void
 cucon_pmap_move_isecn(cucon_pmap_t dst, cucon_pmap_t src0, cucon_pmap_t src1)
-{ return cucon_umap_move_isecn(&dst->impl, &src0->impl, &src1->impl); }
+{ cucon_umap_move_isecn(&dst->impl, &src0->impl, &src1->impl); }
 
 /*!\copydoc cucon_umap_assign_isecn */
 CU_SINLINE void

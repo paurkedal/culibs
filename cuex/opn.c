@@ -23,28 +23,7 @@
 #include <cudyn/misc.h>
 #include <cuoo/halloc.h>
 #include <cu/ptr_seq.h>
-
-CU_SINLINE cu_bool_t
-wordaligned_eq(void *arr0, void *arr0_end, void *arr1)
-{
-    while (arr0 < arr0_end) {
-	if (*(cu_word_t *)arr0 != *(cu_word_t *)arr1)
-	    return cu_false;
-	arr0 += sizeof(cu_word_t);
-	arr1 += sizeof(cu_word_t);
-    }
-    return cu_true;
-}
-
-CU_SINLINE void
-wordaligned_copy(void *src, void *src_end, void *dst)
-{
-    while (src < src_end) {
-	*(cu_word_t *)dst = *(cu_word_t *)src;
-	src += sizeof(cu_word_t);
-	dst += sizeof(cu_word_t);
-    }
-}
+#include <cu/ptr.h>
 
 cu_clos_def(cct_cached, cu_prot(void, void *e), (cuex_oprinfo_t oi;))
 {

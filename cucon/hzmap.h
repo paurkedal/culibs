@@ -41,6 +41,8 @@ struct cucon_hzmap_node_s
     cucon_hzmap_node_t next;
 };
 
+#define CUCON_HZMAP_NODE_INIT {NULL}
+
 /*!A hash map of fixed-size keys. */
 struct cucon_hzmap_s
 {

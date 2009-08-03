@@ -97,7 +97,7 @@ cucon_po_new_ptr(void *bot, void *top)
     return po;
 }
 
-void     (cucon_po_cct)(cucon_po_t po) { return cucon_po_cct(po); }
+void     (cucon_po_cct)(cucon_po_t po) { cucon_po_cct(po); }
 cucon_po_t (cucon_po_new)(void)        { return cucon_po_new(); }
 
 void
@@ -1325,12 +1325,12 @@ cu_clos_def(print_gviz_cb,
 {
     cu_clos_self(print_gviz_cb);
     cucon_listnode_t it;
-    cu_fprintf(self->out, "v%p[label=\"%S\"];\n", elt,
+    cu_fprintf(self->out, "v%p[label=\"%S\"];\n", (void *)elt,
 		cu_call(self->label, elt));
     for (it = cucon_po_ipred_begin(elt); it != cucon_po_ipred_end(elt);
 	 it = cucon_listnode_next(it)) {
 	cucon_poelt_t elt_pred = cucon_po_ipred_it_get(it);
-	fprintf(self->out, "v%p -> v%p;\n", elt, elt_pred);
+	fprintf(self->out, "v%p -> v%p;\n", (void *)elt, (void *)elt_pred);
     }
 }
 void
@@ -1418,11 +1418,11 @@ cu_clos_def(dump_gviz_cb,
 {
     cu_clos_self(dump_gviz_cb);
     cucon_listnode_t it;
-    fprintf(self->out, "v%p[label=\"%d\"];\n", elt, elt->level);
+    fprintf(self->out, "v%p[label=\"%d\"];\n", (void *)elt, elt->level);
     for (it = cucon_po_ipred_begin(elt); it != cucon_po_ipred_end(elt);
 	 it = cucon_listnode_next(it)) {
 	cucon_poelt_t elt_pred = cucon_po_ipred_it_get(it);
-	fprintf(self->out, "v%p -> v%p;\n", elt, elt_pred);
+	fprintf(self->out, "v%p -> v%p;\n", (void *)elt, (void *)elt_pred);
     }
 }
 void

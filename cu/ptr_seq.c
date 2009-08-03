@@ -278,7 +278,7 @@ _junction_from_source_sink_put(cu_ptr_sink_t sink, void *elt)
     _junction_from_source_sink_t self;
     self = cu_from2(_junction_from_source_sink,
 		    cu_ptr_junction, cu_ptr_sink, sink);
-    return cu_ptr_sink_put(self->sink, elt);
+    cu_ptr_sink_put(self->sink, elt);
 }
 
 cu_ptr_junction_t
@@ -320,7 +320,7 @@ _junctor_from_source_sinktor_put(cu_ptr_sink_t sink, void *elt)
     _junctor_from_source_sinktor_t self;
     self = cu_from3(_junctor_from_source_sinktor, cu_ptr_junctor,
 		    cu_ptr_junction, cu_ptr_sink, sink);
-    return cu_ptr_sinktor_put(self->sinktor, elt);
+    cu_ptr_sinktor_put(self->sinktor, elt);
 }
 
 static void *

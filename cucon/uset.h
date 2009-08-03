@@ -83,7 +83,7 @@ CU_SINLINE cu_bool_t cucon_uset_erase_keep_cap(cucon_uset_t set, uintptr_t key)
 
 /*!Call this after using \ref cucon_uset_erase_keep_cap. */
 CU_SINLINE void cucon_uset_update_cap(cucon_uset_t set)
-{ return cucon_umap_update_cap(&set->impl); }
+{ cucon_umap_update_cap(&set->impl); }
 
 /*!Pop any element of \a set and return it.  A random number generator is used
  * to select a position in the hash array in order to preserve the average

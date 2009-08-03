@@ -239,6 +239,6 @@ _occurtree_dump(cuex_occurtree_t ot, FILE *out, int l)
 void
 cuex_occurtree_dump(cuex_occurtree_t ot, FILE *out)
 {
-    fprintf(out, "cuex_occurtree @ %p\n", out);
+    fprintf(out, "cuex_occurtree @ %p\n", (void *)ot);
     _occurtree_dump(ot, out, 1);
 }

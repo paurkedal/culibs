@@ -38,7 +38,7 @@ CU_SINLINE void
 cucon_hset_init(cucon_hset_t set,
 		cu_clop(eq, cu_bool_t, void const *, void const *),
 		cu_clop(hash, cu_hash_t, void const *))
-{ return cucon_hmap_init(&set->impl, eq, hash); }
+{ cucon_hmap_init(&set->impl, eq, hash); }
 
 /*!Returns a hash set with equality predicate \a eq and hash function
  * \a hash. */

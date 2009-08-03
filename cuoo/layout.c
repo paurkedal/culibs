@@ -419,7 +419,7 @@ layout_dump(cuoo_layout_t lyo, FILE *out)
 void
 cuoo_layout_dump(cuoo_layout_t lyo, FILE *out)
 {
-    fprintf(out, "layout @ %p\n", lyo);
+    fprintf(out, "layout @ %p\n", (void *)lyo);
     layout_dump(lyo, out);
 }
 

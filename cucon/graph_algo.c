@@ -151,7 +151,7 @@ CUCON_T_NS(write_graphviz)(
 	     it_v != CUCON_T_NS(all_vertices_end)(g);
 	     it_v = CUCON_T_NS(all_vertices_it_next)(it_v)) {
 	    CUCON_T_NS(vertex_t) v = CUCON_T_NS(all_vertices_it_get)(it_v);
-	    fprintf(out, "v%p[label=%s];\n", v,
+	    fprintf(out, "v%p[label=%s];\n", (void *)v,
 		    cu_call(vertex_label, v));
 	}
     for (it_e = CUCON_T_NS(all_edges_begin)(g);
@@ -162,16 +162,18 @@ CUCON_T_NS(write_graphviz)(
 	CUCON_T_NS(vertex_t) v1 = CUCON_T_NS(edge_dst)(e);
 	if (cu_clop_is_null(edge_label)) {
 	    if (CUCON_T_NS(edge_is_directed)(e))
-		fprintf(out, "v%p -> v%p;\n", v0, v1);
+		fprintf(out, "v%p -> v%p;\n", (void *)v0, (void *)v1);
 	    else
-		fprintf(out, "v%p -> v%p[dir=none];\n", v0, v1);
+		fprintf(out, "v%p -> v%p[dir=none];\n", (void *)v0, (void *)v1);
 	}
 	else {
 	    if (CUCON_T_NS(edge_is_directed)(e))
-		fprintf(out, "v%p -> v%p[label=%s];\n", v0, v1,
+		fprintf(out, "v%p -> v%p[label=%s];\n",
+			(void *)v0, (void *)v1,
 			cu_call(edge_label, e));
 	    else
-		fprintf(out, "v%p -> v%p[dir=none,label=%s];\n", v0, v1,
+		fprintf(out, "v%p -> v%p[dir=none,label=%s];\n",
+			(void *)v0, (void *)v1,
 			cu_call(edge_label, e));
 	}
     }
@@ -190,7 +192,7 @@ CUCON_T_NS(write_graphviz_props)(
 	 it_v != CUCON_T_NS(all_vertices_end)(g);
 	 it_v = CUCON_T_NS(all_vertices_it_next)(it_v)) {
 	CUCON_T_NS(vertex_t) v = CUCON_T_NS(all_vertices_it_get)(it_v);
-	fprintf(out, "v%p[", v);
+	fprintf(out, "v%p[", (void *)v);
 	cu_call(vertex_print_props, v, out);
 	fputs("];\n", out);
     }
@@ -200,7 +202,7 @@ CUCON_T_NS(write_graphviz_props)(
 	CUCON_T_NS(edge_t) e = CUCON_T_NS(all_edges_it_get)(it_e);
 	CUCON_T_NS(vertex_t) v0 = CUCON_T_NS(edge_src)(e);
 	CUCON_T_NS(vertex_t) v1 = CUCON_T_NS(edge_dst)(e);
-	fprintf(out, "v%p -> v%p[", v0, v1);
+	fprintf(out, "v%p -> v%p[", (void *)v0, (void *)v1);
 	cu_call(edge_print_props, e, out);
 	fputs("];\n", out);
     }

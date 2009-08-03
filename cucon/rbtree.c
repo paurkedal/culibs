@@ -18,6 +18,7 @@
 #include <cucon/rbtree.h>
 #include <cu/memory.h>
 #include <cu/int.h>
+#include <cu/ptr.h>
 #include <assert.h>
 #include <string.h>
 
@@ -449,7 +450,7 @@ cucon_rbtree_insert2p_node(cucon_rbtree_t tree,
 	    return cu_false;
 	}
     }
-    x = cu_galloc(node_size) + node_offset;
+    x = cu_ptr_add(cu_galloc(node_size), node_offset);
     *--sp = x;
     if (sp[1]) {
 	if (cmp < 0)
@@ -1006,27 +1007,29 @@ cuconP_rbnode_dump_as_graphviz(cucon_rbnode_t x,
 tail_rec:
     y = x->left;
     if (cu_clop_is_null(label))
-	fprintf(out, "v%p[color=%s];\n", x, IS_RED(x)? "red" : "black");
+	fprintf(out, "v%p[color=%s];\n", (void *)x,
+		IS_RED(x)? "red" : "black");
     else {
-	fprintf(out, "v%p[color=%s,label=\"", x, IS_RED(x)? "red" : "black");
+	fprintf(out, "v%p[color=%s,label=\"", (void *)x,
+		IS_RED(x)? "red" : "black");
 	cu_call(label, cucon_rbnode_mem(x), out);
 	fprintf(out, "\"];\n");
     }
     if (y) {
-	fprintf(out, "v%p->v%p;\n", x, y);
+	fprintf(out, "v%p->v%p;\n", (void *)x, (void *)y);
 	cuconP_rbnode_dump_as_graphviz(y, label, out);
     }
     else
 	fprintf(out, "v%p->v%p; v%p[label=\"\"];\n",
-		x, (char *)x + 1, (char *)x + 1);
+		(void *)x, (char *)x + 1, (char *)x + 1);
     y = x->right;
     if (y) {
-	fprintf(out, "v%p->v%p;\n", x, y);
+	fprintf(out, "v%p->v%p;\n", (void *)x, (void *)y);
 	x = y;
 	goto tail_rec;
     }
     else
-	fprintf(out, "v%p->v%p; v%p[label=\"\"];\n", x,
+	fprintf(out, "v%p->v%p; v%p[label=\"\"];\n", (void *)x,
 		(char *)x + 2, (char *)x + 2);
 }
 

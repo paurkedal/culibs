@@ -1491,7 +1491,7 @@ cuex_ssfn_find_wpmgu(cuex_ssfn_t ssfn, cuex_subst_t subst, cuex_t key,
 
 cu_clop_def(check_strength_cb2, void, cuex_veqv_t veqv)
 {
-    cu_debug_assert(veqv->qcode == cuex_qcode_active_s);
+    cu_debug_assert(cuex_veqv_qcode(veqv) == cuex_qcode_active_s);
 }
 cu_clop_def(check_strength_cb, cuex_ssfn_ctrl_t,
 	    void *slot, cuex_subst_t subst,
@@ -1750,7 +1750,7 @@ cuex_ssfn_dump_keys(cuex_ssfn_t ssfn, FILE *out)
     ssfn_dump_keys_cb_t cb;
     cb.var = cuex_var_new(cuex_qcode_active_s);
     cb.out = out;
-    fprintf(out, "DUMP OF ssfn @ %p:\n", ssfn);
+    fprintf(out, "DUMP OF ssfn @ %p:\n", (void *)ssfn);
     cuex_ssfn_find_lgr(ssfn, NULL, cuex_var_to_ex(cb.var), 0,
 		       ssfn_dump_keys_cb_prep(&cb));
     fputc('\n', out);

@@ -322,6 +322,6 @@ dump_priorities(cucon_prinode_t t, FILE *out, int level)
 void
 cucon_pritree_dump_priorities(cucon_pritree_t pritree, FILE *out)
 {
-    fprintf(out, "pritree @ %p\n", pritree);
+    fprintf(out, "pritree @ %p\n", (void *)pritree);
     dump_priorities(pritree->front, out, 0);
 }

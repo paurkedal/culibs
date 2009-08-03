@@ -236,9 +236,9 @@ set_ffi_arg(void **ffi_arg, cuex_t *arg, cuoo_type_t arg_type)
 	    abort();
 	}
 	if (cuoo_type_is_hctype(arg_type))
-	    *ffi_arg = (void *)*arg + CUOO_HCOBJ_SHIFT;
+	    *ffi_arg = cu_ptr_add(*arg, CUOO_HCOBJ_SHIFT);
 	else
-	    *ffi_arg = (void *)*arg + CUOO_OBJ_SHIFT;
+	    *ffi_arg = cu_ptr_add(*arg, CUOO_OBJ_SHIFT);
     }
     else {
 	if (!cudyn_is_cuex_type(arg_type) &&
@@ -276,7 +276,8 @@ cudyn_proto_apply_fn(cudyn_proto_t proto, cu_fnptr_t fn,
 	}
 	else {
 	    void *res = cuoo_oalloc(res_type, size + CUOO_OBJ_SHIFT);
-	    ffi_call(&proto->cif, fn, res + CUOO_OBJ_SHIFT, ffi_arg_arr);
+	    ffi_call(&proto->cif, fn, cu_ptr_add(res, CUOO_OBJ_SHIFT),
+		     ffi_arg_arr);
 	    return res;
 	}
     }

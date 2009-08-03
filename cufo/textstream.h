@@ -94,7 +94,7 @@ void cufo_textstyle_init(cufo_textstyle_t style, size_t stream_size,
  * be dynamically allocated. */
 #define CUFO_TEXTSTYLER_STATIC(name) \
     static struct cufo_textstyler_s name##_styler \
-	= {{}, 0, name##_enter, name##_leave}
+	= {CUCON_HZMAP_NODE_INIT, 0, name##_enter, name##_leave}
 
 /*!Bind \a styler, which declared and partly initialised with \ref
  * CUFO_TEXTSTYLER_STATIC, as callbacks for \a tag.  \a styler may only occur

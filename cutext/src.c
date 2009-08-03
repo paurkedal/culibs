@@ -66,7 +66,8 @@ cutextP_src_lookahead(cutext_src_t ibuf, size_t size)
 rec:
     cu_buffer_extend_freecap(&ibuf->buf, size*multiplier);
     r = cu_call(ibuf->produce,
-		&ibuf->buf.content_end, ibuf->buf.storage_end - ibuf->buf.content_end);
+		&ibuf->buf.content_end,
+		cu_ptr_diff(ibuf->buf.storage_end, ibuf->buf.content_end));
     if (r == cutext_status_buffer_too_small &&
 	&ibuf->buf.content_end - &ibuf->buf.content_start < size) {
 	if (multiplier > 1 && multiplier*size > cutextP_buffer_limit) {
@@ -93,7 +94,7 @@ cu_clos_def(charr_producer,
     if (size > self->size)
 	size = self->size;
     memcpy(*p, self->arr, size);
-    *p += size;
+    *p = cu_ptr_add(*p, size);
     self->arr += size;
     self->size -= size;
     return cutext_status_ok;
@@ -119,7 +120,7 @@ cu_clos_def(read_producer,
 	    return cutext_status_error;
 	else if (size_read == 0)
 	    return cutext_status_eos;
-	*p += size_read;
+	*p = cu_ptr_add(*p, size_read);
 	size -= size_read;
     }
     return cutext_status_ok;

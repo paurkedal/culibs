@@ -17,6 +17,7 @@
 
 #include <cucon/rbmap.h>
 #include <cu/memory.h>
+#include <cu/ptr.h>
 
 void
 cucon_rbmap_init(cucon_rbmap_t map, cu_clop(cmp, int, void *, void *))
@@ -40,7 +41,7 @@ cucon_rbmap_find_mem(cucon_rbmap_t map, void *key)
     cucon_rbnode_t node;
     node = cucon_rbtree_find2p_node(cu_to(cucon_rbtree, map), map->cmp, key);
     if (node)
-	return cucon_rbnode_mem(node) + sizeof(void *);
+	return cu_ptr_add(cucon_rbnode_mem(node), sizeof(void *));
     else
 	return NULL;
 }
@@ -51,7 +52,7 @@ cucon_rbmap_find_ptr(cucon_rbmap_t map, void *key)
     cucon_rbnode_t node;
     node = cucon_rbtree_find2p_node(cu_to(cucon_rbtree, map), map->cmp, key);
     if (node)
-	return *(void **)(cucon_rbnode_mem(node) + sizeof(void *));
+	return *(void **)cu_ptr_add(cucon_rbnode_mem(node), sizeof(void *));
     else
 	return NULL;
 }
@@ -66,7 +67,7 @@ cucon_rbmap_insert_mem(cucon_rbmap_t map, void *key,
 	    cu_to(cucon_rbtree, map), map->cmp, key,
 	    sizeof(struct cucon_rbnode_s) + sizeof(void *) + slot_size, 0,
 	    &node);
-    *(void **)slot = cucon_rbnode_mem(node) + sizeof(void *);
+    *(void **)slot = cu_ptr_add(cucon_rbnode_mem(node), sizeof(void *));
     return st;
 }
 
@@ -77,7 +78,7 @@ cucon_rbmap_insert_ptr(cucon_rbmap_t map, void *key, void *val)
     if (cucon_rbtree_insert2p_node(
 		cu_to(cucon_rbtree, map), map->cmp, key,
 		sizeof(struct cucon_rbnode_s) + 2*sizeof(void *), 0, &node)) {
-	*(void **)(cucon_rbnode_mem(node) + sizeof(void *)) = val;
+	*(void **)cu_ptr_add(cucon_rbnode_mem(node), sizeof(void *)) = val;
 	return cu_true;
     }
     else

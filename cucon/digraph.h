@@ -26,6 +26,7 @@
 #include <cucon/list.h>
 #include <cucon/algo_colour.h>
 #include <cu/thread.h>
+#include <cu/ptr.h>
 #include <stdio.h>
 
 #ifdef CU_NDEBUG
@@ -153,10 +154,10 @@ typedef cucon_listnode_t cucon_digraph_all_vertices_it_t;
 
 /* vertex: The range of input and/or output edges of a vertex
  * ---------------------------------------------------------- */
-#define cuconP_OUTEDGE(e)							\
+#define cuconP_OUTEDGE(e)						\
 	((cucon_digraph_edge_t)						\
-	 ((void *)e							\
-	  - offsetof(struct cucon_digraph_edge_s, as_output)))
+	 (cu_ptr_sub((void *)e,						\
+		     offsetof(struct cucon_digraph_edge_s, as_output))))
 #define cuconP_OUTEDGE_TO_IT(e)						\
 	(&CU_MARG(cucon_digraph_edge_t, e)->as_output)
 

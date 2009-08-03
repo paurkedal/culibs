@@ -83,7 +83,7 @@ CU_SINLINE cu_bool_t cucon_pset_erase_keep_cap(cucon_pset_t set, void *key)
 
 /*!Call this after using \ref cucon_pset_erase_keep_cap. */
 CU_SINLINE void cucon_pset_update_cap(cucon_pset_t set)
-{ return cucon_umap_update_cap(&set->impl); }
+{ cucon_umap_update_cap(&set->impl); }
 
 /*!\copydoc cucon_uset_pop_any */
 CU_SINLINE void *cucon_pset_pop_any(cucon_pset_t set)

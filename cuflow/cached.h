@@ -89,7 +89,9 @@ struct cuflowP_cached_node_s
     {									\
 	cuflow_cdisj_wait_while(&cu_to(cuflowP_cached_node, promise)->cdisj);\
 	return &promise->res;						\
-    }
+    }									\
+									\
+    CU_END_BOILERPLATE
 
 /*!Emits type definitions and declarations for a cached function with
  * external linkage. */

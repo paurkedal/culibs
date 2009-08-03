@@ -43,7 +43,8 @@ show_grow(cuoo_layout_t l, size_t bitsize, size_t bitalign)
     cu_offset_t bitoffset;
     cuoo_layout_t lr = cuoo_layout_pack_bits(l, bitsize, bitalign, &bitoffset);
     printf("grow(%p, %ld, %ld, => %ld) = %p\n",
-	    l, (long)bitsize, (long)bitalign, (long)bitoffset, lr);
+	   (void *)l, (long)bitsize, (long)bitalign, (long)bitoffset,
+	   (void *)lr);
     return lr;
 }
 
@@ -52,7 +53,8 @@ show_join(cuoo_layout_t l0, cuoo_layout_t l1)
 {
     cu_offset_t bitoffset;
     cuoo_layout_t lr = cuoo_layout_product(l0, l1, &bitoffset);
-    printf("join(%p, %p, => %ld) = %p\n", l0, l1, (long)bitoffset, lr);
+    printf("join(%p, %p, => %ld) = %p\n",
+	   (void *)l0, (void *)l1, (long)bitoffset, (void *)lr);
     return lr;
 }
 
