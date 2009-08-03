@@ -153,7 +153,7 @@ cuoo_type_new_opaque_hcv(cuoo_impl_t impl)
 }
 
 cu_str_t
-cuoo_type_to_str_default(cuoo_type_t type)
+cuoo_type_to_str_default(cuex_t type)
 {
     cuoo_shape_t shape = cuoo_type_shape(type);
     char const *name = cuoo_shape_name(shape);
@@ -165,12 +165,12 @@ cuoo_type_to_str_default(cuoo_type_t type)
 	return cu_str_new_fmt("__type_%p", type);
 }
 
-static cu_word_t
-type_impl(cu_word_t intf_number, ...)
+static cu_box_t
+_type_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUOO_INTF_TO_STR_FN:
-	    return (cu_word_t)cuoo_type_to_str_default;
+	    return CUOO_INTF_TO_STR_FN_BOX(cuoo_type_to_str_default);
 	default:
 	    return CUOO_IMPL_NONE;
     }
@@ -331,5 +331,5 @@ cuooP_type_init()
     cucon_umap_init(&cuooP_property_map);
 #endif
     cuooP_type_type = cuoo_type_new_self_instance_hcb(CUOO_SHAPE_METATYPE,
-						      type_impl);
+						      _type_impl);
 }

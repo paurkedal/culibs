@@ -121,7 +121,7 @@ cuex_bareimg_operands(cuex_t (*f)(cuex_t), cuex_t e)
 	cuoo_type_t type = cuoo_type_from_meta(e_meta);
 	cuex_intf_compound_t impl;
 	impl = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
-	if (impl != CUOO_IMPL_NONE) {
+	if (impl) {
 	    cu_ptr_junctor_t junctor;
 	    junctor = cuex_compound_pref_image_junctor(impl, e);
 	    return cu_ptr_junctor_image_cfn(f, junctor);

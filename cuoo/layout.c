@@ -401,11 +401,11 @@ cuoo_layout_size(cuoo_layout_t lyo)
 }
 
 static void
-layout_dump(cuoo_layout_t lyo, FILE *out)
+_layout_dump(cuoo_layout_t lyo, FILE *out)
 {
     int i;
     if (lyo->prefix)
-	layout_dump(lyo->prefix, out);
+	_layout_dump(lyo->prefix, out);
     fputs("    ", out);
     for (i = sizeof(cu_word_t)*8; i;) {
 	--i;
@@ -420,19 +420,25 @@ void
 cuoo_layout_dump(cuoo_layout_t lyo, FILE *out)
 {
     fprintf(out, "layout @ %p\n", (void *)lyo);
-    layout_dump(lyo, out);
+    _layout_dump(lyo, out);
 }
 
 cuoo_type_t cuooP_layout_type;
 cuoo_layout_t cuooP_layout_ptr;
 cuoo_layout_t cuooP_layout_void;
 
-static cu_word_t
-layout_impl(cu_word_t intf_number, ...)
+static void
+_layout_print(cuex_t e, FILE *out)
+{ cuoo_layout_dump(e, out); }
+
+static cu_box_t
+_layout_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)layout_dump;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(_layout_print);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
 
@@ -441,7 +447,7 @@ cuooP_layout_init()
 {
     cu_offset_t ignore;
     cuooP_layout_type =
-	cuoo_type_new_opaque_hcs(layout_impl,
+	cuoo_type_new_opaque_hcs(_layout_impl,
 			     sizeof(struct cuoo_layout_s) - CUOO_HCOBJ_SHIFT);
     cuooP_layout_ptr = cuoo_layout_pack_bits(NULL,
 					  sizeof(void *)*8,

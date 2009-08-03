@@ -145,21 +145,21 @@ cuex_meetlattice_leq(cuex_meta_t meet, cuex_t x0, cuex_t x1)
 	return cu_false;
 }
 
-cu_clos_def(semilattice_print_elt, cu_prot(void, cuex_t e),
+cu_clos_def(_semilattice_print_elt, cu_prot(void, cuex_t e),
 	    (FILE *out; int index;))
 {
-    cu_clos_self(semilattice_print_elt);
+    cu_clos_self(_semilattice_print_elt);
     if (self->index++)
 	fputs(", ", self->out);
     cu_fprintf(self->out, "%!", e);
 }
 
 static void
-semilattice_print(cuex_t x, FILE *out)
+_semilattice_print(cuex_t x, FILE *out)
 {
     cuex_meta_t opr = SL(x)->meet;
     cuex_oprinfo_t info = cuex_oprinfo(opr);
-    semilattice_print_elt_t cb;
+    _semilattice_print_elt_t cb;
     fputc('(', out);
     if (info)
 	fputs(cuex_oprinfo_name(info), out);
@@ -168,16 +168,16 @@ semilattice_print(cuex_t x, FILE *out)
     fputs(" {", out);
     cb.out = out;
     cb.index = 0;
-    cuex_atree_iter(SL(x)->atree, semilattice_print_elt_prep(&cb));
+    cuex_atree_iter(SL(x)->atree, _semilattice_print_elt_prep(&cb));
     fputs("})", out);
 }
 
-static cu_word_t
-semilattice_dispatch(cu_word_t intf_number, ...)
+static cu_box_t
+_semilattice_dispatch(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUOO_INTF_PRINT_FN:
-	    return (cu_word_t)semilattice_print;
+	    return CUOO_INTF_PRINT_FN_BOX(_semilattice_print);
 	default:
 	    return CUOO_IMPL_NONE;
     }
@@ -188,6 +188,6 @@ cuexP_semilattice_init(void)
 {
     cuexP_semilattice_type
 	= cuoo_type_new_opaque_hcs(
-	    semilattice_dispatch,
+	    _semilattice_dispatch,
 	    sizeof(struct cuex_semilattice_s) - CUOO_HCOBJ_SHIFT);
 }

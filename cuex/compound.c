@@ -329,9 +329,9 @@ cuex_ncomm_source(cuex_t e)
 	return cuex_opn_ncomm_source(e);
     else if (cuex_meta_is_type(e_meta)) {
 	cuoo_type_t type = cuoo_type_from_meta(e_meta);
-	cu_word_t impl = cuoo_type_impl(type, CUEX_INTF_COMPOUND);
-	if (impl != CUOO_IMPL_NONE) {
-	    cuex_intf_compound_t comp = (cuex_intf_compound_t)impl;
+	cuex_intf_compound_t comp;
+	comp = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (comp) {
 	    if (comp->ncomm_iter_source)
 		return (*comp->ncomm_iter_source)(comp, e);
 	    else
@@ -349,9 +349,9 @@ cuex_comm_source(cuex_t e)
 	return cuex_opn_comm_source(e);
     else if (cuex_meta_is_type(e_meta)) {
 	cuoo_type_t type = cuoo_type_from_meta(e_meta);
-	cu_word_t impl = cuoo_type_impl(type, CUEX_INTF_COMPOUND);
-	if (impl != CUOO_IMPL_NONE) {
-	    cuex_intf_compound_t comp = (cuex_intf_compound_t)impl;
+	cuex_intf_compound_t comp;
+	comp = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (comp) {
 	    cu_debug_assert(comp->comm_iter_source);
 	    return (*comp->comm_iter_source)(comp, e);
 	}
@@ -367,11 +367,10 @@ cuex_pref_source(cuex_t e)
 	return cuex_opn_ncomm_source(e);
     else if (cuex_meta_is_type(e_meta)) {
 	cuoo_type_t type = cuoo_type_from_meta(e_meta);
-	cu_word_t impl = cuoo_type_impl(type, CUEX_INTF_COMPOUND);
-	if (impl != CUOO_IMPL_NONE) {
-	    cuex_intf_compound_t comp = (cuex_intf_compound_t)impl;
+	cuex_intf_compound_t comp;
+	comp = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (comp)
 	    return cuex_compound_pref_iter_source(comp, e);
-	}
     }
     return cu_empty_ptr_source();
 }

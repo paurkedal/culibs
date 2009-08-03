@@ -29,6 +29,7 @@ CU_BEGIN_DECLARATIONS
  */
 
 #define CUEX_INTF_COMPOUND	0x40
+#define CUEX_INTF_COMPOUND_BOX(x) cu_box_ptr(cuex_intf_compound_t, x)
 
 /*!@}*/
 CU_END_DECLARATIONS

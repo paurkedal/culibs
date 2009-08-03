@@ -315,16 +315,16 @@ static struct cuex_intf_compound_s _compound_impl = {
     .ncomm_build_sinktor = _build_sinktor,
 };
 
-static cu_word_t
+static cu_box_t
 _tmonoid_dispatch(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUEX_INTF_COMPOUND:
-	    return (cu_word_t)&_compound_impl;
+	    return CUEX_INTF_COMPOUND_BOX(&_compound_impl);
 	case CUOO_INTF_PRINT_FN:
-	    return (cu_word_t)_tmonoid_print;
+	    return CUOO_INTF_PRINT_FN_BOX(_tmonoid_print);
 	case CUOO_INTF_FOPRINT_FN:
-	    return (cu_word_t)_tmonoid_foprint;
+	    return CUOO_INTF_FOPRINT_FN_BOX(_tmonoid_foprint);
 	default:
 	    return CUOO_IMPL_NONE;
     }

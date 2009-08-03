@@ -55,104 +55,137 @@ CUDYN_ETYPEARR_DEFN_PRINT(uint64, uint64_t, "(uint64_t)%"PRIu64)
 CUDYN_ETYPEARR_DEFN_PRINT(float, float, "%g")
 CUDYN_ETYPEARR_DEFN_PRINT(double, double, "%lgL")
 
-static cu_word_t
+static cu_box_t
 cudynP_char_impl(cu_word_t intf, ...)
 {
     switch (intf) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_char_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_char_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_char_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_char_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
-static cu_word_t
+static cu_box_t
 cudynP_uint8_impl(cu_word_t intf, ...)
 {
     switch (intf) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_uint8_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_uint8_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_uint8_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_uint8_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
-static cu_word_t
+static cu_box_t
 cudynP_int8_impl(cu_word_t intf, ...)
 {
     switch (intf) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_int8_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_int8_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_int8_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_int8_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
-static cu_word_t
+static cu_box_t
 cudynP_uint16_impl(cu_word_t intf, ...)
 {
     switch (intf) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_uint16_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_uint16_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_uint16_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_uint16_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
-static cu_word_t
+static cu_box_t
 cudynP_int16_impl(cu_word_t intf, ...)
 {
     switch (intf) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_int16_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_int16_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_int16_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_int16_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
-static cu_word_t
+static cu_box_t
 cudynP_uint32_impl(cu_word_t intf, ...)
 {
     switch (intf) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_uint32_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_uint32_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_uint32_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_uint32_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
-static cu_word_t
+static cu_box_t
 cudynP_int32_impl(cu_word_t intf, ...)
 {
     switch (intf) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_int32_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_int32_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_int32_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_int32_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
-static cu_word_t
+static cu_box_t
 cudynP_uint64_impl(cu_word_t intf, ...)
 {
     switch (intf) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_uint64_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_uint64_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_uint64_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_uint64_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
-static cu_word_t
+static cu_box_t
 cudynP_int64_impl(cu_word_t intf, ...)
 {
     switch (intf) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_int64_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_int64_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_int64_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_int64_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
 
-static cu_word_t
+static cu_box_t
 cudynP_float_impl(cu_word_t intf, ...)
 {
     switch (intf) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_float_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_float_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_float_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_float_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
-static cu_word_t
+static cu_box_t
 cudynP_double_impl(cu_word_t intf, ...)
 {
     switch (intf) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_double_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_double_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_double_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_double_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
 
@@ -168,12 +201,14 @@ cudynP_unit_to_str(void *val)
     return cu_str_new_cstr("()");
 }
 
-static cu_word_t
+static cu_box_t
 cudynP_unit_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_TO_STR_FN: return (cu_word_t)cudynP_unit_to_str;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_TO_STR_FN:
+	    return CUOO_INTF_TO_STR_FN_BOX(cudynP_unit_to_str);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
 
@@ -196,13 +231,16 @@ cudynP_bool_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *e)
     cufo_puts(fos, cudyn_to_bool(e)? "true" : "false");
 }
 
-static cu_word_t
+static cu_box_t
 cudynP_bool_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_bool_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_bool_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_bool_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_bool_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
 
@@ -254,13 +292,16 @@ cudynP_metaint_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *e)
 	cufo_printf(fos, "__meta_0x%lx", (unsigned long)meta);
 }
 
-static cu_word_t
+static cu_box_t
 cudynP_metaint_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudynP_metaint_print;
-	case CUOO_INTF_FOPRINT_FN: return (cu_word_t)cudynP_metaint_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudynP_metaint_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(cudynP_metaint_foprint);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
 

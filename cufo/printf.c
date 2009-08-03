@@ -141,12 +141,14 @@ cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e)
 	cu_str_t (*to_str)(void *);
 	e_type = cuoo_type_from_meta(e_meta);
 
-	if ((print = cuoo_type_impl_ptr(e_type, CUOO_INTF_FOPRINT_FN))) {
+	if ((print = cuoo_type_impl_fptr(cufo_print_ptr_fn_t, e_type,
+					 CUOO_INTF_FOPRINT_FN))) {
 	    (*print)(fos, spec, e);
 	    return;
 	}
 
-	if ((to_str = cuoo_type_impl_ptr(e_type, CUOO_INTF_TO_STR_FN))) {
+	if ((to_str = cuoo_type_impl_fptr(cuoo_intf_to_str_fn_t, e_type,
+					  CUOO_INTF_TO_STR_FN))) {
 	    cufo_print_str(fos, (*to_str)(e));
 	    return;
 	}

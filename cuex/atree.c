@@ -1324,7 +1324,7 @@ cu_clos_def(atree_print_elt, cu_prot(void, cuex_t elt),
 }
 
 static void
-atree_print(void *obj, FILE *out)
+_atree_print(cuex_t obj, FILE *out)
 {
     atree_print_elt_t cb;
     cb.out = out;
@@ -1341,12 +1341,14 @@ atree_print(void *obj, FILE *out)
 
 /* == Interfaces == */
 
-static cu_word_t
-atree_impl(cu_word_t intf_number, ...)
+static cu_box_t
+_atree_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)atree_print;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(_atree_print);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
 
@@ -1357,5 +1359,5 @@ void
 cuexP_atree_init()
 {
     cuexP_anode_type = cuoo_type_new_opaque_hcs(
-	atree_impl, sizeof(struct cuex_anode_s) - CUOO_HCOBJ_SHIFT);
+	_atree_impl, sizeof(struct cuex_anode_s) - CUOO_HCOBJ_SHIFT);
 }

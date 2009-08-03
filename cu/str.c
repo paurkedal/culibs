@@ -937,22 +937,25 @@ cu_clop_edef(cu_str_coll_clop, int, cu_str_t x, cu_str_t y)
 cuoo_type_t cuP_str_type;
 
 static void
-str_print(cuex_t ex, FILE *out)
+_str_print(cuex_t e, FILE *out)
 {
-    char const *s = cu_str_to_cstr(cu_str_quote(ex));
+    char const *s = cu_str_to_cstr(cu_str_quote(e));
     fprintf(out, "%s", s);
 }
 
 /* Assigned by cufo_init(). */
-cu_word_t cuP_str_foprint = CUOO_IMPL_NONE;
+cu_box_t cuP_str_foprint = CU_BOX_NULL_FPTR_INIT;
 
-static cu_word_t
+static cu_box_t
 str_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-        case CUOO_INTF_PRINT_FN: return (cu_word_t)str_print;
-	case CUOO_INTF_FOPRINT_FN: return cuP_str_foprint;
-        default: return CUOO_IMPL_NONE;
+        case CUOO_INTF_PRINT_FN:
+	    return cu_box_fptr(cuoo_intf_print_fn_t, _str_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return cuP_str_foprint;
+        default:
+	    return CUOO_IMPL_NONE;
     }
 }
 

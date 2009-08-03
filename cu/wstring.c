@@ -230,20 +230,20 @@ cu_wstring_forall(cu_wstring_t s, cu_clop(f, cu_bool_t, cu_wchar_t))
 }
 
 static void
-wstring_print(void *o, FILE *out)
+_wstring_print(cuex_t e, FILE *out)
 {
-    fprintf(out, "#[cu_wstring @ %p]", o); /* TODO */
+    fprintf(out, "#[cu_wstring @ %p]", (void *)e); /* TODO */
 }
 
 /* This is set by cufo_init(). */
-cu_word_t cuP_wstring_foprint = CUOO_IMPL_NONE;
+cu_box_t cuP_wstring_foprint = CU_BOX_NULL_FPTR_INIT;
 
-static cu_word_t
-wstring_dispatch(cu_word_t intf, ...)
+static cu_box_t
+_wstring_dispatch(cu_word_t intf, ...)
 {
     switch (intf) {
 	case CUOO_INTF_PRINT_FN:
-	    return (cu_word_t)wstring_print;
+	    return cu_box_fptr(cuoo_intf_print_fn_t, _wstring_print);
 	case CUOO_INTF_FOPRINT_FN:
 	    return cuP_wstring_foprint;
 	default:
@@ -257,7 +257,7 @@ cu_wstring_t cuP_wstring_empty;
 void
 cuP_wstring_init()
 {
-    cuP_wstring_type = cuoo_type_new_opaque(wstring_dispatch);
+    cuP_wstring_type = cuoo_type_new_opaque(_wstring_dispatch);
     cuP_wstring_empty = cuoo_onew(cu_wstring);
     cuP_wstring_empty->arr = NULL;
     cuP_wstring_empty->len = 0;

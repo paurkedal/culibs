@@ -19,6 +19,7 @@
 #define CUOO_INTF_H
 
 #include <cuoo/fwd.h>
+#include <stdio.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_intf_h cuoo/intf.h: Interface Numbers
@@ -26,11 +27,7 @@ CU_BEGIN_DECLARATIONS
 
 /*!Value returned by interface dispatch functions to indicate that a requested
  * interface has no implementation. */
-#define CUOO_IMPL_NONE		CU_WORD_C(0)
-
-/*!Value returned by interface dispatch functions which do not return anything
- * to indicate that the call was recognised and processed. */
-#define CUOO_IMPL_SUCCESS	((cu_word_t)-2)
+#define CUOO_IMPL_NONE		cu_box_fptr(void (*)(), NULL)
 
 /* The range of interface numbers used culibs. */
 #define CUOO_INTFRANGE_CULIBS_BEGIN	0x00000000
@@ -41,16 +38,22 @@ CU_BEGIN_DECLARATIONS
 
 /*!\deprecated Use \ref CUOO_INTF_FOPRINT_FN. */
 #define CUOO_INTF_PRINT_FN	0x13	/* void (*)(void *, FILE *) */
+#define CUOO_INTF_PRINT_FN_BOX(fn)	cu_box_fptr(cuoo_intf_print_fn_t, fn)
 
 /*!A libcufo format function of type \ref cufo_print_ptr_fn_t. */
 #define CUOO_INTF_FOPRINT_FN	0x14
+#define CUOO_INTF_FOPRINT_FN_BOX(fn)	cu_box_fptr(cufo_print_ptr_fn_t, fn)
 
 /*!An object to \ref cu_str_s "cu_str_t" conversion function of type
  * <tt>cu_str_t (*)(void *)</tt>. */
 #define CUOO_INTF_TO_STR_FN	0x15
+#define CUOO_INTF_TO_STR_FN_BOX(fn)	cu_box_fptr(cuoo_intf_to_str_fn_t, fn)
+
+typedef void (*cuoo_intf_print_fn_t)(cuex_t, FILE *);
+typedef cu_str_t (*cuoo_intf_to_str_fn_t)(cuex_t);
 
 /*!An interface dispatch which conistently returns \ref CUOO_IMPL_NONE. */
-cu_word_t cuoo_impl_none(cu_word_t intf_number, ...);
+cu_box_t cuoo_impl_none(cu_word_t intf_number, ...);
 
 /* US Spelling */
 #define CUOO_INTF_SERIALIZABLE CUOO_INTF_SERIALISABLE

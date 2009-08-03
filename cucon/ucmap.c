@@ -419,12 +419,18 @@ cucon_ucmap_dump(cucon_ucmap_t tree, FILE *out)
     ucmap_dump(tree, 2, out);
 }
 
-static cu_word_t
+static void
+_ucmap_print(cuex_t e, FILE *out)
+{ cucon_ucmap_dump(e, out); }
+
+static cu_box_t
 ucmap_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cucon_ucmap_dump;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return cu_box_fptr(cuoo_intf_print_fn_t, _ucmap_print);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
 

@@ -40,8 +40,9 @@ cuoo_raw_print(cuex_t ex, FILE *out)
     cuex_meta_t meta = cuex_meta(ex);
     if (cuex_meta_is_type(meta)) {
 	cuoo_type_t type = cuoo_type_from_meta(meta);
-	void (*print)(void *, FILE *)
-	    = (void (*)(void *, FILE *))type->impl(CUOO_INTF_PRINT_FN);
+	cuoo_intf_print_fn_t print
+	    = cuoo_type_impl_fptr(cuoo_intf_print_fn_t, type,
+				  CUOO_INTF_PRINT_FN);
 	if (print) {
 	    print(ex, out);
 	    return cu_true;

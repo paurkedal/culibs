@@ -17,7 +17,7 @@
 
 #include <cuoo/intf.h>
 
-cu_word_t
+cu_box_t
 cuoo_impl_none(cu_word_t intf_number, ...)
 {
     return CUOO_IMPL_NONE;

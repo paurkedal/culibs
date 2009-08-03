@@ -105,12 +105,12 @@ cudyn_elmtype_new(cuoo_shape_t shape, cuoo_impl_t impl,
     return t;
 }
 
-static cu_word_t
-elmtype_impl(cu_word_t intf_number, ...)
+static cu_box_t
+_elmtype_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUOO_INTF_TO_STR_FN:
-	    return (cu_word_t)cuoo_type_to_str_default;
+	    return CUOO_INTF_TO_STR_FN_BOX(cuoo_type_to_str_default);
 	default:
 	    return CUOO_IMPL_NONE;
     }
@@ -401,12 +401,14 @@ cudyn_tuptype_print(void *t, FILE *out)
     fputc(']', out);
 }
 
-static cu_word_t
-tuptype_impl(cu_word_t intf_number, ...)
+static cu_box_t
+_tuptype_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cudyn_tuptype_print;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return CUOO_INTF_PRINT_FN_BOX(cudyn_tuptype_print);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
 
@@ -560,9 +562,9 @@ cudynP_type_init()
     cudynP_cuex_type = cuoo_type_new_opaque(cuoo_impl_none);
     cudynP_ptrtype_type = cuoo_type_new_metatype_hcs(
 	cuoo_impl_none, sizeof(struct cudyn_ptrtype_s) - CUOO_HCOBJ_SHIFT);
-    cudynP_elmtype_type = cuoo_type_new_metatype(elmtype_impl);
+    cudynP_elmtype_type = cuoo_type_new_metatype(_elmtype_impl);
     cudynP_arrtype_type = cuoo_type_new_metatype_hce(cuoo_impl_none);
-    cudynP_tuptype_type = cuoo_type_new_metatype_hce(tuptype_impl);
+    cudynP_tuptype_type = cuoo_type_new_metatype_hce(_tuptype_impl);
     cudynP_duntype_type = cuoo_type_new_metatype_hce(cuoo_impl_none);
     cudynP_sngtype_type = cuoo_type_new_metatype_hce(cuoo_impl_none);
     cudynP_tup_null = cuex_monoid_identity(CUEX_O2_TUPLE);

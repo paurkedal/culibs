@@ -24,6 +24,7 @@
 #include <cu/inherit.h>
 #include <cu/conf.h>
 #include <cu/memory.h>
+#include <cu/box.h>
 #include <stdint.h>
 
 CU_BEGIN_DECLARATIONS
@@ -148,7 +149,7 @@ struct cuoo_type_s
     uint_least16_t shape;
     uint_least16_t key_sizew;
 
-    cu_word_t (*impl)(cu_word_t intf_number, ...); /* FIXME set */
+    cu_box_t (*impl)(cu_word_t intf_number, ...); /* FIXME set */
 };
 
 extern cuoo_type_t cuooP_type_type;
@@ -185,7 +186,10 @@ CU_SINLINE cuoo_shape_t cuoo_type_shape(cuoo_type_t type)
 { return type->shape; }
 
 #define cuoo_type_impl(type, ...) ((type)->impl(__VA_ARGS__))
-#define cuoo_type_impl_ptr(type, ...) ((void *)(type)->impl(__VA_ARGS__))
+#define cuoo_type_impl_ptr(type, ...) \
+    cu_unbox_ptr(void *, (type)->impl(__VA_ARGS__))
+#define cuoo_type_impl_fptr(T, type, ...) \
+    cu_unbox_fptr(T, (type)->impl(__VA_ARGS__))
 
 CU_SINLINE cu_bool_t cuoo_type_is_hctype(cuoo_type_t type)
 { return type->key_sizew; }
@@ -251,7 +255,7 @@ cuoo_type_t cuoo_type_new_metatype_hce(cuoo_impl_t impl);
 cuoo_type_t cuoo_type_new_metatype_hcs(cuoo_impl_t impl, size_t key_size);
 
 /*!A default implementation of \c CUOO_INTF_TO_STR_FN. */
-cu_str_t cuoo_type_to_str_default(cuoo_type_t type);
+cu_str_t cuoo_type_to_str_default(cuex_t type);
 
 
 /* Objects

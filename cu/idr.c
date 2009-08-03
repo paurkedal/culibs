@@ -95,24 +95,31 @@ cu_clop_edef(cu_idr_strcmp_clop, int, cu_idr_t idr0, cu_idr_t idr1)
 cuoo_type_t cuP_idr_type;
 
 static void
-idr_print(void *idr, FILE *out)
+_idr_print(cuex_t idr, FILE *out)
 {
     char const *s = cu_idr_to_cstr(idr);
     fputs(s, out);
 }
 
-static cu_word_t
-idr_impl(cu_word_t intf_number, ...)
+static cu_str_t
+_idr_to_str(cuex_t e)
+{ return cu_str_new_idr(e); }
+
+static cu_box_t
+_idr_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)idr_print;
-	case CUOO_INTF_TO_STR_FN: return (cu_word_t)cu_str_new_idr;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return cu_box_fptr(cuoo_intf_print_fn_t, _idr_print);
+	case CUOO_INTF_TO_STR_FN:
+	    return cu_box_fptr(cuoo_intf_to_str_fn_t, _idr_to_str);
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
 
 void
 cuP_idr_init(void)
 {
-    cuP_idr_type = cuoo_type_new_opaque_hcv(idr_impl);
+    cuP_idr_type = cuoo_type_new_opaque_hcv(_idr_impl);
 }

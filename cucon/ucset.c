@@ -1539,15 +1539,22 @@ cucon_ucset_itr_get(cucon_ucset_itr_t itr)
     return res;
 }
 
-cu_word_t cuconP_ucset_foprint = CUOO_IMPL_NONE;
+cu_box_t cuconP_ucset_foprint = CU_BOX_NULL_FPTR_INIT;
 
-static cu_word_t
+static void
+_ucset_print(cuex_t e, FILE *out)
+{ cucon_ucset_dump(e, out); }
+
+static cu_box_t
 _ucset_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN: return (cu_word_t)cucon_ucset_dump;
-	case CUOO_INTF_FOPRINT_FN: return cuconP_ucset_foprint;
-	default: return CUOO_IMPL_NONE;
+	case CUOO_INTF_PRINT_FN:
+	    return cu_box_fptr(cuoo_intf_print_fn_t, _ucset_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return cuconP_ucset_foprint;
+	default:
+	    return CUOO_IMPL_NONE;
     }
 }
 

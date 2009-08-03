@@ -91,12 +91,12 @@ failed:
     }
     else if (cuex_meta_is_type(e_meta)) {
 	cuoo_type_t type = cuoo_type_from_meta(e_meta);
-	cu_word_t c_impl = cuoo_type_impl(type, CUEX_INTF_COMPOUND);
-	if (c_impl != CUOO_IMPL_NONE) {
+	cuex_intf_compound_t c_impl;
+	c_impl = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (c_impl) {
 	    cu_ptr_source_t src;
 	    cuex_t ep;
-	    src = cuex_compound_pref_iter_source((cuex_intf_compound_t)c_impl,
-						 e);
+	    src = cuex_compound_pref_iter_source(c_impl, e);
 	    while ((ep = cu_ptr_source_get(src)))
 		if (!free_vars_conj(ep, qcset, excl, f))
 		    return cu_false;
@@ -181,12 +181,12 @@ failed:
     }
     else if (cuex_meta_is_type(e_meta)) {
 	cuoo_type_t type = cuoo_type_from_meta(e_meta);
-	cu_word_t c_impl = cuoo_type_impl(type, CUEX_INTF_COMPOUND);
-	if (c_impl != CUOO_IMPL_NONE) {
+	cuex_intf_compound_t c_impl;
+	c_impl = cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND);
+	if (c_impl) {
 	    cu_ptr_junctor_t jct;
 	    cuex_t ep;
-	    jct = cuex_compound_pref_image_junctor(
-		    (cuex_intf_compound_t)c_impl, e);
+	    jct = cuex_compound_pref_image_junctor(c_impl, e);
 	    while ((ep = cu_ptr_junctor_get(jct))) {
 		cuex_t epp = free_vars_tran(ep, qcset, excl, f);
 		if (!epp)

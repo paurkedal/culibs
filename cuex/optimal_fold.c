@@ -264,7 +264,7 @@ strip(cuex_t e)
 	return cuex_o0_metanull();
     else if (cuex_meta_is_type(e_meta)) {
 	cuoo_type_t type = cuoo_type_from_meta(e_meta);
-	if (cuoo_type_impl(type, CUEX_INTF_COMPOUND))
+	if (cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND))
 	    return cuex_o0_metanull();
     }
     return e;

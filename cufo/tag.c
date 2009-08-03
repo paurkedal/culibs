@@ -35,8 +35,8 @@ cufo_tag(cufo_namespace_t ns, char const *name)
     return cuoo_hctem_new(cufo_tag, tem);
 }
 
-static cu_word_t
-tag_dispatch(cu_word_t intf_number, ...)
+static cu_box_t
+_tag_dispatch(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	default:
@@ -48,6 +48,6 @@ void
 cufoP_tag_init()
 {
     cufoP_tag_type = cuoo_type_new_opaque_hcs(
-	tag_dispatch, sizeof(struct cufo_tag_s) - CUOO_HCOBJ_SHIFT);
+	_tag_dispatch, sizeof(struct cufo_tag_s) - CUOO_HCOBJ_SHIFT);
     cufoP_culibs_namespace = cufo_namespace("http://www.eideticdew.org/culibs");
 }

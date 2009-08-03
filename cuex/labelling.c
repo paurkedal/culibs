@@ -350,12 +350,12 @@ cuex_labelling_contract_all(cuex_t e)
 
 /* == Print == */
 
-cu_clos_def(labelling_print_elt, cu_prot(void, cuex_t e),
+cu_clos_def(_labelling_print_elt, cu_prot(void, cuex_t e),
   ( FILE *out;
     int index; ))
 {
     cuex_t l, x;
-    cu_clos_self(labelling_print_elt);
+    cu_clos_self(_labelling_print_elt);
     if (self->index++)
 	fputs(", ", self->out);
     cu_debug_assert(cuex_meta_is_opr(cuex_meta(e)) &&
@@ -366,21 +366,21 @@ cu_clos_def(labelling_print_elt, cu_prot(void, cuex_t e),
 }
 
 static void
-labelling_print(void *L, FILE *out)
+_labelling_print(cuex_t L, FILE *out)
 {
-    labelling_print_elt_t cl;
+    _labelling_print_elt_t cl;
     fputc('{', out);
     cl.out = out;
     cl.index = 0;
-    cuex_atree_iter(LABELLING(L)->atree, labelling_print_elt_prep(&cl));
+    cuex_atree_iter(LABELLING(L)->atree, _labelling_print_elt_prep(&cl));
     fputc('}', out);
 }
 
-cu_clos_def(labelling_foprint_elt, cu_prot(void, cuex_t e),
+cu_clos_def(_labelling_foprint_elt, cu_prot(void, cuex_t e),
   ( cufo_stream_t fos;
     int index; ))
 {
-    cu_clos_self(labelling_foprint_elt);
+    cu_clos_self(_labelling_foprint_elt);
     cuex_t l, x;
     if (self->index++)
 	cufo_puts(self->fos, ", ");
@@ -392,13 +392,13 @@ cu_clos_def(labelling_foprint_elt, cu_prot(void, cuex_t e),
 }
 
 static void
-labelling_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *L)
+_labelling_foprint(cufo_stream_t fos, cufo_prispec_t spec, cuex_t L)
 {
-    labelling_foprint_elt_t cl;
+    _labelling_foprint_elt_t cl;
     cufo_putc(fos, '{');
     cl.fos = fos;
     cl.index = 0;
-    cuex_atree_iter(LABELLING(L)->atree, labelling_foprint_elt_prep(&cl));
+    cuex_atree_iter(LABELLING(L)->atree, _labelling_foprint_elt_prep(&cl));
     cufo_putc(fos, '}');
 }
 
@@ -607,7 +607,7 @@ comm_find(cuex_t L, cuex_t l)
 
 /* == Compound Interface == */
 
-static struct cuex_intf_compound_s labelling_compound = {
+static struct cuex_intf_compound_s _labelling_compound = {
     .flags = CUEX_COMPOUNDFLAG_PREFER_NCOMM
 	   | CUEX_COMPOUNDFLAG_NCOMM_FILTERABLE_IMAGE
 	   | CUEX_COMPOUNDFLAG_COMM_IDEMPOTENT,
@@ -624,16 +624,16 @@ static struct cuex_intf_compound_s labelling_compound = {
 
 /* == Implementation Dispatcher == */
 
-static cu_word_t
-labelling_impl(cu_word_t intf_number, ...)
+static cu_box_t
+_labelling_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUOO_INTF_PRINT_FN:
-	    return (cu_word_t)labelling_print;
+	    return CUOO_INTF_PRINT_FN_BOX(_labelling_print);
 	case CUOO_INTF_FOPRINT_FN:
-	    return (cu_word_t)labelling_foprint;
+	    return CUOO_INTF_FOPRINT_FN_BOX(_labelling_foprint);
 	case CUEX_INTF_COMPOUND:
-	    return (cu_word_t)&labelling_compound;
+	    return CUEX_INTF_COMPOUND_BOX(&_labelling_compound);
 	default:
 	    return CUOO_IMPL_NONE;
     }
@@ -645,8 +645,8 @@ labelling_impl(cu_word_t intf_number, ...)
 void
 cuexP_labelling_init(void)
 {
-    cuex_intf_compound_finish(&labelling_compound);
+    cuex_intf_compound_finish(&_labelling_compound);
     cuexP_labelling_type = cuoo_type_new_opaque_hcs(
-	labelling_impl, sizeof(struct cuex_labelling_s) - CUOO_HCOBJ_SHIFT);
+	_labelling_impl, sizeof(struct cuex_labelling_s) - CUOO_HCOBJ_SHIFT);
     cuexP_labelling_empty = labelling(NULL);
 }

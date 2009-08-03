@@ -258,12 +258,12 @@ cuex_reindex_by_int_stack(cuex_t e,
     }
     else if (cuex_meta_is_type(e_meta)) {
 	cuoo_type_t e_type = cuoo_type_from_meta(e_meta);
-	cu_word_t comp = cuoo_type_impl(e_type, CUEX_INTF_COMPOUND);
-	if (comp != CUOO_IMPL_NONE) {
+	cuex_intf_compound_t comp;
+	comp = cuoo_type_impl_ptr(e_type, CUEX_INTF_COMPOUND);
+	if (comp) {
 	    cuex_t ep;
 	    cu_ptr_junctor_t jct;
-	    jct = cuex_compound_pref_image_junctor(
-			(cuex_intf_compound_t)comp, e);
+	    jct = cuex_compound_pref_image_junctor(comp, e);
 	    while ((ep = cu_ptr_junctor_get(jct))) {
 		ep = cuex_reindex_by_int_stack(ep, stack_top_level,
 					       stack_span, stack);

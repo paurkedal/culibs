@@ -170,9 +170,9 @@ _ucset_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
     cufo_putc(fos, '}');
 }
 
-extern cu_word_t cuP_wstring_foprint;
-extern cu_word_t cuP_str_foprint;
-extern cu_word_t cuconP_ucset_foprint;
+extern cu_box_t cuP_wstring_foprint;
+extern cu_box_t cuP_str_foprint;
+extern cu_box_t cuconP_ucset_foprint;
 
 void
 cufoP_init_formats()
@@ -186,7 +186,7 @@ cufoP_init_formats()
     cufo_register_va_format("ld/sub", _print_ld_sub);
     cufo_register_va_format("ld/sup", _print_ld_sup);
 
-    cuP_wstring_foprint = (cu_word_t)_wstring_foprint;
-    cuP_str_foprint = (cu_word_t)_str_foprint;
-    cuconP_ucset_foprint = (cu_word_t)_ucset_foprint;
+    cuP_wstring_foprint = cu_box_fptr(cufo_print_ptr_fn_t, _wstring_foprint);
+    cuP_str_foprint = cu_box_fptr(cufo_print_ptr_fn_t, _str_foprint);
+    cuconP_ucset_foprint = cu_box_fptr(cufo_print_ptr_fn_t, _ucset_foprint);
 }
