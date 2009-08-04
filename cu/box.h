@@ -129,35 +129,38 @@ typedef cu_word_t cu_box_t;
 cu_box_t cu_box_galloc(size_t size, void *addr);
 #define cu_box_gnew(type, obj) cu_box_galloc(sizeof(type), &(obj))
 
+#define cu_box_void()			cuP_box_word(0)
+#define CU_BOX_VOID_INIT		CUP_BOX_WORD_INIT(0)
+
 /** \name Pointers, Functions, and Enums
  ** @{ */
 
-/*!Boxes a pointer of the specified type. */
+/** Boxes a pointer of the specified type. */
 #define cu_box_ptr(type, ptr)		cuP_box_ptr(1? (ptr) : (type)(ptr))
-/*!Unboxes a pointer of the specified type. */
+/** Unboxes a pointer of the specified type. */
 #define cu_unbox_ptr(type, box)		((type)cuP_unbox_ptr(box))
 /** An initialiser for a pointer box. */
 #define CU_BOX_PTR_INIT(type, ptr) CUP_BOX_PTR_INIT(1? (ptr) : (type)(ptr))
 /** A \c NULL pointer box initialiser. */
 #define CU_BOX_NULL_PTR_INIT		CUP_BOX_PTR_INIT(NULL)
 
-/*!Boxes a function pointer of the specified type. */
+/** Boxes a function pointer of the specified type. */
 #define cu_box_fptr(type, fp) cuP_box_fptr((cu_fnptr_t)(1? (fp) : (type)(fp)))
-/*!Unboxes a function pointer of the specified type. */
+/** Unboxes a function pointer of the specified type. */
 #define cu_unbox_fptr(type, box)	((type)cuP_unbox_fptr(box))
 /** An initialiser for a function pointer box. */
 #define CU_BOX_FPTR_INIT(type, fptr) CUP_BOX_FPTR_INIT(1? (fptr) : (type)(fptr))
 /** A \c NULL function pointer box initialiser. */
 #define CU_BOX_NULL_FPTR_INIT		CUP_BOX_FPTR_INIT(NULL)
 
-/*!Boxes a closure pointer of the specified type. */
+/** Boxes a closure pointer of the specified type. */
 #define cu_box_clop(type, cp)		cu_box_ptr(type,  cp)
-/*!Unboxes a closure pointer of the specified type. */
+/** Unboxes a closure pointer of the specified type. */
 #define cu_unbox_clop(type, box)	cu_unbox_ptr(type, box)
 
-/*!Boxes an enum of the given type. */
+/** Boxes an enum of the given type. */
 #define cu_box_enum(type, i)		cuP_box_word(1? (i) : (type)(i))
-/*!Unboxes an enum of the given type. */
+/** Unboxes an enum of the given type. */
 #define cu_unbox_enum(type, box)	((type)cuP_unbox_word(box))
 /** An initialiser for a box if enum type \a type. */
 #define CU_BOX_ENUM_INIT(type, i)	CUP_BOX_WORD_INIT(1? (i) : (type)(i))
@@ -166,35 +169,35 @@ cu_box_t cu_box_galloc(size_t size, void *addr);
  ** \name Integer Types
  ** @{ */
 
-/*!Boxes an \c int or any shorter integer types. */
+/** Boxes an \c int or any shorter integer types. */
 CU_SINLINE cu_box_t		cu_box_int(int i)
 { return cuP_box_word(i); }
 
-/*!Unboxes an \c int or any shorter integer type. */
+/** Unboxes an \c int or any shorter integer type. */
 CU_SINLINE int			cu_unbox_int(cu_box_t box)
 { return cuP_unbox_word(box); }
 
-/*!Boxes an <tt>unsigned int</tt> or any shorter unsigned integer type. */
+/** Boxes an <tt>unsigned int</tt> or any shorter unsigned integer type. */
 CU_SINLINE cu_box_t		cu_box_uint(unsigned int i)
 { return cuP_box_word(i); }
 
-/*!Unboxes an <tt>unsigned int</tt> or any shorter unsigned integer type. */
+/** Unboxes an <tt>unsigned int</tt> or any shorter unsigned integer type. */
 CU_SINLINE unsigned int		cu_unbox_uint(cu_box_t box)
 { return cuP_unbox_word(box); }
 
-/*!Boxes a \c long. */
+/** Boxes a \c long. */
 CU_SINLINE cu_box_t		cu_box_long(long i)
 { return cuP_box_word(i); }
 
-/*!Unboxes a \c long. */
+/** Unboxes a \c long. */
 CU_SINLINE long			cu_unbox_long(cu_box_t box)
 { return cuP_unbox_word(box); }
 
-/*!Boxes an <tt>unsigned long</tt>. */
+/** Boxes an <tt>unsigned long</tt>. */
 CU_SINLINE cu_box_t		cu_box_ulong(unsigned long i)
 { return cuP_box_word(i); }
 
-/*!Unboxes an <tt>unsigned long</tt>. */
+/** Unboxes an <tt>unsigned long</tt>. */
 CU_SINLINE unsigned long	cu_unbox_ulong(cu_box_t box)
 { return cuP_unbox_word(box); }
 
@@ -205,11 +208,11 @@ CU_SINLINE unsigned long	cu_unbox_ulong(cu_box_t box)
 #if defined(CU_BOX_FITS_FLOAT) || defined(CU_IN_DOXYGEN)
 #  if defined(CU_BOX_IS_UNION) || defined(CU_IN_DOXYGEN)
 
-/*!Boxes a \c float. */
+/** Boxes a \c float. */
 CU_SINLINE cu_box_t		cu_box_float(float x)
 { cu_box_t box; box.as_float = x; return box; }
 
-/*!Unboxes a \c float. */
+/** Unboxes a \c float. */
 CU_SINLINE float		cu_unbox_float(cu_box_t box)
 { return box.as_float; }
 
@@ -233,11 +236,11 @@ CU_SINLINE float		cu_unbox_float(cu_box_t box)
 #if defined(CU_BOX_FITS_DOUBLE) || defined(CU_IN_DOXIGEN)
 #  if defined(CU_BOX_IS_UNION) || defined(CU_IN_DOXYGEN)
 
-/*!Boxes a \c double. */
+/** Boxes a \c double. */
 CU_SINLINE cu_box_t		cu_box_double(double x)
 { cu_box_t box; box.as_double = x; return box; }
 
-/*!Unboxes a \c double. */
+/** Unboxes a \c double. */
 CU_SINLINE double		cu_unbox_double(cu_box_t box)
 { return box.as_double; }
 
@@ -258,14 +261,14 @@ CU_SINLINE double		cu_unbox_double(cu_box_t box)
 #endif /* !CU_BOX_FITS_DOUBLE */
 
 
-#if defined(CU_BOX_FITS_LONGDOUBLE) || defined(CU_IN_DOXIGEN)
+#if defined(CU_BOX_FITS_LONGDOUBLE) || defined(CU_IN_DOXYGEN)
 #  if defined(CU_BOX_IS_UNION) || defined(CU_IN_DOXYGEN)
 
-/*!Boxes a <tt>long double</tt>. */
+/** Boxes a <tt>long double</tt>. */
 CU_SINLINE cu_box_t		cu_box_longdouble(long double x)
 { cu_box_t box; box.as_longdouble = x; return box; }
 
-/*!Unboxes a <tt>long double</tt>. */
+/** Unboxes a <tt>long double</tt>. */
 CU_SINLINE long double		cu_unbox_longdouble(cu_box_t box)
 { return box.as_longdouble; }
 
