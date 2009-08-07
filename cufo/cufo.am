@@ -4,6 +4,7 @@ cufo_headers = \
 	cufo/attr.h \
 	cufo/attrdefs.h \
 	cufo/fwd.h \
+	cufo/termstyle.h \
 	cufo/stream.h \
 	cufo/tag.h \
 	cufo/tagdefs.h \
@@ -14,6 +15,7 @@ cufo_sources = \
 	cufo/attrdefs.c \
 	cufo/init.c \
 	cufo/init_formats.c \
+	cufo/termstyle.c \
 	cufo/printf.c \
 	cufo/stream.c \
 	cufo/stream_open.c \

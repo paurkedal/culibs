@@ -25,6 +25,7 @@ void cufoP_tag_init(void);
 void cufoP_tagdefs_init(void);
 void cufoP_attrdefs_init(void);
 void cufoP_textstyle_default_init(void);
+void cufoP_termstyle_init();
 void cufoP_printf_init(void);
 void cufoP_init_formats(void);
 
@@ -103,6 +104,9 @@ cufo_init(void)
     cufoP_printf_init();
 
     cufoP_textstyle_default_init();
+#ifdef CUCONF_ENABLE_TERM
+    cufoP_termstyle_init();
+#endif
 
     cufoP_stderr = cufo_open_text_fd("UTF-8", NULL, 2);
     cufoP_stderr_bug = cufo_open_text_fd("UTF-8", NULL, 2);
