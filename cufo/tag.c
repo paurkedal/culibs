@@ -19,6 +19,7 @@
 #include <cuoo/type.h>
 #include <cuoo/halloc.h>
 #include <cuoo/intf.h>
+#include <cu/str.h>
 
 cufo_namespace_t cufoP_culibs_namespace;
 cuoo_type_t cufoP_tag_type;
@@ -35,10 +36,18 @@ cufo_tag(cufo_namespace_t ns, char const *name)
     return cuoo_hctem_new(cufo_tag, tem);
 }
 
+static cu_str_t
+_tag_to_str(cuex_t tag)
+{
+    return cu_str_new_fmt("<%s/>", cufo_tag_name(tag));
+}
+
 static cu_box_t
 _tag_dispatch(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
+	case CUOO_INTF_TO_STR_FN:
+	    return CUOO_INTF_TO_STR_FN_BOX(_tag_to_str);
 	default:
 	    return CUOO_IMPL_NONE;
     }

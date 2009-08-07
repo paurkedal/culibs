@@ -37,6 +37,13 @@ _print_str(cufo_stream_t fos, cufo_prispec_t spec, void *p)
 }
 
 static void
+_print_bool(cufo_stream_t fos, cufo_prispec_t spec, cu_va_ref_t va_ref)
+{
+    cu_bool_t x = cu_va_ref_arg(va_ref, cu_bool_t);
+    cufo_puts(fos, x? "true" : "false");
+}
+
+static void
 _print_script(cufo_stream_t fos, cufo_prispec_t spec, long x, cufo_tag_t tag,
 	      char const **digits, char const *minus)
 {
@@ -181,6 +188,7 @@ cufoP_init_formats()
     cufo_register_ptr_format("wstring/r", _wstring_foprint);
     cufo_register_ptr_format("str", _print_str);
     cufo_register_ptr_format("str/r", _str_foprint);
+    cufo_register_va_format("bool", _print_bool);
     cufo_register_va_format("d/sub", _print_d_sub);
     cufo_register_va_format("d/sup", _print_d_sup);
     cufo_register_va_format("ld/sub", _print_ld_sub);
