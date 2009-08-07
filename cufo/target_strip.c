@@ -44,7 +44,7 @@ ts_write(cufo_stream_t fos, void const *wr_buf, size_t wr_size)
 }
 
 static cu_bool_t
-ts_enter(cufo_stream_t fos, cufo_tag_t tag, va_list va)
+ts_enter(cufo_stream_t fos, cufo_tag_t tag, cufo_attrbind_t attrbinds)
 {
     return cu_false;
 }

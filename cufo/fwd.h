@@ -31,6 +31,7 @@ typedef struct cufo_stream_s *cufo_stream_t;
 typedef struct cufo_tag_s *cufo_tag_t;
 typedef struct cufo_namespace_s *cufo_namespace_t;
 typedef struct cufo_attr_s *cufo_attr_t;
+typedef struct cufo_attrbind_s *cufo_attrbind_t;
 
 typedef struct cufo_termface_s *cufo_termface_t;
 typedef struct cufo_termstyle_s *cufo_termstyle_t;

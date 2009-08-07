@@ -334,7 +334,7 @@ tx_styler_insert(cufo_textstream_t tos, cu_wstring_t s)
 }
 
 static cu_bool_t
-tx_enter(cufo_stream_t fos, cufo_tag_t tag, va_list va)
+tx_enter(cufo_stream_t fos, cufo_tag_t tag, cufo_attrbind_t attrbinds)
 {
     cucon_hzmap_node_t styler_node;
     cufo_textstream_t tos = TX_STREAM(fos);
@@ -345,13 +345,13 @@ tx_enter(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 	cufo_textstyler_t styler;
 	cu_wstring_t s;
 	styler = cu_from(cufo_textstyler, cucon_hzmap_node, styler_node);
-	s = (*styler->enter)(tos, tag, va);
+	s = (*styler->enter)(tos, tag, attrbinds);
 	if (s)
 	    tx_styler_insert(tos, s);
 	return cu_true;
     }
     else if (tos->style->default_enter) {
-	cu_wstring_t s = (*tos->style->default_enter)(tos, tag, va);
+	cu_wstring_t s = (*tos->style->default_enter)(tos, tag, attrbinds);
 	if (s) {
 	    tx_styler_insert(tos, s);
 	    return cu_true;

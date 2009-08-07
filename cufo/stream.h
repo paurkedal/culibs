@@ -59,7 +59,7 @@ typedef void (*cufo_print_ptr_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 struct cufo_target_s
 {
     size_t (*write)(cufo_stream_t fos, void const *data, size_t size);
-    cu_bool_t (*enter)(cufo_stream_t fos, cufo_tag_t tag, va_list va);
+    cu_bool_t (*enter)(cufo_stream_t fos, cufo_tag_t tag, cufo_attrbind_t);
     void (*leave)(cufo_stream_t fos, cufo_tag_t);
     void *(*close)(cufo_stream_t fos);
     void (*flush)(cufo_stream_t fos);

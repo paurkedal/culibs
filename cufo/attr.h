@@ -19,8 +19,9 @@
 #define CUFO_ATTR_H
 
 #include <cufo/fwd.h>
-#include <cu/idr.h>
 #include <cucon/fwd.h>
+#include <cu/idr.h>
+#include <cu/box.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cufo_attr_h cufo/attr.h: Markup Attributes
@@ -61,12 +62,20 @@ CU_SINLINE cufo_attrtype_t
 cufo_attr_type(cufo_attr_t attr)
 { return attr->type; }
 
-CU_SINLINE int		cufoP_cktype_int(int i) { return i; }
-CU_SINLINE char const *	cufoP_cktype_cstr(char const *s) { return s; }
+CU_SINLINE cu_box_t cufoP_cktype_int(int i)
+{ return cu_box_int(i); }
+CU_SINLINE cu_box_t cufoP_cktype_cstr(char const *s)
+{ return cu_box_ptr(char *, (char *)s); }
 
 #define CUFO_ATTR_INT(attr, i)	attr, cufoP_cktype_int(i)
 #define CUFO_ATTR_CSTR(attr, s)	attr, cufoP_cktype_cstr(s)
 #define CUFO_ATTR_ENUM(attr, i)	attr, cufoP_cktype_int(i)
+
+struct cufo_attrbind_s
+{
+    cufo_attr_t attr;
+    cu_box_t value;
+};
 
 /*!@}*/
 CU_END_DECLARATIONS

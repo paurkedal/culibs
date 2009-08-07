@@ -17,6 +17,8 @@
 
 #include <cufo/stream.h>
 #include <cufo/tag.h>
+#include <cufo/attr.h>
+#include <cucon/arr.h>
 #include <cu/wstring.h>
 #include <cu/str.h>
 #include <cu/sref.h>
@@ -377,13 +379,26 @@ cufo_space(cufo_stream_t fos)
 cu_bool_t
 cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 {
+    struct cucon_arr_s arr;
+    cufo_attrbind_t attrbinds;
 #ifdef CUCONF_DEBUG_CLIENT
     cufoP_tag_stack_t tag_stack = cu_gnew(struct cufoP_tag_stack_s);
     tag_stack->next = fos->tag_stack;
     tag_stack->tag = tag;
     fos->tag_stack = tag_stack;
 #endif
-    return (*fos->target->enter)(fos, tag, va);
+    cucon_arr_init_empty(&arr);
+    for (;;) {
+	cufo_attr_t attr = va_arg(va, cufo_attr_t);
+	cufo_attrbind_t bind;
+	bind = cucon_arr_extend_gp(&arr, sizeof(struct cufo_attrbind_s));
+	bind->attr = attr;
+	if (attr == NULL)
+	    break;
+	bind->value = va_arg(va, cu_box_t);
+    }
+    attrbinds = cucon_arr_detach(&arr);
+    return (*fos->target->enter)(fos, tag, attrbinds);
 }
 
 cu_bool_t
@@ -391,14 +406,8 @@ cufoP_entera(cufo_stream_t fos, cufo_tag_t tag, ...)
 {
     cu_bool_t capable;
     va_list va;
-#ifdef CUCONF_DEBUG_CLIENT
-    cufoP_tag_stack_t tag_stack = cu_gnew(struct cufoP_tag_stack_s);
-    tag_stack->next = fos->tag_stack;
-    tag_stack->tag = tag;
-    fos->tag_stack = tag_stack;
-#endif
     va_start(va, tag);
-    capable = (*fos->target->enter)(fos, tag, va);
+    capable = cufo_entera_va(fos, tag, va);
     va_end(va);
     return capable;
 }
@@ -432,7 +441,7 @@ cufo_empty(cufo_stream_t fos, cufo_tag_t tag, ...)
 {
     va_list va;
     va_start(va, tag);
-    (*fos->target->enter)(fos, tag, va);
+    cufo_entera_va(fos, tag, va);
     (*fos->target->leave)(fos, tag);
     va_end(va);
 }

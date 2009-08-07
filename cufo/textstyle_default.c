@@ -31,7 +31,7 @@ cu_clop_def(_stream_init, void, cufo_textstream_t tos)
 }
 
 static cu_wstring_t
-_indent_enter(cufo_textstream_t tos, cufo_tag_t tag, va_list attrs)
+_indent_enter(cufo_textstream_t tos, cufo_tag_t tag, cufo_attrbind_t attrbinds)
 {
     tos->left_margin += 4;
     return NULL;
@@ -45,7 +45,7 @@ _indent_leave(cufo_textstream_t tos, cufo_tag_t tag)
 }
 
 static cu_wstring_t
-_codepre_enter(cufo_textstream_t tos, cufo_tag_t tag, va_list attrs)
+_codepre_enter(cufo_textstream_t tos, cufo_tag_t tag, cufo_attrbind_t attrbinds)
 {
     tos->cont_eol_insert = CU_WSTRING_C(" \\");
     tos->cont_indent = 8;

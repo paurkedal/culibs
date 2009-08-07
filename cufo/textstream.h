@@ -63,7 +63,8 @@ struct cufo_textstyler_s
     cu_word_t tag;
 
     /* Value */
-    cu_wstring_t (*enter)(cufo_textstream_t tos, cufo_tag_t tag, va_list attrs);
+    cu_wstring_t (*enter)(cufo_textstream_t tos, cufo_tag_t tag,
+			  cufo_attrbind_t attrbinds);
     cu_wstring_t (*leave)(cufo_textstream_t tos, cufo_tag_t tag);
 };
 
@@ -74,7 +75,7 @@ struct cufo_textstyle_s
     cu_clop(stream_init, void, cufo_textstream_t tos);
     struct cucon_hzmap_s tag_to_styler;
     cu_wstring_t (*default_enter)(cufo_textstream_t tos, cufo_tag_t tag,
-				  va_list attrs);
+				  cufo_attrbind_t attrbinds);
     cu_wstring_t (*default_leave)(cufo_textstream_t tos, cufo_tag_t tag);
 };
 

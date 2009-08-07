@@ -92,7 +92,7 @@ xd_raw_write(cufo_stream_t os, char const *buf, size_t len)
 }
 
 static cu_bool_t
-xd_enter(cufo_stream_t os, cufo_tag_t tag, va_list va)
+xd_enter(cufo_stream_t os, cufo_tag_t tag, cufo_attrbind_t attrbinds)
 {
     char const *name;
     size_t name_len;
@@ -107,7 +107,7 @@ xd_enter(cufo_stream_t os, cufo_tag_t tag, va_list va)
     cu_buffer_write(&buf, "<", 1);
     cu_buffer_write(&buf, name, name_len);
 
-    while ((attr = va_arg(va, cufo_attr_t))) {
+    while ((attr = attrbinds->attr)) {
 	name = cufo_attr_name(attr);
 	name_len = strlen(name);
 	cu_buffer_write(&buf, " ", 1);
@@ -125,20 +125,20 @@ xd_enter(cufo_stream_t os, cufo_tag_t tag, va_list va)
 		break;
 	    case cufo_attrtype_cstr:
 		/* TODO: Escape string. */
-		cs = va_arg(va, char const *);
+		cs = cu_unbox_ptr(char const *, attrbinds->value);
 		cu_buffer_write(&buf, "\"", 1);
 		cu_buffer_write(&buf, cs, strlen(cs));
 		cu_buffer_write(&buf, "\"", 1);
 		break;
 	    case cufo_attrtype_int:
-		i = va_arg(va, int);
+		i = cu_unbox_int(attrbinds->value);
 		cu_buffer_extend_freecap(&buf, sizeof(int)*3 + 3);
 		s = cu_buffer_content_end(&buf);
 		sprintf(s, "\"%d\"%n", i, &n);
 		cu_buffer_incr_content_end(&buf, n);
 		break;
 	    case cufo_attrtype_enum:
-		i = va_arg(va, int);
+		i = cu_unbox_int(attrbinds->value);
 		cs = (*attr->extra.enum_name)(i);
 		cu_buffer_write(&buf, "\"", 1);
 		cu_buffer_write(&buf, cs, strlen(cs));
@@ -147,6 +147,7 @@ xd_enter(cufo_stream_t os, cufo_tag_t tag, va_list va)
 	    default:
 		cu_bug_unfinished();
 	}
+	++attrbinds;
     }
     cu_buffer_write(&buf, ">", 1);
     xd_raw_write(os, cu_buffer_content_start(&buf),
