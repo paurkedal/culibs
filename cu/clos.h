@@ -133,8 +133,10 @@ typedef void (**cu_clop_generic_t)();
     static res_t fn cuP_jargl(cuPP_argl_,(__VA_ARGS__),cu_clos_self_t cuL_self)
 #define cu_clom_fun0(fn, res_t) \
     static res_t fn cuP_jargl(cuPP_argl0_, (), cu_clos_self_t cuL_self)
-#define cu_clom_decl(f, res_t, ...) res_t (*f)(__VA_ARGS__, cu_clos_self_t)
-#define cu_clom_decl0(f, res_t) res_t (*f)(cu_clos_self_t)
+#define cu_clom_decl(f, res_t, ...) \
+    res_t (*f)cuP_jargl(cuPP_argl_, (__VA_ARGS__), cu_clos_self_t)
+#define cu_clom_decl0(f, res_t) \
+    res_t (*f)cuP_jargl(cuPP_argl0_, (), cu_clos_self_t)
 #define cu_clom_self(name, field) \
     struct name##_s *self = cu_ptr_context(struct name##_s, field, cuL_self)
 #define cu_clom_init(obj, field, fn) ((obj)->field = (fn))
