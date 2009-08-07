@@ -35,25 +35,25 @@ struct cucon_parr_s
     struct cucon_arr_s arr;
 };
 
-/*!\copydoc cucon_arr_init_empty */
+/** Initialises \a arr to as empty array. */
 CU_SINLINE void
 cucon_parr_init_empty(cucon_parr_t arr)
-{ cucon_arr_init_empty(&arr->arr); }
+{ cucon_arr_init(&arr->arr, cu_false, 0); }
 
-/*!\copydoc cucon_arr_new_empty */
+/** Returns an empty array. */
 CU_SINLINE cucon_parr_t
 cucon_parr_new_empty(void)
-{ return (cucon_parr_t)cucon_arr_new_empty(); }
+{ return (cucon_parr_t)cucon_arr_new(cu_false, 0); }
 
-/*!\copydoc cucon_arr_init_size */
+/** Initialises \a arr to an array of \a size uninitialised pointers. */
 CU_SINLINE void
 cucon_parr_init_size(cucon_parr_t arr, size_t size)
-{ cucon_arr_init_size(&arr->arr, size*sizeof(void *)); }
+{ cucon_arr_init(&arr->arr, cu_false, size*sizeof(void *)); }
 
-/*!\copydoc cucon_arr_new_size */
+/** Returns an array of \a size uninitialised pointers. */
 CU_SINLINE cucon_parr_t
 cucon_parr_new_size(size_t size)
-{ return (cucon_parr_t)cucon_arr_new_size(size*sizeof(void *)); }
+{ return (cucon_parr_t)cucon_arr_new(cu_false, size*sizeof(void *)); }
 
 /*!Construct a \a arr as an array of \a size elements all equal to \a ptr. */
 void cucon_parr_init_fill(cucon_parr_t arr, size_t size, void *ptr);

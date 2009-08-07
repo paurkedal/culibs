@@ -37,16 +37,30 @@ struct cucon_arr_s
     char *carr;
 };
 
-/** Construct an empty array. */
+/** Construct an array of initially \a size bytes.  If true is passed for \a
+ ** is_atomic, then atomic allocation will be used for the array data.  */
+void cucon_arr_init(cucon_arr_t arr, cu_bool_t is_atomic, size_t size);
+
+/** Returns an array of initially \a size bytes.  If true is passed for \a
+ ** is_atomic, then atomic allocation will be used for the array data. */
+cucon_arr_t cucon_arr_new(cu_bool_t is_atomic, size_t size);
+
+/** \deprecated
+ ** This function has been replaced by \ref cucon_arr_init to enforce
+ ** specification of atomicity of the array data.  It will be removed in a
+ ** future version. */
 void cucon_arr_init_empty(cucon_arr_t arr);
 
-/** Return a new empty array. */
+/** \deprecated
+ ** This function has been replaced by \ref cucon_arr_new to enforce
+ ** specification of atomicity of the array data.  It will be removed in a
+ ** future version. */
 cucon_arr_t cucon_arr_new_empty(void);
 
-/** Construct an array with \a size initial elements. */
+/** \copydoc cucon_arr_init_empty */
 void cucon_arr_init_size(cucon_arr_t arr, size_t size);
 
-/** Return a new array with \a size initial elements. */
+/** \copydoc cucon_arr_new_empty */
 cucon_arr_t cucon_arr_new_size(size_t size);
 
 /** Swap the values of \a arr0 and \a arr1. */

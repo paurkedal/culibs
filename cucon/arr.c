@@ -20,6 +20,36 @@
 #include <cu/util.h>
 #include <string.h>
 
+#define ATOMIC_BIT ((size_t)1 << (sizeof(size_t)*8 - 1))
+
+CU_SINLINE size_t
+_arr_cap(cucon_arr_t arr)
+{
+    return arr->cap & ~ATOMIC_BIT;
+}
+
+void
+cucon_arr_init(cucon_arr_t arr, cu_bool_t is_atomic, size_t init_size)
+{
+    arr->size = init_size;
+    if (is_atomic) {
+	arr->cap = init_size | ATOMIC_BIT;
+	arr->carr = init_size? cu_galloc_a(init_size) : NULL;
+    }
+    else {
+	arr->cap = init_size;
+	arr->carr = init_size? cu_galloc(init_size) : NULL;
+    }
+}
+
+cucon_arr_t
+cucon_arr_new(cu_bool_t is_atomic, size_t init_size)
+{
+    cucon_arr_t arr = cu_gnew(struct cucon_arr_s);
+    cucon_arr_init(arr, is_atomic, init_size);
+    return arr;
+}
+
 void
 cucon_arr_init_empty(cucon_arr_t arr)
 {
@@ -64,51 +94,56 @@ void *
 cucon_arr_detach(cucon_arr_t arr)
 {
     void *carr;
-    if (arr->cap != arr->size)
+    if (_arr_cap(arr) != arr->size)
 	cucon_arr_resize_exact(arr, arr->size);
     carr = arr->carr;
     CU_GWIPE(arr->carr);
     return carr;
 }
 
+static void
+_arr_realloc(cucon_arr_t arr, size_t new_cap)
+{
+    char *old_carr = arr->carr;
+    if (arr->cap & ATOMIC_BIT) {
+	arr->cap = new_cap | ATOMIC_BIT;
+	arr->carr = cu_galloc_a(new_cap);
+    }
+    else {
+	arr->cap = new_cap;
+	arr->carr = cu_galloc(new_cap);
+    }
+    memcpy(arr->carr, old_carr, arr->size);
+}
+
 void
 cucon_arr_resize_gp(cucon_arr_t arr, size_t size)
 {
-    size_t old_cap = arr->cap;
+    size_t old_cap = _arr_cap(arr);
     if (size > old_cap) {
-	char *old_carr = arr->carr;
 	size_t new_cap;
 	if (size < old_cap*2)
 	    new_cap = old_cap*2;
 	else
 	    new_cap = size;
-	arr->cap = new_cap;
-	arr->carr = cu_galloc(new_cap);
-	memcpy(arr->carr, old_carr, arr->size);
+	_arr_realloc(arr, new_cap);
     }
-    else if (size*2 < old_cap) {
-	char *old_carr = arr->carr;
-	arr->cap = size;
-	arr->carr = cu_galloc(size);
-	memcpy(arr->carr, old_carr, arr->size);
-    }
+    else if (size*2 < old_cap)
+	_arr_realloc(arr, size);
     arr->size = size;
 }
 
 void
 cucon_arr_resize_gpmax(cucon_arr_t arr, size_t size)
 {
-    size_t old_cap = arr->cap;
+    size_t old_cap = _arr_cap(arr);
     if (size > old_cap) {
-	char *old_carr = arr->carr;
 	size_t new_cap;
 	if (size < old_cap*2)
 	    new_cap = old_cap*2;
 	else
 	    new_cap = size;
-	arr->cap = new_cap;
-	arr->carr = cu_galloc(new_cap);
-	memcpy(arr->carr, old_carr, arr->size);
+	_arr_realloc(arr, new_cap);
     }
     arr->size = size;
 }
@@ -116,25 +151,17 @@ cucon_arr_resize_gpmax(cucon_arr_t arr, size_t size)
 void
 cucon_arr_resize_exact(cucon_arr_t arr, size_t size)
 {
-    size_t old_cap = arr->cap;
-    if (size != old_cap) {
-	char *old_carr = arr->carr;
-	arr->cap = size;
-	arr->carr = cu_galloc(size);
-	memcpy(arr->carr, old_carr, arr->size);
-    }
+    size_t old_cap = _arr_cap(arr);
+    if (size != old_cap)
+	_arr_realloc(arr, size);
     arr->size = size;
 }
 
 void
 cucon_arr_resize_exactmax(cucon_arr_t arr, size_t size)
 {
-    size_t old_cap = arr->cap;
-    if (size > old_cap) {
-	char *old_carr = arr->carr;
-	arr->cap = size;
-	arr->carr = cu_galloc(size);
-	memcpy(arr->carr, old_carr, arr->size);
-    }
+    size_t old_cap = _arr_cap(arr);
+    if (size > old_cap)
+	_arr_realloc(arr, size);
     arr->size = size;
 }
