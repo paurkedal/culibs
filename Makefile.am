@@ -252,6 +252,9 @@ MANIFEST: Makefile
 list-unpacked: MANIFEST
 	@$(srcdir)/tools/list-unpacked.pl
 
+cu/conf_ac.h: config.status
+	./config.status $@
+
 # Documentation
 # =============
 
