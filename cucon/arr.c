@@ -60,6 +60,17 @@ cucon_arr_swap(cucon_arr_t arr0, cucon_arr_t arr1)
     CU_SWAP(char *, arr0->carr, arr1->carr);
 }
 
+void *
+cucon_arr_detach(cucon_arr_t arr)
+{
+    void *carr;
+    if (arr->cap != arr->size)
+	cucon_arr_resize_exact(arr, arr->size);
+    carr = arr->carr;
+    CU_GWIPE(arr->carr);
+    return carr;
+}
+
 void
 cucon_arr_resize_gp(cucon_arr_t arr, size_t size)
 {
