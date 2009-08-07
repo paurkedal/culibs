@@ -265,9 +265,6 @@ void cucon_rbtree_dump_as_graphviz(cucon_rbtree_t tree,
 				   FILE *out);
 
 /*!@}*/
-
-#define cucon_rbtree_cct	cucon_rbtree_init
-
 CU_END_DECLARATIONS
 
 #endif

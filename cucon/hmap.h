@@ -102,9 +102,6 @@ struct cucon_hmap_itr_s
 };
 #endif
 
-/*!\deprecated Use \ref cucon_hmap_init. */
-#define cucon_hmap_cct cucon_hmap_init
-
 /*!@}*/
 CU_END_DECLARATIONS
 #endif

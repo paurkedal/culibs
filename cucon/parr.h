@@ -148,9 +148,6 @@ cucon_parr_end(cucon_parr_t arr)
 { return (void **)cucon_arr_end(&arr->arr); }
 
 /*!@}*/
-#define cucon_parr_cct_empty	cucon_parr_init_empty
-#define cucon_parr_cct_size	cucon_parr_init_size
-#define cucon_parr_cct_fill	cucon_parr_init_fill
 CU_END_DECLARATIONS
 
 #endif

@@ -114,10 +114,6 @@ cucon_rbset_rev_conj(cucon_rbset_t set, cu_clop(cb, cu_bool_t, void *))
 { return cucon_rbtree_rev_conj_ptr(cu_to(cucon_rbtree, set), cb); }
 
 /*!@}*/
-
-#define cucon_rbset_cct		cucon_rbset_init
-#define cucon_rbset_cct_str_cmp	cucon_rbset_init_str_cmp
-
 CU_END_DECLARATIONS
 
 #endif

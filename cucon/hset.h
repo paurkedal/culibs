@@ -93,9 +93,6 @@ cu_bool_t cucon_hset_eq(cucon_hset_t hs0, cucon_hset_t hs1);	/* = */
 cu_bool_t cucon_hset_sub(cucon_hset_t hs0, cucon_hset_t hs1);	/* ⊂ */
 cu_bool_t cucon_hset_subeq(cucon_hset_t hs0, cucon_hset_t hs1);	/* ⊆ */
 
-/*!\deprecated Use cucon_hset_init */
-#define cucon_hset_cct cucon_hset_init
-
 /*!@}*/
 CU_END_DECLARATIONS
 #endif

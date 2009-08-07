@@ -171,9 +171,6 @@ cucon_rumap_conj(cucon_rumap_t rmap,
 			       (cu_clop(, cu_bool_t, uintptr_t, void *))fn);
 }
 
-/*!\deprecated Use cucon_rumap_init. */
-#define cucon_rumap_cct cucon_rumap_init
-
 /*!@}*/
 CU_END_DECLARATIONS
 

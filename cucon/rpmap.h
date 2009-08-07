@@ -59,9 +59,6 @@ cucon_rpmap_conj(cucon_rpmap_t rpmap,
 			       (cu_clop(, cu_bool_t, uintptr_t, void *))fn);
 }
 
-/*!\deprecated Use cucon_rpmap_init. */
-#define cucon_rpmap_cct cucon_rpmap_init
-
 /*!@}*/
 CU_END_DECLARATIONS
 

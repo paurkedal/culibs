@@ -87,5 +87,4 @@ cucon_queue_pop_mem(cucon_queue_t q, size_t size)
 	((void)(*(void **)cucon_queue_push_mem(q, sizeof(void *)) = (ptr)))
 
 CU_END_DECLARATIONS
-#define cucon_queue_cct cucon_queue_init
 #endif

@@ -73,11 +73,6 @@ void cucon_priq_dump(cucon_priq_t q,
 		     cu_clop(print_key_fn, void, void *key, FILE *out),
 		     FILE *out);
 
-/*!\deprecated Use \ref cucon_priq_init. */
-#define cucon_priq_cct		cucon_priq_init
-/*!\deprecated Use \ref cucon_priq_init_copy. */
-#define cucon_priq_cct_copy	cucon_priq_init_copy
-
 /*!@}*/
 CU_END_DECLARATIONS
 

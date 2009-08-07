@@ -249,11 +249,6 @@ CU_SINLINE void *cucon_stack_it_get(cucon_stack_it_t it) { return it.sp; }
 /*!\deprecated Use \ref cucon_stack_itr_s. */
 #define CUCON_STACK_IT_GET(it, elt_t) (*(elt_t*)cucon_stack_it_get(it))
 
-/*!\deprecated Use \ref cucon_stack_init. */
-#define cucon_stack_cct		cucon_stack_init
-/*!\deprecated Use \ref cucon_stack_init_copy. */
-#define cucon_stack_cct_copy	cucon_stack_init_copy
-
 /*!@}*/
 CU_END_DECLARATIONS
 

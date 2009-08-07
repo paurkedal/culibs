@@ -78,8 +78,5 @@ cu_bool_t cucon_rbmap_conj_ptr(cucon_rbmap_t map,
 			       cu_clop(cb, cu_bool_t, void *key, void *val));
 
 CU_END_DECLARATIONS
-
-#define cucon_rbmap_cct		cucon_rbmap_init
-
 /*!@}*/
 #endif

@@ -91,11 +91,6 @@ cu_bool_t cucon_prinode_conj_down_to(cucon_prinode_t prinode,
 /*!Debug dump. */
 void cucon_pritree_dump_priorities(cucon_pritree_t pritree, FILE *out);
 
-/*!\deprecated */
-#define cucon_pritree_cct		cucon_pritree_init
-/*!\deprecated */
-#define cucon_pritree_insert_cct	cucon_pritree_insert_init
-
 /*!@}*/
 CU_END_DECLARATIONS
 

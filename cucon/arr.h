@@ -133,8 +133,6 @@ CU_SINLINE void *cucon_arr_end(cucon_arr_t arr)
 { return arr->carr + arr->size; }
 
 /** @} */
-#define cucon_arr_cct_empty	cucon_arr_init_empty
-#define cucon_arr_cct_size	cucon_arr_init_size
 CU_END_DECLARATIONS
 
 #endif

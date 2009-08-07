@@ -83,13 +83,6 @@ size_t cucon_bitvect_find(cucon_bitvect_t bv, size_t start, cu_bool_t value);
 size_t cucon_bitvect_find2(cucon_bitvect_t bv0, cucon_bitvect_t bv1,
 			   size_t start, cu_bool_t val0, cu_bool_t val1);
 
-/*!\deprecated Use \ref cucon_bitvect_init_uninit. */
-#define cucon_bitvect_cct_uninit	cucon_bitvect_init_uninit
-/*!\deprecated Use \ref cucon_bitvect_init_fill. */
-#define cucon_bitvect_cct_fill		cucon_bitvect_init_fill
-/*!\deprecated Use \ref cucon_bitvect_init_copy. */
-#define cucon_bitvect_cct_copy		cucon_bitvect_init_copy
-
 /*!@}*/
 CU_END_DECLARATIONS
 
