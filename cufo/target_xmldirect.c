@@ -99,7 +99,7 @@ xd_enter(cufo_stream_t os, cufo_tag_t tag, cufo_attrbind_t attrbinds)
     cufo_attr_t attr;
     struct cu_buffer_s buf;
 
-    cufoP_flush(os, cu_true);
+    cufoP_flush(os, CUFOP_FLUSH_MUST_CLEAR);
 
     name = cufo_tag_name(tag);
     name_len = strlen(name);
@@ -162,7 +162,7 @@ xd_leave(cufo_stream_t os, cufo_tag_t tag)
     size_t name_len;
     char *buf;
 
-    cufoP_flush(os, cu_true);
+    cufoP_flush(os, CUFOP_FLUSH_MUST_CLEAR);
 
     name = cufo_tag_name(tag);
     name_len = strlen(name);

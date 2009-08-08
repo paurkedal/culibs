@@ -29,8 +29,11 @@
 
 CU_BEGIN_DECLARATIONS
 
+#define CUFOP_FLUSH_MUST_CLEAR 1
+#define CUFOP_FLUSH_PROPAGATE 2
+
 void cufoP_set_wide(cufo_stream_t fos, cu_bool_t be_wide);
-void cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear);
+void cufoP_flush(cufo_stream_t fos, unsigned int flags);
 void *cufoP_stream_produce(cufo_stream_t fos, size_t len);
 
 /*!\defgroup cufo_stream_h cufo/stream.h: Formatted Ouput Streams
@@ -143,7 +146,8 @@ void *cufo_close(cufo_stream_t fos);
 
 void cufo_close_discard(cufo_stream_t fos);
 
-CU_SINLINE void cufo_flush(cufo_stream_t fos) { cufoP_flush(fos, cu_false); }
+CU_SINLINE void cufo_flush(cufo_stream_t fos)
+{ cufoP_flush(fos, CUFOP_FLUSH_PROPAGATE); }
 
 CU_SINLINE void
 cufo_set_wide(cufo_stream_t fos, cu_bool_t be_wide)

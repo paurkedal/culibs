@@ -114,7 +114,7 @@ cufo_stream_drop_clientstate(cufo_stream_t fos, void const *key)
 void *
 cufoP_stream_produce(cufo_stream_t fos, size_t len)
 {
-    cufoP_flush(fos, cu_false);
+    cufoP_flush(fos, 0);
     return cu_buffer_produce(cu_to(cu_buffer, fos), len);
 }
 
@@ -127,7 +127,8 @@ cufo_close(cufo_stream_t fos)
 	cu_bugf("Missing closing tag %s at end of stream.",
 		fos->tag_stack->tag);
 #endif
-    cufoP_flush(fos, cu_true);
+    /* Clear our own buffer before the sink stack emits any end-matter. */
+    cufoP_flush(fos, CUFOP_FLUSH_MUST_CLEAR);
     for (i = 0; i < 2; ++i)
 	if (fos->convinfo[i].cd)
 	    iconv_close(fos->convinfo[i].cd);
@@ -157,7 +158,7 @@ cufo_stream_lastchar(cufo_stream_t fos)
 }
 
 void
-cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
+cufoP_flush(cufo_stream_t fos, unsigned int flags)
 {
     char *src_buf;
     size_t src_size;
@@ -171,7 +172,8 @@ cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
     }
     src_size = cu_buffer_content_size(BUFFER(fos));
     if (src_size == 0) {
-	(*fos->target->flush)(fos);
+	if (flags & CUFOP_FLUSH_PROPAGATE)
+	    (*fos->target->flush)(fos);
 	return;
     }
 
@@ -228,16 +230,17 @@ cufoP_flush(cufo_stream_t fos, cu_bool_t must_clear)
 
     if (cu_buffer_content_size(BUFFER(fos)) == 0)
 	cu_buffer_clear(BUFFER(fos)); /* Good place to realign content. */
-    else if (must_clear && !cufo_have_error(fos))
+    else if ((flags & CUFOP_FLUSH_MUST_CLEAR) && !cufo_have_error(fos))
 	cu_bugf("Buffer should have been cleared.");
-    (*fos->target->flush)(fos);
+    if (flags & CUFOP_FLUSH_PROPAGATE)
+	(*fos->target->flush)(fos);
 }
 
 void
 cufoP_set_wide(cufo_stream_t fos, cu_bool_t is_wide)
 {
     if (cu_buffer_content_size(BUFFER(fos)) > 0) {
-	cufoP_flush(fos, cu_true);
+	cufoP_flush(fos, CUFOP_FLUSH_MUST_CLEAR);
 	if (cu_buffer_content_size(BUFFER(fos)) == 0)
 	    cu_buffer_clear(BUFFER(fos)); /* Good place to realign content. */
 	else
