@@ -62,10 +62,10 @@ typedef union {
 
 #  ifndef CU_IN_DOXYGEN
 CU_SINLINE cu_box_t
-cuP_box_ptr(void *p)
+cuP_box_ptr(void const *p)
 {
     cu_box_t box;
-    box.as_ptr = p;
+    box.as_ptr = (void *)p;
     return box;
 }
 CU_SINLINE cu_box_t
