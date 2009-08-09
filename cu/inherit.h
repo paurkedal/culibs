@@ -34,7 +34,8 @@
 #  endif
 #endif
 
-#define cu_inherit(base_s)		struct base_s _base_##base_s
+#define CU_BASE_FIELD(base_s)		_base_##base_s
+#define cu_inherit(base_s)		struct base_s CU_BASE_FIELD(base_s)
 #define cu_inherit_virtual(base_s)	struct base_s *_vbase_##base_s
 #define cu_set_virtual(base_s, ptr, vbase) \
 	((void)((ptr)->_vbase_##base_s = vbase))
@@ -50,14 +51,14 @@
 #define cu_from(s1, s0, o)						\
     ((struct s1##_s *)((char *)CU_MARG(struct s0##_s *, o)		\
 		       - offsetof(struct s1##_s, _base_##s0##_s)))
-#define cu_from2(s2, s1, s0, o)					\
+#define cu_from2(s2, s1, s0, o)						\
     cu_from(s2, s1, cu_from(s1, s0, o))
 #define cu_from3(s3, s2, s1, s0, o)					\
     cu_from(s3, s2, cu_from2(s2, s1, s0, o))
-#define cu_from4(s4, s3, s2, s1, s0, o)				\
+#define cu_from4(s4, s3, s2, s1, s0, o)					\
     cu_from(s4, s3, cu_from3(s3, s2, s1, s0, o))
 
-#define cu_upcast(base_s, o) (&(o)->_base_##base_s)
+#define cu_upcast(base_s, o) (&(o)->CU_BASE_FIELD(base_s))
 #define cu_upcast2(t0, t1, o) \
     cu_upcast(t0, cu_upcast(t1, (o)))
 #define cu_upcast3(t0, t1, t2, o) \
@@ -70,7 +71,7 @@
 
 #define cu_downcast(sub_s, base_s, o)					\
     ((struct sub_s *)((char*)CU_MARG(struct base_s *, o)		\
-		      - offsetof(struct sub_s, _base_##base_s)))
+		      - offsetof(struct sub_s, CU_BASE_FIELD(base_s))))
 #define cu_downcast2(s0, s1, s2, o) \
     cu_downcast(s0, s1, cu_downcast(s1, s2, (o)))
 #define cu_downcast3(s0, s1, s2, s3, o) \
