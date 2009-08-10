@@ -18,24 +18,24 @@
 #include <cufo/stream.h>
 #include <cufo/tag.h>
 #include <cufo/attr.h>
-#include <cu/dsink.h>
+#include <cufo/sink.h>
+#include <cutext/sink.h>
 #include <cu/memory.h>
 #include <cu/buffer.h>
 
-typedef struct xd_stream_s *xd_stream_t;
-struct xd_stream_s
+typedef struct _xmlsink_s *_xmlsink_t;
+struct _xmlsink_s
 {
-    cu_inherit (cufo_stream_s);
-    cu_dsink_t sink;
+    cu_inherit (cutext_sink_s);
+    cutext_sink_t subsink;
 };
 
-#define SX_STREAM(os) cu_from(xd_stream, cufo_stream, os)
-
 static size_t
-xd_write(cufo_stream_t os, void const *data, size_t size)
+_xmlsink_write(cutext_sink_t sink, void const *data, size_t size)
 {
+    _xmlsink_t xmlsink = cu_from(_xmlsink, cutext_sink, sink);
     size_t wz;
-    char const *s_frag_start = data;
+    char const *s_frag = data;
     char const *s_cur = data;
     char const *s_end = (char const *)data + size;
     while (s_cur < s_end) {
@@ -48,17 +48,17 @@ xd_write(cufo_stream_t os, void const *data, size_t size)
 	    default: repl = NULL; break;
 	}
 	if (repl) {
-	    size_t frag_size = s_cur - s_frag_start;
-	    wz = cu_dsink_write(SX_STREAM(os)->sink, s_frag_start, frag_size);
+	    size_t frag_size = s_cur - s_frag;
+	    wz = cutext_sink_write(xmlsink->subsink, s_frag, frag_size);
 	    if (wz != frag_size) {
 		if (wz == (size_t)-1)
 		    return (size_t)-1;
 		else
 		    cu_bugf("Sink should but did not consume all data.");
 	    }
-	    s_frag_start = ++s_cur;
+	    s_frag = ++s_cur;
 
-	    wz = cu_dsink_write(SX_STREAM(os)->sink, repl, repl_len);
+	    wz = cutext_sink_write(xmlsink->subsink, repl, repl_len);
 	    if (wz != repl_len) {
 		if (wz == (size_t)-1)
 		    return (size_t)-1;
@@ -69,9 +69,9 @@ xd_write(cufo_stream_t os, void const *data, size_t size)
 	else
 	    ++s_cur;
     }
-    if (s_frag_start < s_end) {
-	size_t frag_size = s_end - s_frag_start;
-	wz = cu_dsink_write(SX_STREAM(os)->sink, s_frag_start, frag_size);
+    if (s_frag < s_end) {
+	size_t frag_size = s_end - s_frag;
+	wz = cutext_sink_write(xmlsink->subsink, s_frag, frag_size);
 	if (wz == (size_t)-1)
 	    return (size_t)-1;
 	return size + wz - frag_size;
@@ -80,26 +80,27 @@ xd_write(cufo_stream_t os, void const *data, size_t size)
 	return size;
 }
 
-static void
-xd_raw_write(cufo_stream_t os, char const *buf, size_t len)
+static cu_bool_t
+_xmlsink_raw_write(_xmlsink_t xmlsink, char const *buf, size_t len)
 {
     size_t wz;
-    wz = cu_dsink_write(SX_STREAM(os)->sink, buf, len);
+    wz = cutext_sink_write(xmlsink->subsink, buf, len);
     if (wz == (size_t)-1)
-	cufo_flag_error(os);
+	return cu_false; /* FIXME: Find a way to report error. */
     else if (wz != len)
 	cu_bugf("Sink should but did not consume all raw data.");
+    else
+	return cu_true;
 }
 
 static cu_bool_t
-xd_enter(cufo_stream_t os, cufo_tag_t tag, cufo_attrbind_t attrbinds)
+_xmlsink_enter(cutext_sink_t sink, cufo_tag_t tag, cufo_attrbind_t attrbinds)
 {
+    _xmlsink_t xmlsink = cu_from(_xmlsink, cutext_sink, sink);
     char const *name;
     size_t name_len;
     cufo_attr_t attr;
     struct cu_buffer_s buf;
-
-    cufoP_flush(os, CUFOP_FLUSH_MUST_CLEAR);
 
     name = cufo_tag_name(tag);
     name_len = strlen(name);
@@ -150,19 +151,18 @@ xd_enter(cufo_stream_t os, cufo_tag_t tag, cufo_attrbind_t attrbinds)
 	++attrbinds;
     }
     cu_buffer_write(&buf, ">", 1);
-    xd_raw_write(os, cu_buffer_content_start(&buf),
-		 cu_buffer_content_size(&buf));
+    _xmlsink_raw_write(xmlsink, cu_buffer_content_start(&buf),
+		       cu_buffer_content_size(&buf));
     return cu_true;
 }
 
 static void
-xd_leave(cufo_stream_t os, cufo_tag_t tag)
+_xmlsink_leave(cutext_sink_t sink, cufo_tag_t tag)
 {
+    _xmlsink_t xmlsink = cu_from(_xmlsink, cutext_sink, sink);
     char const *name;
     size_t name_len;
     char *buf;
-
-    cufoP_flush(os, CUFOP_FLUSH_MUST_CLEAR);
 
     name = cufo_tag_name(tag);
     name_len = strlen(name);
@@ -171,31 +171,48 @@ xd_leave(cufo_stream_t os, cufo_tag_t tag)
     buf[1] = '/';
     memcpy(buf + 2, name, name_len);
     buf[name_len + 2] = '>';
-    xd_raw_write(os, buf, name_len + 3);
+    _xmlsink_raw_write(xmlsink, buf, name_len + 3);
 }
 
-static void *
-xd_close(cufo_stream_t os)
+static cu_bool_t
+_xmlsink_flush(cutext_sink_t sink)
 {
-    if (!cufo_have_error(os)) {
-	xd_raw_write(os, "</document>\n", 12);
-	cufo_flush(os);
-    }
-    return cu_dsink_finish(SX_STREAM(os)->sink);
+    _xmlsink_t xmlsink = cu_from(_xmlsink, cutext_sink, sink);
+    return cutext_sink_flush(xmlsink->subsink);
+}
+
+static cu_box_t
+_xmlsink_close(cutext_sink_t sink)
+{
+    _xmlsink_t xmlsink = cu_from(_xmlsink, cutext_sink, sink);
+    _xmlsink_raw_write(xmlsink, "</document>\n", 12);
+    return cutext_sink_finish(xmlsink->subsink);
 }
 
 static void
-xd_flush(cufo_stream_t os)
+_xmlsink_discard(cutext_sink_t sink)
 {
-    cu_dsink_flush(SX_STREAM(os)->sink);
+    _xmlsink_t xmlsink = cu_from(_xmlsink, cutext_sink, sink);
+    cutext_sink_discard(xmlsink->subsink);
 }
 
-static struct cufo_target_s xd_target = {
-    .write = xd_write,
-    .enter = xd_enter,
-    .leave = xd_leave,
-    .close = xd_close,
-    .flush = xd_flush,
+static cu_bool_t
+_xmlsink_iterA_subsinks(cutext_sink_t sink, cu_clop(f, cu_bool_t, cutext_sink_t))
+{
+    _xmlsink_t xmlsink = cu_from(_xmlsink, cutext_sink, sink);
+    return cu_call(f, xmlsink->subsink);
+}
+
+static struct cutext_sink_descriptor_s _xmlsink_descriptor = {
+    CU_DSINK_DESCRIPTOR_DEFAULTS,
+    .flags = CU_DSINK_FLAG_CUFO_EXT | CU_DSINK_FLAG_CLOGFREE,
+    .write = _xmlsink_write,
+    .flush = _xmlsink_flush,
+    .finish = _xmlsink_close,
+    .discard = _xmlsink_discard,
+    .iterA_subsinks = _xmlsink_iterA_subsinks,
+    .enter = _xmlsink_enter,
+    .leave = _xmlsink_leave,
 };
 
 static cu_bool_t
@@ -215,25 +232,28 @@ ascii_compat_encoding(char const *enc)
     }
 }
 
-cufo_stream_t
-cufo_open_xmldirect(char const *encoding, cu_dsink_t sink)
+cutext_sink_t
+cufo_sink_new_xml(cutext_sink_t subsink)
 {
-    xd_stream_t os = cu_gnew(struct xd_stream_s);
-    if (!encoding)
-	encoding = "UTF-8";
-    else if (!ascii_compat_encoding(encoding)) {
-	cu_bugf("Encoding %s not yet supported by the simple XML target.",
-		encoding);
-	/* sink = cu_dsink_new_iconv(sink, "UTF-8", encoding); */
-	encoding = "UTF-8";
-    }
-    if (cufo_stream_init(cu_to(cufo_stream, os), encoding, &xd_target)) {
-	os->sink = sink;
-	xd_raw_write(cu_to(cufo_stream, os),
-		     "<?xml version=\"1.0\" encoding=\"", 30);
-	xd_raw_write(cu_to(cufo_stream, os), encoding, strlen(encoding));
-	xd_raw_write(cu_to(cufo_stream, os), "\"?>\n<document>\n", 15);
-	return cu_to(cufo_stream, os);
-    } else
-	return NULL;
+    _xmlsink_t xmlsink = cu_gnew(struct _xmlsink_s);
+    char const *sub_encoding = cutext_sink_encoding(subsink);
+    if (!sub_encoding)
+	sub_encoding = "UTF-8";
+    else if (!ascii_compat_encoding(sub_encoding))
+	subsink = cutext_sink_stack_iconv("UTF-8", subsink);
+    if (!cutext_sink_is_clogfree(subsink))
+	subsink = cutext_sink_stack_buffer(subsink);
+    cutext_sink_init(cu_to(cutext_sink, xmlsink), &_xmlsink_descriptor);
+    xmlsink->subsink = subsink;
+    _xmlsink_raw_write(xmlsink, "<?xml version=\"1.0\" encoding=\"", 30);
+    _xmlsink_raw_write(xmlsink, sub_encoding, strlen(sub_encoding));
+    _xmlsink_raw_write(xmlsink, "\"?>\n<document>\n", 15);
+    return cu_to(cutext_sink, xmlsink);
+}
+
+cufo_stream_t
+cufo_open_xml(cutext_sink_t subsink)
+{
+    cutext_sink_t sink = cufo_sink_new_xml(subsink);
+    return cufo_open_sink(sink);
 }

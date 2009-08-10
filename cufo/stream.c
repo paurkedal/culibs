@@ -16,6 +16,7 @@
  */
 
 #include <cufo/stream.h>
+#include <cufo/sink.h>
 #include <cufo/tag.h>
 #include <cufo/attr.h>
 #include <cucon/arr.h>
@@ -44,7 +45,7 @@ struct cufoP_tag_stack_s
 
 
 cu_bool_t
-cufo_stream_init(cufo_stream_t fos, char const *encoding, cufo_target_t target)
+cufo_stream_init(cufo_stream_t fos, char const *encoding, cutext_sink_t target)
 {
     cu_buffer_init(BUFFER(fos), INIT_BUFFER_CAP);
     fos->target = target;
@@ -118,7 +119,7 @@ cufoP_stream_produce(cufo_stream_t fos, size_t len)
     return cu_buffer_produce(cu_to(cu_buffer, fos), len);
 }
 
-void *
+cu_box_t
 cufo_close(cufo_stream_t fos)
 {
     int i;
@@ -132,14 +133,15 @@ cufo_close(cufo_stream_t fos)
     for (i = 0; i < 2; ++i)
 	if (fos->convinfo[i].cd)
 	    iconv_close(fos->convinfo[i].cd);
-    return (*fos->target->close)(fos);
+    /* Buffered sinks are responsible for flushing on close. */
+    return cutext_sink_finish(fos->target);
 }
 
 void
 cufo_close_discard(cufo_stream_t fos)
 {
     cufo_flag_error(fos);
-    (*fos->target->close)(fos);
+    cutext_sink_discard(fos->target);
 }
 
 char
@@ -173,7 +175,7 @@ cufoP_flush(cufo_stream_t fos, unsigned int flags)
     src_size = cu_buffer_content_size(BUFFER(fos));
     if (src_size == 0) {
 	if (flags & CUFOP_FLUSH_PROPAGATE)
-	    (*fos->target->flush)(fos);
+	    cutext_sink_flush(fos->target);
 	return;
     }
 
@@ -184,7 +186,7 @@ cufoP_flush(cufo_stream_t fos, unsigned int flags)
     if (convinfo->cd == NULL) {
 	wr_buf = src_buf;
 	wr_size = src_size;
-	wr_size = (*fos->target->write)(fos, wr_buf, wr_size);
+	wr_size = cutext_sink_write(fos->target, wr_buf, wr_size);
 	if (wr_size == (size_t)-1) {
 	    cufo_flag_error(fos);
 	    cu_buffer_clear(BUFFER(fos));
@@ -217,7 +219,7 @@ cufoP_flush(cufo_stream_t fos, unsigned int flags)
 	}
 	wr_size -= wr_lim;
 	cu_buffer_set_content_start(BUFFER(fos), src_buf);
-	cz = (*fos->target->write)(fos, wr_buf, wr_size);
+	cz = cutext_sink_write(fos->target, wr_buf, wr_size);
 	if (cz == (size_t)-1) {
 	    cufo_flag_error(fos);
 	    cu_buffer_clear(BUFFER(fos));
@@ -233,7 +235,7 @@ cufoP_flush(cufo_stream_t fos, unsigned int flags)
     else if ((flags & CUFOP_FLUSH_MUST_CLEAR) && !cufo_have_error(fos))
 	cu_bugf("Buffer should have been cleared.");
     if (flags & CUFOP_FLUSH_PROPAGATE)
-	(*fos->target->flush)(fos);
+	cutext_sink_flush(fos->target);
 }
 
 void
@@ -401,7 +403,8 @@ cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 	bind->value = va_arg(va, cu_box_t);
     }
     attrbinds = cucon_arr_detach(&arr);
-    return (*fos->target->enter)(fos, tag, attrbinds);
+    cufoP_flush(fos, CUFOP_FLUSH_MUST_CLEAR);
+    return cufo_sink_enter(fos->target, tag, attrbinds);
 }
 
 cu_bool_t
@@ -410,6 +413,7 @@ cufoP_entera(cufo_stream_t fos, cufo_tag_t tag, ...)
     cu_bool_t capable;
     va_list va;
     va_start(va, tag);
+    cufoP_flush(fos, CUFOP_FLUSH_MUST_CLEAR);
     capable = cufo_entera_va(fos, tag, va);
     va_end(va);
     return capable;
@@ -425,7 +429,8 @@ cufo_leave(cufo_stream_t fos, cufo_tag_t tag)
 		cufo_tag_name(tag_stack->tag), cufo_tag_name(tag));
     fos->tag_stack = tag_stack->next;
 #endif
-    (*fos->target->leave)(fos, tag);
+    cufoP_flush(fos, CUFOP_FLUSH_MUST_CLEAR);
+    cufo_sink_leave(fos->target, tag);
 }
 
 void
@@ -435,7 +440,8 @@ cufo_leaveln(cufo_stream_t fos, cufo_tag_t tag)
 #ifdef CUCONF_DEBUG_CLIENT
     cufo_leave(fos, tag);
 #else
-    (*fos->target->leave)(fos, tag);
+    cufoP_flush(fos, CUFOP_FLUSH_MUST_CLEAR);
+    cufo_sink_leave(fos->target, tag);
 #endif
 }
 
@@ -444,7 +450,8 @@ cufo_empty(cufo_stream_t fos, cufo_tag_t tag, ...)
 {
     va_list va;
     va_start(va, tag);
+    cufoP_flush(fos, CUFOP_FLUSH_MUST_CLEAR);
     cufo_entera_va(fos, tag, va);
-    (*fos->target->leave)(fos, tag);
+    cufo_sink_leave(fos->target, tag);
     va_end(va);
 }

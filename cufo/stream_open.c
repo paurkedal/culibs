@@ -16,41 +16,51 @@
  */
 
 #include <cufo/stream.h>
-#include <cuos/dsink.h>
-#include <cu/dsink.h>
+#include <cutext/sink.h>
+#include <cu/memory.h>
+#include <cu/conf.h>
+
+cufo_stream_t
+cufo_open_sink(cutext_sink_t sink)
+{
+    cufo_stream_t fos = cu_gnew(struct cufo_stream_s);
+    char const *encoding = cutext_sink_encoding(sink);
+    cufo_stream_init(fos, encoding, sink);
+    return fos;
+}
 
 /* Strip Target */
 
 cufo_stream_t
 cufo_open_strip_fd(char const *encoding, int fd)
 {
-    cu_dsink_t subsink = cuos_dsink_fdopen(fd);
+    cutext_sink_t subsink = cutext_sink_fdopen(encoding, fd);
     if (!subsink)
 	return NULL;
-    return cufo_open_strip_sink(encoding, subsink);
+    return cufo_open_sink(subsink);
 }
 
 cufo_stream_t
 cufo_open_strip_file(char const *encoding, char const *path)
 {
-    cu_dsink_t subsink = cuos_dsink_fopen(path);
+    cutext_sink_t subsink = cutext_sink_fopen(encoding, path);
     if (!subsink)
 	return NULL;
-    return cufo_open_strip_sink(encoding, subsink);
+    return cufo_open_sink(subsink);
 }
 
 cufo_stream_t
 cufo_open_strip_str(void)
 {
-    cu_dsink_t subsink = cu_dsink_new_str();
-    return cufo_open_strip_sink("UTF-8", subsink);
+    cutext_sink_t subsink = cutext_sink_new_str();
+    return cufo_open_sink(subsink);
 }
 
 cufo_stream_t
 cufo_open_strip_wstring(void)
 {
-    cu_dsink_t subsink = cu_dsink_new_wstring();
-    return cufo_open_strip_sink(cu_wchar_encoding, subsink);
+    cutext_sink_t subsink = cutext_sink_new_wstring();
+    return cufo_open_sink(subsink);
 }
 
 /* Text Target */
@@ -58,32 +68,32 @@ cufo_open_strip_wstring(void)
 cufo_stream_t
 cufo_open_text_fd(char const *encoding, cufo_textstyle_t style, int fd)
 {
-    cu_dsink_t subsink = cuos_dsink_fdopen(fd);
+    cutext_sink_t subsink = cutext_sink_fdopen(encoding, fd);
     if (!subsink)
 	return NULL;
-    return cufo_open_text_sink(encoding, style, subsink);
+    return cufo_open_text_sink(style, subsink);
 }
 
 cufo_stream_t
 cufo_open_text_file(char const *encoding, cufo_textstyle_t style,
 		    char const *path)
 {
-    cu_dsink_t subsink = cuos_dsink_fopen(path);
+    cutext_sink_t subsink = cutext_sink_fopen(encoding, path);
     if (!subsink)
 	return NULL;
-    return cufo_open_text_sink(encoding, style, subsink);
+    return cufo_open_text_sink(style, subsink);
 }
 
 cufo_stream_t
 cufo_open_text_str(cufo_textstyle_t style)
 {
-    cu_dsink_t subsink = cu_dsink_new_str();
-    return cufo_open_text_sink("UTF-8", style, subsink);
+    cutext_sink_t subsink = cutext_sink_new_str();
+    return cufo_open_text_sink(style, subsink);
 }
 
 cufo_stream_t
 cufo_open_text_wstring(cufo_textstyle_t style)
 {
-    cu_dsink_t subsink = cu_dsink_new_wstring();
-    return cufo_open_text_sink(cu_wchar_encoding, style, subsink);
+    cutext_sink_t subsink = cutext_sink_new_wstring();
+    return cufo_open_text_sink(style, subsink);
 }

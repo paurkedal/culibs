@@ -19,9 +19,10 @@
 #define CUFO_TEXTSTREAM_H
 
 #include <cufo/stream.h>
+#include <cufo/sink.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cufo_textstream_h cufo/textstream.h: Text Target Styler and Stream
+/*!\defgroup cufo_textsink_h cufo/textsink.h: Text Target Styler and Stream
  *@{\ingroup cufo_mod
  *
  * \note Don't use this directly unless writing a text style definition,
@@ -29,15 +30,14 @@ CU_BEGIN_DECLARATIONS
  * "cufo/stream.h".
  */
 
-#define CUFO_ENTER_CONTROL_SEQ 0x91
-#define CUFO_LEAVE_CONTROL_SEQ 0x92
-
-/*!The text-stream struct for use by text-stylers. */
-struct cufo_textstream_s
+/*!The text-sink struct for use by text-stylers. */
+struct cufo_textsink_s
 {
-    cu_inherit (cufo_stream_s);
+    cu_inherit (cutext_sink_s);
+    cutext_sink_t subsink;
+
     struct cu_buffer_s buf;
-    cu_dsink_t sink;
+    struct cu_buffer_s buf_markup;
     int buffered_width;
 
     cufo_textstyle_t style;
@@ -48,12 +48,16 @@ struct cufo_textstream_s
     int cont_indent;
     cu_wstring_t cont_eol_insert;
     cu_wstring_t cont_bol_insert;
+
     cu_bool_t is_cont : 1;
+    size_t input_pos;
 };
 
 CU_SINLINE int
-cufo_textstream_width(cufo_textstream_t tos)
-{ return tos->right_margin - tos->left_margin; }
+cufo_textsink_width(cufo_textsink_t sink)
+{ return sink->right_margin - sink->left_margin; }
+
+void cufo_textsink_block_boundary(cufo_textsink_t sink);
 
 /*!A \ref cufo_textstyle_s callback for a single tag. */
 struct cufo_textstyler_s
@@ -63,29 +67,29 @@ struct cufo_textstyler_s
     cu_word_t tag;
 
     /* Value */
-    cu_wstring_t (*enter)(cufo_textstream_t tos, cufo_tag_t tag,
+    cu_wstring_t (*enter)(cufo_textsink_t sink, cufo_tag_t tag,
 			  cufo_attrbind_t attrbinds);
-    cu_wstring_t (*leave)(cufo_textstream_t tos, cufo_tag_t tag);
+    cu_wstring_t (*leave)(cufo_textsink_t sink, cufo_tag_t tag);
 };
 
-/*!A style definition for a text stream. */
+/*!A style definition for a text sink. */
 struct cufo_textstyle_s
 {
-    size_t stream_size;
-    cu_clop(stream_init, void, cufo_textstream_t tos);
+    size_t sink_size;
+    cu_clop(sink_init, void, cufo_textsink_t sink);
     struct cucon_hzmap_s tag_to_styler;
-    cu_wstring_t (*default_enter)(cufo_textstream_t tos, cufo_tag_t tag,
+    cu_wstring_t (*default_enter)(cufo_textsink_t sink, cufo_tag_t tag,
 				  cufo_attrbind_t attrbinds);
-    cu_wstring_t (*default_leave)(cufo_textstream_t tos, cufo_tag_t tag);
+    cu_wstring_t (*default_leave)(cufo_textsink_t sink, cufo_tag_t tag);
 };
 
-/*!Initialises \a style with the given stream size and stream initialiser.  \a
- * stream_size is the full size of the stream struct of some type derived from
- * \ref cufo_textstream_s.  At stream creation, the \ref cufo_textstream_s base
- * struct is first initialised, then \a stream_init is called to finish the
+/*!Initialises \a style with the given sink size and sink initialiser.  \a
+ * sink_size is the full size of the sink struct of some type derived from
+ * \ref cufo_textsink_s.  At sink creation, the \ref cufo_textsink_s base
+ * struct is first initialised, then \a sink_init is called to finish the
  * initialisation. */
-void cufo_textstyle_init(cufo_textstyle_t style, size_t stream_size,
-			 cu_clop(stream_init, void, cufo_textstream_t));
+void cufo_textstyle_init(cufo_textstyle_t style, size_t sink_size,
+			 cu_clop(sink_init, void, cufo_textsink_t));
 
 /*!Make a static declaration and partial initialisation of a \ref
  * cufo_textstyler_s struct using \a name as a prefix for the identifiers

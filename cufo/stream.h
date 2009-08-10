@@ -19,6 +19,7 @@
 #define CUFO_STREAM_H
 
 #include <cufo/fwd.h>
+#include <cutext/fwd.h>
 #include <cu/va_ref.h>
 #include <cu/inherit.h>
 #include <cu/buffer.h>
@@ -59,15 +60,6 @@ typedef void (*cufo_print_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 typedef void (*cufo_print_ptr_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 				    void *ptr);
 
-struct cufo_target_s
-{
-    size_t (*write)(cufo_stream_t fos, void const *data, size_t size);
-    cu_bool_t (*enter)(cufo_stream_t fos, cufo_tag_t tag, cufo_attrbind_t);
-    void (*leave)(cufo_stream_t fos, cufo_tag_t);
-    void *(*close)(cufo_stream_t fos);
-    void (*flush)(cufo_stream_t fos);
-};
-
 #define CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE	(1u << 0)
 #define CUFO_SFLAG_HAVE_ERROR			(1u << 16)
 
@@ -80,7 +72,7 @@ struct cufo_convinfo_s
 struct cufo_stream_s
 {
     cu_inherit (cu_buffer_s);
-    cufo_target_t target;
+    cutext_sink_t target;
     cu_bool_least_t is_wide;
     char lastchar;
     unsigned int flags;
@@ -92,7 +84,7 @@ struct cufo_stream_s
 };
 
 cu_bool_t cufo_stream_init(cufo_stream_t fos, char const *encoding,
-			   cufo_target_t target);
+			   cutext_sink_t target);
 
 cu_bool_t cufo_stream_clientstate(cufo_stream_t fos, void const *key,
 				  size_t state_size, cu_ptr_ptr_t state_out);
@@ -117,7 +109,9 @@ cufo_stream_produce(cufo_stream_t fos, size_t len)
     }
 }
 
-cufo_stream_t cufo_open_strip_sink(char const *encoding, cu_dsink_t sink);
+cufo_stream_t cufo_open_sink(cutext_sink_t sink);
+
+cufo_stream_t cufo_open_strip_sink(cutext_sink_t sink);
 
 cufo_stream_t cufo_open_strip_fd(char const *encoding, int fd);
 
@@ -127,8 +121,7 @@ cufo_stream_t cufo_open_strip_str(void);
 
 cufo_stream_t cufo_open_strip_wstring(void);
 
-cufo_stream_t cufo_open_text_sink(char const *encoding, cufo_textstyle_t style,
-				  cu_dsink_t sink);
+cufo_stream_t cufo_open_text_sink(cufo_textstyle_t style, cutext_sink_t sink);
 
 cufo_stream_t cufo_open_text_fd(char const *encoding, cufo_textstyle_t style,
 				int fd);
@@ -140,9 +133,9 @@ cufo_stream_t cufo_open_text_str(cufo_textstyle_t style);
 
 cufo_stream_t cufo_open_text_wstring(cufo_textstyle_t style);
 
-cufo_stream_t cufo_open_xmldirect(char const *encoding, cu_dsink_t target_sink);
+cufo_stream_t cufo_open_xml(cutext_sink_t target_sink);
 
-void *cufo_close(cufo_stream_t fos);
+cu_box_t cufo_close(cufo_stream_t fos);
 
 void cufo_close_discard(cufo_stream_t fos);
 

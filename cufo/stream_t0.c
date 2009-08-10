@@ -18,7 +18,8 @@
 #include <cufo/stream.h>
 #include <cufo/tagdefs.h>
 #include <cufo/attrdefs.h>
-#include <cuos/dsink.h>
+#include <cufo/sink.h>
+#include <cutext/sink.h>
 #include <cu/logging.h>
 #include <cu/test.h>
 #include <cu/wstring.h>
@@ -87,18 +88,18 @@ test_strip_target()
 
     fos = cufo_open_strip_str();
     cufo_printf(fos, "%c %03d %x %%", 'C', 79, 0x3219);
-    str = cufo_close(fos);
+    str = cu_unbox_ptr(cu_str_t, cufo_close(fos));
     cu_test_assert(cu_str_cmp_cstr(str, "C 079 3219 %") == 0);
 
     fos = cufo_open_strip_wstring();
     cu_test_assert(fos);
     print_page(fos);
-    wstr = cufo_close(fos);
+    wstr = cu_unbox_ptr(cu_wstring_t, cufo_close(fos));
 
     fos = cufo_open_strip_str();
     cu_test_assert(fos);
     print_page(fos);
-    str = cufo_close(fos);
+    str = cu_unbox_ptr(cu_str_t, cufo_close(fos));
     wstrp = cu_wstring_of_chararr(cu_str_charr(str), cu_str_size(str));
 
     cu_test_assert(cu_wstring_cmp(wstr, wstrp) == 0);
@@ -114,18 +115,18 @@ test_text_target()
 
     fos = cufo_open_text_str(NULL);
     cufo_printf(fos, "%c %03d %x", 'C', 79, 0x3219);
-    str = cufo_close(fos);
+    str = cu_unbox_ptr(cu_str_t, cufo_close(fos));
     cu_test_assert(cu_str_cmp_cstr(str, "C 079 3219") == 0);
 
     fos = cufo_open_text_wstring(NULL);
     cu_test_assert(fos);
     print_page(fos);
-    wstr = cufo_close(fos);
+    wstr = cu_unbox_ptr(cu_wstring_t, cufo_close(fos));
 
     fos = cufo_open_text_str(NULL);
     cu_test_assert(fos);
     print_page(fos);
-    str = cufo_close(fos);
+    str = cu_unbox_ptr(cu_str_t, cufo_close(fos));
     wstrp = cu_wstring_of_chararr(cu_str_charr(str), cu_str_size(str));
 
     fos = cufo_open_text_fd("UTF-8", NULL, 1);
@@ -162,10 +163,23 @@ void
 test_xml_target()
 {
     cufo_stream_t fos;
-    cu_dsink_t sink;
-    sink = cuos_dsink_fopen("tmp.cufo_stream_t0.xml");
+    cutext_sink_t sink;
+
+    fprintf(stderr, "UTF-8 XML sink structure:\n");
+    sink = cutext_sink_fopen("UTF-8", "tmp.cufo_stream_t0.xml");
     cu_test_assert(sink != NULL);
-    fos = cufo_open_xmldirect("UTF-8", sink);
+    sink = cufo_sink_new_xml(sink);
+    cutext_sink_debug_dump(sink);
+    fos = cufo_open_sink(sink);
+    print_page(fos);
+    cufo_close(fos);
+
+    fprintf(stderr, "UTF-16 XML sink structure:\n");
+    sink = cutext_sink_fopen("UTF-16", "tmp.cufo_stream_t0_utf16.xml");
+    cu_test_assert(sink != NULL);
+    sink = cufo_sink_new_xml(sink);
+    cutext_sink_debug_dump(sink);
+    fos = cufo_open_sink(sink);
     print_page(fos);
     cufo_close(fos);
 }
@@ -176,12 +190,12 @@ main()
     cufo_stream_t fos;
     cufo_init();
 
-    fos = cufo_open_text_fd(NULL, NULL, 1);
+    fos = cufo_open_text_fd("UTF-8", NULL, 1);
     cu_test_assert(fos);
     print_page(fos);
     cufo_close(fos);
 
-    fos = cufo_open_text_file(NULL, NULL, "tmp.cufo_stream_t0.utf8");
+    fos = cufo_open_text_file("UTF-8", NULL, "tmp.cufo_stream_t0.utf8");
     cu_test_assert(fos);
     print_page(fos);
     cufo_close(fos);

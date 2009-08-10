@@ -4,26 +4,26 @@ cufo_headers = \
 	cufo/attr.h \
 	cufo/attrdefs.h \
 	cufo/fwd.h \
-	cufo/termstyle.h \
+	cufo/sink.h \
 	cufo/stream.h \
 	cufo/tag.h \
 	cufo/tagdefs.h \
-	cufo/textstream.h
+	cufo/termstyle.h \
+	cufo/textsink.h
 
 cufo_sources = \
 	cufo/attr.c \
 	cufo/attrdefs.c \
 	cufo/init.c \
 	cufo/init_formats.c \
-	cufo/termstyle.c \
 	cufo/printf.c \
+	cufo/sink_xml.c \
 	cufo/stream.c \
 	cufo/stream_open.c \
 	cufo/tag.c \
 	cufo/tagdefs.c \
-	cufo/target_strip.c \
-	cufo/target_xmldirect.c \
-	cufo/textstream.c \
+	cufo/termstyle.c \
+	cufo/textsink.c \
 	cufo/textstyle_default.c
 
 check_programs += \

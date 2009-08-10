@@ -24,7 +24,6 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cufo_fwd_h cufo/fwd.h: Forward Declarations
  *@{\ingroup cufo_mod */
 
-typedef struct cufo_target_s *cufo_target_t;
 typedef struct cufo_prispec_s *cufo_prispec_t;
 typedef struct cufo_stream_s *cufo_stream_t;
 
@@ -35,7 +34,7 @@ typedef struct cufo_attrbind_s *cufo_attrbind_t;
 
 typedef struct cufo_termface_s *cufo_termface_t;
 typedef struct cufo_termstyle_s *cufo_termstyle_t;
-typedef struct cufo_textstream_s *cufo_textstream_t;
+typedef struct cufo_textsink_s *cufo_textsink_t;
 
 typedef struct cufo_textstyle_s *cufo_textstyle_t;
 typedef struct cufo_textstyler_s *cufo_textstyler_t;
