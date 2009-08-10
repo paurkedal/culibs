@@ -43,6 +43,10 @@ typedef enum {
 #endif
 } cutext_encoding_t;
 
+typedef struct cutext_sink_s *cutext_sink_t;
+typedef struct cutext_countsink_s *cutext_countsink_t;
+typedef struct cutext_buffersink_s *cutext_buffersink_t;
+
 typedef struct cutext_src_s *cutext_src_t;
 typedef struct cutext_ucs4src_s *cutext_ucs4src_t;
 
