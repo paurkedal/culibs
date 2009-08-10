@@ -97,3 +97,13 @@ cufo_open_text_wstring(cufo_textstyle_t style)
     cutext_sink_t subsink = cutext_sink_new_wstring();
     return cufo_open_text_sink(style, subsink);
 }
+
+/* Dummy TTY Target if not Enabled */
+
+#ifndef CUCONF_ENABLE_TERM
+cufo_stream_t
+cufo_open_term_fd(char const *encoding, char const *term, int fd)
+{
+    return cufo_open_text_fd(encoding, NULL, fd);
+}
+#endif

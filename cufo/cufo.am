@@ -26,8 +26,13 @@ cufo_sources = \
 	cufo/textsink.c \
 	cufo/textstyle_default.c
 
+if enable_cufo_term
+cufo_sources += cufo/sink_term.c
+endif
+
 check_programs += \
-	cufo/stream_t0
+	cufo/stream_t0 \
+	cufo/stream_t1
 
 cufo/tagdefs.c: $(srcdir)/cufo/tagdefs.h $(srcdir)/cufo/mktagdefs.pl
 	$(srcdir)/cufo/mktagdefs.pl -o $@ $<
@@ -36,7 +41,7 @@ cufo/attrdefs.c: $(srcdir)/cufo/attrdefs.h $(srcdir)/cufo/mkattrdefs.pl
 
 nobase_culibs_HEADERS += $(cufo_headers)
 lib_LTLIBRARIES += libcufo.la
-libcufo_la_LIBADD = @CUFO_LIBADD@
+libcufo_la_LIBADD = @CUFO_LIBADD@ $(CURSES_LIB)
 libcufo_la_DEPENDENCIES = @CUFO_DEPENDENCIES@
 libcufo_la_LDFLAGS = $(common_ldflags)
 libcufo_la_SOURCES = $(cufo_sources)
@@ -45,6 +50,8 @@ noinst_DATA += pkgconfig/cufo-uninstalled.pc
 
 cufo_stream_t0_SOURCES = cufo/stream_t0.c
 cufo_stream_t0_LDADD = libcufo.la libcuos.la
+cufo_stream_t1_SOURCES = cufo/stream_t1.c
+cufo_stream_t1_LDADD = libcufo.la libcuos.la
 
 endif
 

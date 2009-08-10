@@ -190,7 +190,7 @@ main()
     cufo_stream_t fos;
     cufo_init();
 
-    fos = cufo_open_text_fd("UTF-8", NULL, 1);
+    fos = cufo_open_term_fd("UTF-8", NULL, 1);
     cu_test_assert(fos);
     print_page(fos);
     cufo_close(fos);

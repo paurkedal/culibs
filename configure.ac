@@ -133,6 +133,18 @@ AM_CONDITIONAL([enable_gc_disclaim], [test x"$enable_gc_disclaim" != xno])
 CUAC_LIB_RT
 CUAC_LIB_UNWIND
 
+# cufo-dependencies
+#
+if $enable_cufo; then
+    MP_WITH_CURSES
+    if test x"$CURSES_LIB" != x; then
+	AC_DEFINE([CUCONF_ENABLE_TERM], 1,
+		  [Define to enable cufo terminal target.])
+    fi
+    AC_SUBST([CURSES_LIB])
+fi
+AM_CONDITIONAL([enable_cufo_term], [test x"$CURSES_LIB" != x])
+
 # cuex-dependencies
 #
 if $enable_cuex; then

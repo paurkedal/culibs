@@ -135,6 +135,11 @@ cufo_stream_t cufo_open_text_wstring(cufo_textstyle_t style);
 
 cufo_stream_t cufo_open_xml(cutext_sink_t target_sink);
 
+/** Opens a stream with terminal capabilities using default text and terminal
+ ** styles.  The \a encoding must be multibyte or byte compatible due to the
+ ** terminfo escape sequences. */
+cufo_stream_t cufo_open_term_fd(char const *encoding, char const *term, int fd);
+
 cu_box_t cufo_close(cufo_stream_t fos);
 
 void cufo_close_discard(cufo_stream_t fos);
