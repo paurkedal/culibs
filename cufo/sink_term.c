@@ -243,10 +243,7 @@ cufo_termsink_new(cufo_termstyle_t termstyle, char const *term,
     cutext_sink_t subsink;
     int err;
 
-    if (close_fd)
-	subsink = cutext_sink_fdopen_close(encoding, fd);
-    else
-	subsink = cutext_sink_fdopen(encoding, fd);
+    subsink = cutext_sink_fdopen(encoding, fd, close_fd);
     cutext_sink_assert_clogfree(subsink);
 
     if (setupterm(term, fd, &err) != OK) {
@@ -285,12 +282,14 @@ cufo_termsink_new(cufo_termstyle_t termstyle, char const *term,
 }
 
 cufo_stream_t
-cufo_open_term_fd(char const *encoding, char const *term, int fd)
+cufo_open_term_fd(char const *encoding, char const *term, int fd,
+		  cu_bool_t close_fd)
 {
     cufo_termstyle_t termstyle = _default_termstyle();
-    cutext_sink_t termsink = cufo_termsink_new(termstyle, term, encoding, fd, cu_false);
+    cutext_sink_t termsink;
+    termsink = cufo_termsink_new(termstyle, term, encoding, fd, close_fd);
     if (termsink)
 	return cufo_open_text_sink(NULL, termsink);
     else
-	return cufo_open_text_fd(encoding, NULL, fd);
+	return cufo_open_text_fd(encoding, NULL, fd, close_fd);
 }

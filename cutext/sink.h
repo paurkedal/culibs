@@ -208,8 +208,9 @@ cutext_sink_t cutext_sink_new_str(void);
  ** Writing \ref cu_wchar_encoding encoded characters gives a text string. */
 cutext_sink_t cutext_sink_new_wstring(void);
 
-cutext_sink_t cutext_sink_fdopen(char const *encoding, int fd);
-cutext_sink_t cutext_sink_fdopen_close(char const *encoding, int fd);
+cutext_sink_t cutext_sink_fdopen(char const *encoding, int fd,
+				 cu_bool_t close_fd);
+
 cutext_sink_t cutext_sink_fopen(char const *encoding, char const *path);
 
 /** Creates a clog-free sink of \a subsink by buffering data. */

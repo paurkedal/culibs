@@ -32,9 +32,9 @@ cufo_open_sink(cutext_sink_t sink)
 /* Strip Target */
 
 cufo_stream_t
-cufo_open_strip_fd(char const *encoding, int fd)
+cufo_open_strip_fd(char const *encoding, int fd, cu_bool_t close_fd)
 {
-    cutext_sink_t subsink = cutext_sink_fdopen(encoding, fd);
+    cutext_sink_t subsink = cutext_sink_fdopen(encoding, fd, close_fd);
     if (!subsink)
 	return NULL;
     return cufo_open_sink(subsink);
@@ -66,9 +66,10 @@ cufo_open_strip_wstring(void)
 /* Text Target */
 
 cufo_stream_t
-cufo_open_text_fd(char const *encoding, cufo_textstyle_t style, int fd)
+cufo_open_text_fd(char const *encoding, cufo_textstyle_t style,
+		  int fd, cu_bool_t close_fd)
 {
-    cutext_sink_t subsink = cutext_sink_fdopen(encoding, fd);
+    cutext_sink_t subsink = cutext_sink_fdopen(encoding, fd, close_fd);
     if (!subsink)
 	return NULL;
     return cufo_open_text_sink(style, subsink);
@@ -102,7 +103,8 @@ cufo_open_text_wstring(cufo_textstyle_t style)
 
 #ifndef CUCONF_ENABLE_TERM
 cufo_stream_t
-cufo_open_term_fd(char const *encoding, char const *term, int fd)
+cufo_open_term_fd(char const *encoding, char const *term,
+		  int fd, cu_bool_t close_fd)
 {
     return cufo_open_text_fd(encoding, NULL, fd);
 }

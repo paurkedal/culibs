@@ -113,7 +113,8 @@ cufo_stream_t cufo_open_sink(cutext_sink_t sink);
 
 cufo_stream_t cufo_open_strip_sink(cutext_sink_t sink);
 
-cufo_stream_t cufo_open_strip_fd(char const *encoding, int fd);
+cufo_stream_t cufo_open_strip_fd(char const *encoding,
+				 int fd, cu_bool_t close_fd);
 
 cufo_stream_t cufo_open_strip_file(char const *encoding, char const *path);
 
@@ -124,7 +125,7 @@ cufo_stream_t cufo_open_strip_wstring(void);
 cufo_stream_t cufo_open_text_sink(cufo_textstyle_t style, cutext_sink_t sink);
 
 cufo_stream_t cufo_open_text_fd(char const *encoding, cufo_textstyle_t style,
-				int fd);
+				int fd, cu_bool_t close_fd);
 
 cufo_stream_t cufo_open_text_file(char const *encoding, cufo_textstyle_t style,
 				  char const *path);
@@ -138,7 +139,8 @@ cufo_stream_t cufo_open_xml(cutext_sink_t target_sink);
 /** Opens a stream with terminal capabilities using default text and terminal
  ** styles.  The \a encoding must be multibyte or byte compatible due to the
  ** terminfo escape sequences. */
-cufo_stream_t cufo_open_term_fd(char const *encoding, char const *term, int fd);
+cufo_stream_t cufo_open_term_fd(char const *encoding, char const *term,
+				int fd, cu_bool_t close_fd);
 
 cu_box_t cufo_close(cufo_stream_t fos);
 

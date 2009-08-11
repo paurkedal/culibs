@@ -108,8 +108,8 @@ cufo_init(void)
     cufoP_termstyle_init();
 #endif
 
-    cufoP_stderr = cufo_open_text_fd("UTF-8", NULL, 2);
-    cufoP_stderr_bug = cufo_open_text_fd("UTF-8", NULL, 2);
+    cufoP_stderr = cufo_open_text_fd("UTF-8", NULL, 2, cu_false);
+    cufoP_stderr_bug = cufo_open_text_fd("UTF-8", NULL, 2, cu_false);
     cu_register_log_binder(cu_clop_ref(default_log_binder));
 
     cufoP_init_formats();

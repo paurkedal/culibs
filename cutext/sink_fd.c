@@ -92,20 +92,13 @@ struct cutext_sink_descriptor_s _fd_sink_descriptor_if_close = {
 };
 
 cutext_sink_t
-cutext_sink_fdopen(char const *encoding, int fd)
+cutext_sink_fdopen(char const *encoding, int fd, cu_bool_t close_fd)
 {
+    cutext_sink_descriptor_t descr = close_fd
+	? &_fd_sink_descriptor_if_close
+	: &_fd_sink_descriptor_if_not_close;
     _fd_sink_t sink = cu_gnew(struct _fd_sink_s);
-    cutext_sink_init(cu_to(cutext_sink, sink), &_fd_sink_descriptor_if_not_close);
-    sink->fd = fd;
-    sink->encoding = encoding;
-    return cu_to(cutext_sink, sink);
-}
-
-cutext_sink_t
-cutext_sink_fdopen_close(char const *encoding, int fd)
-{
-    _fd_sink_t sink = cu_gnew(struct _fd_sink_s);
-    cutext_sink_init(cu_to(cutext_sink, sink), &_fd_sink_descriptor_if_close);
+    cutext_sink_init(cu_to(cutext_sink, sink), descr);
     sink->fd = fd;
     sink->encoding = encoding;
     return cu_to(cutext_sink, sink);
@@ -116,7 +109,7 @@ cutext_sink_fopen(char const *encoding, char const *path)
 {
     int fd = open(path, O_CREAT | O_WRONLY | O_TRUNC, 0666);
     if (fd != -1)
-	return cutext_sink_fdopen_close(encoding, fd);
+	return cutext_sink_fdopen(encoding, fd, cu_true);
     else
 	return NULL;
 }
