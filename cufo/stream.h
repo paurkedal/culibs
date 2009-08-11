@@ -37,8 +37,11 @@ void cufoP_set_wide(cufo_stream_t fos, cu_bool_t be_wide);
 void cufoP_flush(cufo_stream_t fos, unsigned int flags);
 void *cufoP_stream_produce(cufo_stream_t fos, size_t len);
 
-/*!\defgroup cufo_stream_h cufo/stream.h: Formatted Ouput Streams
- *@{\ingroup cufo_mod */
+/** \defgroup cufo_stream_h cufo/stream.h: Formatted Ouput Streams
+ ** @{ \ingroup cufo_mod */
+
+/** \name Stream API Details
+ ** @{ */
 
 #define CUFO_PRIFLAG_PLUS	 1	/* explicit plus-sign for positive */
 #define CUFO_PRIFLAG_MINUS	 2	/* left justify */
@@ -55,8 +58,8 @@ struct cufo_prispec_s
 typedef void (*cufo_print_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 				cu_va_ref_t va_ref);
 
-/*!The type of a \ref CUOO_INTF_FOPRINT_FN callback used to print dynamic
- * objects to a formatted stream. */
+/** The type of a \ref CUOO_INTF_FOPRINT_FN callback used to print dynamic
+ ** objects to a formatted stream. */
 typedef void (*cufo_print_ptr_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 				    void *ptr);
 
@@ -109,6 +112,10 @@ cufo_stream_produce(cufo_stream_t fos, size_t len)
     }
 }
 
+/** @}
+ ** \name Stream Construction and Cleanup
+ ** @{ */
+
 cufo_stream_t cufo_open_sink(cutext_sink_t sink);
 
 cufo_stream_t cufo_open_strip_sink(cutext_sink_t sink);
@@ -122,8 +129,12 @@ cufo_stream_t cufo_open_strip_str(void);
 
 cufo_stream_t cufo_open_strip_wstring(void);
 
+/** Returns a text stream writing to \a sink. */
 cufo_stream_t cufo_open_text_sink(cufo_textstyle_t style, cutext_sink_t sink);
 
+/** Returns a text stream which convert (if necessary) to the character
+ ** encoding \a encoding, and writes the result to \a fd.  If \a close_fd is
+ ** true, then \a fd will be closed when the returned stream is closed. */
 cufo_stream_t cufo_open_text_fd(char const *encoding, cufo_textstyle_t style,
 				int fd, cu_bool_t close_fd);
 
@@ -157,6 +168,10 @@ cu_box_t cufo_close(cufo_stream_t fos);
  ** anything.  \see cufo_close */
 void cufo_close_discard(cufo_stream_t fos);
 
+/** @}
+ ** \name Stream Control
+ ** @{ */
+
 /** Flushes buffered data down the stack of sinks. */
 CU_SINLINE void cufo_flush(cufo_stream_t fos)
 { cufoP_flush(fos, CUFOP_FLUSH_PROPAGATE); }
@@ -175,6 +190,10 @@ cufo_flag_error(cufo_stream_t fos)
 CU_SINLINE cu_bool_t
 cufo_have_error(cufo_stream_t fos)
 { return fos->flags & CUFO_SFLAG_HAVE_ERROR; }
+
+/** @}
+ ** \name Basic Printing
+ ** @{ */
 
 CU_SINLINE void
 cufo_fast_putc(cufo_stream_t fos, char ch)
@@ -224,6 +243,10 @@ void cufo_print_ex(cufo_stream_t fos, cuex_t e);
 
 void cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e);
 
+/** @}
+ ** \name Basic Markup
+ ** @{ */
+
 cu_bool_t cufoP_entera(cufo_stream_t fos, cufo_tag_t tag, ...);
 
 cu_bool_t cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va);
@@ -237,26 +260,42 @@ void cufo_leaveln(cufo_stream_t fos, cufo_tag_t tag);
 
 void cufo_empty(cufo_stream_t fos, cufo_tag_t tag, ...);
 
+/** @}
+ ** \name Formatted Printing and Markup
+ ** @{ */
+
 int cufo_printf(cufo_stream_t fos, char const *fmt, ...);
 
 int cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va);
 
 int cufo_printfln(cufo_stream_t fos, char const *fmt, ...);
 
+/** This is a low-level function which invokes the \ref cufo_vlogf_at handler
+ ** directly, bypassing the handler in \a facility.  Use \ref cu_logging_h
+ ** "cu/logging.h" or \ref cu_diag_h "cu/diag.h" instead. */
 void cufo_logf(cufo_stream_t fos, cu_log_facility_t facility,
 	       char const *fmt, ...);
 
+/** \copydoc cufo_logf */
 void cufo_vlogf(cufo_stream_t fos, cu_log_facility_t facility,
 		char const *fmt, va_list va);
 
+/** This is the \ref cu_logging_h "cu/logging.h" callback installed by \ref
+ ** cufo_init.  Its usually not needed except when defining new \ref
+ ** cu_register_log_binder "log binder" logic. */
 void cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
 		   cu_sref_t sref, char const *fmt, va_list va);
+
+/** @}
+ ** \name Program Initialisation
+ ** @{ */
 
 void cufo_register_ptr_format(char const *key, cufo_print_ptr_fn_t fn);
 
 void cufo_register_va_format(char const *key, cufo_print_fn_t fn);
 
-/*!@}*/
+/** @}
+ ** @} */
 CU_END_DECLARATIONS
 
 #endif

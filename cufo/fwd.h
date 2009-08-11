@@ -39,6 +39,12 @@ typedef struct cufo_textsink_s *cufo_textsink_t;
 typedef struct cufo_textstyle_s *cufo_textstyle_t;
 typedef struct cufo_textstyler_s *cufo_textstyler_t;
 
+/** Initialises \c libcufo, as is mandatory before before using the library.
+ ** You may also want to call this function even if you don't use \c libcufo
+ ** functions directly, because it installs a more powerful formatting engine
+ ** for the \ref cu_logging_h "cu/logging.h" and \ref cu_diag_h "cu/diag.h"
+ ** functions, including new format specifiers, line wrapping, and, if compiled
+ ** with terminal support, some highlighting. */
 void cufo_init(void);
 
 /*!@}*/

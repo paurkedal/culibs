@@ -25,44 +25,41 @@
 #include <cu/va_ref.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_diag cu/diag.h: Printing and Error Reporting
- * @{ \ingroup cu_base_mod */
-
-
-/*!A specialised \ref cu_fprintf for printing error messages. */
-void cu_errf(char const *fmt, ...);
-
-/*!As \a cu_errf, but passing arguments as a \c va_list. */
-void cu_verrf(char const *msg, va_list va);
-
-
-/*!A specialised \ref cu_fprintf for printing warnings. */
-void cu_warnf(char const *fmt, ...);
-
-/*!As \a cu_warnf, but passing arguments as a \c va_list. */
-void cu_vwarnf(char const *msg, va_list va);
-
 
 extern int cuP_verbosity;
 
-/*!Prints an informative message to if verbosity level is at least
- * \a level. */
+/** \defgroup cu_diag_h cu/diag.h: Printing and Error Reporting
+ ** @{ \ingroup cu_base_mod */
+
+/** A specialised \ref cu_fprintf for printing error messages. */
+void cu_errf(char const *fmt, ...);
+
+/** As \a cu_errf, but passing arguments as a \c va_list. */
+void cu_verrf(char const *msg, va_list va);
+
+/** A specialised \ref cu_fprintf for printing warnings. */
+void cu_warnf(char const *fmt, ...);
+
+/** As \a cu_warnf, but passing arguments as a \c va_list. */
+void cu_vwarnf(char const *msg, va_list va);
+
+/** Prints an informative message to if verbosity level is at least
+ ** \a level. */
 void cu_verbf(int level, char const *fmt, ...);
 
-/*!The current verbosity level. */
+/** The current verbosity level. */
 CU_SINLINE int cu_verbosity() { return cuP_verbosity; }
 
-/*!Sets the verbosity level for \ref cu_verbf and \ref cu_verbf_at calls. */
+/** Sets the verbosity level for \ref cu_verbf and \ref cu_verbf_at calls. */
 void cu_set_verbosity(int verbosity);
 
-
-/*!Prints an internal error and aborts. */
+/** Prints an internal error and aborts. */
 void cu_bugf_n(char const *fmt, ...) CU_ATTR_NORETURN;
 
-/*!Prints an internal error with reference to source code and aborts. */
+/** Prints an internal error with reference to source code and aborts. */
 void cu_bugf_at(cu_sref_t, char const *fmt, ...) CU_ATTR_NORETURN;
 
-/*!Prints an internal error with reference to source code and aborts. */
+/** Prints an internal error with reference to source code and aborts. */
 void cu_bugf_fl(char const *file, int line,
 		char const *msg, ...) CU_ATTR_NORETURN;
 
@@ -147,7 +144,7 @@ void cu_vwarnf_at(cu_sref_t srf, char const *msg, va_list va);
 void cu_verbf_at(int level, cu_sref_t, char const *fmt, ...);
 
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

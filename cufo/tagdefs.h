@@ -21,41 +21,100 @@
 #include <cufo/tag.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cufo_tagdefs_h cufo/tagdefs.h: Various Tag Definitions
- *@{\ingroup cufo_mod */
+/** \defgroup cufo_tagdefs_h cufo/tagdefs.h: Various Tag Definitions
+ ** @{ \ingroup cufo_mod */
 
-/* Generic Inline */
+/** \name Generic Inline Tags
+ ** @{ */
+
+/** Delimits text to be emphasised. */
 extern cufo_tag_t cufoT_emph;
+
+/** Requests rendering in an italic font if available. */
 extern cufo_tag_t cufoT_italic;
+
+/** Requests rendering in a boldface font if available. */
 extern cufo_tag_t cufoT_bold;
+
+/** Requests underlining if available. */
 extern cufo_tag_t cufoT_underline;
+
+/** Delimits a superscript, commonly used for exponents, indices or labels. */
 extern cufo_tag_t cufoT_superscript;
+
+/** Delimits a subscript, commonly used for indices or labels. */
 extern cufo_tag_t cufoT_subscript;
 
-/* Generic Blocks */
+/** @}
+ ** \name Generic Block Tags
+ ** @{ */
+
+/** Delimits a block to be set out from the surrounding text. */
 extern cufo_tag_t cufoT_indent;
+
+/** Recursive sectioning.  The depth may typically affect the rendering of \ref
+ ** cufoT_title. */
 extern cufo_tag_t cufoT_section;
+
+/** Should occur as the first element of a section to indicate its title. */
 extern cufo_tag_t cufoT_title;
+
+/** Delimits a paragraph. */
 extern cufo_tag_t cufoT_para;
 
-/* Diagnostic */
+/** @}
+ ** \name Diagnostic Tags
+ ** @{ */
+
+/** Delimits a single log entry, as output with \ref cufo_logf and friends.
+ ** This also applies to \ref cu_errf and friends after \ref cufo_init have
+ ** installed its handlers. */
 extern cufo_tag_t cufoT_logentry;
+
+/** Delimits the source location part of a \ref cufoT_logentry. */
 extern cufo_tag_t cufoT_location;
+
+/** Delimits the message part of a \ref cufoT_logentry. */
 extern cufo_tag_t cufoT_message;
 
-/* Expressions */
+/** @}
+ ** \name Programmig Language Tags
+ ** @{ */
+
+/** Delimits block-level code quotation. */
 extern cufo_tag_t cufoT_codepre;
+
+/** Delimits inline code quotation. */
 extern cufo_tag_t cufoT_code;
+
+/** May be used to delimit a single declaration, statement, or similar logical
+ ** unit of a program, depending on the language. */
 extern cufo_tag_t cufoT_clause;
+
+/** Delimits a comment. */
 extern cufo_tag_t cufoT_comment;
+
+/** Delimits a keyword. */
 extern cufo_tag_t cufoT_keyword;
+
+/** Delimits an operator. */
 extern cufo_tag_t cufoT_operator;
+
+/** Delimits a program variable. */
 extern cufo_tag_t cufoT_variable;
+
+/** Delimits a program datatype. */
 extern cufo_tag_t cufoT_type;
+
+/** Delimits a literal, like a number or a string. */
 extern cufo_tag_t cufoT_literal;
+
+/** Used inside \ref cufoT_literal to delimit escape sequences, string
+ ** delimiters, or other non-literal parts of literals. */
 extern cufo_tag_t cufoT_special;
 
-/*!@}*/
+/** @}
+ ** @} */
 CU_END_DECLARATIONS
 
 #endif
