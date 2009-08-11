@@ -105,15 +105,15 @@ static void
 _wstring_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
 {
     int i, n = cu_wstring_length(ptr);
+    cufo_enter(fos, cufoT_literal);
+    cufo_enter(fos, cufoT_special);
     cufo_putwc(fos, 0x75); /* u */
     cufo_putwc(fos, 0x22); /* " */
+    cufo_leave(fos, cufoT_special);
     for (i = 0; i < n; ++i) {
 	cu_wint_t ch = cu_wstring_at(ptr, i);
-	if (ch == 0x5c || ch == 0x22) { /* backslash or solidus */
-	    cufo_putwc(fos, 0x5c);
-	    cufo_putwc(fos, ch);
-	}
-	else if (!cutext_iswprint(ch))
+	if (!cutext_iswprint(ch)) {
+	    cufo_enter(fos, cufoT_special);
 	    switch (ch) {
 		case 0x09: cufo_puts(fos, "\\t"); break;
 		case 0x0a: cufo_puts(fos, "\\n"); break;
@@ -125,24 +125,38 @@ _wstring_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
 			cufo_printf(fos, "\\U%06x", ch);
 		    break;
 	    }
-	else
-	    cufo_putwc(fos, ch);
+	    cufo_leave(fos, cufoT_special);
+	}
+	else switch (ch) {
+	    case 0x5c: case 0x22: /* backslash or quotation mark */
+		cufo_enter(fos, cufoT_special);
+		cufo_putwc(fos, 0x5c);
+		cufo_putwc(fos, ch);
+		cufo_leave(fos, cufoT_special);
+		break;
+	    default:
+		cufo_putwc(fos, ch);
+		break;
+	}
     }
+    cufo_enter(fos, cufoT_special);
     cufo_putwc(fos, 0x22);
+    cufo_leave(fos, cufoT_special);
+    cufo_leave(fos, cufoT_literal);
 }
 
 static void
 _str_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
 {
     int i, n = cu_str_size(ptr);
+    cufo_enter(fos, cufoT_literal);
+    cufo_enter(fos, cufoT_special);
     cufo_putc(fos, '"');
+    cufo_leave(fos, cufoT_special);
     for (i = 0; i < n; ++i) {
 	char ch = cu_str_at(ptr, i);
-	if (ch == '\\' || ch == '"') {
-	    cufo_putc(fos, '\\');
-	    cufo_putc(fos, ch);
-	}
-	else if ((unsigned char)ch < 0x80 && !isprint(ch))
+	if ((unsigned char)ch < 0x80 && !isprint(ch)) {
+	    cufo_enter(fos, cufoT_special);
 	    switch (ch) {
 		case '\t': cufo_puts(fos, "\\t"); break;
 		case '\n': cufo_puts(fos, "\\n"); break;
@@ -151,10 +165,24 @@ _str_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
 		    cufo_printf(fos, "\\x%02x", (unsigned char)ch);
 		    break;
 	    }
-	else
-	    cufo_putc(fos, ch);
+	    cufo_leave(fos, cufoT_special);
+	}
+	else switch (ch) {
+	    case '\\': case '"':
+		cufo_enter(fos, cufoT_special);
+		cufo_putc(fos, '\\');
+		cufo_putc(fos, ch);
+		cufo_leave(fos, cufoT_special);
+		break;
+	    default:
+		cufo_putc(fos, ch);
+		break;
+	}
     }
+    cufo_enter(fos, cufoT_special);
     cufo_putc(fos, '"');
+    cufo_leave(fos, cufoT_special);
+    cufo_leave(fos, cufoT_literal);
 }
 
 cu_clos_def(_ucset_foprint_item, cu_prot(void, uintptr_t key),

@@ -53,6 +53,7 @@ extern cufo_tag_t cufoT_operator;
 extern cufo_tag_t cufoT_variable;
 extern cufo_tag_t cufoT_type;
 extern cufo_tag_t cufoT_literal;
+extern cufo_tag_t cufoT_special;
 
 /*!@}*/
 CU_END_DECLARATIONS

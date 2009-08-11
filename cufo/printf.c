@@ -630,21 +630,21 @@ cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
     if (facility->flags & CU_LOG_FLAG_DEBUG_FACILITY) {
 	char const *file = va_arg(va, char const *);
 	int line = va_arg(va, int);
-	cufo_printf(fos, "%s:%d: ", file, line);
+	cufo_printf(fos, "%<%s:%d: %>", cufoT_location, file, line);
     }
     if (loc) {
 	cufo_enter(fos, cufoT_location);
 	cufo_print_sref(fos, loc);
-	cufo_leave(fos, cufoT_location);
 	cufo_puts(fos, ": ");
+	cufo_leave(fos, cufoT_location);
     }
     if (*fmt == '%' && fmt[1] == ':') {
 	fmt += 2;
 	while (isspace(*fmt)) ++fmt;
 	cufo_enter(fos, cufoT_location);
 	cufo_print_sref(fos, va_arg(va, cu_sref_t));
-	cufo_leave(fos, cufoT_location);
 	cufo_puts(fos, ": ");
+	cufo_leave(fos, cufoT_location);
     }
     cufo_enter(fos, cufoT_message);
     cufo_vprintf(fos, fmt, va);
