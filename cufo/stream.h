@@ -138,14 +138,26 @@ cufo_stream_t cufo_open_xml(cutext_sink_t target_sink);
 
 /** Opens a stream with terminal capabilities using default text and terminal
  ** styles.  The \a encoding must be multibyte or byte compatible due to the
- ** terminfo escape sequences. */
+ ** terminfo escape sequences.  If the culibs was configured without terminal
+ ** support, this falls back to \ref cufo_open_text_fd. */
 cufo_stream_t cufo_open_term_fd(char const *encoding, char const *term,
 				int fd, cu_bool_t close_fd);
 
+/** Makes a conservative guess whether \a fd is a terminal and calls either
+ ** \ref cufo_open_text_fd or \ref cufo_open_term_fd as appropriate.  It also
+ ** determines the character encoding from the current locale. */
+cufo_stream_t cufo_open_auto_fd(int fd, cu_bool_t close_fd);
+
+/** Flushes \a fos as frees up associated resources.  If it's connected to a
+ ** sink which produces data (such as a string), then the data will be
+ ** returned.  It's up to the callee to know the correct type to unbox.  */
 cu_box_t cufo_close(cufo_stream_t fos);
 
+/** Frees up associated resources of \a fos without flushing or returning
+ ** anything.  \see cufo_close */
 void cufo_close_discard(cufo_stream_t fos);
 
+/** Flushes buffered data down the stack of sinks. */
 CU_SINLINE void cufo_flush(cufo_stream_t fos)
 { cufoP_flush(fos, CUFOP_FLUSH_PROPAGATE); }
 

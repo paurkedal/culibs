@@ -81,7 +81,7 @@ _test_attrperms(cufo_stream_t fos, struct _attrperm *a, int i, int n)
 static void
 _test_term_target(void)
 {
-    cufo_stream_t fos = cufo_open_term_fd("UTF-8", NULL, 1);
+    cufo_stream_t fos = cufo_open_term_fd("UTF-8", NULL, 1, cu_false);
     struct _attrperm a[] = {
 	{cufoT_italic, "italic"},
 	{cufoT_bold, "bold"},

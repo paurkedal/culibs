@@ -19,6 +19,10 @@
 #include <cutext/sink.h>
 #include <cu/memory.h>
 #include <cu/conf.h>
+#include <unistd.h>
+#ifdef CUCONF_HAVE_LANGINFO_H
+#  include <langinfo.h>
+#endif
 
 cufo_stream_t
 cufo_open_sink(cutext_sink_t sink)
@@ -109,3 +113,22 @@ cufo_open_term_fd(char const *encoding, char const *term,
     return cufo_open_text_fd(encoding, NULL, fd);
 }
 #endif
+
+cufo_stream_t
+cufo_open_auto_fd(int fd, cu_bool_t close_fd)
+{
+    char const *encoding;
+#if defined(CUCONF_HAVE_LANGINFO_H) && (CUCONF_HAVE_NL_LANGINFO)
+    encoding = nl_langinfo(CODESET);
+#else
+    encoding = "UTF-8";
+#endif
+
+    /* Make a conservative guess whether to enable terminal capabilities. */
+#if defined(CUCONF_ENABLE_TERM) && defined(CUCONF_HAVE_ISATTY)
+    if (isatty(fd))
+	return cufo_open_term_fd(encoding, NULL, fd, close_fd);
+#endif
+
+    return cufo_open_text_fd(encoding, NULL, fd, close_fd);
+}
