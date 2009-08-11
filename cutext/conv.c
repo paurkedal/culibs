@@ -87,7 +87,7 @@ cutext_iconv_wchar_to_char(cu_wchar_t const **src_arr, size_t *src_cnt_sc,
     iconv_t cd = iconv_open("UTF-8", UCS4HOST);
     if (!cd) {
 	cu_errf("Could not initiate UTF-8 to UCS-4 conversion: %s",
-		 strerror(errno));
+		strerror(errno));
 	abort();
     }
     if (iconv(cd, (void *)src_arr, &src_cnt, dst_arr, dst_cnt)
@@ -106,7 +106,7 @@ cutext_iconv_wchar_to_char(cu_wchar_t const **src_arr, size_t *src_cnt_sc,
 	tstate->iconv_ucs4_to_utf8 = iconv_open("UTF-8", UCS4HOST);
 	if (!tstate->iconv_ucs4_to_utf8) {
 	    cu_errf("Could not initiate UTF-8 to UCS-4 conversion: %s",
-		     strerror(errno));
+		    strerror(errno));
 	    abort();
 	}
     }

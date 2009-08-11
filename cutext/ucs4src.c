@@ -114,8 +114,8 @@ cutext_ucs4src_init_detect(cutext_ucs4src_t ucs4src,
     if (chenc != CUTEXT_ENCODING_UCS4HOST) {
 	cutext_src_t src = cutext_src_new_grab(&ucs4src->src);
 	cutext_src_init(&ucs4src->src,
-		       cutext_producer_new_iconv(src, chenc,
-						 CUTEXT_ENCODING_UCS4HOST));
+			cutext_producer_new_iconv(src, chenc,
+						  CUTEXT_ENCODING_UCS4HOST));
     }
     if (cutext_src_lookahead(&ucs4src->src, 4)
 	== cutext_status_eos)
@@ -180,9 +180,9 @@ header_error:
 header_ok:
     if (ucs4src->properties) {
 	cu_str_t str_tabstop = cucon_pmap_find_ptr(ucs4src->properties,
-						  cu_struniq("tabstop"));
+						   cu_struniq("tabstop"));
 	cu_str_t str_encoding = cucon_pmap_find_ptr(ucs4src->properties,
-						   cu_struniq("encoding"));
+						    cu_struniq("encoding"));
 	if (str_tabstop) {
 	    int w;
 	    if (sscanf(cu_str_to_cstr(str_tabstop), "%d", &w) == 1)
