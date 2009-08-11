@@ -79,10 +79,12 @@ _ts_write_from_input(cufo_textsink_t sink, cu_wchar_t const *arr, size_t len)
 {
     size_t input_pos = sink->input_pos;
     size_t final_pos = input_pos + len;
-    while (input_pos < final_pos) {
+    for (;;) {
 	size_t markup_pos;
+	_markup_entry_t entry CU_NOINIT(NULL);
+
 	if (cu_buffer_content_size(&sink->buf_markup) > 0) {
-	    _markup_entry_t entry = cu_buffer_content_start(&sink->buf_markup);
+	    entry = cu_buffer_content_start(&sink->buf_markup);
 	    markup_pos = entry->input_pos;
 	}
 	else
@@ -98,16 +100,17 @@ _ts_write_from_input(cufo_textsink_t sink, cu_wchar_t const *arr, size_t len)
 	    input_pos = next_pos;
 	}
 
-	if (input_pos == markup_pos) {
-	    _markup_entry_t entry = cu_buffer_content_start(&sink->buf_markup);
-	    cutext_sink_flush(sink->subsink);
-	    if (entry->attrbinds)
-		cufo_sink_enter(sink->subsink, entry->tag, entry->attrbinds);
-	    else
-		cufo_sink_leave(sink->subsink, entry->tag);
-	    cu_buffer_incr_content_start(&sink->buf_markup,
-					 sizeof(struct _markup_entry_s));
-	}
+	if (input_pos != markup_pos)
+	    break;
+	cu_debug_assert(entry);
+
+	cutext_sink_flush(sink->subsink);
+	if (entry->attrbinds)
+	    cufo_sink_enter(sink->subsink, entry->tag, entry->attrbinds);
+	else
+	    cufo_sink_leave(sink->subsink, entry->tag);
+	cu_buffer_incr_content_start(&sink->buf_markup,
+				     sizeof(struct _markup_entry_s));
     }
     sink->input_pos = input_pos;
     return cu_true;
