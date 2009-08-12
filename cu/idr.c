@@ -105,10 +105,15 @@ static cu_str_t
 _idr_to_str(cuex_t e)
 { return cu_str_new_idr(e); }
 
+/* Assigned by cufo_init(). */
+cu_box_t cuP_idr_foprint = CU_BOX_NULL_FPTR_INIT;
+
 static cu_box_t
 _idr_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
+	case CUOO_INTF_FOPRINT_FN:
+	    return cuP_idr_foprint;
 	case CUOO_INTF_PRINT_FN:
 	    return cu_box_fptr(cuoo_intf_print_fn_t, _idr_print);
 	case CUOO_INTF_TO_STR_FN:

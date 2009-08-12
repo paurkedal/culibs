@@ -19,6 +19,7 @@
 #include <cuex/compound.h>
 #include <cuex/oprinfo.h>
 #include <cufo/stream.h>
+#include <cufo/tagdefs.h>
 #include <cucon/list.h>
 
 #define MONOID(x) ((cuex_monoid_t)(x))
@@ -284,9 +285,13 @@ _monoid_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *x)
     cuex_oprinfo_t oprinfo;
     oprinfo = cuex_oprinfo(MONOID(x)->opr);
     cu_debug_assert(oprinfo);
+    cufo_enter(fos, cufoT_operator);
     cufo_printf(fos, "%s:[", cuex_oprinfo_name(oprinfo));
+    cufo_leave(fos, cufoT_operator);
     cuex_ltree_foprint(fos, MONOID(x)->ltree, "%!", ", %!");
+    cufo_enter(fos, cufoT_operator);
     cufo_putc(fos, ']');
+    cufo_leave(fos, cufoT_operator);
 }
 
 

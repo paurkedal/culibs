@@ -264,13 +264,24 @@ void cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e);
  ** \name Basic Markup
  ** @{ */
 
+#ifndef CU_IN_DOXYGEN
 cu_bool_t cufoP_entera(cufo_stream_t fos, cufo_tag_t tag, ...);
+#endif
 
 cu_bool_t cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va);
 
-#define cufo_enter(fos, tag) cufoP_entera(fos, tag, NULL)
+/** Starts a fragment marked up with \a tag. */
+CU_SINLINE cu_bool_t
+cufo_enter(cufo_stream_t fos, cufo_tag_t tag)
+{ return cufoP_entera(fos, tag, NULL); }
+
+/** Starts a fragment marked up with \a tag with associated attributes
+ ** specified in the variadic part.  Attributes can be passed by using the \c
+ ** cufoA_* macros found in \ref cufo_attrdefs_h "cufo/attrdefs.h". */
 #define cufo_entera(fos, tag, ...) cufoP_entera(fos, tag, __VA_ARGS__, NULL)
 
+/** Ends a fragment which was started by \ref cufo_enter or \ref cufo_entera.
+ ** The \a tag arguments of the matching calls must be the same. */
 void cufo_leave(cufo_stream_t fos, cufo_tag_t tag);
 
 void cufo_leaveln(cufo_stream_t fos, cufo_tag_t tag);

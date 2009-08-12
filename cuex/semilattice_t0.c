@@ -17,6 +17,8 @@
 
 #include <cuex/semilattice.h>
 #include <cuex/oprdefs.h>
+#include <cufo/tagdefs.h>
+#include <cufo/stream.h>
 #include <cudyn/misc.h>
 #include <cucon/pset.h>
 #include <cu/test.h>
@@ -55,8 +57,12 @@ test(int N, int J, cu_bool_t do_print)
     e_meet = cuex_meetlattice_meet(MEET, e0, e1);
     e_join = cuex_meetlattice_semijoin(MEET, e0, e1);
     if (do_print)
-	cu_fprintf(stdout, "e0 = %!\ne1 = %!\ne0 ∧ e1 = %!\ne0 ∨ e1 = %!\n\n",
-		   e0, e1, e_meet, e_join);
+	cufo_oprintf("e0 %<=%> %!\ne1 %<=%> %!\n"
+		     "e0 %<∧%> e1 %<=%> %!\n"
+		     "e0 %<∨%> e1 %<=%> %!\n\n",
+		     cufoT_operator, e0, cufoT_operator, e1,
+		     cufoT_operator, cufoT_operator, e_meet,
+		     cufoT_operator, cufoT_operator, e_join);
 }
 
 int

@@ -149,7 +149,9 @@ cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e)
 
 	if ((to_str = cuoo_type_impl_fptr(cuoo_intf_to_str_fn_t, e_type,
 					  CUOO_INTF_TO_STR_FN))) {
+	    cufo_enter(fos, cufoT_literal);
 	    cufo_print_str(fos, (*to_str)(e));
+	    cufo_leave(fos, cufoT_literal);
 	    return;
 	}
 

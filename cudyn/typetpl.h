@@ -20,6 +20,7 @@
 
 #include <cudyn/fwd.h>
 #include <cufo/fwd.h>
+#include <cufo/tagdefs.h>
 
 CU_BEGIN_DECLARATIONS
 /* \defgroup cudyn_typetpl_h cudyn/typetpl.h: Type Definition Template Macros
@@ -113,7 +114,7 @@ CU_BEGIN_DECLARATIONS
 									\
     static void								\
     cudynP_##NAME##_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *e) \
-    { cufo_printf(fos, format, cudyn_to_##NAME(e)); }
+    { cufo_printf(fos, "%<"format"%>", cufoT_literal, cudyn_to_##NAME(e)); }
 
 /*!Template to set up function aliases for dynamic implemetation of
  * \a type_t with name \a NAME in terms of \a IMPLNAME. */

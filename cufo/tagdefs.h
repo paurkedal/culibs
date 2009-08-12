@@ -97,6 +97,9 @@ extern cufo_tag_t cufoT_comment;
 /** Delimits a keyword. */
 extern cufo_tag_t cufoT_keyword;
 
+/** Delimits a label. */
+extern cufo_tag_t cufoT_label;
+
 /** Delimits an operator. */
 extern cufo_tag_t cufoT_operator;
 

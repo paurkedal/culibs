@@ -102,6 +102,12 @@ _print_ld_sup(cufo_stream_t fos, cufo_prispec_t spec, cu_va_ref_t va_ref)
 }
 
 static void
+_idr_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
+{
+    cufo_puts(fos, cu_idr_to_cstr(ptr));
+}
+
+static void
 _wstring_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
 {
     int i, n = cu_wstring_length(ptr);
@@ -189,8 +195,12 @@ cu_clos_def(_ucset_foprint_item, cu_prot(void, uintptr_t key),
     ( cufo_stream_t fos; size_t count; ))
 {
     cu_clos_self(_ucset_foprint_item);
-    if (self->count++)
-	cufo_puts(self->fos, ", ");
+    if (self->count++) {
+	cufo_enter(self->fos, cufoT_operator);
+	cufo_putc(self->fos, ',');
+	cufo_leave(self->fos, cufoT_operator);
+	cufo_putc(self->fos, ' ');
+    }
     cufo_printf(self->fos, "%"PRIdPTR, key);
 }
 
@@ -200,11 +210,16 @@ _ucset_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *ptr)
     _ucset_foprint_item_t cb;
     cb.fos = fos;
     cb.count = 0;
+    cufo_enter(fos, cufoT_operator);
     cufo_putc(fos, '{');
+    cufo_leave(fos, cufoT_operator);
     cucon_ucset_iter(ptr, _ucset_foprint_item_prep(&cb));
+    cufo_enter(fos, cufoT_operator);
     cufo_putc(fos, '}');
+    cufo_leave(fos, cufoT_operator);
 }
 
+extern cu_box_t cuP_idr_foprint;
 extern cu_box_t cuP_wstring_foprint;
 extern cu_box_t cuP_str_foprint;
 extern cu_box_t cuconP_ucset_foprint;
@@ -222,6 +237,7 @@ cufoP_init_formats()
     cufo_register_va_format("ld/sub", _print_ld_sub);
     cufo_register_va_format("ld/sup", _print_ld_sup);
 
+    cuP_idr_foprint = cu_box_fptr(cufo_print_ptr_fn_t, _idr_foprint);
     cuP_wstring_foprint = cu_box_fptr(cufo_print_ptr_fn_t, _wstring_foprint);
     cuP_str_foprint = cu_box_fptr(cufo_print_ptr_fn_t, _str_foprint);
     cuconP_ucset_foprint = cu_box_fptr(cufo_print_ptr_fn_t, _ucset_foprint);

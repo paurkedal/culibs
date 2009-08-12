@@ -26,6 +26,7 @@
 #include <cuoo/halloc.h>
 #include <cuoo/properties.h>
 #include <cufo/stream.h>
+#include <cufo/tagdefs.h>
 #include <cu/ptr_seq.h>
 
 #define l_o2_label cuex_o2_metapair
@@ -382,24 +383,37 @@ cu_clos_def(_labelling_foprint_elt, cu_prot(void, cuex_t e),
 {
     cu_clos_self(_labelling_foprint_elt);
     cuex_t l, x;
-    if (self->index++)
-	cufo_puts(self->fos, ", ");
+    if (self->index++) {
+	cufo_enter(self->fos, cufoT_operator);
+	cufo_putc(self->fos, ',');
+	cufo_leave(self->fos, cufoT_operator);
+	cufo_putc(self->fos, ' ');
+    }
     cu_debug_assert(cuex_meta_is_opr(cuex_meta(e)) &&
 		    cuex_opr_r(cuex_meta(e)) >= 2);
     l = cuex_opn_at(e, 0);
     x = cuex_opn_at(e, 1);
-    cufo_printf(self->fos, "%!: %!", l, x);
+    cufo_enter(self->fos, cufoT_label);
+    cufo_print_ex(self->fos, l);
+    cufo_putc(self->fos, ':');
+    cufo_leave(self->fos, cufoT_label);
+    cufo_putc(self->fos, ' ');
+    cufo_print_ex(self->fos, x);
 }
 
 static void
 _labelling_foprint(cufo_stream_t fos, cufo_prispec_t spec, cuex_t L)
 {
     _labelling_foprint_elt_t cl;
+    cufo_enter(fos, cufoT_operator);
     cufo_putc(fos, '{');
+    cufo_leave(fos, cufoT_operator);
     cl.fos = fos;
     cl.index = 0;
     cuex_atree_iter(LABELLING(L)->atree, _labelling_foprint_elt_prep(&cl));
+    cufo_enter(fos, cufoT_operator);
     cufo_putc(fos, '}');
+    cufo_leave(fos, cufoT_operator);
 }
 
 
