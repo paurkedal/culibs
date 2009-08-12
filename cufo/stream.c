@@ -126,7 +126,7 @@ cufo_close(cufo_stream_t fos)
 #ifdef CUCONF_DEBUG_CLIENT
     if (!cufo_have_error(fos) && fos->tag_stack != NULL)
 	cu_bugf("Missing closing tag %s at end of stream.",
-		fos->tag_stack->tag);
+		cufo_tag_name(fos->tag_stack->tag));
 #endif
     /* Clear our own buffer before the sink stack emits any end-matter. */
     cufoP_flush(fos, CUFOP_FLUSH_MUST_CLEAR);

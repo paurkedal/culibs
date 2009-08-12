@@ -28,6 +28,8 @@
 #include <string.h>
 #include <ctype.h>
 
+/* USE OF THE DEBUG LOG HERE.  The style loading code may run before we
+ * register our log binder, so don't use extended format specifiers here. */
 cu_dlog_def(_file, "dtag=cufo.termstyle");
 
 static struct cuos_dirpile_s _termstyle_dirpile;
@@ -186,12 +188,14 @@ _termstyle_loadinto(cufo_termstyle_t style, cu_str_t path, FILE *in)
 		if (*s != 0)
 		    *s++ = 0;
 		if (strcmp(var, "fg") == 0) {
-		    cu_dlogf(_file, "Setting %! fgcolour %s", tag, val);
+		    cu_dlogf(_file, "Setting %s fgcolour %s",
+			     cufo_tag_name(tag), val);
 		    if (!cufo_termface_set_fgcolour_cstr(face, val))
 			cu_warnf_at(&loc, "Invalid foreground colour %s.", val);
 		}
 		else if (strcmp(var, "bg") == 0) {
-		    cu_dlogf(_file, "Setting %! bgcolour %s", tag, val);
+		    cu_dlogf(_file, "Setting %s bgcolour %s",
+			     cufo_tag_name(tag), val);
 		    if (!cufo_termface_set_bgcolour_cstr(face, val))
 			cu_warnf_at(&loc, "Ivalid background colour %s.", val);
 		}
@@ -211,8 +215,9 @@ _termstyle_loadinto(cufo_termstyle_t style, cu_str_t path, FILE *in)
 		    value = cu_true;
 		for (i = 0; i < BOOL_ATTR_COUNT; ++i)
 		    if (strcmp(var, _booleans[i].name) == 0) {
-			cu_dlogf(_file, "Setting %! attr %s=%(bool)",
-				 tag, var, value);
+			cu_dlogf(_file, "Setting %s attr %s=%s",
+				 cufo_tag_name(tag), var,
+				 value? "true" : "false");
 			cufo_termface_set_bool(face, _booleans[i].mask, value);
 			break;
 		    }
@@ -232,7 +237,8 @@ cufo_termstyle_loadinto(cufo_termstyle_t style, cu_str_t style_name)
 
     if (path) {
 	char const *path_cstr = cu_str_to_cstr(path);
-	cu_dlogf(_file, "Loading terminal style %(str).", style_name);
+	cu_dlogf(_file, "Loading terminal style %s.",
+		 cu_str_to_cstr(style_name));
 	in = fopen(path_cstr, "r");
 	if (!in) {
 	    cu_warnf("Failed to open %s.", path_cstr);
