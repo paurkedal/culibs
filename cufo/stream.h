@@ -24,6 +24,7 @@
 #include <cu/inherit.h>
 #include <cu/buffer.h>
 #include <cu/wchar.h>
+#include <cu/thread.h>
 #include <cuoo/fwd.h>
 #include <cucon/hzmap.h>
 #include <iconv.h>
@@ -84,6 +85,7 @@ struct cufo_stream_s
     struct cufoP_tag_stack_s *tag_stack;
 #endif
     struct cucon_hzmap_s clientstate_map;
+    cu_mutex_t mutex;
 };
 
 cu_bool_t cufo_stream_init(cufo_stream_t fos, char const *encoding,
@@ -115,6 +117,12 @@ cufo_stream_produce(cufo_stream_t fos, size_t len)
 /** @}
  ** \name Stream Construction and Cleanup
  ** @{ */
+
+/** A stream tied to file descriptor 1 (stdandard output). */
+extern cufo_stream_t cufo_stdout;
+
+/** A stream tied to file descriptor 2 (standard error). */
+extern cufo_stream_t cufo_stderr;
 
 cufo_stream_t cufo_open_sink(cutext_sink_t sink);
 
@@ -171,6 +179,15 @@ void cufo_close_discard(cufo_stream_t fos);
 /** @}
  ** \name Stream Control
  ** @{ */
+
+/** Acquires an exclusive lock on \a fos in case it's shared by multiple
+ ** threads.  Pair it off with \ref cufo_unlock. */
+CU_SINLINE void cufo_lock(cufo_stream_t fos)
+{ cu_mutex_lock(&fos->mutex); }
+
+/** Unlocks \a fos. */
+CU_SINLINE void cufo_unlock(cufo_stream_t fos)
+{ cu_mutex_unlock(&fos->mutex); }
 
 /** Flushes buffered data down the stack of sinks. */
 CU_SINLINE void cufo_flush(cufo_stream_t fos)
@@ -264,9 +281,24 @@ void cufo_empty(cufo_stream_t fos, cufo_tag_t tag, ...);
  ** \name Formatted Printing and Markup
  ** @{ */
 
+/** Print \a fmt to \a fos, replacing format specifies with representations of
+ ** the corresponding arguments from \a va. */
+int cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va);
+
+/** Print \a fmt to \a fos, replacing format specifies with representations of
+ ** the corresponding following arguments. */
 int cufo_printf(cufo_stream_t fos, char const *fmt, ...);
 
-int cufo_vprintf(cufo_stream_t fos, char const *fmt, va_list va);
+/** A variant of \ref cufo_printf which locks the stream while printing. */
+int cufo_lprintf(cufo_stream_t fos, char const *fmt, ...);
+
+/** Calls \ref cufo_printf then \ref cufo_flush on \ref cufo_stdout after
+ ** acquiring a temporary lock. */
+int cufo_oprintf(char const *fmt, ...);
+
+/** Calls \ref cufo_printf then \ref cufo_flush on \ref cufo_stderr after
+ ** acquiring a temporary lock. */
+int cufo_eprintf(char const *fmt, ...);
 
 int cufo_printfln(cufo_stream_t fos, char const *fmt, ...);
 

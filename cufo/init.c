@@ -29,28 +29,24 @@ void cufoP_termstyle_init();
 void cufoP_printf_init(void);
 void cufoP_init_formats(void);
 
-cufo_stream_t cufoP_stderr;
+cufo_stream_t cufo_stderr, cufo_stdout;
 cufo_stream_t cufoP_stderr_bug;
-cu_mutex_t cufoP_stderr_mutex = CU_MUTEX_INITIALISER;
-cu_mutex_t cufoP_stderr_bug_mutex = CU_MUTEX_INITIALISER;
 
 cu_clos_def(default_vlogf,
 	    cu_prot(void, cu_log_facility_t facility, cu_sref_t sref,
 		    char const *fmt, va_list va),
-    ( cufo_stream_t fos;
-      cu_mutex_t *fos_mutex; ))
+    ( cufo_stream_t fos; ))
 {
     cu_clos_self(default_vlogf);
-    cu_mutex_lock(self->fos_mutex);
+    cufo_lock(self->fos);
     cufo_vlogf_at(self->fos, facility, sref, fmt, va);
-    cu_mutex_unlock(self->fos_mutex);
+    cufo_unlock(self->fos);
 }
 
 cu_clos_def(default_vlogf_bug,
 	    cu_prot(void, cu_log_facility_t facility, cu_sref_t sref,
 		    char const *fmt, va_list va),
-    ( cufo_stream_t fos;
-      cu_mutex_t *fos_mutex; ))
+    ( cufo_stream_t fos; ))
 {
     cu_clos_self(default_vlogf_bug);
     /* Normally this function is only called once before the program aborts,
@@ -61,9 +57,9 @@ cu_clos_def(default_vlogf_bug,
      *      simultaneously, in which case it's unsafe to ignore the lock.
      * The ideal solution may be recursive locks.  For now, just revert to
      * fprintf. */
-    if (pthread_mutex_trylock(self->fos_mutex) == 0) {
+    if (pthread_mutex_trylock(&self->fos->mutex) == 0) {
 	cufo_vlogf_at(self->fos, facility, sref, fmt, va);
-	cu_mutex_unlock(self->fos_mutex);
+	cufo_unlock(self->fos);
     } else {
 	fprintf(stderr,
 		"** Could not lock mutex for debug log.  This could be a "
@@ -80,13 +76,11 @@ cu_clop_def(default_log_binder, cu_bool_t, cu_log_facility_t facility)
 	cu_log_facility_origin(facility) == CU_LOG_LOGIC) {
 	default_vlogf_bug_t *vlogf = cu_gnew(default_vlogf_bug_t);
 	vlogf->fos = cufoP_stderr_bug;
-	vlogf->fos_mutex = &cufoP_stderr_bug_mutex;
 	facility->vlogf = default_vlogf_bug_prep(vlogf);
     }
     else {
 	default_vlogf_t *vlogf = cu_gnew(default_vlogf_t);
-	vlogf->fos = cufoP_stderr;
-	vlogf->fos_mutex = &cufoP_stderr_mutex;
+	vlogf->fos = cufo_stderr;
 	facility->vlogf = default_vlogf_prep(vlogf);
     }
     return cu_true;
@@ -108,7 +102,8 @@ cufo_init(void)
     cufoP_termstyle_init();
 #endif
 
-    cufoP_stderr = cufo_open_auto_fd(2, cu_false);
+    cufo_stdout = cufo_open_auto_fd(1, cu_false);
+    cufo_stderr = cufo_open_auto_fd(2, cu_false);
     cufoP_stderr_bug = cufo_open_auto_fd(2, cu_false);
     cu_register_log_binder(cu_clop_ref(default_log_binder));
 

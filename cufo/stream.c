@@ -87,6 +87,7 @@ cufo_stream_init(cufo_stream_t fos, char const *encoding, cutext_sink_t target)
     }
 
     cucon_hzmap_init(&fos->clientstate_map, 1);
+    cu_mutex_init(&fos->mutex);
     return cu_true;
 }
 

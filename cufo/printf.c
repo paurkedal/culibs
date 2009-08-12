@@ -620,6 +620,47 @@ cufo_printfln(cufo_stream_t fos, char const *fmt, ...)
     return write_count;
 }
 
+int
+cufo_lprintf(cufo_stream_t fos, char const *fmt, ...)
+{
+    int write_count;
+    va_list va;
+    cufo_lock(fos);
+    va_start(va, fmt);
+    write_count = cufo_vprintf(fos, fmt, va);
+    va_end(va);
+    cufo_unlock(fos);
+    return write_count;
+}
+
+int
+cufo_oprintf(char const *fmt, ...)
+{
+    int write_count;
+    va_list va;
+    cufo_lock(cufo_stdout);
+    va_start(va, fmt);
+    write_count = cufo_vprintf(cufo_stdout, fmt, va);
+    va_end(va);
+    cufo_flush(cufo_stdout);
+    cufo_unlock(cufo_stdout);
+    return write_count;
+}
+
+int
+cufo_eprintf(char const *fmt, ...)
+{
+    int write_count;
+    va_list va;
+    cufo_lock(cufo_stderr);
+    va_start(va, fmt);
+    write_count = cufo_vprintf(cufo_stderr, fmt, va);
+    va_end(va);
+    cufo_flush(cufo_stderr);
+    cufo_unlock(cufo_stderr);
+    return write_count;
+}
+
 void
 cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
 	      cu_sref_t loc, char const *fmt, va_list va)
@@ -650,6 +691,7 @@ cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
     cufo_vprintf(fos, fmt, va);
     cufo_leave(fos, cufoT_message);
     cufo_leaveln(fos, cufoT_logentry);
+    cufo_flush(fos);
 }
 
 void
