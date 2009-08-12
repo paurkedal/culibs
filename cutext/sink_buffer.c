@@ -108,7 +108,7 @@ _bufsink_discard(cutext_sink_t sink_)
 static cu_str_t
 _bufsink_debug_state(_bufsink_t sink)
 {
-    return cu_str_new_fmt("Sink buffer, storage_size = %d, content_size = %d.",
+    return cu_str_new_fmt("buffering (storage_size = %d, content_size = %d)",
 			  cu_buffer_storage_size(&sink->buf),
 			  cu_buffer_content_size(&sink->buf));
 }

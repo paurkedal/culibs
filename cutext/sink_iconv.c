@@ -19,6 +19,7 @@
 #include <cu/diag.h>
 #include <cu/debug.h>
 #include <cu/memory.h>
+#include <cu/str.h>
 #include <errno.h>
 #include <iconv.h>
 
@@ -113,6 +114,10 @@ _iconv_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 	case CUTEXT_SINK_INFO_ENCODING:
 	    return cu_box_ptr(cutext_sink_info_encoding_t,
 			      ICSINK(sink)->encoding);
+	case CUTEXT_SINK_INFO_DEBUG_STATE:
+	    return cu_box_ptr(cutext_sink_info_debug_state_t,
+			      cu_str_new_fmt("iconv from %s",
+					     ICSINK(sink)->encoding));
 	default:
 	    return cutext_sink_default_info(sink, key);
     }

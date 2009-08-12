@@ -54,8 +54,15 @@ static cu_box_t
 _wstringsink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 {
     switch (key) {
+	    size_t len;
 	case CUTEXT_SINK_INFO_ENCODING:
 	    return cu_box_ptr(cutext_sink_info_encoding_t, cu_wchar_encoding);
+	case CUTEXT_SINK_INFO_DEBUG_STATE:
+	    len = cu_buffer_content_size(&BUFSINK(sink)->buffer)
+		/ sizeof(cu_wchar_t);
+	    return cu_box_ptr(cutext_sink_info_debug_state_t,
+			      cu_str_new_fmt("writing to cu_wstring_t "
+					     "(size=%zd)", len));
 	default:
 	    return cutext_sink_default_info(sink, key);
     }
@@ -65,8 +72,14 @@ static cu_box_t
 _strsink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 {
     switch (key) {
+	    size_t len;
 	case CUTEXT_SINK_INFO_ENCODING:
 	    return cu_box_ptr(cutext_sink_info_encoding_t, "UTF-8");
+	case CUTEXT_SINK_INFO_DEBUG_STATE:
+	    len = cu_buffer_content_size(&BUFSINK(sink)->buffer);
+	    return cu_box_ptr(cutext_sink_info_debug_state_t,
+			      cu_str_new_fmt("writing to cu_str_t "
+					     "(size=%zd)", len));
 	default:
 	    return cutext_sink_default_info(sink, key);
     }

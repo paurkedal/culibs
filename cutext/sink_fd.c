@@ -18,6 +18,7 @@
 #include <cutext/sink.h>
 #include <cu/inherit.h>
 #include <cu/memory.h>
+#include <cu/str.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -65,7 +66,12 @@ _fd_sink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 {
     switch (key) {
 	case CUTEXT_SINK_INFO_ENCODING:
-	    return cu_box_ptr(cutext_sink_info_encoding_t, FD_SINK(sink)->encoding);
+	    return cu_box_ptr(cutext_sink_info_encoding_t,
+			      FD_SINK(sink)->encoding);
+	case CUTEXT_SINK_INFO_DEBUG_STATE:
+	    return cu_box_ptr(cutext_sink_info_debug_state_t,
+			      cu_str_new_fmt("writing to file descriptor %d",
+					     FD_SINK(sink)->fd));
 	default:
 	    return cutext_sink_default_info(sink, key);
     }

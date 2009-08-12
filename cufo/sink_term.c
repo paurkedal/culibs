@@ -219,6 +219,9 @@ _termsink_info(cutext_sink_t dsink, cutext_sink_info_key_t key)
     switch (key) {
 	case CUTEXT_SINK_INFO_ENCODING:
 	    return cutext_sink_info(tsink->subsink, key);
+	case CUTEXT_SINK_INFO_DEBUG_STATE:
+	    return cu_box_ptr(cutext_sink_info_debug_state_t,
+			      cu_str_new_cstr("terminal sink"));
 	default:
 	    return cutext_sink_default_info(dsink, key);
     }

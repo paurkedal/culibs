@@ -445,6 +445,26 @@ _ts_discard(cutext_sink_t tsink)
     cutext_sink_discard(sink->subsink);
 }
 
+static cu_box_t
+_ts_info(cutext_sink_t tsink, cutext_sink_info_key_t key)
+{
+    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, tsink);
+    switch (key) {
+	case CUTEXT_SINK_INFO_DEBUG_STATE:
+	    return cu_box_ptr(cutext_sink_info_debug_state_t,
+			      cu_str_new_cstr("cufo_textsink_t"));
+	default:
+	    return cutext_sink_info(sink->subsink, key);
+    }
+}
+
+static cu_bool_t
+_ts_iterA_subsinks(cutext_sink_t tsink, cu_clop(f, cu_bool_t, cutext_sink_t))
+{
+    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, tsink);
+    return cu_call(f, sink->subsink);
+}
+
 struct cutext_sink_descriptor_s _textsink_descriptor = {
     CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .flags = CUTEXT_SINK_FLAG_CLOGFREE,
@@ -453,7 +473,9 @@ struct cutext_sink_descriptor_s _textsink_descriptor = {
     .finish = _ts_finish,
     .discard = _ts_discard,
     .enter = _ts_enter,
-    .leave = _ts_leave
+    .leave = _ts_leave,
+    .info = _ts_info,
+    .iterA_subsinks = _ts_iterA_subsinks
 };
 
 static cutext_sink_t
