@@ -88,7 +88,6 @@ _ts_write_from_input(cufo_textsink_t sink, cu_wchar_t const *arr, size_t len)
 	}
 	else
 	    markup_pos = SIZE_MAX;
-	cu_debug_assert(input_pos <= markup_pos);
 
 	if (input_pos < markup_pos) {
 	    size_t next_pos = cu_size_min(markup_pos, final_pos);
@@ -99,7 +98,9 @@ _ts_write_from_input(cufo_textsink_t sink, cu_wchar_t const *arr, size_t len)
 	    input_pos = next_pos;
 	}
 
-	if (input_pos != markup_pos)
+	/* It's possible that markup_pos < input_pos due to elimination of
+	 * spaces. */
+	if (input_pos < markup_pos)
 	    break;
 	cu_debug_assert(entry);
 
@@ -300,11 +301,14 @@ _ts_strip_leading_space(cufo_textsink_t sink)
 {
     cu_wchar_t *s = cu_buffer_content_start(&sink->buf);
     cu_wchar_t *s_end = cu_buffer_content_end(&sink->buf);
+    int n_skip = 0;
     while (s < s_end && cutext_iswspace(*s)) {
-	--sink->buffered_width;
+	++n_skip;
 	++s;
     }
     cu_buffer_set_content_start(&sink->buf, s);
+    sink->buffered_width -= n_skip;
+    sink->input_pos += n_skip;
 }
 
 static size_t

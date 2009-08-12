@@ -41,12 +41,6 @@ static void
 _test_attrperm(cufo_stream_t fos, struct _attrperm *a, int n)
 {
     int i;
-#if 0
-    cufo_printf(fos, "(%<%s (%<%s (%<%s (%<%s%>) %s%>) %s%>) %s%>)\n",
-		a[0].tag, a[0].name, a[1].tag, a[1].name,
-		a[2].tag, a[2].name, a[3].tag, a[3].name,
-		a[2].name, a[1].name, a[0].name);
-#endif
     for (i = 0; i < n; ++i) {
 	cufo_puts(fos, "(");
 	cufo_enter(fos, a[i].tag);
@@ -79,6 +73,33 @@ _test_attrperms(cufo_stream_t fos, struct _attrperm *a, int i, int n)
 }
 
 static void
+_test_on_off_0(cufo_stream_t fos)
+{
+    cufo_printf(fos,
+		"→%<Lλ%>%<Rρ%>:%<%<Lλ%>%>%<%<Rρ%>%>:%<%<I%>O%>:%<O%<I%>%>\n",
+		cufoT_type, cufoT_italic,
+		cufoT_type, cufoT_italic, cufoT_bold, cufoT_underline,
+		cufoT_type, cufoT_bold, cufoT_type, cufoT_bold);
+}
+
+static void
+_test_on_off(cufo_stream_t fos, int N)
+{
+    char indicator[] = "nu U";
+    int j = 0, n;
+    for (n = 0; n < N; ++n) {
+	int i = n + 1 == N? 0 : lrand48() & 3;
+	if (!(i & 1) && (j & 1))
+	    cufo_leave(fos, cufoT_underline);
+	if ((i & 1) && !(j & 1))
+	    cufo_enter(fos, cufoT_underline);
+	cufo_putc(fos, indicator[i]);
+	j = i;
+    }
+    cufo_newline(fos);
+}
+
+static void
 _test_term_target(void)
 {
     cufo_stream_t fos = cufo_open_term_fd("UTF-8", NULL, 1, cu_false);
@@ -92,6 +113,8 @@ _test_term_target(void)
     cufo_printf(fos, "\n%<Terminal Test%>\n\n", cufoT_title);
     cufo_leaveln(fos, cufoT_title);
     _test_attrperms(fos, a, 0, 4);
+    _test_on_off_0(fos);
+    _test_on_off(fos, 680);
     cufo_close(fos);
 }
 
