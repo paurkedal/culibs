@@ -217,7 +217,7 @@ _termsink_info(cutext_sink_t dsink, cutext_sink_info_key_t key)
 {
     _termsink_t tsink = cu_from(_termsink, cutext_sink, dsink);
     switch (key) {
-	case CU_DSINK_INFO_ENCODING:
+	case CUTEXT_SINK_INFO_ENCODING:
 	    return cutext_sink_info(tsink->subsink, key);
 	default:
 	    return cutext_sink_default_info(dsink, key);
@@ -225,9 +225,9 @@ _termsink_info(cutext_sink_t dsink, cutext_sink_info_key_t key)
 }
 
 static struct cutext_sink_descriptor_s _termsink_descriptor = {
-    CU_DSINK_DESCRIPTOR_DEFAULTS,
+    CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .write = _termsink_write,
-    .flags = CU_DSINK_FLAG_CLOGFREE | CU_DSINK_FLAG_CUFO_EXT,
+    .flags = CUTEXT_SINK_FLAG_CLOGFREE,
     .iterA_subsinks = _termsink_iterA_subsinks,
     .info = _termsink_info,
     .enter = _termsink_enter,

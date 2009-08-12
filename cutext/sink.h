@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CU_DSINK_H
-#define CU_DSINK_H
+#ifndef CUTEXT_SINK_H
+#define CUTEXT_SINK_H
 
 #include <cutext/fwd.h>
 #include <cu/buffer.h>
@@ -50,8 +50,8 @@ CU_BEGIN_DECLARATIONS
  ** @{ */
 
 typedef enum {
-    CU_DSINK_INFO_ENCODING,
-    CU_DSINK_INFO_DEBUG_STATE
+    CUTEXT_SINK_INFO_ENCODING,
+    CUTEXT_SINK_INFO_DEBUG_STATE
 } cutext_sink_info_key_t;
 typedef char const *cutext_sink_info_encoding_t;
 typedef cu_str_t cutext_sink_info_debug_state_t;
@@ -75,10 +75,9 @@ struct cutext_sink_descriptor_s
     void (*leave)(cutext_sink_t, struct cufo_tag_s *);
 };
 
-#define CU_DSINK_FLAG_CLOGFREE 1
-#define CU_DSINK_FLAG_CUFO_EXT 2
+#define CUTEXT_SINK_FLAG_CLOGFREE 1
 
-#define CU_DSINK_DESCRIPTOR_DEFAULTS \
+#define CUTEXT_SINK_DESCRIPTOR_DEFAULTS \
     .flags = 0, \
     .write = cutext_sink_noop_write, \
     .flush = cutext_sink_noop_flush, \
@@ -126,7 +125,7 @@ cutext_sink_flags(cutext_sink_t sink)
 /** True if \a sink is clog-free, as reported by the \ref
  ** CU_DSINK_FN_IS_CLOGFREE response. */
 CU_SINLINE cu_bool_t cutext_sink_is_clogfree(cutext_sink_t sink)
-{ return sink->descriptor->flags & CU_DSINK_FLAG_CLOGFREE; }
+{ return sink->descriptor->flags & CUTEXT_SINK_FLAG_CLOGFREE; }
 
 /** Control function to check that \a sink is clog-free.  It is recommended to
  ** call this once before starting to write to a sink where a clog-free sink is
@@ -140,7 +139,7 @@ cutext_sink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 CU_SINLINE char const *
 cutext_sink_encoding(cutext_sink_t sink)
 { return cu_unbox_ptr(cutext_sink_info_encoding_t,
-		      cutext_sink_info(sink, CU_DSINK_INFO_ENCODING)); }
+		      cutext_sink_info(sink, CUTEXT_SINK_INFO_ENCODING)); }
 
 /** Attempt to write any buffered data and pass down the flush request to
  ** sub-sinks. */

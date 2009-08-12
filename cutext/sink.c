@@ -111,9 +111,9 @@ cu_box_t
 cutext_sink_default_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 {
     switch (key) {
-	case CU_DSINK_INFO_ENCODING:
+	case CUTEXT_SINK_INFO_ENCODING:
 	    return cu_box_ptr(cutext_sink_info_encoding_t, NULL);
-	case CU_DSINK_INFO_DEBUG_STATE:
+	case CUTEXT_SINK_INFO_DEBUG_STATE:
 	    return cu_box_ptr(cutext_sink_info_debug_state_t,
 			      _default_debug_state_info(sink));
 	default:
@@ -140,7 +140,7 @@ cu_clos_def(_sink_debug_dump, cu_prot(cu_bool_t, cutext_sink_t sink),
     cu_str_t info;
     int i;
     info = cu_unbox_ptr(cutext_sink_info_debug_state_t,
-			cutext_sink_info(sink, CU_DSINK_INFO_DEBUG_STATE));
+			cutext_sink_info(sink, CUTEXT_SINK_INFO_DEBUG_STATE));
     for (i = 0; i < self->indent; ++i)
 	fputc(' ', stderr);
     fputs(cu_str_to_cstr(info), stderr);
@@ -160,7 +160,7 @@ cutext_sink_debug_dump(cutext_sink_t sink)
 void
 cutext_sink_assert_clogfree(cutext_sink_t sink)
 {
-    if (!sink->descriptor->flags & CU_DSINK_FLAG_CLOGFREE)
+    if (!sink->descriptor->flags & CUTEXT_SINK_FLAG_CLOGFREE)
 	cu_bugf("Caller expected a clog-free sink, but sink does not "
 		"guarante to be clog-free.");
 }
@@ -175,8 +175,8 @@ _dcountsink_write(cutext_sink_t sink, void const *arr, size_t len)
 }
 
 struct cutext_sink_descriptor_s _dcountsink_descriptor = {
-    CU_DSINK_DESCRIPTOR_DEFAULTS,
-    .flags = CU_DSINK_FLAG_CLOGFREE,
+    CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
+    .flags = CUTEXT_SINK_FLAG_CLOGFREE,
     .write = _dcountsink_write
 };
 

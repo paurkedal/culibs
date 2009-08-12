@@ -54,7 +54,7 @@ static cu_box_t
 _wstringsink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 {
     switch (key) {
-	case CU_DSINK_INFO_ENCODING:
+	case CUTEXT_SINK_INFO_ENCODING:
 	    return cu_box_ptr(cutext_sink_info_encoding_t, cu_wchar_encoding);
 	default:
 	    return cutext_sink_default_info(sink, key);
@@ -65,7 +65,7 @@ static cu_box_t
 _strsink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 {
     switch (key) {
-	case CU_DSINK_INFO_ENCODING:
+	case CUTEXT_SINK_INFO_ENCODING:
 	    return cu_box_ptr(cutext_sink_info_encoding_t, "UTF-8");
 	default:
 	    return cutext_sink_default_info(sink, key);
@@ -73,14 +73,14 @@ _strsink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 }
 
 static struct cutext_sink_descriptor_s _wstringsink_descriptor = {
-    CU_DSINK_DESCRIPTOR_DEFAULTS,
+    CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .write = _bufsink_write,
     .finish = _wstringsink_finish,
     .info = _wstringsink_info
 };
 
 static struct cutext_sink_descriptor_s _strsink_descriptor = {
-    CU_DSINK_DESCRIPTOR_DEFAULTS,
+    CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .write = _bufsink_write,
     .finish = _strsink_finish,
     .info = _strsink_info

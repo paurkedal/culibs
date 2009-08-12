@@ -204,8 +204,8 @@ _xmlsink_iterA_subsinks(cutext_sink_t sink, cu_clop(f, cu_bool_t, cutext_sink_t)
 }
 
 static struct cutext_sink_descriptor_s _xmlsink_descriptor = {
-    CU_DSINK_DESCRIPTOR_DEFAULTS,
-    .flags = CU_DSINK_FLAG_CUFO_EXT | CU_DSINK_FLAG_CLOGFREE,
+    CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
+    .flags = CUTEXT_SINK_FLAG_CLOGFREE,
     .write = _xmlsink_write,
     .flush = _xmlsink_flush,
     .finish = _xmlsink_close,

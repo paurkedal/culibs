@@ -118,7 +118,7 @@ _bufsink_info(cutext_sink_t sink_, cutext_sink_info_key_t key)
 {
     _bufsink_t sink = cu_from(_bufsink, cutext_sink, sink_);
     switch (key) {
-	case CU_DSINK_INFO_DEBUG_STATE:
+	case CUTEXT_SINK_INFO_DEBUG_STATE:
 	    return cu_box_ptr(cutext_sink_info_debug_state_t,
 			      _bufsink_debug_state(sink));
 	default:
@@ -149,8 +149,8 @@ _bufsink_leave(cutext_sink_t sink_, struct cufo_tag_s *tag)
 }
 
 struct cutext_sink_descriptor_s _bufsink_descriptor = {
-    CU_DSINK_DESCRIPTOR_DEFAULTS,
-    .flags = CU_DSINK_FLAG_CLOGFREE,
+    CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
+    .flags = CUTEXT_SINK_FLAG_CLOGFREE,
     .write = _bufsink_write,
     .flush = _bufsink_flush,
     .finish = _bufsink_finish,

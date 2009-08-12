@@ -64,7 +64,7 @@ static cu_box_t
 _fd_sink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 {
     switch (key) {
-	case CU_DSINK_INFO_ENCODING:
+	case CUTEXT_SINK_INFO_ENCODING:
 	    return cu_box_ptr(cutext_sink_info_encoding_t, FD_SINK(sink)->encoding);
 	default:
 	    return cutext_sink_default_info(sink, key);
@@ -72,18 +72,18 @@ _fd_sink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 }
 
 struct cutext_sink_descriptor_s _fd_sink_descriptor_if_not_close = {
-    CU_DSINK_DESCRIPTOR_DEFAULTS,
+    CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
 #ifdef CUCONF_SYS_WRITE_IS_CLOGFREE
-    .flags = CU_DSINK_FLAG_CLOGFREE,
+    .flags = CUTEXT_SINK_FLAG_CLOGFREE,
 #endif
     .write = _fd_sink_write,
     .info = _fd_sink_info
 };
 
 struct cutext_sink_descriptor_s _fd_sink_descriptor_if_close = {
-    CU_DSINK_DESCRIPTOR_DEFAULTS,
+    CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
 #ifdef CUCONF_SYS_WRITE_IS_CLOGFREE
-    .flags = CU_DSINK_FLAG_CLOGFREE,
+    .flags = CUTEXT_SINK_FLAG_CLOGFREE,
 #endif
     .write = _fd_sink_write,
     .finish = _fd_sink_finish_if_close,

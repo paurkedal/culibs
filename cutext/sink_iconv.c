@@ -110,7 +110,7 @@ static cu_box_t
 _iconv_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 {
     switch (key) {
-	case CU_DSINK_INFO_ENCODING:
+	case CUTEXT_SINK_INFO_ENCODING:
 	    return cu_box_ptr(cutext_sink_info_encoding_t,
 			      ICSINK(sink)->encoding);
 	default:
@@ -134,7 +134,7 @@ _iconv_leave(cutext_sink_t sink, struct cufo_tag_s *tag)
 }
 
 static struct cutext_sink_descriptor_s _iconv_descriptor = {
-    CU_DSINK_DESCRIPTOR_DEFAULTS,
+    CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .flags = 0,
     .write = _iconv_write,
     .flush = _iconv_flush,

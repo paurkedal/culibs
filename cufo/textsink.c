@@ -24,7 +24,6 @@
 #include <cuos/dsink.h>
 #include <cucon/hzmap.h>
 #include <cu/inherit.h>
-#include <cu/dsink.h>
 #include <cu/diag.h>
 #include <cu/debug.h>
 #include <cu/int.h>
@@ -308,10 +307,10 @@ _ts_strip_leading_space(cufo_textsink_t sink)
     cu_buffer_set_content_start(&sink->buf, s);
 }
 
-size_t
-_ts_write(cutext_sink_t dsink, void const *req_data, size_t req_size)
+static size_t
+_ts_write(cutext_sink_t tsink, void const *req_data, size_t req_size)
 {
-    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, dsink);
+    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, tsink);
     int usable_width;
     cu_wchar_t const *frag_start = req_data;
     cu_wchar_t const *s_cur = req_data;
@@ -347,10 +346,10 @@ _ts_write(cutext_sink_t dsink, void const *req_data, size_t req_size)
     return req_size;
 }
 
-cu_bool_t
-_ts_flush(cutext_sink_t dsink)
+static cu_bool_t
+_ts_flush(cutext_sink_t tsink)
 {
-    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, dsink);
+    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, tsink);
     return cutext_sink_flush(sink->subsink);
 }
 
@@ -371,10 +370,10 @@ _ts_styler_insert(cufo_textsink_t sink, cu_wstring_t s)
 		    cu_wstring_length(s)*sizeof(cu_wchar_t));
 }
 
-cu_bool_t
-_ts_enter(cutext_sink_t dsink, cufo_tag_t tag, cufo_attrbind_t attrbinds)
+static cu_bool_t
+_ts_enter(cutext_sink_t tsink, cufo_tag_t tag, cufo_attrbind_t attrbinds)
 {
-    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, dsink);
+    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, tsink);
     cucon_hzmap_node_t styler_node;
     cu_word_t tag_word = (cu_word_t)tag;
     cu_debug_assert(attrbinds != NULL);
@@ -402,10 +401,10 @@ _ts_enter(cutext_sink_t dsink, cufo_tag_t tag, cufo_attrbind_t attrbinds)
 	return cu_false;
 }
 
-void
-_ts_leave(cutext_sink_t dsink, cufo_tag_t tag)
+static void
+_ts_leave(cutext_sink_t tsink, cufo_tag_t tag)
 {
-    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, dsink);
+    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, tsink);
     cucon_hzmap_node_t styler_node;
     cu_word_t tag_word = (cu_word_t)tag;
     styler_node = cucon_hzmap_1w_find(&sink->style->tag_to_styler, &tag_word);
@@ -424,10 +423,10 @@ _ts_leave(cutext_sink_t dsink, cufo_tag_t tag)
     _ts_enqueue_markup(sink, tag, NULL);
 }
 
-cu_box_t
-_ts_finish(cutext_sink_t dsink)
+static cu_box_t
+_ts_finish(cutext_sink_t tsink)
 {
-    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, dsink);
+    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, tsink);
     size_t size_rest = cu_buffer_content_size(&sink->buf);
     if (size_rest)
 	_ts_write_from_input(sink, cu_buffer_content_start(&sink->buf),
@@ -435,16 +434,16 @@ _ts_finish(cutext_sink_t dsink)
     return cutext_sink_finish(sink->subsink);
 }
 
-void
-_ts_discard(cutext_sink_t dsink)
+static void
+_ts_discard(cutext_sink_t tsink)
 {
-    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, dsink);
+    cufo_textsink_t sink = cu_from(cufo_textsink, cutext_sink, tsink);
     cutext_sink_discard(sink->subsink);
 }
 
 struct cutext_sink_descriptor_s _textsink_descriptor = {
-    CU_DSINK_DESCRIPTOR_DEFAULTS,
-    .flags = CU_DSINK_FLAG_CUFO_EXT | CU_DSINK_FLAG_CLOGFREE,
+    CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
+    .flags = CUTEXT_SINK_FLAG_CLOGFREE,
     .write = _ts_write,
     .flush = _ts_flush,
     .finish = _ts_finish,
