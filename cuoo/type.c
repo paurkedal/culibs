@@ -165,12 +165,16 @@ cuoo_type_to_str_default(cuex_t type)
 	return cu_str_new_fmt("__type_%p", type);
 }
 
+cu_box_t cuooP_type_foprint;
+
 static cu_box_t
 _type_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUOO_INTF_TO_STR_FN:
 	    return CUOO_INTF_TO_STR_FN_BOX(cuoo_type_to_str_default);
+	case CUOO_INTF_FOPRINT_FN:
+	    return cuooP_type_foprint;
 	default:
 	    return CUOO_IMPL_NONE;
     }

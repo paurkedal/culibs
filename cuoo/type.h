@@ -254,7 +254,7 @@ cuoo_type_t cuoo_type_new_metatype_hce(cuoo_impl_t impl);
 /*!A new type of types which are hash-consed with key size \a key_size. */
 cuoo_type_t cuoo_type_new_metatype_hcs(cuoo_impl_t impl, size_t key_size);
 
-/*!A default implementation of \c CUOO_INTF_TO_STR_FN. */
+/** A default implementation of \ref CUOO_INTF_TO_STR_FN for types. */
 cu_str_t cuoo_type_to_str_default(cuex_t type);
 
 

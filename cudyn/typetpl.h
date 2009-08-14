@@ -110,11 +110,25 @@ CU_BEGIN_DECLARATIONS
     CUDYN_ETYPE_DEFN(NAME, type_t)					\
 									\
     static void cudynP_##NAME##_print(cuex_t e, FILE *out)		\
-    { fprintf(out, format, cudyn_to_##NAME(e)); }			\
+    { fprintf(out, "%"format, cudyn_to_##NAME(e)); }			\
 									\
     static void								\
     cudynP_##NAME##_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *e) \
-    { cufo_printf(fos, "%<"format"%>", cufoT_literal, cudyn_to_##NAME(e)); }
+    { cufo_printf(fos, "%<%"format"%>", cufoT_literal, cudyn_to_##NAME(e)); }
+
+#define CUDYN_ETYPE_DEFN_PRINTIND(NAME, type_t, PRI, IND)		\
+    CUDYN_ETYPE_DEFN(NAME, type_t)					\
+									\
+    static void cudynP_##NAME##_print(cuex_t e, FILE *out)		\
+    { fprintf(out, "%"PRI""IND, cudyn_to_##NAME(e)); }			\
+									\
+    static void								\
+    cudynP_##NAME##_foprint(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e) \
+    {									\
+	cufo_printf(fos, "%<%"PRI"%<"IND"%>%>",				\
+		    cufoT_literal, cudyn_to_##NAME(e), cufoT_special);	\
+    }
+
 
 /*!Template to set up function aliases for dynamic implemetation of
  * \a type_t with name \a NAME in terms of \a IMPLNAME. */
@@ -214,6 +228,7 @@ CU_BEGIN_DECLARATIONS
 #define CUDYN_ETYPEARR_INIT CUDYN_ETYPE_INIT
 
 #define CUDYN_ETYPEARR_DEFN_PRINT CUDYN_ETYPE_DEFN_PRINT
+#define CUDYN_ETYPEARR_DEFN_PRINTIND CUDYN_ETYPE_DEFN_PRINTIND
 
 /*!Template to set up function aliases for dynamic implementation of
  * \a type_t with name \a NAME in terms of \a IMPLNAME including array

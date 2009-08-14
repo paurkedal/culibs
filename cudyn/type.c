@@ -26,10 +26,13 @@
 #include <cuex/set.h>
 #include <cuex/monoid.h>
 #include <cuoo/intf.h>
+#include <cufo/stream.h>
 #include <cu/size.h>
 
 
 static cu_mutex_t type_glck = CU_MUTEX_INITIALISER;
+
+extern cu_box_t cuooP_type_foprint;
 
 
 /* Pointer Types
@@ -111,6 +114,8 @@ _elmtype_impl(cu_word_t intf_number, ...)
     switch (intf_number) {
 	case CUOO_INTF_TO_STR_FN:
 	    return CUOO_INTF_TO_STR_FN_BOX(cuoo_type_to_str_default);
+	case CUOO_INTF_FOPRINT_FN:
+	    return cuooP_type_foprint;
 	default:
 	    return CUOO_IMPL_NONE;
     }
@@ -542,6 +547,21 @@ cuoo_type(cuex_t ex)
     return _dispatch_type(ex, cu_false);
 }
 
+void
+_type_foprint(cufo_stream_t fos, cufo_prispec_t spec, cuex_t type)
+{
+    cuoo_shape_t shape = cuoo_type_shape(type);
+    char const *name = cuoo_shape_name(shape);
+    cufo_enter(fos, cufoT_type);
+    if (cuoo_shape_is_singleton(shape))
+	cufo_puts(fos, name);
+    else if (name)
+	cufo_printf(fos, "__%s_%p", name, type);
+    else
+	cufo_printf(fos, "__type_%p", type);
+    cufo_leave(fos, cufoT_type);
+}
+
 
 /* Init
  * ==== */
@@ -568,4 +588,5 @@ cudynP_type_init()
     cudynP_duntype_type = cuoo_type_new_metatype_hce(cuoo_impl_none);
     cudynP_sngtype_type = cuoo_type_new_metatype_hce(cuoo_impl_none);
     cudynP_tup_null = cuex_monoid_identity(CUEX_O2_TUPLE);
+    cuooP_type_foprint = CUOO_INTF_FOPRINT_FN_BOX(_type_foprint);
 }
