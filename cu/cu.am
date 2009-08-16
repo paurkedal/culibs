@@ -19,6 +19,7 @@ cu_headers = \
 	cu/inherit.h \
 	cu/init.h \
 	cu/int.h \
+	cu/installdirs.h \
 	cu/logging.h \
 	cu/memory.h \
 	cu/box.h \
@@ -45,6 +46,7 @@ nodist_cu_headers = \
 
 cu_sources = \
 	cu/buffer.c \
+	cu/conf_installdirs.c \
 	cu/cstr.c \
 	cu/dbufsink.c \
 	cu/dsink.c \
@@ -59,6 +61,7 @@ cu_sources = \
 	cu/idr.c \
 	cu/init.c \
 	cu/int.c \
+	cu/installdirs.c \
 	cu/logging.c \
 	cu/memory.c \
 	cu/box.c \

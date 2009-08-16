@@ -299,6 +299,8 @@ AC_CONFIG_COMMANDS([pkgconfig-links],
     ln -sf cudyn-uninstalled.pc pkgconfig/cuex-uninstalled.pc
   ])
 
+CUAC_CONFIG_INSTALLDIRS([cu/conf_installdirs.c], [cuconfP_installdirs])
+
 AC_CONFIG_COMMANDS([cu/conf_ac.h],
   [ test cu/conf_ac.h -nt config_raw.h || sed >cu/conf_ac.h <config_raw.h \
 	-e 's/\(#define\|#undef\) */\1 CUCONF_/' \

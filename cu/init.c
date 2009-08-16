@@ -19,6 +19,7 @@
 #include <cu/fwd.h>
 #include <cu/conf.h>
 #include <cu/str.h>
+#include <cu/installdirs.h>
 #include <locale.h>
 #include <string.h>
 #include <gc/gc.h>
@@ -41,10 +42,12 @@ pthread_mutexattr_t cuP_mutexattr;
 
 char const *cuP_application_name = NULL;
 
+extern cu_installdirs_t cuconfP_installdirs;
+
 cu_bool_t
 cuconf_get_bool(char const *name)
 {
-    char const *v = getenv("name");
+    char const *v = getenv(name);
     return v && (strcmp(v, "true") == 0 || strcmp(v, "yes") == 0);
 }
 
@@ -86,6 +89,13 @@ cu_application_name_str()
     if (!cuP_application_name)
 	error_application_name();
     return cu_str_new_cstr(cuP_application_name);
+}
+
+char const *
+cuconf_get_installdir(cu_installdir_key_t key)
+{
+    cu_debug_assert(0 <= key && key < CU_INSTALLDIR_NONE);
+    return cuconfP_installdirs[key].dir;
 }
 
 void
@@ -131,6 +141,10 @@ cu_init(void)
     cuP_memory_init();
     cuP_diag_init();
     cuP_debug_init();
+
+    /* Installation directories.  After cuP_diag_init(). */
+    cu_installdirs_set_byenv(cuconfP_installdirs, "CULIBS_");
+    cu_installdirs_finish(cuconfP_installdirs);
 
     /* Dynamic */
     cuooP_init();
