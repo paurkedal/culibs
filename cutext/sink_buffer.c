@@ -122,7 +122,7 @@ _bufsink_info(cutext_sink_t sink_, cutext_sink_info_key_t key)
 	    return cu_box_ptr(cutext_sink_info_debug_state_t,
 			      _bufsink_debug_state(sink));
 	default:
-	    return cutext_sink_info(sink->subsink, key);
+	    return cutext_sink_info_inherit(sink_, key, sink->subsink);
     }
 }
 

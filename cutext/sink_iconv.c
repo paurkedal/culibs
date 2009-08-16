@@ -119,7 +119,7 @@ _iconv_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 			      cu_str_new_fmt("iconv from %s",
 					     ICSINK(sink)->encoding));
 	default:
-	    return cutext_sink_default_info(sink, key);
+	    return cutext_sink_info_inherit(sink, key, ICSINK(sink)->subsink);
     }
 }
 

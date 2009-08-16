@@ -463,7 +463,7 @@ _ts_info(cutext_sink_t tsink, cutext_sink_info_key_t key)
 	    return cu_box_ptr(cutext_sink_info_debug_state_t,
 			      cu_str_new_cstr("cufo_textsink_t"));
 	default:
-	    return cutext_sink_info(sink->subsink, key);
+	    return cutext_sink_info_inherit(tsink, key, sink->subsink);
     }
 }
 
@@ -510,7 +510,8 @@ _ts_sink_new(cutext_sink_t subsink, cufo_textstyle_t style)
     sink->style = style;
     sink->tabstop = 8;
     sink->left_margin = 0;
-    sink->right_margin = 76;
+    sink->right_margin =
+	cu_unbox_int(cutext_sink_info(subsink, CUTEXT_SINK_INFO_NCOLUMNS));
     sink->cont_indent = 0;
     sink->cont_eol_insert = NULL;
     sink->cont_bol_insert = NULL;

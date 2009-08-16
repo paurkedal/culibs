@@ -42,17 +42,30 @@ static struct {
     char const *setf;	/* set forground colour */
     char const *setb;	/* set background colour */
     char const *sgr0;	/* reset bold, reverse, and colours */
+    int cols;		/* number of columns or 0 if unavailable */
+    int colors;		/* number of colours, defaulting to 8 */
 } _tistr;
 
 static char const *
-_safe_tigetstr(char const *name)
+_tigetstr(char const *cap_name)
 {
-    char const *s = tigetstr(name);
+    char const *s = tigetstr(cap_name);
     if (s == (char const *)-1) {
-	cu_warnf("tigetstr did not accept capability name \"%s\".", name);
+	cu_warnf("tigetstr did not accept the capability \"%s\".", cap_name);
 	s = NULL;
     }
     return s;
+}
+
+static int
+_tigetint(char const *cap_name, int default_value)
+{
+    int j = tigetnum(cap_name);
+    if (j >= 0)
+	return j;
+    else if (j == -2)
+	cu_warnf("tigetnum did not accept the capability \"%s\"", cap_name);
+    return default_value;
 }
 
 #define FACE_SGR0_MASK (CUFO_TERMFACE_BOLD | CUFO_TERMFACE_REVERSE)
@@ -180,9 +193,9 @@ _default_termstyle(void)
 }
 
 static cu_bool_t
-_termsink_enter(cutext_sink_t dsink, cufo_tag_t tag, cufo_attrbind_t attrbinds)
+_termsink_enter(cutext_sink_t sink, cufo_tag_t tag, cufo_attrbind_t attrbinds)
 {
-    _termsink_t tsink = cu_from(_termsink, cutext_sink, dsink);
+    _termsink_t tsink = cu_from(_termsink, cutext_sink, sink);
     cufo_termface_t face = cufo_termstyle_get(tsink->style, tag);
     if (face) {
 	_push_face(tsink, face);
@@ -193,9 +206,9 @@ _termsink_enter(cutext_sink_t dsink, cufo_tag_t tag, cufo_attrbind_t attrbinds)
 }
 
 static void
-_termsink_leave(cutext_sink_t dsink, cufo_tag_t tag)
+_termsink_leave(cutext_sink_t sink, cufo_tag_t tag)
 {
-    _termsink_t tsink = cu_from(_termsink, cutext_sink, dsink);
+    _termsink_t tsink = cu_from(_termsink, cutext_sink, sink);
     cufo_termface_t face = cufo_termstyle_get(tsink->style, tag);
     if (face)
 	_pop_face(tsink);
@@ -204,31 +217,36 @@ _termsink_leave(cutext_sink_t dsink, cufo_tag_t tag)
 }
 
 static size_t
-_termsink_write(cutext_sink_t dsink, void const *data, size_t len)
+_termsink_write(cutext_sink_t sink, void const *data, size_t len)
 {
-    _termsink_t tsink = cu_from(_termsink, cutext_sink, dsink);
+    _termsink_t tsink = cu_from(_termsink, cutext_sink, sink);
     return cutext_sink_write(tsink->subsink, data, len);
 }
 
 static cu_bool_t
-_termsink_iterA_subsinks(cutext_sink_t dsink, cu_clop(f, cu_bool_t, cutext_sink_t))
+_termsink_iterA_subsinks(cutext_sink_t sink, cu_clop(f, cu_bool_t, cutext_sink_t))
 {
-    _termsink_t tsink = cu_from(_termsink, cutext_sink, dsink);
+    _termsink_t tsink = cu_from(_termsink, cutext_sink, sink);
     return cu_call(f, tsink->subsink);
 }
 
 static cu_box_t
-_termsink_info(cutext_sink_t dsink, cutext_sink_info_key_t key)
+_termsink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 {
-    _termsink_t tsink = cu_from(_termsink, cutext_sink, dsink);
+    _termsink_t tsink = cu_from(_termsink, cutext_sink, sink);
     switch (key) {
 	case CUTEXT_SINK_INFO_ENCODING:
 	    return cutext_sink_info(tsink->subsink, key);
+	case CUTEXT_SINK_INFO_NCOLUMNS:
+	    if (_tistr.cols)
+		return cu_box_int(_tistr.cols);
+	    else
+		return cutext_sink_info(tsink->subsink, key);
 	case CUTEXT_SINK_INFO_DEBUG_STATE:
 	    return cu_box_ptr(cutext_sink_info_debug_state_t,
 			      cu_str_new_cstr("terminal sink"));
 	default:
-	    return cutext_sink_default_info(dsink, key);
+	    return cutext_sink_info_inherit(sink, key, tsink->subsink);
     }
 }
 
@@ -267,15 +285,17 @@ cufo_termsink_new(cufo_termstyle_t termstyle, char const *term,
     }
     if (!AO_load_acquire_read(&done_init)) {
 	cu_mutex_lock(&_curses_mutex);
-	_tistr.setf = _safe_tigetstr("setf");
-	_tistr.setb = _safe_tigetstr("setb");
-	_tistr.sitm = _safe_tigetstr("sitm");
-	_tistr.ritm = _safe_tigetstr("ritm");
-	_tistr.smul = _safe_tigetstr("smul");
-	_tistr.rmul = _safe_tigetstr("rmul");
-	_tistr.bold = _safe_tigetstr("bold");
-	_tistr.rev  = _safe_tigetstr("rev");
-	_tistr.sgr0 = _safe_tigetstr("sgr0");
+	_tistr.setf	= _tigetstr("setf");
+	_tistr.setb	= _tigetstr("setb");
+	_tistr.sitm	= _tigetstr("sitm");
+	_tistr.ritm	= _tigetstr("ritm");
+	_tistr.smul	= _tigetstr("smul");
+	_tistr.rmul	= _tigetstr("rmul");
+	_tistr.bold	= _tigetstr("bold");
+	_tistr.rev	= _tigetstr("rev");
+	_tistr.sgr0	= _tigetstr("sgr0");
+	_tistr.cols	= _tigetint("cols", 0);
+	_tistr.colors	= _tigetint("colors", 8);
 	AO_store_release_write(&done_init, 1);
 	cu_mutex_unlock(&_curses_mutex);
     }

@@ -50,11 +50,17 @@ CU_BEGIN_DECLARATIONS
  ** @{ */
 
 typedef enum {
-    CUTEXT_SINK_INFO_ENCODING,
-    CUTEXT_SINK_INFO_DEBUG_STATE
+    CUTEXT_SINK_INFO_ENCODING = 1,
+    CUTEXT_SINK_INFO_NCOLUMNS = 3,
+    CUTEXT_SINK_INFO_DEBUG_STATE = 0x70
 } cutext_sink_info_key_t;
+
 typedef char const *cutext_sink_info_encoding_t;
 typedef cu_str_t cutext_sink_info_debug_state_t;
+
+CU_SINLINE cu_bool_t
+cutext_sink_info_key_inherits(cutext_sink_info_key_t key)
+{ return key & 1; }
 
 struct cufo_tag_s;
 struct cufo_attrbind_s;
@@ -135,6 +141,12 @@ void cutext_sink_assert_clogfree(cutext_sink_t sink);
 CU_SINLINE cu_box_t
 cutext_sink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 { return (*sink->descriptor->info)(sink, key); }
+
+/** Returns a suitable value for the default case of the info implementation of
+ ** \a sink if it passes its input to \a subsink. */
+cu_box_t cutext_sink_info_inherit(cutext_sink_t sink,
+				  cutext_sink_info_key_t key,
+				  cutext_sink_t subsink);
 
 CU_SINLINE char const *
 cutext_sink_encoding(cutext_sink_t sink)

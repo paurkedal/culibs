@@ -129,7 +129,7 @@ test_text_target()
     str = cu_unbox_ptr(cu_str_t, cufo_close(fos));
     wstrp = cu_wstring_of_chararr(cu_str_charr(str), cu_str_size(str));
 
-    fos = cufo_open_text_fd("UTF-8", NULL, 1, cu_false);
+    fos = cufo_open_auto_fd(1, cu_false);
     cufo_enter(fos, cufoT_codepre);
     for (j = 0; j < 16; ++j) {
 	if (j % 2) {

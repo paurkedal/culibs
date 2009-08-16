@@ -108,11 +108,23 @@ _default_debug_state_info(cutext_sink_t sink)
 }
 
 cu_box_t
+cutext_sink_info_inherit(cutext_sink_t sink, cutext_sink_info_key_t key,
+			 cutext_sink_t subsink)
+{
+    if (cutext_sink_info_key_inherits(key))
+	return cutext_sink_info(subsink, key);
+    else
+	return cutext_sink_default_info(sink, key);
+}
+
+cu_box_t
 cutext_sink_default_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 {
     switch (key) {
 	case CUTEXT_SINK_INFO_ENCODING:
 	    return cu_box_ptr(cutext_sink_info_encoding_t, NULL);
+	case CUTEXT_SINK_INFO_NCOLUMNS:
+	    return cu_box_int(80);
 	case CUTEXT_SINK_INFO_DEBUG_STATE:
 	    return cu_box_ptr(cutext_sink_info_debug_state_t,
 			      _default_debug_state_info(sink));

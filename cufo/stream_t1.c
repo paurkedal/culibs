@@ -102,7 +102,7 @@ _test_on_off(cufo_stream_t fos, int N)
 static void
 _test_term_target(void)
 {
-    cufo_stream_t fos = cufo_open_term_fd("UTF-8", NULL, 1, cu_false);
+    cufo_stream_t fos = cufo_open_auto_fd(1, cu_false);
     struct _attrperm a[] = {
 	{cufoT_italic, "italic"},
 	{cufoT_bold, "bold"},
