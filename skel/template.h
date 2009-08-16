@@ -20,12 +20,12 @@
 #include <@module_reldir@/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup @header_idr@_h @header_relpath@:
- *@{\ingroup @module_idr@_mod */
+/** \defgroup @header_idr@_h @header_relpath@:
+ ** @{ \ingroup @module_idr@_mod */
 
 @POINT@
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 @END_INCLUDE_GUARD@
