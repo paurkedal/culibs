@@ -1,0 +1,55 @@
+/** \page culibs_environ_page Environment Variables
+
+<dl>
+  <dt><tt>$BACKGROUND</tt></dt>
+  <dd>
+    Use by \c libcufo to choose the default style when none was explicitely
+    specified.
+  </dd>
+
+  <dt><tt>$CU_DTAGS_PATH</tt></dt>
+  <dd>
+    May point to a file containing debug tags to enable, one per line.  The tag
+    names correspond those passed to \ref cu_dlog_def.
+  </dd>
+
+  <dt><tt>$CU_SEED48</tt></dt>
+  <dd>
+    Seed the random number generator at starup by calling \c seed48(t), where
+    \e t is determined as follows.  If the variable contains the literal
+    "time", the system clock is used.  Otherwise, it should contain a 12 digit
+    hexadecimal value without base prefix which makes up the three components
+    of the argument to \c seed48.
+  </dd>
+
+  <dt><tt>$CU_VERBOSITY</tt></dt>
+  <dd>
+    An integer specifying the threshold for \ref cu_verbf calls.
+  </dd>
+
+  <dt><tt>$CUFO_STYLEDIR</tt></dt>
+  <dd>A colon-separated list of directories to seach for cufo style files.</dd>
+
+  <dt><tt>$CUFO_STYLE</tt></dt>
+  <dd>
+    The name of the cufo-style to use.  The name followed by a \c .style
+    extension is searched for under $CUFO_STYLEDIR and some built-in paths.
+  </dd>
+
+  <dt><tt>$CULIBS_PREFIX</tt>, <tt>$CULIBS_EXEC_PREFIX</tt>,
+      <tt>$CULIBS_SYSCONFDIR</tt>, ...</dt>
+  <dd>Modifies culibs' idea of where it is installed.</dd>
+
+  <dt><tt>$HOME</tt></dt>
+  <dd>
+    - Used by \ref cuos_session_dir.
+    - Used by \c libcufo to locate custom style definitions in
+      <tt>$HOME/.config/culibs/cufo</tt>.
+  </dd>
+
+  <dt><tt>$TMPDIR</tt></dt>
+  <dd>Where to create temporary files.  Used by \ref cuos_tmp_dir.</dd>
+
+</dl>
+
+*/

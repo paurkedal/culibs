@@ -55,7 +55,7 @@ cu_bool_t cuos_dirpile_insert(cuos_dirpile_t pile, cu_str_t dir,
  * before the current list, otherwise after.  Returns -1 if envvar is unset,
  * otherwise the number of inserted directories. */
 int cuos_dirpile_insert_envvar(cuos_dirpile_t pile, char const *envvar,
-				     cu_bool_t on_top);
+			       cu_bool_t on_top);
 
 /*!Calls \a f with each top-level directory of \a pile in order.  Stops the
  * iteration and returns false if \a f returns false, else returns true. */

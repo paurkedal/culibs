@@ -27,7 +27,7 @@ pkgconfig_DATA =
 noinst_DATA =
 EXTRA_DIST =
 BUILT_SOURCES = cu/conf_ac.h
-DISTCLEANFILES = cu/conf_ac.h
+DISTCLEANFILES = cu/conf_ac.h cu/conf_installdirs.c
 CLEANFILES =
 check_programs =
 norun_check_programs =
@@ -163,7 +163,7 @@ norun_check_programs += \
 	$(cudyn_norun_check_programs) \
 	test_cplusplus
 
-doxyfiles = doc/main.doxy \
+doxyfiles = doc/main.doxy doc/environ.doxy \
 	$(cu_doxyfiles) \
 	$(cuoo_doxyfiles) \
 	$(cucon_doxyfiles) \
