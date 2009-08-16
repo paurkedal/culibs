@@ -11,6 +11,7 @@ common_ldflags = -release $(PACKAGE_VERSION)
 ACLOCAL_AMFLAGS = -I aclocal
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_builddir) \
 	$(BDWGC_CFLAGS) $(FFI_CFLAGS)
+TESTS_ENVIRONMENT = CUFO_STYLEDIR="$(top_srcdir)/cufo"
 
 
 # Initialise Accumulative Variables

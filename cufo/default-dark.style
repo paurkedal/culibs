@@ -1,0 +1,18 @@
+# cufo style definition suitable for dark background.
+
+hi emph		italic
+hi italic	italic
+hi bold		bold
+hi underline	underline
+
+hi title	bold
+hi location	fg=2
+
+hi comment	fg=2
+hi keyword	bold
+hi operator	fg=6
+hi variable	italic
+hi type		fg=3
+hi label	fg=4
+hi literal	fg=5
+hi special	fg=4

@@ -25,12 +25,15 @@
 #include <cu/thread.h>
 #include <cu/sref.h>
 #include <cu/str.h>
+#include <cu/installdirs.h>
 #include <string.h>
 #include <ctype.h>
 
 /* USE OF THE DEBUG LOG HERE.  The style loading code may run before we
  * register our log binder, so don't use extended format specifiers here. */
 cu_dlog_def(_file, "dtag=cufo.termstyle");
+
+#define STYLESUBDIR "culibs/cufo"
 
 static struct cuos_dirpile_s _termstyle_dirpile;
 
@@ -160,6 +163,15 @@ _termstyle_loadinto(cufo_termstyle_t style, cu_str_t path, FILE *in)
 	if (!*s || *s == '#')
 	    continue;
 
+	/* Expect a "hi" keyword to introduce each highlighting definition to
+	 * facilitate later extensions. */
+	if (strncmp(s, "hi", 2) != 0 || !isspace(s[2])) {
+	    cu_warnf_at(&loc, "Unrecognised line.");
+	    continue;
+	}
+	s += 3;
+	while (*s && isspace(*s)) ++s;
+
 	/* Scan the tag name. */
 	tag_name = s;
 	while (*s && !isspace(*s)) ++s;
@@ -232,7 +244,7 @@ cu_bool_t
 cufo_termstyle_loadinto(cufo_termstyle_t style, cu_str_t style_name)
 {
     FILE *in;
-    cu_str_t fname = cu_str_new_str_cstr(style_name, ".termsty");
+    cu_str_t fname = cu_str_new_str_cstr(style_name, ".style");
     cu_str_t path = cuos_dirpile_first_match(&_termstyle_dirpile, fname);
 
     if (path) {
@@ -247,10 +259,8 @@ cufo_termstyle_loadinto(cufo_termstyle_t style, cu_str_t style_name)
 	_termstyle_loadinto(style, path, in);
 	return cu_true;
     }
-    else {
-	cu_warnf("Missing terminal style %(str).", style_name);
+    else
 	return cu_false;
-    }
 }
 
 cufo_termstyle_t
@@ -266,17 +276,21 @@ cufoP_termstyle_init()
 {
     cu_str_t path;
     char const *homedir = getenv("HOME");
+    char const *cstr;
 
     cuos_dirpile_init(&_termstyle_dirpile);
-    cuos_dirpile_insert_envvar(&_termstyle_dirpile, "CU_STYLE_PATH", cu_false);
+    cuos_dirpile_insert_envvar(&_termstyle_dirpile, "CUFO_STYLEDIR", cu_false);
 
     if (homedir) {
-	path = cuos_path_join_2cstr(homedir, ".config/culibs/style");
+	path = cuos_path_join_2cstr(homedir, ".config/"STYLESUBDIR);
 	cuos_dirpile_insert(&_termstyle_dirpile, path, cu_false);
     }
 
-    path = cu_str_new_cstr("/etc/culibs/style");
+    cstr = cuconf_get_installdir(CU_INSTALLDIR_SYSCONFDIR);
+    path = cuos_path_join_2cstr(cstr, STYLESUBDIR);
     cuos_dirpile_insert(&_termstyle_dirpile, path, cu_false);
-
-    /* TODO: Look for shipped highlighting in $pkg_datadir. */
+    if (strcmp(cstr, "/etc/"STYLESUBDIR) != 0) {
+	path = cu_str_new_cstr("/etc/culibs/cufo");
+	cuos_dirpile_insert(&_termstyle_dirpile, path, cu_false);
+    }
 }

@@ -163,11 +163,16 @@ _default_termstyle(void)
 	char const *style_name;
 	cu_mutex_lock(&mutex);
 	cufo_termstyle_init(&style);
-	style_name = getenv("CUFO_TERMSTYLE");
-	if (style_name == NULL)
-	    style_name = "default";
+	style_name = getenv("CUFO_STYLE");
+	if (style_name == NULL) {
+	    char const *background = getenv("BACKGROUND");
+	    if (background && strcmp(background, "dark") == 0)
+		style_name = "default-dark";
+	    else
+		style_name = "default-light";
+	}
 	if (!cufo_termstyle_loadinto(&style, cu_str_new_cstr(style_name)))
-	    cu_warnf("Could not find style %s.", style_name);
+	    cu_warnf("Could not load cufo-style definition %s.", style_name);
 	AO_store_release_write(&done_init, 1);
 	cu_mutex_unlock(&mutex);
     }

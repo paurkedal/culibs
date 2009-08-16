@@ -1,5 +1,8 @@
 if enable_cufo
 
+cufo_styledir = $(sysconfdir)/culibs/cufo
+dist_cufo_style_DATA = cufo/default-dark.style cufo/default-light.style
+
 cufo_headers = \
 	cufo/attr.h \
 	cufo/attrdefs.h \
