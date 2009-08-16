@@ -33,6 +33,8 @@
 #include <cu/conf.h>
 #include <string.h>
 
+#define MIN_TEXT_WIDTH 4
+
 #define TX_STREAM(os) cu_from(cufo_textsink, cufo_stream, os)
 
 #ifdef CUCONF_DEBUG_SELF
@@ -219,17 +221,18 @@ _ts_check_buffered_width(cufo_textsink_t sink)
  * [s, s + *pos_out]. */
 static int
 _ts_find_break(cufo_textsink_t sink, int text_width,
-	       cu_wchar_t const *s, size_t len, size_t *pos_out)
+	       cu_wchar_t const *s, size_t len)
 {
-    size_t n = len;
+    size_t n;
     double bv_min = 1e9;
     double dist_badness_diff = -1.0/text_width;
     double dist_badness = 1.0;
     int bv_pos = 0;
-    int bv_col = 0, col = 0;
-    cu_debug_assert(len);
     cu_wchar_t last_char = 0x20;
 
+    if (len > text_width)
+	len = text_width;
+    cu_debug_assert(len);
     for (n = 0; n < len; ++n) {
 	double break_badness, bv;
 	break_badness = _ts_tiedness(sink, last_char, s[n]);
@@ -238,17 +241,12 @@ _ts_find_break(cufo_textsink_t sink, int text_width,
 	if (bv < bv_min) {
 	    bv_min = bv;
 	    bv_pos = n;
-	    bv_col = col;
 	}
 	dist_badness += dist_badness_diff;
-	++col;
     }
-    while (bv_pos > 0 && cutext_iswspace(s[bv_pos - 1])) {
+    while (bv_pos > 0 && cutext_iswspace(s[bv_pos - 1]))
 	--bv_pos;
-	--bv_col;
-    }
-    *pos_out = bv_pos;
-    return bv_col;
+    return bv_pos;
 }
 
 static cu_bool_t
@@ -256,27 +254,38 @@ _ts_write_line_wrap(cufo_textsink_t sink)
 {
     cu_wchar_t const *s;
     size_t len;
-    size_t pos_br;
-    int col_diff;
-    int text_width = sink->right_margin - sink->left_margin;
+    int line_width, text_width;
 
-    len = cu_buffer_content_size(&sink->buf)/sizeof(cu_wchar_t);
+    text_width = _ts_usable_width(sink);
     if (sink->cont_eol_insert)
 	text_width -= _ts_wstring_width(sink->cont_eol_insert);
+    if (text_width < MIN_TEXT_WIDTH)
+	text_width = MIN_TEXT_WIDTH;
+
+    /* Determine how many characters to write before wrapping. */
+    len = cu_buffer_content_size(&sink->buf)/sizeof(cu_wchar_t);
     s = cu_buffer_content_start(&sink->buf);
-    col_diff = _ts_find_break(sink, text_width, s, len, &pos_br);
+    line_width = _ts_find_break(sink, text_width, s, len);
+    cu_debug_assert(line_width <= text_width);
+
+    /* Output the line. */
     if (!_ts_indent(sink))
 	return cu_false;
-    if (!_ts_write_from_input(sink, s, pos_br))
+    if (!_ts_write_from_input(sink, s, line_width))
 	return cu_false;
     if (sink->cont_eol_insert)
 	if (!_ts_write_raw(sink, cu_wstring_array(sink->cont_eol_insert),
 			   cu_wstring_length(sink->cont_eol_insert)))
 	    return cu_false;
     _ts_check_buffered_width(sink);
-    cu_buffer_incr_content_start(&sink->buf, pos_br*sizeof(cu_wchar_t));
-    sink->buffered_width -= col_diff;
+
+    /* Update the buffer. */
+    while (line_width < len && cutext_iswspace(s[line_width]))
+	++line_width;
+    cu_buffer_incr_content_start(&sink->buf, line_width*sizeof(cu_wchar_t));
+    sink->buffered_width -= line_width;
     _ts_check_buffered_width(sink);
+
     sink->is_cont = cu_true;
     return _ts_newline(sink);
 }
