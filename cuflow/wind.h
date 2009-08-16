@@ -34,7 +34,7 @@ typedef struct cuflowP_windargs_s *cuflowP_windargs_t;
 struct cuflowP_windargs_s
 {
     cuflow_wind_direction_t direction;
-    void *xc_key;
+    cu_fnptr_t xc_key;
 };
 
 #define CUFLOW_WIND_VARIANT_SETJMP 1

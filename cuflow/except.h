@@ -44,8 +44,9 @@ CU_BEGIN_DECLARATIONS
 
 
 #define cuflow_xc_cct_m(xc, fn, ...) \
-    ((fn)(xc, __VA_ARGS__), (xc)->windargs.xc_key = (fn))
-#define cuflow_xc_cct0_m(xc, fn) ((fn)(xc), (xc)->windargs.xc_key = (fn))
+    ((fn)(xc, __VA_ARGS__), (xc)->windargs.xc_key = (cu_fnptr_t)(fn))
+#define cuflow_xc_cct0_m(xc, fn) \
+    ((fn)(xc), (xc)->windargs.xc_key = (cu_fnptr_t)(fn))
 
 #define cuflow_throw(name, ...)					\
     do {								\
