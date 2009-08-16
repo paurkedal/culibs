@@ -280,8 +280,10 @@ _ts_write_line_wrap(cufo_textsink_t sink)
     _ts_check_buffered_width(sink);
 
     /* Update the buffer. */
-    while (line_width < len && cutext_iswspace(s[line_width]))
+    while (line_width < len && cutext_iswspace(s[line_width])) {
 	++line_width;
+	++sink->input_pos;
+    }
     cu_buffer_incr_content_start(&sink->buf, line_width*sizeof(cu_wchar_t));
     sink->buffered_width -= line_width;
     _ts_check_buffered_width(sink);
