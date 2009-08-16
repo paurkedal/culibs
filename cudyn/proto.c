@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2002--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2002--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ struct fake_ffi_type_s
 };
 
 static ffi_type *
-layout_ffitype_ciflck(cuoo_layout_t lyo)
+_layout_ffitype_ciflck(cuoo_layout_t lyo)
 {
     static struct fake_ffi_type_s *prebuilt_arr = NULL;
     static size_t prebuilt_cnt;
@@ -90,8 +90,8 @@ layout_ffitype_ciflck(cuoo_layout_t lyo)
 }
 
 
-ffi_type *
-cuooP_type_ffitype_ciflck(cuoo_type_t type)
+static ffi_type *
+_type_ffitype_ciflck(cuoo_type_t type)
 {
     if (cuoo_type_is_nonptr_inltype(type)) {
 	cudyn_inltype_t t;
@@ -104,13 +104,13 @@ cuooP_type_ffitype_ciflck(cuoo_type_t type)
 		     * ffi_type by setting 'size' and 'alignment', but
 		     * what about 'type'? */
 		    t->ffitype = (AO_t)
-			layout_ffitype_ciflck((cuoo_layout_t)t->layout);
+			_layout_ffitype_ciflck((cuoo_layout_t)t->layout);
 		    break;
 		case CUOO_SHAPE_TUPTYPE:
 #if 0 /* only applies if tuptype layout is not packed */
-		    ffitype0 = cuooP_type_ffitype_ciflck(
+		    ffitype0 = _type_ffitype_ciflck(
 			    t->u0.tuptype.sans_last);
-		    ffitype1 = cuooP_type_ffitype_ciflck(
+		    ffitype1 = _type_ffitype_ciflck(
 			    t->u0.tuptype.last);
 		    ffitype = cu_galloc(sizeof(ffi_type) +
 					sizeof(ffi_type*)*3);
@@ -121,7 +121,7 @@ cuooP_type_ffitype_ciflck(cuoo_type_t type)
 		    t->ffitype = ffitype;
 #endif
 		    t->ffitype = (AO_t)
-			layout_ffitype_ciflck((cuoo_layout_t)t->layout);
+			_layout_ffitype_ciflck((cuoo_layout_t)t->layout);
 		    break;
 		default:
 		    cu_debug_unreachable();
@@ -133,9 +133,9 @@ cuooP_type_ffitype_ciflck(cuoo_type_t type)
 	return &ffi_type_pointer;
 }
 
-cu_clos_def(proto_init_cif, cu_prot(void, void *proto), (int r;))
+cu_clos_def(_proto_init_cif, cu_prot(void, void *proto), (int r;))
 {
-    cu_clos_self(proto_init_cif);
+    cu_clos_self(_proto_init_cif);
 #define proto ((cudyn_proto_t)proto)
     size_t i;
     ffi_type **arg_ffi_arr;
@@ -146,9 +146,9 @@ cu_clos_def(proto_init_cif, cu_prot(void, void *proto), (int r;))
     cu_mutex_lock(&cif_mutex);
     for (i = 0; i < self->r; ++i) {
 	cuoo_type_t t = cudyn_tuptype_at(proto->arg_type, i);
-	*arg_ffi_cur = cuooP_type_ffitype_ciflck(t);
+	*arg_ffi_cur = _type_ffitype_ciflck(t);
     }
-    res_ffi = cuooP_type_ffitype_ciflck(proto->res_type);
+    res_ffi = _type_ffitype_ciflck(proto->res_type);
     cu_mutex_unlock(&cif_mutex);
     err = ffi_prep_cif(&proto->cif, FFI_DEFAULT_ABI,
 		       self->r, res_ffi, arg_ffi_arr);
@@ -159,7 +159,7 @@ cu_clos_def(proto_init_cif, cu_prot(void, void *proto), (int r;))
 cudyn_proto_t
 cudyn_proto_by_tuptype(cudyn_tuptype_t arg_type, cuoo_type_t res_type)
 {
-    proto_init_cif_t init;
+    _proto_init_cif_t init;
     size_t r = cudyn_tuptype_tcomp_cnt(arg_type);
     struct cudyn_proto_s key;
     cudyn_proto_t proto;
@@ -172,7 +172,7 @@ cudyn_proto_by_tuptype(cudyn_tuptype_t arg_type, cuoo_type_t res_type)
     proto = cuoo_hxalloc_init(cudyn_proto_type(), size,
 			      CUDYN_PROTO_KEY_SIZE,
 			      cu_ptr_add(&key, CUOO_HCOBJ_SHIFT),
-			      proto_init_cif_prep(&init));
+			      _proto_init_cif_prep(&init));
 //XXX    cu_debug_assert(r != 0 || cuoo_type_is_sngtype(arg_type));
     return proto;
 }

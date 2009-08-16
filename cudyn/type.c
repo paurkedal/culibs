@@ -547,7 +547,7 @@ cuoo_type(cuex_t ex)
     return _dispatch_type(ex, cu_false);
 }
 
-void
+static void
 _type_foprint(cufo_stream_t fos, cufo_prispec_t spec, cuex_t type)
 {
     cuoo_shape_t shape = cuoo_type_shape(type);

@@ -146,7 +146,7 @@ cuex_arity(cuex_t e)
     return 0;
 }
 
-void *
+static void *
 _opn_ncomm_source_get(cu_ptr_source_t base)
 {
     cuex_opn_source_t src = cu_from(cuex_opn_source, cu_ptr_source, base);
@@ -174,7 +174,7 @@ cuex_opn_ncomm_source(cuex_t e)
     return cu_to(cu_ptr_source, src);
 }
 
-void *
+static void *
 _opn_comm_source_get(cu_ptr_source_t base)
 {
     cuex_opn_source_t src = cu_from(cuex_opn_source, cu_ptr_source, base);

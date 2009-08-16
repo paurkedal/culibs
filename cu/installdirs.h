@@ -22,7 +22,7 @@
 
 CU_BEGIN_DECLARATIONS
 /** \defgroup cu_installdirs_h cu/installdirs.h: Installation Directories
- ** @{ \ingroup cu_mod
+ ** @{ \ingroup cu_util_mod
  **
  ** This provides a way for an application or library to manage its
  ** installation directories.  Prefix substitutions are handled by allowing
