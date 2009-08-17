@@ -45,6 +45,11 @@ extern cufo_tag_t cufoT_superscript;
 /** Delimits a subscript, commonly used for indices or labels. */
 extern cufo_tag_t cufoT_subscript;
 
+/** Intrusive highlighting of something invalid like mismatched parentheses or
+ ** unprintable items.  Not to be used for error messages, which merely
+ ** describe something invalid. */
+extern cufo_tag_t cufoT_invalid;
+
 /** @}
  ** \name Generic Block Tags
  ** @{ */

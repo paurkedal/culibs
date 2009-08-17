@@ -39,8 +39,8 @@ static struct {
     char const *rmul;	/* end underline */
     char const *bold;	/* start bold, end with sgr0 */
     char const *rev;	/* start reverse, end with sgr0 */
-    char const *setf;	/* set forground colour */
-    char const *setb;	/* set background colour */
+    char const *setaf;	/* set forground colour */
+    char const *setab;	/* set background colour */
     char const *sgr0;	/* reset bold, reverse, and colours */
     int cols;		/* number of columns or 0 if unavailable */
     int colors;		/* number of colours, defaulting to 8 */
@@ -55,6 +55,13 @@ _tigetstr(char const *cap_name)
 	s = NULL;
     }
     return s;
+}
+
+static char const *
+_tigetstr_alt(char const *cap_name, char const *alt_cap_name)
+{
+    char const *s = _tigetstr(cap_name);
+    return s? s : _tigetstr(alt_cap_name);
 }
 
 static int
@@ -121,10 +128,10 @@ _change_style(_termsink_t sink,
     }
     if (change_bg || change_fg) {
 	cu_mutex_lock(&_curses_mutex);
-	if (change_bg && _tistr.setb)
-	    _apply_tistr(sink, tparm(_tistr.setb, new_state->bgcolour));
-	if (change_fg && _tistr.setf)
-	    _apply_tistr(sink, tparm(_tistr.setf, new_state->fgcolour));
+	if (change_bg && _tistr.setab)
+	    _apply_tistr(sink, tparm(_tistr.setab, new_state->bgcolour));
+	if (change_fg && _tistr.setaf)
+	    _apply_tistr(sink, tparm(_tistr.setaf, new_state->fgcolour));
 	cu_mutex_unlock(&_curses_mutex);
     }
     if (attr_diff & CUFO_TERMFACE_BOLD)
@@ -285,8 +292,8 @@ cufo_termsink_new(cufo_termstyle_t termstyle, char const *term,
     }
     if (!AO_load_acquire_read(&done_init)) {
 	cu_mutex_lock(&_curses_mutex);
-	_tistr.setf	= _tigetstr("setf");
-	_tistr.setb	= _tigetstr("setb");
+	_tistr.setaf	= _tigetstr_alt("setaf", "setf");
+	_tistr.setab	= _tigetstr_alt("setab", "setb");
 	_tistr.sitm	= _tigetstr("sitm");
 	_tistr.ritm	= _tigetstr("ritm");
 	_tistr.smul	= _tigetstr("smul");

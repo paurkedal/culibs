@@ -19,6 +19,8 @@
 #include <cufo/tagdefs.h>
 #include <cu/test.h>
 
+#define ARRSIZE(a) (sizeof(a)/sizeof((a)[0]))
+
 struct _attrperm {
     cufo_tag_t tag;
     char const *name;
@@ -100,6 +102,35 @@ _test_on_off(cufo_stream_t fos, int N)
 }
 
 static void
+_show_tags(cufo_stream_t fos, cufo_tag_t *tags, size_t n)
+{
+    int i;
+    for (i = 0; i < n; ++i) {
+	cufo_space(fos);
+	cufo_enter(fos, tags[i]);
+	cufo_puts(fos, cufo_tag_name(tags[i]));
+	cufo_leave(fos, tags[i]);
+    }
+}
+
+static void
+_show_all_tags(cufo_stream_t fos)
+{
+    cufo_tag_t inline_tags[] = {
+	cufoT_emph, cufoT_italic, cufoT_bold, cufoT_underline, cufoT_invalid,
+    };
+    cufo_tag_t code_tags[] = {
+	cufoT_comment, cufoT_keyword, cufoT_label, cufoT_operator,
+	cufoT_variable, cufoT_type, cufoT_literal, cufoT_special,
+    };
+    cufo_puts(fos, "Inline general:");
+    _show_tags(fos, inline_tags, ARRSIZE(inline_tags));
+    cufo_newline(fos);
+    cufo_puts(fos, "Inline code:");
+    _show_tags(fos, code_tags, ARRSIZE(code_tags));
+}
+
+static void
 _test_term_target(void)
 {
     cufo_stream_t fos = cufo_open_auto_fd(1, cu_false);
@@ -115,6 +146,7 @@ _test_term_target(void)
     _test_attrperms(fos, a, 0, 4);
     _test_on_off_0(fos);
     _test_on_off(fos, 680);
+    _show_all_tags(fos);
     cufo_close(fos);
 }
 

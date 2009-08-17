@@ -77,10 +77,43 @@ cufo_termface_set_bgcolour(cufo_termface_t face, int col)
 static int
 _parse_colour(char const *colour)
 {
-    long i = strtol(colour, (char **)&colour, 0);
-    if (*colour || !(0 <= i && i < 256))
-	return -1;
-    return i;
+    if (isdigit(*colour)) {
+	long i = strtol(colour, (char **)&colour, 0);
+	if (!*colour && 0 <= i && i < 256)
+	    return i;
+    }
+    else switch (*colour++) {
+	case 'b':
+	    if (!strcmp(colour, "lue"))    return 4;
+	    if (!strcmp(colour, "lack"))   return 0;
+	    break;
+	case 'c':
+	    if (!strcmp(colour, "yan"))	   return 6;
+	    break;
+	case 'g':
+	    if (!strcmp(colour, "reen"))   return 2;
+	    break;
+	case 'l':
+	    if (!strncmp(colour, "ight", 4)) {
+		int i = _parse_colour(colour + 4);
+		if (0 <= i && i < 8)
+		    return i + 8;
+	    }
+	    break;
+	case 'r':
+	    if (!strcmp(colour, "ed"))     return 1;
+	    break;
+	case 'm':
+	    if (!strcmp(colour, "agenta")) return 5;
+	    break;
+	case 'w':
+	    if (!strcmp(colour, "white"))  return 7;
+	    break;
+	case 'y':
+	    if (!strcmp(colour, "ellow"))  return 3;
+	    break;
+    }
+    return -1;
 }
 
 cu_bool_t
@@ -203,13 +236,15 @@ _termstyle_loadinto(cufo_termstyle_t style, cu_str_t path, FILE *in)
 		    cu_dlogf(_file, "Setting %s fgcolour %s",
 			     cufo_tag_name(tag), val);
 		    if (!cufo_termface_set_fgcolour_cstr(face, val))
-			cu_warnf_at(&loc, "Invalid foreground colour %s.", val);
+			cu_warnf_at(&loc, "Invalid foreground colour \"%s\".",
+				    val);
 		}
 		else if (strcmp(var, "bg") == 0) {
 		    cu_dlogf(_file, "Setting %s bgcolour %s",
 			     cufo_tag_name(tag), val);
 		    if (!cufo_termface_set_bgcolour_cstr(face, val))
-			cu_warnf_at(&loc, "Ivalid background colour %s.", val);
+			cu_warnf_at(&loc, "Invalid background colour \"%s\".",
+				    val);
 		}
 	    }
 	    else {
