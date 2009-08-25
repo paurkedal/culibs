@@ -134,11 +134,13 @@ MFVS_iterate(cugra_vertex_t v, cucon_pmap_t vinfo_map, int cur_it_num,
 	    ++*changes;
 	bdd_delref(tmp);
 	bdd_delref(g);
-	if (cu_debug_key("cugra.graph_mfvs")) {
+#ifndef CU_NDEBUG
+	if (cu_dtag_get("cugra.graph_mfvs")) {
 	    cu_dlogf(_file, "Leaving vertex %p: f=%d", v, vinfo->f);
-	    if (cu_debug_key("cugra.graph_mfvs.verbose"))
+	    if (cu_dtag_get("cugra.graph_mfvs.verbose"))
 		bdd_printtable(vinfo->f);
 	}
+#endif
     }
     else
 	cu_dlogf(_file, "Catched vertex %p", v);
@@ -218,11 +220,13 @@ cugra_MFVS(cugra_graph_t G_src, cucon_pset_t cutset)
 	/* add partial cutset to fill cutset */
 	//partial_cutset = bdd_satoneset(g, bddfalse, bddtrue);
 	partial_cutset = bdd_satone(g);
-	if (cu_debug_key("cugra.graph_mfvs")) {
+#ifndef CU_NDEBUG
+	if (cu_dtag_get("cugra.graph_mfvs")) {
 	    fputs("\n******* partial solution\n", stderr);
 	    bdd_fprintset(stderr, partial_cutset);
 	    fputs("\n\n", stderr);
 	}
+#endif
 	while (partial_cutset != bddtrue) {
 	    BDD low, high;
 	    cu_debug_assert(partial_cutset != bddfalse);

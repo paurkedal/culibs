@@ -34,36 +34,36 @@
 #  include <libunwind.h>
 #endif
 
-static cu_debug_flags_t debug_flags;
+static cu_debug_flags_t _debug_flags;
 
 cu_debug_flags_t
 cu_debug_enable(cu_debug_flags_t f)
 {
-    cu_debug_flags_t tmp = debug_flags;
-    debug_flags |= f;
+    cu_debug_flags_t tmp = _debug_flags;
+    _debug_flags |= f;
     return tmp;
 }
 
 cu_debug_flags_t
 cu_debug_disable(cu_debug_flags_t f)
 {
-    cu_debug_flags_t tmp = debug_flags;
-    debug_flags |= f;
+    cu_debug_flags_t tmp = _debug_flags;
+    _debug_flags |= f;
     return tmp;
 }
 
 cu_debug_flags_t
 cu_debug_select(cu_debug_flags_t f)
 {
-    cu_debug_flags_t tmp = debug_flags;
-    debug_flags = f;
+    cu_debug_flags_t tmp = _debug_flags;
+    _debug_flags = f;
     return tmp;
 }
 
 cu_bool_fast_t
 (cu_debug_is_enabled)(cu_debug_flags_t f)
 {
-    return debug_flags & f;
+    return _debug_flags & f;
 }
 
 static int debug_indentation = 0;
@@ -92,7 +92,7 @@ cuP_debug_msg(const char *file, int line, const char *kind,
 	      int fl, const char *fmt, ...)
 {
     va_list va;
-    if ((debug_flags & fl) != fl) return;
+    if ((_debug_flags & fl) != fl) return;
     fprintf(stderr, "%s:%d: %s: ", file, line, kind);
     cu_findent(stderr, debug_indentation);
     va_start(va, fmt);
@@ -210,19 +210,30 @@ cu_debug_trap()
 }
 
 
-static struct cucon_hset_s debug_keys;
+static struct cucon_hset_s _dtag_hset;
 
-cu_bool_t
-(cu_debug_key)(char const *key)
+void
+cu_dtag_enable(char const *key)
 {
-    return cucon_hset_contains(&debug_keys, (char *)key);
+    cucon_hset_insert(&_dtag_hset, (char *)key);
 }
 
 void
-cuP_dprintf(char const *file, int line, char const *key,
-	       char const *fmt, ...)
+cu_dtag_disable(char const *key)
 {
-    if (cu_debug_key(key)) {
+    cucon_hset_erase(&_dtag_hset, (char *)key);
+}
+
+cu_bool_t
+cu_dtag_get(char const *key)
+{
+    return cucon_hset_contains(&_dtag_hset, (char *)key);
+}
+
+void
+cuP_dprintf(char const *file, int line, char const *key, char const *fmt, ...)
+{
+    if (cu_dtag_get(key)) {
 	static pthread_mutex_t mutex = CU_MUTEX_INITIALISER;
 	va_list va;
 	cu_mutex_lock(&mutex);
@@ -244,26 +255,12 @@ cu_err_invalid_arg(char const *function, int argnum, char const *argname,
     abort();
 }
 
-#ifndef CU_NDEBUG
-void
-cu_debug_enable_key(char const *key)
-{
-    cucon_hset_insert(&debug_keys, (char *)key);
-}
-
-void
-cu_debug_disable_key(char const *key)
-{
-    cucon_hset_erase(&debug_keys, (char *)key);
-}
-#endif
-
 cu_bool_t
 cuP_debug_facility_enabled(cu_log_facility_t facility)
 {
     char const **keys = facility->keys;
     while (*keys) {
-	if (strncmp(*keys, "dtag=", 5) == 0 && cu_debug_key(*keys + 5))
+	if (strncmp(*keys, "dtag=", 5) == 0 && cu_dtag_get(*keys + 5))
 	    return cu_true;
 	++keys;
     }
@@ -274,7 +271,7 @@ void
 cuP_debug_init()
 {
     char const *s;
-    cucon_hset_init(&debug_keys,
+    cucon_hset_init(&_dtag_hset,
 	   (cu_clop(, cu_bool_t, void const *, void const *))cu_cstr_eq_clop,
 	   (cu_clop(, cu_hash_t, void const *))cu_cstr_hash_clop);
     if ((s = getenv("CU_DTAGS_PATH"))) {
@@ -291,7 +288,7 @@ cuP_debug_init()
 		    cu_str_append_char(key, ch);
 		    ch = fgetc(in);
 		} while (ch != EOF && !isspace(ch));
-		cucon_hset_insert(&debug_keys, (char *)cu_str_to_cstr(key));
+		cucon_hset_insert(&_dtag_hset, (char *)cu_str_to_cstr(key));
 	    }
 	}
 	else

@@ -53,7 +53,8 @@ CU_SINLINE int cu_verbosity() { return cuP_verbosity; }
 /** Sets the verbosity level for \ref cu_verbf and \ref cu_verbf_at calls. */
 void cu_set_verbosity(int verbosity);
 
-/** Prints an internal error and aborts. */
+/** Prints an internal error without location and aborts.  Usually \ref cu_bugf
+ ** is more useful. */
 void cu_bugf_n(char const *fmt, ...) CU_ATTR_NORETURN;
 
 /** Prints an internal error with reference to source code and aborts. */
@@ -63,14 +64,24 @@ void cu_bugf_at(cu_sref_t, char const *fmt, ...) CU_ATTR_NORETURN;
 void cu_bugf_fl(char const *file, int line,
 		char const *msg, ...) CU_ATTR_NORETURN;
 
+/** Prints an internal error with the location of the callee and aborts.  The
+ ** arguments are the same as \ref cu_bugf_n. */
 #define cu_bugf(...) cu_bugf_fl(__FILE__, __LINE__, __VA_ARGS__)
 
+/** Asserts that the code point of the macro expansion is unreachable.  For a
+ ** version conditioned on \c CU_NDEBUG, see \ref cu_debug_unreachable. */
 #define cu_bug_unreachable() \
     cu_bugf_fl(__FILE__, __LINE__, \
 	       "This point should not have been reached.")
+
+/** Temporary replacement for unfinished code, which aborts with an error
+ ** message. */
 #define cu_bug_unfinished() \
     cu_bugf_fl(__FILE__, __LINE__, \
 	       "Reached a code point which is not yet written.")
+
+/** Similar to \ref cu_bug_unfinished, but also accepts an argument describing
+ ** the unfinished work. */
 #define cu_bug_todo(descr) cu_bugf_fl(__FILE__, __LINE__, "TODO: "descr)
 
 void cu_handle_syserror(int err_code, char const *proc_name);

@@ -17,6 +17,7 @@
 
 #include <cuex/iteration.h>
 #include <cuex/labelling.h>
+#include <cufo/stream.h>
 #include <cuex/opn.h>
 #include <cudyn/misc.h>
 #include <cu/test.h>

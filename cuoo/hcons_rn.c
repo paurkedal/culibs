@@ -27,6 +27,8 @@
 #endif
 #include <inttypes.h>
 
+cu_dlog_def(_file, "cuoo.hcons");
+
 #define CAP_MIN 2
 #if 1	/* full on average */
 #  define FILL_MIN_NUMER 1
@@ -79,7 +81,7 @@ cuooP_hcset_shrink_wlck(cuooP_hcset_t hcset, size_t new_cap, cuooP_hcobj_t *new_
     cuooP_hcobj_t *old_arr_end = old_arr + old_cap;
     cu_debug_assert(0 < new_cap && new_cap < old_cap);
     memset(new_arr, 0, sizeof(void *)*new_cap);
-    cu_debug_inform("New cap = %d\n", new_cap);
+    cu_dlogf(_file, "New cap = %d\n", new_cap);
     hash = 0;
     while (old_arr != old_arr_end) {
 	cuooP_hcobj_t obj = *old_arr;
@@ -113,7 +115,7 @@ cuooP_hcset_grow_wlck(cuooP_hcset_t hcset, size_t new_cap, cuooP_hcobj_t *new_ar
     cuooP_hcobj_t *old_arr_end = old_arr + old_cap;
     cu_debug_assert(new_cap > old_cap);
     memset(new_arr, 0, sizeof(void *)*new_cap);
-    cu_debug_inform("New cap = %d\n", new_cap);
+    cu_dlogf(_file, "New cap = %d\n", new_cap);
     while (old_arr != old_arr_end) {
 	cuooP_hcobj_t obj = *old_arr;
 	while (obj) {

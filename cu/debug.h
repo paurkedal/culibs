@@ -23,13 +23,14 @@
 #include <cu/conf.h>
 #include <cu/inherit.h>
 #include <cu/logging.h>
+#include <cu/diag.h>
 #include <stdio.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_debug cu/debug.h: Utilities for Debugging
- * @{\ingroup cu_util_mod */
+/** \defgroup cu_debug cu/debug.h: Utilities for Debugging
+ ** @{ \ingroup cu_util_mod */
 
-#if defined(CUCONF_DEBUG_CLIENT) || defined(CU_IN_DOXYGEN)
+#if !defined(CU_NDEBUG) || defined(CU_IN_DOXYGEN)
 #  ifndef CU_IN_DOXYGEN
 #    define cuP_dlog_def(storage, name, ...)				\
 	storage char const *name##_debug_keys[] = {__VA_ARGS__, NULL};	\
@@ -61,12 +62,52 @@ CU_BEGIN_DECLARATIONS
  ** arguments are similar to \c printf. */
 #  define cu_dlogf(name, ...) cuP_dlogf(name, __VA_ARGS__, NULL)
 
+/** If debugging is enabled, prints an error and aborts.  To exit with an error
+ ** independent of \c CU_NDEBUG, use \ref cu_bugf. */
+#define cu_debug_error(...) cu_bugf_fl(__FILE__, __LINE__, __VA_ARGS__)
+
+/** If debugging is enabled, evaluates \a test and aborts if zero. */
+#define cu_debug_assert(test) \
+    ((test)? (void)0 : (void)cu_debug_error("assertion '%s' failed", #test))
+
+/** If a lexical instance of this statement is called more than once during the
+ ** program lifetime, it aborts with an error message. */
+#define cu_debug_assert_once()						\
+    do {								\
+	static int cuL_cnt = 0;						\
+	if (cuL_cnt++ != 0)						\
+	    cu_debug_error("This point should only have been reached once."); \
+    } while (0)
+
+/** Asserts that the current line is unreachable.  This is the same as \ref
+ ** cu_bug_unreachable except for being disabled if \c CU_NDEBUG is defined. */
+#define cu_debug_unreachable() cu_bug_unreachable()
+
 #else
-#  define cu_dlog_def(name, ...)  CU_END_BOILERPLATE
-#  define cu_dlog_edef(name, ...) CU_END_BOILERPLATE
-#  define cu_dlog_edec(name, ...) CU_END_BOILERPLATE
-#  define cu_dlogf(...) ((void)0)
+#  define cu_dlog_def(name, ...)	CU_END_BOILERPLATE
+#  define cu_dlog_edef(name, ...)	CU_END_BOILERPLATE
+#  define cu_dlog_edec(name, ...)	CU_END_BOILERPLATE
+#  define cu_dlogf(...)			((void)0)
+#  define cu_debug_error(...)		((void)0)
+#  define cu_debug_assert(test)		((void)0)
+#  define cu_debug_assert_once()	((void)0)
+#  define cu_debug_unreachable()	((void)0)
 #endif
+
+/** Enable the debug tag \a dtag.  This must be called at program
+ ** initialisation, before the log facilities which triggers on \a dtag are
+ ** used.  It highly preferable to to let cu_init() load the tags automatically
+ ** as described in \ref cu_dlog_def. */
+void cu_dtag_enable(char const *dtag);
+
+/** Disable the debug tag \a dtag.  The same notice as for \ref cu_dtag_enable
+ ** applies. */
+void cu_dtag_disable(char const *dtag);
+
+/** Queries whether the debug tag \a dtag is enabled.  Also condition the code
+ ** on \#ifndef CU_NDEBUG for efficiency. */
+cu_bool_t cu_dtag_get(char const *dtag);
+
 
 /*
  *  Debugging Selection
@@ -82,72 +123,15 @@ typedef enum {
 cu_debug_flags_t cu_debug_enable(cu_debug_flags_t);
 cu_debug_flags_t cu_debug_disable(cu_debug_flags_t);
 cu_debug_flags_t cu_debug_select(cu_debug_flags_t);
-void cu_debug_enable_backtrace_on_signal(void);
 
 /*
  *  Debug Messages
  */
-void cuP_debug_msg(const char *, int, const char *, int, const char *, ...);
 extern void (*cuP_debug_bug_report)(const char *, int, const char *, ...);
 
 void cu_findent(FILE *fp, int i);
 void cu_debug_abort(void) CU_ATTR_NORETURN;
 void cu_debug_trap(void);
-
-#ifndef CU_NDEBUG
-
-extern cu_bool_t cuP_debug_is_enabled;
-
-cu_bool_t cu_debug_is_enabled(cu_debug_flags_t);
-#define cu_debug_inform(...) \
-    cuP_debug_msg(__FILE__, __LINE__, "debug", cu_debug_flag_info, __VA_ARGS__)
-#define cu_debug_warning(...) \
-    cuP_debug_msg(__FILE__, __LINE__, "warning", 0, __VA_ARGS__)
-#define cu_debug_error(...) \
-    (cuP_debug_msg(__FILE__, __LINE__,"error",0,__VA_ARGS__), cu_debug_abort())
-#define cu_debug_assert(test) \
-    ((test)? (void)0 : (void)cu_debug_error("assertion '%s' failed", #test))
-void cu_debug_indent();
-void cu_debug_unindent();
-#define cu_debug_here() cu_debug_inform("here")
-#define cu_debug_assert_once()						\
-    do {								\
-	static int cuL_cnt = 0;						\
-	if (cuL_cnt++ != 0)						\
-	    cu_debug_error("This point should only have been reached once."); \
-    } while (0)
-
-#else
-
-#define cu_debug_is_enabled(flags) cu_false
-#define cu_debug_inform(...) ((void)0)
-#define cu_debug_warning(...) ((void)0)
-#define cu_debug_error(...)						\
-    (cuP_debug_bug_report(__FILE__, __LINE__, __VA_ARGS__), cu_debug_abort())
-#define cu_debug_assert(test) ((void)0)
-#define cu_debug_indent() ((void)0)
-#define cu_debug_unindent() ((void)0)
-#define cu_debug_here() ((void)0)
-#define cu_debug_assert_once() ((void)0)
-
-#endif
-
-#define cu_debug_unreachable() \
-	cu_debug_error("This point should not have been reached.")
-#define cu_unreachable() cu_debug_unreachable()
-
-#ifndef CU_NDEBUG
-void cuP_dprintf(char const *, int, char const *, char const *, ...);
-#define cu_dprintf(...) cuP_dprintf(__FILE__, __LINE__, __VA_ARGS__)
-cu_bool_t cu_debug_key(char const *key);
-void cu_debug_enable_key(char const *key);
-void cu_debug_disable_key(char const *key);
-#else
-#define cu_dprintf(...) ((void)0)
-#define cu_debug_key(key) cu_false
-#define cu_debug_enable_key(key) ((void)0)
-#define cu_debug_disable_key(key) ((void)0)
-#endif
 
 
 /* Client Debug
@@ -156,15 +140,43 @@ void cu_debug_disable_key(char const *key);
 void cu_err_invalid_arg(char const *function, int argnum, char const *argname,
 			char const *msg);
 #ifdef CUCONF_DEBUG_CLIENT
-#define cu_check_arg(argnum, argname, test)				\
-    ((test)? ((void)0)							\
-	   : cu_err_invalid_arg(__FUNCTION__, argnum, #argname,		\
-				"must fulfil "#test))
+#  define cu_check_arg(argnum, argname, test)				\
+	((test)? ((void)0)						\
+	       : cu_err_invalid_arg(__FUNCTION__, argnum, #argname,	\
+				    "must fulfil "#test))
 #else
-#define cu_check_arg(argnum, argname, test) ((void)0)
+#  define cu_check_arg(argnum, argname, test) ((void)0)
 #endif
 
-/*!@}*/
-CU_END_DECLARATIONS
+/** @} */
 
+/* Deprecated 2009-08-25 (down to cu_debug_key). */
+void cuP_dprintf(char const *, int, char const *, char const *, ...)
+    CU_ATTR_DEPRECATED;
+void cuP_debug_msg(const char *, int, const char *, int, const char *, ...)
+    CU_ATTR_DEPRECATED;
+extern cu_bool_t cuP_debug_is_enabled;
+#ifndef CU_NDEBUG
+#  define cu_dprintf(...) cuP_dprintf(__FILE__, __LINE__, __VA_ARGS__)
+#  define cu_debug_inform(...) \
+	cuP_debug_msg(__FILE__,__LINE__,"debug",cu_debug_flag_info,__VA_ARGS__)
+#  define cu_debug_warning(...) \
+	cuP_debug_msg(__FILE__,__LINE__,"warning", 0, __VA_ARGS__)
+#  define cu_debug_here() cu_debug_inform("here")
+cu_bool_t cu_debug_is_enabled(cu_debug_flags_t);
+void cu_debug_indent() CU_ATTR_DEPRECATED;
+void cu_debug_unindent() CU_ATTR_DEPRECATED;
+#else
+#  define cu_dprintf(...) ((void)0)
+#  define cu_debug_inform(...) ((void)0)
+#  define cu_debug_warning(...) ((void)0)
+#  define cu_debug_here() ((void)0)
+#  define cu_debug_is_enabled(flags) cu_false
+#  define cu_debug_indent() ((void)0)
+#  define cu_debug_unindent() ((void)0)
+#endif
+#define cu_unreachable() cu_debug_unreachable()
+#define cu_debug_key cu_dtag_get
+
+CU_END_DECLARATIONS
 #endif

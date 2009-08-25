@@ -607,7 +607,7 @@ reconstruct_binding(_block_t block)
     /* Debug Output */
 #ifndef CU_NDEBUG
     cu_debug_assert(!cucon_list_is_empty(&block->state_list));
-    if (cu_debug_key("cuex.optimal_fold")) {
+    if (cu_dtag_get("cuex.optimal_fold")) {
 	cu_fprintf(stderr, "BLOCK %p\n", block);
 	if (block->target != (_block_t)-1) {
 	    int a, r;
