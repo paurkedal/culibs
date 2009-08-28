@@ -107,7 +107,8 @@ typedef cu_clop(cu_diag_format_fn_t, void,
  * with reference to the current \c va_list state and the output file.
  * \deprecated This is deprecated, use \ref cufo_mod "libcufo" for extended
  * printing support. */
-void cu_diag_define_format_key(char key, cu_diag_format_fn_t fn);
+void cu_diag_define_format_key(char key, cu_diag_format_fn_t fn)
+    CU_ATTR_DEPRECATED;
 
 /*!A \c fprintf work-alike which supports registering new keys through \ref
  * cu_diag_define_format_key.  \note The standard format key support is

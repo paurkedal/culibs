@@ -24,6 +24,7 @@
 #include <cu/conf.h>
 #include <cuoo/oalloc.h>
 #include <cuoo/halloc.h>
+#include <cufo/fwd.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_var_h cuex/var.h: Variables
@@ -239,7 +240,7 @@ CU_SINLINE cuex_var_t cuex_rvar(unsigned int index)
 typedef struct cuex_xvarops_s *cuex_xvarops_t;
 struct cuex_xvarops_s
 {
-    void (*print)(void *, FILE *);
+    void (*foprint)(cufo_stream_t fos, void *);
 };
 
 extern struct cucon_umap_s cuexP_xvarops;

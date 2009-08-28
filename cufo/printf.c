@@ -28,6 +28,7 @@
 #include <cu/str.h>
 #include <cu/wstring.h>
 #include <cu/logging.h>
+#include <cu/conf.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -131,11 +132,14 @@ get_buffer_cap(cufo_stream_t fos, int max_width,
     *buf_out = cu_buffer_content_end(cu_to(cu_buffer, fos));
 }
 
+void (*cufoP_print_nonobj)(cufo_stream_t, cufo_prispec_t, cuex_t) = NULL;
+
 void
 cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e)
 {
-    cuex_meta_t e_meta = cuex_meta(e);
+    cuex_meta_t e_meta;
     cuoo_type_t e_type;
+    e_meta = cuex_meta(e);
     if (cuex_meta_is_type(e_meta)) {
 	cufo_print_ptr_fn_t print;
 	cu_str_t (*to_str)(void *);
@@ -163,6 +167,8 @@ cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e)
 	else
 	    cufo_printf(fos, "__obj_%p", e);
     }
+    else if (cufoP_print_nonobj)
+	(*cufoP_print_nonobj)(fos, spec, e);
     else
 	cufo_printf(fos, "__ex_%p", e);
 }
@@ -511,7 +517,13 @@ break_flags:
 	    spec.flags = flags;
 	    spec.width = width;
 	    spec.precision = prec;
-	    cufo_printsp_ex(fos, &spec, e);
+	    if (e == NULL) {
+		cufo_enter(fos, cufoT_literal);
+		cufo_puts(fos, "NULL");
+		cufo_leave(fos, cufoT_literal);
+	    }
+	    else
+		cufo_printsp_ex(fos, &spec, e);
 	    return fmt;
 	}
 	case '(': {
@@ -673,7 +685,10 @@ cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
     if (facility->flags & CU_LOG_FLAG_DEBUG_FACILITY) {
 	char const *file = va_arg(va, char const *);
 	int line = va_arg(va, int);
-	cufo_printf(fos, "%<%s:%d: %>", cufoT_location, file, line);
+	if (fmt[0] == '%' && fmt[1] == '~' && fmt[2] == ':')
+	    fmt += 3;
+	else
+	    cufo_printf(fos, "%<%s:%d: %>", cufoT_location, file, line);
     }
     if (loc) {
 	cufo_enter(fos, cufoT_location);
@@ -681,7 +696,7 @@ cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
 	cufo_puts(fos, ": ");
 	cufo_leave(fos, cufoT_location);
     }
-    if (*fmt == '%' && fmt[1] == ':') {
+    if (fmt[0] == '%' && fmt[1] == ':') {
 	fmt += 2;
 	while (isspace(*fmt)) ++fmt;
 	cufo_enter(fos, cufoT_location);
@@ -712,9 +727,25 @@ cufo_logf(cufo_stream_t fos, cu_log_facility_t facility, char const *fmt, ...)
     va_end(va);
 }
 
+#ifdef CUCONF_HAVE_FILENO
+static void
+_vfprintf(FILE *file, char const *fmt, va_list vl)
+{
+    cufo_stream_t fos;
+    fflush(file);
+    fos = cufo_open_strip_fd(NULL, fileno(file), cu_false);
+    cufo_vprintf(fos, fmt, vl);
+    cufo_close(fos);
+}
+extern void (*cuP_vfprintf)(FILE *, char const *, va_list);
+#endif
+
 void
 cufoP_printf_init(void)
 {
     cucon_hzmap_init(&format_ptr_map, FORMAT_MAP_KEYSIZEW);
     cucon_hzmap_init(&format_va_map, FORMAT_MAP_KEYSIZEW);
+#ifdef CUCONF_HAVE_FILENO
+    cuP_vfprintf = _vfprintf;
+#endif
 }

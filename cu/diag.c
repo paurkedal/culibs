@@ -30,7 +30,6 @@
 
 static AO_t _error_count;
 static AO_t _warning_count;
-static struct cucon_umap_s format_map;
 
 enum {FI_VERB, FI_WARN, FI_ERR, FI_DEBUG, FI_BUG};
 static struct cu_log_facility_s _log_facility_arr[] = {
@@ -44,92 +43,19 @@ static struct cu_log_facility_s _log_facility_arr[] = {
 void
 cu_diag_define_format_key(char key, cu_diag_format_fn_t fn)
 {
-    cu_diag_format_fn_t *slot;
-    if (!cucon_umap_insert_mem(&format_map, key,
-			       sizeof(cu_diag_format_fn_t), &slot)) {
-	/* cu_warnf("Formatting key %c is already defined.", key); */
-    }
-    *slot = fn;
+    fprintf(stderr,
+	    "warning: cu_diag_define_format_key is a noop, use libcufo.\n");
 }
+
+void (*cuP_vfprintf)(FILE *, char const *, va_list) = NULL;
 
 void
 cu_vfprintf(FILE *file, char const* msg, va_list va)
 {
-    char fmt_buf[8] = "%";
-    int i;
-    for (i = 0; msg[i]; ++i) {
-	if (msg[i] == '%') {
-	    char *fmt_ptr = fmt_buf + 1;
-	    ++i;
-	    switch (msg[i]) {
-		cu_diag_format_fn_t fmt_fn;
-		cu_str_t str;
-	    case '&': {
-		void (*print)(void *obj, FILE *file)
-		    = va_arg(va, void (*)(void *, FILE *)); 
-		void *obj = va_arg(va, void *);
-		print(obj, file);
-		break;
-	    }
-	    case 'h': case 'l':
-		if (msg[i + 1] == msg[i])
-		    *fmt_ptr++ = msg[i++];
-		/* fall though */
-	    case 'j': case 'z': case 't':
-		*fmt_ptr++ = msg[i];
-		switch (msg[++i]) {
-		case 'd': case 'i': case 'u': case 'o': case 'x':
-		    *fmt_ptr++ = msg[i];
-		    *fmt_ptr++ = 0;
-		    fprintf(file, fmt_buf, va_arg(va, long));
-		    break;
-		case 'c':
-		    if (msg[i - 1] == 'l') {
-			fprintf(file, "%lc", va_arg(va, int));
-			break;
-		    }
-		    /* fall through */
-		default:
-		    fputs("#[bad_formatting_key]", file);
-		    break;
-		}
-		break;
-	    case 'c':
-		fputc(va_arg(va, int), file);
-		break;
-	    case 'd':
-		fprintf(file, "%d", va_arg(va, int));
-		break;
-	    case 'x':
-		fprintf(file, "%x", va_arg(va, int));
-		break;
-	    case 's':
-		fputs(va_arg(va, char const*), file);
-		break;
-	    case 'S':
-		str = va_arg(va, cu_str_t);
-		if (!str)
-		    fputs("(null)", file);
-		else
-		    fwrite(cu_str_charr(str), cu_str_size(str), 1, file);
-		break;
-	    case 'p':
-		fprintf(file, "%p", va_arg(va, void*));
-		break;
-	    default:
-		fmt_fn = cucon_umap_find_ptr(&format_map, msg[i]);
-		if (fmt_fn) {
-		    cu_str_t fmt = cu_str_new_charr(&msg[i], 1);
-		    cu_call(fmt_fn, fmt, cu_va_ref_of_va_list(va), file);
-		}
-		else
-		    fputs("#[bad formatting key]", file);
-		break;
-	    }
-	}
-	else
-	    fputc(msg[i], file);
-    }
+    if (cuP_vfprintf)
+	(*cuP_vfprintf)(file, msg, va);
+    else
+	vfprintf(file, msg, va);
 }
 
 void
@@ -306,7 +232,6 @@ cuP_diag_init(void)
     for (i = 0; i < sizeof(_log_facility_arr)/sizeof(_log_facility_arr[0]); ++i)
 	cu_register_permanent_log(&_log_facility_arr[i]);
 
-    cucon_umap_init(&format_map);
     if ((s = getenv("CU_VERBOSITY"))) {
 	int i = atoi(s);
 	if (i > 0)

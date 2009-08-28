@@ -143,7 +143,7 @@ if $enable_cufo; then
     fi
     AC_SUBST([CURSES_LIB])
     AC_CHECK_HEADERS([langinfo.h])
-    AC_CHECK_FUNCS([isatty nl_langinfo])
+    AC_CHECK_FUNCS([fileno isatty nl_langinfo])
 fi
 AM_CONDITIONAL([enable_cufo_term], [test x"$CURSES_LIB" != x])
 

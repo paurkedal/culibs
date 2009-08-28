@@ -381,37 +381,46 @@ cu_clos_def(tuptype_print_elt,
             cu_prot(cu_bool_t, cu_idr_t label, cu_offset_t bitoff,
                                cuoo_type_t t),
     ( int i;
-      FILE *out; ))
+      cufo_stream_t fos; ))
 {
     cu_clos_self(tuptype_print_elt);
-    if (self->i++)
-        fputs(" × ", self->out);
-    if (label) {
-        fputc('~', self->out);
-        fputs(cu_idr_to_cstr(label), self->out);
+    if (self->i++) {
+	cufo_space(self->fos);
+	cufo_enter(self->fos, cufoT_operator);
+        cufo_puts(self->fos, "×");
+	cufo_leave(self->fos, cufoT_operator);
+	cufo_space(self->fos);
     }
-    cu_fprintf(self->out, "@%d:%!", bitoff, t);
+    cufo_enter(self->fos, cufoT_label);
+    if (label) {
+        cufo_putc(self->fos, '~');
+        cufo_puts(self->fos, cu_idr_to_cstr(label));
+    }
+    cufo_printf(self->fos, "@%zd:", (size_t)bitoff);
+    cufo_leave(self->fos, cufoT_label);
+    cufo_printf(self->fos, "%!", t);
     ++self->i;
     return cu_true;
 }
 
-void
-cudyn_tuptype_print(void *t, FILE *out)
+static void
+_tuptype_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *t)
 {
     tuptype_print_elt_t cb;
     cb.i = 0;
-    cb.out = out;
-    fprintf(out, "#[cudyn_tuptype_t size=%ld: ", (long)cuoo_type_size(t));
+    cb.fos = fos;
+    cufo_printf(fos, "%<#[cudyn_tuptype_t%> size=%zd: ", cufoT_operator,
+		cuoo_type_size(t));
     cudyn_tuptype_conj(t, tuptype_print_elt_prep(&cb));
-    fputc(']', out);
+    cufo_printf(fos, "%<]%>", cufoT_operator);
 }
 
 static cu_box_t
 _tuptype_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN:
-	    return CUOO_INTF_PRINT_FN_BOX(cudyn_tuptype_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(_tuptype_foprint);
 	default:
 	    return CUOO_IMPL_NONE;
     }

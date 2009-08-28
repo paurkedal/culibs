@@ -23,6 +23,8 @@
 #include <cuex/opn.h>
 #include <cuex/oprinfo.h>
 #include <cuex/oprdefs.h>
+#include <cufo/stream.h>
+#include <cufo/tagdefs.h>
 #include <cuoo/properties.h>
 #include <cucon/pmap.h>
 #include <cucon/pset.h>
@@ -37,11 +39,11 @@
 
 /* This printing is meant for debugging purposes.  It will lock all printed
  * variables from being GCed.  That could be avoided by using cucon_wmap_t
- * instead of cucon_pmap_t in varindex, but then two variables which prints
+ * instead of cucon_pmap_t in _varindex, but then two variables which prints
  * the same may in fact be different. */
 
 static int
-varindex(cuex_t var, int kind)
+_varindex(cufo_stream_t fos, cuex_t var, int kind)
 {
     static cucon_pmap_t index_map = NULL;
     static int current_index[][4] = {{0, 0, 0, 0}, {0, 0, 0, 0}};
@@ -59,7 +61,7 @@ varindex(cuex_t var, int kind)
 }
 
 static void
-cuex_print_ex(cuex_t ex, FILE *out)
+_foprint_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t ex)
 {
     cuex_meta_t meta;
     cu_debug_assert(ex != NULL);
@@ -72,34 +74,33 @@ cuex_print_ex(cuex_t ex, FILE *out)
 	case cuex_meta_kind_opr:
 	    meta = cuex_oprdefs_decode_opr(meta, &oa_cnt, oa_arr);
 	    oi = cuex_oprinfo(meta);
+	    cufo_tagputc(fos, cufoT_operator, '(');
 	    if (oi)
-		fprintf(out, "(#%s", cuex_oprinfo_name(oi));
+		cufo_printf(fos, "%s", cuex_oprinfo_name(oi));
 	    else
-		fprintf(out, "(#%lx", (unsigned long)meta);
+		cufo_printf(fos, "__opr_%lx", (unsigned long)meta);
 	    for (i = 0; i < oa_cnt; ++i)
-		fprintf(out, ":%d", oa_arr[i]);
+		cufo_printf(fos, ":%d", oa_arr[i]);
 	    r = cuex_opr_r(meta);
 	    for (i = 0; i < r; ++i) {
-		fputc(' ', out);
-		cuex_print_ex(cuex_opn_at(ex, i), out);
+		cufo_space(fos);
+		cufo_printsp_ex(fos, spec, cuex_opn_at(ex, i));
 	    }
-	    fputc(')', out);
+	    cufo_tagputc(fos, cufoT_operator, ')');
 	    break;
-	case cuex_meta_kind_type:
-	    if (!cuoo_raw_print(ex, out))
-		fprintf(out, "C%p", ex);
-	    break;
-	default:
+	case cuex_meta_kind_other:
 	    if (cuex_is_rvarmeta(meta))
-		fprintf(out, "μ%u", (unsigned int)cuex_varmeta_index(meta));
+		cufo_printf(fos, "%<μ%u%>", cufoT_variable,
+			    (unsigned int)cuex_varmeta_index(meta));
 	    else if (cuex_is_xvarmeta(meta)) {
 		cuex_xvarops_t ops;
 		ops = cucon_umap_find_ptr(&cuexP_xvarops,
 					  cuex_xvarmeta_subkind(meta));
-		if (ops && ops->print)
-		    ops->print(ex, out);
+		if (ops && ops->foprint)
+		    ops->foprint(fos, ex);
 		else
-		    fprintf(out, "_x%d", varindex(ex, 1));
+		    cufo_printf(fos, "%<_x%d%>", cufoT_variable,
+				_varindex(fos, ex, 1));
 	    }
 	    else if (cuex_is_varmeta(meta)) {
 		char *prefix;
@@ -132,23 +133,22 @@ cuex_print_ex(cuex_t ex, FILE *out)
 			default:
 			    cu_debug_unreachable();
 		    }
+		cufo_enter(fos, cufoT_variable);
 		if (cuex_is_ivarmeta(meta))
-		    fprintf(out, "%s%ld", prefix, (long)cuex_varmeta_index(meta));
+		    cufo_printf(fos, "%s%ld", prefix,
+				(long)cuex_varmeta_index(meta));
 		else
-		    fprintf(out, "_%s%d", prefix, varindex(ex, 0));
+		    cufo_printf(fos, "_%s%d", prefix, _varindex(fos, ex, 0));
+		cufo_leave(fos, cufoT_variable);
 	    }
 	    else
-		fprintf(out, "special_%p", ex);
+		cufo_printf(fos, "__special_%p", ex);
+	    break;
+	default:
+	    /* cuex_meta_kind_type is handled in cufo/printf.c */
+	    cu_debug_unreachable();
+	    break;
     }
-}
-
-cu_clop_def(format_expression, void, cu_str_t fmt, cu_va_ref_t va, FILE *out)
-{
-    cuex_t ex = cu_va_ref_arg(va, cuex_t);
-    if (!ex)
-	fputs("NULL", out);
-    else
-	cuex_print_ex(ex, out);
 }
 
 static cuex_t
@@ -267,8 +267,10 @@ cuex_save_dot(cuex_t e, char const *graph_name, char const *path)
     return cu_true;
 }
 
+extern void (*cufoP_print_nonobj)(cufo_stream_t, cufo_prispec_t, cuex_t);
+
 void
 cuexP_print_init()
 {
-    cu_diag_define_format_key('!', format_expression);
+    cufoP_print_nonobj = _foprint_ex;
 }
