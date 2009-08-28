@@ -86,6 +86,14 @@ cu_clop_def(default_log_binder, cu_bool_t, cu_log_facility_t facility)
     return cu_true;
 }
 
+static void
+_cufo_uninit(void)
+{
+    cufo_close(cufo_stdout);
+    cufo_close(cufo_stderr);
+    cufo_close(cufoP_stderr_bug);
+}
+
 void
 cufo_init(void)
 {
@@ -106,6 +114,7 @@ cufo_init(void)
     cufo_stderr = cufo_open_auto_fd(2, cu_false);
     cufoP_stderr_bug = cufo_open_auto_fd(2, cu_false);
     cu_register_log_binder(cu_clop_ref(default_log_binder));
+    atexit(_cufo_uninit);
 
     cufoP_init_formats();
 }
