@@ -24,6 +24,7 @@
 #include <cuex/subst.h>
 #include <cuex/oprdefs.h>
 #include <cuex/opn.h>
+#include <cufo/stream.h>
 #include <stdio.h>
 
 
@@ -57,11 +58,11 @@ test_insert(cuex_ssfn_t ssfn, cuex_t ex)
     void *slot;
     if (cuex_ssfn_insert_mem(ssfn, ex, 0, sizeof(cuex_t), &slot,
 			    NULL, NULL)) {
-	cu_fprintf(stdout, "Inserted new pattern ‘%!’.\n", ex);
+	cufo_oprintf("Inserted new pattern ‘%!’.\n", ex);
 	*(cuex_t*)slot = ex;
     }
     else
-	cu_fprintf(stdout, "Not inserted existing pattern ‘%!’.\n", ex);
+	cufo_oprintf("Not inserted existing pattern ‘%!’.\n", ex);
 }
 
 cu_clop_def(copy_slot, void, cuex_t *dst, cuex_t *src)
@@ -72,7 +73,7 @@ cu_clop_def(copy_slot, void, cuex_t *dst, cuex_t *src)
 static int errors = 0;
 
 #define test_find(ssfn, key) \
-    (printf("‘"#key"’ = "), test_find_x(ssfn, key))
+    (cufo_oprintf("‘"#key"’ = "), test_find_x(ssfn, key))
 void
 test_find_x(cuex_ssfn_t ssfn, cuex_t key)
 {
@@ -83,8 +84,7 @@ test_find_x(cuex_ssfn_t ssfn, cuex_t key)
     collect_match_t cb;
     cu_clop(cb_clop, cu_bool_t, cu_count_t, cuex_t *, void *)
 	= collect_match_prep(&cb);
-//    printf("‘%s’ matches\n", str);
-    cu_fprintf(stdout, "‘%!’ matches\n", key);
+    cufo_oprintf("‘%!’ matches\n", key);
     cb.lst = lst0;
     cuex_ssfn_find(ssfn, key, cb_clop);
     cb.lst = lst1;
@@ -95,19 +95,19 @@ test_find_x(cuex_ssfn_t ssfn, cuex_t key)
 	cuex_t ex0 = cucon_listnode_ptr(it0);
 	cuex_t ex1 = cucon_listnode_ptr(it1);
 	if (cuex_eq(ex0, ex1))
-	    cu_fprintf(stdout, "    %!\n", ex0);
+	    cufo_oprintf("    %!\n", ex0);
 	else {
-	    cu_fprintf(stdout, "    v0: %!\n    v1: %!\n", ex0, ex1);
+	    cufo_oprintf("    v0: %!\n    v1: %!\n", ex0, ex1);
 	    ++errors;
 	}
     }
     while (it0 != cucon_list_end(lst0)) {
-	cu_fprintf(stdout, "    v0: %!\n", cucon_listnode_ptr(it0));
+	cufo_oprintf("    v0: %!\n", cucon_listnode_ptr(it0));
 	it0 = cucon_listnode_next(it0);
 	++errors;
     }
     while (it1 != cucon_list_end(lst1)) {
-	cu_fprintf(stdout, "    v1: %!\n", cucon_listnode_ptr(it1));
+	cufo_oprintf("    v1: %!\n", cucon_listnode_ptr(it1));
 	it1 = cucon_listnode_next(it1);
 	++errors;
     }
@@ -120,20 +120,17 @@ cu_clop_def(print_find_mgu_cb, cuex_ssfn_ctrl_t,
 	    cuex_ssfn_matchinfo_t ign)
 {
     cu_rank_t i;
-    cu_fprintf(stdout, "    %!\n\tkey_args: ", *(cuex_t*)slot);
-    cuex_subst_print(subst, stdout, ", ");
+    cufo_oprintf("    %!\n\tkey_args: ", *(cuex_t*)slot);
+    cuex_subst_print(subst, cufo_stdout, ", ");
     //putc('\n', stdout);
     //cuex_subst_dump(subst, stdout);
-    fputs("\n\tpat_args: ", stdout);
+    cufo_puts(cufo_stdout, "\n\tpat_args: ");
     for (i = 0; i < pat_arg_cnt; ++i) {
 	if (i != 0)
-	    fputs(", ", stdout);
-	if (pat_arg_arr[i])
-	    cu_fprintf(stdout, "%!", pat_arg_arr[i]);
-	else
-	    fputs("NULL", stdout);
+	    cufo_puts(cufo_stdout, ", ");
+	cufo_oprintf("%!", pat_arg_arr[i]);
     }
-    fputc('\n', stdout);
+    cufo_putc(cufo_stdout, '\n');
     return cuex_ssfn_ctrl_continue;
 }
 
@@ -141,14 +138,14 @@ void
 print_find_lgr(cuex_ssfn_t ssfn, cuex_t key)
 {
     cuex_subst_t subst = NULL;
-    cu_fprintf(stdout, "More specific and equally specific as %!:\n", key);
+    cufo_oprintf("More specific and equally specific as %!:\n", key);
     cuex_ssfn_find_lgr(ssfn, subst, key, 0, print_find_mgu_cb);
 }
 void
 print_find_mgu(cuex_ssfn_t ssfn, cuex_t key)
 {
     cuex_subst_t subst = NULL;
-    cu_fprintf(stdout, "MGUs of semantic function and %!:\n", key);
+    cufo_oprintf("MGUs of semantic function and %!:\n", key);
     cuex_ssfn_find_mgu(ssfn, subst, key, 0, print_find_mgu_cb);
 }
 
@@ -156,7 +153,7 @@ void
 print_find_mgr(cuex_ssfn_t ssfn, cuex_t key)
 {
     cuex_subst_t subst = NULL;
-    cu_fprintf(stdout, "More general or equally general as %!:\n", key);
+    cufo_oprintf("More general or equally general as %!:\n", key);
     cuex_ssfn_find_mgr(ssfn, subst, key, 0, print_find_mgu_cb);
 }
 

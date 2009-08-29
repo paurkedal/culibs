@@ -18,6 +18,7 @@
 #include <cugra/graph.h>
 #include <cugra/graph_algo.h>
 #include <cu/diag.h>
+#include <cu/str.h>
 
 void
 cugra_graph_fwrite_dot(cugra_graph_t G,
@@ -40,8 +41,8 @@ cugra_graph_fwrite_dot(cugra_graph_t G,
 	    v = cugra_graph_vertices_next(v)) {
 	cugra_arc_t a;
 	if (!cu_clop_is_null(vertex_label))
-	    cu_fprintf(fout, "v%p[label=\"%S\"];\n", v,
-		       cu_call(vertex_label, v));
+	    fprintf(fout, "v%p[label=\"%s\"];\n", (void *)v,
+		    cu_str_to_cstr(cu_call(vertex_label, v)));
 	if (cu_clop_is_null(arc_label))
 	    for (a = cugra_vertex_outarcs_begin(v);
 		    a != cugra_vertex_outarcs_end(v);

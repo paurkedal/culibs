@@ -22,6 +22,7 @@
 #include <cuex/pvar.h>
 #include <cucon/pmap.h>
 #include <cucon/slink.h>
+#include <cufo/fwd.h>
 #include <cu/conf.h>
 #include <stdio.h>
 
@@ -262,7 +263,7 @@ void cuex_subst_free_vars_erase(cuex_subst_t subst, cuex_t ex,
 				cucon_pset_t accu);
 
 /*!Print \a subst to \a file, using \a sep to separate elements. */
-void cuex_subst_print(cuex_subst_t subst, FILE *file, char const *sep);
+void cuex_subst_print(cuex_subst_t subst, cufo_stream_t fos, char const *sep);
 
 /*!Debug dump of \a subst. */
 void cuex_subst_dump(cuex_subst_t subst, FILE *file);

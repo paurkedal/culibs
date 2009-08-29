@@ -19,8 +19,9 @@
 #include <cuex/oprdefs.h>
 #include <cuex/opn.h>
 #include <cudyn/misc.h>
-#include <cu/test.h>
+#include <cufo/stream.h>
 #include <cucon/pset.h>
+#include <cu/test.h>
 
 //#define o2_tuple(x, y) cuex_opn(CUEX_OR_TUPLE(2), x, y)
 #define o2_tuple(x, y) cuex_o2_apply(x, y)
@@ -59,8 +60,8 @@ test(int N, cu_bool_t print)
 	    cu_test_assert(e == ep);
 	cu_test_assert(cuex_atree_find(opn0word, ep, (cu_word_t)key) == val);
 	if (print)
-	    cu_fprintf(stdout, "%! ∪ {%!}\n  = %! (depth = %d)\n", e, val, ep,
-		       cuex_atree_depth(ep));
+	    cufo_oprintf("%! ∪ {%!}\n  = %! (depth = %d)\n", e, val, ep,
+			 cuex_atree_depth(ep));
 	e = ep;
     }
 
@@ -109,9 +110,8 @@ test_union_isecn(int N, cu_bool_t print)
 	}
     }
     if (print)
-	cu_fprintf(stdout,
-		   ":== LHS: %!\n    RHS: %!\n  union: %!\n  isecn: %!\n",
-		   e0, e1, eU, eI);
+	cufo_oprintf(":== LHS: %!\n    RHS: %!\n  union: %!\n  isecn: %!\n",
+		     e0, e1, eU, eI);
     cu_test_assert(cuex_atree_left_union(opn0word, e0, e1) == eU);
     cu_test_assert(cuex_atree_left_isecn(opn0word, e0, e1) == eI);
 
@@ -138,11 +138,11 @@ main()
 {
     int i;
     cuex_init();
-    printf("Testing insert, erase, and find.\n");
+    cufo_oprintf("Testing insert, erase, and find.\n");
     test(0, cu_true);
     for (i = 1; i < 80000; i *= 2)
 	test(i, i < 16);
-    printf("Testing union, intersection, and image.\n");
+    cufo_oprintf("Testing union, intersection, and image.\n");
     for (i = 0; i < 400; ++i)
 	test_union_isecn(i, i < 8);
     return 2*!!cu_test_bug_count();

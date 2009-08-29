@@ -46,7 +46,7 @@ CU_SINLINE cu_sref_t cuoo_sref(cuex_t ex)
 
 void cuoo_sref_push(cuex_t ex, cu_sref_t head);
 
-cu_bool_t cuoo_raw_print(cuex_t ex, FILE *out);
+cu_bool_t cuoo_raw_print(cuex_t ex, FILE *out) CU_ATTR_DEPRECATED;
 
 /*!@}*/
 CU_END_DECLARATIONS

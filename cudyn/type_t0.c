@@ -20,6 +20,8 @@
 #include <cuex/oprdefs.h>
 #include <cuex/opn.h>
 #include <cuex/ex.h>
+#include <cufo/stream.h>
+#include <cufo/tagdefs.h>
 #include <cu/test.h>
 
 void
@@ -27,8 +29,9 @@ test_type(cuex_t ex)
 {
     cuoo_type_t t = cuoo_type(ex);
     cu_test_assert(t);
-    cu_fprintf(stdout, "%! ↦ %! (%d bits aligned on %d bits)\n",
-	       ex, t, cuoo_type_bitsize(t), cuoo_type_bitalign(t));
+    cufo_oprintf("%! %<↦%> %! (%d bits aligned on %d bits)\n",
+		 ex, cufoT_operator, t, cuoo_type_bitsize(t),
+		 cuoo_type_bitalign(t));
 }
 
 void

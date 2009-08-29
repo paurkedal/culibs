@@ -608,11 +608,11 @@ reconstruct_binding(_block_t block)
 #ifndef CU_NDEBUG
     cu_debug_assert(!cucon_list_is_empty(&block->state_list));
     if (cu_dtag_get("cuex.optimal_fold")) {
-	cu_fprintf(stderr, "BLOCK %p\n", block);
+	cu_dlogf(_file, "%~:BLOCK %p\n", block);
 	if (block->target != (_block_t)-1) {
 	    int a, r;
 	    _for_states_in_block(state, block) {
-		cu_fprintf(stderr, "  STATE %p; %!\n", state, state->e);
+		cu_dlogf(_file, "%~:  STATE %p; %!\n", state, state->e);
 		e_meta = cuex_meta(state->e);
 		r = state->r;
 		if (cuex_og_hole_contains(e_meta))
@@ -621,10 +621,10 @@ reconstruct_binding(_block_t block)
 		    cu_debug_assert(r == cuex_opr_r(e_meta));
 		for (a = 0; a < r; ++a) {
 		    if (state->sub[a])
-			cu_fprintf(stderr, "    SUB %p; block=%p\n",
+			cu_dlogf(_file, "%~:    SUB %p; block=%p\n",
 				   state->sub[a], state->sub[a]->block);
 		    else
-			cu_fprintf(stderr, "    SUB NULL\n");
+			cu_dlogf(_file, "%~:    SUB NULL\n");
 		}
 	    }
 	}

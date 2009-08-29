@@ -18,6 +18,7 @@
 #include <cuex/binding.h>
 #include <cuex/oprdefs.h>
 #include <cuex/var.h>
+#include <cufo/stream.h>
 #include <cucon/uset.h>
 #include <cucon/pmap.h>
 
@@ -27,9 +28,11 @@ cu_clop_def(show_bi, void, void const *key, void *lvars)
 {
 #define lvars ((cucon_uset_t)lvars)
 #define key ((cuex_t)key)
+    cufo_flush(cufo_stdout);
     fputs("    ", stdout);
     cucon_uset_print(lvars, stdout);
-    cu_fprintf(stdout, " are free in %!.\n", key);
+    fflush(stdout);
+    cufo_oprintf(" are free in %!.\n", key);
 #undef lvars
 #undef key
 }
@@ -39,11 +42,11 @@ test(cuex_t e)
 {
     cucon_pmap_t ubi;
     int depth = cuex_max_binding_depth(e);
-    cu_fprintf(stdout, "\nBindings of %!:\n", e);
+    cufo_oprintf("\nBindings of %!:\n", e);
     ubi = cuex_unfolded_fv_sets(e, depth);
     cucon_pmap_iter_mem(ubi, show_bi);
 
-//    cu_fprintf(stdout, "Foldinert: %!\n", cuex_foldinert_rebind(e, depth));
+//    cufo_oprintf("Foldinert: %!\n", cuex_foldinert_rebind(e, depth));
 }
 
 #define M cuex_o1_mu

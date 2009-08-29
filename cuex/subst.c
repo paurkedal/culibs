@@ -24,6 +24,8 @@
 #include <cuex/oprdefs.h>
 #include <cuex/algo.h>
 #include <cuex/tvar.h>
+#include <cufo/stream.h>
+#include <cufo/tagdefs.h>
 
 
 /* Expensive debugging */
@@ -1078,7 +1080,7 @@ cuex_subst_tran_cache_sub(void *sub_data, cuex_t var)
 
 cu_clos_def(cuex_subst_print_cb,
 	    cu_prot(void, cuex_veqv_t veqv),
-	    ( FILE *file;
+	    ( cufo_stream_t fos;
 	      char const *sep;
 	      cu_bool_t is_first; ))
 {
@@ -1088,27 +1090,27 @@ cu_clos_def(cuex_subst_print_cb,
     if (self->is_first)
 	self->is_first = cu_false;
     else
-	fputs(self->sep, self->file);
+	cufo_puts(self->fos, self->sep);
     sep = "";
     for (var_cur = veqv->var_link; var_cur;
 	 var_cur = cucon_slink_next(var_cur)) {
-	cu_fprintf(self->file, "%s%!",
-		   sep, cuex_var_to_ex(cucon_slink_get_ptr(var_cur)));
+	cufo_printf(self->fos, "%s%!",
+		    sep, cuex_var_to_ex(cucon_slink_get_ptr(var_cur)));
 	sep = " = ";
     }
     if (veqv->value) {
 	if (cuex_meta(veqv->value) == CUEX_O1_SUBST_BLOCK)
-	    fprintf(self->file, " __blocked_%p", veqv->value);
+	    cufo_printf(self->fos, " __blocked_%p", veqv->value);
 	else
-	    cu_fprintf(self->file, " ↦ %!", veqv->value);
+	    cufo_printf(self->fos, " %<↦%> %!", cufoT_operator, veqv->value);
     }
 }
 
 void
-cuex_subst_print(cuex_subst_t subst, FILE *file, char const *sep)
+cuex_subst_print(cuex_subst_t subst, cufo_stream_t fos, char const *sep)
 {
     cuex_subst_print_cb_t cb;
-    cb.file = file;
+    cb.fos = fos;
     cb.sep = sep;
     cb.is_first = cu_true;
     cuex_subst_iter_veqv(subst, cuex_subst_print_cb_prep(&cb));

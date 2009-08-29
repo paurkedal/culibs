@@ -17,6 +17,8 @@
 
 #include <cuex/atree.h>
 #include <cuex/opn.h>
+#include <cufo/stream.h>
+#include <cufo/tagdefs.h>
 #include <cuoo/prop.h>
 #include <cuoo/properties.h>
 #include <cuoo/intf.h>
@@ -1314,27 +1316,30 @@ cuex_atree_itr_get_at_1(void *_itr)
 
 /* == Printing == */
 
-cu_clos_def(atree_print_elt, cu_prot(void, cuex_t elt),
-    (FILE *out; int index;))
+cu_clos_def(_atree_print_elt, cu_prot(void, cuex_t elt),
+    (cufo_stream_t fos; int index;))
 {
-    cu_clos_self(atree_print_elt);
-    if (self->index++ != 0)
-	fputs(" ∧ ", self->out);
-    cu_fprintf(self->out, "%!", elt);
+    cu_clos_self(_atree_print_elt);
+    if (self->index++ != 0) {
+	cufo_space(self->fos);
+	cufo_tagputs(self->fos, cufoT_operator, "∧");
+	cufo_space(self->fos);
+    }
+    cufo_print_ex(self->fos, elt);
 }
 
 static void
-_atree_print(cuex_t obj, FILE *out)
+_atree_print(cufo_stream_t fos, cufo_prispec_t spec, cuex_t obj)
 {
-    atree_print_elt_t cb;
-    cb.out = out;
-    cb.index = 0;
     if (cuex_atree_is_empty(obj))
-	fputs("⊤", out);
+	cufo_tagputs(fos, cufoT_literal, "⊤");
     else {
-	fputc('(', out);
-	cuex_atree_iter(obj, atree_print_elt_prep(&cb));
-	fputc(')', out);
+	_atree_print_elt_t cb;
+	cb.fos = fos;
+	cb.index = 0;
+	cufo_tagputc(fos, cufoT_operator, '(');
+	cuex_atree_iter(obj, _atree_print_elt_prep(&cb));
+	cufo_tagputc(fos, cufoT_operator, ')');
     }
 }
 
@@ -1345,8 +1350,8 @@ static cu_box_t
 _atree_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN:
-	    return CUOO_INTF_PRINT_FN_BOX(_atree_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(_atree_print);
 	default:
 	    return CUOO_IMPL_NONE;
     }

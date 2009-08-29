@@ -22,6 +22,8 @@
 #include <cuoo/halloc.h>
 #include <cuoo/intf.h>
 #include <cuoo/type.h>
+#include <cufo/stream.h>
+#include <cufo/tagdefs.h>
 #include <cu/ptr_seq.h>
 
 typedef struct cuex_set_s *cuex_set_t;
@@ -205,24 +207,29 @@ static struct cuex_intf_compound_s _set_compound = {
 /* == Interface Dispatch == */
 
 static void
-_set_print(void *S, FILE *out)
+_set_print(cufo_stream_t fos, cufo_prispec_t spec, void *S)
 {
     int i = 0;
     void *itr = cu_salloc(cuex_atree_itr_size(S));
     cuex_t e;
     cuex_atree_itr_init(itr, SET(S)->atree);
-    fputc('{', out);
-    while ((e = cuex_atree_itr_get(itr)))
-	cu_fprintf(out, i++? ", %!" : "%!", e);
-    fputc('}', out);
+    cufo_tagputc(fos, cufoT_operator, '{');
+    while ((e = cuex_atree_itr_get(itr))) {
+	if (i++) {
+	    cufo_tagputc(fos, cufoT_operator, ',');
+	    cufo_putc(fos, ' ');
+	}
+	cufo_print_ex(fos, e);
+    }
+    cufo_tagputc(fos, cufoT_operator, '}');
 }
 
 static cu_box_t
 _set_dispatch(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN:
-	    return CUOO_INTF_PRINT_FN_BOX(&_set_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(&_set_print);
 	case CUEX_INTF_COMPOUND:
 	    return CUEX_INTF_COMPOUND_BOX(&_set_compound);
 	default:

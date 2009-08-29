@@ -19,6 +19,8 @@
 #include <cuex/atree.h>
 #include <cuex/oprinfo.h>
 #include <cuoo/intf.h>
+#include <cufo/stream.h>
+#include <cufo/tagdefs.h>
 #include <inttypes.h>
 
 typedef struct cuex_semilattice_s *cuex_semilattice_t;
@@ -146,38 +148,41 @@ cuex_meetlattice_leq(cuex_meta_t meet, cuex_t x0, cuex_t x1)
 }
 
 cu_clos_def(_semilattice_print_elt, cu_prot(void, cuex_t e),
-	    (FILE *out; int index;))
+	    (cufo_stream_t fos; int index;))
 {
     cu_clos_self(_semilattice_print_elt);
-    if (self->index++)
-	fputs(", ", self->out);
-    cu_fprintf(self->out, "%!", e);
+    if (self->index++) {
+	cufo_putc(self->fos, ',');
+	cufo_space(self->fos);
+    }
+    cufo_print_ex(self->fos, e);
 }
 
 static void
-_semilattice_print(cuex_t x, FILE *out)
+_semilattice_print(cufo_stream_t fos, cufo_prispec_t spec, void *x)
 {
     cuex_meta_t opr = SL(x)->meet;
     cuex_oprinfo_t info = cuex_oprinfo(opr);
     _semilattice_print_elt_t cb;
-    fputc('(', out);
+    cufo_tagputc(fos, cufoT_operator, '(');
     if (info)
-	fputs(cuex_oprinfo_name(info), out);
+	cufo_puts(fos, cuex_oprinfo_name(info));
     else
-	fprintf(out, "__O%d_0x%"CUEX_PRIxMETA, cuex_opr_r(opr), opr);
-    fputs(" {", out);
-    cb.out = out;
+	cufo_printf(fos, "__O%d_0x%"CUEX_PRIxMETA, cuex_opr_r(opr), opr);
+    cufo_space(fos);
+    cufo_tagputc(fos, cufoT_operator, '{');
+    cb.fos = fos;
     cb.index = 0;
     cuex_atree_iter(SL(x)->atree, _semilattice_print_elt_prep(&cb));
-    fputs("})", out);
+    cufo_tagputs(fos, cufoT_operator, "})");
 }
 
 static cu_box_t
 _semilattice_dispatch(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
-	case CUOO_INTF_PRINT_FN:
-	    return CUOO_INTF_PRINT_FN_BOX(_semilattice_print);
+	case CUOO_INTF_FOPRINT_FN:
+	    return CUOO_INTF_FOPRINT_FN_BOX(_semilattice_print);
 	default:
 	    return CUOO_IMPL_NONE;
     }

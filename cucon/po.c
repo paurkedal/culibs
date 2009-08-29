@@ -24,6 +24,7 @@
 #include <cucon/stack.h>
 #include <cu/thread.h>
 #include <cu/debug.h>
+#include <cu/str.h>
 #include <cu/diag.h>
 
 #include <assert.h>
@@ -1325,8 +1326,8 @@ cu_clos_def(print_gviz_cb,
 {
     cu_clos_self(print_gviz_cb);
     cucon_listnode_t it;
-    cu_fprintf(self->out, "v%p[label=\"%S\"];\n", (void *)elt,
-		cu_call(self->label, elt));
+    fprintf(self->out, "v%p[label=\"%s\"];\n", (void *)elt,
+	    cu_str_to_cstr(cu_call(self->label, elt)));
     for (it = cucon_po_ipred_begin(elt); it != cucon_po_ipred_end(elt);
 	 it = cucon_listnode_next(it)) {
 	cucon_poelt_t elt_pred = cucon_po_ipred_it_get(it);

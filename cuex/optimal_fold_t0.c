@@ -30,6 +30,7 @@
 #include <cucon/pmap.h>
 #include <cucon/frame.h>
 #include <cucon/list.h>
+#include <cufo/stream.h>
 #include <cu/test.h>
 #include <cu/int.h>
 #include <cu/ptr_seq.h>
@@ -346,9 +347,9 @@ _test(struct _clock_avg_state_s *bench_arr)
 
     are_eq = _depth_eq(e, ep);
     if (!are_eq || (VERBOSE && e != ep && run++ < 30))
-	cu_fprintf(stderr, "\n INPUT: %!\nOUTPUT: %!\n", e, ep);
+	cufo_oprintf("\n INPUT: %!\nOUTPUT: %!\n", e, ep);
     if (!are_eq) {
-//	cu_fprintf(stderr, "FOLDINERT: %!\n", cuex_foldinert_rebind(e, -1));
+//	cufo_oprintf("FOLDINERT: %!\n", cuex_foldinert_rebind(e, -1));
 	cu_test_bugf("Equality test failed.");
     }
 
@@ -375,16 +376,16 @@ _test(struct _clock_avg_state_s *bench_arr)
     ++bench_arr[plot_bin].count;
 
     if (eppp != ep) {
-	cu_fprintf(stderr, " INITIAL: %!\n", e);
-	cu_fprintf(stderr, "   INPUT: %!\n  OUTPUT: %!\nEXPECTED: %!\n",
-		   epp, eppp, ep);
-//	cu_fprintf(stderr, "FOLDINERT: %!\n", cuex_foldinert_rebind(epp, -1));
+	cufo_oprintf(" INITIAL: %!\n", e);
+	cufo_oprintf("   INPUT: %!\n  OUTPUT: %!\nEXPECTED: %!\n",
+		     epp, eppp, ep);
+//	cufo_oprintf("FOLDINERT: %!\n", cuex_foldinert_rebind(epp, -1));
 	cuex_save_dot(e, NULL, NULL);
 	cuex_save_dot(ep, NULL, NULL);
 	cuex_save_dot(epp, NULL, NULL);
 	cuex_save_dot(eppp, NULL, NULL);
-	fprintf(stderr, "RNG state: 0x%04hx%04hx%04hx\n",
-		ysubi[0], ysubi[1], ysubi[2]);
+	cufo_oprintf("RNG state: 0x%04hx%04hx%04hx\n",
+		     ysubi[0], ysubi[1], ysubi[2]);
 	cu_test_bugf("Incomplete or incorrect simplification.");
     }
 }
@@ -405,8 +406,8 @@ main(int argc, char **argv)
 	_xsubi[1] = (lrand48)();
 	_xsubi[2] = (lrand48)();
     }
-    fprintf(stderr, "RNG state: 0x%04hx%04hx%04hx\n",
-	    _xsubi[0], _xsubi[1], _xsubi[2]);
+    cufo_oprintf("RNG state: 0x%04hx%04hx%04hx\n",
+		 _xsubi[0], _xsubi[1], _xsubi[2]);
 
     cu_test_on_bug(cu_test_bugaction_exit, argc >= 2? 1 : 40);
 

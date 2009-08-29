@@ -22,6 +22,7 @@
 #include <cuex/oprdefs.h>
 #include <cuex/opn.h>
 #include <cu/test.h>
+#include <cufo/stream.h>
 
 static void
 unify(cuex_subst_t subst, cuex_t ex0, cuex_t ex1, cu_bool_t expect)
@@ -65,12 +66,12 @@ main()
     cu_test_assert_ptr_eq(cuex_subst_cref(sig1, cuex_var_from_ex(v[5])),
 			  cuex_subst_cref(sig1, cuex_var_from_ex(v[3])));
     cu_test_assert(sig1->shadowed);
-    cuex_subst_dump(sig1, stdout);
-    printf("Last subst prettyprited:\n\t");
-    cuex_subst_print(sig1, stdout, "\n\t");
+    cuex_subst_dump(sig1, stdout); fflush(stdout);
+    cufo_oprintf("Last subst prettyprited:\n\t");
+    cuex_subst_print(sig1, cufo_stdout, "\n\t");
     for (i = 0; i < 60; ++i)
 	cuex_subst_cref(sig1, cuex_var_from_ex(v[9]));
-    fputc('\n', stdout);
+    cufo_putc(cufo_stdout, '\n');
     cu_test_assert(!sig1->shadowed);
     cu_test_assert_ptr_eq(cuex_subst_cref(sig1, cuex_var_from_ex(v[5])),
 			  cuex_subst_cref(sig1, cuex_var_from_ex(v[3])));
