@@ -55,6 +55,7 @@ test()
     _show(konst);
     _show(scomb);
     _show(_ident(_mu(_apply(_0, _3))));
+    _show(_mu(_lambda(_mu(_apply(_0, _2)))));
     _show(_set3(ident, konst, _3));
 }
 

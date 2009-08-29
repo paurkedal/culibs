@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,48 +19,59 @@
 #define CUEX_OCCURTREE_H
 
 #include <cuex/fwd.h>
-#include <cucon/fwd.h>
+#include <cucon/ucset.h>
 #include <stdio.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuex_occurtree_h cuex/occurtree.h: Caching of Variable Occurences
- *@{\ingroup cuex_mod */
+/** \defgroup cuex_occurtree_h cuex/occurtree.h: Caching of Variable Occurences
+ ** @{ \ingroup cuex_mod */
 
 struct cuex_occurtree_s
 {
     cuex_t e;
+    int mu_height;
     cucon_ucset_t free_vars;
     cuex_occurtree_t sub[1];
 };
 
-/*!Returns an occurtree treating μ-variables like regular variables.  If \a
- * force_comm, then use commutative iteration for all compounds. */
+/** Returns an occurtree treating μ-variables like regular variables.  If \a
+ ** force_comm, then use commutative iteration for all compounds. */
 cuex_occurtree_t cuex_folded_occurtree(cuex_t e, cu_bool_t force_comm);
 
-/*!Returns an occurtree where a free μ-variable also implies all variables
- * which are free in the corresponding μ-bind.  If \a force_comm, then use the
- * commutative iteration for all compounds. */
+/** Returns an occurtree where a free μ-variable also implies all variables
+ ** which are free in the corresponding μ-bind.  If \a force_comm, then use the
+ ** commutative iteration for all compounds. */
 cuex_occurtree_t cuex_unfolded_occurtree(cuex_t e, cu_bool_t force_comm);
 
-/*!The expression from which \a tree was created. */
+/** The expression from which \a tree was created. */
 CU_SINLINE cuex_t
 cuex_occurtree_expr(cuex_occurtree_t tree)
 { return tree->e; }
 
-/*!Returns occurtree for subexpression number \a i under \a tree. */
+/** Returns occurtree for subexpression number \a i under \a tree. */
 CU_SINLINE cuex_occurtree_t
 cuex_occurtree_at(cuex_occurtree_t tree, cu_rank_t i)
 { return tree->sub[i]; }
 
-/*!Returns the set of free variables in \a tree. */
+/** True iff \a tree has no free variables. */
+CU_SINLINE cu_bool_t
+cuex_occurtree_is_closed(cuex_occurtree_t tree)
+{ return cucon_ucset_is_empty(tree->free_vars); }
+
+/** True iff \a tree has no free μ-variables. */
+CU_SINLINE cu_bool_t
+cuex_occurtree_is_muclosed(cuex_occurtree_t tree)
+{ return tree->mu_height < 0; }
+
+/** Returns the set of free variables in \a tree. */
 CU_SINLINE cucon_ucset_t
 cuex_occurtree_free_vars(cuex_occurtree_t tree)
 { return tree->free_vars; }
 
-/*!Debug printout of \a tree. */
+/** Debug printout of \a tree. */
 void cuex_occurtree_dump(cuex_occurtree_t tree, FILE *out);
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

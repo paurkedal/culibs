@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,17 @@
 #include <cuex/oprinfo.h>
 #include <cucon/ucset.h>
 #include <cu/clos.h>
+#include <cu/int.h>
 #include <inttypes.h>
 
-cuex_occurtree_t
-cuex_folded_occurtree(cuex_t e, cu_bool_t force_comm)
+typedef struct _folded_occurtree_frame_s {
+    cuex_meta_t e_meta;
+} *_folded_occurtree_frame_t;
+
+static cuex_occurtree_t
+_folded_occurtree(cuex_t e, cu_bool_t force_comm,
+		  _folded_occurtree_frame_t sp,
+		  _folded_occurtree_frame_t sp_bottom)
 {
     cuex_occurtree_t ot, sub_ot;
     cuex_meta_t e_meta = cuex_meta(e);
@@ -36,20 +43,37 @@ cuex_folded_occurtree(cuex_t e, cu_bool_t force_comm)
 		       + (r - 1)*sizeof(cuex_occurtree_t));
 	ot->e = e;
 	if (cuex_og_hole_contains(e_meta)) {
+	    int e_index = cuex_oa_hole_index(e_meta);
+	    _folded_occurtree_frame_t sp_ref = sp + e_index;
 	    cu_debug_assert(r == 0);
-	    ot->free_vars = cucon_ucset_singleton(cuex_oa_hole_index(e_meta));
+	    ot->free_vars = cucon_ucset_singleton(e_index);
+	    if (sp_ref < sp_bottom && sp_ref->e_meta == CUEX_O1_MU)
+		ot->mu_height = e_index;
+	    else
+		ot->mu_height = -1;
 	}
 	else {
+	    int mu_height = -1;
 	    cucon_ucset_t free_vars = cucon_ucset_empty();
+	    if (cuex_og_binder_contains(e_meta)) {
+		--sp;
+		sp->e_meta = e_meta;
+	    }
 	    for (i = 0; i < r; ++i) {
-		sub_ot = cuex_folded_occurtree(cuex_opn_at(e, i), force_comm);
+		cuex_t ep = cuex_opn_at(e, i);
+		sub_ot = _folded_occurtree(ep, force_comm, sp, sp_bottom);
 		ot->sub[i] = sub_ot;
 		free_vars = cucon_ucset_union(free_vars, sub_ot->free_vars);
+		mu_height = cu_int_max(sub_ot->mu_height, mu_height);
 	    }
-	    if (cuex_og_binder_contains(e_meta))
+	    if (cuex_og_binder_contains(e_meta)) {
 		free_vars = cucon_ucset_translate_uclip(free_vars, -1,
 							1, UINTPTR_MAX);
+		if (mu_height >= 0)
+		    --mu_height;
+	    }
 	    ot->free_vars = free_vars;
+	    ot->mu_height = mu_height;
 	}
 	return ot;
     }
@@ -57,6 +81,7 @@ cuex_folded_occurtree(cuex_t e, cu_bool_t force_comm)
 	cuoo_type_t e_type = cuoo_type_from_meta(e_meta);
 	cuex_intf_compound_t ci = cuex_type_compound(e_type);
 	if (ci) {
+	    int mu_height = -1;
 	    cucon_ucset_t free_vars = cucon_ucset_empty();
 	    int i = 0, r = cuex_compound_size(ci, e);
 	    cu_ptr_source_t ps;
@@ -69,11 +94,13 @@ cuex_folded_occurtree(cuex_t e, cu_bool_t force_comm)
 	    else
 		ps = cuex_compound_pref_iter_source(ci, e);
 	    while ((ep = cu_ptr_source_get(ps))) {
-		sub_ot = cuex_folded_occurtree(ep, force_comm);
+		sub_ot = _folded_occurtree(ep, force_comm, sp, sp_bottom);
 		ot->sub[i++] = sub_ot;
 		free_vars = cucon_ucset_union(free_vars, sub_ot->free_vars);
+		mu_height = cu_int_max(sub_ot->mu_height, mu_height);
 	    }
 	    ot->free_vars = free_vars;
+	    ot->mu_height = mu_height;
 	    return ot;
 	}
 	/* else fall though */
@@ -81,7 +108,34 @@ cuex_folded_occurtree(cuex_t e, cu_bool_t force_comm)
     ot = cu_galloc(sizeof(struct cuex_occurtree_s) - sizeof(cuex_occurtree_t));
     ot->e = e;
     ot->free_vars = cucon_ucset_empty();
+    ot->mu_height = -1;
     return ot;
+}
+
+static cuex_occurtree_t
+_folded_occurtree_entry(cuex_t e, cu_bool_t force_comm, int e_depth)
+{
+    _folded_occurtree_frame_t sp;
+    cuex_occurtree_t tree;
+#ifndef CU_NDEBUG
+    size_t sp_size = e_depth + 1;
+#else
+    size_t sp_size = e_depth;
+#endif
+    sp = cu_snewarr(struct _folded_occurtree_frame_s, sp_size);
+#ifndef CU_NDEBUG
+    sp[0].e_meta = 0;
+#endif
+    sp += sp_size;
+    tree = _folded_occurtree(e, force_comm, sp, sp);
+    cu_debug_assert(sp[-sp_size].e_meta == 0);
+    return tree;
+}
+
+cuex_occurtree_t
+cuex_folded_occurtree(cuex_t e, cu_bool_t force_comm)
+{
+    return _folded_occurtree_entry(e, force_comm, cuex_max_binding_depth(e));
 }
 
 typedef struct _unfolded_occurtree_frame_s *_unfolded_occurtree_frame_t;
@@ -177,10 +231,11 @@ _unfold_occurtree(cuex_occurtree_t ot, cu_bool_t force_comm,
 cuex_occurtree_t
 cuex_unfolded_occurtree(cuex_t e, cu_bool_t force_comm)
 {
-    cuex_occurtree_t ot = cuex_folded_occurtree(e, force_comm);
+    int e_depth = cuex_max_binding_depth(e);
+    cuex_occurtree_t ot = _folded_occurtree_entry(e, force_comm, e_depth);
     _unfolded_occurtree_frame_t sp;
-    size_t sp_size = cuex_max_binding_depth(e) + 1;
-    sp = cu_salloc(sizeof(struct _unfolded_occurtree_frame_s)*sp_size);
+    size_t sp_size = e_depth + 1;
+    sp = cu_snewarr(struct _unfolded_occurtree_frame_s, sp_size);
     sp += sp_size;
     _unfold_occurtree(ot, force_comm, sp, sp);
     return ot;
@@ -231,7 +286,10 @@ _occurtree_dump(cuex_occurtree_t ot, FILE *out, int l)
 	cu_fprintf(out, "%! ", e);
     }
     cucon_ucset_fprint_uintptr(ot->free_vars, out);
-    fputc('\n', out);
+    if (ot->mu_height == -1)
+	fputc('\n', out);
+    else
+	fprintf(out, " μ-height = %d\n", ot->mu_height);
     for (i = 0; i < r; ++i)
 	_occurtree_dump(ot->sub[i], out, l + 1);
 }
