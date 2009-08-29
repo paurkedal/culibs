@@ -288,6 +288,14 @@ void cufo_leaveln(cufo_stream_t fos, cufo_tag_t tag);
 
 void cufo_empty(cufo_stream_t fos, cufo_tag_t tag, ...);
 
+/** A convenience function which wraps \ref cufo_enter and \ref cufo_leave
+ ** around \ref cufo_putc. */
+void cufo_tagputc(cufo_stream_t fos, cufo_tag_t tag, char ch);
+
+/** A convenience function which wraps \ref cufo_enter and \ref cufo_leave
+ ** around \ref cufo_puts. */
+void cufo_tagputs(cufo_stream_t fos, cufo_tag_t tag, char const *s);
+
 /** @}
  ** \name Formatted Printing and Markup
  ** @{ */

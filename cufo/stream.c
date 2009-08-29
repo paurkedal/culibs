@@ -456,3 +456,20 @@ cufo_empty(cufo_stream_t fos, cufo_tag_t tag, ...)
     cufo_sink_leave(fos->target, tag);
     va_end(va);
 }
+
+void
+cufo_tagputc(cufo_stream_t fos, cufo_tag_t tag, char ch)
+{
+    cufo_enter(fos, tag);
+    cufo_set_wide(fos, cu_false);
+    cufo_fast_putc(fos, ch);
+    cufo_leave(fos, tag);
+}
+
+void
+cufo_tagputs(cufo_stream_t fos, cufo_tag_t tag, char const *s)
+{
+    cufo_enter(fos, tag);
+    cufo_puts(fos, s);
+    cufo_leave(fos, tag);
+}
