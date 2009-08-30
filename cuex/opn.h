@@ -197,6 +197,16 @@ cuex_opn_t cuex_opn2_right(cuex_meta_t opr, cuex_t x, cuex_t y);
  * otherwise 0. */
 cu_rank_t cuex_arity(cuex_t e);
 
+#define cuex_opn_comm_A		cuex_opn_comm_iterA
+#define cuex_opn_comm_Ak	cuex_opn_comm_iterAk
+#define cuex_opn_comm_img	cuex_opn_comm_iterimg
+#define cuex_opn_comm_imgk	cuex_opn_comm_iterimgk
+
+cu_bool_t cuex_opn_comm_iterA(cu_clop(f, cu_bool_t, cuex_t), cuex_t e);
+cu_bool_t cuex_opn_comm_iterAk(cu_clop(f, cu_bool_t, int, cuex_t), cuex_t e);
+cuex_t cuex_opn_comm_iterimg(cu_clop(f, cuex_t, cuex_t), cuex_t e);
+cuex_t cuex_opn_comm_iterimgk(cu_clop(f, cuex_t, int, cuex_t), cuex_t e);
+
 struct cuex_opn_source_s
 {
     cu_inherit (cu_ptr_source_s);

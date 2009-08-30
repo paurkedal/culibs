@@ -195,6 +195,92 @@ cuex_opn_comm_source_init(cuex_opn_source_t src, cuex_t e)
     cu_ptr_source_init(cu_to(cu_ptr_source, src), _opn_comm_source_get);
 }
 
+cu_bool_t
+cuex_opn_comm_iterA(cu_clop(f, cu_bool_t, cuex_t), cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    int k, r = cuex_opr_r(e_meta);
+    for (k = 0; k < r; ++k) {
+	cuex_t ep = cuex_o2_metapair(cudyn_int(k), cuex_opn_at(e, k));
+	if (!cu_call(f, ep))
+	    return cu_false;
+    }
+    return cu_true;
+}
+
+cu_bool_t
+cuex_opn_comm_iterAk(cu_clop(f, cu_bool_t, int, cuex_t), cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    int k, r = cuex_opr_r(e_meta);
+    for (k = 0; k < r; ++k) {
+	cuex_t ep = cuex_o2_metapair(cudyn_int(k), cuex_opn_at(e, k));
+	if (!cu_call(f, k, ep))
+	    return cu_false;
+    }
+    return cu_true;
+}
+
+cuex_t
+cuex_opn_comm_iterimg(cu_clop(f, cuex_t, cuex_t), cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    int k, r = cuex_opr_r(e_meta);
+    cuex_t *operands = cu_snewarr(cuex_t, r);
+    cu_debug_assert(cuex_meta_is_opr(e_meta));
+#ifndef CU_NDEBUG
+    memset(operands, 0, sizeof(cuex_t)*r);
+#endif
+    for (k = 0; k < r; ++k) {
+	int kp;
+	cuex_t x = cuex_opn_at(e, k);
+	cuex_t xp = cu_call(f, cuex_o2_metapair(cudyn_int(k), x));
+	cuex_t xp0;
+	if (!xp)
+	    return NULL;
+	cu_debug_assert(cuex_meta(xp) == CUEX_O2_METAPAIR);
+	xp0 = cuex_opn_at(xp, 0);
+	cu_debug_assert(cudyn_is_int(xp0));
+	kp = cudyn_to_int(xp0);
+	cu_debug_assert(0 <= kp && kp < r);
+	cu_debug_assert(!operands[kp]);
+	operands[kp] = cuex_opn_at(xp, 1);
+    }
+    return cuex_opn_by_arr(e_meta, operands);
+}
+
+cuex_t
+cuex_opn_comm_iterimgk(cu_clop(f, cuex_t, int, cuex_t), cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    int k, r;
+    cuex_t *operands;
+
+    cu_debug_assert(cuex_meta_is_opr(e_meta));
+    r = cuex_opr_r(e_meta);
+    operands = cu_snewarr(cuex_t, r);
+#ifndef CU_NDEBUG
+    memset(operands, 0, sizeof(cuex_t)*r);
+#endif
+    for (k = 0; k < r; ++k) {
+	int kp;
+	cuex_t x, xp, xp0;
+
+	x = cuex_opn_at(e, k);
+	xp = cu_call(f, k, cuex_o2_metapair(cudyn_int(k), x));
+	if (!xp)
+	    return NULL;
+	cu_debug_assert(cuex_meta(xp) == CUEX_O2_METAPAIR);
+	xp0 = cuex_opn_at(xp, 0);
+	cu_debug_assert(cudyn_is_int(xp0));
+	kp = cudyn_to_int(xp0);
+	cu_debug_assert(0 <= kp && kp < r);
+	cu_debug_assert(!operands[kp]);
+	operands[kp] = cuex_opn_at(xp, 1);
+    }
+    return cuex_opn_by_arr(e_meta, operands);
+}
+
 cu_ptr_source_t
 cuex_opn_comm_source(cuex_t e)
 {
