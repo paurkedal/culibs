@@ -23,22 +23,20 @@
 #include <cuex/binding.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuex_recursion_h cuex/recursion.h: Functions on the Recursive Structure of Expressions
- *@{\ingroup cuex_mod */
+/** \defgroup cuex_recursion_h cuex/recursion.h: Functions on the Recursive Structure of Expressions
+ ** @{ \ingroup cuex_mod */
 
-/*!Unfold the μ-expression at the top-level of \a e.  That is, assuming \a e
- * = \e μx \e e′, returns \e e′[x ↦ \e μx \e e′].
- * \pre \e must have a top-level μ-bind. */
+/** Unfold the μ-expression at the top-level of \a e.  That is, assuming \a e =
+ ** \e μx \e e′, returns \e e′[x ↦ \e μx \e e′].
+ ** \pre \e must have a top-level μ-bind. */
 cuex_t cuex_mu_unfold(cuex_t e);
 
-/*!Minimise \a e by μ-folding it as much as possible.  This is done using a
- * modified version of Hopcroft's algorithm for minimising a finite
- * automaton. */
-cuex_t cuex_mu_minimise(cuex_t e);
-
+/** Minimise \a e by μ-folding it as much as possible.  This is done using a
+ ** modified version of Hopcroft's algorithm for minimising a finite
+ ** automaton. */
 cuex_t cuex_optimal_fold(cuex_t e);
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif
