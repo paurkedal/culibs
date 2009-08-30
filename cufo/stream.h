@@ -230,32 +230,48 @@ cufo_fast_putwc(cufo_stream_t fos, cu_wchar_t wc)
     *s = wc;
 }
 
+/** Writes the ASCII character \a ch to \a fos.  Use \ref cufo_puts or \ref
+ ** cufo_print_charr to write UTF-8 byte sequences. */
 void cufo_putc(cufo_stream_t fos, char ch);
 
+/** Writes the wide character \a wc to \a fos. */
 void cufo_putwc(cufo_stream_t fos, cu_wchar_t wc);
 
-void cufo_fillc(cufo_stream_t fos, char ch, int repeat);
+/** Writes \a n repetitions of the ASCII character \a ch to \a fos. */
+void cufo_fillc(cufo_stream_t fos, char ch, int n);
 
-void cufo_fillwc(cufo_stream_t fos, cu_wchar_t wc, int repeat);
+/** Writes \a n repetitions of the wide character \a wc to \a fos. */
+void cufo_fillwc(cufo_stream_t fos, cu_wchar_t wc, int n);
 
+/** Writes the null-terminated string \a cs to \a fos. */
 void cufo_puts(cufo_stream_t fos, char const *cs);
 
+/** Writes the null-terminated wide string \a wcs to \a fos. */
 void cufo_putws(cufo_stream_t fos, cu_wchar_t *wcs);
 
+/** Writes a newline to \a fos unless the last character was a newline. */
 void cufo_newline(cufo_stream_t fos);
 
+/** Writes a space to \a fos unless the last character was an ASCII white
+ ** space.  Non-ASCII white space may also be considered in the future. */
 void cufo_space(cufo_stream_t fos);
 
+/** Write \a cs_len bytes from \a cs to \a fos, interpreted as UTF-8. */
 void cufo_print_charr(cufo_stream_t fos, char const *cs, size_t cs_len);
 
+/** Write \a len wide characters from \a arr to \a fos. */
 void cufo_print_wcarr(cufo_stream_t fos, cu_wchar_t const *arr, size_t len);
 
+/** Write the wide string \a ws to \a fos. */
 void cufo_print_wstring(cufo_stream_t fos, cu_wstring_t ws);
 
+/** Write the UTF-8 string \a str to \a fos. */
 void cufo_print_str(cufo_stream_t fos, cu_str_t str);
 
+/** Format a source reference to \a fos. */
 void cufo_print_sref(cufo_stream_t fos, cu_sref_t srf);
 
+/** Print an expression to \a fos. */
 void cufo_print_ex(cufo_stream_t fos, cuex_t e);
 
 void cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e);
