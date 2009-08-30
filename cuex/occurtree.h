@@ -18,7 +18,7 @@
 #ifndef CUEX_OCCURTREE_H
 #define CUEX_OCCURTREE_H
 
-#include <cuex/fwd.h>
+#include <cuex/iteration.h>
 #include <cucon/ucset.h>
 #include <stdio.h>
 
@@ -29,6 +29,7 @@ CU_BEGIN_DECLARATIONS
 struct cuex_occurtree_s
 {
     cuex_t e;
+    cu_bool_least_t has_ref;
     int mu_height;
     cucon_ucset_t free_vars;
     cuex_occurtree_t sub[1];
@@ -67,6 +68,11 @@ cuex_occurtree_is_muclosed(cuex_occurtree_t tree)
 CU_SINLINE cucon_ucset_t
 cuex_occurtree_free_vars(cuex_occurtree_t tree)
 { return tree->free_vars; }
+
+/** Remove unused μ-binding sites from \a tree and return the new root.  This
+ ** destructs \a tree in the process. */
+cuex_occurtree_t cuex_occurtree_prune_mu(cuex_occurtree_t tree,
+					 cuex_opview_t view);
 
 /** Debug printout of \a tree. */
 void cuex_occurtree_dump(cuex_occurtree_t tree, FILE *out);

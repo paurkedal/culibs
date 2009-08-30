@@ -19,6 +19,8 @@
 #include <cuex/binding.h>
 #include <cuex/oprdefs.h>
 #include <cuex/set.h>
+#include <cufo/stream.h>
+#include <cufo/tagdefs.h>
 #include <cu/test.h>
 
 #define _apply cuex_o2_apply
@@ -33,9 +35,15 @@ static void
 _show(cuex_t e)
 {
     cuex_occurtree_t ot;
-    cu_fprintf(stderr, "\n* %!\n", e);
+    cufo_oprintf("\n%<orig%> = %!\n", cufoT_variable, e);
     ot = cuex_unfolded_occurtree(e, cu_false);
-    cuex_occurtree_dump(ot, stderr);
+    cufo_flush(cufo_stdout);
+    cuex_occurtree_dump(ot, stdout);
+    fflush(stdout);
+
+    ot = cuex_occurtree_prune_mu(ot, CUEX_SCOMM_VIEW);
+    if (e != ot->e)
+	cufo_oprintf(" %<simp%> = %!\n", cufoT_variable, ot->e);
 }
 
 void
@@ -57,6 +65,8 @@ test()
     _show(_ident(_mu(_apply(_0, _3))));
     _show(_mu(_lambda(_mu(_apply(_0, _2)))));
     _show(_set3(ident, konst, _3));
+    _show(_mu(_lambda(_0)));
+    _show(_mu(_ident(_lambda(_mu(_apply(_1, _2))))));
 }
 
 int

@@ -20,13 +20,14 @@
 #include <cuex/binding.h>
 #include <cuex/compound.h>
 #include <cuex/oprinfo.h>
+#include <cuex/iteration.h>
 #include <cucon/ucset.h>
 #include <cu/clos.h>
 #include <cu/int.h>
 #include <inttypes.h>
 
 typedef struct _folded_occurtree_frame_s {
-    cuex_meta_t e_meta;
+    cuex_occurtree_t ot;
 } *_folded_occurtree_frame_t;
 
 static cuex_occurtree_t
@@ -47,17 +48,19 @@ _folded_occurtree(cuex_t e, cu_bool_t force_comm,
 	    _folded_occurtree_frame_t sp_ref = sp + e_index;
 	    cu_debug_assert(r == 0);
 	    ot->free_vars = cucon_ucset_singleton(e_index);
-	    if (sp_ref < sp_bottom && sp_ref->e_meta == CUEX_O1_MU)
-		ot->mu_height = e_index;
-	    else
-		ot->mu_height = -1;
+	    ot->mu_height = -1;
+	    if (sp_ref < sp_bottom) {
+		sp_ref->ot->has_ref = cu_true;
+		if (cuex_meta(cuex_occurtree_expr(sp_ref->ot)) == CUEX_O1_MU)
+		    ot->mu_height = e_index;
+	    }
 	}
 	else {
 	    int mu_height = -1;
 	    cucon_ucset_t free_vars = cucon_ucset_empty();
 	    if (cuex_og_binder_contains(e_meta)) {
 		--sp;
-		sp->e_meta = e_meta;
+		sp->ot = ot;
 	    }
 	    for (i = 0; i < r; ++i) {
 		cuex_t ep = cuex_opn_at(e, i);
@@ -89,6 +92,7 @@ _folded_occurtree(cuex_t e, cu_bool_t force_comm,
 	    ot = cu_galloc(sizeof(struct cuex_occurtree_s)
 			   + (r - 1)*sizeof(cuex_occurtree_t));
 	    ot->e = e;
+	    ot->has_ref = cu_false;
 	    if (force_comm)
 		ps = cuex_compound_comm_iter_source(ci, e);
 	    else
@@ -124,11 +128,11 @@ _folded_occurtree_entry(cuex_t e, cu_bool_t force_comm, int e_depth)
 #endif
     sp = cu_snewarr(struct _folded_occurtree_frame_s, sp_size);
 #ifndef CU_NDEBUG
-    sp[0].e_meta = 0;
+    sp[0].ot = NULL;
 #endif
     sp += sp_size;
     tree = _folded_occurtree(e, force_comm, sp, sp);
-    cu_debug_assert(sp[-sp_size].e_meta == 0);
+    cu_debug_assert(!sp[-sp_size].ot);
     return tree;
 }
 
@@ -240,6 +244,81 @@ cuex_unfolded_occurtree(cuex_t e, cu_bool_t force_comm)
     _unfold_occurtree(ot, force_comm, sp, sp);
     return ot;
 }
+
+
+/* cuex_occurtree_prune_mu
+ * ======================= */
+
+cu_clos_def(_prune_mu, cu_prot(cuex_t, int k, cuex_t e),
+    ( cuex_occurtree_t ctx_ot;
+      cuex_opview_t view;
+      int jtop;
+      int *sp, *sp_bottom; ))
+{
+    cu_clos_self(_prune_mu);
+    cuex_occurtree_t ctx_ot = self->ctx_ot;
+    cuex_occurtree_t ot = ctx_ot->sub[k];
+    int jtop = self->jtop;
+    int *sp = self->sp;
+    int *sp_bottom = self->sp_bottom;
+    cuex_meta_t e_meta = cuex_meta(e);
+
+    if (cuex_og_hole_contains(e_meta)) {
+	int e_index = cuex_oa_hole_index(e_meta);
+	int *sp_ref = sp + e_index;
+	if (sp_ref < sp_bottom) {
+	    cu_debug_assert(*sp_ref >= 0);
+	    ot->e = cuex_hole(jtop - *sp_ref);
+	}
+	else
+	    ot->e = cuex_hole(jtop + (sp_ref - sp_bottom));
+	return ot->e;
+    }
+    else {
+	_prune_mu_t cb;
+
+	while (e_meta == CUEX_O1_MU && !ot->has_ref) {
+	    *--sp = -1;
+	    ot = ot->sub[0];
+	    ctx_ot->sub[k] = ot;
+	    e = ot->e;
+	    e_meta = cuex_meta(e);
+	}
+
+	if (cuex_og_binder_contains(e_meta))
+	    *--sp = ++jtop;
+
+	cb.ctx_ot = ot;
+	cb.view = self->view;
+	cb.jtop = jtop;
+	cb.sp = sp;
+	cb.sp_bottom = sp_bottom;
+	ot->e = cuex_iterimgk_operands_view(self->view, _prune_mu_prep(&cb), e);
+
+	return ot->e;
+    }
+}
+
+cuex_occurtree_t
+cuex_occurtree_prune_mu(cuex_occurtree_t ot, cuex_opview_t view)
+{
+    int e_depth = cuex_max_binding_depth(cuex_occurtree_expr(ot));
+    int *sp = cu_snewarr(int, e_depth) + e_depth;
+    _prune_mu_t cb;
+    struct cuex_occurtree_s top_ot;
+    top_ot.sub[0] = ot;
+    cb.ctx_ot = &top_ot;
+    cb.view = view;
+    cb.jtop = 0;
+    cb.sp = sp;
+    cb.sp_bottom = sp;
+    cu_call(_prune_mu_prep(&cb), 0, ot->e);
+    return top_ot.sub[0];
+}
+
+
+/* cuex_occurtree_dump
+ * =================== */
 
 static void
 _occurtree_dump(cuex_occurtree_t ot, FILE *out, int l)
