@@ -17,7 +17,6 @@
 
 #include <cuos/file.h>
 #include <cu/str.h>
-#include <stdio.h>
 #include <unistd.h>
 
 cu_order_t
@@ -54,4 +53,10 @@ cuos_file_update(cu_str_t tmp_path, cu_str_t dst_path)
     else
 	return rename(cu_str_to_cstr(tmp_path),
 		      cu_str_to_cstr(dst_path)) < 0?  -1 : 1;
+}
+
+FILE *
+cuos_fopen(cu_str_t path, char const *mode)
+{
+    return fopen(cu_str_to_cstr(path), mode);
 }
