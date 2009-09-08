@@ -354,7 +354,7 @@ cuos_path_depth(cu_str_t path)
 }
 
 cu_str_t
-cuos_path_join(cu_str_t path0, cu_str_t path1)
+cuos_path_cat2(cu_str_t path0, cu_str_t path1)
 {
     char *s1 = cu_str_charr(path1);
     char *s1e = s1 + cu_str_size(path1);
@@ -396,23 +396,26 @@ cuos_path_join(cu_str_t path0, cu_str_t path1)
     return cu_str_new_3charr(s0, s0e - s0, "/", 1, s1, s1e - s1);
 }
 
-cu_str_t
-cuos_path_join_str_cstr(cu_str_t s0, char const *s1)
-{
-    return cuos_path_join(s0, cu_str_new_cstr(s1));
-}
+cu_str_t cuos_path_cat2_sc(cu_str_t s0, char const *s1)
+{ return cuos_path_cat2(s0, cu_str_new_cstr(s1)); }
 
-cu_str_t
-cuos_path_join_cstr_str(char const *s0, cu_str_t s1)
-{
-    return cuos_path_join(cu_str_new_cstr(s0), s1);
-}
+cu_str_t cuos_path_cat2_cs(char const *s0, cu_str_t s1)
+{ return cuos_path_cat2(cu_str_new_cstr(s0), s1); }
 
-cu_str_t
-cuos_path_join_2cstr(char const *s0, char const *s1)
-{
-    return cuos_path_join(cu_str_new_cstr(s0), cu_str_new_cstr(s1));
-}
+cu_str_t cuos_path_cat2_cc(char const *s0, char const *s1)
+{ return cuos_path_cat2(cu_str_new_cstr(s0), cu_str_new_cstr(s1)); }
+
+cu_str_t cuos_path_cat3(cu_str_t s0, cu_str_t s1, cu_str_t s2)
+{ return cuos_path_cat2(cuos_path_cat2(s0, s1), s2); }
+
+cu_str_t cuos_path_cat3_ssc(cu_str_t s0, cu_str_t s1, char const *s2)
+{ return cuos_path_cat2_sc(cuos_path_cat2(s0, s1), s2); }
+
+cu_str_t cuos_path_cat3_scs(cu_str_t s0, char const *s1, cu_str_t s2)
+{ return cuos_path_cat2(cuos_path_cat2_sc(s0, s1), s2); }
+
+cu_str_t cuos_path_cat3_css(char const *s0, cu_str_t s1, cu_str_t s2)
+{ return cuos_path_cat2(cuos_path_cat2_cs(s0, s1), s2); }
 
 cu_bool_fast_t
 cuos_path_split(cu_str_t path, int pos, cu_str_t *path0, cu_str_t *path1)

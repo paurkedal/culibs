@@ -99,20 +99,25 @@ int cuos_path_depth(cu_str_t path);
 CU_SINLINE cu_bool_t cuos_path_is_empty(cu_str_t path)
 { return cu_str_size(path) == 1 && cu_str_at(path, 0) == '.'; }
 
-/*!Given that \a path0 and \a path1 are normalised file names, if \a path1
- * is absolute, return \a path1, else return the normalised file name of
- * \a path1 relative to \a path0, i.e. the normalisation of the
- * concatenation of (\a path0, "/", \a path1).  \a path1 must be non-empty. */
-cu_str_t cuos_path_join(cu_str_t path0, cu_str_t path1);
+/** Given that \a path0 and \a path1 are normalised file names, if \a path1 is
+ ** absolute, return \a path1, else return the normalised file name of \a path1
+ ** relative to \a path0, i.e. the normalisation of the concatenation of (\a
+ ** path0, "/", \a path1).  \a path1 must be non-empty. */
+cu_str_t cuos_path_cat2(cu_str_t path0, cu_str_t path1);
 
-/*!As \ref cuos_path_join but with C string as second argument. */
-cu_str_t cuos_path_join_str_cstr(cu_str_t path0, char const *path1);
+/** As \ref cuos_path_cat2 but with C string as second argument. */
+cu_str_t cuos_path_cat2_sc(cu_str_t path0, char const *path1);
 
-/*!As \ref cuos_path_join but with C string as first argument. */
-cu_str_t cuos_path_join_cstr_str(char const *path0, cu_str_t path1);
+/** As \ref cuos_path_cat2 but with C string as first argument. */
+cu_str_t cuos_path_cat2_cs(char const *path0, cu_str_t path1);
 
-/*!As \ref cuos_path_join but with 2 C string arguments. */
-cu_str_t cuos_path_join_2cstr(char const *path0, char const *path1);
+/** As \ref cuos_path_cat2 but with 2 C string arguments. */
+cu_str_t cuos_path_cat2_cc(char const *path0, char const *path1);
+
+cu_str_t cuos_path_cat3(cu_str_t path0, cu_str_t path1, cu_str_t path2);
+cu_str_t cuos_path_cat3_ssc(cu_str_t path0, cu_str_t path1, char const *path2);
+cu_str_t cuos_path_cat3_scs(cu_str_t path0, char const *path1, cu_str_t path2);
+cu_str_t cuos_path_cat3_css(char const *path0, cu_str_t path1, cu_str_t path2);
 
 /*!\pre \a path is a normalised file name.
  * 
@@ -151,5 +156,11 @@ cu_bool_t cuos_path_ext_eq_cstr(cu_str_t path, char const *ext);
 
 CU_END_DECLARATIONS
 
-/* @} */
+/** @} */
+
+#define cuos_path_join		cuos_path_cat2
+#define cuos_path_join_str_cstr	cuos_path_cat2_sc
+#define cuos_path_join_cstr_str	cuos_path_cat2_cs
+#define cuos_path_join_2cstr	cuos_path_cat2_cc
+
 #endif
