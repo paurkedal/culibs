@@ -23,8 +23,13 @@
 #include <sys/types.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuos_fs cuos/fs.h: Functions acting directly on the file system
- * @{ \ingroup cuos_mod */
+/** \defgroup cuos_fs cuos/fs.h: File System
+ ** @{ \ingroup cuos_mod
+ **
+ ** These functions probes or manipulates the file system and related metadata.
+ ** \see cuos_path_h "cuos/path.h" for manipulating file paths.
+ ** \see cuos_file_h "cuos/file.h" for accessing regular files.
+ **/
 
 /*!Catogorisation of files, directories, special files. */
 typedef enum {
@@ -39,8 +44,31 @@ typedef enum {
     cuos_dentry_type_unknown	/*!< undetectable or unknown file type */
 } cuos_dentry_type_t;
 
-/*!Create all missing components of \a path and \a path itself as a
- * directory. */
+/** The directory entry type of \a path as on the file system. */
+cuos_dentry_type_t cuos_dentry_type(cu_str_t path);
+
+/** True iff \a path names a detectable directory entry on the local file
+ ** system, and it is not a broken symbolic link. */
+cu_bool_t cuos_have_dentry(cu_str_t path);
+
+/** True iff \a path names a detectable directory or link to such on the local
+ ** file system. */
+cu_bool_t cuos_have_dir(cu_str_t path);
+
+/** True iff \a path names a detectable regular file or link to such on the
+ ** local file system. */
+cu_bool_t cuos_have_file(cu_str_t path);
+
+/** True iff \a path names a detectable symbolic link on the local file system.
+ ** Returns true also for broken symbolic links. */
+cu_bool_t cuos_have_link(cu_str_t path);
+
+/** Return the modification time of \a path, or 0 if \a path does not exist.
+ ** On other errors, write an error message and return 0. */
+time_t cuos_mtime(cu_str_t path);
+
+/** Create all missing components of \a path and \a path itself as a
+ ** directory. */
 cu_bool_t cuos_mkdir_rec(cu_str_t path, mode_t mode);
 
 /*!Removes \a path, and if it is a directory, descends and removes all
@@ -61,36 +89,20 @@ cu_bool_t cuos_dirrec_conj_files(cu_str_t dname,
 cu_bool_t cuos_dirreccoll_conj_files(cu_str_t dname,
 				     cu_clop(cb, cu_bool_t, cu_str_t));
 
-/*!The directory entry type of \a path as on the file system. */
-cuos_dentry_type_t cuos_dentry_type(cu_str_t path);
-
-/*!Form a sequential conjunction of \a cb over each path
- * \code cuos_path_join(prefix, suffix)\endcode which exists on the file
- * system, where \c prefix are elements of \a prefixlist.
- *
- * \arg prefixlist a \c cucon_list_t of \c cu_str_t elements */
+/** \deprecated Use \ref cuos_dirpile_s. */
 cu_bool_t
 cuos_prefixsearch_conj(cucon_list_t prefixlist, cu_str_t suffix,
 		       cu_clop(cb, cu_bool_t, cu_str_t result));
 
-/*!Return the first existing directory entry among those that can be
- * formed by joining an element of \a prefixlist with \a suffix, or \c NULL
- * if none.
- *
- * \arg prefixlist a \c cucon_list_t of \c cu_str_t elements */
+/** \deprecated Use \ref cuos_dirpile_s. */
 cu_str_t cuos_prefixsearch_first(cucon_list_t prefixlist, cu_str_t suffix);
 
-/*!Apped to \a result all existing paths which can be formed by joining
- * an element of \a prefixlist with \a suffix. */
+/** \deprecated Use \ref cuos_dirpile_s. */
 void cuos_prefixsearch_append_all(cucon_list_t prefixlist, cu_str_t suffix,
 				  cucon_list_t result);
 
-/*!Return the modification time of \a path, or 0 if \a path does not
- * exist.  On other errors, write an error message and return 0. */
-time_t cuos_mtime(cu_str_t path);
-
-/*!Returns a temporary directory for the current process, which will be
- * erased at exit. */
+/** Returns a temporary directory for the current process, which will be erased
+ ** at exit. */
 cu_str_t cuos_tmp_dir(void);
 
 /*!A directory to load and store the state of an interactive application.
@@ -101,7 +113,7 @@ cu_str_t cuos_tmp_dir(void);
  * exist, the directory will be created with that mode (permissions). */
 cu_str_t cuos_session_dir(mode_t mode);
 
-/* @} */
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

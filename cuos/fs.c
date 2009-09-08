@@ -240,20 +240,51 @@ cuos_prefixsearch_append_all(cucon_list_t pfx_l, cu_str_t name,
 /* Query
  * ----- */
 
+static int
+_stat_error(cu_str_t path)
+{
+    switch (errno) {
+	case ENOENT: case ENOTDIR:
+	    /* Okay, does not exist. */
+	    return -1;
+	case EFAULT:
+	    cu_bugf("Bad address passed to stat.");
+	default: /* ELOOP, ENAMETOOLONG, ENOMEM, EOVERFLOW */
+	    /* Runtime error. */
+	    cu_errf("Failed to stat %s: %s", cu_str_to_cstr(path),
+		    strerror(errno));
+	    return -2;
+    }
+}
+
+/* Wrapper around stat, returns 0 if present, -1 if missing, -2 on error. */
+static int
+_stat(cu_str_t path, struct stat *st)
+{
+    if (stat(cu_str_to_cstr(path), st) < 0)
+	return _stat_error(path);
+    else
+	return 0;
+}
+
+/* Wrapper around lstat, returns 0 if present, -1 if missing, -2 on error. */
+static int
+_lstat(cu_str_t path, struct stat *st)
+{
+    if (lstat(cu_str_to_cstr(path), st) < 0)
+	return _stat_error(path);
+    else
+	return 0;
+}
+
 cuos_dentry_type_t
 cuos_dentry_type(cu_str_t path)
 {
     struct stat st;
-    if (lstat(cu_str_to_cstr(path), &st) < 0) {
-	switch (errno) {
-	case ENOENT:
-	case ENOTDIR:
-	    return cuos_dentry_type_none;
-	default:
-	    cu_errf("Failed to stat %s: %s", cu_str_to_cstr(path),
-		     strerror(errno));
-	    return cuos_dentry_type_unknown;
-	}
+    switch (_lstat(path, &st)) {
+	case -2: return cuos_dentry_type_unknown;
+	case -1: return cuos_dentry_type_none;
+	default: break;
     }
     if (S_ISREG(st.st_mode))
 	return cuos_dentry_type_file;
@@ -272,21 +303,40 @@ cuos_dentry_type(cu_str_t path)
     return cuos_dentry_type_unknown;
 }
 
+cu_bool_t
+cuos_have_dentry(cu_str_t path)
+{
+    struct stat st;
+    return _stat(path, &st) == 0;
+}
+
+cu_bool_t
+cuos_have_dir(cu_str_t path)
+{
+    struct stat st;
+    return _stat(path, &st) == 0 && S_ISDIR(st.st_mode);
+}
+
+cu_bool_t
+cuos_have_file(cu_str_t path)
+{
+    struct stat st;
+    return _stat(path, &st) == 0 && S_ISREG(st.st_mode);
+}
+
+cu_bool_t
+cuos_have_link(cu_str_t path)
+{
+    struct stat st;
+    return _lstat(path, &st) == 0 && S_ISLNK(st.st_mode);
+}
+
 time_t
 cuos_mtime(cu_str_t path)
 {
     struct stat st;
-    if (stat(cu_str_to_cstr(path), &st) < 0) {
-	switch (errno) {
-	case ENOENT:
-	case ENOTDIR:
-	    return 0;
-	default:
-	    cu_errf("Failed to stat %s: %s", cu_str_to_cstr(path),
-		     strerror(errno));
-	    return 0;
-	}
-    }
+    if (_stat(path, &st) != 0)
+	return 0;
     return st.st_mtime;
 }
 
