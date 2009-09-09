@@ -118,6 +118,8 @@ cu_str_t cuos_path_cat3(cu_str_t path0, cu_str_t path1, cu_str_t path2);
 cu_str_t cuos_path_cat3_ssc(cu_str_t path0, cu_str_t path1, char const *path2);
 cu_str_t cuos_path_cat3_scs(cu_str_t path0, char const *path1, cu_str_t path2);
 cu_str_t cuos_path_cat3_css(char const *path0, cu_str_t path1, cu_str_t path2);
+cu_str_t cuos_path_cat3_ccc(char const *path0, char const *path1,
+			    char const *path2);
 
 /*!\pre \a path is a normalised file name.
  * 

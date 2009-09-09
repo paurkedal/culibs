@@ -417,6 +417,9 @@ cu_str_t cuos_path_cat3_scs(cu_str_t s0, char const *s1, cu_str_t s2)
 cu_str_t cuos_path_cat3_css(char const *s0, cu_str_t s1, cu_str_t s2)
 { return cuos_path_cat2(cuos_path_cat2_cs(s0, s1), s2); }
 
+cu_str_t cuos_path_cat3_ccc(char const *s0, char const *s1, char const *s2)
+{ return cuos_path_cat2_sc(cuos_path_cat2_cc(s0, s1), s2); }
+
 cu_bool_fast_t
 cuos_path_split(cu_str_t path, int pos, cu_str_t *path0, cu_str_t *path1)
 {
