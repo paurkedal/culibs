@@ -21,14 +21,15 @@
 #include <cu/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuos_fwd_h cuos/fwd.h: Forward Declarations
- *@{\ingroup cuos_mod */
+/** \defgroup cuos_fwd_h cuos/fwd.h: Forward Declarations
+ ** @{ \ingroup cuos_mod */
 
 typedef struct cuos_dirpile_s *cuos_dirpile_t;
+typedef struct cuos_pkg_user_dirs_s *cuos_pkg_user_dirs_t;
 
 #define cuos_init cu_init
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif
