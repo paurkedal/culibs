@@ -53,26 +53,28 @@ CU_BEGIN_DECLARATIONS
  ** \endcode
  **/
 
-/** A reference to one of the installation directories in \ref cu_installdirs_t. */
+/** A reference to one of the installation directories in \ref
+ ** cu_installdirs_t.  In the following, typecal values for a prefix of \c /usr
+ ** are shown in paretheses. */
 typedef enum {
     /* Note!  These must match cuac_config_installdirs.m4. */
-    CU_INSTALLDIR_PREFIX,
-    CU_INSTALLDIR_EXEC_PREFIX,
+    CU_INSTALLDIR_PREFIX,	/**< The \c ${prefix} (\c /usr) */
+    CU_INSTALLDIR_EXEC_PREFIX,	/**< The \c ${exec_prefix} (\c /usr) */
 
-    CU_INSTALLDIR_BINDIR,
-    CU_INSTALLDIR_SBINDIR,
-    CU_INSTALLDIR_LIBEXECDIR,
-    CU_INSTALLDIR_SYSCONFDIR,
-    CU_INSTALLDIR_SHAREDSTATEDIR,
-    CU_INSTALLDIR_LOCALSTATEDIR,
-    CU_INSTALLDIR_LIBDIR,
-    CU_INSTALLDIR_INCLUDEDIR,
-    CU_INSTALLDIR_DATAROOTDIR,
-    CU_INSTALLDIR_DATADIR,
-    CU_INSTALLDIR_INFODIR,
-    CU_INSTALLDIR_LOCALEDIR,
-    CU_INSTALLDIR_MANDIR,
-    CU_INSTALLDIR_DOCDIR,
+    CU_INSTALLDIR_BINDIR,	/**< The \c ${bindir} (\c /usr/bin) */
+    CU_INSTALLDIR_SBINDIR,	/**< The \c ${sbindir} (\c /usr/sbin) */
+    CU_INSTALLDIR_LIBEXECDIR,	/**< The \c ${libexecdir} (\c /usr/libexec) */
+    CU_INSTALLDIR_SYSCONFDIR,	/**< The \c ${sysconfdir} (\c /etc) */
+    CU_INSTALLDIR_SHAREDSTATEDIR,/**< The \c ${sharedstatedir} (\c /var/com) */
+    CU_INSTALLDIR_LOCALSTATEDIR,/**< The \c ${localstatedir} (\c /var/lib) */
+    CU_INSTALLDIR_LIBDIR,	/**< The \c ${libdir} (\c /usr/lib) */
+    CU_INSTALLDIR_INCLUDEDIR,	/**< The \c ${includedir} (\c /usr/include) */
+    CU_INSTALLDIR_DATAROOTDIR,	/**< The \c ${datarootdir} (\c /usr/share) */
+    CU_INSTALLDIR_DATADIR,	/**< The \c ${datadir} (\c /usr/share) */
+    CU_INSTALLDIR_INFODIR,	/**< The \c ${infodir} (\c /usr/share/info) */
+    CU_INSTALLDIR_LOCALEDIR,/**< The \c ${localedir} (\c /usr/share/locale) */
+    CU_INSTALLDIR_MANDIR,   /**< The \c ${mandir} (\c /usr/share/man) */
+    CU_INSTALLDIR_DOCDIR,   /**< The \c ${docdir} (\c /usr/share/doc/foo-1.0)*/
     CU_INSTALLDIR_HTMLDIR,
     CU_INSTALLDIR_DVIDIR,
     CU_INSTALLDIR_PDFDIR,
