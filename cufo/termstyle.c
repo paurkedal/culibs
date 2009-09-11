@@ -18,8 +18,8 @@
 #include <cufo/termstyle.h>
 #include <cufo/tag.h>
 #include <cuos/fs.h>
-#include <cuos/dirpile.h>
 #include <cuos/path.h>
+#include <cuos/user_dirs.h>
 #include <cucon/list.h>
 #include <cu/memory.h>
 #include <cu/thread.h>
@@ -33,9 +33,7 @@
  * register our log binder, so don't use extended format specifiers here. */
 cu_dlog_def(_file, "dtag=cufo.termstyle");
 
-#define STYLESUBDIR "culibs/cufo"
-
-static struct cuos_dirpile_s _termstyle_dirpile;
+extern struct cuos_pkg_user_dirs_s cufoP_user_dirs;
 
 static struct { char const *name; unsigned int mask; } _booleans[] = {
     {"italic",    CUFO_TERMFACE_ITALIC},
@@ -280,7 +278,7 @@ cufo_termstyle_loadinto(cufo_termstyle_t style, cu_str_t style_name)
 {
     FILE *in;
     cu_str_t fname = cu_str_new_str_cstr(style_name, ".style");
-    cu_str_t path = cuos_dirpile_first_match(&_termstyle_dirpile, fname);
+    cu_str_t path = cuos_pkg_user_config_search(&cufoP_user_dirs, fname);
 
     if (path) {
 	char const *path_cstr = cu_str_to_cstr(path);
@@ -304,28 +302,4 @@ cufo_termstyle_load(cu_str_t style_name)
     cufo_termstyle_t style = cufo_termstyle_new();
     cufo_termstyle_loadinto(style, style_name);
     return style;
-}
-
-void
-cufoP_termstyle_init()
-{
-    cu_str_t path;
-    char const *homedir = getenv("HOME");
-    char const *cstr;
-
-    cuos_dirpile_init(&_termstyle_dirpile);
-    cuos_dirpile_insert_envvar(&_termstyle_dirpile, "CUFO_STYLEDIR", cu_false);
-
-    if (homedir) {
-	path = cuos_path_join_2cstr(homedir, ".config/"STYLESUBDIR);
-	cuos_dirpile_insert(&_termstyle_dirpile, path, cu_false);
-    }
-
-    cstr = cuconf_get_installdir(CU_INSTALLDIR_SYSCONFDIR);
-    path = cuos_path_join_2cstr(cstr, STYLESUBDIR);
-    cuos_dirpile_insert(&_termstyle_dirpile, path, cu_false);
-    if (strcmp(cstr, "/etc/"STYLESUBDIR) != 0) {
-	path = cu_str_new_cstr("/etc/culibs/cufo");
-	cuos_dirpile_insert(&_termstyle_dirpile, path, cu_false);
-    }
 }

@@ -16,18 +16,23 @@
  */
 
 #include <cufo/stream.h>
+#include <cuos/user_dirs.h>
 #include <cu/util.h>
 #include <cu/logging.h>
 #include <cu/thread.h>
 #include <cu/memory.h>
+#include <cu/installdirs.h>
 
 void cufoP_tag_init(void);
 void cufoP_tagdefs_init(void);
 void cufoP_attrdefs_init(void);
 void cufoP_textstyle_default_init(void);
-void cufoP_termstyle_init();
 void cufoP_printf_init(void);
 void cufoP_init_formats(void);
+
+extern cu_installdirs_t cuconfP_installdirs;
+struct cuos_pkg_user_dirs_s cufoP_user_dirs
+    = CUOS_PKG_USER_DIRS_INITZ("cufo", "CUFO", cuconfP_installdirs);
 
 cufo_stream_t cufo_stderr, cufo_stdout;
 cufo_stream_t cufoP_stderr_bug;
@@ -106,9 +111,6 @@ cufo_init(void)
     cufoP_printf_init();
 
     cufoP_textstyle_default_init();
-#ifdef CUCONF_ENABLE_TERM
-    cufoP_termstyle_init();
-#endif
 
     cufo_stdout = cufo_open_auto_fd(1, cu_false);
     cufo_stderr = cufo_open_auto_fd(2, cu_false);
