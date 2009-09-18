@@ -23,6 +23,7 @@
 #include <cuex/opn.h>
 #include <cuex/oprinfo.h>
 #include <cuex/oprdefs.h>
+#include <cuoo/meta.h>
 #include <cufo/stream.h>
 #include <cufo/tagdefs.h>
 #include <cuoo/properties.h>
@@ -61,32 +62,81 @@ _varindex(cufo_stream_t fos, cuex_t var, int kind)
 }
 
 static void
+_foprint_opn(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    if (cuex_og_hole_contains(e_meta)) {
+	cufo_enter(fos, cufoT_variable);
+	cufo_printf(fos, "@%d", cuex_oa_hole_index(e_meta));
+	cufo_leave(fos, cufoT_variable);
+    }
+    else switch (e_meta) {
+
+	case CUEX_O1_MU:
+	    cufo_tagputs(fos, cufoT_operator, "(μ.");
+	    cufo_putc(fos, ' ');
+	    cufo_printsp_ex(fos, spec, cuex_opn_at(e, 0));
+	    cufo_tagputc(fos, cufoT_operator, ')');
+	    break;
+
+	case CUEX_O1_LAMBDA:
+	    cufo_tagputs(fos, cufoT_operator, "(λ.");
+	    cufo_putc(fos, ' ');
+	    cufo_printsp_ex(fos, spec, cuex_opn_at(e, 0));
+	    cufo_tagputc(fos, cufoT_operator, ')');
+	    break;
+
+	case CUEX_O3_IF:
+	    cufo_tagputc(fos, cufoT_operator, '(');
+	    cufo_tagputs(fos, cufoT_keyword, "if");
+	    cufo_putc(fos, ' ');
+	    cufo_printsp_ex(fos, spec, cuex_opn_at(e, 0));
+	    cufo_space(fos);
+	    cufo_tagputs(fos, cufoT_keyword, "then");
+	    cufo_putc(fos, ' ');
+	    cufo_printsp_ex(fos, spec, cuex_opn_at(e, 1));
+	    cufo_space(fos);
+	    cufo_tagputs(fos, cufoT_keyword, "else");
+	    cufo_putc(fos, ' ');
+	    cufo_printsp_ex(fos, spec, cuex_opn_at(e, 2));
+	    cufo_tagputc(fos, cufoT_operator, ')');
+	    break;
+
+	default: {
+	    int i, r;
+	    int oa_cnt;
+	    int oa_arr[CUEX_OPRDEFS_OA_COUNT_MAX];
+	    cuex_oprinfo_t oi;
+
+	    e_meta = cuex_oprdefs_decode_opr(e_meta, &oa_cnt, oa_arr);
+	    oi = cuex_oprinfo(e_meta);
+	    cufo_tagputc(fos, cufoT_operator, '(');
+	    if (oi)
+		cufo_printf(fos, "%s", cuex_oprinfo_name(oi));
+	    else
+		cufo_printf(fos, "__opr_%"CUEX_PRIxMETA, e_meta);
+	    for (i = 0; i < oa_cnt; ++i)
+		cufo_printf(fos, ":%d", oa_arr[i]);
+	    r = cuex_opr_r(e_meta);
+	    for (i = 0; i < r; ++i) {
+		cufo_space(fos);
+		cufo_printsp_ex(fos, spec, cuex_opn_at(e, i));
+	    }
+	    cufo_tagputc(fos, cufoT_operator, ')');
+	    break;
+	}
+    }
+}
+
+static void
 _foprint_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t ex)
 {
     cuex_meta_t meta;
     cu_debug_assert(ex != NULL);
     meta = cuex_meta(ex);
     switch (cuex_meta_kind(meta)) {
-	    cuex_oprinfo_t oi;
-	    int i, r;
-	    int oa_cnt;
-	    int oa_arr[CUEX_OPRDEFS_OA_COUNT_MAX];
 	case cuex_meta_kind_opr:
-	    meta = cuex_oprdefs_decode_opr(meta, &oa_cnt, oa_arr);
-	    oi = cuex_oprinfo(meta);
-	    cufo_tagputc(fos, cufoT_operator, '(');
-	    if (oi)
-		cufo_printf(fos, "%s", cuex_oprinfo_name(oi));
-	    else
-		cufo_printf(fos, "__opr_%lx", (unsigned long)meta);
-	    for (i = 0; i < oa_cnt; ++i)
-		cufo_printf(fos, ":%d", oa_arr[i]);
-	    r = cuex_opr_r(meta);
-	    for (i = 0; i < r; ++i) {
-		cufo_space(fos);
-		cufo_printsp_ex(fos, spec, cuex_opn_at(ex, i));
-	    }
-	    cufo_tagputc(fos, cufoT_operator, ')');
+	    _foprint_opn(fos, spec, ex);
 	    break;
 	case cuex_meta_kind_other:
 	    if (cuex_is_rvarmeta(meta))
@@ -146,7 +196,7 @@ _foprint_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t ex)
 	    break;
 	default:
 	    /* cuex_meta_kind_type is handled in cufo/printf.c */
-	    cu_debug_unreachable();
+	    cufo_printf(fos, "%<__invalid_%p%>", cufoT_invalid, ex);
 	    break;
     }
 }
