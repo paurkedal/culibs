@@ -209,20 +209,23 @@ cucon_list_prepend_list_dct(cucon_list_t dst, cucon_list_t src);
 
 /** A pointer to the slot of the first element of \a list.
  ** \pre \a list is non-empty. */
-#define cucon_list_front_mem(list) \
-	cucon_listnode_mem(cucon_list_begin(list))
+CU_SINLINE void *cucon_list_front_mem(cucon_list_t list)
+{ return cucon_listnode_mem(cucon_list_begin(list)); }
+
 /** A pointer to the slot of the last element of \a list.
  ** \pre \a list is non-empty. */
-#define cucon_list_back_mem(list) \
-	cucon_listnode_mem(cucon_list_end(list))
+CU_SINLINE void *cucon_list_back_mem(cucon_list_t list)
+{ return cucon_listnode_mem(cucon_list_rbegin(list)); }
+
 /** The value of the first element of \a list, assuming it is a pointer.
  ** \pre \a list is non-empty. */
-#define cucon_list_front_ptr(list) \
-	cucon_listnode_ptr(cucon_list_begin(list))
+CU_SINLINE void *cucon_list_front_ptr(cucon_list_t list)
+{ return *(void **)cucon_list_front_mem(list); }
+
 /** The value of the last element of \a list, assuming it is a pointer.
  ** \pre \a list is non-empty. */
-#define cucon_list_back_ptr(list) \
-	cucon_listnode_ptr(cucon_list_end(list))
+CU_SINLINE void *cucon_list_back_ptr(cucon_list_t list)
+{ return *(void **)cucon_list_back_mem(list); }
 
 /** Erase the first element of \a list.
  ** \pre \a list is non-empty. */
