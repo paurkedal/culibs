@@ -237,40 +237,6 @@ CU_SINLINE void cucon_list_pop_front(cucon_list_t list)
 CU_SINLINE void cucon_list_pop_back(cucon_list_t list)
 { cucon_list_erase_node(cucon_list_end(list)); }
 
-
-/*!\deprecated Use cucon_list_erase_node */
-#define cucon_list_it_erase cucon_list_erase_node
-/*!\deprecated Use cucon_listnode_ptr */
-#define cucon_list_it_get_ptr cucon_listnode_ptr
-/*!\deprecated Use cucon_listnode_mem */
-#define cucon_list_it_get_mem cucon_listnode_mem
-/*!\deprecated Use cucon_listnode_set_ptr */
-#define cucon_list_it_set_ptr cucon_listnode_set_ptr
-/*!\deprecated Use cucon_listnode_next */
-#define cucon_list_it_next cucon_listnode_next
-/*!\deprecated Use cucon_listnode_prev */
-#define cucon_list_it_prev cucon_listnode_prev
-/*!\deprecated Use cucon_listnode_prev */
-#define cucon_list_it_rnext cucon_listnode_prev
-/*!\deprecated Use cucon_listnode_next */
-#define cucon_list_it_rprev cucon_listnode_next
-/*!\deprecated Use cucon_listnode_s */
-#define cucon_list_node_s cucon_listnode_s
-/*!\deprecated Use cucon_list_is_singleton */
-#define cucon_list_is_singular cucon_list_is_singleton
-/*!\deprecated Use cucon_list_is_empty_or_singleton */
-#define cucon_list_is_empty_or_singular cucon_list_is_empty_or_singleton
-/*!\deprecated Use \ref cucon_list_init. */
-#define cucon_list_cct cucon_list_init
-/*!\deprecated Use \ref cucon_list_init_copy_ptr. */
-#define cucon_list_cct_copy_ptr cucon_list_init_copy_ptr
-/*!\deprecated Use \ref cucon_list_insert_init_node. */
-#define cucon_list_insert_node_cct cucon_list_insert_init_node
-/*!\deprecated Use \ref cucon_list_prepend_init_node. */
-#define cucon_list_prepend_node_cct cucon_list_prepend_init_node
-/*!\deprecated Use \ref cucon_list_append_init_node. */
-#define cucon_list_append_node_cct cucon_list_append_init_node
-
 /** @} */
 CU_END_DECLARATIONS
 

@@ -50,7 +50,7 @@ struct cucon_digraph_vertex_s
 
 struct cucon_digraph_edge_s
 {
-    struct cucon_list_node_s as_output;
+    struct cucon_listnode_s as_output;
     cucon_digraph_vertex_t src;
     cucon_digraph_vertex_t dst;
 };

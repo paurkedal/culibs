@@ -1152,7 +1152,7 @@ cucon_po_inf_of_list(cucon_list_t L)
     cucon_pmap_t R;
     cu_debug_assert(!cucon_list_is_empty(L));
     it_L = cucon_list_begin(L);
-    if (cucon_list_is_singular(L)) {
+    if (cucon_list_is_singleton(L)) {
 	R = cucon_pmap_new();
 	cucon_pmap_insert_void(R, cucon_listnode_ptr(it_L));
     }
@@ -1174,7 +1174,7 @@ cucon_po_sup_of_list(cucon_list_t L)
     cucon_pmap_t R;
     cu_debug_assert(!cucon_list_is_empty(L));
     it_L = cucon_list_begin(L);
-    if (cucon_list_is_singular(L)) {
+    if (cucon_list_is_singleton(L)) {
 	R = cucon_pmap_new();
 	cucon_pmap_insert_void(R, cucon_listnode_ptr(it_L));
     }
@@ -1234,7 +1234,7 @@ cucon_po_pairwise_inf_of_list(cucon_list_t L)
     cucon_listnode_t it_L;
     size_t N = cucon_list_count(L);
     struct cucon_priq_s Q;
-    cu_debug_assert(!cucon_list_is_empty(L) && !cucon_list_is_singular(L));
+    cu_debug_assert(!cucon_list_is_empty(L) && !cucon_list_is_singleton(L));
     cucon_priq_init(&Q, cucon_po_topological_succ);
     i = 0;
     for (it_L = cucon_list_begin(L); it_L != cucon_list_end(L);
@@ -1286,7 +1286,7 @@ cucon_po_ucollect_reachable_ljunctions(cucon_poelt_t elt)
 	cucon_pmap_t ljset0;
 	elt = cucon_priq_pop_front(&Q);
 	ljset0 = cucon_pmap_find_ptr(R, elt);
-	if (cucon_list_is_empty_or_singular(&elt->isuccs)) {
+	if (cucon_list_is_empty_or_singleton(&elt->isuccs)) {
 	    if (cucon_list_is_empty(&elt->isuccs))
 		continue;
 	}

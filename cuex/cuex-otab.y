@@ -635,7 +635,7 @@ main(int argc, char **argv)
     int err_cnt;
     cucon_init();
     ot_init();
-    cucon_list_cct(&main_opts.import_paths);
+    cucon_list_init(&main_opts.import_paths);
     main_opts.out_base = NULL;
     main_opts.path = NULL;
     main_opts.update = 0;

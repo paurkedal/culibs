@@ -196,12 +196,12 @@ void cucon_po_topological_preds(cucon_poelt_t e,
 /*!True iff \a e has a single predecessor. */
 CU_SINLINE cu_bool_t
 cucon_poelt_has_single_ipred(cucon_poelt_t e)
-{ return cucon_list_is_singular(&e->ipreds); }
+{ return cucon_list_is_singleton(&e->ipreds); }
 
 /*!True iff \a e has a single successor. */
 CU_SINLINE cu_bool_t
 cucon_poelt_has_single_isucc(cucon_poelt_t e)
-{ return cucon_list_is_singular(&e->isuccs); }
+{ return cucon_list_is_singleton(&e->isuccs); }
 
 /*!Given search limits \a bot and \a top, and the predicate \a cmp which
  * classifies elements by \c cucon_pocmp_eq, \c cucon_pocmp_prec, \c

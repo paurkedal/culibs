@@ -77,13 +77,13 @@ cucon_list_is_empty(cucon_list_t list)
 }
 
 cu_bool_fast_t
-cucon_list_is_empty_or_singular(cucon_list_t list)
+cucon_list_is_empty_or_singleton(cucon_list_t list)
 {
     return list->eol.next == list->eol.prev;
 }
 
 cu_bool_fast_t
-cucon_list_is_singular(cucon_list_t list)
+cucon_list_is_singleton(cucon_list_t list)
 {
     return list->eol.next != &list->eol
 	&& list->eol.next == list->eol.prev;
@@ -217,7 +217,7 @@ cucon_list_erase_all_ptr(cucon_list_t lst, void *ptr)
 void
 cucon_list_rotate_backwards(cucon_list_t lst)
 {
-    if (cucon_list_is_empty_or_singular(lst))
+    if (cucon_list_is_empty_or_singleton(lst))
 	return;
     lst->eol.prev->next = lst->eol.next;
     lst->eol.next->prev = lst->eol.prev;
