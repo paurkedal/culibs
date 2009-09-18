@@ -24,14 +24,15 @@
 #include <stddef.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cucon_list_h cucon/list.h: Doubly Linked Lists
- * @{\ingroup cucon_linear_mod */
+/** \defgroup cucon_list_h cucon/list.h: Doubly Linked Lists
+ ** @{\ingroup cucon_linear_mod */
 
 struct cucon_listnode_s
 {
     struct cucon_listnode_s* prev;
     struct cucon_listnode_s* next;
 };
+
 struct cucon_list_s
 {
     struct cucon_listnode_s eol;
@@ -39,194 +40,197 @@ struct cucon_list_s
 
 extern struct cucon_list_s cuconP_list_empty;
 
-/*!Return an empty list. */
+/** Return an empty list. */
 cucon_list_t cucon_list_new(void);
 
-/*!Create an empty list. */
+/** Create an empty list. */
 void cucon_list_init(cucon_list_t);
 
-/*!Create a copy of \a src assuming elements are pointers. */
+/** Create a copy of \a src assuming elements are pointers. */
 void cucon_list_init_copy_ptr(cucon_list_t dst, cucon_list_t src);
 
-/*!Swap the elements of \a lst0 and \a lst1. */
+/** Swap the elements of \a lst0 and \a lst1. */
 void cucon_list_swap(cucon_list_t lst0, cucon_list_t lst1);
 
-/*!Return an empty list constant.  Don't change it! */
+/** Return an empty list constant.  Don't change it! */
 #define cucon_list_empty() (&cuconP_list_empty)
 
-/*!Clear the list. */
+/** Clear the list. */
 #define cucon_list_clear cucon_list_init
 
-/*!True iff \a lst is empty. */
-cu_bool_t cucon_list_is_empty(cucon_list_t lst);
-/*!True iff \a lst is empty or a singleton. */
-cu_bool_t cucon_list_is_empty_or_singleton(cucon_list_t lst);
-/*!True iff \a lst has exactly one element. */
-cu_bool_t cucon_list_is_singleton(cucon_list_t lst);
+/** True iff \a list is empty. */
+cu_bool_t cucon_list_is_empty(cucon_list_t list);
 
-/*!Return the number of elements in \a lst.  NB: linear complexity, use
- * \c cucon_list_is_empty or \c cucon_list_is_singleton whenever possible. */
-size_t cucon_list_count(cucon_list_t lst);
+/** True iff \a list is empty or a singleton. */
+cu_bool_t cucon_list_is_empty_or_singleton(cucon_list_t list);
 
-/*!Return an iterator to the first element of \a lst. */
-CU_SINLINE cucon_listnode_t cucon_list_begin(cucon_list_t lst)
-{ return lst->eol.next; }
+/** True iff \a list has exactly one element. */
+cu_bool_t cucon_list_is_singleton(cucon_list_t list);
 
-/*!Return an iterater past the last element of \a lst. */
-CU_SINLINE cucon_listnode_t cucon_list_end(cucon_list_t lst)
-{ return &lst->eol; }
+/** Return the number of elements in \a list.  This takes linear time, use \c
+ ** cucon_list_is_empty or \c cucon_list_is_singleton whenever possible. */
+size_t cucon_list_count(cucon_list_t list);
 
-/*!An iterator to the first element of the reversed range of \a lst. */
-CU_SINLINE cucon_listnode_t cucon_list_rbegin(cucon_list_t lst)
-{ return lst->eol.prev; }
+/** Return an iterator to the first element of \a list. */
+CU_SINLINE cucon_listnode_t cucon_list_begin(cucon_list_t list)
+{ return list->eol.next; }
 
-/*!An iterator to post the end of the reversed range of \a lst. */
-CU_SINLINE cucon_listnode_t cucon_list_rend(cucon_list_t lst)
-{ return &lst->eol; }
+/** Return an iterater past the last element of \a list. */
+CU_SINLINE cucon_listnode_t cucon_list_end(cucon_list_t list)
+{ return &list->eol; }
 
-/*!Erase \a it1 from its list and insert it before \a it0. */
+/** An iterator to the first element of the reversed range of \a list. */
+CU_SINLINE cucon_listnode_t cucon_list_rbegin(cucon_list_t list)
+{ return list->eol.prev; }
+
+/** An iterator to post the end of the reversed range of \a list. */
+CU_SINLINE cucon_listnode_t cucon_list_rend(cucon_list_t list)
+{ return &list->eol; }
+
+/** Erase \a it1 from its list and insert it before \a it0. */
 cucon_listnode_t
 cucon_list_insert_it(cucon_listnode_t it0, cucon_listnode_t it1);
 
-/*!Insert an element with \a size bytes value before \a it. */
+/** Insert a new node with \a size bytes value before \a node. */
 cucon_listnode_t
-cucon_list_insert_mem(cucon_listnode_t it, size_t size);
+cucon_list_insert_mem(cucon_listnode_t node, size_t size);
 
-/*!Insert a pointer element before \a it. */
+/** Insert a new node before \a node, which holds the pointer \a ptr. */
 cucon_listnode_t
-cucon_list_insert_ptr(cucon_listnode_t, void*);
+cucon_list_insert_ptr(cucon_listnode_t node, void *ptr);
 
-/*!Construct \a node, inserting it before \a it. */
-cucon_listnode_t
-cucon_list_insert_init_node(cucon_listnode_t it, cucon_listnode_t node);
+/** Construct \a new_node, inserting it before \a before_node. */
+cucon_listnode_t cucon_list_insert_init_node(cucon_listnode_t new_node,
+					     cucon_listnode_t before_node);
 
-/*!Return a pointer to the value after unlinking the element from its
- * list. */
-void *cucon_list_extract_mem(cucon_listnode_t);
+/** Return a pointer to the value slot of \a node after unlinking it from its
+ ** list.  */
+void *cucon_list_extract_mem(cucon_listnode_t node);
 
-/*!Return the pointer stored as the value of \a it after unlinking the
- * element from its list. */
-void *cucon_list_extract_ptr(cucon_listnode_t it);
+/** Return the pointer stored as the value of \a node after unlinking it from
+ ** its list. */
+void *cucon_list_extract_ptr(cucon_listnode_t node);
 
-/*!Erase element pointed to by \a it from its list and return an iterator
- * to the next element. */
-cucon_listnode_t cucon_list_erase_node(cucon_listnode_t it);
+/** Erase element pointed to by \a node from its list and return an iterator to
+ ** the next element. */
+cucon_listnode_t cucon_list_erase_node(cucon_listnode_t node);
 
-/*!Return the iterator which points to the pointer \a ptr, or the EOL
- * iterator if \a ptr is not in \a lst.  All elements of \a lst must
- * start with a pointer.  */
-cucon_listnode_t cucon_list_find_ptr(cucon_list_t lst, void *ptr);
+/** Return the node containing a pointer \a ptr, or the EOL iterator if \a ptr
+ ** is not in \a list.
+ ** \pre All element slots of \a list must start with a pointer.  */
+cucon_listnode_t cucon_list_find_ptr(cucon_list_t list, void *ptr);
 
-/*!Erase the first element from \a lst which equals \a ptr and return an
- * iterator to the element after it, or end-of-list if nothing was erased.
- * All elements of \a lst must start with a pointer.  If you need to
- * know if an element was actually erased, use \c cucon_list_find_ptr and
- * \c cucon_list_erase_node. */
-cucon_listnode_t cucon_list_erase_ptr(cucon_list_t lst, void *ptr);
+/** Erase the first element from \a list which equals \a ptr and return an
+ ** iterator to the element after it, or end-of-list if nothing was erased.
+ ** All elements of \a list must start with a pointer.  If you need to know if
+ ** an element was actually erased, use \c cucon_list_find_ptr and \c
+ ** cucon_list_erase_node. */
+cucon_listnode_t cucon_list_erase_ptr(cucon_list_t list, void *ptr);
 
-/*!Erase all elements of \a lst which equals \a ptr and return the
- * number of elements erased. */
-size_t cucon_list_erase_all_ptr(cucon_list_t lst, void *ptr);
+/** Erase all elements of \a list which equals \a ptr and return the number of
+ ** elements erased. */
+size_t cucon_list_erase_all_ptr(cucon_list_t list, void *ptr);
 
-/*!Move the first element of the \a lst to the end. */
-void cucon_list_rotate_backwards(cucon_list_t lst);
+/** Move the first element of the \a list to the end. */
+void cucon_list_rotate_backwards(cucon_list_t list);
 
-/*!Return a pointer to the value of \a it. */
-CU_SINLINE void *cucon_listnode_mem(cucon_listnode_t it)
-{ return CU_ALIGNED_MARG_END(cucon_listnode_t, it); }
+/** Return a pointer to the value of \a node. */
+CU_SINLINE void *cucon_listnode_mem(cucon_listnode_t node)
+{ return CU_ALIGNED_MARG_END(cucon_listnode_t, node); }
 
-/*!Return the pointer stored as the value of \a it. */
-CU_SINLINE void *cucon_listnode_ptr(cucon_listnode_t it)
-{ return (*(void**)CU_ALIGNED_MARG_END(cucon_listnode_t, it)); }
+/** Return the pointer stored as the value of \a node. */
+CU_SINLINE void *cucon_listnode_ptr(cucon_listnode_t node)
+{ return (*(void**)CU_ALIGNED_MARG_END(cucon_listnode_t, node)); }
 
-/*!Set the pointer stored at the iterator. */
-CU_SINLINE void cucon_listnode_set_ptr(cucon_listnode_t it, void *ptr)
-{ *(void**)CU_ALIGNED_MARG_END(cucon_listnode_t, it) = ptr; }
+/** Set the value of \a node to the pointer \a ptr.
+ ** \pre The value slot of \a node must be large enough to hold the pointer. */
+CU_SINLINE void cucon_listnode_set_ptr(cucon_listnode_t node, void *ptr)
+{ *(void**)CU_ALIGNED_MARG_END(cucon_listnode_t, node) = ptr; }
 
-/*!Return an iterator to the element after that referred by \a it. */
-CU_SINLINE cucon_listnode_t cucon_listnode_next(cucon_listnode_t it)
-{ return CU_MARG(cucon_listnode_t, it)->next; }
+/** Return an iterator to the element after that referred by \a node. */
+CU_SINLINE cucon_listnode_t cucon_listnode_next(cucon_listnode_t node)
+{ return CU_MARG(cucon_listnode_t, node)->next; }
 
-/*!Return an iterator to the element before that referred by \a it. */
-CU_SINLINE cucon_listnode_t cucon_listnode_prev(cucon_listnode_t it)
-{ return CU_MARG(cucon_listnode_t, it)->prev; }
+/** Return an iterator to the element before that referred by \a node. */
+CU_SINLINE cucon_listnode_t cucon_listnode_prev(cucon_listnode_t node)
+{ return CU_MARG(cucon_listnode_t, node)->prev; }
 
-/*!Call \a proc with all values in the iterator range. */
+/** Call \a proc with all values in the iterator range. */
 void cucon_list_range_iter_mem(cucon_listnode_t, cucon_listnode_t,
 			       cu_clop(proc, void, void *));
 
-/*!A source over values from \a begin up to but not including \a end where
- * value slot pointers are dereferenced as pointers. */
+/** A source over values from \a begin up to but not including \a end where
+ ** value slot pointers are dereferenced as pointers. */
 cu_ptr_source_t cucon_listrange_source_ptr(cucon_listnode_t begin,
 					   cucon_listnode_t end);
 
-/*!A source over all elements of \a list dereferenced as pointers. */
+/** A source over all elements of \a list dereferenced as pointers. */
 CU_SINLINE cu_ptr_source_t cucon_list_source_ptr(cucon_list_t list)
 { return cucon_listrange_source_ptr(cucon_list_begin(list),
 				    cucon_list_end(list)); }
 
-/*!Insert an element as the first in the list. */
+/** Insert an element as the first in the list. */
 CU_SINLINE cucon_listnode_t
 cucon_list_prepend_mem(cucon_list_t list, size_t size)
 { return cucon_list_insert_mem(cucon_list_begin(list), size); }
 
-/*!Insert a pointer as the first in the list. */
+/** Insert a pointer as the first in the list. */
 CU_SINLINE cucon_listnode_t
 cucon_list_prepend_ptr(cucon_list_t list, void *p)
 { return cucon_list_insert_ptr(cucon_list_begin(list), p); }
 
-/*!Insert and construct \a node as first element of \a list. */
+/** Insert and construct \a node as first element of \a list. */
 CU_SINLINE cucon_listnode_t
 cucon_list_prepend_init_node(cucon_list_t list, cucon_listnode_t node)
 { return cucon_list_insert_init_node(cucon_list_begin(list), node); }
 
-/*!Insert an element as the last in the list. */
+/** Insert an element as the last in the list. */
 CU_SINLINE cucon_listnode_t
 cucon_list_append_mem(cucon_list_t list, size_t size)
 { return cucon_list_insert_mem(cucon_list_end(list), (size)); }
 
-/*!Insert a pointer as the last in the list. */
+/** Insert a pointer as the last in the list. */
 CU_SINLINE cucon_listnode_t
 cucon_list_append_ptr(cucon_list_t list, void *p)
 { return cucon_list_insert_ptr(cucon_list_end(list), p); }
 
-/*!Insert and construct \a node at end of \a list. */
+/** Insert and construct \a node at end of \a list. */
 CU_SINLINE cucon_listnode_t
 cucon_list_append_init_node(cucon_list_t list, cucon_listnode_t node)
 { return cucon_list_insert_init_node(cucon_list_end(list), node); }
 
-/*!Append \a src to \a dst, descructing \a src. */
+/** Append \a src to \a dst, descructing \a src. */
 cucon_listnode_t
 cucon_list_append_list_dct(cucon_list_t dst, cucon_list_t src);
 
-/*!Prepend \a src to \a dst, descructing \a src. */
+/** Prepend \a src to \a dst, descructing \a src. */
 cucon_listnode_t
 cucon_list_prepend_list_dct(cucon_list_t dst, cucon_list_t src);
 
-/*!A pointer to the slot of the first element of \a list.
- * \pre \a list is non-empty. */
+/** A pointer to the slot of the first element of \a list.
+ ** \pre \a list is non-empty. */
 #define cucon_list_front_mem(list) \
 	cucon_listnode_mem(cucon_list_begin(list))
-/*!A pointer to the slot of the last element of \a list.
- * \pre \a list is non-empty. */
+/** A pointer to the slot of the last element of \a list.
+ ** \pre \a list is non-empty. */
 #define cucon_list_back_mem(list) \
 	cucon_listnode_mem(cucon_list_end(list))
-/*!The value of the first element of \a list, assuming it is a pointer.
- * \pre \a list is non-empty. */
+/** The value of the first element of \a list, assuming it is a pointer.
+ ** \pre \a list is non-empty. */
 #define cucon_list_front_ptr(list) \
 	cucon_listnode_ptr(cucon_list_begin(list))
-/*!The value of the last element of \a list, assuming it is a pointer.
- * \pre \a list is non-empty. */
+/** The value of the last element of \a list, assuming it is a pointer.
+ ** \pre \a list is non-empty. */
 #define cucon_list_back_ptr(list) \
 	cucon_listnode_ptr(cucon_list_end(list))
 
-/*!Erase the first element of \a list.
- * \pre \a list is non-empty. */
+/** Erase the first element of \a list.
+ ** \pre \a list is non-empty. */
 CU_SINLINE void cucon_list_pop_front(cucon_list_t list)
 { cucon_list_erase_node(cucon_list_begin(list)); }
 
-/*!Erase the last element of \a list.
- * \pre \a list is non-empty. */
+/** Erase the last element of \a list.
+ ** \pre \a list is non-empty. */
 CU_SINLINE void cucon_list_pop_back(cucon_list_t list)
 { cucon_list_erase_node(cucon_list_end(list)); }
 
@@ -264,7 +268,7 @@ CU_SINLINE void cucon_list_pop_back(cucon_list_t list)
 /*!\deprecated Use \ref cucon_list_append_init_node. */
 #define cucon_list_append_node_cct cucon_list_append_init_node
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif
