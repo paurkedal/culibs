@@ -19,6 +19,7 @@
 #include <cucon/list.h>
 #include <cu/memory.h>
 #include <cu/ptr_seq.h>
+#include <string.h>
 
 struct cucon_list_s cuconP_list_empty;
 
@@ -30,13 +31,23 @@ cucon_list_init(cucon_list_t list)
 }
 
 void
-cucon_list_init_copy_ptr(cucon_list_t dst, cucon_list_t src)
+cucon_list_init_copy_mem(cucon_list_t dst, cucon_list_t src, size_t size)
 {
-    cucon_listnode_t it;
+    cucon_listnode_t src_node, prev_dst_node;
     cucon_list_init(dst);
-    for (it = cucon_list_begin(src); it != cucon_list_end(src);
-	 it = cucon_listnode_next(it))
-	cucon_list_append_ptr(dst, cucon_listnode_ptr(it));
+    prev_dst_node = &dst->eol;
+    for (src_node = cucon_list_begin(src); src_node != cucon_list_end(src);
+	 src_node = cucon_listnode_next(src_node)) {
+	cucon_listnode_t dst_node;
+	dst_node = cu_galloc(sizeof(struct cucon_listnode_s) + size);
+	memcpy(cucon_listnode_mem(dst_node),
+	       cucon_listnode_mem(src_node), size);
+	dst_node->prev = prev_dst_node;
+	prev_dst_node->next = dst_node;
+	prev_dst_node = dst_node;
+    }
+    dst->eol.prev = prev_dst_node;
+    prev_dst_node->next = &dst->eol;
 }
 
 cucon_list_t
@@ -45,6 +56,14 @@ cucon_list_new(void)
     cucon_list_t lst = cu_gnew(struct cucon_list_s);
     cucon_list_init(lst);
     return lst;
+}
+
+cucon_list_t
+cucon_list_new_copy_mem(cucon_list_t src, size_t size)
+{
+    cucon_list_t dst = cu_gnew(struct cucon_list_s);
+    cucon_list_init_copy_mem(dst, src, size);
+    return dst;
 }
 
 void
@@ -89,6 +108,41 @@ cucon_list_is_singleton(cucon_list_t list)
 	&& list->eol.next == list->eol.prev;
 }
 
+void
+cucon_list_validate(cucon_list_t L)
+{
+    cucon_listnode_t eol = &L->eol;
+    cucon_listnode_t prev = eol;
+    cucon_listnode_t node = eol->next;
+    do {
+	cu_debug_assert(node->prev == prev);
+	prev = node;
+	node = node->next;
+    } while (prev != eol);
+}
+
+int
+cucon_list_cmp_mem(cucon_list_t l0, cucon_list_t l1, size_t size)
+{
+    cucon_listnode_t n0 = cucon_list_begin(l0);
+    cucon_listnode_t n1 = cucon_list_begin(l1);
+    for (;;) {
+	void *p0, *p1;
+	int order;
+	int cont0 = n0 != cucon_list_end(l0);
+	int cont1 = n1 != cucon_list_end(l1);
+	if (!cont0 || !cont1)
+	    return cont0 - cont1;
+	p0 = cucon_listnode_ptr(n0);
+	p1 = cucon_listnode_ptr(n1);
+	order = memcmp(cucon_listnode_mem(n0), cucon_listnode_mem(n1), size);
+	if (order != 0)
+	    return order;
+	n0 = cucon_listnode_next(n0);
+	n1 = cucon_listnode_next(n1);
+    }
+}
+
 size_t
 cucon_list_count(cucon_list_t list)
 {
@@ -101,52 +155,70 @@ cucon_list_count(cucon_list_t list)
 }
 
 cucon_listnode_t
-cucon_list_insert_it(cucon_listnode_t it, cucon_listnode_t node)
+cucon_list_find_ptr(cucon_list_t L, void *ptr)
+{
+    cucon_listnode_t node;
+    for (node = cucon_list_begin(L);
+	 node != cucon_list_end(L); node = cucon_listnode_next(node))
+	if (cucon_listnode_ptr(node) == ptr)
+	    return node;
+    return NULL;
+}
+
+void
+cucon_list_insert_init(cucon_listnode_t pos, cucon_listnode_t node)
+{
+    node->next = pos;
+    node->prev = pos->prev;
+    node->prev->next = node;
+    pos->prev = node;
+}
+
+void
+cucon_list_insert_live(cucon_listnode_t pos, cucon_listnode_t node)
 {
     /* Erase. */
     node->next->prev = node->prev;
     node->prev->next = node->next;
     /* Re-insert. */
-    node->next = it;
-    node->prev = it->prev;
+    node->next = pos;
+    node->prev = pos->prev;
     node->prev->next = node;
-    it->prev = node;
+    pos->prev = node;
+}
+
+cucon_listnode_t
+cucon_list_insert_mem(cucon_listnode_t pos, size_t size)
+{
+    struct cucon_listnode_s *node
+	= cu_galloc(sizeof(struct cucon_listnode_s) + size);
+    node->next = pos;
+    node->prev = pos->prev;
+    pos->prev = node;
+    node->prev->next = node;
     return node;
 }
 
 cucon_listnode_t
-cucon_list_insert_mem(cucon_listnode_t it, size_t size)
+cucon_list_insert_ptr(cucon_listnode_t pos, void *ptr)
 {
-    struct cucon_listnode_s *it_new
-	= cu_galloc(sizeof(struct cucon_listnode_s) + size);
-    it_new->next = it;
-    it_new->prev = it->prev;
-    it->prev = it_new;
-    it_new->prev->next = it_new;
-    return it_new;
+    cucon_listnode_t node;
+    node = cu_galloc(sizeof(struct cucon_listnode_s) + sizeof(void *));
+    node->next = pos;
+    node->prev = pos->prev;
+    pos->prev = node;
+    node->prev->next = node;
+    cucon_listnode_set_ptr(node, ptr);
+    return node;
 }
 
 cucon_listnode_t
-cucon_list_insert_ptr(cucon_listnode_t it, void *ptr)
+cucon_list_extract(cucon_listnode_t node)
 {
-    struct cucon_listnode_s *it_new
-	= cu_galloc(sizeof(struct cucon_listnode_s)+sizeof(void*));
-    it_new->next = it;
-    it_new->prev = it->prev;
-    it->prev = it_new;
-    it_new->prev->next = it_new;
-    cucon_listnode_set_ptr(it_new, ptr);
-    return it_new;
-}
-
-cucon_listnode_t
-cucon_list_insert_init_node(cucon_listnode_t it, cucon_listnode_t newnode)
-{
-    newnode->next = it;
-    newnode->prev = it->prev;
-    newnode->prev->next = newnode;
-    it->prev = newnode;
-    return newnode;
+    node->next->prev = node->prev;
+    node->prev->next = node->next;
+    node->prev = node->next = NULL;
+    return node;
 }
 
 void *
@@ -177,17 +249,6 @@ cucon_list_erase_node(cucon_listnode_t it)
 }
 
 cucon_listnode_t
-cucon_list_find_ptr(cucon_list_t lst, void *ptr)
-{
-    cucon_listnode_t it;
-    for (it = cucon_list_begin(lst);
-	 it != cucon_list_end(lst); it = cucon_listnode_next(it))
-	if (cucon_listnode_ptr(it) == ptr)
-	    break;
-    return it;
-}
-
-cucon_listnode_t
 cucon_list_erase_ptr(cucon_list_t lst, void *ptr)
 {
     cucon_listnode_t it;
@@ -215,16 +276,33 @@ cucon_list_erase_all_ptr(cucon_list_t lst, void *ptr)
 }
 
 void
-cucon_list_rotate_backwards(cucon_list_t lst)
+cucon_list_rotate(cucon_list_t L, cucon_listnode_t first_node)
 {
-    if (cucon_list_is_empty_or_singleton(lst))
+    if (cucon_list_begin(L) == first_node)
 	return;
-    lst->eol.prev->next = lst->eol.next;
-    lst->eol.next->prev = lst->eol.prev;
-    lst->eol.prev = lst->eol.next;
-    lst->eol.next = lst->eol.next->next;
-    lst->eol.prev->next = &lst->eol;
-    lst->eol.next->prev = &lst->eol;
+    cu_debug_assert(first_node != &L->eol);
+    L->eol.prev->next = L->eol.next;
+    L->eol.next->prev = L->eol.prev;
+    L->eol.next = first_node;
+    L->eol.prev = first_node->prev;
+    first_node->prev = &L->eol;
+    L->eol.prev->next = &L->eol;
+}
+
+void
+cucon_list_rotate_forwards(cucon_list_t L)
+{
+    if (cucon_list_is_empty(L))
+	return;
+    cucon_list_rotate(L, cucon_list_rend(L));
+}
+
+void
+cucon_list_rotate_backwards(cucon_list_t L)
+{
+    if (cucon_list_is_empty_or_singleton(L))
+	return;
+    cucon_list_rotate(L, cucon_listnode_next(cucon_list_begin(L)));
 }
 
 void
@@ -237,8 +315,8 @@ cucon_list_range_iter_mem(cucon_listnode_t first, cucon_listnode_t last,
     }
 }
 
-typedef struct range_source_s *range_source_t;
-struct range_source_s
+typedef struct _range_source_s *_range_source_t;
+struct _range_source_s
 {
     cu_inherit (cu_ptr_source_s);
     cucon_listnode_t cur;
@@ -246,9 +324,9 @@ struct range_source_s
 };
 
 static void *
-range_source_get_ptr(cu_ptr_source_t source)
+_range_source_get_ptr(cu_ptr_source_t source)
 {
-    range_source_t self = cu_from(range_source, cu_ptr_source, source);
+    _range_source_t self = cu_from(_range_source, cu_ptr_source, source);
     cucon_listnode_t cur = self->cur;
     if (cur == self->end)
 	return NULL;
@@ -261,8 +339,8 @@ range_source_get_ptr(cu_ptr_source_t source)
 cu_ptr_source_t
 cucon_listrange_source_ptr(cucon_listnode_t begin, cucon_listnode_t end)
 {
-    range_source_t self = cu_gnew(struct range_source_s);
-    cu_ptr_source_init(cu_to(cu_ptr_source, self), range_source_get_ptr);
+    _range_source_t self = cu_gnew(struct _range_source_s);
+    cu_ptr_source_init(cu_to(cu_ptr_source, self), _range_source_get_ptr);
     self->cur = begin;
     self->end = end;
     return cu_to(cu_ptr_source, self);

@@ -16,25 +16,65 @@
  */
 
 #include <cucon/list.h>
+#include <cu/test.h>
 #include <stdio.h>
+#include <string.h>
 
+static void
+_simple_test()
+{
+    cucon_list_t L0, L1;
+    cucon_listnode_t n0, n1;
+
+    L0 = cucon_list_new();
+    cu_test_assert(cucon_list_is_empty(L0));
+    cu_test_assert(cucon_list_is_empty_or_singleton(L0));
+    cucon_list_append_ptr(L0, "beta");
+    cu_test_assert(cucon_list_is_singleton(L0));
+    cu_test_assert(cucon_list_is_empty_or_singleton(L0));
+    cucon_list_prepend_ptr(L0, "alpha");
+    n0 = cucon_list_append_mem(L0, sizeof(void*));
+    *(void **)cucon_listnode_mem(n0) = "gamma";
+
+    L1 = cucon_list_new();
+    cucon_list_append_ptr(L1, "delta");
+    cucon_list_append_live(L0, cucon_list_begin(L1));
+    cu_test_assert(cucon_list_is_empty(L1));
+    cu_test_assert(cucon_list_count(L0) == 4);
+
+    L1 = cucon_list_new_copy_ptr(L0);
+
+    for (n0 = cucon_list_begin(L0),    n1 = cucon_list_begin(L1);
+	 n0 != cucon_list_end(L0) &&   n1 != cucon_list_end(L1);
+	 n0 = cucon_listnode_next(n0), n1 = cucon_listnode_next(n1)) {
+	char *p0 = cucon_listnode_ptr(n0);
+	char *p1 = cucon_listnode_ptr(n1);
+	printf("%s\n", p0);
+	cu_test_assert_ptr_eq(p0, p1);
+    }
+    cu_test_assert(n0 == cucon_list_end(L0));
+    cu_test_assert(n1 == cucon_list_end(L1));
+
+    cucon_list_validate(L0);
+    cucon_list_validate(L1);
+
+    cu_test_assert(cucon_list_cmp_ptr(L0, L1) == 0);
+    cucon_list_rotate(L0, cucon_list_begin(L0));
+    cu_test_assert(cucon_list_cmp_ptr(L0, L1) == 0);
+    cucon_list_rotate(L0, cucon_list_rbegin(L0));
+    cu_test_assert(cucon_list_cmp_ptr(L0, L1) != 0);
+    cu_test_assert(!strcmp(cucon_listnode_ptr(cucon_list_begin(L0)), "delta"));
+    cucon_list_rotate_backwards(L0);
+    cu_test_assert(cucon_list_cmp_ptr(L0, L1) == 0);
+
+    cucon_list_validate(L0);
+    cucon_list_validate(L1);
+}
 
 int
 main()
 {
-    struct cucon_list_s list;
-    cucon_listnode_t it;
-
-    cu_init();
-    cucon_list_init(&list);
-    cucon_list_append_ptr(&list, "beta");
-    cucon_list_prepend_ptr(&list, "alpha");
-    it = cucon_list_append_mem(&list, sizeof(void*));
-    *(void**)cucon_listnode_mem(it) = "gamma";
-
-    for (it = cucon_list_begin(&list); it != cucon_list_end(&list);
-	 it = cucon_listnode_next(it))
-	printf("%s\n", (char*)cucon_listnode_ptr(it));
-
+    cucon_init();
+    _simple_test();
     return 0;
 }
