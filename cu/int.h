@@ -251,14 +251,36 @@ unsigned int cu_uint32_floor_log2(uint_fast32_t x) CU_ATTR_PURE;
 unsigned int cu_uint64_floor_log2(uint_fast64_t x) CU_ATTR_PURE;
 
 /** \copydoc cu_uint8_floor_log2*/
-unsigned int cu_uint_floor_log2(unsigned int x) CU_ATTR_PURE;
+CU_SINLINE unsigned int cu_uint_floor_log2(unsigned int x)
+{ return CUP_UINT_NAME(cu_,floor_log2)(x); }
 
 /** \copydoc cu_uint8_floor_log2*/
-unsigned int cu_ulong_floor_log2(unsigned long x) CU_ATTR_PURE;
+CU_SINLINE unsigned int cu_ulong_floor_log2(unsigned long x)
+{ return CUP_ULONG_NAME(cu_,floor_log2)(x); }
 
 /** \copydoc cu_uint8_floor_log2*/
 CU_SINLINE unsigned int cu_word_floor_log2(cu_word_t x)
 { return CUP_WORD_NAME(cu_,floor_log2)(x); }
+
+/** Returns ⌈log<sub>2</sub> <i>x</i>⌉. */
+unsigned int cu_uint8_ceil_log2(uint_fast8_t x) CU_ATTR_PURE;
+
+/** \copydoc cu_uint8_ceil_log2 */
+unsigned int cu_uint16_ceil_log2(uint_fast16_t x) CU_ATTR_PURE;
+
+/** \copydoc cu_uint8_ceil_log2 */
+unsigned int cu_uint32_ceil_log2(uint_fast32_t x) CU_ATTR_PURE;
+
+/** \copydoc cu_uint8_ceil_log2 */
+unsigned int cu_uint64_ceil_log2(uint_fast64_t x) CU_ATTR_PURE;
+
+/** \copydoc cu_uint8_ceil_log2 */
+CU_SINLINE unsigned int cu_uint_ceil_log2(unsigned int x)
+{ return CUP_UINT_NAME(cu_, ceil_log2)(x); }
+
+/** \copydoc cu_uint8_ceil_log2 */
+CU_SINLINE unsigned int cu_ulong_ceil_log2(unsigned long x)
+{ return CUP_ULONG_NAME(cu_, ceil_log2)(x); }
 
 /** Returns the exponent of the lowermost non-zero bit in \a x. */
 CU_SINLINE unsigned int

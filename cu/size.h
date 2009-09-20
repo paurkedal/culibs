@@ -95,11 +95,13 @@ CU_SINLINE size_t cu_size_exp2floor(size_t n)
 
 /** Returns \f$ \lfloor \mathrm{log}_2 n \rfloor \f$.
  ** \pre \a n > 0. */
-unsigned int cu_size_floor_log2(size_t n);
+CU_SINLINE unsigned int cu_size_floor_log2(size_t n)
+{ return CUP_SIZE_NAME(cu_,floor_log2)(n); }
 
 /** Returns \f$ \lceil \mathrm{log}_2 n \rceil \f$.
  ** \pre \a n > 0. */
-unsigned int cu_size_ceil_log2(size_t n);
+CU_SINLINE unsigned int cu_size_ceil_log2(size_t n)
+{ return CUP_SIZE_NAME(cu_,ceil_log2)(n); }
 
 /** Returns the greatest argument. */
 CU_SINLINE ptrdiff_t cu_ptrdiff_min(ptrdiff_t n, ptrdiff_t m)

@@ -58,6 +58,8 @@ int
 main()
 {
     unsigned long i;
+    cu_init();
+
     for (i = 1; i < 1000000; ++i) {
 	unsigned long j = lrand48();
 	if (j == 0)
@@ -73,6 +75,8 @@ main()
     test_size(SIZE_MAX/2 - 1);
     test_size(SIZE_MAX/2);
     test_size(SIZE_MAX/2 + 1);
+    test_size(SIZE_MAX/2 + 2);
+    test_size(SIZE_MAX);
     /* Last valid: cu_size_ceil_log2 overflows from SIZE_MAX/2 + 2. */
 
     return 0;

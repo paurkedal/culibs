@@ -203,7 +203,7 @@ static unsigned char floor_log2_table[] = {
 #endif
 
 CU_SINLINE unsigned int
-uint8_floor_log2(uint_fast8_t x)
+_uint8_floor_log2(uint_fast8_t x)
 {
 #if USE_TABLE_FOR_FLOOR_LOG2
     return floor_log2_table[x];
@@ -243,79 +243,83 @@ uint8_floor_log2(uint_fast8_t x)
 #endif
 }
 CU_SINLINE unsigned int
-uint16_floor_log2(uint_fast16_t x)
+_uint16_floor_log2(uint_fast16_t x)
 {
     return (x >= 0x100)
-	 ? uint8_floor_log2(x >> 8) + 8
-	 : uint8_floor_log2(x);
+	 ? _uint8_floor_log2(x >> 8) + 8
+	 : _uint8_floor_log2(x);
 }
 CU_SINLINE unsigned int
-uint32_floor_log2(uint_fast32_t x)
+_uint32_floor_log2(uint_fast32_t x)
 {
     return (x >= 0x10000)
-	 ? uint16_floor_log2(x >> 16) + 16
-	 : uint16_floor_log2(x);
+	 ? _uint16_floor_log2(x >> 16) + 16
+	 : _uint16_floor_log2(x);
 }
 CU_SINLINE unsigned int
-uint64_floor_log2(uint_fast64_t x)
+_uint64_floor_log2(uint_fast64_t x)
 {
     return (x >= UINT64_C(0x100000000))
-	 ? uint32_floor_log2(x >> 32) + 32
-	 : uint32_floor_log2(x);
+	 ? _uint32_floor_log2(x >> 32) + 32
+	 : _uint32_floor_log2(x);
 }
 
 unsigned int
 cu_uint8_floor_log2(uint_fast8_t x)
 {
     cu_check_arg(0, x, x > 0);
-    return uint8_floor_log2(x);
+    return _uint8_floor_log2(x);
 }
 
 unsigned int
 cu_uint16_floor_log2(uint_fast16_t x)
 {
     cu_check_arg(0, x, x > 0);
-    return uint16_floor_log2(x);
+    return _uint16_floor_log2(x);
 }
 
 unsigned int
 cu_uint32_floor_log2(uint_fast32_t x)
 {
     cu_check_arg(0, x, x > 0);
-    return uint32_floor_log2(x);
+    return _uint32_floor_log2(x);
 }
 
 unsigned int
 cu_uint64_floor_log2(uint_fast64_t x)
 {
     cu_check_arg(0, x, x > 0);
-    return uint64_floor_log2(x);
+    return _uint64_floor_log2(x);
 }
 
 unsigned int
-cu_uint_floor_log2(unsigned int x)
+cu_uint8_ceil_log2(uint_fast8_t x)
 {
     cu_check_arg(0, x, x > 0);
-    return CUP_UINT_NAME(,floor_log2)(x);
+    return _uint8_floor_log2(((unsigned int)x << 1) - 1);
 }
 
 unsigned int
-cu_ulong_floor_log2(unsigned long x)
+cu_uint16_ceil_log2(uint_fast16_t x)
 {
     cu_check_arg(0, x, x > 0);
-    return CUP_ULONG_NAME(,floor_log2)(x);
+    return _uint16_floor_log2(((unsigned int)x << 1) - 1);
 }
 
 unsigned int
-cu_size_floor_log2(size_t x)
+cu_uint32_ceil_log2(uint_fast32_t x)
 {
     cu_check_arg(0, x, x > 0);
-    return CUP_SIZE_NAME(,floor_log2)(x);
+    if (x > UINT32_C(0x80000000))
+	return 32;
+    return _uint32_floor_log2((x << UINT32_C(1)) - UINT32_C(1));
 }
 
 unsigned int
-cu_size_ceil_log2(size_t x)
+cu_uint64_ceil_log2(uint_fast32_t x)
 {
     cu_check_arg(0, x, x > 0);
-    return CUP_SIZE_NAME(,floor_log2)((x << 1) - (size_t)1);
+    if (x > UINT64_C(0x8000000000000000))
+	return 64;
+    return _uint64_floor_log2((x << UINT64_C(1)) - UINT64_C(1));
 }
