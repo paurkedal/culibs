@@ -19,6 +19,7 @@
 #include <cu/int.h>
 #include <cu/size.h>
 #include <cu/test.h>
+#include <limits.h>
 
 int
 ubit(unsigned long n)
@@ -67,11 +68,20 @@ main()
 	cu_test_assert(ubit(j) == cu_ulong_floor_log2(j));
 	cu_test_assert(lbit(j) == cu_ulong_log2_lowbit(j));
     }
+    cu_test_assert_int_eq(cu_uint_ceil_log2(1), 0);
+    cu_test_assert_int_eq(cu_uint_ceil_log2(2), 1);
+    cu_test_assert_int_eq(cu_uint_ceil_log2(3), 2);
+    cu_test_assert_int_eq(cu_uint_ceil_log2(4), 2);
+    cu_test_assert_int_eq(cu_uint_ceil_log2(UINT_MAX), CUCONF_WIDTHOF_INT);
 
     for (i = 1; i < 1000; ++i)
 	test_size(i);
-    for (i = 0; i < 1000000; ++i)
-	test_size(lrand48());
+    for (i = 0; i < 1000000; ++i) {
+	unsigned long j = lrand48();
+	if (j == 0)
+	    continue;
+	test_size(j);
+    }
     test_size(SIZE_MAX/2 - 1);
     test_size(SIZE_MAX/2);
     test_size(SIZE_MAX/2 + 1);

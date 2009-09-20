@@ -181,8 +181,12 @@ cu_uint64_dcover(uint_fast64_t x)
 /* floor(log2(x))
  * -------------- */
 
+/* Note.  The internal versions of the floor ∘ log2 functions must return -1
+ * for zero argument due to the way they are used to implement the
+ * corresponding ceil ∘ log2 functions. */
+
 #if USE_TABLE_FOR_FLOOR_LOG2
-static unsigned char floor_log2_table[] = {
+static signed char _floor_log2_table[] = {
    -1, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
     4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
     5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
@@ -206,7 +210,7 @@ CU_SINLINE unsigned int
 _uint8_floor_log2(uint_fast8_t x)
 {
 #if USE_TABLE_FOR_FLOOR_LOG2
-    return floor_log2_table[x];
+    return _floor_log2_table[x];
 #elif 0
     return x >= 16
 	   ? x >= 64 ? (x >> 7) + 6 : (x >> 5) + 4
@@ -296,30 +300,26 @@ unsigned int
 cu_uint8_ceil_log2(uint_fast8_t x)
 {
     cu_check_arg(0, x, x > 0);
-    return _uint8_floor_log2(((unsigned int)x << 1) - 1);
+    return _uint8_floor_log2(x - UINT8_C(1)) + 1;
 }
 
 unsigned int
 cu_uint16_ceil_log2(uint_fast16_t x)
 {
     cu_check_arg(0, x, x > 0);
-    return _uint16_floor_log2(((unsigned int)x << 1) - 1);
+    return _uint16_floor_log2(x - UINT16_C(1)) + 1;
 }
 
 unsigned int
 cu_uint32_ceil_log2(uint_fast32_t x)
 {
     cu_check_arg(0, x, x > 0);
-    if (x > UINT32_C(0x80000000))
-	return 32;
-    return _uint32_floor_log2((x << UINT32_C(1)) - UINT32_C(1));
+    return _uint32_floor_log2(x - UINT32_C(1)) + 1;
 }
 
 unsigned int
 cu_uint64_ceil_log2(uint_fast32_t x)
 {
     cu_check_arg(0, x, x > 0);
-    if (x > UINT64_C(0x8000000000000000))
-	return 64;
-    return _uint64_floor_log2((x << UINT64_C(1)) - UINT64_C(1));
+    return _uint64_floor_log2(x - UINT64_C(1)) + 1;
 }
