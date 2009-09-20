@@ -102,25 +102,29 @@ cu_dlink_cat_d(cu_dlink_t x, cu_dlink_t y)
 }
 
 void
-cu_dlink_insert_list_before(cu_dlink_t l, cu_dlink_t l_head)
+cu_dlink_splice_complement_before(cu_dlink_t l, cu_dlink_t l_head)
 {
     cu_debug_dlink_assert_valid(l);
     cu_debug_dlink_assert_valid(l_head);
-    l_head->prev->next = l;
-    l_head->next->prev = l->prev;
-    l->prev->next = l_head->next;
-    l->prev = l_head->prev;
-    cu_debug_dlink_invalidate(l_head);
+    if (l_head->next != l_head) {
+	l_head->prev->next = l;
+	l_head->next->prev = l->prev;
+	l->prev->next = l_head->next;
+	l->prev = l_head->prev;
+	cu_debug_dlink_invalidate(l_head);
+    }
 }
 
 void
-cu_dlink_insert_list_after(cu_dlink_t l, cu_dlink_t l_head)
+cu_dlink_splice_complement_after(cu_dlink_t l, cu_dlink_t l_head)
 {
     cu_debug_dlink_assert_valid(l);
     cu_debug_dlink_assert_valid(l_head);
-    l_head->next->prev = l;
-    l_head->prev->next = l->next;
-    l->next->prev = l_head->prev;
-    l->next = l_head->next;
-    cu_debug_dlink_invalidate(l_head);
+    if (l_head->next != l_head) {
+	l_head->next->prev = l;
+	l_head->prev->next = l->next;
+	l->next->prev = l_head->prev;
+	l->next = l_head->next;
+	cu_debug_dlink_invalidate(l_head);
+    }
 }

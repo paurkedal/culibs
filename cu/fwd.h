@@ -176,6 +176,7 @@ typedef int cu_countdiff_t;
  * -------------- */
 
 typedef struct cu_buffer_s	*cu_buffer_t;		/* buffer.h */
+typedef struct cu_dlink_s	*cu_dlink_t;		/* dlink.h */
 typedef struct cu_dbufsink_s	*cu_dbufsink_t;		/* dsink.h */
 typedef struct cu_dcountsink_s	*cu_dcountsink_t;	/* dsink.h */
 typedef struct cu_dsink_s	*cu_dsink_t;		/* dsink.h */

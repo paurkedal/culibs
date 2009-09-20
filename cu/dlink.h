@@ -33,8 +33,6 @@ CU_BEGIN_DECLARATIONS
  ** broken by one special head link which is used to refer to the whole list,
  ** and which may represent the past-the-end iterator.  */
 
-typedef struct cu_dlink_s *cu_dlink_t;
-
 /** The double link structure.  As opposed to most structure in this library,
  ** this can be considered transparent.  */
 struct cu_dlink_s
@@ -83,6 +81,12 @@ CU_SINLINE cu_bool_t cu_dlink_card_leq_2(cu_dlink_t l)
  ** limit allows quick return if the client is only needs to distinguish cases
  ** up to a certain number.  Pass \c SIZE_MAX for \a limit for a full count. */
 size_t cu_dlink_card_lim(cu_dlink_t l, size_t limit);
+
+/** Return the number of element of the cycle of which \a l is a member.  This
+ ** takes linear time in the number of nodes.
+ ** \see cu_dlink_card_lim */
+CU_SINLINE size_t cu_dlink_card(cu_dlink_t l)
+{ return cu_dlink_card_lim(l, SIZE_MAX); }
 
 /** Erases and invalidates \a l from the link it is part of.  \a l must not be
  ** singular. */
@@ -148,11 +152,16 @@ void cu_dlink_splice_after(cu_dlink_t l0, cu_dlink_t l1);
  ** suffix. */
 cu_dlink_t cu_dlink_cat_d(cu_dlink_t l0, cu_dlink_t l1);
 
-/** Insert the list around \a l_head before \a l and invalidate \a l_head. */
-void cu_dlink_insert_list_before(cu_dlink_t l, cu_dlink_t l_head);
+/** Drop \a l_excl from its cycle and splice the remaining cycle (the
+ ** complement) right before \a l.  If the two arguments are the EOL sentinel
+ ** nodes of lists, this concatenates them.
+ ** \pre Neither of the arguments are \c NULL.
+ ** \post \a l_excl is invalidated. */
+void cu_dlink_splice_complement_before(cu_dlink_t l, cu_dlink_t l_excl);
 
-/** Insert the list around \a l_head after \a l and invalidate \a l_head. */
-void cu_dlink_insert_list_after(cu_dlink_t l, cu_dlink_t l_head);
+/** Erase \a l_excl from its cycle and splice the remaining cycle right after
+ ** \a l, otherwise works like \ref cu_dlink_splice_complement_before. */
+void cu_dlink_splice_complement_after(cu_dlink_t l, cu_dlink_t l_excl);
 
 CU_END_DECLARATIONS
 
@@ -162,5 +171,7 @@ CU_END_DECLARATIONS
 #define cu_dlink_is_singular cu_dlink_is_singleton
 #define cu_dlink_is_2node cu_dlink_card_eq_2
 #define cu_dlink_count_leq_2 cu_dlink_card_leq_2
+#define cu_dlink_insert_list_before cu_dlink_splice_complement_before
+#define cu_dlink_insert_list_after cu_dlink_splice_complement_after
 
 #endif

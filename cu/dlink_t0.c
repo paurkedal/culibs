@@ -35,6 +35,24 @@ _new_singleton(int value)
     return cu_to(cu_dlink, l);
 }
 
+static cu_dlink_t
+_new_cycle_upto(int n)
+{
+    int i;
+    cu_dlink_t l;
+
+    if (n == 0)
+	return NULL;
+    l = _new_singleton(0);
+    for (i = 1; i < n; ++i) {
+	_link_t lp = cu_gnew(struct _link);
+	lp->value = i;
+	cu_dlink_init_singleton(cu_to(cu_dlink, lp));
+	cu_dlink_insert_before(l, cu_to(cu_dlink, lp));
+    }
+    return l;
+}
+
 static int
 _value(cu_dlink_t l)
 {
@@ -114,6 +132,23 @@ main()
     cu_test_assert(_value(x->next) == 12);
     cu_test_assert(_value(y) == 11);
     cu_test_assert(_value(y->next) == 2);
+
+    /* Splice complements */
+    x = _new_cycle_upto(5);
+    cu_dlink_splice_complement_before(x, _new_singleton(1000));
+    cu_dlink_validate(x);
+    cu_dlink_splice_complement_after(x, _new_singleton(1000));
+    cu_dlink_validate(x);
+    cu_test_assert(cu_dlink_card_lim(x, SIZE_MAX) == 5);
+    y = cu_dlink_cat_d(_new_singleton(1000), _new_singleton(-80));
+    cu_dlink_splice_complement_before(x, y);
+    y = cu_dlink_cat_d(_new_singleton(1000), _new_singleton(80));
+    cu_dlink_splice_complement_after(x, y);
+    cu_test_assert(_value(x) == 0);
+    cu_test_assert(_value(x->next) == 80);
+    cu_test_assert(_value(x->next->next) == 1);
+    cu_test_assert(_value(x->prev) == -80);
+    cu_test_assert(_value(x->prev->prev) == 4);
 
     return 2*!!cu_test_bug_count();
 }
