@@ -18,6 +18,90 @@
 #include <cu/dlink.h>
 
 void
+cu_dlink_validate(cu_dlink_t l)
+{
+    if (l) {
+	cu_dlink_t l0 = l;
+	do {
+	    cu_debug_assert(l->next->prev == l);
+	    l = l->next;
+	} while (l != l0);
+    }
+}
+
+size_t
+cu_dlink_card_lim(cu_dlink_t x, size_t limit)
+{
+    size_t n = 0;
+    if (x && limit) {
+	cu_dlink_t x0 = x;
+	do {
+	    ++n;
+	    x = x->next;
+	} while (x != x0 && n < limit);
+    }
+    return n;
+}
+
+void
+cu_dlink_move_before(cu_dlink_t l, cu_dlink_t l_mv)
+{
+    cu_debug_assert(l != l_mv);
+    l_mv->prev->next = l_mv->next;
+    l_mv->next->prev = l_mv->prev;
+    l_mv->prev = l->prev;
+    l_mv->next = l;
+    l_mv->prev->next = l_mv;
+    l->prev = l_mv;
+}
+
+void
+cu_dlink_move_after(cu_dlink_t l, cu_dlink_t l_mv)
+{
+    cu_debug_assert(l != l_mv);
+    l_mv->prev->next = l_mv->next;
+    l_mv->next->prev = l_mv->prev;
+    l_mv->prev = l;
+    l_mv->next = l->next;
+    l->next = l_mv;
+    l_mv->next->prev = l_mv;
+}
+
+void
+cu_dlink_splice_before(cu_dlink_t x, cu_dlink_t y)
+{
+    cu_dlink_t xp = x->prev;
+    cu_dlink_t yp = y->prev;
+    x->prev = yp;
+    y->prev = xp;
+    yp->next = x;
+    xp->next = y;
+}
+
+void
+cu_dlink_splice_after(cu_dlink_t x, cu_dlink_t y)
+{
+    cu_dlink_t xn = x->next;
+    cu_dlink_t yn = y->next;
+    x->next = yn;
+    y->next = xn;
+    yn->prev = x;
+    xn->prev = y;
+}
+
+cu_dlink_t
+cu_dlink_cat_d(cu_dlink_t x, cu_dlink_t y)
+{
+    if (x == NULL)
+	return y;
+    else {
+	if (y != NULL)
+	    cu_dlink_splice_before(x, y);
+	return x;
+    }
+}
+
+void
 cu_dlink_insert_list_before(cu_dlink_t l, cu_dlink_t l_head)
 {
     cu_debug_dlink_assert_valid(l);

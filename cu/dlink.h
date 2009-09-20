@@ -36,7 +36,7 @@ CU_BEGIN_DECLARATIONS
 typedef struct cu_dlink_s *cu_dlink_t;
 
 /** The double link structure.  As opposed to most structure in this library,
- ** this can be considered trasparent.  */
+ ** this can be considered transparent.  */
 struct cu_dlink_s
 {
     cu_dlink_t next;	/**< Points to the next element of the link. */
@@ -54,29 +54,35 @@ struct cu_dlink_s
 #define CU_DLINK_SINGLETON_DECL(cuL_var) \
     struct cu_dlink_s cuL_var = {&cuL_var, &cuL_var}
 
+/** Validate the link integrity of \a l. */
+void cu_dlink_validate(cu_dlink_t l);
+
 /** Initialise \a l_init as a link with next and prev pointing to itself.  This
  ** is typically used as the head of doubly linked lists. */
 CU_SINLINE void
 cu_dlink_init_singleton(cu_dlink_t l_init)
-{
-    l_init->next = l_init->prev = l_init;
-}
+{ l_init->next = l_init->prev = l_init; }
 
-/** True iff \a l is a singleton, i.e. a link having itself as the next and
- ** prev.  */
-CU_SINLINE cu_bool_t
-cu_dlink_is_singleton(cu_dlink_t l)
-{ return l == l->next; }
+/** True iff \a l is a singleton. */
+CU_SINLINE cu_bool_t cu_dlink_is_singleton(cu_dlink_t l)
+{ return l != NULL && l == l->next; }
 
-/** True iff \a l has two nodes. */
-CU_SINLINE cu_bool_t
-cu_dlink_is_2node(cu_dlink_t l)
-{ return l != l->next && l->prev == l->next; }
+/** True iff the cardinality of \a l is at most 1. */
+CU_SINLINE cu_bool_t cu_dlink_card_leq_1(cu_dlink_t l)
+{ return l == NULL || l->next == l; }
 
-/** True iff \a l has one or two nodes. */
-CU_SINLINE cu_bool_t
-cu_dlink_count_leq_2(cu_dlink_t l)
-{ return l->prev == l->next; }
+/** True iff the cardinality of \a l is 2. */
+CU_SINLINE cu_bool_t cu_dlink_card_eq_2(cu_dlink_t l)
+{ return l != NULL && l != l->next && l->prev == l->next; }
+
+/** True iff the cardinality of \a l is at most 2. */
+CU_SINLINE cu_bool_t cu_dlink_card_leq_2(cu_dlink_t l)
+{ return l == NULL || l->prev == l->next; }
+
+/** Return minimum of the \a limit and the number of elements of \a l.  The
+ ** limit allows quick return if the client is only needs to distinguish cases
+ ** up to a certain number.  Pass \c SIZE_MAX for \a limit for a full count. */
+size_t cu_dlink_card_lim(cu_dlink_t l, size_t limit);
 
 /** Erases and invalidates \a l from the link it is part of.  \a l must not be
  ** singular. */
@@ -90,7 +96,8 @@ cu_dlink_erase(cu_dlink_t l)
     cu_debug_dlink_invalidate(l);
 }
 
-/** Inline version of \ref cu_dlink_insert_before. */
+/** Initialise \a l_init as the predecessor of \a l.
+ ** \pre \a l is not \c NULL. */
 CU_SINLINE void
 cu_dlink_insert_before(cu_dlink_t l, cu_dlink_t l_init)
 {
@@ -101,7 +108,8 @@ cu_dlink_insert_before(cu_dlink_t l, cu_dlink_t l_init)
     l->prev = l_init;
 }
 
-/** Inline version of \ref cu_dlink_insert_after. */
+/** Initialise \a l_init as the successor of \a l.
+ ** \pre \a l is not \c NULL. */
 CU_SINLINE void
 cu_dlink_insert_after(cu_dlink_t l, cu_dlink_t l_init)
 {
@@ -111,6 +119,34 @@ cu_dlink_insert_after(cu_dlink_t l, cu_dlink_t l_init)
     l->next->prev = l_init;
     l->next = l_init;
 }
+
+/** Move \a l_mv right before \a l.  This works whether they are in the same or
+ ** in different cycles.
+ ** \pre Neither argument is \c NULL and \a l != l_mv. */
+void cu_dlink_move_before(cu_dlink_t l, cu_dlink_t l_mv);
+
+/** Move \a l_mv right after \a l.  This works whether they are in the same or
+ ** in different cycles.
+ ** \pre Neither argument is \c NULL and \a l != l_mv. */
+void cu_dlink_move_after(cu_dlink_t l, cu_dlink_t l_mv);
+
+/** Splice \a l0 and \a l1 right before the given nodes.  If \a l0 and \a l1
+ ** are links of the same cycle, then the cycle is split into two cycles,
+ ** otherwise the two separate cycles forms a single cycle.  This operation can
+ ** therefore be used as concatenation if sentinel nodes are not used.
+ ** \pre Neither link is \c NULL. */
+void cu_dlink_splice_before(cu_dlink_t l0, cu_dlink_t l1);
+
+/** Splice \a l0 and \a l1 right after the given nodes, otherwise the same as
+ ** \ref cu_dlink_splice_before. */
+void cu_dlink_splice_after(cu_dlink_t l0, cu_dlink_t l1);
+
+/** Concatenate \a l0 and \a l1 and return the result.  This uses \ref
+ ** cu_dlink_splice_before if applicable, and in case \a l0 is not \c NULL, it
+ ** will form the first part of the cycle as seen from the returned link.  The
+ ** arguments shall be considered destructed, as indicated by the \c _d
+ ** suffix. */
+cu_dlink_t cu_dlink_cat_d(cu_dlink_t l0, cu_dlink_t l1);
 
 /** Insert the list around \a l_head before \a l and invalidate \a l_head. */
 void cu_dlink_insert_list_before(cu_dlink_t l, cu_dlink_t l_head);
@@ -124,5 +160,7 @@ CU_END_DECLARATIONS
 
 #define cu_dlink_cct_singular cu_dlink_init_singleton
 #define cu_dlink_is_singular cu_dlink_is_singleton
+#define cu_dlink_is_2node cu_dlink_card_eq_2
+#define cu_dlink_count_leq_2 cu_dlink_card_leq_2
 
 #endif
