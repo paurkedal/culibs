@@ -32,8 +32,8 @@
 
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_fwd_h cu/fwd.h: Forward Declarations
- * @{\ingroup cu_mod */
+/** \defgroup cu_fwd_h cu/fwd.h: Forward Declarations
+ ** @{ \ingroup cu_mod */
 
 /* The AC_C_INLINE will defined "inline" to "__inline__" or "__inline", leave
  * it, or define it blank. */
@@ -94,19 +94,19 @@ CU_BEGIN_DECLARATIONS
 /* Scalar Types
  * ------------ */
 
-/*!The integer type used to pass around booleans. */
+/** The integer type used to pass around booleans. */
 typedef unsigned int cu_bool_t;
 
-/*!\deprecated Use \ref cu_bool_t. */
+/** \deprecated Use \ref cu_bool_t. */
 typedef unsigned int cu_bool_fast_t;
 
-/*!The smallest integer type which can hold a boolean. */
+/** The smallest integer type which can hold a boolean. */
 typedef unsigned char cu_bool_least_t;
 
-/*!A non-zero integer value used to represent true. */
+/** A non-zero integer value used to represent true. */
 #define cu_true 1
 
-/*!The integer value 0 used to represent false. */
+/** The integer value 0 used to represent false. */
 #define cu_false 0
 
 typedef void *cu_ptr_t;
@@ -114,8 +114,8 @@ typedef void *cu_ptr_t;
 /* Used in argument list instead of 'void **' to avoid cast warnings. */
 typedef void *cu_ptr_ptr_t;
 
-/*!The type conventionally used for generic function pointers.  This shall be
- * cast back to the actual function pointer type when used. */
+/** The type conventionally used for generic function pointers.  This shall be
+ ** cast back to the actual function pointer type when used. */
 typedef void (*cu_fnptr_t)();
 
 /* A type which can hold the size of bounded-size objects.  Holds the size of
@@ -131,16 +131,16 @@ typedef unsigned int cu_logsize_fast_t;
 typedef unsigned char cu_logsize_least_t;
 #define cu_logsize_width 6
 
-/*!An unsigned integer used for weak (non-cryptographic) hashes. */
+/** An unsigned integer used for weak (non-cryptographic) hashes. */
 typedef unsigned long int cu_hash_t;
 
-/*!\c sizeof(cu_hash_t) as a const literal. */
+/** \c sizeof(cu_hash_t) as a const literal. */
 #define CUCONF_SIZEOF_CU_HASH_T CUCONF_SIZEOF_LONG
 
-/*!An integer of the biggest width which can be efficiently handled by the
- * architecture.  This must also be wide enough to hold a pointer, so if
- * there are architetures where pointers are wider than the maximum natural
- * integer with, a less efficient integer type must me chosen. */
+/** An integer of the biggest width which can be efficiently handled by the
+ ** architecture.  This must also be wide enough to hold a pointer, so if there
+ ** are architetures where pointers are wider than the maximum natural integer
+ ** with, a less efficient integer type must me chosen. */
 typedef uintptr_t cu_word_t;
 
 #define CU_WORD_WIDTH CUCONF_WIDTHOF_INTPTR_T
@@ -197,12 +197,12 @@ typedef struct cu_wstring_s	*cu_wstring_t;		/* wstring.h */
 /* Declarations of Some Common Functions
  * ------------------------------------- */
 
-/*!Initialises the \ref cu_mod "cu" module.  This must be called at least once
- * before using cu_* functions.  It is automatically called by the
- * initialisation functions of dependent modules. */
+/** Initialises the \ref cu_mod "cu" module.  This must be called at least once
+ ** before using cu_* functions.  It is automatically called by the
+ ** initialisation functions of dependent modules. */
 void cu_init(void);
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

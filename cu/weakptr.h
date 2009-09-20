@@ -21,12 +21,12 @@
 #include <cu/memory.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_weakptr_h cu/weakptr.h: Weak Pointers
- *@{\ingroup cu_util_mod */
+/** \defgroup cu_weakptr_h cu/weakptr.h: Weak Pointers
+ ** @{ \ingroup cu_util_mod */
 
-/*!Construct \a link as a weak pointer to \a ptr.  If \a ptr gets
- * collected, the link will be cleared, as manifested by a NULL
- * return from \c cu_weakptr_get(link) */
+/** Construct \a link as a weak pointer to \a ptr.  If \a ptr gets collected,
+ ** the link will be cleared, as manifested by a NULL return from \c
+ ** cu_weakptr_get(link) */
 CU_SINLINE void
 cu_weakptr_init(cu_hidden_ptr_t *link, void *ptr)
 {
@@ -34,7 +34,7 @@ cu_weakptr_init(cu_hidden_ptr_t *link, void *ptr)
     GC_general_register_disappearing_link((void **)link, ptr);
 }
 
-/*!Construct \a link as a weak pointer with a NULL value. */
+/** Construct \a link as a weak pointer with a NULL value. */
 CU_SINLINE void
 cu_weakptr_init_null(cu_hidden_ptr_t *link)
 {
@@ -67,8 +67,8 @@ cu_weakptr_set_even(cu_hidden_ptr_t *link, void *obj)
 
 void *cuP_weakptr_get_locked(void *link);
 
-/*!Safely return the value of the weak pointer \a link, or \c NULL if
- * the object it pointed to was recycled. */
+/** Safely return the value of the weak pointer \a link, or \c NULL if the
+ ** object it pointed to was recycled. */
 CU_SINLINE void *
 cu_weakptr_get(cu_hidden_ptr_t *link)
 {
@@ -83,7 +83,7 @@ cu_weakptr_get(cu_hidden_ptr_t *link)
 /*!\deprecated Use cu_weakptr_init_null. */
 #define cu_weakptr_cct_null	cu_weakptr_init_null
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

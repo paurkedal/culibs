@@ -25,7 +25,7 @@
 
 CU_BEGIN_DECLARATIONS
 /** \defgroup cucon_list_h cucon/list.h: Doubly Linked Lists
- ** @{\ingroup cucon_linear_mod */
+ ** @{ \ingroup cucon_linear_mod */
 
 struct cucon_listnode_s
 {

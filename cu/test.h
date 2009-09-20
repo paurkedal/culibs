@@ -23,8 +23,8 @@
 #include <stdarg.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_test_h cu/test.h: Utilities for Testing
- *@{\ingroup cu_util_mod */
+/** \defgroup cu_test_h cu/test.h: Utilities for Testing
+ ** @{ \ingroup cu_util_mod */
 
 typedef enum {
     cu_test_bugaction_cont,	/* continue */
@@ -82,7 +82,7 @@ void cuP_test_bugf(char const *file, int line, char const *msg, ...);
 #define cu_test_assert_word_eq(LHS, RHS) \
     cu_test_assert_binary(cu_test_op_eq, cu_word_t, CU_PRIxWORD, LHS, RHS)
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

@@ -21,8 +21,8 @@
 #include <cu/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_util_h cu/util.h: General Utilities
- *@{\ingroup cu_util_mod */
+/** \defgroup cu_util_h cu/util.h: General Utilities
+ ** @{ \ingroup cu_util_mod */
 
 #define CU_SWAP(value_t, x, y)						\
     do {								\
@@ -39,8 +39,8 @@ CU_BEGIN_DECLARATIONS
 	cuL_done = 1;							\
     } while (0)
 
-/*!Assuming \a ptr points to \a field in \a type, returns a pointer to the
- * whole \a type.  Uses <tt>offsetof(\a type, \a field)</tt>. */
+/** Assuming \a ptr points to \a field in \a type, returns a pointer to the
+ ** whole \a type.  Uses <tt>offsetof(\a type, \a field)</tt>. */
 #define cu_ptr_context(type, field, ptr) \
     ((type *)((char *)(ptr) - offsetof(type, field)))
 
@@ -73,7 +73,7 @@ struct cuP_alignment_test_s {
 #define CU_ALIGNED_MARG_END(ptr_t, ptr)					\
     CU_ALIGNED_PTR_END(CU_MARG(ptr_t, ptr))
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

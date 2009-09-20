@@ -23,8 +23,8 @@
 /* !! No CU_BEGIN_DECLARATIONS here !!
  * These are only macros, and we don't need to include cu/fwd.h */
 
-/*!\defgroup cu_inherit cu/inherit.h: A Framework for Multiple Inheritance
- * @{ \ingroup cu_base_mod */
+/** \defgroup cu_inherit cu/inherit.h: A Framework for Multiple Inheritance
+ ** @{ \ingroup cu_base_mod */
 
 #ifndef CU_MARG
 #  ifndef CU_NDEBUG
@@ -82,5 +82,5 @@
     cu_downcast(s0, s1, cu_downcast4(s1, s2, s3, s4, s5, (o)))
 /* For cu_downcast_virtual(sub_s, base_s, o) see "old/object.h". */
 
-/*!@}*/
+/** @} */
 #endif

@@ -29,8 +29,8 @@
 #include <atomic_ops.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\file
- * \internal */
+/** \file
+ ** \internal */
 
 #if defined(GC_TINY_FREELISTS) && defined(GC_GRANULE_BYTES)
 #   define CU_GRAN_SIZE		GC_GRANULE_BYTES

@@ -23,8 +23,8 @@
 #include <stdarg.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_va_ref_h cu/va_ref.h: Passing \c va_list as a Reference
- *@{\ingroup cu_util_mod */
+/** \defgroup cu_va_ref_h cu/va_ref.h: Passing \c va_list as a Reference
+ ** @{ \ingroup cu_util_mod */
 
 #ifdef CUCONF_VA_LIST_IS_REF
 
@@ -42,7 +42,7 @@ typedef va_list *cu_va_ref_t;
 
 #endif
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif
