@@ -29,6 +29,8 @@ typedef struct cucon_bitvect_s		*cucon_bitvect_t;	/* bitvect.h */
 typedef struct cucon_digraph_s		*cucon_digraph_t;	/* digraph.h */
 typedef struct cucon_digraph_vertex_s	*cucon_digraph_vertex_t;/* digraph.h */
 typedef struct cucon_digraph_edge_s	*cucon_digraph_edge_t;	/* digraph.h */
+typedef struct cucon_fibheap		*cucon_fibheap_t;	/* fibheap.h */
+typedef struct cucon_fibnode		*cucon_fibnode_t;	/* fibheap.h */
 typedef struct cucon_hmap_s		*cucon_hmap_t;		/* hmap.h */
 typedef struct cucon_hzmap_s		*cucon_hzmap_t;		/* hzmap.h */
 typedef struct cucon_hzmap_itr_s	*cucon_hzmap_itr_t;	/* hzmap.h */
