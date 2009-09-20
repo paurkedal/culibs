@@ -43,6 +43,22 @@ cu_dlink_card_lim(cu_dlink_t x, size_t limit)
     return n;
 }
 
+cu_bool_t
+cu_dlink_cocyclic(cu_dlink_t x, cu_dlink_t y)
+{
+    cu_dlink_t x0 = x;
+    cu_dlink_t y0 = y;
+    do {
+	if (x == y) return cu_true;
+	x = x->next;
+
+	if (x == y) return cu_true;
+	y = y->prev;
+    }
+    while (x != x0 && y != y0);
+    return cu_false;
+}
+
 void
 cu_dlink_move_before(cu_dlink_t l, cu_dlink_t l_mv)
 {

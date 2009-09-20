@@ -85,12 +85,15 @@ main()
     cu_test_assert(cu_dlink_card_lim(x, SIZE_MAX) == 1);
     cu_test_assert(cu_dlink_cat_d(x, NULL) == x);
     cu_test_assert(cu_dlink_cat_d(NULL, x) == x);
+    cu_test_assert(cu_dlink_cocyclic(x, x));
 
     /* Test splicing of singletons. */
     y = _new_singleton(2);
     cu_dlink_splice_before(x, y);
+    cu_test_assert(cu_dlink_cocyclic(x, y));
     cu_dlink_card_eq_2(x);
     cu_dlink_splice_before(x, y);
+    cu_test_assert(!cu_dlink_cocyclic(x, y));
     cu_dlink_is_singleton(x);
 
     /* Tests on two-link cycles. */
@@ -110,6 +113,8 @@ main()
     cu_test_assert(cu_dlink_cat_d(x, _new_singleton(3)) == x);
     cu_dlink_validate(x);
     cu_test_assert(cu_dlink_card_lim(x, SIZE_MAX) == 3);
+    cu_test_assert(cu_dlink_cocyclic(x, x->next));
+    cu_test_assert(cu_dlink_cocyclic(x, x->prev));
     cu_dlink_erase(x->prev);
     cu_dlink_validate(x);
     cu_test_assert(_value(x) == 1);
@@ -121,9 +126,12 @@ main()
     cu_dlink_move_after(y, _new_singleton(12));
     cu_dlink_validate(x);
     cu_dlink_splice_before(x, y); /* concatenate to [1, 2, 11, 12] */
+    cu_test_assert(cu_dlink_cocyclic(x, y));
+    cu_test_assert(cu_dlink_cocyclic(x, y->next));
     cu_dlink_validate(x);
     cu_test_assert(_value(x->prev) == 12);
     cu_dlink_splice_after(x, y); /* split into [1, 12], [11, 2] */
+    cu_test_assert(!cu_dlink_cocyclic(x, y));
     cu_dlink_validate(x);
     cu_dlink_validate(y);
     cu_test_assert(cu_dlink_card_eq_2(x));
@@ -135,6 +143,9 @@ main()
 
     /* Splice complements */
     x = _new_cycle_upto(5);
+    cu_test_assert(cu_dlink_cocyclic(x, x->next));
+    cu_test_assert(cu_dlink_cocyclic(x, x->next->next));
+    cu_test_assert(cu_dlink_cocyclic(x, x->prev));
     cu_dlink_splice_complement_before(x, _new_singleton(1000));
     cu_dlink_validate(x);
     cu_dlink_splice_complement_after(x, _new_singleton(1000));

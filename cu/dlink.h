@@ -88,6 +88,11 @@ size_t cu_dlink_card_lim(cu_dlink_t l, size_t limit);
 CU_SINLINE size_t cu_dlink_card(cu_dlink_t l)
 { return cu_dlink_card_lim(l, SIZE_MAX); }
 
+/** True iff \a l0 and \a l1 are part of the same cycle.  Runs in linear time
+ ** in the smaller of the cardinalities of the two arguments.
+ ** \pre Neither argument is \c NULL. */
+cu_bool_t cu_dlink_cocyclic(cu_dlink_t l0, cu_dlink_t l1);
+
 /** Erases and invalidates \a l from the link it is part of.  \a l must not be
  ** singular. */
 CU_SINLINE void
