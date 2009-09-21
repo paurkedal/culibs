@@ -59,7 +59,7 @@ cu_dlink_cocyclic(cu_dlink_t x, cu_dlink_t y)
     return cu_false;
 }
 
-cu_dlink_t
+void
 cu_dlink_extract(cu_dlink_t l)
 {
     l->prev->next = l->next;

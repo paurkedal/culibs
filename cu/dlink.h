@@ -106,7 +106,7 @@ cu_dlink_erase(cu_dlink_t l)
 }
 
 /** Removes \a l from its cycle and reconstruct it as an singleton. */
-cu_dlink_t cu_dlink_extract(cu_dlink_t l);
+void cu_dlink_extract(cu_dlink_t l);
 
 /** Initialise \a l_init as the predecessor of \a l.
  ** \pre \a l is not \c NULL. */
