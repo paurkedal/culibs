@@ -79,6 +79,8 @@ CU_BEGIN_DECLARATIONS
 
 #define CU_END_BOILERPLATE struct cuP_expecting_semicolor_after_boilerplate
 
+#define CU_DOXY_FAKED
+#define CU_DOXY_ENDFAKED(...)
 #ifdef CU_IN_DOXYGEN
 #  define CU_DOXY_AID(fake, ...)					\
 /** \par "Real Definition"						*/\
