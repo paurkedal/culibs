@@ -37,6 +37,12 @@ _fibnode_value(cucon_fibnode_t node)
     return cu_downcast(_fibnode, cucon_fibnode, node)->value;
 }
 
+CU_SINLINE void
+_fibnode_set_value(cucon_fibnode_t node, int value)
+{
+    cu_downcast(_fibnode, cucon_fibnode, node)->value = value;
+}
+
 cu_clop_def(_fibnode_prioreq, cu_bool_t,
 	    cucon_fibnode_t lhs, cucon_fibnode_t rhs)
 {
@@ -65,6 +71,29 @@ _fibheap_pop(cucon_fibheap_t H)
 	return _fibnode_value(node);
     else
 	return -1;
+}
+
+cu_clos_def(_fibheap_pick_helper, cu_prot(cu_bool_t, cucon_fibnode_t node),
+    ( int i; cucon_fibnode_t r; ))
+{
+    cu_clos_self(_fibheap_pick_helper);
+    if (self->i == 0) {
+	self->r = node;
+	return cu_false;
+    }
+    else {
+	--self->i;
+	return cu_true;
+    }
+}
+
+static cucon_fibnode_t
+_fibheap_pick(cucon_fibheap_t H)
+{
+    _fibheap_pick_helper_t cl;
+    cl.i = lrand48() % cucon_fibheap_card(H);
+    cucon_fibheap_iterA(H, _fibheap_pick_helper_prep(&cl));
+    return cl.r;
 }
 
 static int
@@ -100,7 +129,7 @@ static void
 _test()
 {
     cucon_fibheap_t H;
-    int dim, round, *counts;
+    int dim, round, *counts, j_min;
 
     H = cucon_fibheap_new(cu_clop_ref(_fibnode_prioreq));
     cu_debug_assert(cucon_fibheap_is_empty(H));
@@ -154,6 +183,48 @@ _test()
 	}
 	_pop_n(cucon_fibheap_card(H), H, counts, j_min);
     }
+
+    cu_test_assert(cucon_fibheap_card(H) == 0);
+    j_min = INT_MAX;
+    for (round = 0; round < 20000; ++round) {
+	int choice = lrand48();
+	switch (cucon_fibheap_card(H)? choice % 5 : 0) {
+		int j;
+		cucon_fibnode_t node;
+
+	    case 0:
+	    case 1:
+		j = lrand48() % MAXP_VALUE;
+		if (j < j_min)
+		    j_min = j;
+		_fibheap_insert(H, j);
+		break;
+
+	    case 2:
+		j = _fibheap_pop(H);
+		cu_test_assert(j >= j_min);
+		j_min = j;
+		break;
+
+	    case 3:
+		node = _fibheap_pick(H);
+		j = _fibnode_value(node);
+		if (j > 0)
+		    j = lrand48() % j;
+		if (j < j_min)
+		    j_min = j;
+		_fibnode_set_value(node, j);
+		cucon_fibheap_prioritise(H, node);
+		break;
+
+	    case 4:
+		node = _fibheap_pick(H);
+		cucon_fibheap_remove(H, node);
+		break;
+	}
+	cucon_fibheap_validate(H);
+    }
+    printf("card(H) = %zd\n", cucon_fibheap_card(H));
 }
 
 int

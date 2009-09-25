@@ -39,7 +39,7 @@ typedef cu_clop(cucon_fibnode_prioreq_t, cu_bool_t,
 struct cucon_fibnode
 {
     cu_inherit (cu_dlink_s);
-    cucon_fibnode_t children;
+    cucon_fibnode_t parent, children;
     cu_bool_t mark;
     int degree; /* The number of children. */
 };
@@ -85,6 +85,17 @@ CU_SINLINE cucon_fibnode_t cucon_fibheap_front(cucon_fibheap_t H)
 /** Removes and returns the highest priority node of \a H, or return \c NULL if
  ** \a H is empty. */
 cucon_fibnode_t cucon_fibheap_pop_front(cucon_fibheap_t H);
+
+/** Fix the heap \a H after an increase of the priority of \a node. */
+void cucon_fibheap_prioritise(cucon_fibheap_t H, cucon_fibnode_t node);
+
+/** Remove \a node from \a H. */
+void cucon_fibheap_remove(cucon_fibheap_t H, cucon_fibnode_t node);
+
+/** Call \a f on each node of \a H in unspecified order, return false on the
+ ** first false return from \a f, return true otherwise. */
+cu_bool_t cucon_fibheap_iterA(cucon_fibheap_t H,
+			      cu_clop(f, cu_bool_t, cucon_fibnode_t));
 
 /** @} */
 CU_END_DECLARATIONS

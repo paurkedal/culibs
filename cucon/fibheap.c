@@ -44,16 +44,16 @@ cucon_fibheap_new(cucon_fibnode_prioreq_t prioreq)
 }
 
 #if 0 /* There is no other reason to pull in libm at the moment ... */
-static size_t
-_fib(int n)
+size_t
+cuconP_fib(int n)
 {
     const double phi = 1.61803398874989484820L;
     const double inv_sqrt5 = 0.44721359549995793928L;
     return (size_t)ceil(inv_sqrt5*pow(phi, n) + 0.5);
 }
 #else /* ... so do it the slow way. */
-static size_t
-_fib(int n)
+size_t
+cuconP_fib(int n)
 {
     int i;
     size_t f[2] = {0, 1};
@@ -80,8 +80,8 @@ _validate_node(cucon_fibnode_t x, int max_degree)
     count = 1;
     degree = 0;
     do {
-	size_t subcount = _validate_node(y, max_degree);
-	count += subcount;
+	cu_debug_assert(y->parent == x);
+	count += _validate_node(y, max_degree);
 	++degree;
 	y = _next_node(y);
     }
@@ -90,7 +90,7 @@ _validate_node(cucon_fibnode_t x, int max_degree)
     /* Check degree and node count. */
     cu_debug_assert(x->degree == degree);
     cu_debug_assert(degree <= max_degree);
-    cu_debug_assert(count >= _fib(degree + 2));
+    cu_debug_assert(count >= cuconP_fib(degree + 2));
 
     return count;
 }
@@ -111,6 +111,8 @@ cucon_fibheap_validate(cucon_fibheap_t H)
 	cucon_fibnode_t x, x0;
 	x = x0 = H->min_root;
 	do {
+	    cu_debug_assert(!x->mark);
+	    cu_debug_assert(!x->parent);
 	    _validate_node(x, max_degree);
 	    x = _next_node(x);
 	} while (x != x0);
@@ -120,6 +122,7 @@ cucon_fibheap_validate(cucon_fibheap_t H)
 void
 cucon_fibheap_insert(cucon_fibheap_t H, cucon_fibnode_t node)
 {
+    node->parent = NULL;
     node->children = NULL;
     node->mark = cu_false;
     node->degree = 0;
@@ -174,8 +177,11 @@ _move_below(cucon_fibnode_t parent, cucon_fibnode_t node)
 	cu_dlink_extract(_dlink(node));
 	parent->children = node;
     }
+    node->parent = parent;
     ++parent->degree;
-    parent->mark = cu_false;
+
+    /* Only used for root nodes, otherwise we would clear the mark. */
+    cu_debug_assert(!parent->mark);
 }
 
 cucon_fibnode_t
@@ -183,7 +189,7 @@ cucon_fibheap_pop_front(cucon_fibheap_t H)
 {
     cucon_fibnode_t rm_node = H->min_root;
     cucon_fibnode_t min_root;
-    cucon_fibnode_t x;
+    cucon_fibnode_t x, xs;
     cucon_fibnode_t *node_by_degree;
     size_t maxp_degree;
 
@@ -192,11 +198,20 @@ cucon_fibheap_pop_front(cucon_fibheap_t H)
 
     /* Splice children of rm_node into roots, and handle singleton case. */
     if (rm_node->children) {
+	/* Clear parent links. */
+	x = xs = rm_node->children;
+	do {
+	    x->parent = NULL;
+	    x = _next_node(x);
+	} while (x != xs);
+
+	/* Splice with roots. */
 	cu_dlink_splice_before(_dlink(rm_node), _dlink(rm_node->children));
 	CU_GWIPE(rm_node->children);
 	cu_debug_assert(_next_node(rm_node) != rm_node);
     }
     else if (_next_node(rm_node) == rm_node) {
+	/* Singleton case. */
 	cu_debug_assert(H->card == 1);
 	H->min_root = NULL;
 	H->card = 0;
@@ -239,4 +254,91 @@ cucon_fibheap_pop_front(cucon_fibheap_t H)
     --H->card;
 
     return rm_node;
+}
+
+static void
+_move_to_root(cucon_fibheap_t H, cucon_fibnode_t node)
+{
+    do {
+	/* Move to root. */
+	cu_dlink_move_before(_dlink(H->min_root), _dlink(node));
+	if (!_prioreq(H, H->min_root, node))
+	    H->min_root = node;
+	node->mark = cu_false;
+
+	/* Fix parent node. */
+	node = node->parent;
+	node->parent = NULL;
+	--node->degree;
+    }
+    while (node->mark);
+}
+
+void
+cucon_fibheap_prioritise(cucon_fibheap_t H, cucon_fibnode_t node)
+{
+    if (node->parent && !_prioreq(H, node->parent, node))
+	_move_to_root(H, node);
+}
+
+void
+cucon_fibheap_remove(cucon_fibheap_t H, cucon_fibnode_t node)
+{
+    cucon_fibnode_t children;
+
+    /* Handle removal of highest priority node as a special case, since
+     * otherwise we can skip the update of min_root. */
+    if (node == H->min_root) {
+	cucon_fibheap_pop_front(H);
+	return;
+    }
+
+    /* Unlink the node and move marked parent nodes to root. */
+    cu_dlink_erase(_dlink(node));
+    if (node->parent) {
+	if (node->parent->mark)
+	    _move_to_root(H, node->parent);
+	CU_GWIPE(node->parent);
+    }
+
+    /* Merge children into roots.  They must have lower priority than
+     * min_root. */
+    cu_dlink_erase(_dlink(node));
+    children = node->children;
+    if (children) {
+	cucon_fibnode_t x = children;
+	do {
+	    x->parent = NULL;
+	    x->mark = cu_false;
+	    x = _next_node(x);
+	} while (x != children);
+    }
+    cu_dlink_splice_before(_dlink(H->min_root), _dlink(children));
+    CU_GWIPE(node->children);
+}
+
+static cu_bool_t
+_iterA(cucon_fibnode_t xs, cu_clop(f, cu_bool_t, cucon_fibnode_t))
+{
+    if (xs) {
+	cucon_fibnode_t x;
+
+	if (!cu_call(f, xs))
+	    return cu_false;
+
+	x = xs;
+	do {
+	    if (!_iterA(x, f))
+		return cu_false;
+	    x = _next_node(x);
+	}
+	while (x != xs);
+    }
+    return cu_true;
+}
+
+cu_bool_t
+cucon_fibheap_iterA(cucon_fibheap_t H, cu_clop(f, cu_bool_t, cucon_fibnode_t))
+{
+    return _iterA(H->min_root, f);
 }
