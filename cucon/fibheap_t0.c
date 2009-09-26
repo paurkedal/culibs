@@ -16,6 +16,7 @@
  */
 
 #include <cucon/fibheap.h>
+#include <cucon/fibheap_test.h>
 #include <cu/test.h>
 #include <cu/memory.h>
 #include <cu/int.h>
@@ -23,55 +24,6 @@
 #include <string.h>
 
 #define MAXP_VALUE 256
-
-typedef struct _fibnode *_fibnode_t;
-struct _fibnode
-{
-    cu_inherit (cucon_fibnode);
-    int value;
-};
-
-CU_SINLINE int
-_fibnode_value(cucon_fibnode_t node)
-{
-    return cu_downcast(_fibnode, cucon_fibnode, node)->value;
-}
-
-CU_SINLINE void
-_fibnode_set_value(cucon_fibnode_t node, int value)
-{
-    cu_downcast(_fibnode, cucon_fibnode, node)->value = value;
-}
-
-cu_clop_def(_fibnode_prioreq, cu_bool_t,
-	    cucon_fibnode_t lhs, cucon_fibnode_t rhs)
-{
-    return _fibnode_value(lhs) <= _fibnode_value(rhs);
-}
-
-static cucon_fibnode_t
-_fibnode_new(int i)
-{
-    _fibnode_t node = cu_gnew(struct _fibnode);
-    node->value = i;
-    return cu_upcast(cucon_fibnode, node);
-}
-
-static void
-_fibheap_insert(cucon_fibheap_t H, int i)
-{
-    cucon_fibheap_insert(H, _fibnode_new(i));
-}
-
-static int
-_fibheap_pop(cucon_fibheap_t H)
-{
-    cucon_fibnode_t node = cucon_fibheap_pop_front(H);
-    if (node)
-	return _fibnode_value(node);
-    else
-	return -1;
-}
 
 cu_clos_def(_fibheap_pick_helper, cu_prot(cu_bool_t, cucon_fibnode_t node),
     ( int i; cucon_fibnode_t r; ))
