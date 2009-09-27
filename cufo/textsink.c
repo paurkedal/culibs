@@ -37,10 +37,6 @@
 
 #define TX_STREAM(os) cu_from(cufo_textsink, cufo_stream, os)
 
-#ifdef CUCONF_DEBUG_SELF
-#  define TX_DEBUG 1
-#endif
-
 /* The type of buf_markup entries. */
 typedef struct _markup_entry_s *_markup_entry_t;
 struct _markup_entry_s
@@ -205,7 +201,7 @@ _ts_tiedness(cufo_textsink_t sink, cu_wint_t ch0, cu_wint_t ch1)
 	return 0.8;
 }
 
-#ifdef TX_DEBUG
+#ifndef CU_NDEBUG
 static void
 _ts_check_buffered_width(cufo_textsink_t sink)
 {
@@ -213,7 +209,7 @@ _ts_check_buffered_width(cufo_textsink_t sink)
     cu_debug_assert(col == sink->buffered_width);
 }
 #else
-#define _ts_check_buffered_width(sink) ((void)0)
+#  define _ts_check_buffered_width(sink) ((void)0)
 #endif
 
 /* Examine [s, s + len) for the best place to break the line.  Return the

@@ -181,7 +181,7 @@ _foprint_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t ex)
 			    prefix = "n";
 			    break;
 			default:
-			    cu_debug_unreachable();
+			    cu_bug_unreachable();
 		    }
 		cufo_enter(fos, cufoT_variable);
 		if (cuex_is_ivarmeta(meta))

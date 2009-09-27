@@ -89,7 +89,7 @@ tailcall:
 		return 0;
 	}
     else
-	cu_debug_unreachable();
+	cu_bug_unreachable();
 }
 
 cu_offset_t
@@ -125,6 +125,6 @@ cuex_typeof(cuex_t e)
 	case cuex_meta_kind_other:
 	    return cudyn_cuex_type();
 	default:
-	    cu_debug_unreachable();
+	    cu_bug_unreachable();
     }
 }

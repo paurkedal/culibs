@@ -86,7 +86,7 @@ CU_BEGIN_DECLARATIONS
 #else
 #  define cu_dlog_def(name, ...)	CU_END_BOILERPLATE
 #  define cu_dlog_edef(name, ...)	CU_END_BOILERPLATE
-#  define cu_dlog_edec(name, ...)	CU_END_BOILERPLATE
+#  define cu_dlog_edec(name)		CU_END_BOILERPLATE
 #  define cu_dlogf(...)			((void)0)
 #  define cu_debug_error(...)		((void)0)
 #  define cu_debug_assert(test)		((void)0)

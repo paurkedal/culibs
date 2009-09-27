@@ -254,7 +254,7 @@ main(int argc, char **argv)
 	    }
 	    break;
 	default:
-	    cu_debug_unreachable();
+	    cu_bug_unreachable();
     }
     print_cb.fout = stdout;
     cucon_rbset_conj(set, main_print_cb_prep(&print_cb));

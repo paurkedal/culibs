@@ -206,9 +206,8 @@ cuflow_split(int n)
 	    ++cuflowP_split_count;
 	    cuflow_continuation_call(st->split_cont);
 	}
-	else {
-	    assert(!"XXX not implemented.");
-	}
+	else
+	    cu_bug_unfinished();
 	cu_debug_unreachable();
     }
     else {
