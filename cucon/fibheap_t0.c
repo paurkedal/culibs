@@ -128,7 +128,7 @@ _test()
 	for (round = 0; round < 20000; ++round) {
 	    int n_ins, n_pop, j_min_p;
 	    n_ins = lrand48() % dim + 1;
-	    j_min_p = _random_inserts(n_ins, n_ins % MAXP_VALUE, H, counts);
+	    j_min_p = _random_inserts(n_ins % MAXP_VALUE, n_ins, H, counts);
 	    j_min = cu_int_min(j_min, j_min_p);
 	    n_pop = lrand48() % cucon_fibheap_card(H);
 	    j_min = _pop_n(n_pop, H, counts, INT_MIN);
@@ -179,10 +179,31 @@ _test()
     printf("card(H) = %zd\n", cucon_fibheap_card(H));
 }
 
+void
+_test_union()
+{
+    int *counts;
+    cucon_fibheap_t H0, H1;
+    int vmin0, vmin1;
+
+    H0 = cucon_fibheap_new(cu_clop_ref(_fibnode_prioreq));
+    H1 = cucon_fibheap_new(cu_clop_ref(_fibnode_prioreq));
+    counts = cu_snewarr(int, MAXP_VALUE);
+    memset(counts, 0, sizeof(int)*MAXP_VALUE);
+    vmin0 = _random_inserts(MAXP_VALUE, 100, H0, counts);
+    vmin1 = _random_inserts(MAXP_VALUE, 200, H1, counts);
+    cucon_fibheap_union_d(H0, H1);
+    cucon_fibheap_validate(H0);
+    cu_test_assert_size_eq(cucon_fibheap_card(H0), 300);
+    _pop_n(300, H0, counts, cu_int_min(vmin0, vmin1));
+    cu_test_assert_size_eq(cucon_fibheap_card(H0), 0);
+}
+
 int
 main()
 {
     cu_init();
     _test();
+    _test_union();
     return 2*!!cu_test_bug_count();
 }
