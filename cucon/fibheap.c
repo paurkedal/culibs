@@ -107,7 +107,7 @@ cucon_fibheap_validate(cucon_fibheap_t H)
 	cu_debug_assert(H->min_root->children == NULL);
     }
     else {
-	int max_degree = cu_size_ceil_log2(H->card);
+	int max_degree = 2*cu_size_ceil_log2(H->card);  /* See below. */
 	cucon_fibnode_t x, x0;
 	x = x0 = H->min_root;
 	do {
@@ -220,8 +220,11 @@ cucon_fibheap_pop_front(cucon_fibheap_t H)
     cu_debug_assert(H->card >= 2);
 
     /* Pairwise link same-degree root nodes until they have different
-     * degree. */
-    maxp_degree = cu_size_ceil_log2(H->card);
+     * degree.  Let ϕ = (1 + sqrt 5)/2, then the degree is bounded by
+     *
+     *     degree ≤ logϕ n = log2 n / log2 ϕ < 2 log2 n
+     */
+    maxp_degree = 2*cu_size_ceil_log2(H->card);
     node_by_degree = cu_snewarr(cucon_fibnode_t, maxp_degree);
     memset(node_by_degree, 0, sizeof(cucon_fibnode_t)*maxp_degree);
     x = min_root = _next_node(rm_node);

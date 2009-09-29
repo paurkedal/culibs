@@ -82,7 +82,7 @@ cucon_fibq_validate(cucon_fibq_t Q)
 	cu_debug_assert(Q->roots->degree == 0);
     }
     else {
-	int max_degree = cu_size_ceil_log2(Q->card);
+	int max_degree = 2*cu_size_ceil_log2(Q->card);  /* See fibheap.c. */
 	cucon_fibqnode_t x, *root_slot = &Q->roots;
 	while ((x = *root_slot)) {
 	    cu_debug_assert(!x->mark);
@@ -159,7 +159,7 @@ cucon_fibq_pop_front(cucon_fibq_t Q)
     /* Pair up same-degree root nodes until all have different degrees. Store
      * them temporarily in a log N sized array, at most one per element. The
      * sibling links will be fixed in the next step. */
-    maxp_degree = cu_size_ceil_log2(Q->card--);
+    maxp_degree = 2*cu_size_ceil_log2(Q->card--);  /* See fibheap.c. */
     nodes_by_degree = cu_snewarr(cucon_fibqnode_t, maxp_degree);
     memset(nodes_by_degree, 0, sizeof(cucon_fibqnode_t)*maxp_degree);
     nodes_by_degree[root->degree] = root;
