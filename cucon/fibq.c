@@ -42,7 +42,7 @@ cucon_fibq_new(cucon_fibq_prioreq_t prioreq)
 size_t cuconP_fib(int n);
 
 static size_t
-_validate_node(cucon_fibqnode_t x, int max_degree)
+_validate_node(cucon_fibq_t Q, cucon_fibqnode_t x, int max_degree)
 {
     cucon_fibqnode_t y;
     size_t count;
@@ -53,7 +53,8 @@ _validate_node(cucon_fibqnode_t x, int max_degree)
     degree = 0;
     while (y) {
 	cu_debug_assert(y != x);
-	count += _validate_node(y, max_degree);
+	cu_debug_assert(_prioreq(Q, x, y));
+	count += _validate_node(Q, y, max_degree);
 	++degree;
 	y = y->siblings;
     }
@@ -86,8 +87,9 @@ cucon_fibq_validate(cucon_fibq_t Q)
 	cucon_fibqnode_t x, *root_slot = &Q->roots;
 	while ((x = *root_slot)) {
 	    cu_debug_assert(!x->mark);
-	    count += _validate_node(x, max_degree);
-	    root_slot= &x->siblings;
+	    cu_debug_assert(_prioreq(Q, Q->roots, x));
+	    count += _validate_node(Q, x, max_degree);
+	    root_slot = &x->siblings;
 	}
 	cu_debug_assert(root_slot == Q->root_tail);
 	cu_debug_assert(count == Q->card);
@@ -112,54 +114,34 @@ cucon_fibq_insert(cucon_fibq_t Q, cucon_fibqnode_t node)
     ++Q->card;
 }
 
-cucon_fibqnode_t
-cucon_fibq_pop_front(cucon_fibq_t Q)
+void
+cucon_fibq_union_d(cucon_fibq_t Q, cucon_fibq_t Qp)
+{
+    if (_prioreq(Q, Q->roots, Qp->roots)) {
+	*Q->root_tail = Qp->roots;
+	Q->root_tail = Qp->root_tail;
+    }
+    else {
+	*Qp->root_tail = Q->roots;
+	Q->roots = Qp->roots;
+    }
+    Q->card += Qp->card;
+    CU_GWIPE(Qp->roots);
+    CU_GWIPE(Qp->root_tail);
+}
+
+void
+_update_min(cucon_fibq_t Q)
 {
     int maxp_degree, degree;
-    cucon_fibqnode_t pop_node = Q->roots;
-    cucon_fibqnode_t root, roots, min_root;
     cucon_fibqnode_t *nodes_by_degree;
-
-    /* Handle simple cases. Thus, we can assmume below that card ≥ 2 after
-     * removal. */
-    switch (Q->card) {
-	case 0:
-	    cu_debug_assert(pop_node == NULL);
-	    return NULL;
-	case 1:
-	    cu_debug_assert(pop_node != NULL);
-	    cu_debug_assert(pop_node->children == NULL);
-	    cu_debug_assert(pop_node->siblings == NULL);
-	    Q->card = 0;
-	    Q->roots = NULL;
-	    Q->root_tail = &Q->roots;
-	    return pop_node;
-	case 2:
-	    cu_debug_assert(pop_node != NULL);
-	    Q->card = 1;
-	    if (pop_node->siblings)
-		Q->roots = pop_node->siblings;
-	    else {
-		Q->roots = pop_node->children;
-		Q->roots->mark = cu_false;
-		Q->root_tail = &Q->roots->siblings;
-	    }
-	    return pop_node;
-    }
-    cu_debug_assert(pop_node != NULL);
-
-    /* Prepare for iterating over the current roots except pop_node followed by
-     * the children of pop_node. The root_tail link is fixed later. */
-    if (pop_node->children) {
-	*Q->root_tail = pop_node->children;
-	CU_GWIPE(pop_node->children);
-    }
-    root = pop_node->siblings;
+    cucon_fibqnode_t root, roots, min_root;
 
     /* Pair up same-degree root nodes until all have different degrees. Store
      * them temporarily in a log N sized array, at most one per element. The
      * sibling links will be fixed in the next step. */
-    maxp_degree = 2*cu_size_ceil_log2(Q->card--);  /* See fibheap.c. */
+    root = Q->roots;
+    maxp_degree = 2*cu_size_ceil_log2(Q->card);  /* See fibheap.c. */
     nodes_by_degree = cu_snewarr(cucon_fibqnode_t, maxp_degree);
     memset(nodes_by_degree, 0, sizeof(cucon_fibqnode_t)*maxp_degree);
     nodes_by_degree[root->degree] = root;
@@ -205,7 +187,7 @@ cucon_fibq_pop_front(cucon_fibq_t Q)
 	    min_root->siblings = NULL;
 	    Q->roots = min_root;
 	    Q->root_tail = &min_root->siblings;
-	    return pop_node;
+	    return;
 	}
 	root = nodes_by_degree[degree++];
     } while (!root);
@@ -239,6 +221,146 @@ cucon_fibq_pop_front(cucon_fibq_t Q)
     Q->roots = min_root;
     cu_debug_assert((Q->card == 0) == (Q->roots == NULL));
     cu_debug_assert(!*Q->root_tail);
+}
 
+cucon_fibqnode_t
+cucon_fibq_pop_front(cucon_fibq_t Q)
+{
+    cucon_fibqnode_t pop_node = Q->roots;
+
+    /* Handle simple cases. Thus, we can assmume below that card ≥ 2 after
+     * removal. */
+    switch (Q->card) {
+	case 0:
+	    cu_debug_assert(pop_node == NULL);
+	    return NULL;
+	case 1:
+	    cu_debug_assert(pop_node != NULL);
+	    cu_debug_assert(pop_node->children == NULL);
+	    cu_debug_assert(pop_node->siblings == NULL);
+	    Q->card = 0;
+	    Q->roots = NULL;
+	    Q->root_tail = &Q->roots;
+	    return pop_node;
+	case 2:
+	    cu_debug_assert(pop_node != NULL);
+	    Q->card = 1;
+	    if (pop_node->siblings)
+		Q->roots = pop_node->siblings;
+	    else {
+		Q->roots = pop_node->children;
+		Q->roots->mark = cu_false;
+		Q->root_tail = &Q->roots->siblings;
+	    }
+	    return pop_node;
+    }
+    cu_debug_assert(pop_node != NULL);
+
+    /* Prepare for iterating over the current roots except pop_node followed by
+     * the children of pop_node. The root_tail link is fixed later. */
+    if (pop_node->children) {
+	*Q->root_tail = pop_node->children;
+	CU_GWIPE(pop_node->children);
+    }
+    Q->roots = pop_node->siblings;
+    _update_min(Q);
+    --Q->card;
     return pop_node;
+}
+
+/* Filters the siblings-chain starting at *node_ptr and assigns to
+ * *node_ptr_out the address of the last siblings link of the remaining
+ * chain. */
+static size_t
+_filter(cucon_fibq_t Q, cu_clop(f, cu_bool_t, cucon_fibqnode_t),
+	cucon_fibqnode_t *node_ptr, cucon_fibqnode_t **node_ptr_out)
+{
+    cucon_fibqnode_t node = *node_ptr;
+    size_t rm_count = 0;
+    while (node) {
+	cucon_fibqnode_t *child_tail;
+	size_t sub_rm_count = _filter(Q, f, &node->children, &child_tail);
+	cucon_fibqnode_t siblings = node->siblings;
+	cucon_fibqnode_t children = node->children;
+
+	if (cu_call(f, node)) {
+	    /* Keep node, but it may need to be moved to the roots due to
+	     * filtering of the children. */
+	    if (sub_rm_count > 0) {
+		node->degree -= sub_rm_count;
+		if (node->mark || sub_rm_count > 1) {
+		    /* Move the node to the roots. */
+		    node->mark = cu_false;
+		    node->siblings = NULL;
+		    *Q->root_tail = node;
+		    Q->root_tail = &node->siblings;
+		    *node_ptr = siblings; ++rm_count; /* drop */
+		}
+		else {
+		    node->mark = cu_true;
+		    node_ptr = &node->siblings; /* keep */
+		}
+	    }
+	    else
+		node_ptr = &node->siblings; /* keep */
+	}
+	else {
+	    /* Prepend children to the roots and drop the node. */
+	    if (children) {
+		*Q->root_tail = children;
+		Q->root_tail = child_tail;
+		do {
+		    children->mark = cu_false;
+		    children = children->siblings;
+		} while (children);
+	    }
+	    *node_ptr = siblings; ++rm_count; /* drop */
+	    --Q->card;
+	}
+	node = siblings;
+	cu_debug_assert(*node_ptr == node);
+    }
+    *node_ptr_out = node_ptr;
+    return rm_count;
+}
+
+void
+cucon_fibq_filter_d(cucon_fibq_t Q, cu_clop(f, cu_bool_t, cucon_fibqnode_t))
+{
+    cucon_fibqnode_t root = Q->roots;
+    if (!root)
+	return;
+
+    Q->roots = NULL;
+    Q->root_tail = &Q->roots;
+    do {
+	cucon_fibqnode_t *child_tail;
+	cucon_fibqnode_t children, siblings;
+	size_t rm_count = _filter(Q, f, &root->children, &child_tail);
+	root->degree -= rm_count;
+	siblings = root->siblings;
+	children = root->children;
+	if (cu_call(f, root)) {
+	    *Q->root_tail = root;
+	    Q->root_tail = &root->siblings;
+	    root->siblings = NULL;
+	    cu_debug_assert(!*Q->root_tail);
+	}
+	else {
+	    if (children) {
+		*Q->root_tail = children;
+		Q->root_tail = child_tail;
+		do {
+		    children->mark = cu_false;
+		    children = children->siblings;
+		} while (children);
+	    }
+	    --Q->card;
+	    cu_debug_assert(!*Q->root_tail);
+	}
+	root = siblings;
+    } while (root);
+    *Q->root_tail = NULL;
+
+    _update_min(Q);
 }

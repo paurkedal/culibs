@@ -26,7 +26,9 @@ _random_inserts(int maxp_value, int count, cucon_fibq_t Q, int *counts)
     cu_test_assert(maxp_value <= MAXP_VALUE);
     for (i = 0; i < count; ++i) {
 	int j = lrand48() % maxp_value;
+	size_t card = cucon_fibq_card(Q);
 	_fibq_insert(Q, j);
+	cu_test_assert_size_eq(cucon_fibq_card(Q), card + 1);
 	if (j < j_min)
 	    j_min = j;
 	++counts[j];
@@ -38,7 +40,9 @@ static int
 _pop_n(int count, cucon_fibq_t Q, int *counts, int j_min)
 {
     while (count--) {
+	size_t card = cucon_fibq_card(Q);
 	int j = _fibq_pop(Q);
+	cu_test_assert(cucon_fibq_card(Q) == card - 1);
 	cu_test_assert(j < MAXP_VALUE);
 	cu_test_assert(j != -1);
 	cu_test_assert(j >= j_min);
@@ -133,10 +137,81 @@ _test()
     printf("card(Q) = %zd\n", cucon_fibq_card(Q));
 }
 
+void
+_test_union()
+{
+    int *counts;
+    cucon_fibq_t H0, H1;
+    int vmin0, vmin1;
+
+    H0 = cucon_fibq_new(cu_clop_ref(_fibq_prioreq));
+    H1 = cucon_fibq_new(cu_clop_ref(_fibq_prioreq));
+    counts = cu_snewarr(int, MAXP_VALUE);
+    memset(counts, 0, sizeof(int)*MAXP_VALUE);
+    vmin0 = _random_inserts(MAXP_VALUE, 100, H0, counts);
+    vmin1 = _random_inserts(MAXP_VALUE, 200, H1, counts);
+    cucon_fibq_union_d(H0, H1);
+    cucon_fibq_validate(H0);
+    cu_test_assert_size_eq(cucon_fibq_card(H0), 300);
+    _pop_n(300, H0, counts, cu_int_min(vmin0, vmin1));
+    cu_test_assert_size_eq(cucon_fibq_card(H0), 0);
+}
+
+cu_clos_def(_fibqnode_is_even, cu_prot(cu_bool_t, cucon_fibqnode_t node),
+    ( size_t call_count, even_count; ))
+{
+    cu_clos_self(_fibqnode_is_even);
+    ++self->call_count;
+    if (_fibqnode_value(node) % 2 == 0) {
+	++self->even_count;
+	return cu_true;
+    }
+    else
+	return cu_false;
+}
+
+void
+_test_filter()
+{
+    int round;
+    int *counts, vmin;
+    int N = 1000;
+
+    counts = cu_snewarr(int, MAXP_VALUE);
+
+    for (round = 0; round < 1000; ++round) {
+	_fibqnode_is_even_t cb;
+	int v, even_card;
+	cucon_fibq_t H = cucon_fibq_new(cu_clop_ref(_fibq_prioreq));
+
+	memset(counts, 0, sizeof(int)*MAXP_VALUE);
+	vmin = _random_inserts(MAXP_VALUE, 2*N, H, counts);
+	cu_test_assert_size_eq(cucon_fibq_card(H), 2*N);
+	_pop_n(N, H, counts, vmin); /* inflict a non-trivial structure */
+	cu_test_assert_size_eq(cucon_fibq_card(H), N);
+
+	cb.call_count = 0;
+	cb.even_count = 0;
+	cucon_fibq_filter_d(H, _fibqnode_is_even_prep(&cb));
+	cucon_fibq_validate(H);
+	cu_test_assert(cb.call_count == N);
+
+	even_card = 0;
+	for (v = 0; v < MAXP_VALUE; v += 2)
+	    even_card += counts[v];
+	cu_test_assert_size_eq(cb.even_count, even_card);
+	cu_test_assert_size_eq(cucon_fibq_card(H), even_card);
+	_pop_n(even_card, H, counts, vmin);
+	cu_test_assert_size_eq(cucon_fibq_card(H), 0);
+    }
+}
+
 int
 main()
 {
-    cu_init();
+    cucon_init();
     _test();
+    _test_union();
+    _test_filter();
     return 2*!!cu_test_bug_count();
 }

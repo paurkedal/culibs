@@ -80,6 +80,13 @@ void cucon_fibq_insert(cucon_fibq_t Q, cucon_fibqnode_t node);
 /** Pop the highest priority node off \a Q. */
 cucon_fibqnode_t cucon_fibq_pop_front(cucon_fibq_t Q);
 
+/** Update \a Q0 to the union of \a Q0 and \a Q1_d, destructing \a Q1_d in the
+ ** process. */
+void cucon_fibq_union_d(cucon_fibq_t Q0, cucon_fibq_t Q1_d);
+
+void cucon_fibq_filter_d(cucon_fibq_t Q,
+			 cu_clop(f, cu_bool_t, cucon_fibqnode_t));
+
 /** @} */
 CU_END_DECLARATIONS
 
