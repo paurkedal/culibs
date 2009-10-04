@@ -94,6 +94,7 @@ cucon_check_programs = \
 	cucon/po_t0 \
 	cucon/po_t1 \
 	cucon/priq_t0 \
+	cucon/priq_b0 \
 	cucon/pritree_t0 \
 	cucon/queue_t0 \
 	cucon/rbmap_t0 \
@@ -153,6 +154,8 @@ cucon_po_t1_SOURCES = cucon/po_t1.c
 cucon_po_t1_LDADD = libcubase.la
 cucon_priq_t0_SOURCES = cucon/priq_t0.c
 cucon_priq_t0_LDADD = libcubase.la
+cucon_priq_b0_SOURCES = cucon/priq_b0.c
+cucon_priq_b0_LDADD = libcubase.la
 cucon_pritree_t0_SOURCES = cucon/pritree_t0.c
 cucon_pritree_t0_LDADD = libcubase.la
 cucon_queue_t0_SOURCES = cucon/queue_t0.c

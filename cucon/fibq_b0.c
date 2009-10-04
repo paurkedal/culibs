@@ -15,6 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* The result of this benchmark is comparable to those of cucon/priq_b0.c and
+ * cucon/fibheap_b0.c */
+
 #include <cucon/fibq.h>
 #include <cucon/fibq_test.h>
 
