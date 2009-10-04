@@ -19,6 +19,8 @@
 #include <cuex/binding.h>
 #include <cuex/oprdefs.h>
 #include <cuex/set.h>
+#include <cuex/labelling.h>
+#include <cudyn/misc.h>
 #include <cufo/stream.h>
 #include <cufo/tagdefs.h>
 #include <cu/test.h>
@@ -36,14 +38,14 @@ _show(cuex_t e)
 {
     cuex_occurtree_t ot;
     cufo_oprintf("\n%<orig%> = %!\n", cufoT_variable, e);
-    ot = cuex_unfolded_occurtree(e, cu_false);
+    ot = cuex_unfolded_occurtree(e, cu_true);
     cufo_flush(cufo_stdout);
     cuex_occurtree_dump(ot, stdout);
     fflush(stdout);
 
     ot = cuex_occurtree_prune_mu(ot, CUEX_SCOMM_VIEW);
     if (e != ot->e)
-	cufo_oprintf(" %<simp%> = %!\n", cufoT_variable, ot->e);
+	cufo_oprintf("%<simp%> = %!\n", cufoT_variable, ot->e);
 }
 
 void
@@ -65,8 +67,10 @@ test()
     _show(_ident(_mu(_apply(_0, _3))));
     _show(_mu(_lambda(_mu(_apply(_0, _2)))));
     _show(_set3(ident, konst, _3));
-    _show(_mu(_lambda(_0)));
+    _show(_mu(_set3(_lambda(_0), _1, _2)));
     _show(_mu(_ident(_lambda(_mu(_apply(_1, _2))))));
+    _show(cuex_labelling_by_arglist(cudyn_int(0), _lambda(_ident(_0)),
+				    cudyn_int(1), cuex_empty_set(), NULL));
 }
 
 int
