@@ -17,11 +17,13 @@
 
 #ifndef CUCON_PRIQ_H
 #define CUCON_PRIQ_H
-/*!\defgroup cucon_priq cucon/priq.h: Priority Queues (Array-Based Implementation)
- * @{\ingroup cucon_misc_mod
- * This is an implementation of priority queues based on a pyramid-like
- * array.  It guarantees that the front element \a x fulfils
- * <tt>prior(x, y)</tt> for all other \c y in the queue.  */
+
+/** \defgroup cucon_priq cucon/priq.h: Array-Based Priority Queue
+ ** @{ \ingroup cucon_misc_mod
+ **
+ ** This is an implementation of priority queues based on a pyramid-like array.
+ ** It guarantees that the front element \a x fulfils <tt>prior(x, y)</tt> for
+ ** all other \c y in the queue.  */
 
 #include <cucon/fwd.h>
 #include <cu/clos.h>
@@ -29,6 +31,7 @@
 
 CU_BEGIN_DECLARATIONS
 
+/** The priority queue struct. */
 struct cucon_priq_s
 {
     cu_clop(prior, cu_bool_t, void *, void *);
@@ -37,43 +40,41 @@ struct cucon_priq_s
     void **arr;
 };
 
-typedef struct cucon_priq_s *cucon_priq_t;
-
-/*!Construct \a q as a priority queue of elements with priority relation
- * \a prior. */
+/** Construct \a q as a priority queue of elements with priority relation \a
+ ** prior. */
 void cucon_priq_init(cucon_priq_t q, cu_clop(prior, cu_bool_t, void *, void *));
 
-/*!Return a priority queue with the priority relation \a prior. */
+/** Return a priority queue with the priority relation \a prior. */
 cucon_priq_t cucon_priq_new(cu_clop(prior, cu_bool_t, void *, void *));
 
-/*!Construct \a q as a copy of \a src. */
+/** Construct \a q as a copy of \a src. */
 void cucon_priq_init_copy(cucon_priq_t q, cucon_priq_t src);
 
-/*!Return the prior-relation, as passed to \c cucon_priq_init. */
+/** Return the prior-relation, as passed to \c cucon_priq_init. */
 #define cucon_priq_prior(q) (CU_MARG(cucon_priq_t, q)->prior)
 
-/*!Enqueue \a key. */
+/** Enqueue \a key. */
 void cucon_priq_insert(cucon_priq_t q, void *key);
 
-/*!Pop off and return the front element of the queue. */
+/** Pop off and return the front element of the queue. */
 void *cucon_priq_pop_front(cucon_priq_t q);
 
-/*!The front element of the queue. */
+/** The front element of the queue. */
 CU_SINLINE void *cucon_priq_front(cucon_priq_t q) { return q->arr[0]; }
 
-/*!True iff the queue is empty. */
+/** True iff the queue is empty. */
 CU_SINLINE cu_bool_t cucon_priq_is_empty(cucon_priq_t q)
 { return q->count == 0; }
 
-/*!Return the number of elements in the queue. */
+/** Return the number of elements in the queue. */
 CU_SINLINE size_t cucon_priq_count(cucon_priq_t q) { return q->count; }
 
-/*!Debug dump. */
+/** Debug dump. */
 void cucon_priq_dump(cucon_priq_t q,
 		     cu_clop(print_key_fn, void, void *key, FILE *out),
 		     FILE *out);
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

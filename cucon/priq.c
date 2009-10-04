@@ -53,7 +53,7 @@ cucon_priq_new(cu_clop(prior, cu_bool_t, void *, void *))
 }
 
 static void
-expand_by_2(cucon_priq_t q)
+_expand_by_2(cucon_priq_t q)
 {
     size_t old_capacity = q->capacity;
     if (old_capacity == 0) {
@@ -70,7 +70,7 @@ expand_by_2(cucon_priq_t q)
 }
 
 static void
-reduce_by_4(cucon_priq_t q)
+_reduce_by_4(cucon_priq_t q)
 {
     void **old_arr = q->arr;
     q->capacity /= 4;
@@ -84,7 +84,7 @@ cucon_priq_insert(cucon_priq_t q, void *key)
 {
     size_t n = q->count;
     if (n >= q->capacity)
-	expand_by_2(q);
+	_expand_by_2(q);
     q->arr[n] = key;
     while (n > 0) {
 	size_t m = (n + 1)/2 - 1;
@@ -124,7 +124,7 @@ cucon_priq_pop_front(cucon_priq_t q)
 	i = j0;
     }
     if (q->count > 8 && q->count <= q->capacity/4)
-	reduce_by_4(q);
+	_reduce_by_4(q);
     return result;
 }
 
