@@ -20,6 +20,7 @@
 
 #include <cucon/fwd.h>
 #include <cu/clos.h>
+#include <cu/conf.h>
 
 CU_BEGIN_DECLARATIONS
 /** \defgroup cucon_fibq_h cucon/fibq.h: Queue-Optimised Fibonacci Heap
@@ -47,8 +48,13 @@ CU_DOXY_ENDFAKED(typedef __see_below__ cucon_fibq_prioreq_t);
 struct cucon_fibqnode
 {
     cucon_fibqnode_t siblings, children;
+#if 2*CUCONF_SIZEOF_INT > CUCONF_SIZEOF_VOID_P
+    cu_bool_least_t mark;
+    short degree;
+#else
     cu_bool_t mark;
     int degree;
+#endif
 };
 
 /** The queue-optimised Fibonacci heap struct. */
