@@ -22,6 +22,13 @@
 
 #define _prioreq(Q, n0, n1) cu_call((Q)->prioreq, n0, n1)
 
+/* Let ϕ = (1 + sqrt 5)/2, then the degree is bounded by
+ *
+ *     degree ≤ logϕ n = log2 n / log2 ϕ < (3/2) log2 n
+ */
+CU_SINLINE int _max_degree(size_t card)
+{ return (3*cu_size_ceil_log2(card) + 1) / 2; }
+
 void
 cucon_fibq_init(cucon_fibq_t Q, cucon_fibq_prioreq_t prioreq)
 {
@@ -83,7 +90,7 @@ cucon_fibq_validate(cucon_fibq_t Q)
 	cu_debug_assert(Q->roots->degree == 0);
     }
     else {
-	int max_degree = 2*cu_size_ceil_log2(Q->card);  /* See fibheap.c. */
+	int max_degree = _max_degree(Q->card);
 	cucon_fibqnode_t x, *root_slot = &Q->roots;
 	while ((x = *root_slot)) {
 	    cu_debug_assert(!x->mark);
@@ -141,7 +148,7 @@ _update_min(cucon_fibq_t Q)
      * them temporarily in a log N sized array, at most one per element. The
      * sibling links will be fixed in the next step. */
     root = Q->roots;
-    maxp_degree = 2*cu_size_ceil_log2(Q->card);  /* See fibheap.c. */
+    maxp_degree = _max_degree(Q->card);
     nodes_by_degree = cu_snewarr(cucon_fibqnode_t, maxp_degree);
     memset(nodes_by_degree, 0, sizeof(cucon_fibqnode_t)*maxp_degree);
     nodes_by_degree[root->degree] = root;
