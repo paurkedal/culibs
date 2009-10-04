@@ -38,9 +38,11 @@ sub check_lib($$)
 check_lib("libcubase",
     qr/^(cuconf|CUCONF|cu|CU|cuoo|CUOO|cucon|CUCON|cuex|CUEX)P?_/);
 check_lib("libcuex", qr/^(cuex|CUEX|cudyn|CUDYN)P?_/);
-check_lib("libcuos", qr/^(cuos|CUOS)P?_/);
 check_lib("libcuflow", qr/^(cuflow|CUFLOW)P?_/);
-check_lib("libcusto", qr/^(custo|CUSTO)P?_/);
+check_lib("libcufo", qr/^cufo[TP]?_/);
 check_lib("libcugra", qr/^(cugra|CUGRA)P?_/);
+check_lib("libcuos", qr/^(cuos|CUOS)P?_/);
+check_lib("libcusto", qr/^(custo|CUSTO)P?_/);
+check_lib("libcutext", qr/^cutextP?_/);
 
 exit $found_disallowed;

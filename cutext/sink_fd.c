@@ -77,7 +77,7 @@ _fd_sink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
     }
 }
 
-struct cutext_sink_descriptor_s _fd_sink_descriptor_if_not_close = {
+static struct cutext_sink_descriptor_s _fd_sink_descriptor_if_not_close = {
     CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
 #ifdef CUCONF_SYS_WRITE_IS_CLOGFREE
     .flags = CUTEXT_SINK_FLAG_CLOGFREE,
@@ -86,7 +86,7 @@ struct cutext_sink_descriptor_s _fd_sink_descriptor_if_not_close = {
     .info = _fd_sink_info
 };
 
-struct cutext_sink_descriptor_s _fd_sink_descriptor_if_close = {
+static struct cutext_sink_descriptor_s _fd_sink_descriptor_if_close = {
     CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
 #ifdef CUCONF_SYS_WRITE_IS_CLOGFREE
     .flags = CUTEXT_SINK_FLAG_CLOGFREE,

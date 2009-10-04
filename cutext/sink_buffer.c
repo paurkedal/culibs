@@ -148,7 +148,7 @@ _bufsink_leave(cutext_sink_t sink_, struct cufo_tag_s *tag)
     (*sink->subsink->descriptor->leave)(sink->subsink, tag);
 }
 
-struct cutext_sink_descriptor_s _bufsink_descriptor = {
+static struct cutext_sink_descriptor_s _bufsink_descriptor = {
     CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .flags = CUTEXT_SINK_FLAG_CLOGFREE,
     .write = _bufsink_write,

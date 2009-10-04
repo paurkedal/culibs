@@ -130,7 +130,7 @@ cucon_fibq_union_d(cucon_fibq_t Q, cucon_fibq_t Qp)
     CU_GWIPE(Qp->root_tail);
 }
 
-void
+static void
 _update_min(cucon_fibq_t Q)
 {
     int maxp_degree, degree;
