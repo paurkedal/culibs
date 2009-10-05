@@ -156,3 +156,32 @@ cuex_iterimg_operands(cu_clop(f, cuex_t, cuex_t), cuex_t e)
     else
 	return e;
 }
+
+cuex_t
+cuex_iterimgk_operands(cu_clop(f, cuex_t, int, cuex_t), cuex_t e)
+{
+    cuex_meta_t e_meta = cuex_meta(e);
+    if (cuex_meta_is_opr(e_meta)) {
+	int i = 0;
+	CUEX_OPN_TRAN(e_meta, e, ep, cu_call(f, i++, ep));
+	return e;
+    }
+    else if (cuex_meta_is_type(e_meta)) {
+	cuoo_type_t e_type = cuoo_type_from_meta(e_meta);
+	cuex_intf_compound_t impl;
+	impl = cuoo_type_impl_ptr(e_type, CUEX_INTF_COMPOUND);
+	if (impl) {
+	    cuex_t ep;
+	    int i = 0;
+	    cu_ptr_junctor_t junctor;
+	    junctor = cuex_compound_pref_image_junctor(impl, e);
+	    while ((ep = cu_ptr_junctor_get(junctor)))
+		cu_ptr_junctor_put(junctor, cu_call(f, i++, ep));
+	    return cu_ptr_junctor_finish(junctor);
+	}
+	else
+	    return e;
+    }
+    else
+	return e;
+}
