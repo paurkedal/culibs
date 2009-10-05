@@ -19,6 +19,13 @@ AC_ARG_ENABLE([experimental],
   [ AC_DEFINE([ENABLE_EXPERIMENTAL], [1], [Include experimental features?]) ])
 AM_CONDITIONAL([enable_experimental], [test "x$enable_experimental" = xyes])
 
+AC_ARG_ENABLE([redundant],
+    [AC_HELP_STRING([--enable-redundant],
+	[Enable APIs which are considered redundant and subject to removal at]
+	[any time.  If you find any of these useful, please contact the]
+	[maintainer before using them in production code.])])
+AM_CONDITIONAL([enable_redundant], [test x"$enable_redundant" = xyes])
+
 
 # Decide what to Build
 # ====================
