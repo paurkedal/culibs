@@ -24,8 +24,9 @@ AC_DEFUN([CUAC_MODULE_EQUIVALENCE],
 AC_DEFUN([CUAC_ARG_MODULES],
   [ # Parse modulemagick command-line.
     AC_ARG_ENABLE([modules],
-      [ AC_HELP_STRING([--enable-modules=MODULELIST],
-	    [Comma-separated list the modules to build.  By default, all modules which present in the source directory are built.]) ],
+	[AC_HELP_STRING([--enable-modules=MODULELIST],
+	    [Comma-separated list the modules to build.  By default, all
+	     modules which present in the source directory are built.])],
       [ enabled_modules="${enableval//,/ }" ],
       [ m4_foreach([_mod], [CUAC_MODULE_LIST],
 	  [ test ! -e $srcdir/_mod/_mod.am || enabled_modules="$enabled_modules _mod"

@@ -14,9 +14,8 @@ AC_PROG_YACC
 PKG_PROG_PKG_CONFIG
 
 AC_ARG_ENABLE([experimental],
-  [ AC_HELP_STRING([--enable-experimental],
-	[Include experimental features?]) ],
-  [ AC_DEFINE([ENABLE_EXPERIMENTAL], [1], [Include experimental features?]) ])
+    [AC_HELP_STRING([--enable-experimental], [Include experimental features?])],
+    [AC_DEFINE([ENABLE_EXPERIMENTAL], [1], [Include experimental features?])])
 AM_CONDITIONAL([enable_experimental], [test "x$enable_experimental" = xyes])
 
 AC_ARG_ENABLE([redundant],
@@ -48,8 +47,7 @@ CUAC_ARG_MODULES
 
 # Documentation option.
 #
-AC_ARG_ENABLE([doc],
-  [ AC_HELP_STRING([--enable-doc], [Build documentation.]) ])
+AC_ARG_ENABLE([doc], [AC_HELP_STRING([--enable-doc], [Build documentation.])])
 AM_CONDITIONAL([enable_doc], [test x$enable_doc = xyes])
 
 
@@ -120,8 +118,8 @@ AC_CHECK_HEADER([atomic_ops.h], [],
 #
 CUAC_LIB_BDWGC
 AC_ARG_ENABLE([gc-disclaim],
-  [ AC_HELP_STRING([--disable-gc-disclaim],
-	[Disable use of GC disclaim patch, even if present.]) ])
+    [AC_HELP_STRING([--disable-gc-disclaim],
+	[Disable use of GC disclaim patch, even if present.])])
 if test x"$enable_gc_disclaim" != xno; then
     if $have_gc_disclaim; then
 	AC_DEFINE([CUCONF_ENABLE_GC_DISCLAIM], 1,
@@ -168,7 +166,7 @@ AM_CONDITIONAL([have_libffi], [$have_libffi])
 # =================
 
 AC_ARG_ENABLE([threads],
-  [ AC_HELP_STRING([--disable-threads], [Disable thread-safety.]) ])
+    [AC_HELP_STRING([--disable-threads], [Disable thread-safety.])])
 if test x"$enable_threads" != xno; then
     AC_DEFINE([CUCONF_ENABLE_THREADS], 1, [Enable thread-safety.])
     PTHREAD_LIBS="-lpthread"
@@ -177,15 +175,15 @@ AM_CONDITIONAL([enable_threads], [test x"$enable_threads" != xno])
 AC_SUBST(PTHREAD_LIBS)
 
 AC_ARG_ENABLE([debug],
-  [ AC_HELP_STRING([--disable-debug],
-	[Do not include debug-checks for client calls.]) ])
+    [AC_HELP_STRING([--disable-debug],
+	[Do not include debug-checks for client calls.])])
 if test x"$enable_debug" != xno; then
     AC_DEFINE([CUCONF_DEBUG_CLIENT], 1, [Enable debugging for client.])
 fi
 
 AC_ARG_ENABLE([debug-lib],
-  [ AC_HELP_STRING([--enable-debug-lib],
-	[Enable debugging which is only relevant for the library itself.]) ])
+    [AC_HELP_STRING([--enable-debug-lib],
+	[Enable debugging which is only relevant for the library itself.])])
 if test x"$enable_debug_lib" = xyes; then
     AC_DEFINE([CUCONF_DEBUG_SELF], 1, [Debugging of libraries.])
 fi
@@ -223,8 +221,8 @@ return 0;
 fi
 
 AC_ARG_ENABLE([debug-memory],
-  [ AC_HELP_STRING([--enable-debug-memory],
-	[Enable metadata on memory blocks, used for debugging.]) ])
+    [AC_HELP_STRING([--enable-debug-memory],
+	[Enable metadata on memory blocks, used for debugging.])])
 if test x"$enable_debug_metadata" = xyes; then
     AC_DEFINE([CUCONF_DEBUG_MEMORY], 1, [Define to enable memory metadata.])
 fi
@@ -265,9 +263,9 @@ AC_SUBST(AM_CFLAGS)
 # libcutext
 #
 AC_ARG_ENABLE([wccat-method],
-  [ AC_HELP_STRING([--enable-wccat-method],
-	[Choose how cutext_wchar_wccat is implemented: "switch" or "table".]) ],
-  [], [enable_wccat_method="switch"])
+    [AC_HELP_STRING([--enable-wccat-method],
+	[Choose how cutext_wchar_wccat is implemented: "switch" or "table".])],
+    [], [enable_wccat_method="switch"])
 AM_CONDITIONAL([enable_wccat_switch], [test $enable_wccat_method = switch])
 if test $enable_wccat_method = switch; then
     AC_DEFINE([ENABLE_WCCAT_SWITCH], [1], [cutext_wchar_wccat as switch])
