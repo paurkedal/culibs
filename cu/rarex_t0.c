@@ -17,7 +17,7 @@
 
 #include <cu/rarex.h>
 #include <cu/thread.h>
-#include <gc/gc_pthread_redirects.h>
+#include <gc/gc.h>
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
