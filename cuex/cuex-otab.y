@@ -10,14 +10,15 @@
 #include <cucon/list.h>
 #include <cucon/bitvect.h>
 #include <cuex/otab.h>
-#include <stdio.h>
-#include <ctype.h>
-#include <argp.h>
-#include <errno.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#include <stdio.h>
+#include <ctype.h>
+#include <argp.h>
+#include <errno.h>
 
 typedef struct ot_intrange_s *ot_intrange_t;
 typedef struct ot_state_s *ot_state_t;
