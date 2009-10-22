@@ -22,8 +22,13 @@
 #include <cu/conf.h>
 #include <cu/clos.h>
 #include <cu/wordarr.h>
+#include <cu/ptr.h>
 
 CU_BEGIN_DECLARATIONS
+
+#ifdef CUCONF_ENABLE_RISKY_OPTIMISATIONS
+#  define CUOO_HCTEM_EXCLUDE_HCOBJ_SHIFT 1
+#endif
 
 /*!\defgroup cuoo_hcons_h cuoo/halloc.h: Hash-Consing Allocation
  * @{\ingroup cuoo_mod */
@@ -65,7 +70,11 @@ void *cuooP_hxalloc_clear_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
  * This macro emits a declaration of a key-template used for hash-consed
  * allocation.  \a key must be initialised with \ref cuoo_hctem_init and
  * assigned through the pointer returned by \a cuoo_hctem_get. */
-#define cuoo_hctem_decl(prefix, key) char key[cuoo_hctem_key_size(prefix)]
+#ifdef CUOO_HCTEM_EXCLUDE_HCOBJ_SHIFT
+#  define cuoo_hctem_decl(prefix, key) char key[cuoo_hctem_key_size(prefix)]
+#else
+#  define cuoo_hctem_decl(prefix, tem) struct prefix##_s tem
+#endif
 
 /*!This is part of several high-level hash-consing macros summarised under \ref
  * cuoo_hctem_new.
@@ -78,18 +87,26 @@ void *cuooP_hxalloc_clear_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
  * constraints do not contain arbitrary data which would invalidate the
  * hash-consing. */
 #define cuoo_hctem_init(prefix, key) \
-    (memset(&(key), 0, cuoo_hctem_key_size(prefix)))
+	(memset(cuoo_hctem_key(prefix, key), 0, cuoo_hctem_key_size(prefix)))
 
 /*!This is part of several high-level hash-consing macros summarised under \ref
  * cuoo_hctem_new.
  * Given a prefix and a template variable \a key, returns a pointer to the
  * template struct, which has type <tt><em>prefix</em>_s *</tt>. */
-#define cuoo_hctem_get(prefix, key)					\
-    ((struct prefix##_s *)((char *)(key) - CUOO_HCOBJ_SHIFT))
+#ifdef CUOO_HCTEM_EXCLUDE_HCOBJ_SHIFT
+#  define cuoo_hctem_get(prefix, key)					\
+	((struct prefix##_s *)((char *)(key) - CUOO_HCOBJ_SHIFT))
+#else
+#  define cuoo_hctem_get(prefix, key) (&(key))
+#endif
 
 /*!The key address of a template in case you need to use \ref cuoo_halloc or
  * \ref cuoo_hxalloc_init instead of cuoo_hctem_new. */
-#define cuoo_hctem_key(prefix, key) (&(key))
+#ifdef CUOO_HCTEM_EXCLUDE_HCOBJ_SHIFT
+#  define cuoo_hctem_key(prefix, key) (&(key))
+#else
+#  define cuoo_hctem_key(prefix, tem) cu_ptr_add(&(tem), CUOO_HCOBJ_SHIFT)
+#endif
 
 /*!This is part of several high-level hash-consing macros.
  * Given previous definition of a <tt>struct <em>prefix</em>_s</tt> and a
@@ -121,11 +138,13 @@ void *cuooP_hxalloc_clear_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
  * cuoo_halloc.  */
 #define cuoo_hctem_new(prefix, key) \
     ((struct prefix##_s *) \
-     cuoo_halloc(prefix##_type(), cuoo_hctem_key_size(prefix), &(key)))
+     cuoo_halloc(prefix##_type(), cuoo_hctem_key_size(prefix), \
+		 cuoo_hctem_key(prefix, key)))
 
 #define cuoo_hctem_new_of_type(prefix, key, type) \
     ((struct prefix##_s *) \
-     cuoo_halloc(type, cuoo_hctem_key_size(prefix), &(key)))
+     cuoo_halloc(type, cuoo_hctem_key_size(prefix), \
+		 cuoo_hctem_key(prefix, key)))
 
 #ifndef CU_IN_DOXYGEN
 CU_SINLINE void *

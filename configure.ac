@@ -79,6 +79,14 @@ CUAC_C_STACK_DIRECTION
 
 CUAC_C_THREAD_KEYWORD
 
+AC_ARG_ENABLE([risky-optimisations],
+   [AC_HELP_STRING([--enable-risky-optimisations],
+       [Enable optimisations which may cause incorrect code generation on some
+	compilers.])],
+   [AC_DEFINE([CUCONF_ENABLE_RISKY_OPTIMISATIONS], [1],
+       [Define to enable optimisations which may cause incorrect code
+	generation on some compilers.])])
+
 # Check if it is valid to pass more arguments than the prototype in
 # the definition specifies.
 #
