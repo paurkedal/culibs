@@ -113,11 +113,11 @@ CUCON_T_NS(shortest_path_if)(
 }
 
 
-cu_clos_def(vertex_eq,
+cu_clos_def(_vertex_eq,
 	    cu_prot(cu_bool_fast_t, CUCON_T_NS(vertex_t) v),
 	    (CUCON_T_NS(vertex_t) v_to_find;))
 {
-    cu_clos_self(vertex_eq);
+    cu_clos_self(_vertex_eq);
     return self->v_to_find == v;
 }
 
@@ -127,9 +127,9 @@ CUCON_T_NS(shortest_path)(CUCON_T_NS(t) g,
 			CUCON_T_NS(vertex_t) v_final,
 			cu_clop(edge_distance, double, CUCON_T_NS(edge_t)))
 {
-    vertex_eq_t tst;
+    _vertex_eq_t tst;
     tst.v_to_find = v_final;
-    return CUCON_T_NS(shortest_path_if)(g, v_start, vertex_eq_prep(&tst),
+    return CUCON_T_NS(shortest_path_if)(g, v_start, _vertex_eq_prep(&tst),
 				      edge_distance);
 }
 

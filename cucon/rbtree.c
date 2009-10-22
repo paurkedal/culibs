@@ -77,7 +77,7 @@ cucon_rbtree_new_copy_ctive(cucon_rbtree_t src)
 }
 
 CU_SINLINE cucon_rbnode_t
-copy_ptrnode(cucon_rbnode_t src)
+_copy_ptrnode(cucon_rbnode_t src)
 {
     cucon_rbnode_t dst = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_rbnode_s)
 				   + sizeof(void *));
@@ -129,7 +129,7 @@ static void
 cuconP_rbnode_copy_rec_ptr(cucon_rbnode_t src, cucon_rbnode_t *dst)
 {
     while (src) {
-	*dst = copy_ptrnode(src);
+	*dst = _copy_ptrnode(src);
 	cuconP_rbnode_copy_rec_ptr(LEFT(src), &LEFT(*dst));
 	src = RIGHT(src);
 	dst = &RIGHT(*dst);
@@ -150,36 +150,36 @@ cucon_rbtree_new_copy_ptr(cucon_rbtree_t src)
     return dst;
 }
 
-cu_clos_def(merge_ptr_cb, cu_prot(void, void *value),
+cu_clos_def(_merge_ptr_cb, cu_prot(void, void *value),
 	    (cucon_rbtree_t dst; cu_clop(cmp, int, void *, void *);))
 {
-    cu_clos_self(merge_ptr_cb);
+    cu_clos_self(_merge_ptr_cb);
     cucon_rbtree_insert2p_ptr(self->dst, self->cmp, value);
 }
 void
 cucon_rbtree_merge2p(cucon_rbtree_t dst, cucon_rbtree_t src,
 		       cu_clop(cmp, int, void *, void *))
 {
-    merge_ptr_cb_t cb;
+    _merge_ptr_cb_t cb;
     cb.dst = dst;
     cb.cmp = cmp;
-    cucon_rbtree_iter_ptr(src, merge_ptr_cb_prep(&cb));
+    cucon_rbtree_iter_ptr(src, _merge_ptr_cb_prep(&cb));
 }
 
-cu_clos_def(merge_ptr_ctive_cb, cu_prot(void, void *value),
+cu_clos_def(_merge_ptr_ctive_cb, cu_prot(void, void *value),
 	    (cucon_rbtree_t dst; cu_clop(cmp, int, void *, void *);))
 {
-    cu_clos_self(merge_ptr_ctive_cb);
+    cu_clos_self(_merge_ptr_ctive_cb);
     cucon_rbtree_insert2p_ptr(self->dst, self->cmp, value);
 }
 void
 cucon_rbtree_cmerge2p(cucon_rbtree_t dst, cucon_rbtree_t src,
 			     cu_clop(cmp, int, void *, void *))
 {
-    merge_ptr_ctive_cb_t cb;
+    _merge_ptr_ctive_cb_t cb;
     cb.dst = dst;
     cb.cmp = cmp;
-    cucon_rbtree_iter_ptr(src, merge_ptr_ctive_cb_prep(&cb));
+    cucon_rbtree_iter_ptr(src, _merge_ptr_ctive_cb_prep(&cb));
 }
 
 #ifdef CHECK_TREE
@@ -628,11 +628,11 @@ cu_clop_def(ptrnode_new_copy, cucon_rbnode_t, cucon_rbnode_t src)
     return node;
 }
 
-cu_clos_def(ptrslot_compare,
+cu_clos_def(_ptrslot_compare,
 	    cu_prot(int, void *slot),
 	    (cu_clop(ptr_compare, int, void *, void *); void *ptr;))
 {
-    cu_clos_self(ptrslot_compare);
+    cu_clos_self(_ptrslot_compare);
     return cu_call(self->ptr_compare, self->ptr, *(void **)slot);
 }
 cu_bool_t
@@ -641,11 +641,11 @@ cucon_rbtree_cinsert2p_ptr(cucon_rbtree_t tree,
 			   cu_ptr_ptr_t ptr_io)
 {
     void **slot;
-    ptrslot_compare_t cmp;
+    _ptrslot_compare_t cmp;
     cmp.ptr_compare = ptr_compare;
     cmp.ptr = *(void **)ptr_io;
     if (cucon_rbtree_cinsert1m_mem(
-	    tree, ptrslot_compare_prep(&cmp), ptrnode_new_copy,
+	    tree, _ptrslot_compare_prep(&cmp), ptrnode_new_copy,
 	    sizeof(void *), &slot)) {
 	*slot = *(void **)ptr_io;
 	return cu_true;
@@ -656,19 +656,19 @@ cucon_rbtree_cinsert2p_ptr(cucon_rbtree_t tree,
     }
 }
 
-cu_clos_def(imem_slot_cmp,
+cu_clos_def(_imem_slot_cmp,
 	    cu_prot(int, void *slot),
     ( size_t key_size;
       void *key_data; ))
 {
-    cu_clos_self(imem_slot_cmp);
+    cu_clos_self(_imem_slot_cmp);
     return memcmp(self->key_data, slot, self->key_size);
 }
-cu_clos_def(imem_node_copy,
+cu_clos_def(_imem_node_copy,
 	    cu_prot(cucon_rbnode_t, cucon_rbnode_t node),
     ( size_t slot_size; ))
 {
-    cu_clos_self(imem_node_copy);
+    cu_clos_self(_imem_node_copy);
     cucon_rbnode_t new_node = cucon_rbnode_new_copy(node, self->slot_size);
     memcpy(cucon_rbnode_mem(new_node), cucon_rbnode_mem(node),
 	   self->slot_size);
@@ -680,16 +680,16 @@ cucon_rbtree_insert_imem_ctive(cucon_rbtree_t tree,
 			       size_t key_size, void *key,
 			       size_t slot_size, cu_ptr_ptr_t slot_o)
 {
-    imem_slot_cmp_t cmp;
-    imem_node_copy_t cpy;
+    _imem_slot_cmp_t cmp;
+    _imem_node_copy_t cpy;
     void *new_slot;
     cmp.key_size = key_size;
     cmp.key_data = key;
     cpy.slot_size = slot_size;
     if (cucon_rbtree_cinsert1m_mem(tree,
-				      imem_slot_cmp_prep(&cmp),
-				      imem_node_copy_prep(&cpy),
-				      slot_size, &new_slot)) {
+				   _imem_slot_cmp_prep(&cmp),
+				   _imem_node_copy_prep(&cpy),
+				   slot_size, &new_slot)) {
 	memcpy(new_slot, key, key_size);
 	*(void **)slot_o = new_slot;
 	return cu_true;
@@ -706,8 +706,8 @@ cucon_rbtree_insert_imem_ctive(cucon_rbtree_t tree,
  * ----- */
 
 static void
-rbtree_erase(cucon_rbtree_t tree,
-	     cucon_rbnode_t *sp_root, cucon_rbnode_t *sp_z, cucon_rbnode_t z)
+_rbtree_erase(cucon_rbtree_t tree,
+	      cucon_rbnode_t *sp_root, cucon_rbnode_t *sp_z, cucon_rbnode_t z)
 {
     cucon_rbnode_t *sp;
     cucon_rbnode_t x, y;
@@ -886,7 +886,7 @@ skip_move:
     }									\
     if (z == NULL)							\
 	return NULL;							\
-    rbtree_erase(tree, sp_root, sp_z, z);
+    _rbtree_erase(tree, sp_root, sp_z, z);
 
 cucon_rbnode_t
 cucon_rbtree_erase2p(cucon_rbtree_t tree,

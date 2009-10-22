@@ -34,27 +34,27 @@ cu_clop_def(get_key_0, cu_word_t, cuex_t e)
     return (cu_word_t)cuex_opn_at(e, 0);
 }
 
-cu_clop_def(merge_as_first, cuex_t, cuex_t e0, cuex_t e1)
+cu_clop_def(_merge_as_first, cuex_t, cuex_t e0, cuex_t e1)
 {
     return e0;
 }
 
-cu_clop_def(merge_as_second, cuex_t, cuex_t e0, cuex_t e1)
+cu_clop_def(_merge_as_second, cuex_t, cuex_t e0, cuex_t e1)
 {
     return e1;
 }
 
-cu_clop_def(merge_disjoin, cuex_t, cuex_t e0, cuex_t e1)
+cu_clop_def(_merge_disjoin, cuex_t, cuex_t e0, cuex_t e1)
 {
     return NULL;
 }
 
-cu_clos_def(merge_iv_adaptor,
+cu_clos_def(_merge_iv_adaptor,
 	    cu_prot(cuex_t, cuex_t e0, cuex_t e1),
   ( cu_rank_t value_index;
     cu_clop(value_merge, cuex_t, cuex_t, cuex_t); ))
 {
-    cu_clos_self(merge_iv_adaptor);
+    cu_clos_self(_merge_iv_adaptor);
     cu_debug_assert(cuex_meta_is_opr(cuex_meta(e0)) &&
 		    cuex_meta_is_opr(cuex_meta(e1)) &&
 		    cuex_opr_r(cuex_meta(e0)) > self->value_index &&
@@ -64,11 +64,11 @@ cu_clos_def(merge_iv_adaptor,
 		   cuex_opn_at(e1, self->value_index));
 }
 
-cu_clos_def(merge_kv_adaptor,
+cu_clos_def(_merge_kv_adaptor,
 	    cu_prot(cuex_t, cuex_t e0, cuex_t e1),
     (cu_clop(merge, cuex_t, cuex_t, cuex_t, cuex_t);))
 {
-    cu_clos_self(merge_kv_adaptor);
+    cu_clos_self(_merge_kv_adaptor);
     cu_debug_assert(cuex_meta_is_opr(cuex_meta(e0)) &&
 		    cuex_meta_is_opr(cuex_meta(e1)) &&
 		    cuex_opr_r(cuex_meta(e0)) >= 2 &&
@@ -78,17 +78,17 @@ cu_clos_def(merge_kv_adaptor,
 		   cuex_opn_at(e0, 1), cuex_opn_at(e1, 1));
 }
 
-cu_clop_def(subseteq_true, cu_bool_t, cuex_t e0, cuex_t e1)
+cu_clop_def(_subseteq_true, cu_bool_t, cuex_t e0, cuex_t e1)
 {
     return cu_true;
 }
 
-cu_clos_def(subseteq_iv_adaptor,
+cu_clos_def(_subseteq_iv_adaptor,
 	    cu_prot(cu_bool_t, cuex_t e0, cuex_t e1),
   ( cu_rank_t value_index;
     cu_clop(value_subseteq, cu_bool_t, cuex_t, cuex_t); ))
 {
-    cu_clos_self(subseteq_iv_adaptor);
+    cu_clos_self(_subseteq_iv_adaptor);
     cu_debug_assert(cuex_meta_is_opr(cuex_meta(e0)) &&
 		    cuex_meta_is_opr(cuex_meta(e1)) &&
 		    cuex_opr_r(cuex_meta(e0)) > self->value_index &&
@@ -98,11 +98,11 @@ cu_clos_def(subseteq_iv_adaptor,
 		   cuex_opn_at(e1, self->value_index));
 }
 
-cu_clos_def(subseteq_kv_adaptor,
+cu_clos_def(_subseteq_kv_adaptor,
 	    cu_prot(cu_bool_t, cuex_t e0, cuex_t e1),
   ( cu_clop(value_subseteq, cu_bool_t, cuex_t key, cuex_t v0, cuex_t v1); ))
 {
-    cu_clos_self(subseteq_kv_adaptor);
+    cu_clos_self(_subseteq_kv_adaptor);
     cu_debug_assert(cuex_meta_is_opr(cuex_meta(e0)) &&
 		    cuex_meta_is_opr(cuex_meta(e1)) &&
 		    cuex_opr_r(cuex_meta(e0)) >= 2 &&
@@ -117,12 +117,12 @@ cu_clop_def(order_eq, cu_order_t, cuex_t e0, cuex_t e1)
     return cu_order_eq;
 }
 
-cu_clos_def(order_iv_adaptor,
+cu_clos_def(_order_iv_adaptor,
 	    cu_prot(cu_order_t, cuex_t e0, cuex_t e1),
   ( cu_rank_t value_index;
     cu_clop(value_order, cu_order_t, cuex_t, cuex_t); ))
 {
-    cu_clos_self(order_iv_adaptor);
+    cu_clos_self(_order_iv_adaptor);
     cu_debug_assert(cuex_meta_is_opr(cuex_meta(e0)) &&
 		    cuex_meta_is_opr(cuex_meta(e1)) &&
 		    cuex_opr_r(cuex_meta(e0)) > self->value_index &&
@@ -132,11 +132,11 @@ cu_clos_def(order_iv_adaptor,
 		   cuex_opn_at(e1, self->value_index));
 }
 
-cu_clos_def(order_kv_adaptor,
+cu_clos_def(_order_kv_adaptor,
 	    cu_prot(cu_order_t, cuex_t e0, cuex_t e1),
   ( cu_clop(value_order, cu_order_t, cuex_t, cuex_t, cuex_t); ))
 {
-    cu_clos_self(order_kv_adaptor);
+    cu_clos_self(_order_kv_adaptor);
     cu_debug_assert(cuex_meta_is_opr(cuex_meta(e0)) &&
 		    cuex_meta_is_opr(cuex_meta(e1)) &&
 		    cuex_opr_r(cuex_meta(e0)) >= 2 &&
@@ -345,7 +345,7 @@ cuex_atree_insert(cu_clop(get_key, cu_word_t, cuex_t),
 {
     if (cuex_atree_is_empty(tree))
 	return value;
-    return atree_insert(get_key, merge_as_first, tree, value);
+    return atree_insert(get_key, _merge_as_first, tree, value);
 }
 
 cuex_t
@@ -354,7 +354,7 @@ cuex_atree_replace(cu_clop(get_key, cu_word_t, cuex_t),
 {
     if (cuex_atree_is_empty(tree))
 	return value;
-    return atree_insert(get_key, merge_as_second, tree, value);
+    return atree_insert(get_key, _merge_as_second, tree, value);
 }
 
 cuex_t
@@ -373,10 +373,10 @@ cuex_atree_deep_insert_iv(cu_clop(get_key, cu_word_t, cuex_t),
 			  cu_clop(merge_values, cuex_t, cuex_t, cuex_t),
 			  cuex_t tree, cuex_t value)
 {
-    merge_iv_adaptor_t adaptor;
+    _merge_iv_adaptor_t adaptor;
     adaptor.value_index = i;
     adaptor.value_merge = merge_values;
-    return cuex_atree_deep_insert(get_key, merge_iv_adaptor_prep(&adaptor),
+    return cuex_atree_deep_insert(get_key, _merge_iv_adaptor_prep(&adaptor),
 				  tree, value);
 }
 
@@ -385,9 +385,9 @@ cuex_atree_deep_insert_kv(cu_clop(merge_values, cuex_t,
 				  cuex_t, cuex_t, cuex_t),
 			  cuex_t tree, cuex_t value)
 {
-    merge_kv_adaptor_t adaptor;
+    _merge_kv_adaptor_t adaptor;
     adaptor.merge = merge_values;
-    return cuex_atree_deep_insert(get_key_0, merge_kv_adaptor_prep(&adaptor),
+    return cuex_atree_deep_insert(get_key_0, _merge_kv_adaptor_prep(&adaptor),
 				  tree, value);
 }
 
@@ -540,7 +540,7 @@ cuex_atree_left_union(cu_clop(get_key, cu_word_t, cuex_t),
 	return tree1;
     if (cuex_atree_is_empty(tree1))
 	return tree0;
-    return atree_union(get_key, merge_as_first, tree0, tree1);
+    return atree_union(get_key, _merge_as_first, tree0, tree1);
 }
 
 cuex_t
@@ -551,7 +551,7 @@ cuex_atree_disjoint_union(cu_clop(get_key, cu_word_t, cuex_t),
 	return tree1;
     if (cuex_atree_is_empty(tree1))
 	return tree0;
-    return atree_union(get_key, merge_disjoin, tree0, tree1);
+    return atree_union(get_key, _merge_disjoin, tree0, tree1);
 }
 
 cuex_t
@@ -572,14 +572,14 @@ cuex_atree_deep_union_iv(cu_clop(get_key, cu_word_t, cuex_t),
 			 cu_clop(value_merge, cuex_t, cuex_t, cuex_t),
 			 cuex_t tree0, cuex_t tree1)
 {
-    merge_iv_adaptor_t adaptor;
+    _merge_iv_adaptor_t adaptor;
     if (cuex_atree_is_empty(tree0))
 	return tree1;
     if (cuex_atree_is_empty(tree1))
 	return tree0;
     adaptor.value_index = value_index;
     adaptor.value_merge = value_merge;
-    return atree_union(get_key, merge_iv_adaptor_prep(&adaptor),
+    return atree_union(get_key, _merge_iv_adaptor_prep(&adaptor),
 		       tree0, tree1);
 }
 
@@ -587,13 +587,13 @@ cuex_t
 cuex_atree_deep_union_kv(cu_clop(merge, cuex_t, cuex_t, cuex_t, cuex_t),
 			 cuex_t tree0, cuex_t tree1)
 {
-    merge_kv_adaptor_t adaptor;
+    _merge_kv_adaptor_t adaptor;
     if (cuex_atree_is_empty(tree0))
 	return tree1;
     if (cuex_atree_is_empty(tree1))
 	return tree0;
     adaptor.merge = merge;
-    return atree_union(get_key_0, merge_kv_adaptor_prep(&adaptor),
+    return atree_union(get_key_0, _merge_kv_adaptor_prep(&adaptor),
 		       tree0, tree1);
 }
 
@@ -675,7 +675,7 @@ cuex_atree_left_isecn(cu_clop(get_key, cu_word_t, cuex_t),
 	return tree0;
     if (cuex_atree_is_empty(tree1))
 	return tree1;
-    return atree_isecn(get_key, merge_as_first, tree0, tree1);
+    return atree_isecn(get_key, _merge_as_first, tree0, tree1);
 }
 
 cuex_t
@@ -696,27 +696,27 @@ cuex_atree_deep_isecn_iv(cu_clop(get_key, cu_word_t, cuex_t),
 			 cu_clop(value_merge, cuex_t, cuex_t, cuex_t),
 			 cuex_t tree0, cuex_t tree1)
 {
-    merge_iv_adaptor_t adaptor;
+    _merge_iv_adaptor_t adaptor;
     if (cuex_atree_is_empty(tree0))
 	return tree0;
     if (cuex_atree_is_empty(tree1))
 	return tree1;
     adaptor.value_index = value_index;
     adaptor.value_merge = value_merge;
-    return atree_isecn(get_key, merge_iv_adaptor_prep(&adaptor), tree0, tree1);
+    return atree_isecn(get_key, _merge_iv_adaptor_prep(&adaptor), tree0, tree1);
 }
 
 cuex_t
 cuex_atree_deep_isecn_kv(cu_clop(merge, cuex_t, cuex_t, cuex_t, cuex_t),
 			 cuex_t tree0, cuex_t tree1)
 {
-    merge_kv_adaptor_t adaptor;
+    _merge_kv_adaptor_t adaptor;
     if (cuex_atree_is_empty(tree0))
 	return tree0;
     if (cuex_atree_is_empty(tree1))
 	return tree1;
     adaptor.merge = merge;
-    return atree_isecn(get_key_0, merge_kv_adaptor_prep(&adaptor),
+    return atree_isecn(get_key_0, _merge_kv_adaptor_prep(&adaptor),
 		       tree0, tree1);
 }
 
@@ -874,7 +874,7 @@ cuex_atree_subseteq(cu_clop(get_key, cu_word_t, cuex_t),
     else if (cuex_atree_is_empty(tree1))
 	return cu_false;
     else
-	return atree_subseteq(get_key, subseteq_true, tree0, tree1);
+	return atree_subseteq(get_key, _subseteq_true, tree0, tree1);
 }
 
 cu_bool_t
@@ -905,10 +905,10 @@ cuex_atree_deep_subseteq_iv(cu_clop(get_key, cu_word_t, cuex_t),
     else if (cuex_atree_is_empty(tree1))
 	return cu_false;
     else {
-	subseteq_iv_adaptor_t adaptor;
+	_subseteq_iv_adaptor_t adaptor;
 	adaptor.value_index = value_index;
 	adaptor.value_subseteq = value_subseteq;
-	return atree_subseteq(get_key, subseteq_iv_adaptor_prep(&adaptor),
+	return atree_subseteq(get_key, _subseteq_iv_adaptor_prep(&adaptor),
 			      tree0, tree1);
     }
 }
@@ -925,9 +925,9 @@ cuex_atree_deep_subseteq_kv(cu_clop(value_subseteq, cu_bool_t,
     else if (cuex_atree_is_empty(tree1))
 	return cu_false;
     else {
-	subseteq_kv_adaptor_t adaptor;
+	_subseteq_kv_adaptor_t adaptor;
 	adaptor.value_subseteq = value_subseteq;
-	return atree_subseteq(get_key_0, subseteq_kv_adaptor_prep(&adaptor),
+	return atree_subseteq(get_key_0, _subseteq_kv_adaptor_prep(&adaptor),
 			      tree0, tree1);
     }
 }
@@ -943,7 +943,7 @@ cuex_atree_order(cu_clop(get_key, cu_word_t, cuex_t),
     else if (cuex_atree_is_empty(tree1))
 	return cu_order_gt;
     else
-	return atree_order(get_key, subseteq_true, order_eq, tree0, tree1);
+	return atree_order(get_key, _subseteq_true, order_eq, tree0, tree1);
 }
 
 cu_order_t
@@ -960,15 +960,15 @@ cuex_atree_deep_order_iv(cu_clop(get_key, cu_word_t, cuex_t),
     else if (cuex_atree_is_empty(tree1))
 	return cu_order_gt;
     else {
-	subseteq_iv_adaptor_t subseteq_adaptor;
-	order_iv_adaptor_t order_adaptor;
+	_subseteq_iv_adaptor_t subseteq_adaptor;
+	_order_iv_adaptor_t order_adaptor;
 	subseteq_adaptor.value_index = value_index;
 	subseteq_adaptor.value_subseteq = value_order;
 	order_adaptor.value_index = value_index;
 	order_adaptor.value_order = value_order;
 	return atree_order(get_key,
-			   subseteq_iv_adaptor_prep(&subseteq_adaptor),
-			   order_iv_adaptor_prep(&order_adaptor),
+			   _subseteq_iv_adaptor_prep(&subseteq_adaptor),
+			   _order_iv_adaptor_prep(&order_adaptor),
 			   tree0, tree1);
     }
 }
@@ -987,13 +987,13 @@ cuex_atree_deep_order_kv(cu_clop(value_subseteq, cu_bool_t,
     else if (cuex_atree_is_empty(tree1))
 	return cu_order_gt;
     else {
-	subseteq_kv_adaptor_t subseteq_adaptor;
-	order_kv_adaptor_t order_adaptor;
+	_subseteq_kv_adaptor_t subseteq_adaptor;
+	_order_kv_adaptor_t order_adaptor;
 	subseteq_adaptor.value_subseteq = value_subseteq;
 	order_adaptor.value_order = value_order;
 	return atree_order(get_key_0,
-			   subseteq_kv_adaptor_prep(&subseteq_adaptor),
-			   order_kv_adaptor_prep(&order_adaptor),
+			   _subseteq_kv_adaptor_prep(&subseteq_adaptor),
+			   _order_kv_adaptor_prep(&order_adaptor),
 			   tree0, tree1);
     }
 }
@@ -1111,7 +1111,7 @@ tail_call:
 	if (!*accu)
 	    *accu = e;
 	else
-	    *accu = atree_insert(get_key, merge_as_first, *accu, e);
+	    *accu = atree_insert(get_key, _merge_as_first, *accu, e);
     }
 }
 

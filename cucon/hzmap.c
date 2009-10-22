@@ -87,7 +87,7 @@ cucon_hzmap_new(cu_shortsize_t key_size_w)
 }
 
 static void
-shrink(map_t map, size_t new_cap)
+_shrink(map_t map, size_t new_cap)
 {
     size_t old_cap, new_mask, i;
     node_t *new_arr, *old_arr;
@@ -119,7 +119,7 @@ shrink(map_t map, size_t new_cap)
 }
 
 static void
-expand(map_t map, size_t new_cap)
+_expand(map_t map, size_t new_cap)
 {
     size_t old_cap, new_mask, i;
     node_t *new_arr, *old_arr;
@@ -153,7 +153,7 @@ cucon_hzmap_prepare_insert(map_t map, size_t count)
 {
     size_t new_size = map->size + count;
     if (new_size*MAXFILL_DENOM > map_cap_est(map)*MAXFILL_NUMER)
-	expand(map, cu_size_exp2ceil(new_size*MINFILL_DENOM/MINFILL_NUMER));
+	_expand(map, cu_size_exp2ceil(new_size*MINFILL_DENOM/MINFILL_NUMER));
 }
 
 cu_bool_t
@@ -164,7 +164,7 @@ cucon_hzmap_insert_node(map_t map, node_t node)
     size_t key_size_w = map->key_size_w;
 
     if (map->size*MAXFILL_DENOM > map_cap_est(map)*MAXFILL_NUMER)
-	expand(map, map_cap(map)*2);
+	_expand(map, map_cap(map)*2);
 
     index = key_hash(key_size_w, node_key(node)) & map_mask(map);
     p = &map->arr[index];
@@ -188,7 +188,7 @@ cucon_hzmap_insert(map_t map, void const *key,
     size_t key_size_w = map->key_size_w;
 
     if (map->size*MAXFILL_DENOM > map_cap_est(map)*MAXFILL_NUMER)
-	expand(map, map_cap(map)*2);
+	_expand(map, map_cap(map)*2);
 
     index = key_hash(key_size_w, key) & map_mask(map);
     p = &map->arr[index];
@@ -215,7 +215,7 @@ cucon_hzmap_insert_void(map_t map, void const *key)
     size_t key_size_w = map->key_size_w;
 
     if (map->size*MAXFILL_DENOM > map_cap_est(map)*MAXFILL_NUMER)
-	expand(map, map_cap(map)*2);
+	_expand(map, map_cap(map)*2);
 
     index = key_hash(key_size_w, key) & map_mask(map);
     p = &map->arr[index];
@@ -246,7 +246,7 @@ cucon_hzmap_erase(map_t map, void const *key)
 	    *p = (*p)->next;
 	    --map->size;
 	    if (map->size*MINFILL_DENOM < map_cap_est(map)*MINFILL_NUMER)
-		shrink(map, map_cap(map)/2);
+		_shrink(map, map_cap(map)/2);
 	    return cu_true;
 	}
 	p = &(*p)->next;
@@ -279,7 +279,7 @@ void
 cucon_hzmap_finish_erase(map_t map)
 {
     if (map->size*MINFILL_DENOM < map_cap_est(map)*MINFILL_NUMER)
-	shrink(map, map_cap(map)/2);
+	_shrink(map, map_cap(map)/2);
 }
 
 node_t

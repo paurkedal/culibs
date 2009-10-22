@@ -196,20 +196,20 @@ cuex_subst_delete(cuex_subst_t subst)
 /* Lookup
  * ------ */
 
-cu_clos_def(cuexP_subst_merge_cb_move,
+cu_clos_def(_subst_merge_cb_move,
 	    cu_prot(void, void const *var, void *veqv),
 	    (cucon_pmap_t dst;))
 {
-    cu_clos_self(cuexP_subst_merge_cb_move);
+    cu_clos_self(_subst_merge_cb_move);
     cucon_pmap_replace_ptr(self->dst, var, veqv);
 }
-cu_clos_def(cuexP_subst_merge_cb_copy,
+cu_clos_def(_subst_merge_cb_copy,
 	    cu_prot(void, void const *var0, void *veqv0),
 	    (cucon_pmap_t dst;))
 {
 #define var ((cuex_var_t)var0)
 #define veqv ((cuex_veqv_t)veqv0)
-    cu_clos_self(cuexP_subst_merge_cb_copy);
+    cu_clos_self(_subst_merge_cb_copy);
     cucon_slink_t var_cur = veqv->var_link;
     if (var == cucon_slink_get_ptr(var_cur)) {
 	cuex_veqv_t *slot;
@@ -237,16 +237,14 @@ cuexP_subst_merge(cuex_subst_t dst)
 	if (cucon_pmap_size(&src->var_to_veqv)
 	    > cucon_pmap_size(&dst->var_to_veqv))
 	    cucon_pmap_swap(&src->var_to_veqv, &dst->var_to_veqv);
-	cuexP_subst_merge_cb_move_t cb;
+	_subst_merge_cb_move_t cb;
 	cb.dst = &dst->var_to_veqv;
-	cucon_pmap_iter_ptr(&src->var_to_veqv,
-			    cuexP_subst_merge_cb_move_prep(&cb));
+	cucon_pmap_iter_ptr(&src->var_to_veqv, _subst_merge_cb_move_prep(&cb));
     }
     else {
-	cuexP_subst_merge_cb_copy_t cb;
+	_subst_merge_cb_copy_t cb;
 	cb.dst = &dst->var_to_veqv;
-	cucon_pmap_iter_ptr(&src->var_to_veqv,
-			    cuexP_subst_merge_cb_copy_prep(&cb));
+	cucon_pmap_iter_ptr(&src->var_to_veqv, _subst_merge_cb_copy_prep(&cb));
     }
     dst->shadowed = src->shadowed;
 #ifdef CHECK_SUBST
@@ -318,7 +316,7 @@ cuex_subst_mref(cuex_subst_t subst, cuex_var_t var)
     return *slot;
 }
 
-cu_clop_def(subst_is_identity_cb, cu_bool_t, void const *var, void *veqv)
+cu_clop_def(_subst_is_identity_cb, cu_bool_t, void const *var, void *veqv)
 {
 #define veqv ((cuex_veqv_t)veqv)
     return veqv->value == NULL && cucon_slink_next(veqv->var_link) == NULL;
@@ -329,7 +327,7 @@ cu_bool_t
 cuex_subst_is_identity(cuex_subst_t subst)
 {
     while (subst)
-	if (!cucon_pmap_conj_ptr(&subst->var_to_veqv, subst_is_identity_cb))
+	if (!cucon_pmap_conj_ptr(&subst->var_to_veqv, _subst_is_identity_cb))
 	    return cu_false;
     return cu_true;
 }
@@ -532,25 +530,25 @@ cuex_subst_unblock(cuex_subst_t subst, cuex_var_t v)
 
 /* -- cuex_subst_unblock_all */
 
-cu_clos_def(unblock_all_cb0,
+cu_clos_def(_unblock_all_cb0,
 	    cu_prot(void, void const *var, void *veqv),
 	    ( struct cucon_pmap_s visited; ) )
 {
 #define veqv ((cuex_veqv_t)veqv)
-    cu_clos_self(unblock_all_cb0);
+    cu_clos_self(_unblock_all_cb0);
     if (!cucon_pmap_insert_void(&self->visited, (cuex_var_t)var))
 	return;
     if (veqv->value && cuex_meta(veqv->value) == CUEX_O1_SUBST_BLOCK)
 	veqv->value = NULL;
 #undef veqv
 }
-cu_clos_def(unblock_all_cb1,
+cu_clos_def(_unblock_all_cb1,
 	    cu_prot(void, void const *var, void *veqv),
 	    ( cucon_pmap_t visited;
 	      cuex_subst_t subst; ) )
 {
 #define veqv ((cuex_veqv_t)veqv)
-    cu_clos_self(unblock_all_cb1);
+    cu_clos_self(_unblock_all_cb1);
     if (!cucon_pmap_insert_void(self->visited, var))
 	return;
     if (veqv->value && cuex_meta(veqv->value) == CUEX_O1_SUBST_BLOCK)
@@ -561,16 +559,16 @@ void
 cuex_subst_unblock_all(cuex_subst_t subst)
 {
     if (subst) {
-	unblock_all_cb0_t cb0;
+	_unblock_all_cb0_t cb0;
 	cucon_pmap_init(&cb0.visited);
-	cucon_pmap_iter_ptr(&subst->var_to_veqv, unblock_all_cb0_prep(&cb0));
+	cucon_pmap_iter_ptr(&subst->var_to_veqv, _unblock_all_cb0_prep(&cb0));
 	subst = subst->shadowed;
 	while (subst) {
-	    unblock_all_cb1_t cb1;
+	    _unblock_all_cb1_t cb1;
 	    cb1.subst = subst;
 	    cb1.visited = &cb0.visited;
 	    cucon_pmap_iter_ptr(&subst->var_to_veqv,
-				unblock_all_cb1_prep(&cb1));
+				_unblock_all_cb1_prep(&cb1));
 	    subst = subst->shadowed;
 	}
     }
@@ -579,11 +577,11 @@ cuex_subst_unblock_all(cuex_subst_t subst)
 
 /* -- cuex_subst_freshen_and_block_vars_in */
 
-cu_clos_def(subst_freshen_var_cb,
+cu_clos_def(_subst_freshen_var_cb,
 	    cu_prot(cu_bool_t, cuex_var_t var),
 	    (cuex_subst_t subst;))
 {
-    cu_clos_self(subst_freshen_var_cb);
+    cu_clos_self(_subst_freshen_var_cb);
     cuex_subst_t subst = self->subst;
     cuex_meta_t var_meta = cuex_meta(var);
     if (cuex_is_varmeta(var_meta)
@@ -602,9 +600,9 @@ cu_clos_def(subst_freshen_var_cb,
 void
 cuex_subst_freshen_and_block_vars_in(cuex_subst_t subst, cuex_t ex)
 {
-    subst_freshen_var_cb_t cb;
+    _subst_freshen_var_cb_t cb;
     cb.subst = subst;
-    cuex_depth_conj_vars(ex, subst_freshen_var_cb_prep(&cb));
+    cuex_depth_conj_vars(ex, _subst_freshen_var_cb_prep(&cb));
 }
 
 
@@ -628,11 +626,11 @@ cuex_subst_lookup(cuex_subst_t subst, cuex_var_t var)
 /* -- cuex_subst_apply */
 
 static cuex_t cuexP_subst_apply(cuex_subst_t, cuex_t);
-cu_clos_def(subst_apply_cb,
+cu_clos_def(_subst_apply_cb,
 	    cu_prot(cuex_opn_t, cuex_opn_t node),
 	( cuex_subst_t subst; ))
 {
-    cu_clos_self(subst_apply_cb);
+    cu_clos_self(_subst_apply_cb);
     cuex_meta_t meta = cuex_meta(node);
     CUEX_OPN_TRAN(meta, node, subex, cuexP_subst_apply(self->subst, subex));
     return node;
@@ -661,9 +659,9 @@ tailcall:
     if (cuex_meta_is_opr(meta)) {
 #if 0
 	if (cuex_opr_is_aci(meta)) {
-	    subst_apply_cb_t cb;
+	    _subst_apply_cb_t cb;
 	    cb.subst = subst;
-	    return cuex_aci_tran(meta, ex, subst_apply_cb_prep(&cb));
+	    return cuex_aci_tran(meta, ex, _subst_apply_cb_prep(&cb));
 	}
 	else
 #endif
@@ -688,11 +686,11 @@ cuex_subst_apply(cuex_subst_t subst, cuex_t ex)
 
 /* -- cuex_subst_update_tvar_types */
 
-cu_clos_def(subst_update_tvar_types_cb,
+cu_clos_def(_subst_update_tvar_types_cb,
 	    cu_prot(cu_bool_t, cuex_var_t var),
 	( cuex_subst_t subst; ))
 {
-    cu_clos_self(subst_update_tvar_types_cb);
+    cu_clos_self(_subst_update_tvar_types_cb);
     if (cuex_is_tvar(var)) {
 	cuex_t t = cuex_tvar_type(cuex_tvar_from_var(var));
 	if (t)
@@ -705,9 +703,9 @@ cu_clos_def(subst_update_tvar_types_cb,
 void
 cuex_subst_update_tvar_types(cuex_subst_t subst, cuex_t ex)
 {
-    subst_update_tvar_types_cb_t cb;
+    _subst_update_tvar_types_cb_t cb;
     cb.subst = subst;
-    cuex_depth_conj_vars(ex, subst_update_tvar_types_cb_prep(&cb));
+    cuex_depth_conj_vars(ex, _subst_update_tvar_types_cb_prep(&cb));
 }
 
 
@@ -848,13 +846,13 @@ cuex_subst_free_vars_erase(cuex_subst_t subst, cuex_t ex, cucon_pset_t accu)
 
 /* -- cuex_subst_dump */
 
-cu_clos_def(cuex_subst_dump_cb,
+cu_clos_def(_subst_dump_cb,
 	    cu_prot(void, void const *var, void *veqv),
 	    (FILE *file;))
 {
 #define var ((cuex_var_t)var)
 #define veqv ((cuex_veqv_t)veqv)
-    cu_clos_self(cuex_subst_dump_cb);
+    cu_clos_self(_subst_dump_cb);
     cucon_slink_t var_cur;
     FILE *file = self->file;
     if (cucon_slink_get_ptr(veqv->var_link) != var)
@@ -877,9 +875,9 @@ cu_clos_def(cuex_subst_dump_cb,
 void
 cuex_subst_dump(cuex_subst_t subst, FILE *file)
 {
-    cuex_subst_dump_cb_t cb;
+    _subst_dump_cb_t cb;
     cu_clop(cb_clop, void, void const *, void *)
-	= cuex_subst_dump_cb_prep(&cb);
+	= _subst_dump_cb_prep(&cb);
     cb.file = file;
     fprintf(file, "subst @ %p (qcset = %x, %s)\n", (void *)subst,
 	    subst->qcset, subst->is_idem? "idem" : "nonidem");
@@ -893,12 +891,12 @@ cuex_subst_dump(cuex_subst_t subst, FILE *file)
 
 /* -- cuex_subst_iter_veqv */
 
-cu_clos_def(cuex_subst_iter_cb,
+cu_clos_def(_subst_iter_cb,
 	    cu_prot(void, void const *var, void *veqv),
 	    (cu_clop(cb, void, cuex_veqv_t); struct cucon_pmap_s visited;))
 {
 #define veqv ((cuex_veqv_t)veqv)
-    cu_clos_self(cuex_subst_iter_cb);
+    cu_clos_self(_subst_iter_cb);
     if (cucon_pmap_insert_void(&self->visited, var)
 	&& var == cucon_slink_get_ptr(veqv->var_link)
 	&& (veqv->value || cucon_slink_next(veqv->var_link)))
@@ -908,9 +906,9 @@ cu_clos_def(cuex_subst_iter_cb,
 void
 cuex_subst_iter_veqv(cuex_subst_t subst, cu_clop(cb, void, cuex_veqv_t))
 {
-    cuex_subst_iter_cb_t cb0;
+    _subst_iter_cb_t cb0;
     cu_clop(cb0_clop, void, void const *, void *)
-	= cuex_subst_iter_cb_prep(&cb0);
+	= _subst_iter_cb_prep(&cb0);
     cb0.cb = cb;
     cucon_pmap_init(&cb0.visited);
     while (subst) {
@@ -923,7 +921,7 @@ cuex_subst_iter_veqv(cuex_subst_t subst, cu_clop(cb, void, cuex_veqv_t))
 /* -- cuex_subst_iter_veqv_cache
  * -- cuex_subst_iter_veqv_cache_sub */
 
-cu_clos_def(subst_iter_veqv_cache_cb,
+cu_clos_def(_subst_iter_veqv_cache_cb,
 	    cu_prot(void, void const *var, void *veqv),
     (	cu_clop(f, void, cuex_veqv_t veqv, void *cache, void *sub_data);
 	struct cucon_pmap_s cache;
@@ -932,7 +930,7 @@ cu_clos_def(subst_iter_veqv_cache_cb,
     ))
 {
 #define veqv ((cuex_veqv_t)veqv)
-    cu_clos_self(subst_iter_veqv_cache_cb);
+    cu_clos_self(_subst_iter_veqv_cache_cb);
     if (veqv->value || cucon_slink_next(veqv->var_link)) {
 	void *cache;
 	if (cucon_pmap_insert_mem(&self->cache, veqv,
@@ -947,9 +945,9 @@ cuex_subst_iter_veqv_cache(cuex_subst_t sig, size_t cache_size,
 			   cu_clop(f, void, cuex_veqv_t veqv, void *cache,
 					    void *sub_data))
 {
-    subst_iter_veqv_cache_cb_t cb0;
+    _subst_iter_veqv_cache_cb_t cb0;
     cu_clop(cb0_clop, void, void const *, void *)
-	= subst_iter_veqv_cache_cb_prep(&cb0);
+	= _subst_iter_veqv_cache_cb_prep(&cb0);
     if (!sig) return;
     cb0.f = f;
     cucon_pmap_init(&cb0.cache);
@@ -964,7 +962,7 @@ cuex_subst_iter_veqv_cache(cuex_subst_t sig, size_t cache_size,
 void *
 cuex_subst_iter_veqv_cache_sub(void *sub_data, cuex_t var)
 {
-#define self ((subst_iter_veqv_cache_cb_t *)sub_data)
+#define self ((_subst_iter_veqv_cache_cb_t *)sub_data)
     cuex_veqv_t veqv = cuex_subst_cref(self->sig, var);
     if (veqv && (veqv->value || cucon_slink_next(veqv->var_link))) {
 	void *cache;
@@ -986,7 +984,7 @@ cuex_subst_iter_veqv_cache_sub(void *sub_data, cuex_t var)
  * substitutions, else use a fresh substitution. */
 #define CUEXOPT_SUBST_TRAN_CLONE 1
 
-cu_clos_def(subst_tran_cache_cb,
+cu_clos_def(_subst_tran_cache_cb,
 	    cu_prot(void, void const *var, void *veqv),
     (	cu_clop(f, cuex_t, cuex_t value, void *cache, void *sub_data);
 	struct cucon_pmap_s cache;
@@ -997,7 +995,7 @@ cu_clos_def(subst_tran_cache_cb,
 {
 #define veqv ((cuex_veqv_t)veqv)
 #define var ((cuex_t)var)
-    cu_clos_self(subst_tran_cache_cb);
+    cu_clos_self(_subst_tran_cache_cb);
     if (veqv->value) {
 	void *cache;
 	if (cucon_pmap_insert_mem(&self->cache, veqv,
@@ -1025,9 +1023,9 @@ cuex_subst_tran_cache(cuex_subst_t sig, size_t cache_size,
 		      cu_clop(f, cuex_t, cuex_t value, void *cache,
 					 void *sub_data))
 {
-    subst_tran_cache_cb_t cb;
+    _subst_tran_cache_cb_t cb;
     cu_clop(cb_clop, void, void const *, void *)
-	= subst_tran_cache_cb_prep(&cb);
+	= _subst_tran_cache_cb_prep(&cb);
     if (!sig) return NULL;
     cb.f = f;
     cucon_pmap_init(&cb.cache);
@@ -1048,7 +1046,7 @@ cuex_subst_tran_cache(cuex_subst_t sig, size_t cache_size,
 void *
 cuex_subst_tran_cache_sub(void *sub_data, cuex_t var)
 {
-#define self ((subst_tran_cache_cb_t *)sub_data)
+#define self ((_subst_tran_cache_cb_t *)sub_data)
     cuex_veqv_t veqv = cuex_subst_cref(self->sig, var);
     if (veqv && veqv->value) {
 	void *cache;
@@ -1078,13 +1076,13 @@ cuex_subst_tran_cache_sub(void *sub_data, cuex_t var)
 
 /* -- cuex_subst_print */
 
-cu_clos_def(cuex_subst_print_cb,
+cu_clos_def(_subst_print_cb,
 	    cu_prot(void, cuex_veqv_t veqv),
 	    ( cufo_stream_t fos;
 	      char const *sep;
 	      cu_bool_t is_first; ))
 {
-    cu_clos_self(cuex_subst_print_cb);
+    cu_clos_self(_subst_print_cb);
     cucon_slink_t var_cur;
     char *sep;
     if (self->is_first)
@@ -1109,11 +1107,11 @@ cu_clos_def(cuex_subst_print_cb,
 void
 cuex_subst_print(cuex_subst_t subst, cufo_stream_t fos, char const *sep)
 {
-    cuex_subst_print_cb_t cb;
+    _subst_print_cb_t cb;
     cb.fos = fos;
     cb.sep = sep;
     cb.is_first = cu_true;
-    cuex_subst_iter_veqv(subst, cuex_subst_print_cb_prep(&cb));
+    cuex_subst_iter_veqv(subst, _subst_print_cb_prep(&cb));
 }
 
 
@@ -1143,13 +1141,13 @@ cuexP_subst_check_ex(cuex_subst_t subst, cuex_t ex, cucon_pmap_t seen)
     }
 }
 
-cu_clos_def(subst_check_cb,
+cu_clos_def(_subst_check_cb,
 	    cu_prot(void, void const *var, void *veqv),
     ( cuex_subst_t subst; ) )
 {
 #define var ((cuex_var_t)var)
 #define veqv ((cuex_veqv_t)veqv)
-    cu_clos_self(subst_check_cb);
+    cu_clos_self(_subst_check_cb);
     cuex_subst_t subst = self->subst;
     cucon_slink_t var_cur;
 
@@ -1188,9 +1186,9 @@ static void
 cuexP_subst_check(cuex_subst_t subst)
 {
     if (subst) {
-	subst_check_cb_t cb;
+	_subst_check_cb_t cb;
 	cb.subst = subst;
-	cucon_pmap_iter_ptr(&subst->var_to_veqv, subst_check_cb_prep(&cb));
+	cucon_pmap_iter_ptr(&subst->var_to_veqv, _subst_check_cb_prep(&cb));
     }
 }
 #endif

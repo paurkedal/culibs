@@ -26,11 +26,11 @@
 #  include <stdio.h>
 #endif
 
-cu_clos_def(cucon_hset_subeq_cb,
+cu_clos_def(_hset_subeq_cb,
 	    cu_prot(cu_bool_t, void const *key),
 	    (cucon_hset_t hs1;))
 {
-    cu_clos_self(cucon_hset_subeq_cb);
+    cu_clos_self(_hset_subeq_cb);
     return cucon_hset_contains(self->hs1, key);
 }
 
@@ -40,9 +40,9 @@ cucon_hset_subeq(cucon_hset_t hs0, cucon_hset_t hs1)
     if (cucon_hset_size(hs0) > cucon_hset_size(hs1))
 	return cu_false;
     else {
-	cucon_hset_subeq_cb_t cb;
+	_hset_subeq_cb_t cb;
 	cb.hs1 = hs1;
-	return cucon_hset_conj(hs0, cucon_hset_subeq_cb_prep(&cb));
+	return cucon_hset_conj(hs0, _hset_subeq_cb_prep(&cb));
     }
 }
 
@@ -52,9 +52,9 @@ cucon_hset_sub(cucon_hset_t hs0, cucon_hset_t hs1)
     if (cucon_hset_size(hs0) >= cucon_hset_size(hs1))
 	return cu_false;
     else {
-	cucon_hset_subeq_cb_t cb;
+	_hset_subeq_cb_t cb;
 	cb.hs1 = hs1;
-	return cucon_hset_conj(hs0, cucon_hset_subeq_cb_prep(&cb));
+	return cucon_hset_conj(hs0, _hset_subeq_cb_prep(&cb));
     }
 }
 
@@ -64,8 +64,8 @@ cucon_hset_eq(cucon_hset_t hs0, cucon_hset_t hs1)
     if (cucon_hset_size(hs0) != cucon_hset_size(hs1))
 	return cu_false;
     else {
-	cucon_hset_subeq_cb_t cb;
+	_hset_subeq_cb_t cb;
 	cb.hs1 = hs1;
-	return cucon_hset_conj(hs0, cucon_hset_subeq_cb_prep(&cb));
+	return cucon_hset_conj(hs0, _hset_subeq_cb_prep(&cb));
     }
 }

@@ -25,9 +25,9 @@
 #include <cu/ptr_seq.h>
 #include <cu/ptr.h>
 
-cu_clos_def(cct_cached, cu_prot(void, void *e), (cuex_oprinfo_t oi;))
+cu_clos_def(_init_cached, cu_prot(void, void *e), (cuex_oprinfo_t oi;))
 {
-    cu_clos_self(cct_cached);
+    cu_clos_self(_init_cached);
     (*self->oi->cache_ctor)((cuex_opn_t)e);
 }
 
@@ -53,7 +53,7 @@ cuex_opn(cuex_meta_t opr, ...)
 	    CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	    operand_arr);
     else {
-	cct_cached_t cct;
+	_init_cached_t cct;
 	cuex_oprinfo_t oi = cuex_oprinfo(opr);
 	cct.oi = oi;
 	return cuexP_hxalloc_raw(
@@ -61,7 +61,7 @@ cuex_opn(cuex_meta_t opr, ...)
 	    CUOO_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT
 				   + oi->cache_size),
 	    CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
-	    operand_arr, cct_cached_prep(&cct));
+	    operand_arr, _init_cached_prep(&cct));
     }
 }
 
@@ -84,7 +84,7 @@ cuex_opn_by_valist(cuex_meta_t opr, va_list va)
 	    CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
 	    operand_arr);
     else {
-	cct_cached_t cct;
+	_init_cached_t cct;
 	cuex_oprinfo_t oi = cuex_oprinfo(opr);
 	cct.oi = oi;
 	return cuexP_hxalloc_raw(
@@ -92,7 +92,7 @@ cuex_opn_by_valist(cuex_meta_t opr, va_list va)
 	    CUOO_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT
 				   + oi->cache_size),
 	    CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
-	    operand_arr, cct_cached_prep(&cct));
+	    operand_arr, _init_cached_prep(&cct));
     }
 }
 
@@ -100,7 +100,7 @@ cuex_opn_t
 cuexP_opn_by_arr_with_ctor(cuex_meta_t opr, cuex_t *operand_arr)
 {
     cu_rank_t N = cuex_opr_r(opr);
-    cct_cached_t cct;
+    _init_cached_t cct;
     cuex_oprinfo_t oi = cuex_oprinfo(opr);
     cct.oi = oi;
     return cuexP_hxalloc_raw(
@@ -108,7 +108,7 @@ cuexP_opn_by_arr_with_ctor(cuex_meta_t opr, cuex_t *operand_arr)
 	CUOO_HCOBJ_ALLOC_SIZEG(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT
 			       + oi->cache_size),
 	CUOO_HCOBJ_KEY_SIZEW(N*sizeof(cuex_t) + CUOO_HCOBJ_SHIFT),
-	operand_arr, cct_cached_prep(&cct));
+	operand_arr, _init_cached_prep(&cct));
 }
 
 cuex_opn_t

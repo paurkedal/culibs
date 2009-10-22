@@ -41,13 +41,13 @@ typedef struct cugra_graph_with_arcset_s *cugra_graph_with_arcset_t;
 #define ASGRAPH(G) cu_from(cugra_graph_with_arcset, cugra_graph, G)
 
 CU_SINLINE cu_hash_t
-hash_vertex_pair(cugra_vertex_t v0, cugra_vertex_t v1)
+_vertex_pair_hash(cugra_vertex_t v0, cugra_vertex_t v1)
 {
     return cu_2word_hash_noinit_bj((cu_word_t)v0, (cu_word_t)v1);
 }
 
 CU_SINLINE void
-cct_arc(cugra_arc_t a, cugra_vertex_t v_tail, cugra_vertex_t v_head)
+_init_arc(cugra_arc_t a, cugra_vertex_t v_tail, cugra_vertex_t v_head)
 {
     cu_dlink_insert_before(&v_tail->adj_link[cugra_direction_out],
 			   &a->adj[cugra_direction_out].link);
@@ -58,7 +58,7 @@ cct_arc(cugra_arc_t a, cugra_vertex_t v_tail, cugra_vertex_t v_head)
 }
 
 CU_SINLINE void
-unlink_arc(cugra_arc_t a)
+_unlink_arc(cugra_arc_t a)
 {
     cu_dlink_erase(&a->adj[0].link);
     cu_dlink_erase(&a->adj[1].link);
@@ -68,37 +68,37 @@ unlink_arc(cugra_arc_t a)
 /* Arcset Internals
  * ---------------- */
 
-typedef struct cugraP_arcset_node_s *arcset_node_t;
+typedef struct cugraP_arcset_node_s *_arcset_node_t;
 struct cugraP_arcset_node_s
 {
-    arcset_node_t next;
+    _arcset_node_t next;
     struct cugra_arc_s arc;
 };
 
 static void
-arcset_init(cugra_graph_with_arcset_t G)
+_arcset_init(cugra_graph_with_arcset_t G)
 {
-    static arcset_node_t null_arr[1] = {NULL};
+    static _arcset_node_t null_arr[1] = {NULL};
     G->arcset_size = 0;
     G->arcset_mask = 0;
     G->arcset_arr = null_arr;
 }
 
 static void
-arcset_shrink(cugra_graph_with_arcset_t G, size_t new_cap)
+_arcset_shrink(cugra_graph_with_arcset_t G, size_t new_cap)
 {
     size_t old_cap, new_mask, i;
-    arcset_node_t *new_arr, *old_arr;
+    _arcset_node_t *new_arr, *old_arr;
 
     old_arr = G->arcset_arr;
     old_cap = G->arcset_mask + 1;
-    G->arcset_arr = new_arr = cu_galloc(sizeof(arcset_node_t)*new_cap);
+    G->arcset_arr = new_arr = cu_galloc(sizeof(_arcset_node_t)*new_cap);
     G->arcset_mask = new_mask = new_cap - 1;
 
-    memcpy(new_arr, old_arr, new_cap*sizeof(arcset_node_t));
+    memcpy(new_arr, old_arr, new_cap*sizeof(_arcset_node_t));
     for (i = new_cap; i < old_cap; ++i) {
 	if (old_arr[i]) {
-	    arcset_node_t *p = &new_arr[i & new_mask];
+	    _arcset_node_t *p = &new_arr[i & new_mask];
 	    while (*p)
 		p = &(*p)->next;
 	    *p = old_arr[i];
@@ -107,23 +107,23 @@ arcset_shrink(cugra_graph_with_arcset_t G, size_t new_cap)
 }
 
 static void
-arcset_extend(cugra_graph_with_arcset_t G, size_t new_cap)
+_arcset_extend(cugra_graph_with_arcset_t G, size_t new_cap)
 {
     size_t old_cap, new_mask, i;
-    arcset_node_t *new_arr, *old_arr;
+    _arcset_node_t *new_arr, *old_arr;
 
     old_arr = G->arcset_arr;
     old_cap = G->arcset_mask + 1;
-    G->arcset_arr  = new_arr  = cu_galloc(sizeof(arcset_node_t)*new_cap);
+    G->arcset_arr  = new_arr  = cu_galloc(sizeof(_arcset_node_t)*new_cap);
     G->arcset_mask = new_mask = new_cap - 1;
 
     for (i = 0; i < old_cap; ++i) {
-	arcset_node_t node = old_arr[i];
+	_arcset_node_t node = old_arr[i];
 	while (node) {
-	    arcset_node_t next_node = node->next;
-	    cu_hash_t hash = hash_vertex_pair(cugra_arc_tail(&node->arc),
-					      cugra_arc_head(&node->arc));
-	    arcset_node_t *p = &new_arr[hash & new_mask];
+	    _arcset_node_t next_node = node->next;
+	    cu_hash_t hash = _vertex_pair_hash(cugra_arc_tail(&node->arc),
+					       cugra_arc_head(&node->arc));
+	    _arcset_node_t *p = &new_arr[hash & new_mask];
 	    node->next = *p;
 	    *p = node;
 	    node = next_node;
@@ -132,21 +132,21 @@ arcset_extend(cugra_graph_with_arcset_t G, size_t new_cap)
 }
 
 static cu_bool_t
-arcset_insert(cugra_graph_with_arcset_t G,
-	      cugra_vertex_t tail, cugra_vertex_t head,
-	      size_t arc_size, cugra_arc_t *arc_out)
+_arcset_insert(cugra_graph_with_arcset_t G,
+	       cugra_vertex_t tail, cugra_vertex_t head,
+	       size_t arc_size, cugra_arc_t *arc_out)
 {
     cu_hash_t hash;
-    arcset_node_t *p;
+    _arcset_node_t *p;
 
     /* If fill ration is over limit, extend. Make sure the test always trigges
-     * for arcset_mask == 0, due to the way arcset_init is implemented. */
+     * for arcset_mask == 0, due to the way _arcset_init is implemented. */
     if (G->arcset_size*ARCSET_MAXFILL_DENOM
 	    >= G->arcset_mask*ARCSET_MAXFILL_NUMER)
-	arcset_extend(G, (G->arcset_mask + 1)*2);
+	_arcset_extend(G, (G->arcset_mask + 1)*2);
 
     /* Look for existing arc from tail to head. */
-    hash = hash_vertex_pair(tail, head);
+    hash = _vertex_pair_hash(tail, head);
     p = &G->arcset_arr[hash & G->arcset_mask];
     while (*p) {
 	if (cugra_arc_connects(&(*p)->arc, tail, head)) {
@@ -162,32 +162,32 @@ arcset_insert(cugra_graph_with_arcset_t G,
 		   - sizeof(struct cugra_arc_s));
     CU_GCLEAR_PTR((*p)->next);
     *arc_out = &(*p)->arc;
-    cct_arc(*arc_out, tail, head);
+    _init_arc(*arc_out, tail, head);
     ++G->arcset_size;
     return cu_true;
 }
 
 static int
-arcset_erase(cugra_graph_with_arcset_t G,
-	     cugra_vertex_t tail, cugra_vertex_t head)
+_arcset_erase(cugra_graph_with_arcset_t G,
+	      cugra_vertex_t tail, cugra_vertex_t head)
 {
     cu_hash_t index;
-    arcset_node_t *p;
+    _arcset_node_t *p;
 
-    index = hash_vertex_pair(tail, head) & G->arcset_mask;
+    index = _vertex_pair_hash(tail, head) & G->arcset_mask;
     p = &G->arcset_arr[index];
     while (*p) {
 	if (cugra_arc_connects(&(*p)->arc, tail, head)) {
-	    unlink_arc(&(*p)->arc);
+	    _unlink_arc(&(*p)->arc);
 	    --G->arcset_size;
 	    *p = (*p)->next;
 
 	    /* Shrink if fill ration is below limit. Don't resize below
-	     * arcset_mask == 1, cf arcset_insert. */
+	     * arcset_mask == 1, cf _arcset_insert. */
 	    if (G->arcset_size*ARCSET_MINFILL_DENOM
 			< G->arcset_mask*ARCSET_MINFILL_NUMER
 		    && G->arcset_mask > 1)
-		arcset_shrink(G, (G->arcset_mask + 1)/2);
+		_arcset_shrink(G, (G->arcset_mask + 1)/2);
 
 	    return 1;
 	}
@@ -216,7 +216,7 @@ cugra_graph_new(unsigned int gflags)
     cugra_graph_t G;
     if (gflags & CUGRA_GFLAG_SIMPLEARCED) {
 	G = cu_galloc(sizeof(struct cugra_graph_with_arcset_s));
-	arcset_init(ASGRAPH(G));
+	_arcset_init(ASGRAPH(G));
     } else
 	G = cu_gnew(struct cugra_graph_s);
     G->gflags = gflags;
@@ -231,7 +231,7 @@ cugra_graph_merge(cugra_graph_t G_dst, cugra_graph_t G_src)
 }
 
 CU_SINLINE void
-cct_vertex(cugra_graph_t G, cugra_vertex_t v)
+_init_vertex(cugra_graph_t G, cugra_vertex_t v)
 {
     cu_dlink_insert_before(&G->vertices, &v->in_graph);
     cu_dlink_init_singleton(&v->adj_link[0]);
@@ -241,14 +241,14 @@ cct_vertex(cugra_graph_t G, cugra_vertex_t v)
 void
 cugra_graph_vertex_init(cugra_graph_t G, cugra_vertex_t v)
 {
-    cct_vertex(G, v);
+    _init_vertex(G, v);
 }
 
 cugra_vertex_t
 cugra_graph_vertex_new(cugra_graph_t G)
 {
     cugra_vertex_t v = cu_gnew(struct cugra_vertex_s);
-    cct_vertex(G, v);
+    _init_vertex(G, v);
     return v;
 }
 
@@ -256,7 +256,7 @@ cugra_vertex_t
 cugra_graph_vertex_new_mem(cugra_graph_t G, size_t size)
 {
     cugra_vertex_t v = cu_galloc(sizeof(struct cugra_vertex_s) + size);
-    cct_vertex(G, v);
+    _init_vertex(G, v);
     return v;
 }
 
@@ -266,7 +266,7 @@ cugra_graph_vertex_new_ptr(cugra_graph_t G, void *ptr)
     cugra_vertex_t v;
     v = cu_galloc(sizeof(struct cugra_vertex_s) + sizeof(void *));
     *(void **)cugra_vertex_mem(v) = ptr;
-    cct_vertex(G, v);
+    _init_vertex(G, v);
     return v;
 }
 
@@ -275,7 +275,7 @@ cugra_graph_arc_new(cugra_vertex_t v_tail, cugra_vertex_t v_head)
 {
     cugra_arc_t a;
     a = cu_gnew(struct cugra_arc_s);
-    cct_arc(a, v_tail, v_head);
+    _init_arc(a, v_tail, v_head);
     return a;
 }
 
@@ -285,7 +285,7 @@ cugra_graph_arc_new_mem(cugra_vertex_t v_tail, cugra_vertex_t v_head,
 {
     cugra_arc_t a;
     a = cu_galloc(sizeof(struct cugra_arc_s) + size);
-    cct_arc(a, v_tail, v_head);
+    _init_arc(a, v_tail, v_head);
     return a;
 }
 
@@ -296,7 +296,7 @@ cugra_graph_arc_new_ptr(cugra_vertex_t v_tail, cugra_vertex_t v_head,
     cugra_arc_t a;
     a = cu_galloc(sizeof(struct cugra_arc_s) + sizeof(void *));
     *(void **)cugra_arc_mem(a) = ptr;
-    cct_arc(a, v_tail, v_head);
+    _init_arc(a, v_tail, v_head);
     return a;
 }
 
@@ -309,10 +309,10 @@ cugra_connect_custom(cugra_graph_t G,
     if (G->gflags & CUGRA_GFLAG_SIMPLEARCED) {
 	if ((G->gflags & CUGRA_GFLAG_UNDIRECTED) && tail > head)
 	    CU_SWAP(cugra_vertex_t, tail, head);
-	return arcset_insert(ASGRAPH(G), tail, head, arc_size, arc_out);
+	return _arcset_insert(ASGRAPH(G), tail, head, arc_size, arc_out);
     } else {
 	arc = cu_galloc(arc_size);
-	cct_arc(arc, tail, head);
+	_init_arc(arc, tail, head);
 	*arc_out = arc;
 	return cu_true;
     }
@@ -326,11 +326,11 @@ cugra_connect(cugra_graph_t G,
     if (G->gflags & CUGRA_GFLAG_SIMPLEARCED) {
 	if ((G->gflags & CUGRA_GFLAG_UNDIRECTED) && tail > head)
 	    CU_SWAP(cugra_vertex_t, tail, head);
-	return arcset_insert(ASGRAPH(G), tail, head,
-			     sizeof(struct cugra_arc_s), &arc);
+	return _arcset_insert(ASGRAPH(G), tail, head,
+			      sizeof(struct cugra_arc_s), &arc);
     } else {
 	arc = cu_gnew(struct cugra_arc_s);
-	cct_arc(arc, tail, head);
+	_init_arc(arc, tail, head);
 	return cu_true;
     }
 }
@@ -341,14 +341,14 @@ cugra_disconnect(cugra_graph_t G, cugra_vertex_t tail, cugra_vertex_t head)
     if (G->gflags & CUGRA_GFLAG_SIMPLEARCED) {
 	if ((G->gflags & CUGRA_GFLAG_UNDIRECTED) && tail > head)
 	    CU_SWAP(cugra_vertex_t, tail, head);
-	return arcset_erase(ASGRAPH(G), tail, head);
+	return _arcset_erase(ASGRAPH(G), tail, head);
     } else {
 	cugra_arc_t arc = cugra_vertex_outarcs_begin(tail);
 	int count = 0;
 	while (arc != cugra_vertex_outarcs_end(tail)) {
 	    cugra_arc_t next_arc = cugra_vertex_outarcs_next(arc);
 	    if (cugra_arc_head(arc) == head) {
-		unlink_arc(arc);
+		_unlink_arc(arc);
 		++count;
 	    }
 	    arc = next_arc;
@@ -361,10 +361,10 @@ void
 cugra_erase_arc(cugra_graph_t G, cugra_arc_t arc)
 {
     if (G->gflags & CUGRA_GFLAG_SIMPLEARCED)
-	arcset_erase(ASGRAPH(G),
-		     cugra_arc_tail(arc), cugra_arc_head(arc));
+	_arcset_erase(ASGRAPH(G),
+		      cugra_arc_tail(arc), cugra_arc_head(arc));
     else
-	unlink_arc(arc);
+	_unlink_arc(arc);
 }
 
 void

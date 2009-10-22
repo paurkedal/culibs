@@ -40,7 +40,7 @@ cucon_pritree_new()
 }
 
 CU_SINLINE void
-swap_left(cucon_prinode_t t)
+_swap_left(cucon_prinode_t t)
 {
     cucon_prinode_t tp = t->prior;
     cucon_prinode_t tl = t->left;
@@ -66,7 +66,7 @@ swap_left(cucon_prinode_t t)
 	tlr->prior = t;
 }
 CU_SINLINE void
-swap_right(cucon_prinode_t t)
+_swap_right(cucon_prinode_t t)
 {
     cucon_prinode_t tp = t->prior;
     cucon_prinode_t tr = t->right;
@@ -93,7 +93,7 @@ swap_right(cucon_prinode_t t)
 }
 
 static void
-pritree_raise_priority(cucon_pritree_t pritree, cucon_prinode_t t, double priority)
+_increase_priority_to(cucon_pritree_t pritree, cucon_prinode_t t, double priority)
 {
     cucon_prinode_t tp;
     t->priority = priority;
@@ -102,9 +102,9 @@ pritree_raise_priority(cucon_pritree_t pritree, cucon_prinode_t t, double priori
 	return;
     while (tp->priority < priority) {
 	if (t == tp->left)
-	    swap_left(tp);
+	    _swap_left(tp);
 	else
-	    swap_right(tp);
+	    _swap_right(tp);
 	assert(!t->left || t->left->prior == t);
 	assert(!t->right || t->right->prior == t);
 	assert(t->prior == 0 || t->prior->left == t || t->prior->right == t);
@@ -118,7 +118,7 @@ pritree_raise_priority(cucon_pritree_t pritree, cucon_prinode_t t, double priori
 }
 
 static void
-pritree_lower_priority(cucon_pritree_t pritree, cucon_prinode_t t, double priority)
+_decrease_priority_to(cucon_pritree_t pritree, cucon_prinode_t t, double priority)
 {
     cucon_prinode_t tl = t->left;
     cucon_prinode_t tr = t->right;
@@ -149,18 +149,18 @@ pritree_lower_priority(cucon_pritree_t pritree, cucon_prinode_t t, double priori
 	    assert(!tl->left && !tl->right);
 	    if (tl->priority <= priority)
 		return;
-	    swap_left(t);
+	    _swap_left(t);
 	    return;
 	}
 	else if (tl->priority >= tr->priority) {
 	    if (tl->priority <= priority)
 		return;
-	    swap_left(t);
+	    _swap_left(t);
 	}
 	else {
 	    if (tr->priority <= priority)
 		return;
-	    swap_right(t);
+	    _swap_right(t);
 	}
 	tl = t->left;
 	tr = t->right;
@@ -173,24 +173,24 @@ cucon_pritree_change_priority(cucon_pritree_t pritree, cucon_prinode_t t,
 {
     cu_debug_assert(priority < DBL_MAX && priority > -DBL_MAX);
     if (priority > t->priority)
-	pritree_raise_priority(pritree, t, priority);
+	_increase_priority_to(pritree, t, priority);
     else if (priority < t->priority)
-	pritree_lower_priority(pritree, t, priority);
+	_decrease_priority_to(pritree, t, priority);
 }
 
 static void
-chib_pritree_add_to_all_priorities(cucon_prinode_t prinode, double delta)
+_increase_all_priorities_with(cucon_prinode_t prinode, double delta)
 {
     while (prinode) {
 	prinode->priority += delta;
-	chib_pritree_add_to_all_priorities(prinode->right, delta);
+	_increase_all_priorities_with(prinode->right, delta);
 	prinode = prinode->left;
     }
 }
 void
 cucon_pritree_add_to_all_priorities(cucon_pritree_t pritree, double delta)
 {
-    chib_pritree_add_to_all_priorities(pritree->front, delta);
+    _increase_all_priorities_with(pritree->front, delta);
 }
 
 void
@@ -209,25 +209,25 @@ cucon_pritree_pop(cucon_pritree_t pritree)
 	m = 1 << (l - 1);
 	if ((n & m) == 0) {
 	    cucon_prinode_t tl = prinode->left;
-	    swap_left(prinode);
-	    pritree_lower_priority(pritree, tl, tl->priority);
+	    _swap_left(prinode);
+	    _decrease_priority_to(pritree, tl, tl->priority);
 	}
 	else {
 	    cucon_prinode_t tr = prinode->right;
-	    swap_right(prinode);
-	    pritree_lower_priority(pritree, tr, tr->priority);
+	    _swap_right(prinode);
+	    _decrease_priority_to(pritree, tr, tr->priority);
 	}
 	pritree->front = prinode->prior;
 	while (m >>= 1, m > 0) {
 	    if ((n & m) == 0) {
 		cucon_prinode_t tl = prinode->left;
-		swap_left(prinode);
-		pritree_lower_priority(pritree, tl, tl->priority);
+		_swap_left(prinode);
+		_decrease_priority_to(pritree, tl, tl->priority);
 	    }
 	    else {
 		cucon_prinode_t tr = prinode->right;
-		swap_right(prinode);
-		pritree_lower_priority(pritree, tr, tr->priority);
+		_swap_right(prinode);
+		_decrease_priority_to(pritree, tr, tr->priority);
 	    }
 	}
 	assert(!prinode->left && !prinode->right);
@@ -243,13 +243,13 @@ cucon_pritree_pop(cucon_pritree_t pritree)
 void
 cucon_pritree_erase(cucon_pritree_t pritree, cucon_prinode_t prinode)
 {
-    pritree_raise_priority(pritree, prinode, DBL_MAX);
+    _increase_priority_to(pritree, prinode, DBL_MAX);
     cucon_pritree_pop(pritree);
 }
 
 void
 cucon_pritree_insert_init(cucon_pritree_t pritree, cucon_prinode_t newprinode,
-		       double priority)
+			  double priority)
 {
     cucon_prinode_t t = pritree->front;
     size_t n = ++pritree->size;
@@ -287,13 +287,13 @@ cucon_pritree_insert_init(cucon_pritree_t pritree, cucon_prinode_t newprinode,
 	newprinode->prior = t;
 	newprinode->left = NULL;
 	newprinode->right = NULL;
-	pritree_raise_priority(pritree, newprinode, priority);
+	_increase_priority_to(pritree, newprinode, priority);
     }
 }
 
 cu_bool_t
 cucon_prinode_conj_down_to(cucon_prinode_t t, double min_priority,
-			 cu_clop(cb, cu_bool_t, cucon_prinode_t))
+			   cu_clop(cb, cu_bool_t, cucon_prinode_t))
 {
     while (t->priority >= min_priority) {
 	if (t->left && !cucon_prinode_conj_down_to(t->left, min_priority, cb))
@@ -308,12 +308,12 @@ cucon_prinode_conj_down_to(cucon_prinode_t t, double min_priority,
 }
 
 static void
-dump_priorities(cucon_prinode_t t, FILE *out, int level)
+_dump_priorities(cucon_prinode_t t, FILE *out, int level)
 {
     while (t) {
 	fprintf(out, "\t%4d %10.3lg\n", level, t->priority);
 	if (t->left)
-	    dump_priorities(t->left, out, level + 1);
+	    _dump_priorities(t->left, out, level + 1);
 	++level;
 	t = t->right;
     }
@@ -323,5 +323,5 @@ void
 cucon_pritree_dump_priorities(cucon_pritree_t pritree, FILE *out)
 {
     fprintf(out, "pritree @ %p\n", (void *)pritree);
-    dump_priorities(pritree->front, out, 0);
+    _dump_priorities(pritree->front, out, 0);
 }

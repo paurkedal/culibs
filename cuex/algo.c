@@ -287,11 +287,11 @@ cuex_maxtrees_of_leaftest_tran(cuex_t ex,
 	return ex;
 }
 
-cu_clos_def(cuex_lgr_block_cb,
+cu_clos_def(_lgr_block_cb,
 	    cu_prot(cu_bool_t, cuex_var_t var),
 	    (cuex_subst_t subst;))
 {
-    cu_clos_self(cuex_lgr_block_cb);
+    cu_clos_self(_lgr_block_cb);
     cuex_subst_t subst = self->subst;
     cuex_meta_t meta = cuex_meta(var);
     if (cuex_subst_is_active_varmeta(subst, meta)
@@ -303,9 +303,9 @@ cu_clos_def(cuex_lgr_block_cb,
 cu_bool_t
 cuex_lgr(cuex_t ex0, cuex_t ex1, cuex_subst_t subst)
 {
-    cuex_lgr_block_cb_t cb;
+    _lgr_block_cb_t cb;
     cb.subst = subst;
-    cuex_depth_conj_vars(ex0, cuex_lgr_block_cb_prep(&cb));
+    cuex_depth_conj_vars(ex0, _lgr_block_cb_prep(&cb));
     return cuex_subst_unify(subst, ex1, ex0);
 }
 
@@ -386,19 +386,19 @@ cuex_count_unique_nodes(cuex_t ex)
     return cuex_count_unique_nodes_except(ex, cache);
 }
 
-cu_clos_def(cuexP_contains_var_in_pmap_h0,
+cu_clos_def(_contains_var_in_pmap_cb,
 	    cu_prot(cu_bool_t, cuex_var_t var),
 	    (cucon_pmap_t pmap;))
 {
-    cu_clos_self(cuexP_contains_var_in_pmap_h0);
+    cu_clos_self(_contains_var_in_pmap_cb);
     return !cucon_pmap_find_mem(self->pmap, var);
 }
 cu_bool_t
 cuex_contains_var_in_pmap(cuex_t ex, cucon_pmap_t pmap)
 {
-    cuexP_contains_var_in_pmap_h0_t cb;
+    _contains_var_in_pmap_cb_t cb;
     cb.pmap = pmap;
-    return !cuex_depth_conj_vars(ex, cuexP_contains_var_in_pmap_h0_prep(&cb));
+    return !cuex_depth_conj_vars(ex, _contains_var_in_pmap_cb_prep(&cb));
 }
 
 
@@ -590,31 +590,31 @@ cuex_binary_inject_left_D(cuex_meta_t opr, cuex_t ex, cuex_t lhs)
     return cuex_binary_inject_left(opr, ex, lhs);
 }
 
-cu_clos_def(outmost_quantify_vars_cb,
+cu_clos_def(_outmost_quantify_vars_cb,
 	    cu_prot(void, void const *var),
 	( cuex_t e;
 	  cuex_meta_t opr; ))
 {
-    cu_clos_self(outmost_quantify_vars_cb);
+    cu_clos_self(_outmost_quantify_vars_cb);
     self->e = cuex_opn(self->opr, var, self->e);
 }
 
 cuex_t
 cuex_outmost_quantify_vars(cuex_meta_t opr, cucon_pset_t vars, cuex_t e)
 {
-    outmost_quantify_vars_cb_t cb;
+    _outmost_quantify_vars_cb_t cb;
     cu_debug_assert(cuex_opr_r(opr) == 2);
     cb.e = e;
     cb.opr = opr;
-    cucon_pset_iter(vars, outmost_quantify_vars_cb_prep(&cb));
+    cucon_pset_iter(vars, _outmost_quantify_vars_cb_prep(&cb));
     return cb.e;
 }
 
-cu_clos_def(autoquantify_uvw_xyz_cb,
+cu_clos_def(_autoquantify_uvw_xyz_cb,
 	    cu_prot(cuex_t, cuex_t ex),
 	    (cucon_pmap_t env;))
 {
-    cu_clos_self(autoquantify_uvw_xyz_cb);
+    cu_clos_self(_autoquantify_uvw_xyz_cb);
     assert(ex);
     if (cuex_is_idr(ex)) {
 	cuex_pvar_t *var;
@@ -638,16 +638,16 @@ cu_clos_def(autoquantify_uvw_xyz_cb,
 cuex_t
 cuex_autoquantify_uvw_xyz(cuex_t ex, cucon_pmap_t env)
 {
-    autoquantify_uvw_xyz_cb_t cb;
+    _autoquantify_uvw_xyz_cb_t cb;
     cb.env = env;
-    return cuex_depthout_tran(ex, autoquantify_uvw_xyz_cb_prep(&cb));
+    return cuex_depthout_tran(ex, _autoquantify_uvw_xyz_cb_prep(&cb));
 }
 
-cu_clos_def(ex_stats_cb,
+cu_clos_def(_ex_stats_cb,
 	    cu_prot(cu_bool_t, cuex_t ex),
 	    (cuex_stats_t *stats;))
 {
-    cu_clos_self(ex_stats_cb);
+    cu_clos_self(_ex_stats_cb);
     cuex_meta_t meta = cuex_meta(ex);
     switch (cuex_meta_kind(meta)) {
 	case cuex_meta_kind_type:
@@ -682,10 +682,10 @@ cu_clos_def(ex_stats_cb,
 void
 cuex_stats(cuex_t ex, cuex_stats_t *stats)
 {
-    ex_stats_cb_t cb;
+    _ex_stats_cb_t cb;
     cb.stats = stats;
     memset(stats, 0, sizeof(cuex_stats_t));
-    cuex_depthout_conj(ex, ex_stats_cb_prep(&cb));
+    cuex_depthout_conj(ex, _ex_stats_cb_prep(&cb));
     stats->var_cnt
 	= stats->strong_var_cnt
 	+ stats->weak_var_cnt

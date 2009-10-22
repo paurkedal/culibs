@@ -61,18 +61,18 @@ cuex_oprinfo_dump(cuex_oprinfo_t oi, FILE *out)
 	    (long)cuex_oprinfo_cache_size(oi));
 }
 
-cu_clos_def(oprinfo_dump_cb,
+cu_clos_def(_oprinfo_dump_cb,
 	    cu_prot(cu_bool_t, cuex_oprinfo_t oi),
     ( FILE *out; ))
 {
-    cu_clos_self(oprinfo_dump_cb);
+    cu_clos_self(_oprinfo_dump_cb);
     cuex_oprinfo_dump(oi, self->out);
     return cu_true;
 }
 void
 cuex_oprinfo_dump_all(FILE *out)
 {
-    oprinfo_dump_cb_t cb;
+    _oprinfo_dump_cb_t cb;
     cb.out = out;
-    cuex_oprinfo_conj(oprinfo_dump_cb_prep(&cb));
+    cuex_oprinfo_conj(_oprinfo_dump_cb_prep(&cb));
 }

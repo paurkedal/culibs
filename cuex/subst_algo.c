@@ -59,13 +59,13 @@ cuex_subst_insert_expand(cuex_subst_t dst, cuex_t ex, cuex_subst_t src)
 }
 
 #if 0
-cu_clos_def(expand_cb,
+cu_clos_def(_expand_cb,
 	    cu_prot(void, void const *var, void *slot),
 	    ( struct cucon_pmap_s ex_to_var;
 	      cuex_subst_t src;
 	      cuex_subst_t dst; ))
 {
-    cu_clos_self(expand_cb);
+    cu_clos_self(_expand_cb);
 #define var ((cuex_var_t)var)
     cuex_t ex = cuex_subst_lookup(self->src, var);
     cu_debug_assert(ex);
@@ -78,11 +78,11 @@ cu_clos_def(expand_cb,
 cuex_subst_t
 cuex_subst_fragment_project(cuex_subst_t subst, cucon_pmap_t vi)
 {
-    expand_cb_t cb;
+    _expand_cb_t cb;
     cucon_pmap_init(&cb.ex_to_var);
     cb.dst = cuex_subst_new();
     cb.src = subst;
-    cucon_pmap_iter_mem(vi, expand_cb_prep(&cb));
+    cucon_pmap_iter_mem(vi, _expand_cb_prep(&cb));
     return cb.dst;
 }
 #endif

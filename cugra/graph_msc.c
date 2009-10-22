@@ -35,7 +35,7 @@ struct msc_tag_s
 };
 
 CU_SINLINE msc_tag_t
-canonical_tag(msc_tag_t tag)
+_canonical_tag(msc_tag_t tag)
 {
     while (tag->replacement)
 	tag = tag->replacement;
@@ -49,7 +49,7 @@ struct msc_vinfo_s
 };
 
 static msc_tag_t
-collect_msc(cugra_vertex_t v, cucon_pmap_t vinfomap, int level)
+_collect_msc(cugra_vertex_t v, cucon_pmap_t vinfomap, int level)
 {
     msc_vinfo_t vinfo;
     if (cucon_pmap_insert_mem(vinfomap, v, sizeof(struct msc_vinfo_s), &vinfo)) {
@@ -61,7 +61,7 @@ collect_msc(cugra_vertex_t v, cucon_pmap_t vinfomap, int level)
 	vinfo->tag = NULL;
 	cugra_vertex_for_outarcs(a, v) {
 	    msc_tag_t tagp;
-	    tagp = collect_msc(cugra_arc_head(a), vinfomap, level + 1);
+	    tagp = _collect_msc(cugra_arc_head(a), vinfomap, level + 1);
 	    if (tagp && tagp != tag && tagp->level <= level) {
 		cu_debug_assert(!tagp->replacement);
 		if (tag) {
@@ -91,7 +91,7 @@ collect_msc(cugra_vertex_t v, cucon_pmap_t vinfomap, int level)
 	    }
 	    else { /* an even lower level back-link was merged in here */
 		if (tag != vinfo->tag) {
-		    cu_debug_assert(canonical_tag(vinfo->tag) == tag);
+		    cu_debug_assert(_canonical_tag(vinfo->tag) == tag);
 		    vinfo->tag->level = INT_MAX;
 		    vinfo->tag = tag;
 		}
@@ -115,28 +115,28 @@ collect_msc(cugra_vertex_t v, cucon_pmap_t vinfomap, int level)
 	    vinfo->tag = tag;
 	}
 	else
-	    vinfo->tag = tag = canonical_tag(tag);
+	    vinfo->tag = tag = _canonical_tag(tag);
 	return tag;
     }
     else if (vinfo->tag)
-	return (vinfo->tag = canonical_tag(vinfo->tag));
+	return (vinfo->tag = _canonical_tag(vinfo->tag));
     else
 	return NULL;
 }
 
-cu_clos_def(reverse_msc_tag_cb,
+cu_clos_def(_reverse_msc_tag_cb,
 	    cu_prot(cu_bool_t, void const *vertex, void *mem),
     ( cucon_stack_t vertex_set_stack;
       cucon_pmap_t vertex_index_map;
       int current_index; ))
 {
 #define vertex ((cugra_vertex_t)vertex)
-    cu_clos_self(reverse_msc_tag_cb);
+    cu_clos_self(_reverse_msc_tag_cb);
     msc_tag_t tag = ((msc_vinfo_t)mem)->tag;
     cucon_pset_t vertex_set;
     if (!tag)
 	return cu_true;
-    tag = canonical_tag(tag);
+    tag = _canonical_tag(tag);
     if (self->vertex_set_stack) {
 	vertex_set = tag->vertex_set;
 	if (!vertex_set) {
@@ -159,15 +159,15 @@ cu_clos_def(reverse_msc_tag_cb,
 }
 
 static void
-reverse_msc_tag(cucon_pmap_t vinfomap,
-		cucon_stack_t vertex_set_stack,
-		cucon_pmap_t vertex_index_map)
+_reverse_msc_tag(cucon_pmap_t vinfomap,
+		 cucon_stack_t vertex_set_stack,
+		 cucon_pmap_t vertex_index_map)
 {
-    reverse_msc_tag_cb_t cb;
+    _reverse_msc_tag_cb_t cb;
     cb.vertex_set_stack = vertex_set_stack;
     cb.vertex_index_map = vertex_index_map;
     cb.current_index = 0;
-    cucon_pmap_conj_mem(vinfomap, reverse_msc_tag_cb_prep(&cb));
+    cucon_pmap_conj_mem(vinfomap, _reverse_msc_tag_cb_prep(&cb));
 }
 
 void
@@ -178,8 +178,8 @@ cugra_identify_MSC(cugra_graph_t G, cucon_stack_t vertex_set_stack,
     struct cucon_pmap_s vinfomap;
     cucon_pmap_init(&vinfomap);
     cugra_graph_for_vertices(v, G)
-	collect_msc(v, &vinfomap, 0);
-    reverse_msc_tag(&vinfomap, vertex_set_stack, vertex_index_map);
+	_collect_msc(v, &vinfomap, 0);
+    _reverse_msc_tag(&vinfomap, vertex_set_stack, vertex_index_map);
 }
 
 void

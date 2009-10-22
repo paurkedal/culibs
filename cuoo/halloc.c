@@ -21,10 +21,10 @@
 #include <cu/ptr.h>
 #include <atomic_ops.h>
 
-cu_clos_def(setao_clos, cu_prot(void, void *obj),
+cu_clos_def(_setao_clos, cu_prot(void, void *obj),
 	    ( size_t ao_offset; AO_t ao_value; ))
 {
-    cu_clos_self(setao_clos);
+    cu_clos_self(_setao_clos);
     AO_store((AO_t *)cu_ptr_add(obj, self->ao_offset), self->ao_value);
 }
 
@@ -33,11 +33,11 @@ cuooP_hxalloc_setao_raw(cuoo_type_t type, size_t struct_size,
 			size_t key_size, void *key,
 			cu_offset_t ao_offset, AO_t ao_value)
 {
-    setao_clos_t init;
+    _setao_clos_t init;
     init.ao_offset = ao_offset;
     init.ao_value = ao_value;
     return cuooP_hxalloc_init_raw(type, struct_size, key_size, key,
-				  setao_clos_prep(&init));
+				  _setao_clos_prep(&init));
 }
 
 cu_clop_def(init_noop_clos, void, void *obj) {}

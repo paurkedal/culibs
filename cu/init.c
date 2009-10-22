@@ -52,7 +52,7 @@ cuconf_get_bool(char const *name)
 }
 
 static void *
-null_thread_proc(void *a)
+_null_thread_proc(void *a)
 {
     return a;
 }
@@ -126,7 +126,7 @@ cu_init(void)
 	     * thread is started, so when debugging, start a thread. */
 	    pthread_t th;
 	    int err;
-	    err = GC_pthread_create(&th, NULL, null_thread_proc, NULL);
+	    err = GC_pthread_create(&th, NULL, _null_thread_proc, NULL);
 	    if (err != 0) {
 		fprintf(stderr, "Could not spawn thread: %s\n", strerror(err));
 		abort();

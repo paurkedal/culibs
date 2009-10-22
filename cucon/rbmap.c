@@ -94,12 +94,12 @@ cucon_rbmap_erase(cucon_rbmap_t map, void *key)
 }
 
 static cu_bool_t
-rbmap_conj_mem(cucon_rbnode_t node,
-	       cu_clop(cb, cu_bool_t, void *key, void *val))
+_rbmap_conj_mem(cucon_rbnode_t node,
+		cu_clop(cb, cu_bool_t, void *key, void *val))
 {
     while (node) {
 	void **slot;
-	if (!rbmap_conj_mem(cucon_rbnode_left(node), cb))
+	if (!_rbmap_conj_mem(cucon_rbnode_left(node), cb))
 	    return cu_false;
 	slot = cucon_rbnode_mem(node);
 	if (!cu_call(cb, slot[0], slot + 1))
@@ -114,16 +114,16 @@ cucon_rbmap_conj_mem(cucon_rbmap_t map,
 		     cu_clop(cb, cu_bool_t, void *key, void *val))
 {
     cucon_rbnode_t x = cucon_rbtree_root(cu_to(cucon_rbtree, map));
-    return rbmap_conj_mem(x, cb);
+    return _rbmap_conj_mem(x, cb);
 }
 
 static cu_bool_t
-rbmap_conj_ptr(cucon_rbnode_t node,
-	       cu_clop(cb, cu_bool_t, void *key, void *val))
+_rbmap_conj_ptr(cucon_rbnode_t node,
+		cu_clop(cb, cu_bool_t, void *key, void *val))
 {
     while (node) {
 	void **slot;
-	if (!rbmap_conj_ptr(cucon_rbnode_left(node), cb))
+	if (!_rbmap_conj_ptr(cucon_rbnode_left(node), cb))
 	    return cu_false;
 	slot = cucon_rbnode_mem(node);
 	if (!cu_call(cb, slot[0], slot[1]))
@@ -138,6 +138,6 @@ cucon_rbmap_conj_ptr(cucon_rbmap_t map,
 		     cu_clop(cb, cu_bool_t, void *key, void *val))
 {
     cucon_rbnode_t x = cucon_rbtree_root(cu_to(cucon_rbtree, map));
-    return rbmap_conj_ptr(x, cb);
+    return _rbmap_conj_ptr(x, cb);
 }
 

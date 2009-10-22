@@ -164,31 +164,31 @@ cuex_ssfn_node_new_sub(cu_count_t arg_cnt, cuex_ssfn_seqno_t seqno)
 /* Copy and Clone
  * -------------- */
 
-typedef struct cuexP_ssfn_cct_copy_jargs_s
+typedef struct _ssfn_init_copy_jargs_s
 {
     size_t slot_size;
     cu_count_t var_cnt;
     cu_count_t pending_cnt;
     cu_clop(value_cct_copy, void, void *, void *);
-} *cuexP_ssfn_cct_copy_jargs_t;
+} *_ssfn_init_copy_jargs_t;
 
-static void cuexP_ssfn_cct_copy(cuex_ssfn_node_t dst, cuex_ssfn_node_t src,
-			       cuexP_ssfn_cct_copy_jargs_t jargs);
+static void _ssfn_init_copy(cuex_ssfn_node_t dst, cuex_ssfn_node_t src,
+			    _ssfn_init_copy_jargs_t jargs);
 
-cu_clos_def(cuexP_ssfn_cct_copy_idr_or_exaddr,
+cu_clos_def(_ssfn_init_copy_idr_or_exaddr,
 	    cu_prot(void, void *dst_slot, void *src_slot, uintptr_t key),
-	    (cuexP_ssfn_cct_copy_jargs_t jargs;))
+	    (_ssfn_init_copy_jargs_t jargs;))
 {
-    cu_clos_self(cuexP_ssfn_cct_copy_idr_or_exaddr);
-    cuexP_ssfn_cct_copy(dst_slot, src_slot, self->jargs);
+    cu_clos_self(_ssfn_init_copy_idr_or_exaddr);
+    _ssfn_init_copy(dst_slot, src_slot, self->jargs);
 }
-cu_clos_def(cuexP_ssfn_cct_copy_opr,
+cu_clos_def(_ssfn_init_copy_opr,
 	    cu_prot(cucon_umap_node_t, void *src_slot, uintptr_t key),
-	    (cuexP_ssfn_cct_copy_jargs_t jargs;))
+	    (_ssfn_init_copy_jargs_t jargs;))
 {
-    cu_clos_self(cuexP_ssfn_cct_copy_opr);
+    cu_clos_self(_ssfn_init_copy_opr);
     cucon_umap_node_t node;
-    cuexP_ssfn_cct_copy_jargs_t jargs = self->jargs;
+    _ssfn_init_copy_jargs_t jargs = self->jargs;
     cu_count_t pending_cnt_save = jargs->pending_cnt;
     jargs->pending_cnt += cuex_opr_r(key);
     if (jargs->pending_cnt == 0) {
@@ -200,15 +200,15 @@ cu_clos_def(cuexP_ssfn_cct_copy_opr,
 	cu_count_t var_cnt = jargs->var_cnt;
 	node = cucon_umap_node_alloc(CU_ALIGNED_SIZEOF(struct cuex_ssfn_node_s)
 				     + sizeof(cuex_ssfn_node_t)*var_cnt);
-	cuexP_ssfn_cct_copy(cucon_umap_node_get_mem(node), src_slot, jargs);
+	_ssfn_init_copy(cucon_umap_node_get_mem(node), src_slot, jargs);
     }
     jargs->pending_cnt = pending_cnt_save;
     return node;
 }
 
 static void
-cuexP_ssfn_cct_copy(cuex_ssfn_node_t dst, cuex_ssfn_node_t src,
-		     cuexP_ssfn_cct_copy_jargs_t jargs)
+_ssfn_init_copy(cuex_ssfn_node_t dst, cuex_ssfn_node_t src,
+		_ssfn_init_copy_jargs_t jargs)
 {
     if (jargs->pending_cnt == 0)
 	cu_call(jargs->value_cct_copy, (void*)dst, (void*)src);
@@ -217,8 +217,8 @@ cuexP_ssfn_cct_copy(cuex_ssfn_node_t dst, cuex_ssfn_node_t src,
 	cu_count_t i;
 	size_t sub_size;
 	size_t sub_size_var_cntn;
-	cuexP_ssfn_cct_copy_idr_or_exaddr_t idr_or_exaddr_cb;
-	cuexP_ssfn_cct_copy_opr_t opr_cb;
+	_ssfn_init_copy_idr_or_exaddr_t idr_or_exaddr_cb;
+	_ssfn_init_copy_opr_t opr_cb;
 
 	--jargs->pending_cnt;
 	if (jargs->pending_cnt > 0) {
@@ -235,18 +235,18 @@ cuexP_ssfn_cct_copy(cuex_ssfn_node_t dst, cuex_ssfn_node_t src,
 	idr_or_exaddr_cb.jargs = jargs;
 	cucon_pmap_init_copy_mem_ctor(&dst->match_exaddr, &src->match_exaddr,
 		 sub_size,
-		 cuexP_ssfn_cct_copy_idr_or_exaddr_prep(&idr_or_exaddr_cb));
+		 _ssfn_init_copy_idr_or_exaddr_prep(&idr_or_exaddr_cb));
 
 	opr_cb.jargs = jargs;
 	cucon_umap_init_copy_node(&dst->match_opr, &src->match_opr,
-				  cuexP_ssfn_cct_copy_opr_prep(&opr_cb));
+				  _ssfn_init_copy_opr_prep(&opr_cb));
 
 	dst->var_qcode = src->var_qcode;
 
 	if (src->var_cntn) {
 	    dst->var_cntn = cu_galloc(sub_size_var_cntn);
 	    ++jargs->var_cnt;
-	    cuexP_ssfn_cct_copy(dst->var_cntn, src->var_cntn, jargs);
+	    _ssfn_init_copy(dst->var_cntn, src->var_cntn, jargs);
 	    --jargs->var_cnt;
 	}
 
@@ -255,7 +255,7 @@ cuexP_ssfn_cct_copy(cuex_ssfn_node_t dst, cuex_ssfn_node_t src,
 	    if (src_cntn) {
 		cuex_ssfn_node_t dst_cntn = cu_galloc(sub_size);
 		ssfn_unify_cntn(dst, i) = dst_cntn;
-		cuexP_ssfn_cct_copy(dst_cntn, src_cntn, jargs);
+		_ssfn_init_copy(dst_cntn, src_cntn, jargs);
 	    }
 	    else
 		ssfn_unify_cntn(dst, i) = NULL;
@@ -272,13 +272,13 @@ cuex_ssfn_cct_copy_mem(cuex_ssfn_t dst, cuex_ssfn_t src,
 		       size_t slot_size,
 		       cu_clop(value_cct_copy, void, void *, void *))
 {
-    struct cuexP_ssfn_cct_copy_jargs_s jargs;
+    struct _ssfn_init_copy_jargs_s jargs;
     jargs.slot_size = slot_size;
     jargs.var_cnt = 0;
     jargs.pending_cnt = 1;
     jargs.value_cct_copy = value_cct_copy;
-    cuexP_ssfn_cct_copy(cu_upcast(cuex_ssfn_node_s, dst),
-		       cu_upcast(cuex_ssfn_node_s, src), &jargs);
+    _ssfn_init_copy(cu_upcast(cuex_ssfn_node_s, dst),
+		    cu_upcast(cuex_ssfn_node_s, src), &jargs);
 }
 
 cuex_ssfn_t
@@ -920,7 +920,7 @@ cuexP_ssfn_find_mgu_maybe_expand(cuex_ssfn_node_t node,
 static cu_bool_t
 cuexP_ssfn_find_mgu(cuex_ssfn_node_t node, cuexP_ssfn_find_mgu_jargs_t jargs);
 
-cu_clos_def(cuexP_ssfn_find_mgu_exaddr,
+cu_clos_def(_ssfn_find_mgu_exaddr,
 	    cu_prot(cu_bool_t, void const *key, void *node),
 	    ( cuex_t *target;
 	      cuexP_ssfn_find_mgu_jargs_t jargs;
@@ -928,7 +928,7 @@ cu_clos_def(cuexP_ssfn_find_mgu_exaddr,
 {
 #define key ((cuex_t)key)
 #define node ((cuex_ssfn_node_t)node)
-    cu_clos_self(cuexP_ssfn_find_mgu_exaddr);
+    cu_clos_self(_ssfn_find_mgu_exaddr);
     cu_bool_t do_cont;
     if (self->target)
 	*self->target = key;
@@ -941,14 +941,14 @@ cu_clos_def(cuexP_ssfn_find_mgu_exaddr,
 #undef key
 #undef node
 }
-cu_clos_def(cuexP_ssfn_find_mgu_opr,
+cu_clos_def(_ssfn_find_mgu_opr,
 	    cu_prot(cu_bool_t, uintptr_t key, void *node),
 	    ( cuex_t *target;
 	      cuexP_ssfn_find_mgu_jargs_t jargs;
 	      cucon_slink_t deletable; ))
 {
 #define node ((cuex_ssfn_node_t)node)
-    cu_clos_self(cuexP_ssfn_find_mgu_opr);
+    cu_clos_self(_ssfn_find_mgu_opr);
     cu_bool_t do_cont;
     cu_rank_t n = cuex_opr_r(key);
     cu_rank_t i = n;
@@ -1014,12 +1014,12 @@ cuexP_ssfn_find_mgu_expand(cuex_ssfn_node_t node, cuex_t *target,
     cu_bool_t have_deletion = cu_false;
     cu_bool_t do_continue = cu_true;
     {
-	cuexP_ssfn_find_mgu_exaddr_t cb;
+	_ssfn_find_mgu_exaddr_t cb;
 	cb.target = target;
 	cb.jargs = jargs;
 	cb.deletable = cucon_slink_empty();
 	do_continue = cucon_pmap_conj_mem(&node->match_exaddr,
-					  cuexP_ssfn_find_mgu_exaddr_prep(&cb));
+					  _ssfn_find_mgu_exaddr_prep(&cb));
 	if (!cucon_slink_is_empty(cb.deletable)) {
 	    have_deletion = cu_true;
 	    do {
@@ -1032,12 +1032,12 @@ cuexP_ssfn_find_mgu_expand(cuex_ssfn_node_t node, cuex_t *target,
 	    goto done;
     }
     {
-	cuexP_ssfn_find_mgu_opr_t cb;
+	_ssfn_find_mgu_opr_t cb;
 	cb.target = target;
 	cb.jargs = jargs;
 	cb.deletable = cucon_slink_empty();
 	do_continue = cucon_umap_conj_mem(&node->match_opr,
-					  cuexP_ssfn_find_mgu_opr_prep(&cb));
+					  _ssfn_find_mgu_opr_prep(&cb));
 	if (!cucon_slink_is_empty(cb.deletable)) {
 	    have_deletion = cu_true;
 	    do {
@@ -1521,7 +1521,7 @@ cuex_ssfn_have_wpmgu(cuex_ssfn_t ssfn, cuex_subst_t subst, cuex_t key,
 	== cuex_ssfn_ctrl_commit;
 }
 
-cu_clop_def(ssfn_erase_cb, cuex_ssfn_ctrl_t,
+cu_clop_def(_ssfn_erase_cb, cuex_ssfn_ctrl_t,
 	    void *slot, cuex_subst_t subst,
 	    cu_rank_t pat_arg_cnt, cuex_t *pat_arg_arr,
 	    cuex_ssfn_matchinfo_t minfo)
@@ -1531,31 +1531,31 @@ cu_clop_def(ssfn_erase_cb, cuex_ssfn_ctrl_t,
 void
 cuex_ssfn_erase_lgr(cuex_ssfn_t ssfn, cuex_t key)
 {
-    cuex_ssfn_find_lgr(ssfn, NULL, key, 0, ssfn_erase_cb);
+    cuex_ssfn_find_lgr(ssfn, NULL, key, 0, _ssfn_erase_cb);
 }
 void
 cuex_ssfn_erase_mgr(cuex_ssfn_t ssfn, cuex_t key)
 {
-    cuex_ssfn_find_mgr(ssfn, NULL, key, 0, ssfn_erase_cb);
+    cuex_ssfn_find_mgr(ssfn, NULL, key, 0, _ssfn_erase_cb);
 }
 void
 cuex_ssfn_erase_wpmgr(cuex_ssfn_t ssfn, cuex_t key)
 {
-    cuex_ssfn_find_wpmgr(ssfn, NULL, key, 0, ssfn_erase_cb);
+    cuex_ssfn_find_wpmgr(ssfn, NULL, key, 0, _ssfn_erase_cb);
 }
 
 
 /* Find Single
  * ----------- */
 
-cu_clos_def(ssfn_find_single_cb,
+cu_clos_def(_ssfn_find_single_cb,
 	    cu_prot(cuex_ssfn_ctrl_t,
 		    void *slot, cuex_subst_t subst,
 		    cu_rank_t pat_arg_cnt, cuex_t *pat_arg_arr,
 		    cuex_ssfn_matchinfo_t minfo),
 	    (void *slot;))
 {
-    cu_clos_self(ssfn_find_single_cb);
+    cu_clos_self(_ssfn_find_single_cb);
     self->slot = slot;
     return cuex_ssfn_ctrl_commit;
 }
@@ -1563,8 +1563,8 @@ cu_clos_def(ssfn_find_single_cb,
 void *
 cuex_ssfn_find_single_wpmgr(cuex_ssfn_t ssfn, cuex_subst_t subst, cuex_t key)
 {
-    ssfn_find_single_cb_t cb;
-    if (cuex_ssfn_find_wpmgr(ssfn, subst, key, 0, ssfn_find_single_cb_prep(&cb))
+    _ssfn_find_single_cb_t cb;
+    if (cuex_ssfn_find_wpmgr(ssfn, subst, key, 0, _ssfn_find_single_cb_prep(&cb))
 	== cuex_ssfn_ctrl_commit)
 	return cb.slot;
     else
@@ -1732,14 +1732,14 @@ cuex_ssfn_find_eqr(cuex_ssfn_t ssfn, cuex_t key,
 /* Dump
  * ---- */
 
-cu_clos_def(ssfn_dump_keys_cb,
+cu_clos_def(_ssfn_dump_keys_cb,
 	    cu_prot(cuex_ssfn_ctrl_t,
 		    void *slot, cuex_subst_t subst,
 		    cu_rank_t pat_arg_cnt, cuex_t *pat_arg_arr,
 		    cuex_ssfn_matchinfo_t minfo),
 	    (cuex_var_t var; FILE *out;))
 {
-    cu_clos_self(ssfn_dump_keys_cb);
+    cu_clos_self(_ssfn_dump_keys_cb);
     cu_fprintf(self->out, "    %!\n",
 	       cuex_subst_apply(subst, cuex_var_to_ex(self->var)));
     return cuex_ssfn_ctrl_continue;
@@ -1747,12 +1747,12 @@ cu_clos_def(ssfn_dump_keys_cb,
 void
 cuex_ssfn_dump_keys(cuex_ssfn_t ssfn, FILE *out)
 {
-    ssfn_dump_keys_cb_t cb;
+    _ssfn_dump_keys_cb_t cb;
     cb.var = cuex_var_new(cuex_qcode_active_s);
     cb.out = out;
     fprintf(out, "DUMP OF ssfn @ %p:\n", (void *)ssfn);
     cuex_ssfn_find_lgr(ssfn, NULL, cuex_var_to_ex(cb.var), 0,
-		       ssfn_dump_keys_cb_prep(&cb));
+		       _ssfn_dump_keys_cb_prep(&cb));
     fputc('\n', out);
 }
 

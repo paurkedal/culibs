@@ -37,23 +37,23 @@ struct cuos_pkg_user_dirs_s cufoP_user_dirs
 cufo_stream_t cufo_stderr, cufo_stdout;
 cufo_stream_t cufoP_stderr_bug;
 
-cu_clos_def(default_vlogf,
+cu_clos_def(_default_vlogf,
 	    cu_prot(void, cu_log_facility_t facility, cu_sref_t sref,
 		    char const *fmt, va_list va),
     ( cufo_stream_t fos; ))
 {
-    cu_clos_self(default_vlogf);
+    cu_clos_self(_default_vlogf);
     cufo_lock(self->fos);
     cufo_vlogf_at(self->fos, facility, sref, fmt, va);
     cufo_unlock(self->fos);
 }
 
-cu_clos_def(default_vlogf_bug,
+cu_clos_def(_default_vlogf_bug,
 	    cu_prot(void, cu_log_facility_t facility, cu_sref_t sref,
 		    char const *fmt, va_list va),
     ( cufo_stream_t fos; ))
 {
-    cu_clos_self(default_vlogf_bug);
+    cu_clos_self(_default_vlogf_bug);
     /* Normally this function is only called once before the program aborts,
      * but
      *   1. It's possible that another error occurs while formatting a bug
@@ -75,18 +75,18 @@ cu_clos_def(default_vlogf_bug,
     }
 }
 
-cu_clop_def(default_log_binder, cu_bool_t, cu_log_facility_t facility)
+cu_clop_def(_default_log_binder, cu_bool_t, cu_log_facility_t facility)
 {
     if (cu_log_facility_severity(facility) == CU_LOG_FAILURE &&
 	cu_log_facility_origin(facility) == CU_LOG_LOGIC) {
-	default_vlogf_bug_t *vlogf = cu_gnew(default_vlogf_bug_t);
+	_default_vlogf_bug_t *vlogf = cu_gnew(_default_vlogf_bug_t);
 	vlogf->fos = cufoP_stderr_bug;
-	facility->vlogf = default_vlogf_bug_prep(vlogf);
+	facility->vlogf = _default_vlogf_bug_prep(vlogf);
     }
     else {
-	default_vlogf_t *vlogf = cu_gnew(default_vlogf_t);
+	_default_vlogf_t *vlogf = cu_gnew(_default_vlogf_t);
 	vlogf->fos = cufo_stderr;
-	facility->vlogf = default_vlogf_prep(vlogf);
+	facility->vlogf = _default_vlogf_prep(vlogf);
     }
     return cu_true;
 }
@@ -115,7 +115,7 @@ cufo_init(void)
     cufo_stdout = cufo_open_auto_fd(1, cu_false);
     cufo_stderr = cufo_open_auto_fd(2, cu_false);
     cufoP_stderr_bug = cufo_open_auto_fd(2, cu_false);
-    cu_register_log_binder(cu_clop_ref(default_log_binder));
+    cu_register_log_binder(cu_clop_ref(_default_log_binder));
     atexit(_cufo_uninit);
 
     cufoP_init_formats();

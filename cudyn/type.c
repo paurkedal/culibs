@@ -30,7 +30,7 @@
 #include <cu/size.h>
 
 
-static cu_mutex_t type_glck = CU_MUTEX_INITIALISER;
+static cu_mutex_t _type_mutex = CU_MUTEX_INITIALISER;
 
 extern cu_box_t cuooP_type_foprint;
 
@@ -126,7 +126,7 @@ _elmtype_impl(cu_word_t intf_number, ...)
  * =========== */
 
 static void
-arrtype_cct_glck(cudyn_arrtype_t t)
+_arrtype_init_glck(cudyn_arrtype_t t)
 {
     cu_offset_t bitoffset;
     size_t elt_bitsize, elt_bitalign;
@@ -155,18 +155,18 @@ arrtype_cct_glck(cudyn_arrtype_t t)
 }
 
 static cudyn_arrtype_t
-arrtype(cuex_t ex, cu_bool_t have_lock)
+_arrtype(cuex_t ex, cu_bool_t have_lock)
 {
     cudyn_arrtype_t t;
     t = cuoo_hxnew_setao(cudyn_arrtype, sizeof(cuex_t), &ex,
 			 offsetof(struct cudyn_inltype_s, layout), 0);
     if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
 	if (!have_lock)
-	    cu_mutex_lock(&type_glck);
+	    cu_mutex_lock(&_type_mutex);
 	if (!cu_to(cudyn_inltype, t)->layout)
-	    arrtype_cct_glck(t);
+	    _arrtype_init_glck(t);
 	if (!have_lock)
-	    cu_mutex_unlock(&type_glck);
+	    cu_mutex_unlock(&_type_mutex);
 	if (!cu_to(cudyn_inltype, t)->layout)
 	    return NULL;
     }
@@ -176,7 +176,7 @@ arrtype(cuex_t ex, cu_bool_t have_lock)
 cudyn_arrtype_t
 cudyn_arrtype(cuoo_type_t elt_type, size_t cnt)
 {
-    return arrtype(cuex_o2_gexpt(elt_type, cudyn_int(cnt)), cu_false);
+    return _arrtype(cuex_o2_gexpt(elt_type, cudyn_int(cnt)), cu_false);
 }
 
 
@@ -184,7 +184,7 @@ cudyn_arrtype(cuoo_type_t elt_type, size_t cnt)
  * ============= */
 
 static cuoo_layout_t
-tuptype_finish_gprod_glck(cudyn_tuptype_t t, cuex_t ex, int i)
+_tuptype_finish_gprod_glck(cudyn_tuptype_t t, cuex_t ex, int i)
 {
     cuoo_type_t subt;
     cuoo_layout_t lyo;
@@ -193,7 +193,7 @@ tuptype_finish_gprod_glck(cudyn_tuptype_t t, cuex_t ex, int i)
 	subt = cuoo_type_glck(cuex_opn_at(ex, 1));
 	if (!subt)
 	    return NULL;
-	lyo = tuptype_finish_gprod_glck(t, cuex_opn_at(ex, 0), i - 1);
+	lyo = _tuptype_finish_gprod_glck(t, cuex_opn_at(ex, 0), i - 1);
 	if (!lyo)
 	    return NULL;
 	t->tcomp_arr[i].type = subt;
@@ -212,12 +212,12 @@ tuptype_finish_gprod_glck(cudyn_tuptype_t t, cuex_t ex, int i)
 }
 
 #if 0
-cu_clos_def(tuptype_finish_sigprod_cb,
+cu_clos_def(_tuptype_finish_sigprod_cb,
 	    cu_prot(cu_bool_t, cuex_t idr, cuex_t subt),
 	( cuoo_layout_t lyo;
 	  cudyn_tuptype_t t; ))
 {
-    cu_clos_self(tuptype_finish_sigprod_cb);
+    cu_clos_self(_tuptype_finish_sigprod_cb);
     struct cudyn_tupcomp_s *comp;
     cu_debug_assert(cu_is_idr(idr));
     cu_debug_assert(cuoo_is_type(subt));
@@ -234,12 +234,12 @@ cu_clos_def(tuptype_finish_sigprod_cb,
 }
 
 static cuoo_layout_t
-tuptype_finish_sigprod_glck(cudyn_tuptype_t t, cuex_t ex, cuoo_layout_t lyo)
+_tuptype_finish_sigprod_glck(cudyn_tuptype_t t, cuex_t ex, cuoo_layout_t lyo)
 {
-    tuptype_finish_sigprod_cb_t cb;
+    _tuptype_finish_sigprod_cb_t cb;
     cb.lyo = lyo;
     cb.t = t;
-    if (cuex_labelling_conj_kv(ex, tuptype_finish_sigprod_cb_prep(&cb)))
+    if (cuex_labelling_conj_kv(ex, _tuptype_finish_sigprod_cb_prep(&cb)))
 	return cb.lyo;
     else
 	return NULL;
@@ -247,7 +247,7 @@ tuptype_finish_sigprod_glck(cudyn_tuptype_t t, cuex_t ex, cuoo_layout_t lyo)
 #endif
 
 static void
-tuptype_cct_glck(cudyn_tuptype_t t)
+_tuptype_init_glck(cudyn_tuptype_t t)
 {
     size_t size;
     cuoo_layout_t lyo;
@@ -271,10 +271,10 @@ tuptype_cct_glck(cudyn_tuptype_t t)
 	    t->tcomp_cnt = cuex_binary_left_depth(CUEX_O2_GPROD, ex0) + 1;
 	    t->tcomp_arr =
 		cu_galloc(t->tcomp_cnt*sizeof(struct cudyn_tupcomp_s));
-	    lyo = tuptype_finish_gprod_glck(t, ex0, t->tcomp_cnt - 1);
+	    lyo = _tuptype_finish_gprod_glck(t, ex0, t->tcomp_cnt - 1);
 	    if (!lyo)
 		return;
-	    lyo = tuptype_finish_sigprod_glck(t, ex1, lyo);
+	    lyo = _tuptype_finish_sigprod_glck(t, ex1, lyo);
 	    if (!lyo)
 		return;
 	}
@@ -284,7 +284,7 @@ tuptype_cct_glck(cudyn_tuptype_t t)
 	    t->tcomp_cnt = cuex_binary_left_depth(CUEX_O2_GPROD, ex) + 1;
 	    t->tcomp_arr =
 		cu_galloc(t->tcomp_cnt*sizeof(struct cudyn_tupcomp_s));
-	    lyo = tuptype_finish_gprod_glck(t, ex, t->tcomp_cnt - 1);
+	    lyo = _tuptype_finish_gprod_glck(t, ex, t->tcomp_cnt - 1);
 	    if (!lyo)
 		return;
 	}
@@ -293,7 +293,7 @@ tuptype_cct_glck(cudyn_tuptype_t t)
     else if (cuex_meta(ex) == CUEX_O4ACI_SIGPROD) {
 	t->tcomp_cnt = 0;
 	t->tcomp_arr = NULL;
-	lyo = tuptype_finish_sigprod_glck(t, ex, NULL);
+	lyo = _tuptype_finish_sigprod_glck(t, ex, NULL);
 	if (!lyo)
 	    return;
     }
@@ -317,18 +317,18 @@ tuptype_cct_glck(cudyn_tuptype_t t)
 }
 
 static cudyn_tuptype_t
-tuptype(cuex_t ex, cu_bool_t have_lock)
+_tuptype(cuex_t ex, cu_bool_t have_lock)
 {
     cudyn_tuptype_t t;
     t = cuoo_hxnew_setao(cudyn_tuptype, sizeof(cuex_t), &ex,
 			 offsetof(struct cudyn_inltype_s, layout), 0);
     if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
 	if (!have_lock)
-	    cu_mutex_lock(&type_glck);
+	    cu_mutex_lock(&_type_mutex);
 	if (!cu_to(cudyn_inltype, t)->layout)
-	    tuptype_cct_glck(t);
+	    _tuptype_init_glck(t);
 	if (!have_lock)
-	    cu_mutex_unlock(&type_glck);
+	    cu_mutex_unlock(&_type_mutex);
 	if (!cu_to(cudyn_inltype, t)->layout)
 	    return NULL;
     }
@@ -338,7 +338,7 @@ tuptype(cuex_t ex, cu_bool_t have_lock)
 cudyn_tuptype_t
 cudyn_tuptype(cuex_t ex)
 {
-    return tuptype(ex, cu_false);
+    return _tuptype(ex, cu_false);
 }
 
 cudyn_tuptype_t
@@ -349,14 +349,14 @@ cudyn_tuptype_by_valist(cu_offset_t cnt, va_list vl)
     e = va_arg(vl, cuex_t);
     while (--cnt)
 	e = cuex_o2_gprod(e, va_arg(vl, cuex_t));
-    return tuptype(e, cu_false);
+    return _tuptype(e, cu_false);
 }
 
-cu_clos_def(tuptype_conj_cb,
+cu_clos_def(_tuptype_conj_cb,
 	    cu_prot(cu_bool_t, void const *idr, void *slot),
 	( cu_clop(cb, cu_bool_t, cu_idr_t, cu_offset_t, cuoo_type_t); ))
 {
-    cu_clos_self(tuptype_conj_cb);
+    cu_clos_self(_tuptype_conj_cb);
     struct cudyn_tupcomp_s *comp = slot;
     return cu_call(self->cb, (cu_idr_t)idr, comp->bitoffset, comp->type);
 }
@@ -365,7 +365,7 @@ cu_bool_t
 cudyn_tuptype_conj(cudyn_tuptype_t t,
 		   cu_clop(cb, cu_bool_t, cu_idr_t, cu_offset_t, cuoo_type_t))
 {
-    tuptype_conj_cb_t scb;
+    _tuptype_conj_cb_t scb;
     size_t i;
     struct cudyn_tupcomp_s *comp = t->tcomp_arr;
     for (i = 0; i < t->tcomp_cnt; ++i) {
@@ -374,16 +374,16 @@ cudyn_tuptype_conj(cudyn_tuptype_t t,
 	++comp;
     }
     scb.cb = cb;
-    return cucon_pmap_conj_mem(&t->scomp_map, tuptype_conj_cb_prep(&scb));
+    return cucon_pmap_conj_mem(&t->scomp_map, _tuptype_conj_cb_prep(&scb));
 }
 
-cu_clos_def(tuptype_print_elt,
+cu_clos_def(_tuptype_print_elt,
             cu_prot(cu_bool_t, cu_idr_t label, cu_offset_t bitoff,
                                cuoo_type_t t),
     ( int i;
       cufo_stream_t fos; ))
 {
-    cu_clos_self(tuptype_print_elt);
+    cu_clos_self(_tuptype_print_elt);
     if (self->i++) {
 	cufo_space(self->fos);
 	cufo_enter(self->fos, cufoT_operator);
@@ -406,12 +406,12 @@ cu_clos_def(tuptype_print_elt,
 static void
 _tuptype_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *t)
 {
-    tuptype_print_elt_t cb;
+    _tuptype_print_elt_t cb;
     cb.i = 0;
     cb.fos = fos;
     cufo_printf(fos, "%<#[cudyn_tuptype_t%> size=%zd: ", cufoT_operator,
 		cuoo_type_size(t));
-    cudyn_tuptype_conj(t, tuptype_print_elt_prep(&cb));
+    cudyn_tuptype_conj(t, _tuptype_print_elt_prep(&cb));
     cufo_printf(fos, "%<]%>", cufoT_operator);
 }
 
@@ -431,13 +431,13 @@ _tuptype_impl(cu_word_t intf_number, ...)
  * =========== */
 
 #if 0
-cu_clos_def(duntype_cct_cb,
+cu_clos_def(_duntype_cct_cb,
 	    cu_prot(cu_bool_t, cuex_opn_t node),
 	( cuoo_layout_t lyo;
 	  cudyn_cnum_t cnum;
 	  cudyn_duntype_t t; ))
 {
-    cu_clos_self(duntype_cct_cb);
+    cu_clos_self(_duntype_cct_cb);
     cuex_t typeex;
     struct cudyn_dunpart_s *part;
     if (!cucon_pmap_insert_mem(&self->t->idr_to_part, cuex_aci_at(node, 0),
@@ -454,16 +454,16 @@ cu_clos_def(duntype_cct_cb,
 }
 
 static void
-duntype_cct_glck(cudyn_duntype_t duntype)
+_duntype_init_glck(cudyn_duntype_t duntype)
 {
-    duntype_cct_cb_t cb;
+    _duntype_cct_cb_t cb;
     cuex_t ex = cudyn_duntype_to_type(duntype)->as_expr;
     cu_debug_assert(cuex_meta(ex) == CUEX_O4ACI_DUNION);
     cucon_pmap_init(&duntype->idr_to_part);
     cb.lyo = NULL;
     cb.t = duntype;
     cb.cnum = 0;
-    if (!cuex_aci_conj(CUEX_O4ACI_DUNION, ex, duntype_cct_cb_prep(&cb)))
+    if (!cuex_aci_conj(CUEX_O4ACI_DUNION, ex, _duntype_cct_cb_prep(&cb)))
 	return;
     /* TODO. Hash cons option, variable size. */
     cuoo_type_init_general(cu_to2(cuoo_type, cudyn_inltype, duntype),
@@ -473,18 +473,18 @@ duntype_cct_glck(cudyn_duntype_t duntype)
 }
 
 static cudyn_duntype_t
-duntype(cuex_t ex, cu_bool_t have_lock)
+_duntype(cuex_t ex, cu_bool_t have_lock)
 {
     cudyn_duntype_t t;
     t = cuoo_hxnew_setao(cudyn_duntype, sizeof(cuex_t), &ex,
 			 offsetof(struct cudyn_inltype_s, layout), 0);
     if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
 	if (!have_lock)
-	    cu_mutex_lock(&type_glck);
+	    cu_mutex_lock(&_type_mutex);
 	if (!cu_to(cudyn_inltype, t)->layout)
-	    duntype_cct_glck(t);
+	    _duntype_init_glck(t);
 	if (!have_lock)
-	    cu_mutex_unlock(&type_glck);
+	    cu_mutex_unlock(&_type_mutex);
 	if (!cu_to(cudyn_inltype, t)->layout)
 	    return NULL;
     }
@@ -494,7 +494,7 @@ duntype(cuex_t ex, cu_bool_t have_lock)
 cudyn_duntype_t
 cudyn_duntype(cuex_t ex)
 {
-    return duntype(ex, cu_false);
+    return _duntype(ex, cu_false);
 }
 #endif
 
@@ -503,7 +503,7 @@ cudyn_duntype(cuex_t ex)
  * ======= */
 
 static cuoo_type_t
-default_type(cuex_t ex)
+_default_type(cuex_t ex)
 {
     cuoo_type_t t;
     t = cuoo_hxalloc_setao(cuoo_type_type(),
@@ -524,12 +524,12 @@ _dispatch_type(cuex_t ex, cu_bool_t have_lock)
     switch (cuex_meta(ex)) {
 #if 0
 	case CUEX_O4ACI_DUNION:
-	    return cudyn_duntype_to_type(duntype(ex, have_lock));
+	    return cudyn_duntype_to_type(_duntype(ex, have_lock));
 #endif
 	case CUEX_O2_GEXPT:
-	    return cudyn_arrtype_to_type(arrtype(ex, have_lock));
+	    return cudyn_arrtype_to_type(_arrtype(ex, have_lock));
 	case CUEX_O2_GPROD:
-	    return cudyn_tuptype_to_type(tuptype(ex, have_lock));
+	    return cudyn_tuptype_to_type(_tuptype(ex, have_lock));
 	case CUEX_O2_FARROW:
 	case CUEX_O2_FARROW_NATIVE:
 	    /* TODO, for now. */
@@ -539,7 +539,7 @@ _dispatch_type(cuex_t ex, cu_bool_t have_lock)
 	    cu_bugf("Invalid or unimplemented type expression.");
 	    return NULL;
 #else
-	    return default_type(ex);
+	    return _default_type(ex);
 #endif
     }
 }

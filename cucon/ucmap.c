@@ -396,11 +396,11 @@ cucon_ucmap_max_ukey(cucon_ucmap_t map)
 }
 
 static void
-ucmap_dump(cucon_ucmap_t tree, int ind, FILE *out)
+_ucmap_dump(cucon_ucmap_t tree, int ind, FILE *out)
 {
     int i = ind++;
     if (tree) {
-	ucmap_dump(_node_left(tree), ind, out);
+	_ucmap_dump(_node_left(tree), ind, out);
 	while (i--)
 	    fputs("  ", out);
 	if (_node_has_value(tree))
@@ -408,7 +408,7 @@ ucmap_dump(cucon_ucmap_t tree, int ind, FILE *out)
 		    (long)_node_key(tree), _node_value_ptr(tree));
 	else
 	    fprintf(out, "- 0x%lx\n", (long)_node_key(tree));
-	ucmap_dump(_node_right(tree), ind, out);
+	_ucmap_dump(_node_right(tree), ind, out);
     }
 }
 
@@ -416,7 +416,7 @@ void
 cucon_ucmap_dump(cucon_ucmap_t tree, FILE *out)
 {
     fprintf(out, "cucon_ucmap_t @ %p\n", (void *)tree);
-    ucmap_dump(tree, 2, out);
+    _ucmap_dump(tree, 2, out);
 }
 
 static void
@@ -424,7 +424,7 @@ _ucmap_print(cuex_t e, FILE *out)
 { cucon_ucmap_dump(e, out); }
 
 static cu_box_t
-ucmap_impl(cu_word_t intf_number, ...)
+_ucmap_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
 	case CUOO_INTF_PRINT_FN:
@@ -443,7 +443,7 @@ cuconP_ucmap_init()
 {
 #if cuconP_UCMAP_ENABLE_HCONS
     cuconP_ucmap_type = cuoo_type_new_opaque_hcs(
-	ucmap_impl, sizeof(struct cucon_ucmap_s) - CUOO_HCOBJ_SHIFT);
+	_ucmap_impl, sizeof(struct cucon_ucmap_s) - CUOO_HCOBJ_SHIFT);
 #endif
 }
 

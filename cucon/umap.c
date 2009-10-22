@@ -220,7 +220,7 @@ cucon_umap_swap(cucon_umap_t umap0, cucon_umap_t umap1)
 }
 
 static void
-set_capacity(cucon_umap_t umap, size_t new_cap)
+_set_capacity(cucon_umap_t umap, size_t new_cap)
 {
     size_t i;
     cucon_umap_node_t *new_arr;
@@ -263,23 +263,23 @@ set_capacity(cucon_umap_t umap, size_t new_cap)
 }
 
 CU_SINLINE void
-update_cap_after_erase(cucon_umap_t umap)
+_update_cap_after_erase(cucon_umap_t umap)
 {
     if (umap->size*MIN_FILL_DENOM <= umap->mask*MIN_FILL_NUMER) {
 	size_t new_cap = cu_ulong_exp2_ceil_log2(umap->size + 1);
 	if (new_cap > MIN_SIZE)
-	    set_capacity(umap, new_cap);
+	    _set_capacity(umap, new_cap);
 	else
-	    set_capacity(umap, MIN_SIZE);
+	    _set_capacity(umap, MIN_SIZE);
     }
 }
 
 CU_SINLINE void
-update_cap_after_insert(cucon_umap_t umap)
+_update_cap_after_insert(cucon_umap_t umap)
 {
     if (umap->size*MAX_FILL_DENOM > umap->mask*MAX_FILL_NUMER) {
 	size_t new_cap = cu_ulong_exp2_ceil_log2(umap->size + 1);
-	set_capacity(umap, new_cap);
+	_set_capacity(umap, new_cap);
     }
 }
 
@@ -288,14 +288,14 @@ cucon_umap_update_cap(cucon_umap_t umap)
 {
     if (umap->size*MAX_FILL_DENOM > umap->mask*MAX_FILL_NUMER) {
 	size_t new_cap = cu_ulong_exp2_ceil_log2(umap->size + 1);
-	set_capacity(umap, new_cap);
+	_set_capacity(umap, new_cap);
     }
     else if (umap->size*MIN_FILL_DENOM <= umap->mask*MIN_FILL_NUMER) {
 	size_t new_cap = cu_ulong_exp2_ceil_log2(umap->size + 1);
 	if (new_cap > MIN_SIZE)
-	    set_capacity(umap, new_cap);
+	    _set_capacity(umap, new_cap);
 	else
-	    set_capacity(umap, MIN_SIZE);
+	    _set_capacity(umap, MIN_SIZE);
     }
 }
 
@@ -324,7 +324,7 @@ cucon_umap_insert_general(cucon_umap_t umap, uintptr_t key,
     node->next = NULL;
     if (node_out)
 	*node_out = node;
-    update_cap_after_insert(umap);
+    _update_cap_after_insert(umap);
     return cu_true;
 }
 
@@ -350,7 +350,7 @@ cucon_umap_insert_new_node(cucon_umap_t map, uintptr_t key,
     node->key = key;
     node->next = *head;
     *head = *(cucon_umap_node_t *)node_out = node;
-    update_cap_after_insert(map);
+    _update_cap_after_insert(map);
     return cu_true;
 }
 
@@ -370,7 +370,7 @@ cucon_umap_insert_init_node(cucon_umap_t umap, cucon_umap_node_t node)
     ++umap->size;
     node->next = NULL;
     *node0 = node;
-    update_cap_after_insert(umap);
+    _update_cap_after_insert(umap);
     return cu_true;
 }
 
@@ -399,7 +399,7 @@ cucon_umap_insert_mem(cucon_umap_t umap, uintptr_t key, size_t size,
     node->next = NULL;
     if (value)
 	*(void **)value = CU_ALIGNED_PTR_END(node);
-    update_cap_after_insert(umap);
+    _update_cap_after_insert(umap);
     return cu_true;
 }
 
@@ -486,7 +486,7 @@ cucon_umap_erase(cucon_umap_t umap, uintptr_t key)
 	if ((*node0)->key == key) {
 	    *node0 = (*node0)->next;
 	    --umap->size;
-	    update_cap_after_erase(umap);
+	    _update_cap_after_erase(umap);
 	    return cu_true;
 	}
 	node0 = &(*node0)->next;
@@ -504,7 +504,7 @@ cucon_umap_erase_ptr(cucon_umap_t map, uintptr_t key)
 	    void *ptr = *(void **)CU_ALIGNED_PTR_END(*node0);
 	    *node0 = (*node0)->next;
 	    --map->size;
-	    update_cap_after_erase(map);
+	    _update_cap_after_erase(map);
 	    return ptr;
 	}
 	node0 = &(*node0)->next;
@@ -522,7 +522,7 @@ cucon_umap_erase_int(cucon_umap_t map, uintptr_t key)
 	    int val = *(int *)CU_ALIGNED_PTR_END(*node);
 	    *node = (*node)->next;
 	    --map->size;
-	    update_cap_after_erase(map);
+	    _update_cap_after_erase(map);
 	    return val;
 	}
 	node = &(*node)->next;
@@ -544,7 +544,7 @@ cucon_umap_pop_any_node(cucon_umap_t map)
     node = *head;
     *head = node->next;
     --map->size;
-    update_cap_after_erase(map);
+    _update_cap_after_erase(map);
     return node;
 }
 
@@ -767,7 +767,7 @@ cucon_umap_iter_keys(cucon_umap_t umap, cu_clop(cb, void, uintptr_t))
 }
 
 static int
-uintptr_cmp(const void *x, const void *y)
+_uintptr_cmp(const void *x, const void *y)
 {
     return *(uintptr_t *)x - *(uintptr_t *)y;
 }
@@ -786,7 +786,7 @@ cucon_umap_iter_increasing_keys(cucon_umap_t umap,
 	    node = node->next;
 	}
     }
-    qsort(arr, umap->size, sizeof(uintptr_t), uintptr_cmp);
+    qsort(arr, umap->size, sizeof(uintptr_t), _uintptr_cmp);
     p = arr;
     for (i = 0; i < umap->size; ++i)
 	cu_call(cb, *p++);
@@ -931,8 +931,8 @@ cucon_umap_assign_isecn_union(cucon_umap_t umap0, cucon_umap_t umap1)
 	    node0 = &(*node0)->next;
 	}
     }
-    update_cap_after_erase(umap0);
-    update_cap_after_insert(umap1);
+    _update_cap_after_erase(umap0);
+    _update_cap_after_insert(umap1);
 }
 
 void
@@ -963,9 +963,9 @@ cucon_umap_move_isecn(cucon_umap_t dst, cucon_umap_t src0, cucon_umap_t src1)
 		node0 = &(*node0)->next;
 	}
     }
-    update_cap_after_erase(src0);
-    update_cap_after_erase(src1);
-    update_cap_after_insert(dst);
+    _update_cap_after_erase(src0);
+    _update_cap_after_erase(src1);
+    _update_cap_after_insert(dst);
 }
 
 void
@@ -1071,12 +1071,12 @@ cucon_umap_it_next(cucon_umap_it_t it)
     return it;
 }
 
-cu_clos_def(umap_print_keys_cb,
+cu_clos_def(_umap_print_key_cb,
 	    cu_prot(void, uintptr_t key),
     ( int index;
       FILE *out; ))
 {
-    cu_clos_self(umap_print_keys_cb);
+    cu_clos_self(_umap_print_key_cb);
     if (self->index)
 	fputs(", ", self->out);
     fprintf(self->out, "%"PRIdPTR, key);
@@ -1086,29 +1086,29 @@ cu_clos_def(umap_print_keys_cb,
 void
 cucon_umap_print_keys(cucon_umap_t map, FILE *out)
 {
-    umap_print_keys_cb_t cb;
+    _umap_print_key_cb_t cb;
     cb.index = 0;
     cb.out = out;
     fputc('{', out);
-    cucon_umap_iter_increasing_keys(map, umap_print_keys_cb_prep(&cb));
+    cucon_umap_iter_increasing_keys(map, _umap_print_key_cb_prep(&cb));
     fputc('}', out);
 }
 
-cu_clos_def(dump_idr_ptr_cb,
+cu_clos_def(_dump_idr_ptr_cb,
 	    cu_prot(void, cu_idr_t key, void *val),
     ( FILE *out; ))
 {
-    cu_clos_self(dump_idr_ptr_cb);
+    cu_clos_self(_dump_idr_ptr_cb);
     fprintf(self->out, "\t%s ↦ %p\n", cu_idr_to_cstr(key), val);
 }
 
 void
 cucon_pmap_dump_idr_ptr(cucon_pmap_t map, FILE *out)
 {
-    dump_idr_ptr_cb_t cb;
+    _dump_idr_ptr_cb_t cb;
     cb.out = out;
     fprintf(out, "cucon_pmap_t @ %p:\n", (void *)map);
     cucon_pmap_iter_ptr(map,
 			(cu_clop(, void, void const *, void *))
-			dump_idr_ptr_cb_prep(&cb));
+			_dump_idr_ptr_cb_prep(&cb));
 }

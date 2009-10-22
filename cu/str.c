@@ -947,7 +947,7 @@ _str_print(cuex_t e, FILE *out)
 cu_box_t cuP_str_foprint = CU_BOX_NULL_FPTR_INIT;
 
 static cu_box_t
-str_impl(cu_word_t intf_number, ...)
+_str_impl(cu_word_t intf_number, ...)
 {
     switch (intf_number) {
         case CUOO_INTF_PRINT_FN:
@@ -962,5 +962,5 @@ str_impl(cu_word_t intf_number, ...)
 void
 cuP_str_init(void)
 {
-    cuP_str_type = cuoo_type_new_opaque(str_impl);
+    cuP_str_type = cuoo_type_new_opaque(_str_impl);
 }

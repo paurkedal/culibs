@@ -47,7 +47,7 @@ cugra_graph_copy(cugra_graph_t G_src, cugra_graph_t G_dst,
 }
 
 static cu_bool_t
-detect_cycle(cugra_vertex_t v, cucon_pmap_t vinfo_map)
+_detect_cycle(cugra_vertex_t v, cucon_pmap_t vinfo_map)
 {
     int *vinfo;
     if (cucon_pmap_insert_mem(vinfo_map, v, sizeof(int), &vinfo)) {
@@ -55,7 +55,7 @@ detect_cycle(cugra_vertex_t v, cucon_pmap_t vinfo_map)
 	*vinfo = 1;
 	cugra_vertex_for_outarcs(a, v) {
 	    cugra_vertex_t u = cugra_arc_head(a);
-	    if (detect_cycle(u, vinfo_map))
+	    if (_detect_cycle(u, vinfo_map))
 		return cu_true;
 	}
 	*vinfo = 0;
@@ -72,7 +72,7 @@ cugra_graph_is_acyclic(cugra_graph_t G)
     struct cucon_pmap_s vinfo_map;
     cucon_pmap_init(&vinfo_map);
     cugra_graph_for_vertices(v, G)
-	if (detect_cycle(v, &vinfo_map))
+	if (_detect_cycle(v, &vinfo_map))
 	    return cu_false;
     return cu_true;
 }
@@ -98,13 +98,13 @@ cugra_erase_vertex_to_vsetcompl_arcs(cugra_graph_t G, cugra_vertex_t v,
     }
 }
 
-cu_clos_def(move_subgraph_cb,
+cu_clos_def(_move_subgraph_cb,
 	    cu_prot(cu_bool_t, void const *v),
     ( cugra_graph_t G_src, G_dst;
       cucon_pmap_t V_move; ))
 {
 #define v ((cugra_vertex_t)v)
-    cu_clos_self(move_subgraph_cb);
+    cu_clos_self(_move_subgraph_cb);
     cugra_erase_vertex_to_vsetcompl_arcs(self->G_src, v, self->V_move);
     cu_dlink_erase(&v->in_graph);
     cu_dlink_insert_before(&self->G_dst->vertices, &v->in_graph);
@@ -116,11 +116,11 @@ void
 cugra_move_induced_subgraph(cucon_pmap_t V_move,
 			    cugra_graph_t G_src, cugra_graph_t G_dst)
 {
-    move_subgraph_cb_t cb;
+    _move_subgraph_cb_t cb;
     cb.G_src = G_src;
     cb.G_dst = G_dst;
     cb.V_move = V_move;
-    cucon_pmap_conj_keys(V_move, move_subgraph_cb_prep(&cb));
+    cucon_pmap_conj_keys(V_move, _move_subgraph_cb_prep(&cb));
 }
 
 void

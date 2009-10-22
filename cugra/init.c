@@ -23,7 +23,7 @@
 
 #ifdef CUCONF_HAVE_BUDDY
 static void
-bdd_error(int err)
+_bdd_error(int err)
 {
     cu_bugf("BDD error %s", bdd_errstring(err));
 }
@@ -41,7 +41,7 @@ cugra_init(void)
 
 #ifdef CUCONF_HAVE_BUDDY
     bdd_init(10000, 1000);
-    bdd_error_hook(bdd_error);
+    bdd_error_hook(_bdd_error);
     bdd_setcacheratio(10);
 #endif
 }

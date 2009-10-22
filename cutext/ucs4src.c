@@ -66,7 +66,7 @@ cutext_ucs4src_scan_str(cutext_ucs4src_t ucs4src,
     return str;
 }
 
-cu_clop_def(header_idrchar, cu_bool_t, cu_wchar_t ch)
+cu_clop_def(_header_idrchar, cu_bool_t, cu_wchar_t ch)
 {
     switch (ch) {
     case ' ':
@@ -80,11 +80,11 @@ cu_clop_def(header_idrchar, cu_bool_t, cu_wchar_t ch)
     }
 }
 
-cu_clos_def(header_strchar,
+cu_clos_def(_header_strchar,
 	    cu_prot(cu_bool_t, cu_wchar_t ch),
 	    (cu_bool_t have_quote;))
 {
-    cu_clos_self(header_strchar);
+    cu_clos_self(_header_strchar);
     if (self->have_quote) {
 	self->have_quote = cu_false;
 	return cu_true;
@@ -133,12 +133,12 @@ cutext_ucs4src_init_detect(cutext_ucs4src_t ucs4src,
 	    cutext_ucs4src_advance(ucs4src, 1);
 	if (cutext_ucs4src_peek(ucs4src) == '\n')
 	    goto header_error;
-	str = cutext_ucs4src_scan_str(ucs4src, header_idrchar);
+	str = cutext_ucs4src_scan_str(ucs4src, _header_idrchar);
 	if (!str)
 	    goto header_error;
 	cucon_pmap_replace_ptr(ucs4src->properties, cu_struniq(""), str);
 	for (;;) {
-	    header_strchar_t clos_strchar;
+	    _header_strchar_t clos_strchar;
 	    cu_str_t key;
 	    while (ch = cutext_ucs4src_peek(ucs4src), ch == ' ' || ch == '\t')
 		cutext_ucs4src_advance(ucs4src, 1);
@@ -153,7 +153,7 @@ cutext_ucs4src_init_detect(cutext_ucs4src_t ucs4src,
 		    cutext_ucs4src_advance(ucs4src, 1);
 	    }
 
-	    key = cutext_ucs4src_scan_str(ucs4src, header_idrchar);
+	    key = cutext_ucs4src_scan_str(ucs4src, _header_idrchar);
 	    ch = cutext_ucs4src_get(ucs4src);
 	    if (ch != '=')
 		goto header_error;
@@ -162,7 +162,7 @@ cutext_ucs4src_init_detect(cutext_ucs4src_t ucs4src,
 		goto header_error;
 	    clos_strchar.have_quote = cu_false;
 	    str = cutext_ucs4src_scan_str(ucs4src,
-					  header_strchar_prep(&clos_strchar));
+					  _header_strchar_prep(&clos_strchar));
 	    if (!str)
 		goto header_error;
 	    ch = cutext_ucs4src_get(ucs4src);

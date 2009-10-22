@@ -134,12 +134,12 @@ cuos_dirrec_conj_files(cu_str_t dname,
     return cu_true;
 }
 
-cu_clos_def(sys_dirreccoll_conj_files_cb,
+cu_clos_def(_sys_dirreccoll_conj_files_cb,
 	    cu_prot(cu_bool_t, void *sub_bname),
 	    ( cu_clop(cb, cu_bool_t, cu_str_t);
 	      cu_str_t dname; ) )
 {
-    cu_clos_self(sys_dirreccoll_conj_files_cb);
+    cu_clos_self(_sys_dirreccoll_conj_files_cb);
     cu_str_t subname = cuos_path_join(self->dname, sub_bname);
     return cuos_dirreccoll_conj_files(subname, self->cb);
 }
@@ -151,7 +151,7 @@ cuos_dirreccoll_conj_files(cu_str_t dname,
     if (stat(cu_str_to_cstr(dname), &st) == -1)
 	return cu_true;
     if (S_ISDIR(st.st_mode)) {
-	sys_dirreccoll_conj_files_cb_t subcb;
+	_sys_dirreccoll_conj_files_cb_t subcb;
 	cucon_rbtree_t entries = cucon_rbtree_new();
 	struct dirent *ent;
 	DIR *dir = opendir(cu_str_to_cstr(dname));
@@ -172,7 +172,7 @@ cuos_dirreccoll_conj_files(cu_str_t dname,
 	subcb.cb = cb;
 	subcb.dname = dname;
 	return cucon_rbtree_conj_ptr(
-		    entries, sys_dirreccoll_conj_files_cb_prep(&subcb));
+		    entries, _sys_dirreccoll_conj_files_cb_prep(&subcb));
     }
     else if (S_ISREG(st.st_mode)) {
 	if (!cu_call(cb, dname))

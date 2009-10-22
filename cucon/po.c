@@ -902,13 +902,13 @@ conj_lspan_helper(cucon_poelt_t elt,
     }
     return cu_true;
 }
-cu_clos_def(conj_lspan_pmap_cb,
+cu_clos_def(_conj_lspan_pmap_cb,
 	    cu_prot(cu_bool_t, void const *elt),
 	    ( cu_clop(cb, cu_bool_t, cucon_poelt_t elt);
 	      struct cucon_pmap_s lspan; ))
 {
 #define elt ((cucon_poelt_t)elt)
-    cu_clos_self(conj_lspan_pmap_cb);
+    cu_clos_self(_conj_lspan_pmap_cb);
     return conj_lspan_helper(elt, self->cb, &self->lspan);
 #undef elt
 }
@@ -917,10 +917,10 @@ cucon_po_conj_lspan(cucon_po_t po, cucon_pmap_t span,
 		  cu_clop(cb, cu_bool_t, cucon_poelt_t elt))
 {
     cu_bool_t r;
-    conj_lspan_pmap_cb_t pmap_cb;
+    _conj_lspan_pmap_cb_t pmap_cb;
     pmap_cb.cb = cb;
     cucon_pmap_init(&pmap_cb.lspan);
-    r = cucon_pmap_conj_keys(span, conj_lspan_pmap_cb_prep(&pmap_cb));
+    r = cucon_pmap_conj_keys(span, _conj_lspan_pmap_cb_prep(&pmap_cb));
     return r;
 }
 
@@ -1319,12 +1319,12 @@ cucon_po_ucollect_reachable_ljunctions(cucon_poelt_t elt)
 /* cucon_po_write_gviz
  * ----------------- */
 
-cu_clos_def(print_gviz_cb,
+cu_clos_def(_print_gviz_cb,
 	    cu_prot(void, cucon_poelt_t elt),
 	    ( FILE *out;
 	      cu_clop(label, cu_str_t, cucon_poelt_t); ))
 {
-    cu_clos_self(print_gviz_cb);
+    cu_clos_self(_print_gviz_cb);
     cucon_listnode_t it;
     fprintf(self->out, "v%p[label=\"%s\"];\n", (void *)elt,
 	    cu_str_to_cstr(cu_call(self->label, elt)));
@@ -1336,13 +1336,13 @@ cu_clos_def(print_gviz_cb,
 }
 void
 cucon_po_print_gviz(cucon_po_t po, cu_clop(label, cu_str_t, cucon_poelt_t),
-		  FILE *out)
+		    FILE *out)
 {
-    print_gviz_cb_t cb;
+    _print_gviz_cb_t cb;
     cb.out = out;
     cb.label = label;
     fprintf(out, "digraph po {\n");
-    cucon_po_topological_preds(cucon_po_top(po), print_gviz_cb_prep(&cb));
+    cucon_po_topological_preds(cucon_po_top(po), _print_gviz_cb_prep(&cb));
     fprintf(out, "}\n");
 }
 
@@ -1350,12 +1350,12 @@ cucon_po_print_gviz(cucon_po_t po, cu_clop(label, cu_str_t, cucon_poelt_t),
 /* Debugging
  * --------- */
 
-cu_clos_def(count_connections_cb,
+cu_clos_def(_count_connections_cb,
 	    cu_prot(void, cucon_poelt_t elt),
 	    ( size_t cnt_succ;
 	      size_t cnt_pred; ))
 {
-    cu_clos_self(count_connections_cb);
+    cu_clos_self(_count_connections_cb);
     self->cnt_succ += cucon_list_count(&elt->isuccs);
     self->cnt_pred += cucon_list_count(&elt->ipreds);
 /*     return cu_true; */
@@ -1364,24 +1364,24 @@ cu_clos_def(count_connections_cb,
 size_t
 cucon_po_debug_count_connections(cucon_po_t po)
 {
-    count_connections_cb_t cb;
+    _count_connections_cb_t cb;
     cucon_pmap_t S = cucon_pmap_new();
     cb.cnt_succ = 0;
     cb.cnt_pred = 0;
     cucon_pmap_insert_void(S, cucon_po_top(po));
 /*     cucon_po_conj_lspan(po, S, cu_clos_ref(&cb)); */
     cucon_po_topological_preds(cucon_po_top(po),
-			       count_connections_cb_prep(&cb));
+			       _count_connections_cb_prep(&cb));
     cu_debug_assert(cb.cnt_succ == cb.cnt_pred);
     return cb.cnt_succ;
 }
 
-cu_clos_def(check_links_cb,
+cu_clos_def(_check_links_cb,
 	    cu_prot(void, cucon_poelt_t elt),
 	    ( struct cucon_pmap_s uspan;
 	      cucon_poelt_t elt_center; ))
 {
-    cu_clos_self(check_links_cb);
+    cu_clos_self(_check_links_cb);
     cucon_listnode_t it;
     if (elt == self->elt_center)
 	return;
@@ -1406,18 +1406,18 @@ cu_clos_def(check_links_cb,
 void
 cucon_po_debug_check_nonredundant(cucon_poelt_t elt)
 {
-    check_links_cb_t cb;
+    _check_links_cb_t cb;
     cucon_pmap_init(&cb.uspan);
     _po_prec_collect_uspan(elt, cucon_po_bot(elt->po), &cb.uspan);
     cb.elt_center = elt;
-    cucon_po_topological_preds(elt, check_links_cb_prep(&cb));
+    cucon_po_topological_preds(elt, _check_links_cb_prep(&cb));
 }
 
-cu_clos_def(dump_gviz_cb,
+cu_clos_def(_dump_gviz_cb,
 	    cu_prot(void, cucon_poelt_t elt),
 	    ( FILE *out; ))
 {
-    cu_clos_self(dump_gviz_cb);
+    cu_clos_self(_dump_gviz_cb);
     cucon_listnode_t it;
     fprintf(self->out, "v%p[label=\"%d\"];\n", (void *)elt, elt->level);
     for (it = cucon_po_ipred_begin(elt); it != cucon_po_ipred_end(elt);
@@ -1429,10 +1429,9 @@ cu_clos_def(dump_gviz_cb,
 void
 cucon_po_debug_dump_gviz(cucon_po_t po, FILE *out)
 {
-    dump_gviz_cb_t cb;
+    _dump_gviz_cb_t cb;
     cb.out = out;
     fprintf(out, "digraph po {\n");
-    cucon_po_topological_preds(cucon_po_top(po), dump_gviz_cb_prep(&cb));
+    cucon_po_topological_preds(cucon_po_top(po), _dump_gviz_cb_prep(&cb));
     fprintf(out, "}\n");
 }
-

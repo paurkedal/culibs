@@ -30,13 +30,13 @@ cu_dlog_def(_file, "dtag=cuex.subst.rec");
 
 /* -- cuex_subst_render_idempotent */
 
-cu_clos_def(build_graph_vertex_cb,
+cu_clos_def(_build_graph_vertex_cb,
 	    cu_prot(void, cuex_veqv_t vq),
     ( cugra_graph_t G;
       cucon_pmap_t var_to_vertex; ))
 {
     cugra_vertex_t *vtx;
-    cu_clos_self(build_graph_vertex_cb);
+    cu_clos_self(_build_graph_vertex_cb);
     vq->is_feedback_var = 0;
     if (cucon_pmap_insert_mem(self->var_to_vertex, cuex_veqv_primary_var(vq),
 			      sizeof(cugra_vertex_t), &vtx)) {
@@ -44,14 +44,14 @@ cu_clos_def(build_graph_vertex_cb,
     }
 }
 
-cu_clos_def(build_graph_connect_cb,
+cu_clos_def(_build_graph_connect_cb,
 	    cu_prot(cu_bool_t, cuex_var_t var),
     ( cuex_subst_t sig;
       cugra_graph_t G;
       cucon_pmap_t var_to_vertex;
       cugra_vertex_t vtx_tail; ))
 {
-    cu_clos_self(build_graph_connect_cb);
+    cu_clos_self(_build_graph_connect_cb);
     cugra_vertex_t vtx_head = cucon_pmap_find_ptr(self->var_to_vertex, var);
     cuex_veqv_t vq = cuex_subst_cref(self->sig, var);
     if (vq) {
@@ -62,34 +62,34 @@ cu_clos_def(build_graph_connect_cb,
     return cu_true;
 }
 
-cu_clos_def(build_graph_arc_cb,
+cu_clos_def(_build_graph_arc_cb,
 	    cu_prot(void, cuex_veqv_t vq),
     ( cuex_subst_t sig;
       cugra_graph_t G;
       cucon_pmap_t var_to_vertex; ))
 {
-    cu_clos_self(build_graph_arc_cb);
+    cu_clos_self(_build_graph_arc_cb);
     cuex_t val = cuex_veqv_value(vq);
     if (val) {
-	build_graph_connect_cb_t cb;
+	_build_graph_connect_cb_t cb;
 	cuex_var_t var = cuex_veqv_primary_var(vq);
 	cb.sig = self->sig;
 	cb.G = self->G;
 	cb.vtx_tail = cucon_pmap_find_ptr(self->var_to_vertex, var);
 	cb.var_to_vertex = self->var_to_vertex;
 	cu_debug_assert(cb.vtx_tail);
-	cuex_depth_conj_vars(val, build_graph_connect_cb_prep(&cb));
+	cuex_depth_conj_vars(val, _build_graph_connect_cb_prep(&cb));
     }
 }
 
-cu_clos_def(mark_veqv_cb,
+cu_clos_def(_mark_veqv_cb,
 	    cu_prot(void, void const *vertex),
     ( cucon_pmap_t var_to_rvar;
       int i;
       cuex_veqv_t *veqv_arr; ))
 {
 #define vertex ((cugra_vertex_t)vertex)
-    cu_clos_self(mark_veqv_cb);
+    cu_clos_self(_mark_veqv_cb);
     cuex_veqv_t vq = cugra_vertex_ptr(vertex);
     cuex_veqv_it_t it;
     cuex_var_t rvar = cuex_rvar(self->i);
@@ -135,8 +135,8 @@ create_MSC_graphs(cuex_subst_t sig, cucon_stack_t KG)
 {
     struct cugra_graph_s G_sig;
     struct cucon_pmap_s var_to_vertex;
-    build_graph_vertex_cb_t vertex_cb;
-    build_graph_arc_cb_t arc_cb;
+    _build_graph_vertex_cb_t vertex_cb;
+    _build_graph_arc_cb_t arc_cb;
 
     /* Construct graph of variable dependencies. */
     cuex_subst_flatten(sig);
@@ -145,12 +145,12 @@ create_MSC_graphs(cuex_subst_t sig, cucon_stack_t KG)
     /* -- vertices */
     vertex_cb.G = &G_sig;
     vertex_cb.var_to_vertex = &var_to_vertex;
-    cuex_subst_iter_veqv(sig, build_graph_vertex_cb_prep(&vertex_cb));
+    cuex_subst_iter_veqv(sig, _build_graph_vertex_cb_prep(&vertex_cb));
     /* -- arcs */
     arc_cb.sig = sig;
     arc_cb.G = &G_sig;
     arc_cb.var_to_vertex = &var_to_vertex;
-    cuex_subst_iter_veqv(sig, build_graph_arc_cb_prep(&arc_cb));
+    cuex_subst_iter_veqv(sig, _build_graph_arc_cb_prep(&arc_cb));
 
     /* Process each maximally connected subgraph, corresponding to
      * interdependent sets of variables. */
@@ -166,7 +166,7 @@ cuex_subst_render_idempotent(cuex_subst_t sig)
     while (!cucon_stack_is_empty(&KG)) {
 	struct cucon_pset_s mfvs_vertices;
 	struct cucon_pset_s msc_vars;
-	mark_veqv_cb_t mark_cb;
+	_mark_veqv_cb_t mark_cb;
 	int i, n_V;
 	cuex_t *opd_arr;
 	cuex_veqv_t *veqv_arr;
@@ -196,7 +196,7 @@ cuex_subst_render_idempotent(cuex_subst_t sig)
 	mark_cb.i = 0;
 	cucon_pmap_init(&var_to_rvar);
 	mark_cb.var_to_rvar = &var_to_rvar;
-	cucon_pset_iter(&mfvs_vertices, mark_veqv_cb_prep(&mark_cb));
+	cucon_pset_iter(&mfvs_vertices, _mark_veqv_cb_prep(&mark_cb));
 
 	/* Replace variable mappings with rbind constructs. */
 	opd_arr = cu_salloc(sizeof(cuex_t)*n_V);

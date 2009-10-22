@@ -30,8 +30,8 @@
  * =============== */
 
 static cu_bool_t
-free_vars_conj(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
-	       cu_clop(f, cu_bool_t, cuex_var_t, cucon_pset_t))
+_free_vars_conj(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
+		cu_clop(f, cu_bool_t, cuex_var_t, cucon_pset_t))
 {
     cuex_meta_t e_meta = cuex_meta(e);
     if (cuex_meta_is_opr(e_meta)) {
@@ -59,13 +59,13 @@ free_vars_conj(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
 		src = cuex_labelling_comm_iter_source(var);
 		while ((pair = cu_ptr_source_get(src))) {
 		    cuex_t vp = cuex_opn_at(pair, 1);
-		    if (!free_vars_conj(vp, qcset, excl, f)) {
+		    if (!_free_vars_conj(vp, qcset, excl, f)) {
 			i = 0;
 			goto failed;
 		    }
 		}
 		for (i = 1; i < r; ++i)
-		    if (!free_vars_conj(cuex_opn_at(e, i), qcset, excl, f))
+		    if (!_free_vars_conj(cuex_opn_at(e, i), qcset, excl, f))
 			break;
 failed:
 		while (*unshadowed_vars)
@@ -76,7 +76,7 @@ failed:
 		cu_bool_t not_shadowed;
 		not_shadowed = cucon_pset_insert(excl, var);
 		for (i = 1; i < r; ++i)
-		    if (!free_vars_conj(cuex_opn_at(e, i), qcset, excl, f)) {
+		    if (!_free_vars_conj(cuex_opn_at(e, i), qcset, excl, f)) {
 			if (not_shadowed)
 			    cucon_pset_erase(excl, var);
 			return cu_false;
@@ -87,7 +87,7 @@ failed:
 	}
 	else
 	    CUEX_OPN_CONJ_RETURN(e_meta, e, subex,
-		    free_vars_conj(subex, qcset, excl, f));
+		    _free_vars_conj(subex, qcset, excl, f));
     }
     else if (cuex_meta_is_type(e_meta)) {
 	cuoo_type_t type = cuoo_type_from_meta(e_meta);
@@ -98,7 +98,7 @@ failed:
 	    cuex_t ep;
 	    src = cuex_compound_pref_iter_source(c_impl, e);
 	    while ((ep = cu_ptr_source_get(src)))
-		if (!free_vars_conj(ep, qcset, excl, f))
+		if (!_free_vars_conj(ep, qcset, excl, f))
 		    return cu_false;
 	}
     }
@@ -111,8 +111,8 @@ failed:
 }
 
 static cuex_t
-free_vars_tran(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
-	       cu_clop(f, cuex_t, cuex_t, cucon_pset_t))
+_free_vars_tran(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
+		cu_clop(f, cuex_t, cuex_t, cucon_pset_t))
 {
     cuex_meta_t e_meta = cuex_meta(e);
     if (cuex_meta_is_opr(e_meta)) {
@@ -141,7 +141,7 @@ free_vars_tran(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
 		}
 		jct = cuex_labelling_ncomm_image_junctor(var);
 		while ((ep = cu_ptr_junctor_get(jct))) {
-		    cuex_t epp = free_vars_tran(ep, qcset, excl, f);
+		    cuex_t epp = _free_vars_tran(ep, qcset, excl, f);
 		    if (!epp) {
 			goto failed;
 		    }
@@ -149,8 +149,8 @@ free_vars_tran(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
 		}
 		var = cu_ptr_junctor_finish(jct);
 		for (i = 1; i < r; ++i) {
-		    e_arr[i] = free_vars_tran(cuex_opn_at(e, i), qcset,
-					      excl, f);
+		    e_arr[i] = _free_vars_tran(cuex_opn_at(e, i), qcset,
+					       excl, f);
 		    if (!e_arr[i])
 			break;
 		}
@@ -162,8 +162,8 @@ failed:
 		cu_bool_t not_shadowed;
 		not_shadowed = cucon_pset_insert(excl, var);
 		for (i = 1; i < r; ++i) {
-		    e_arr[i] = free_vars_tran(cuex_opn_at(e, i),
-					      qcset, excl, f);
+		    e_arr[i] = _free_vars_tran(cuex_opn_at(e, i),
+					       qcset, excl, f);
 			break;
 		}
 		if (not_shadowed)
@@ -175,7 +175,7 @@ failed:
 		return NULL;
 	}
 	else {
-	    CUEX_OPN_TRAN(e_meta, e, ep, free_vars_tran(ep, qcset, excl, f));
+	    CUEX_OPN_TRAN(e_meta, e, ep, _free_vars_tran(ep, qcset, excl, f));
 	    return e;
 	}
     }
@@ -188,7 +188,7 @@ failed:
 	    cuex_t ep;
 	    jct = cuex_compound_pref_image_junctor(c_impl, e);
 	    while ((ep = cu_ptr_junctor_get(jct))) {
-		cuex_t epp = free_vars_tran(ep, qcset, excl, f);
+		cuex_t epp = _free_vars_tran(ep, qcset, excl, f);
 		if (!epp)
 		    return NULL;
 		cu_ptr_junctor_put(jct, epp);
@@ -218,7 +218,7 @@ cuex_free_vars_conj(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
 	excl = cu_salloc(sizeof(struct cucon_pset_s));
 	cucon_pset_init(excl);
     }
-    return free_vars_conj(e, qcset, excl, f);
+    return _free_vars_conj(e, qcset, excl, f);
 }
 
 cu_clos_efun(cuex_pset_curried_insert_ex,
@@ -259,11 +259,11 @@ cuex_free_vars_erase(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
 				cuex_pset_curried_erase_ex_prep(&cb));
 }
 
-cu_clos_def(free_vars_count_cb,
+cu_clos_def(_free_vars_count_cb,
 	    cu_prot(cu_bool_t, cuex_var_t var, cucon_pset_t bound),
 	( int cnt; ))
 {
-    cu_clos_self(free_vars_count_cb);
+    cu_clos_self(_free_vars_count_cb);
     ++self->cnt;
     return cu_true;
 }
@@ -271,9 +271,9 @@ cu_clos_def(free_vars_count_cb,
 int
 cuex_free_vars_count(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl)
 {
-    free_vars_count_cb_t cb;
+    _free_vars_count_cb_t cb;
     cb.cnt = 0;
-    cuex_free_vars_conj(e, qcset, excl, free_vars_count_cb_prep(&cb));
+    cuex_free_vars_conj(e, qcset, excl, _free_vars_count_cb_prep(&cb));
     return cb.cnt;
 }
 
@@ -287,14 +287,14 @@ cuex_free_vars_tran(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
 	excl = &excl_l;
 	cucon_pset_init(&excl_l);
     }
-    return free_vars_tran(e, qcset, excl, f);
+    return _free_vars_tran(e, qcset, excl, f);
 }
 
-cu_clos_def(free_vars_tran_pmap_cb,
+cu_clos_def(_free_vars_tran_pmap_cb,
 	    cu_prot(cuex_t, cuex_t var, cucon_pset_t bound_vars),
     ( cucon_pmap_t subst; ))
 {
-    cu_clos_self(free_vars_tran_pmap_cb);
+    cu_clos_self(_free_vars_tran_pmap_cb);
     cuex_t repl = cucon_pmap_find_ptr(self->subst, var);
     if (repl)
 	return repl;
@@ -306,8 +306,8 @@ cuex_t
 cuex_free_vars_tran_pmap(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
 			 cucon_pmap_t subst)
 {
-    free_vars_tran_pmap_cb_t cb;
+    _free_vars_tran_pmap_cb_t cb;
     cb.subst = subst;
     return cuex_free_vars_tran(e, cuex_qcset_n, NULL,
-			       free_vars_tran_pmap_cb_prep(&cb));
+			       _free_vars_tran_pmap_cb_prep(&cb));
 }

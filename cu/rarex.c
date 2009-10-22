@@ -30,7 +30,7 @@ static pthread_cond_t rarex_writer_dorm = PTHREAD_COND_INITIALIZER;
  *     (2) are about to jam while requesting access (possibly incl self)
  */
 static unsigned int
-unaccounted_cnt(cu_rarex_t *rarex, unsigned int rarex_snap)
+_unaccounted_count(cu_rarex_t *rarex, unsigned int rarex_snap)
 {
     cuP_tstate_t tstate;
     int jammed_cnt = 0;
@@ -45,7 +45,7 @@ unaccounted_cnt(cu_rarex_t *rarex, unsigned int rarex_snap)
 }
 
 static void
-release_a_writer(cu_rarex_t *rarex)
+_release_a_writer(cu_rarex_t *rarex)
 {
     cuP_tstate_t tstate;
     for (tstate = cuP_tstate_chain;; tstate = tstate->next) {
@@ -59,7 +59,7 @@ release_a_writer(cu_rarex_t *rarex)
 }
 
 static void
-release_all_readers(cu_rarex_t *rarex)
+_release_all_readers(cu_rarex_t *rarex)
 {
     cuP_tstate_t tstate;
     for (tstate = cuP_tstate_chain; tstate; tstate = tstate->next) {
@@ -80,11 +80,11 @@ cuP_rarex_lock_read(cu_rarex_t *rarex)
     rarex_snap = AO_load_acquire(rarex);
     if (rarex_snap < cuP_RAREX_WRITE_MULTIPLIER) {
 	if (rarex_snap > 1)
-	    release_all_readers(rarex);
+	    _release_all_readers(rarex);
     }
     else {
-	if (unaccounted_cnt(rarex, rarex_snap) == 1)
-	    release_a_writer(rarex);
+	if (_unaccounted_count(rarex, rarex_snap) == 1)
+	    _release_a_writer(rarex);
 	tstate = cuP_tstate_glck();
 	tstate->jammed_on_rarex = rarex;
 	tstate->jammed_on_write = cu_false;
@@ -101,7 +101,7 @@ cuP_rarex_lock_write(cu_rarex_t *rarex)
     unsigned int rarex_snap;
     cu_mutex_lock(&cuP_global_mutex);
     rarex_snap = AO_load_acquire(rarex);
-    if (unaccounted_cnt(rarex, rarex_snap) > 1) {
+    if (_unaccounted_count(rarex, rarex_snap) > 1) {
 	tstate = cuP_tstate_glck();
 	tstate->jammed_on_rarex = rarex;
 	tstate->jammed_on_write = cu_true;
@@ -119,9 +119,9 @@ cuP_rarex_wake_up(cu_rarex_t *rarex)
     rarex_snap = AO_load_acquire(rarex);
     if (rarex_snap < cuP_RAREX_WRITE_MULTIPLIER) {
 	if (rarex_snap > 0)
-	    release_all_readers(rarex);
+	    _release_all_readers(rarex);
     }
-    else if (unaccounted_cnt(rarex, rarex_snap) == 0)
-	release_a_writer(rarex);
+    else if (_unaccounted_count(rarex, rarex_snap) == 0)
+	_release_a_writer(rarex);
     cu_mutex_unlock(&cuP_global_mutex);
 }

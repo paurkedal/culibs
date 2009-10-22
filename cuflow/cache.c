@@ -85,21 +85,21 @@ cuflow_cacheobj_alloc(size_t full_size, cuflow_cacheobj_t key)
 }
 
 CU_SINLINE cu_bool_t
-cacheobj_eq(cu_word_t fncode, cuflow_cacheobj_t obj0, cuflow_cacheobj_t obj1)
+_cacheobj_eq(cu_word_t fncode, cuflow_cacheobj_t obj0, cuflow_cacheobj_t obj1)
 {
     size_t key_sizew = CUFLOW_FNCODE_KEY_SIZEW(fncode);
     return cu_wordarr_eq(key_sizew, (cu_word_t *)obj0, (cu_word_t *)obj1);
 }
 
 CU_SINLINE cu_hash_t
-cacheobj_hash(cu_word_t fncode, cuflow_cacheobj_t obj)
+_cacheobj_hash(cu_word_t fncode, cuflow_cacheobj_t obj)
 {
     size_t key_sizew = CUFLOW_FNCODE_KEY_SIZEW(fncode);
     return cu_wordarr_hash(key_sizew - 1, (cu_word_t *)obj + 1, fncode);
 }
 
 static void
-resize_lck(cuflowP_cachebin_t bin, size_t new_cap)
+_resize_lck(cuflowP_cachebin_t bin, size_t new_cap)
 {
     cuflow_cacheobj_t *old_link_arr = bin->link_arr;
     cuflow_cacheobj_t *old_link_arr_end = old_link_arr + bin->cap;
@@ -110,7 +110,7 @@ resize_lck(cuflowP_cachebin_t bin, size_t new_cap)
 	while (obj) {
 	    cuflow_cacheobj_t next_obj = HDR(obj)->next;
 	    cu_word_t fncode = CUFLOW_CACHEOBJ_FNCODE(obj);
-	    cu_hash_t hash = cacheobj_hash(fncode, obj);
+	    cu_hash_t hash = _cacheobj_hash(fncode, obj);
 	    cuflow_cacheobj_t *slot;
 	    slot = &bin->link_arr[HASH_SLOT(hash, new_cap)];
 	    HDR(obj)->next = *slot;
@@ -122,14 +122,14 @@ resize_lck(cuflowP_cachebin_t bin, size_t new_cap)
 }
 
 CU_SINLINE cu_bool_t
-drop_condition(cuflow_cacheconf_t conf, cuflow_cacheobj_t obj)
+_drop_condition(cuflow_cacheconf_t conf, cuflow_cacheobj_t obj)
 {
     return (unsigned long)conf->byte_cost_per_tick
 	 > (unsigned long)HDR(obj)->access_function;
 }
 
 CU_SINLINE void
-update(cuflow_cacheconf_t conf, cuflow_cacheobj_t obj)
+_update(cuflow_cacheconf_t conf, cuflow_cacheobj_t obj)
 {
     unsigned int current_ticks = conf->current_ticks;
     unsigned int delta_ticks = current_ticks - HDR(obj)->access_ticks;
@@ -141,7 +141,7 @@ update(cuflow_cacheconf_t conf, cuflow_cacheobj_t obj)
 }
 
 static void
-prune_and_adjust_lck(cuflow_cache_t cache, cuflowP_cachebin_t bin)
+_prune_and_adjust_lck(cuflow_cache_t cache, cuflowP_cachebin_t bin)
 {
     cuflow_cacheobj_t *link_arr = bin->link_arr;
     cuflow_cacheobj_t *link_arr_end = bin->link_arr + bin->cap;
@@ -152,8 +152,8 @@ prune_and_adjust_lck(cuflow_cache_t cache, cuflowP_cachebin_t bin)
 	cuflow_cacheobj_t *obj_slot = link_arr;
 	cuflow_cacheobj_t obj;
 	while ((obj = *obj_slot)) {
-	    update(conf, obj);
-	    if (drop_condition(conf, obj)) {
+	    _update(conf, obj);
+	    if (_drop_condition(conf, obj)) {
 		--bin->size;
 		*obj_slot = HDR(obj)->next;
 	    }
@@ -165,10 +165,10 @@ prune_and_adjust_lck(cuflow_cache_t cache, cuflowP_cachebin_t bin)
 
     /* Adjust capacity if necessary. */
     if (bin->size*FILL_MAX_DENOM > bin->cap*FILL_MAX_NOM)
-	resize_lck(bin, bin->cap*2);
+	_resize_lck(bin, bin->cap*2);
     else if (bin->size*FILL_MIN_DENOM < bin->cap*FILL_MIN_NOM
 	     && bin->cap/2 >= MIN_CAP)
-	resize_lck(bin, bin->cap/2);
+	_resize_lck(bin, bin->cap/2);
     bin->access_since_pruned = 0;
 }
 
@@ -184,17 +184,17 @@ cuflow_cache_call(cuflow_cache_t cache, cu_word_t fncode,
     key->fncode = fncode;
 
     /* Lookup key, return if found. */
-    hash = cacheobj_hash(fncode, key);
+    hash = _cacheobj_hash(fncode, key);
     bin = &cache->bin_arr[HASH_BIN(hash)];
     cu_mutex_lock(&bin->mutex);
     slot = &bin->link_arr[HASH_SLOT(hash, bin->cap)];
     obj = *slot;
     while (obj) {
-	if (cacheobj_eq(fncode, key, obj)) {
-	    update(cache->conf, obj);
+	if (_cacheobj_eq(fncode, key, obj)) {
+	    _update(cache->conf, obj);
 	    HDR(obj)->access_function += HDR(obj)->gain;
 	    if (++bin->access_since_pruned == bin->cap)
-		prune_and_adjust_lck(cache, bin);
+		_prune_and_adjust_lck(cache, bin);
 	    cu_mutex_unlock(&bin->mutex);
 	    return obj;
 	}
@@ -203,7 +203,7 @@ cuflow_cache_call(cuflow_cache_t cache, cu_word_t fncode,
 
     /* Not found, prune and adjust if needed, cache computation. */
     if (bin->size*FILL_MAX_DENOM > bin->cap*FILL_MAX_NOM)
-	prune_and_adjust_lck(cache, bin);
+	_prune_and_adjust_lck(cache, bin);
     obj = cache->fn_arr[CUFLOW_FNCODE_SLOT(fncode)](key);
 
     /* Insert new object. */
@@ -223,11 +223,11 @@ cuflow_cache_call(cuflow_cache_t cache, cu_word_t fncode,
 /* Cache Configuration
  * =================== */
 
-cu_clos_def(cacheconf_update,
+cu_clos_def(_cacheconf_update,
 	    cu_prot(void, struct timespec *t_now),
 	    ( cuflow_cacheconf_t conf; ))
 {
-    cu_clos_self(cacheconf_update);
+    cu_clos_self(_cacheconf_update);
     cuflow_cacheconf_t conf = self->conf;
     if (!(*conf->manager)(conf, t_now))
 	return;
@@ -235,7 +235,7 @@ cu_clos_def(cacheconf_update,
 	cuflow_timespec_add(&conf->target_time, &conf->tick_period);
 	++conf->current_ticks;
     } while (cuflow_timespec_lt(&conf->target_time, t_now));
-    cuflow_workers_call_at(cacheconf_update_ref(self), &conf->target_time);
+    cuflow_workers_call_at(_cacheconf_update_ref(self), &conf->target_time);
 }
 
 void
@@ -243,7 +243,7 @@ cuflow_cacheconf_cct(cuflow_cacheconf_t conf,
 		     cu_bool_t (*manager)(cuflow_cacheconf_t conf,
 					  struct timespec *t_now))
 {
-    cacheconf_update_t *confupdate;
+    _cacheconf_update_t *confupdate;
     struct timespec t_now;
 #if 0
     cu_mutex_init(&conf->cache_link_mutex);
@@ -256,16 +256,16 @@ cuflow_cacheconf_cct(cuflow_cacheconf_t conf,
     cuflow_workers_spawn_at_least(1);
     cuflow_timespec_assign_sum(&conf->target_time, &t_now, &conf->tick_period);
     conf->manager = manager;
-    confupdate = cu_gnew(cacheconf_update_t);
+    confupdate = cu_gnew(_cacheconf_update_t);
     confupdate->conf = conf;
-    cuflow_workers_call_at(cacheconf_update_prep(confupdate),
+    cuflow_workers_call_at(_cacheconf_update_prep(confupdate),
 			   &conf->target_time);
 }
 
-static struct cuflow_cacheconf_s default_cacheconf;
+static struct cuflow_cacheconf_s _default_cacheconf;
 
 static cu_bool_t
-default_manager(cuflow_cacheconf_t conf, struct timespec *t_now)
+_default_manager(cuflow_cacheconf_t conf, struct timespec *t_now)
 {
     return cu_true;
 }
@@ -275,10 +275,10 @@ cuflow_default_cacheconf()
 {
     static int done_init = 0;
     if (!done_init) {
-	default_cacheconf.tick_period.tv_sec = 0;
-	default_cacheconf.tick_period.tv_nsec = 10000000; /* 10 ms */
-	default_cacheconf.byte_cost_per_tick = 100;
-	cuflow_cacheconf_cct(&default_cacheconf, default_manager);
+	_default_cacheconf.tick_period.tv_sec = 0;
+	_default_cacheconf.tick_period.tv_nsec = 10000000; /* 10 ms */
+	_default_cacheconf.byte_cost_per_tick = 100;
+	cuflow_cacheconf_cct(&_default_cacheconf, _default_manager);
     }
-    return &default_cacheconf;
+    return &_default_cacheconf;
 }

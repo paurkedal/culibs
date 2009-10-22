@@ -83,12 +83,12 @@ rec:
 /* Producers
  * ========= */
 
-cu_clos_def(charr_producer,
+cu_clos_def(_charr_producer,
 	    cu_prot(cutext_status_t, void **p, size_t size),
 	    ( char const *arr;
 	      size_t size; ))
 {
-    cu_clos_self(charr_producer);
+    cu_clos_self(_charr_producer);
     if (self->size == 0)
 	return cutext_status_eos;
     if (size > self->size)
@@ -102,18 +102,18 @@ cu_clos_def(charr_producer,
 cutext_producer_t
 cutext_producer_new_charr(char const *arr, size_t size)
 {
-    charr_producer_t *cb = cu_gnew(charr_producer_t);
+    _charr_producer_t *cb = cu_gnew(_charr_producer_t);
     cb->arr = arr;
     cb->size = size;
-    return charr_producer_prep(cb);
+    return _charr_producer_prep(cb);
 }
 
-cu_clos_def(read_producer,
+cu_clos_def(_read_producer,
 	    cu_prot(cutext_status_t, void **p, size_t size),
 	    (int fd;))
 {
     ssize_t size_read;
-    cu_clos_self(read_producer);
+    cu_clos_self(_read_producer);
     while (size > 0) {
 	size_read = read(self->fd, *p, size);
 	if (size_read == -1)
@@ -128,19 +128,19 @@ cu_clos_def(read_producer,
 cutext_producer_t
 cutext_producer_new_read(int fd)
 {
-    read_producer_t *cb = cu_gnew(read_producer_t);
+    _read_producer_t *cb = cu_gnew(_read_producer_t);
     cb->fd = fd;
-    return read_producer_prep(cb);
+    return _read_producer_prep(cb);
 }
 
 
 #define ICONV_BLOCK_SIZE 1024
-cu_clos_def(producer_iconv,
+cu_clos_def(_producer_iconv,
 	    cu_prot(cutext_status_t, void **p, size_t size),
 	    ( cutext_src_t src;
 	      iconv_t cd; ))
 {
-    cu_clos_self(producer_iconv);
+    cu_clos_self(_producer_iconv);
     cutext_status_t status = cutext_status_ok;
     while (size > 0) {
 	size_t avail;
@@ -174,9 +174,9 @@ cu_clos_def(producer_iconv,
 }
 
 static void
-producer_iconv_dct(void *obj, void *cd)
+_producer_iconv_cleanup(void *obj, void *cd)
 {
-    iconv_close(((producer_iconv_t *)obj)->cd);
+    iconv_close(((_producer_iconv_t *)obj)->cd);
 }
 
 cutext_producer_t
@@ -184,7 +184,7 @@ cutext_producer_new_iconv(cutext_src_t src,
 			  cutext_encoding_t src_chenc,
 			  cutext_encoding_t self_chenc)
 {
-    producer_iconv_t *cb = cu_gnew(producer_iconv_t);
+    _producer_iconv_t *cb = cu_gnew(_producer_iconv_t);
     cb->src = src;
     cb->cd = iconv_open(cutext_encoding_name(self_chenc),
 			cutext_encoding_name(src_chenc));
@@ -193,8 +193,8 @@ cutext_producer_new_iconv(cutext_src_t src,
 		 strerror(errno));
 	abort();
     }
-    cu_gc_register_finaliser(cb, producer_iconv_dct, NULL, NULL, NULL);
-    return producer_iconv_prep(cb);
+    cu_gc_register_finaliser(cb, _producer_iconv_cleanup, NULL, NULL, NULL);
+    return _producer_iconv_prep(cb);
 }
 
 char const *

@@ -52,13 +52,13 @@ static void **object_freelist;
 #endif
 
 static void
-out_of_memory(size_t size)
+_out_of_memory(size_t size)
 {
     fprintf(stderr, "Allocation of %ld bytes failed.\n", (long)size);
     abort();
 }
 
-static void (*cuP_raise_out_of_memory)(size_t size) = out_of_memory;
+static void (*cuP_raise_out_of_memory)(size_t size) = _out_of_memory;
 
 void
 cu_raise_out_of_memory(size_t size)

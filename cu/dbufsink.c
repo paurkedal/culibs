@@ -23,7 +23,7 @@
 #define BUFSINK(sink) cu_from(cu_dbufsink, cu_dsink, sink)
 
 static size_t
-bufsink_write(cu_dsink_t sink, void const *arr, size_t len)
+_bufsink_write(cu_dsink_t sink, void const *arr, size_t len)
 {
     void *dst = cu_buffer_produce(&BUFSINK(sink)->buffer, len);
     memcpy(dst, arr, len);
@@ -31,7 +31,7 @@ bufsink_write(cu_dsink_t sink, void const *arr, size_t len)
 }
 
 static cu_word_t
-wstring_control(cu_dsink_t sink, int fn, va_list va)
+_wstring_control(cu_dsink_t sink, int fn, va_list va)
 {
     switch (fn) {
 	    cu_buffer_t buf;
@@ -50,13 +50,13 @@ cu_dsink_t
 cu_dsink_new_wstring()
 {
     cu_dbufsink_t sink = cu_gnew(struct cu_dbufsink_s);
-    cu_dsink_init(cu_to(cu_dsink, sink), wstring_control, bufsink_write);
+    cu_dsink_init(cu_to(cu_dsink, sink), _wstring_control, _bufsink_write);
     cu_buffer_init(&sink->buffer, 32);
     return cu_to(cu_dsink, sink);
 }
 
 static cu_word_t
-str_control(cu_dsink_t sink, int fn, va_list va)
+_str_control(cu_dsink_t sink, int fn, va_list va)
 {
     switch (fn) {
 	    cu_buffer_t buf;
@@ -73,7 +73,7 @@ cu_dsink_t
 cu_dsink_new_str(void)
 {
     cu_dbufsink_t sink = cu_gnew(struct cu_dbufsink_s);
-    cu_dsink_init(cu_to(cu_dsink, sink), str_control, bufsink_write);
+    cu_dsink_init(cu_to(cu_dsink, sink), _str_control, _bufsink_write);
     cu_buffer_init(&sink->buffer, 16);
     return cu_to(cu_dsink, sink);
 }
