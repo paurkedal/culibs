@@ -350,9 +350,12 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
     else if (isdigit(ch)) {
 	int len;
 	ungetc(ch, in);
-	fscanf(in, "%i%n", &val_out->i, &len);
-	cu_sref_advance_columns(sref, len);
-	token = INT;
+	if (fscanf(in, "%i%n", &val_out->i, &len) == 1) {
+	    cu_sref_advance_columns(sref, len);
+	    token = INT;
+	}
+	else
+	    token = ERROR;
     }
     else switch (ch) {
 	case '"': {

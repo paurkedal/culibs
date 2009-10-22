@@ -211,7 +211,8 @@ cu_sref_fprint(cu_sref_t srf, FILE* file)
 	return;
     }
     if (srf->path)
-	fwrite(cu_str_charr(srf->path), 1, cu_str_size(srf->path), file);
+	CU_DISCARD(fwrite(cu_str_charr(srf->path), 1, cu_str_size(srf->path),
+			  file));
     else
 	fputs("#[unknown]", file);
     if (srf->column >= 0)

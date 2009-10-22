@@ -47,12 +47,15 @@ CU_BEGIN_DECLARATIONS
 #  endif
 #endif
 
-#define cu_noop() ((void)0)
+CU_SINLINE void cu_noop() {}
 
 /* Used to prevent warnings when C compiler can not predict
  * initialisation, and informatively to assert the code is ok. May be
  * disabled for slightly more optimal code. */
 #define CU_NOINIT(...) = __VA_ARGS__
+
+/** Used to silence warnings about the result of \a call being discarded. */
+#define CU_DISCARD(call) ((call)? cu_noop() : cu_noop())
 
 /* Compiler-dependent features.  These have no semantic effect if used
  * correctly, but may give optimalization hints or provide additional

@@ -52,18 +52,18 @@ segv_handler(int sig, siginfo_t *si, void *ucontext)
      * paranoid. */
     if (!si) {
 	static char errmsg[] = "Missing siginfo argument.\n";
-	write(2, errmsg, sizeof(errmsg) - 1);
+	CU_DISCARD(write(2, errmsg, sizeof(errmsg) - 1));
     }
     else if (!ucontext) {
 	static char errmsg[] = "Missing ucontext argument.\n";
-	write(2, errmsg, sizeof(errmsg) - 1);
+	CU_DISCARD(write(2, errmsg, sizeof(errmsg) - 1));
     }
     else {
 	err_addr = (char *)si->si_addr;
 	if (err_addr >= stack_end_zone_low &&
 	    err_addr < stack_end_zone_high) {
 	    static char errmsg[] = "warning: Stack overflow.\n";
-	    write(2, errmsg, sizeof(errmsg) - 1);
+	    CU_DISCARD(write(2, errmsg, sizeof(errmsg) - 1));
 	    cuflow_throw_static(&stack_overflow_xc);
 	}
     }

@@ -203,7 +203,7 @@ cu_clos_def(main_print_cb,
     ( FILE *fout; ))
 {
     cu_clos_self(main_print_cb);
-    fwrite(cu_str_charr(key), cu_str_size(key), 1, self->fout);
+    CU_DISCARD(fwrite(cu_str_charr(key), cu_str_size(key), 1, self->fout));
     fputc('\n', self->fout);
     return cu_true;
 }
