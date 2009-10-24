@@ -1,4 +1,4 @@
-AC_INIT(culibs, 0.23, [urkedal@nbi.dk])
+AC_INIT([culibs], [0.23.1], [urkedal@nbi.dk])
 m4_pattern_forbid([^CUAC_])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([aclocal])
@@ -68,7 +68,7 @@ AC_COMPILE_IFELSE(
 uint64_t test;
   ], [
     AC_MSG_RESULT([yes])
-    AC_DEFINE(HAVE_UINT64_T, 1, [Define if stdint.h provides uint64_t.])
+    AC_DEFINE([HAVE_UINT64_T], 1, [Define if stdint.h provides uint64_t.])
   ], [
     AC_MSG_RESULT([no])
   ])
@@ -90,10 +90,10 @@ AC_ARG_ENABLE([risky-optimisations],
 # Check if it is valid to pass more arguments than the prototype in
 # the definition specifies.
 #
-AH_TEMPLATE(REDUNDANT_ARG_IS_VALID,
+AH_TEMPLATE([REDUNDANT_ARG_IS_VALID],
     [Define to 1 if it is valid to call a function with more arguments than
      in the prototype of its definition.  Cf. REDUNDANT_ARG_FIRST.])
-AH_TEMPLATE(REDUNDANT_ARG_FIRST,
+AH_TEMPLATE([REDUNDANT_ARG_FIRST],
     [Define to 1 if REDUNDANT_ARG_IS_VALID is defined and the redundant
      argument must be first in the argument list.])
 AC_MSG_CHECKING([if redundant arguments are valid])
@@ -237,7 +237,7 @@ fi
 
 # Determine winding implementitaion
 #
-AC_ARG_ENABLE(wind-variant,
+AC_ARG_ENABLE([wind-variant],
     AC_HELP_STRING(
 	[--enable-wind-variant=setjmp|unw],
 	[Which variant of the wind implementation to use.]),
