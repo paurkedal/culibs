@@ -68,7 +68,7 @@ cu_clos_def(printer,
 	    (char *str;))
 {
     cu_clos_self(printer);
-    printf(self->str);
+    fputs(self->str, stdout);
 }
 
 cu_clos_def(winder,

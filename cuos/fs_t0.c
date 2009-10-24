@@ -19,6 +19,7 @@
 #include <cuos/fs.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 int
 main(int argc, char **argv)
@@ -30,7 +31,10 @@ main(int argc, char **argv)
 	return 1;
     }
     printf("!!! Remove %s recursively? (type yes to confirm) !!!", argv[1]);
-    fgets(buf, 5, stdin);
+    if (!fgets(buf, 5, stdin)) {
+	perror("fgets");
+	return 1;
+    }
     if (strcmp(buf, "yes\n") == 0) {
 	if (!cuos_remove_rec(cu_str_new_cstr(argv[1])))
 	    return 1;

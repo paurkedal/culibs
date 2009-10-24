@@ -27,11 +27,18 @@ copy_to_stdout(cutext_src_t src)
 {
     static const size_t bufsize = 10;
     for (;;) {
+	size_t n;
 	cutext_src_lookahead(src, bufsize);
-	if (cutext_src_data_size(src) == 0)
+	n = cutext_src_data_size(src);
+	if (n == 0)
 	    break;
-	write(1, cutext_src_data_start(src), cutext_src_data_size(src));
-	cutext_src_advance(src, cutext_src_data_size(src));
+	n = write(1, cutext_src_data_start(src), n);
+	if (n <= 0) {
+	    if (n == -1) perror("write");
+	    else fprintf(stderr, "write failed\n");
+	    exit(2);
+	}
+	cutext_src_advance(src, n);
     }
 }
 
