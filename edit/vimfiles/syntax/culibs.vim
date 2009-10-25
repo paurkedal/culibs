@@ -52,7 +52,7 @@ syn keyword cDebug cu_dlogf cu_dlog_def cu_dlog_edec cu_dlog_edef
     \ nextgroup=cDebugParen
 syn keyword cDebug assert cu_dprintf nextgroup=cDebugParen
 syn keyword cDebug CU_NOINIT nextgroup=cDebugParen
-syn region cDebugParen start='(' end=')' contained fold contains=cDebugParen
+syn region cDebugParen contained start='(' end=');' keepend
 hi link cDebugParen cDebug
 
 " Obsolete
@@ -60,6 +60,6 @@ syn match cObsolete 'cu_func_\(decl\|init\)\(_e\)\?'
 syn keyword cObsolete cu_func_ref cu_func_ref_cast
 syn keyword cObsolete cu_clptr cu_clptr0 cu_proto cu_proto0
 
-" Newly introduced C highlighting groups.
+" Newly introduced highlighting groups.
 hi def link cDebug Debug
 hi def link cObsolete Error
