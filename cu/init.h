@@ -21,23 +21,25 @@
 #include <cu/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_init_h cu/init.h: Library Initialisation
- * @{\ingroup cu_base_mod */
 
 extern cu_bool_t cuP_locale_is_utf8;
 
-/*!Announces to culibs that the current application is \a name. */
+/** \defgroup cu_init_h cu/init.h: Library Initialisation
+ ** @{ \ingroup cu_base_mod */
+
+/** Announces to culibs that the current application is \a name. */
 void cu_set_application_name(char const *name);
 
-/*!Returns a previously set application name.  \c cu_set_application_name must
- * have been set prior to calling this function, or a logic error is
- * raised. */
+/** Returns a previously set application name.  \c cu_set_application_name must
+ ** have been set prior to calling this function, or a logic error is raised.
+ ** */
 char const *cu_application_name_cstr(void);
 
-/*!\copydoc cu_application_name_cstr */
+/** \copydoc cu_application_name_cstr */
 cu_str_t cu_application_name_str(void);
 
-/*!@}*/
+/** @} */
+
 CU_END_DECLARATIONS
 
 #endif

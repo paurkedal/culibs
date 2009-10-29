@@ -27,19 +27,19 @@ CU_BEGIN_DECLARATIONS
 void cuP_buffer_fix_fullcap(cu_buffer_t buf, size_t fullcap);
 void cuP_buffer_fix_freecap(cu_buffer_t buf, size_t freecap);
 
-/*!\defgroup cu_buffer_h cu/buffer.h: Generic Self-Extending Buffer
- *@{\ingroup cu_seq_mod
- *
- * This header defines a buffer for use with any data which can be moved
- * around.  It has a storage which is dynamically re-allocated as needed.
- * Within the storage is a sub-region with the current content.  The content
- * can be resized and moved upwards within the storage by moving its start and
- * end pointers.  When the content region reaches the limit of the storage, it
- * will be move to the start of the storage, possibly reallocating a bigger
- * storage region first.  To guarantee good time complexity, the storage is
- * extended in geometric progression, and the storage is kept big enough that
- * the content is moved at most once on the average.
- */
+/** \defgroup cu_buffer_h cu/buffer.h: Generic Self-Extending Buffer
+ ** @{ \ingroup cu_seq_mod
+ **
+ ** This header defines a buffer for use with any data which can be moved
+ ** around.  It has a storage which is dynamically re-allocated as needed.
+ ** Within the storage is a sub-region with the current content.  The content
+ ** can be resized and moved upwards within the storage by moving its start and
+ ** end pointers.  When the content region reaches the limit of the storage, it
+ ** will be move to the start of the storage, possibly reallocating a bigger
+ ** storage region first.  To guarantee good time complexity, the storage is
+ ** extended in geometric progression, and the storage is kept big enough that
+ ** the content is moved at most once on the average.
+ **/
 
 struct cu_buffer_s
 {
@@ -49,49 +49,50 @@ struct cu_buffer_s
     void *storage_end;
 };
 
-/*!Returns an empty buffer with initial capacity \a init_cap. */
+/** Returns an empty buffer with initial capacity \a init_cap. */
 cu_buffer_t cu_buffer_new(size_t init_cap);
 
-/*!Initialise \a buf to an empty buffer of with initial capacity
- * \a init_cap. */
+/** Initialise \a buf to an empty buffer of with initial capacity
+ ** \a init_cap. */
 void cu_buffer_init(cu_buffer_t buf, size_t init_cap);
 
-/*!Set the content of \a buf to the empty sequence aligned to the start of the
- * storage. */
+/** Set the content of \a buf to the empty sequence aligned to the start of the
+ ** storage. */
 CU_SINLINE void cu_buffer_clear(cu_buffer_t buf)
 { buf->content_start = buf->content_end = buf->storage_start; }
 
-/*!Initialise \a buf with the data of \a buf_drop, and invalidate
- * \a buf_drop. */
+/** Initialise \a buf with the data of \a buf_drop, and invalidate
+ ** \a buf_drop. */
 void cu_buffer_init_drop(cu_buffer_t buf, cu_buffer_t buf_drop);
 
-/*!Swap the states of \a buf0 and \a buf1. */
+/** Swap the states of \a buf0 and \a buf1. */
 void cu_buffer_swap(cu_buffer_t buf0, cu_buffer_t buf1);
 
-/*!The start of the current buffer storage. */
+/** The start of the current buffer storage. */
 CU_SINLINE void *
 cu_buffer_storage_start(cu_buffer_t buf)
 { return buf->storage_start; }
 
-/*!The end of the current buffer storage. */
+/** The end of the current buffer storage. */
 CU_SINLINE void *
 cu_buffer_storage_end(cu_buffer_t buf)
 { return buf->storage_end; }
 
+/** The number of bytes stored in \a buf. */
 CU_SINLINE size_t
 cu_buffer_storage_size(cu_buffer_t buf)
 { return cu_ptr_diff(cu_buffer_storage_end(buf),
 		     cu_buffer_storage_start(buf)); }
 
-/*!The number of bytes from the start of the buffer contents to the end of the
- * end of the current buffer storage. */
+/** The number of bytes from the start of the buffer contents to the end of the
+ ** end of the current buffer storage. */
 CU_SINLINE size_t
 cu_buffer_fullcap(cu_buffer_t buf)
 { return cu_ptr_diff(buf->storage_end, buf->content_start); }
 
-/*!Makes sure there is at least \a fullcap bytes allocated after the start of
- * the buffer content.  This is done either by moving the content to the start
- * of the buffer or by allocating a bigger chunck of memory. */
+/** Makes sure there is at least \a fullcap bytes allocated after the start of
+ ** the buffer content.  This is done either by moving the content to the start
+ ** of the buffer or by allocating a bigger chunck of memory. */
 CU_SINLINE void
 cu_buffer_extend_fullcap(cu_buffer_t buf, size_t fullcap)
 {
@@ -99,13 +100,13 @@ cu_buffer_extend_fullcap(cu_buffer_t buf, size_t fullcap)
 	cuP_buffer_fix_fullcap(buf, fullcap);
 }
 
-/*!The number of bytes allocated after the current contents. */
+/** The number of bytes allocated after the current contents. */
 CU_SINLINE size_t
 cu_buffer_freecap(cu_buffer_t buf)
 { return cu_ptr_diff(buf->storage_end, buf->content_end); }
 
-/*!Makes sure there is at least \a freecap bytes allocated after the end of the
- * buffer content. */
+/** Makes sure there is at least \a freecap bytes allocated after the end of
+ ** the buffer content. */
 CU_SINLINE void
 cu_buffer_extend_freecap(cu_buffer_t buf, size_t freecap)
 {
@@ -113,30 +114,30 @@ cu_buffer_extend_freecap(cu_buffer_t buf, size_t freecap)
 	cuP_buffer_fix_freecap(buf, freecap);
 }
 
-/*!Unconditionally realign content to start of storage. */
+/** Unconditionally realign the content to the start of the storage. */
 void cu_buffer_force_realign(cu_buffer_t buf);
 
-/*!Realign content to start of storage if the displacement is larger than the
- * content size. */
+/** Realign content to the start of storage if the displacement is larger than
+ ** the content size. */
 void cu_buffer_maybe_realign(cu_buffer_t buf);
 
-/*!Pointer to the start of the content of the buffer. */
+/** The address of the start of the content of \a buf. */
 CU_SINLINE void *
 cu_buffer_content_start(cu_buffer_t buf)
 { return buf->content_start; }
 
-/*!Pointer to the end of the content of the buffer. */
+/** The address of the end of the content of \a buf. */
 CU_SINLINE void *
 cu_buffer_content_end(cu_buffer_t buf)
 { return buf->content_end; }
 
-/*!The size in bytes of the buffer contents. */
+/** The size in bytes of the buffer contents. */
 CU_SINLINE size_t
 cu_buffer_content_size(cu_buffer_t buf)
 { return cu_ptr_diff(buf->content_end, buf->content_start); }
 
-/*!Sets the start of content pointer.
- * \pre \a start must be within the buffer, and less than the content end. */
+/** Sets the start of content pointer.
+ ** \pre \a start must be within the buffer, and less than the content end. */
 CU_SINLINE void
 cu_buffer_set_content_start(cu_buffer_t buf, void *start)
 {
@@ -144,10 +145,10 @@ cu_buffer_set_content_start(cu_buffer_t buf, void *start)
     buf->content_start = start;
 }
 
-/*!Increment the start of content by \a incr bytes, which in essence indicates
- * that the corresponding content is consumed, and the related buffer space
- * re-used.
- * \pre \a incr must be less than or equal to the content size. */
+/** Increment the start-of-content pointer by \a incr bytes, which in essence
+ ** indicates that the corresponding content is consumed, so that the related
+ ** buffer space can be re-used.
+ ** \pre \a incr must be less than or equal to the content size. */
 CU_SINLINE void
 cu_buffer_incr_content_start(cu_buffer_t buf, size_t incr)
 {
@@ -155,8 +156,8 @@ cu_buffer_incr_content_start(cu_buffer_t buf, size_t incr)
     cu_debug_assert(buf->content_start <= buf->content_end);
 }
 
-/*!Sets the end of content pointer.
- * \pre \a end must be within the buffer and after the content start. */
+/** Sets the end-of-content pointer.
+ ** \pre \a end must be within the buffer and after the content start. */
 CU_SINLINE void
 cu_buffer_set_content_end(cu_buffer_t buf, void *end)
 {
@@ -164,23 +165,27 @@ cu_buffer_set_content_end(cu_buffer_t buf, void *end)
     buf->content_end = end;
 }
 
-/*!Inclement the end of content by \a incr bytes, which in essence indicates
- * that the corresponding content is produced.  This function extends the
- * buffer capacity if needed. */
+/** Inclement the end-of-content pointer by \a incr bytes, which in essence
+ ** indicates that the corresponding content is produced.  This function
+ ** extends the buffer capacity if needed. */
 void cu_buffer_incr_content_end(cu_buffer_t buf, size_t incr);
 
-/*!Sets the size of the content of \a buf.  This function extends the buffer
- * capacity if needed. */
+/** Sets the size of the content of \a buf.  This function extends the buffer
+ ** capacity if needed. */
 void cu_buffer_resize_content(cu_buffer_t buf, size_t size);
 
+/** This is a shortcut to increment the end-of-content pointer by \a incr and
+ ** return it's value befor the increment.  It is useful for appending data to
+ ** the buffer. */
 void *cu_buffer_produce(cu_buffer_t buf, size_t incr);
 
+/** Append the \a size bytes starting at \a data to the content of \a buf. */
 void cu_buffer_write(cu_buffer_t buf, void const *data, size_t size);
 
 #define cu_buffer_put(buf, data_t, data) \
     (*(data_t *)cu_buffer_produce(buf, sizeof(data_t)) = (data))
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

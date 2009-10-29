@@ -46,8 +46,8 @@
 
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_memory cu/memory.h: Memory Allocation
- * @{ \ingroup cu_base_mod */
+/** \defgroup cu_memory cu/memory.h: Memory Allocation
+ ** @{ \ingroup cu_base_mod */
 
 #ifdef CUCONF_HAVE_STDINT_H
 typedef uintptr_t cu_uintptr_t;
@@ -69,9 +69,11 @@ void cu_regh_out_of_memory(void (*f)(size_t));
 /* Stack-bound Memory
  * ================== */
 
-/*!Allocate memory on the stack.  (This is just an alias for alloca used in
- * the library for quick replacement when debugging stack-related issues.) */
+/** Allocate memory on the stack.  (This is just an alias for alloca used in
+ ** the library for quick replacement when debugging stack-related issues.) */
 #define		cu_salloc(size) (alloca(size))
+
+/** The counterpart of \ref cu_salloc, which is a noop. */
 #define		cu_sfree(p) ((void)(p))
 
 
@@ -105,8 +107,8 @@ void cu_gfree_au_D(void *ptr, char const *file, int line);
 
 #else /* !CUCONF_DEBUG_MEMORY */
 
-/*!Returns \a size bytes of traced an collectable memory.
- * \c GC_malloc with a check for \c NULL. */
+/** Returns \a size bytes of traced an collectable memory.
+ ** \c GC_malloc with a check for \c NULL. */
 CU_SINLINE void *
 cu_galloc(size_t size)
 {
@@ -121,8 +123,8 @@ cu_galloc(size_t size)
     return p;
 }
 
-/*!Allocate a memory region of \a size bytes of untraced but collectable
- * memory.  \c GC_malloc_atomic with a check for \c NULL. */
+/** Allocate a memory region of \a size bytes of untraced but collectable
+ ** memory.  \c GC_malloc_atomic with a check for \c NULL. */
 CU_SINLINE void *
 cu_galloc_a(size_t size)
 {
@@ -137,8 +139,8 @@ cu_galloc_a(size_t size)
     return p;
 }
 
-/*!Returns \a size bytes of traced but uncollectable memory.
- * \c GC_malloc_uncollectable with a check for \c NULL. */
+/** Returns \a size bytes of traced but uncollectable memory.
+ ** \c GC_malloc_uncollectable with a check for \c NULL. */
 CU_SINLINE void *
 cu_galloc_u(size_t size)
 {
@@ -149,9 +151,9 @@ cu_galloc_u(size_t size)
     return p;
 }
 
-/*!Returns \a size bytes of untraced and uncollectable memory. May
- * be implemented as \c GC_malloc_atomic_uncollectable, if available
- * or \c malloc, so use \c cu_gfree_au to release it. */
+/** Returns \a size bytes of untraced and uncollectable memory. May be
+ ** implemented as \c GC_malloc_atomic_uncollectable, if available or \c
+ ** malloc, so use \c cu_gfree_au to release it. */
 CU_SINLINE void *
 cu_galloc_au(size_t size)
 {
@@ -166,21 +168,20 @@ cu_galloc_au(size_t size)
     return p;
 }
 
-/*!Allocate cleared collected memory. */
+/** Allocate cleared collected memory. */
 #define cu_cgalloc cu_galloc
 
-/*!Allocate cleared atomic collected memory. */
+/** Allocate cleared atomic collected memory. */
 #define cu_cgalloc_a cu_galloc_a
 
-/*!Allocate cleared traced but uncollected memory. */
+/** Allocate cleared traced but uncollected memory. */
 #define cu_cgalloc_u cu_galloc_u
 
-/*!Frees memory allocated with \c cu_galloc, \c cu_galloc_a, or
- * \c cu_galloc_u, but only the latter really needs to be freed
- * explicitely. */
+/** Frees memory allocated with \c cu_galloc, \c cu_galloc_a, or \c
+ ** cu_galloc_u, but only the latter really needs to be freed explicitely. */
 #define cu_gfree GC_free
 #ifdef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
-/*!Frees memory allocated with \c cu_galloc_au. */
+/** Frees memory allocated with \c cu_galloc_au. */
 #  define cu_gfree_au GC_free
 #else
 #  define cu_gfree_au free
@@ -191,20 +192,20 @@ cu_galloc_au(size_t size)
 #define cu_gfree_u cu_gfree
 #define cu_gfree_a cu_gfree
 
-/*!Shortcut to allocate an object of type \a type using \ref cu_galloc. */
+/** Shortcut to allocate an object of type \a type using \ref cu_galloc. */
 #define	cu_gnew(type) ((type*)cu_galloc(sizeof(type)))
 
-/*!Shortcut to allocate an object of type \a type using \ref cu_galloc_a. */
+/** Shortcut to allocate an object of type \a type using \ref cu_galloc_a. */
 #define cu_gnew_a(type) ((type *)cu_galloc_a(sizeof(type)))
 
-/*!Shortcut to allocate an object of type \a type using \ref cu_galloc_u. */
+/** Shortcut to allocate an object of type \a type using \ref cu_galloc_u. */
 #define cu_gnew_u(type) ((type *)cu_galloc_u(sizeof(type)))
 
-/*!Shortcut to allocate an object of type \a type using \ref cu_galloc_au. */
+/** Shortcut to allocate an object of type \a type using \ref cu_galloc_au. */
 #define cu_gnew_au(type) ((type *)cu_galloc_au(sizeof(type)))
 
-/*!A shortcut to allocate an cleared object of type \a type using \ref
- * cu_cgalloc. */
+/** A shortcut to allocate an cleared object of type \a type using \ref
+ ** cu_cgalloc. */
 #define cu_cgnew(type) ((type *)cu_cgalloc(sizeof(type)))
 
 #define cu_gnewarr(type, n)	((type *)cu_galloc(sizeof(type)*(n)))
@@ -219,22 +220,23 @@ cu_galloc_au(size_t size)
 /* Other GC facilities
  * ------------------- */
 
-/*!Notify that the pointer \a ptr_lvalue in traceable memory is no longer
- * needed.  It will be left as a tuning option whether to zero the pointer or
- * not.  Clients may want to use their own analogous macro for local tuning. */
+/** Notify that the pointer \a ptr_lvalue in traceable memory is no longer
+ ** needed.  It will be left as a tuning option whether to zero the pointer or
+ ** not.  Clients may want to use their own analogous macro for local tuning. */
 #define CU_GWIPE(ptr_lvalue) ((ptr_lvalue) = NULL)
 
 #define CU_GCLEAR_INT(lvalue) (0? (void)((lvalue) = 0) : (void)0)
 #define CU_GCLEAR_PTR(lvalue) (0? (void)((lvalue) = NULL) : (void)0)
 
-/*!A type which represents a pointer that is hidden to the garbage
- * collector. */
+/** A type which represents a pointer that is hidden to the garbage
+ ** collector. */
 typedef struct cu_hidden_ptr_s *cu_hidden_ptr_t;
 
-/*!Hide a pointer from the garbage collector. */
+/** Hide a pointer from the garbage collector. */
 #define cu_hide_ptr(ptr) ((cu_hidden_ptr_t)~(cu_uintptr_t)(ptr))
-/*!Reveal a pointer that was hidden with \c cu_hide_ptr.  If you don't
- * know how determine if the pointer is still valid, don't use this. */
+
+/** Reveal a pointer that was hidden with \c cu_hide_ptr.  If you don't know
+ ** how determine if the pointer is still valid, don't use this. */
 #define cu_reveal_ptr(hptr) \
 	((void*)~(cu_uintptr_t)CU_MARG(cu_hidden_ptr_t, hptr))
 
@@ -260,7 +262,7 @@ void *cu_gc_base_D(void *);
 	   : *(p) = (q))
 #endif
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

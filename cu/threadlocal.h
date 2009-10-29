@@ -22,43 +22,43 @@
 #include <cu/conf.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_threadlocal_h cu/threadlocal.h: Thread-Local Storage Boilerplates
- *@{\ingroup cu_base_mod
- *
- * These boilerplates allows the client application or library to define
- * thread-local storage using an available mechanism.  Currently, the __thread
- * keyword is used if detected, otherwise the POSIX threads functons are used.
- * Initialisation is assured either by creating threads with \ref
- * cu_pthread_create or by calling \ref cu_thread_init before any local storage
- * is used.
- *
- * \def CU_THREADLOCAL_DECL(NAME, PRIVATE_NAME)
- * Emits declarations for the header file.  Assuming that the struct NAME_s and
- * an associated pointer NAME_t have been defined, this provides a function
- * <tt>NAME_t NAME(void)</tt> which returns the thread-local storage.  \a
- * PRIVATE_NAME is a prefix for for identifiers which are to be considered
- * private.
- *
- * \def CU_THREADLOCAL_DEF(NAME, PRIVATE_NAME, STATIC_NAME)
- * Emits definitions associated with \ref CU_THREADLOCAL_DECL(\a NAME, \a
- * PRIVATE_NAME).  \a STATIC_NAME is a prefix for file local definitions
- * including the following two functions which must be defined:
- * \li <tt>void STATIC_NAME_init(NAME_t tls);</tt>
- * \li <tt>void STATIC_NAME_destruct(NAME_t tls);</tt>
- *
- * \def CU_THREADLOCAL_INIT(NAME, PRIVATE_NAME, STATIC_NAME)
- * Emits initialisation code for definitions in \ref CU_THREADLOCAL_DEF(\a
- * NAME, \a PRIVATE_NAME, \a STATIC_NAME).  This code must be run in the main
- * thread before other threads are created, typically during a global
- * initialisation phase.
- */
+/** \defgroup cu_threadlocal_h cu/threadlocal.h: Thread-Local Storage Boilerplates
+ ** @{ \ingroup cu_base_mod
+ **
+ ** These boilerplates allows the client application or library to define
+ ** thread-local storage using an available mechanism.  Currently, the __thread
+ ** keyword is used if detected, otherwise the POSIX threads functons are used.
+ ** Initialisation is assured either by creating threads with \ref
+ ** cu_pthread_create or by calling \ref cu_thread_init before any local
+ ** storage is used.
+ **
+ ** \def CU_THREADLOCAL_DECL(NAME, PRIVATE_NAME)
+ ** Emits declarations for the header file.  Assuming that the struct NAME_s
+ ** and an associated pointer NAME_t have been defined, this provides a
+ ** function <tt>NAME_t NAME(void)</tt> which returns the thread-local storage.
+ ** \a PRIVATE_NAME is a prefix for for identifiers which are to be considered
+ ** private.
+ **
+ ** \def CU_THREADLOCAL_DEF(NAME, PRIVATE_NAME, STATIC_NAME)
+ ** Emits definitions associated with \ref CU_THREADLOCAL_DECL(\a NAME, \a
+ ** PRIVATE_NAME).  \a STATIC_NAME is a prefix for file local definitions
+ ** including the following two functions which must be defined: \li <tt>void
+ ** STATIC_NAME_init(NAME_t tls);</tt> \li <tt>void STATIC_NAME_destruct(NAME_t
+ ** tls);</tt>
+ **
+ ** \def CU_THREADLOCAL_INIT(NAME, PRIVATE_NAME, STATIC_NAME)
+ ** Emits initialisation code for definitions in \ref CU_THREADLOCAL_DEF(\a
+ ** NAME, \a PRIVATE_NAME, \a STATIC_NAME).  This code must be run in the main
+ ** thread before other threads are created, typically during a global
+ ** initialisation phase.
+ **/
 
 #ifdef CUCONF_HAVE_THREAD_KEYWORD
 
 #  define CU_THREADLOCAL_DECL(name, private_name)			\
     extern __thread struct name##_s private_name##_inst;		\
 									\
-    /*!Returns thread-local state. */					\
+    /** Returns thread-local state. */					\
     CU_SINLINE name##_t name(void)					\
     { return &private_name##_inst; }					\
 									\
@@ -92,7 +92,7 @@ CU_BEGIN_DECLARATIONS
 #  define CU_THREADLOCAL_DECL(name, private_name)			\
     extern pthread_key_t private_name##_key;				\
 									\
-    /*!Returns thread-local state. */					\
+    /** Returns thread-local state. */					\
     CU_SINLINE name##_t name(void)					\
     { return (name##_t)pthread_getspecific(private_name##_key); }	\
 									\
@@ -129,7 +129,7 @@ CU_BEGIN_DECLARATIONS
 
 #endif /* !CUCONF_HAVE_THREAD_KEYWORD */
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

@@ -40,7 +40,7 @@ CU_SINLINE size_t cu_size_min(size_t n, size_t m) { return n < m? n : m; }
 CU_SINLINE size_t cu_size_max(size_t n, size_t m) { return n > m? n : m; }
 
 /** Returs a number with the lowest \a b bits set, and the remaining bits
- * cleared. */
+ ** cleared. */
 CU_SINLINE size_t cu_size_lmask(unsigned int b)
 { return ((size_t)(1) << b) - (size_t)1; }
 

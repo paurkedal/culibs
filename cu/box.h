@@ -25,7 +25,7 @@
 
 CU_BEGIN_DECLARATIONS
 /** \defgroup cu_box_h cu/box.h: Boxing and Unboxing Operations
- ** @{\ingroup cu_type_mod */
+ ** @{ \ingroup cu_type_mod */
 
 #define CU_BOX_SIZE CU_WORD_SIZE
 

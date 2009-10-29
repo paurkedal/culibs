@@ -23,10 +23,10 @@
 #include <cu/dlink.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_hook_h cu/hook.h: Hooks; Templates and Common Instances
- *@{\ingroup cu_util_mod */
+/** \defgroup cu_hook_h cu/hook.h: Hooks; Templates and Common Instances
+ ** @{ \ingroup cu_util_mod */
 
-/*!A node of a hook for use in hook implementations. */
+/** A node of a hook for use in hook implementations. */
 typedef struct cu_hook_node_s *cu_hook_node_t;
 struct cu_hook_node_s
 {
@@ -40,11 +40,11 @@ void cuP_hook_prepend(cu_hook_node_t hook, cu_clop0(f, void));
 void cuP_hook_append(cu_hook_node_t hook, cu_clop0(f, void));
 #endif
 
-/*!A template for defining a new hook with name prefix \a name.  \a f_decl must
- * declare a closure pointer parameter \e f.  This template defines an opaque
- * pointer type which can be cast to \ref cu_hook_node_t and functions
- * with suffixes _init, _prepend, and _append.  The _call function is hook
- * dependent, and can be defined using \ref CU_HOOK_FOR. */
+/** A template for defining a new hook with name prefix \a name.  \a f_decl
+ ** must declare a closure pointer parameter \e f.  This template defines an
+ ** opaque pointer type which can be cast to \ref cu_hook_node_t and functions
+ ** with suffixes _init, _prepend, and _append.  The _call function is hook
+ ** dependent, and can be defined using \ref CU_HOOK_FOR. */
 #define CU_HOOK_TEMPLATE(name, f_decl)					\
     typedef struct name##_s *name##_t; /* abstract */			\
     struct name##_s { cu_inherit (cu_hook_node_s); };			\
@@ -68,38 +68,38 @@ void cuP_hook_append(cu_hook_node_t hook, cu_clop0(f, void));
 #define CU_HOOK_NEXT(node) \
     cu_from(cu_hook_node, cu_dlink, cu_to(cu_dlink, node)->next)
 
-/*!A template for a for-loop header which iterates over entries of \a hook.
- * Each entry is assigned to \a node, which bust be declared with type \ref
- * cu_hook_node_t. */
+/** A template for a for-loop header which iterates over entries of \a hook.
+ ** Each entry is assigned to \a node, which bust be declared with type \ref
+ ** cu_hook_node_t. */
 #define CU_HOOK_FOR(node, hook)						\
     for (node = CU_HOOK_NEXT(cu_to(cu_hook_node, hook));		\
 	 node != cu_to(cu_hook_node, hook);				\
 	 node = CU_HOOK_NEXT(node))
 
 CU_HOOK_TEMPLATE(cu_iter_hook, cu_clop0(f, void))
-/*!Calls each entry of \a hook in order. */
+/** Calls each entry of \a hook in order. */
 void cu_iter_hook_call(cu_iter_hook_t hook);
 
 CU_HOOK_TEMPLATE(cu_iterA_hook, cu_clop0(f, cu_bool_t))
-/*!Calls each entry of \a hook in order as long as true is returned, and
- * returns the conjunction of the return values. */
+/** Calls each entry of \a hook in order as long as true is returned, and
+ ** returns the conjunction of the return values. */
 cu_bool_t cu_iterA_hook_call(cu_iterA_hook_t hook);
 
 CU_HOOK_TEMPLATE(cu_iter_ptr_hook, cu_clop(f, void, void *))
-/*!Calls each entry of \a hook in order. */
+/** Calls each entry of \a hook in order. */
 void cu_iter_ptr_hook_call(cu_iter_ptr_hook_t hook, void *arg);
 
 CU_HOOK_TEMPLATE(cu_iterA_ptr_hook, cu_clop(f, cu_bool_t, void *))
-/*!Calls each entry of \a hook in order as long as true is returned, and
- * returns the conjunction of the return values. */
+/** Calls each entry of \a hook in order as long as true is returned, and
+ ** returns the conjunction of the return values. */
 cu_bool_t cu_iterA_ptr_hook_call(cu_iterA_ptr_hook_t hook, void *arg);
 
 CU_HOOK_TEMPLATE(cu_ptr_compose_hook, cu_clop(f, void *, void *))
-/*!Evaluates the composition of the functions in \a hook applied to \a arg, or
- * returns \c NULL as soon as an entry returns \c NULL. */
+/** Evaluates the composition of the functions in \a hook applied to \a arg, or
+ ** returns \c NULL as soon as an entry returns \c NULL. */
 void *cu_ptr_compose_hook_call(cu_ptr_compose_hook_t hook, void *arg);
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

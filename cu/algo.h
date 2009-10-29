@@ -21,10 +21,10 @@
 #include <cu/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_algo_h cu/algo.h: Supportive definitions for various algorithms
- * @{\ingroup cu_util_mod */
+/** \defgroup cu_algo_h cu/algo.h: Supportive definitions for various algorithms
+ ** @{ \ingroup cu_util_mod */
 
-/*!Enumeration of partial order relations. */
+/** Enumeration of partial order relations. */
 typedef enum {
     cu_order_none = 0,	/*!< no ordering relation applies */
     cu_order_lt = 13,	/*!< less-than ordering */
@@ -32,6 +32,7 @@ typedef enum {
     cu_order_eq = 3,	/*!< equal-to ordering */
 } cu_order_t;
 
+/** The opposite ordering of \a order. */
 CU_SINLINE cu_order_t
 cu_order_rev(cu_order_t order)
 { return (cu_order_t)(order ^ (order >> 2)); }
@@ -53,7 +54,7 @@ cu_ptr_rotl(cu_ptr_ptr_t p0, cu_ptr_ptr_t p1, cu_ptr_ptr_t p2)
     *(void **)p2 = pS;
 }
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif
