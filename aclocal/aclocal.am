@@ -4,4 +4,5 @@ aclocaldir = $(datadir)/aclocal
 # in the distribution, but we'll also install some of them.
 aclocal_DATA = \
 	aclocal/cu4.m4 \
+	aclocal/cuac_config_installdirs.m4 \
 	aclocal/cuac_useful.m4
