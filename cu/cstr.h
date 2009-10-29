@@ -36,8 +36,8 @@ char *cu_cstr_new_copy(char const *cstr);
 char *cu_cstr_toupper(char *cstr);
 char *cu_cstr_tolower(char *cstr);
 
-char *cu_wcstombs(wchar_t const *wcs); /*!<\deprecated */
-wchar_t *cu_mbstowcs(char const *str); /*!<\deprecated */
+char *cu_wcstombs(wchar_t const *wcs) CU_ATTR_DEPRECATED;
+wchar_t *cu_mbstowcs(char const *str) CU_ATTR_DEPRECATED;
 
 CU_END_DECLARATIONS
 
