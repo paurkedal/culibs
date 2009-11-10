@@ -24,7 +24,6 @@ cuoo_sources = \
 	cuoo/type.c
 
 if enable_gc_disclaim
-    noinst_HEADERS += cuoo/hcons_rn.h
     cuoo_sources += cuoo/hcons_rn.c
 else
     cuoo_sources += cuoo/hcons_wp.c
