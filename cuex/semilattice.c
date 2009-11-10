@@ -19,6 +19,7 @@
 #include <cuex/atree.h>
 #include <cuex/oprinfo.h>
 #include <cuoo/intf.h>
+#include <cuoo/hctem.h>
 #include <cufo/stream.h>
 #include <cufo/tagdefs.h>
 #include <inttypes.h>

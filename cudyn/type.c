@@ -26,6 +26,7 @@
 #include <cuex/set.h>
 #include <cuex/monoid.h>
 #include <cuoo/intf.h>
+#include <cuoo/hctem.h>
 #include <cufo/stream.h>
 #include <cu/size.h>
 

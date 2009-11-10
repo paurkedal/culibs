@@ -18,7 +18,7 @@
 #include <cuoo/layout.h>
 #include <cu/debug.h>
 #include <cu/int.h>
-#include <cuoo/halloc.h>
+#include <cuoo/hctem.h>
 #include <cuoo/intf.h>
 
 #define HASH CU_HASH2

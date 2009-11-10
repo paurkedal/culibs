@@ -16,6 +16,7 @@
  */
 
 #include <cuex/tpvar.h>
+#include <cuoo/hctem.h>
 
 cuex_tpvar_t
 cuex_tpvar(int index, cu_offset_t width_mask, cuex_t type_class)

@@ -18,6 +18,7 @@
 #define CUDYN_CTOR_C
 #include <cudyn/ctor.h>
 #include <cuoo/halloc.h>
+#include <cuoo/hctem.h>
 #include <cuoo/intf.h>
 
 cudyn_ctortype_t

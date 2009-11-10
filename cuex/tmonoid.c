@@ -18,6 +18,7 @@
 #include <cuex/tmonoid.h>
 #include <cuex/compound.h>
 #include <cuex/oprinfo.h>
+#include <cuoo/hctem.h>
 #include <cufo/stream.h>
 #include <cufo/tagdefs.h>
 #include <cucon/list.h>

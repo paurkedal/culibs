@@ -19,7 +19,7 @@
 #include <cuex/atree.h>
 #include <cuex/compound.h>
 #include <cuex/intf.h>
-#include <cuoo/halloc.h>
+#include <cuoo/hctem.h>
 #include <cuoo/intf.h>
 #include <cuoo/type.h>
 #include <cufo/stream.h>

@@ -16,7 +16,7 @@
  */
 
 #include <cuoo/type.h>
-#include <cuoo/halloc.h>
+#include <cuoo/hctem.h>
 #include <cuoo/intf.h>
 #include <stdlib.h>
 

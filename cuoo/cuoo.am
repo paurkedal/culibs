@@ -2,6 +2,7 @@ cuoo_headers = \
 	cuoo/fwd.h \
 	cuoo/halloc.h \
 	cuoo/hcobj.h \
+	cuoo/hctem.h \
 	cuoo/intf.h \
 	cuoo/layout.h \
 	cuoo/meta.h \

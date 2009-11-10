@@ -18,7 +18,7 @@
 #include <cucon/ucmap.h>
 #include <cu/memory.h>
 #include <cu/int.h>
-#include <cuoo/halloc.h>
+#include <cuoo/hctem.h>
 #include <cuoo/intf.h>
 #include <inttypes.h>
 

@@ -23,7 +23,7 @@
 #include <cuex/atree.h>
 #include <cuex/monoid.h>
 #include <cuex/iteration.h>
-#include <cuoo/halloc.h>
+#include <cuoo/hctem.h>
 #include <cuoo/properties.h>
 #include <cufo/stream.h>
 #include <cufo/tagdefs.h>

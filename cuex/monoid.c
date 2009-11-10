@@ -21,6 +21,7 @@
 #include <cufo/stream.h>
 #include <cufo/tagdefs.h>
 #include <cucon/list.h>
+#include <cuoo/hctem.h>
 
 #define MONOID(x) ((cuex_monoid_t)(x))
 

@@ -30,8 +30,11 @@ CU_BEGIN_DECLARATIONS
 #  define CUOO_HCTEM_EXCLUDE_HCOBJ_SHIFT 1
 #endif
 
-/*!\defgroup cuoo_hcons_h cuoo/halloc.h: Hash-Consing Allocation
- * @{\ingroup cuoo_mod */
+/** \defgroup cuoo_halloc_h cuoo/halloc.h: Hash-Consing Allocation
+ ** @{ \ingroup cuoo_mod
+ **
+ ** This is the generic API for hash-consing.  The macros in \ref cuoo_hctem_h
+ ** "cuoo/hctem.h" may be more convinent. */
 
 #define CUOO_HCOBJ_KEY_SIZEW(struct_size) \
     (((struct_size) + CU_WORD_SIZE - 1 - CUOO_HCOBJ_SHIFT)/CU_WORD_SIZE)
@@ -59,92 +62,6 @@ void *cuooP_hxalloc_setao_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
 void *cuooP_hxalloc_clear_raw(cuoo_type_t type, size_t raw_alloc_sizeg,
 			      size_t key_sizew, void *key);
 #endif
-
-/*!Assuming a declaration of a struct <tt><em>prefix</em>_s</tt> which starts
- * with a \ref CUOO_HCOBJ statement, this macro returns the key-size to use for
- * hash-consing object of the struct. */
-#define cuoo_hctem_key_size(prefix) (sizeof(struct prefix##_s) - CUOO_HCOBJ_SHIFT)
-
-/*!This is part of several high-level hash-cosning macros summarised under \ref
- * cuoo_hctem_new.
- * This macro emits a declaration of a key-template used for hash-consed
- * allocation.  \a key must be initialised with \ref cuoo_hctem_init and
- * assigned through the pointer returned by \a cuoo_hctem_get. */
-#ifdef CUOO_HCTEM_EXCLUDE_HCOBJ_SHIFT
-#  define cuoo_hctem_decl(prefix, key) char key[cuoo_hctem_key_size(prefix)]
-#else
-#  define cuoo_hctem_decl(prefix, tem) struct prefix##_s tem
-#endif
-
-/*!This is part of several high-level hash-consing macros summarised under \ref
- * cuoo_hctem_new.
- * This macro initialises the template \a key, which must be declared with \ref
- * cuoo_hctem_decl.  Use this to zero the template before assigning to the
- * members.  Compiler optimisation typically means only the data which is not
- * subsequently assigned though the \ref cuoo_hctem_get pointer will be
- * zeroed.  In particular, calling \ref cuoo_hctem_init makes sure that
- * padding at the end of the struct and holes in the struct due to alignment
- * constraints do not contain arbitrary data which would invalidate the
- * hash-consing. */
-#define cuoo_hctem_init(prefix, key) \
-	(memset(cuoo_hctem_key(prefix, key), 0, cuoo_hctem_key_size(prefix)))
-
-/*!This is part of several high-level hash-consing macros summarised under \ref
- * cuoo_hctem_new.
- * Given a prefix and a template variable \a key, returns a pointer to the
- * template struct, which has type <tt><em>prefix</em>_s *</tt>. */
-#ifdef CUOO_HCTEM_EXCLUDE_HCOBJ_SHIFT
-#  define cuoo_hctem_get(prefix, key)					\
-	((struct prefix##_s *)((char *)(key) - CUOO_HCOBJ_SHIFT))
-#else
-#  define cuoo_hctem_get(prefix, key) (&(key))
-#endif
-
-/*!The key address of a template in case you need to use \ref cuoo_halloc or
- * \ref cuoo_hxalloc_init instead of cuoo_hctem_new. */
-#ifdef CUOO_HCTEM_EXCLUDE_HCOBJ_SHIFT
-#  define cuoo_hctem_key(prefix, key) (&(key))
-#else
-#  define cuoo_hctem_key(prefix, tem) cu_ptr_add(&(tem), CUOO_HCOBJ_SHIFT)
-#endif
-
-/*!This is part of several high-level hash-consing macros.
- * Given previous definition of a <tt>struct <em>prefix</em>_s</tt> and a
- * function <tt><em>prefix</em>_type()</tt> returning the corresponding dynamic
- * type, this macro returns a hash-constructed object from the initialised
- * template \a key.  This macro is used in conjunction with \ref
- * cuoo_hctem_decl, \ref cuoo_hctem_init, \ref cuoo_hctem_get, and it's
- * maybe best understood from an example, here creating a dynamic pair:
- * \code
- * struct pair_s {
- *     CUOO_HCOBJ
- *     cuex_t left;
- *     cuex_t right;
- * };
- *
- * cuoo_type_t pair_type();
- *
- * struct pair_s *pair_new(cuex_t left, cuex_t right)
- * {
- *     cuoo_hctem_decl(pair, key);
- *     cuoo_hctem_init(pair, key);
- *     cuoo_hctem_get(pair, key)->left = left;
- *     cuoo_hctem_get(pair, key)->right = right;
- *     return cuoo_hctem_new(pair, key);
- * }
- * \endcode
- * The cuoo_hctem_* macros only work when following the above naming conventions
- * for the struct and dynamic-type functions.  Otherwise, use \ref
- * cuoo_halloc.  */
-#define cuoo_hctem_new(prefix, key) \
-    ((struct prefix##_s *) \
-     cuoo_halloc(prefix##_type(), cuoo_hctem_key_size(prefix), \
-		 cuoo_hctem_key(prefix, key)))
-
-#define cuoo_hctem_new_of_type(prefix, key, type) \
-    ((struct prefix##_s *) \
-     cuoo_halloc(type, cuoo_hctem_key_size(prefix), \
-		 cuoo_hctem_key(prefix, key)))
 
 #ifndef CU_IN_DOXYGEN
 CU_SINLINE void *
@@ -236,9 +153,9 @@ cuoo_hxalloc_clear(cuoo_type_t type, size_t struct_size,
      cuoo_hxalloc_clear(prefix##_type(), sizeof(struct prefix##_s), \
 			key_size, key))
 
-/*!@}*/
+/** @} */
 
-#if CU_COMPAT < 20080207
+#if defined(CU_COMPAT) && CU_COMPAT < 20080207
 #  define cuoo_halloc_extra		cuoo_hxalloc_init
 #  define cuoo_halloc_extra_setao	cuoo_hxalloc_setao
 #  define cuoo_hnew_extra		cuoo_hxnew_init
@@ -246,5 +163,9 @@ cuoo_hxalloc_clear(cuoo_type_t type, size_t struct_size,
 #endif
 
 CU_END_DECLARATIONS
+
+#if defined(CU_COMPAT) && CU_COMPAT < 20091110
+#  include <cuoo/hctem.h>
+#endif
 
 #endif

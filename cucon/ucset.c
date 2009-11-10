@@ -19,7 +19,7 @@
 #include <cu/memory.h>
 #include <cu/int.h>
 #include <cu/ptr.h>
-#include <cuoo/halloc.h>
+#include <cuoo/hctem.h>
 #include <cuoo/intf.h>
 #include <cuoo/hcobj.h>
 #include <inttypes.h>
