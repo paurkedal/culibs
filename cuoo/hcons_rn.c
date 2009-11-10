@@ -48,8 +48,6 @@
  * the mark in the object itself. */
 #define CUOO_HC_USE_GC_MARK 0
 
-#define CUOO_HC_ADJUST_IN_INSERT_ERASE 1
-
 /* The limits to the size of the hash-sets, expressed as fractions of the
  * capacity. */
 #define CAP_MIN 2
@@ -343,105 +341,6 @@ _hcset_grow_wlck(_hcset_t hcset, size_t new_cap, cuooP_hcobj_t *new_arr)
     hcset->mask = new_mask;
 }
 
-#if !CUOO_HC_ADJUST_IN_INSERT_ERASE
-
-static void
-_hcset_adjust_wlck(_hcset_t hcset)
-{
-    size_t mask, cnt, new_cap;
-    cuooP_hcobj_t *new_arr;
-    mask = hcset->mask;
-    cnt = hcset->cnt;
-    if (cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER) {
-	new_cap = (mask + 1)*2;
-	new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
-	_hcset_grow_wlck(hcset, new_cap, new_arr);
-    }
-    else if (cnt*FILL_MIN_DENOM < mask*FILL_MIN_NUMER && mask > CAP_MIN) {
-	new_cap = cu_ulong_exp2_ceil_log2(cnt*FILL_MIN_DENOM/FILL_MIN_NUMER);
-	new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
-	_hcset_shrink_wlck(hcset, new_cap, new_arr);
-    }
-}
-
-static void
-_hcset_adjust(_hcset_t hcset)
-{
-#if 0
-    /* This version makes a tentative choice whether to resize by reading from
-     * unlocked storage, then allocates what it needs, locks, and rechecks if
-     * the choice was correct.  This appears to be the faster
-     * implementation. */
-    size_t mask = hcset->mask;
-    size_t cnt = hcset->cnt;
-    if (cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER) {
-	size_t new_cap = (mask + 1)*2;
-	cuooP_hcobj_t *new_arr = ARR_ALLOC(sizeof(void *)*new_cap);
-	_hcset_lock_write(hcset);
-	if (hcset->cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER &&
-	    new_cap - 1 > hcset->mask) {
-	    _hcset_grow_wlck(hcset, new_cap, new_arr);
-	    _hcset_unlock_write(hcset);
-	}
-	else {
-	    _hcset_unlock_write(hcset);
-	    ARR_FREE(new_arr);
-	}
-    }
-    else if (cnt*FILL_MIN_DENOM < mask*FILL_MIN_NUMER && mask > CAP_MIN) {
-	size_t new_cap
-	    = cu_ulong_exp2_ceil_log2(cnt*FILL_MIN_DENOM/FILL_MIN_NUMER);
-	cuooP_hcobj_t *new_arr = ARR_ALLOC(sizeof(void *)*new_cap);
-	_hcset_lock_write(hcset);
-	if (hcset->cnt*FILL_MIN_DENOM < hcset->mask*FILL_MIN_NUMER &&
-	    new_cap - 1 < hcset->mask) {
-	    _hcset_shrink_wlck(hcset, new_cap, new_arr);
-	    _hcset_unlock_write(hcset);
-	}
-	else {
-	    _hcset_unlock_write(hcset);
-	    ARR_FREE(new_arr);
-	}
-    }
-#else
-    /* This version uses lock promotion, and if promotion fails, leaves the
-     * capacity to be changed on next attempt.  It also avoids redundant
-     * allocation when two threads tries to resize simultaneously, but at the
-     * expense that if the set is very buzy, it may not be resized at all.
-     *
-     * NB. The ARR_ALLOC function must _not_ trigger any finalisers for the
-     * objects stored hcset.  These finalisers are invoked by the collector
-     * when reclaiming corresponding pages, so as long as the collector only
-     * reclaims from pages it needs for a specific allocation, it is safe.  In
-     * any case the malloc option (see top) should be safe. */
-    size_t mask, cnt, new_cap;
-    cuooP_hcobj_t *new_arr;
-    _hcset_lock_read(hcset);
-    mask = hcset->mask;
-    cnt = hcset->cnt;
-    if (cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER)
-	new_cap = (mask + 1)*2;
-    else if (cnt*FILL_MIN_DENOM < mask*FILL_MIN_NUMER && mask > CAP_MIN)
-	new_cap = cu_ulong_exp2_ceil_log2(cnt*FILL_MIN_DENOM/FILL_MIN_NUMER);
-    else {
-	_hcset_unlock_read(hcset);
-	return;
-    }
-    if (!_hcset_try_promote_lock(hcset)) {
-	_hcset_unlock_read(hcset);
-	return;
-    }
-    new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
-    if (cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER)
-	_hcset_grow_wlck(hcset, new_cap, new_arr);
-    else
-	_hcset_shrink_wlck(hcset, new_cap, new_arr);
-    _hcset_unlock_write(hcset);
-#endif
-}
-
-#endif /* !CUOO_HC_ADJUST_IN_INSERT_ERASE */
-
 CU_SINLINE void
 _hcset_hasheqv_erase_wlck(_hcset_t hcset, cu_hash_t hash, cuooP_hcobj_t obj)
 {
@@ -466,8 +365,8 @@ _hcset_hasheqv_erase_wlck(_hcset_t hcset, cu_hash_t hash, cuooP_hcobj_t obj)
 #endif
 	cu_debug_assert((uintptr_t)obj0->hcset_next != 0);
     }
+
     cnt = --hcset->cnt;
-#if CUOO_HC_ADJUST_IN_INSERT_ERASE
     if (cnt*FILL_MIN_DENOM < hcset->mask*FILL_MIN_NUMER
 	    && hcset->mask > CAP_MIN) {
 	size_t new_cap;
@@ -478,7 +377,6 @@ _hcset_hasheqv_erase_wlck(_hcset_t hcset, cu_hash_t hash, cuooP_hcobj_t obj)
 	new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
 	_hcset_shrink_wlck(hcset, new_cap, new_arr);
     }
-#endif
 }
 
 #if CU_WORD_SIZE != CUEX_META_SIZE || CU_WORD_SIZE != CUCONF_SIZEOF_VOID_P
@@ -528,14 +426,12 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
     }
 
     /* Otherwise, insert new object. */
-#if CUOO_HC_ADJUST_IN_INSERT_ERASE
     if (hcset->cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER) {
 	size_t new_cap = (mask + 1)*2;
 	cuooP_hcobj_t *new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
 	_hcset_grow_wlck(hcset, new_cap, new_arr);
 	slot = &new_arr[hash & hcset->mask];
     }
-#endif
     obj = cuexP_oalloc_unord_fin_raw(meta, sizeg);
     cu_wordarr_copy(key_sizew, CUOO_HCOBJ_KEY(obj), key);
 #if CUOO_ENABLE_COLL_STATS
@@ -583,14 +479,12 @@ cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
     }
 
     /* Otherwise, insert new object. */
-#if CUOO_HC_ADJUST_IN_INSERT_ERASE
     if (hcset->cnt*FILL_MAX_DENOM > mask*FILL_MAX_NUMER) {
 	size_t new_cap = (mask + 1)*2;
 	cuooP_hcobj_t *new_arr = ARR_ALLOC(sizeof(cuooP_hcobj_t *)*new_cap);
 	_hcset_grow_wlck(hcset, new_cap, new_arr);
 	slot = &new_arr[hash & hcset->mask];
     }
-#endif
     obj = cuexP_oalloc_ord_fin_raw(meta, sizeg);
     cu_wordarr_copy(key_sizew, CUOO_HCOBJ_KEY(obj), key);
     cu_call(init_nonkey, obj);
