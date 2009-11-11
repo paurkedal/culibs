@@ -24,9 +24,9 @@ cuoo_sources = \
 	cuoo/type.c
 
 if enable_gc_disclaim
-    cuoo_sources += cuoo/hcons_rn.c
+    cuoo_sources += cuoo/hcons_disclaim.c
 else
-    cuoo_sources += cuoo/hcons_wp.c
+    cuoo_sources += cuoo/hcons_weakptr.c
 endif
 
 cuoo_doxyfiles =
