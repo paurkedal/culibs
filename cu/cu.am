@@ -27,6 +27,7 @@ cu_headers = \
 	cu/ptr_seq.h \
 	cu/rarex.h \
 	cu/scratch.h \
+	cu/bistptr.h \
 	cu/size.h \
 	cu/sref.h \
 	cu/str.h \

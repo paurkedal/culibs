@@ -18,6 +18,7 @@
 #include <cuoo/type.h>
 #include <cuoo/oalloc.h>
 #include <cu/weakptr.h>
+#include <cu/bistptr.h>
 #include <cu/int.h>
 #include <cu/wordarr.h>
 #include <cu/thread.h>
@@ -36,18 +37,11 @@
 
 typedef struct _hcset_s *_hcset_t;
 typedef struct _hcnode_s *_hcnode_t;
-typedef union _hclink_u _hclink_t;
-
-union _hclink_u
-{
-    _hcnode_t node;
-    cu_hidden_ptr_t obj;
-};
 
 struct _hcnode_s
 {
     cu_hidden_ptr_t obj;
-    _hclink_t next;
+    cu_bistptr_t next;
 };
 
 struct _hcset_s
@@ -55,13 +49,13 @@ struct _hcset_s
     cu_mutex_t mutex;
     size_t mask;
     size_t insert_cnt;
-    _hclink_t *arr;
+    cu_bistptr_t *arr;
 };
 
 /* A global weak set of hash-consed objects. */
 static struct _hcset_s _g_hcset;
 
-CU_SINLINE _hclink_t *
+CU_SINLINE cu_bistptr_t *
 _hcset_link(_hcset_t hcset, cu_hash_t hash)
 {
     return &hcset->arr[hcset->mask & hash];
@@ -85,30 +79,25 @@ static void
 _hcset_insert(_hcset_t hcset, void *obj)
 {
     cu_hash_t hash = cuex_key_hash(obj);
-    _hclink_t *arr = hcset->arr;
-    _hclink_t *new_link = &arr[hash & hcset->mask];
-    if (new_link->node) {
-	if ((uintptr_t)new_link->node & 1) {  /* tail object */
-	    void *coll_obj = cu_weakptr_get(&new_link->obj);
-	    if (coll_obj) {
-		_hcnode_t new_node = cu_gnew(struct _hcnode_s);
-		cu_weakptr_dct_even(&new_link->obj);
-		cu_weakptr_init(&new_node->obj, obj);
-		cu_weakptr_init(&new_node->next.obj, coll_obj);
-		new_link->node = new_node;
-	    }
-	    else
-		cu_weakptr_set_even(&new_link->obj, obj);
-	}
-	else {
+    cu_bistptr_t *new_link = _hcset_link(hcset, hash);
+    if (cu_bistptr_is_weak(new_link)) {  /* a leaf object */
+	void *coll_obj = cu_bistptr_get_weak(new_link);
+	_hcnode_t new_node = cu_gnew(struct _hcnode_s);
+	cu_weakptr_init(&new_node->obj, obj);
+	cu_bistptr_init_weak(&new_node->next, coll_obj);
+	cu_bistptr_assign_strong(new_link, new_node);
+    }
+    else {
+	void *old_node = cu_bistptr_get_strong(new_link);
+	if (old_node) {
 	    _hcnode_t new_node = cu_gnew(struct _hcnode_s);
 	    cu_weakptr_init(&new_node->obj, obj);
-	    new_node->next.node = new_link->node;
-	    new_link->node = new_node;
+	    cu_bistptr_init_strong(&new_node->next, old_node);
+	    cu_bistptr_init_strong(new_link, new_node);
 	}
+	else
+	    cu_bistptr_assign_weak(new_link, obj);
     }
-    else
-	cu_weakptr_set_even(&new_link->obj, obj);
 }
 
 static void
@@ -116,9 +105,9 @@ _hcset_resize_locked(_hcset_t hcset, size_t cnt)
 {
     size_t size = cu_ulong_exp2_ceil_log2(3*cnt);
     size_t mask = size - 1;
-    _hclink_t *arr = cu_galloc(sizeof(void *)*size);
-    _hclink_t *link;
-    _hclink_t *link_end;
+    cu_bistptr_t *arr = cu_galloc(sizeof(void *)*size);
+    cu_bistptr_t *link;
+    cu_bistptr_t *link_end;
     memset(arr, 0, sizeof(void *)*size);
     link = hcset->arr;
     link_end = link + hcset->mask + 1;
@@ -126,21 +115,21 @@ _hcset_resize_locked(_hcset_t hcset, size_t cnt)
     hcset->mask = mask;
     while (link != link_end) {
 	void *obj;
-	_hclink_t *l = link;
-	while (((uintptr_t)l->node & 1) == 0) {  /* nodes (or NULL) */
-	    _hcnode_t node = l->node;
+	cu_bistptr_t *l = link;
+	while (!cu_bistptr_is_weak(l)) {  /* nodes (or NULL) */
+	    _hcnode_t node = cu_bistptr_get_strong(l);
 	    if (!node)
 		goto next_link;
 	    obj = cu_weakptr_get(&node->obj);
 	    if (obj) {
 		_hcset_insert(hcset, obj);
-		cu_weakptr_dct_even(&node->obj);
+		cu_weakptr_deinit(&node->obj);
 	    }
 	    l = &node->next;
 	}
-	obj = cu_weakptr_get(&l->obj);
-	if (obj)
-	    _hcset_insert(hcset, obj);
+	obj = cu_bistptr_get_weak(l);
+	cu_debug_assert(obj);
+	_hcset_insert(hcset, obj);
     next_link:
 	++link;
     }
@@ -149,34 +138,35 @@ _hcset_resize_locked(_hcset_t hcset, size_t cnt)
 static void
 _hcset_adjust(_hcset_t hcset)
 {
-    _hclink_t *link = hcset->arr;
-    _hclink_t *link_end = link + hcset->mask + 1;
+    cu_bistptr_t *link = hcset->arr;
+    cu_bistptr_t *link_end = link + hcset->mask + 1;
     size_t cnt = 0;
     size_t cap;
     _hcset_lock(hcset);
 
     /* Remove links for disappeared objects, and count the remaining. */
     while (link != link_end) {
-	_hclink_t *l = link;
-	while (((uintptr_t)l->node & 1) == 0) {  /* loop over collision links */
-	    _hcnode_t node = l->node;
+	cu_bistptr_t *l = link;
+	while (!cu_bistptr_is_weak(l)) {  /* loop over collision links */
+	    _hcnode_t node = cu_bistptr_get_strong(l);
 	    if (!node)
 		goto next_link;
 	    if (!node->obj) {
-		if (((uintptr_t)node->next.node & 1)) {
+		if (cu_bistptr_is_weak(&node->next)) {
 		    void *obj;
-		    obj = cu_weakptr_get(&node->next.obj);
+		    obj = cu_bistptr_get_weak(&node->next);
 		    if (obj) {
-			cu_weakptr_dct_even(&node->next.obj);
-			cu_weakptr_init(&l->obj, obj);
+			cu_bistptr_deinit(&node->next);
+			cu_bistptr_init_weak(l, obj);
 			++cnt;
 		    }
 		    else
-			l->node = NULL;
+			cu_bistptr_init_strong(l, NULL);
 		    goto next_link;
 		}
 		else
-		    l->node = node->next.node;
+		    cu_bistptr_init_strong(
+			l, cu_bistptr_get_strong(&node->next));
 	    }
 	    else {
 		++cnt;
@@ -203,13 +193,20 @@ _halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
 {
     cuooP_hcobj_t obj;
     cu_hash_t hash = cu_wordarr_hash(key_sizew, key, meta);
-    _hclink_t *link;
+    cu_bistptr_t *link;
     cu_hidden_ptr_t *obj_link = NULL;
-    _hcnode_t node;
+    _hcnode_t node CU_NOINIT(NULL);
 
+    /* Go though all the hash-equivalence links to search for an equal object
+     * or an unused node, according to the disappearing links, to reuse. */
     _hcset_lock(&_g_hcset);
     link = _hcset_link(&_g_hcset, hash);
-    while (((uintptr_t)(node = link->node) & 1) == 0 && node) {
+    while (!cu_bistptr_is_weak(link)) {
+	node = cu_bistptr_get_strong(link);
+	if (!node) {
+	    obj_link = &link->hptr;
+	    goto alloc;
+	}
 	obj = cu_weakptr_get(&node->obj);
 	if (obj) {
 	    if (cuex_meta(obj) == meta
@@ -222,32 +219,34 @@ _halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
 	    obj_link = &node->obj;
 	link = &node->next;
     }
-    if (node) {
-	obj = cu_weakptr_get(&link->obj);
-	if (obj) {
-	    if (cuex_meta(obj) == meta
-		    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
-		_hcset_unlock(&_g_hcset);
-		return obj;
-	    }
-	    else if (!obj_link) {
-		cu_weakptr_clear_even(&link->obj);
-		node = cu_gnew(struct _hcnode_s);
-		cu_weakptr_init(&node->obj, obj);
-		link->node = node;
-		obj_link = &node->next.obj;
-	    }
-	}
+    obj = cu_bistptr_get_weak(link);
+    if (cuex_meta(obj) == meta
+	    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
+	_hcset_unlock(&_g_hcset);
+	return obj;
     }
-    else
-	obj_link = &link->obj;
 
+    /* If we didn't find a free link node, create one.  "link" is the last slot
+     * of the hash-equivalence chain, either on a link node or in the table.
+     * It currently holds "obj", which we must move. */
+    if (!obj_link) {
+	cu_bistptr_assign_strong(link, NULL);
+	node = cu_gnew(struct _hcnode_s);
+	cu_weakptr_init(&node->obj, obj);
+	cu_bistptr_assign_strong(link, node);
+	obj_link = &node->next.hptr;
+    }
+
+alloc:
+    /* Allocate the object and save it, then update and unlock the hash set. */
     obj = cuexP_oalloc(meta, size);
     cu_wordarr_copy(key_sizew, CUOO_HCOBJ_KEY(obj), key);
     cu_call(init_nonkey, obj);
     cu_weakptr_init(obj_link, obj);
     ++_g_hcset.insert_cnt;
     _hcset_unlock(&_g_hcset);
+
+    /* Adjust the capacity if needed. */
     if (_g_hcset.insert_cnt*4 > _g_hcset.mask)
 	_hcset_adjust(&_g_hcset);
     return obj;

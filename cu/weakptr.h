@@ -21,51 +21,18 @@
 #include <cu/memory.h>
 
 CU_BEGIN_DECLARATIONS
+
+void *cuP_weakptr_get_locked(void *link);
+
 /** \defgroup cu_weakptr_h cu/weakptr.h: Weak Pointers
  ** @{ \ingroup cu_util_mod */
 
-/** Construct \a link as a weak pointer to \a ptr.  If \a ptr gets collected,
- ** the link will be cleared, as manifested by a NULL return from \c
- ** cu_weakptr_get(link) */
-CU_SINLINE void
-cu_weakptr_init(cu_hidden_ptr_t *link, void *ptr)
+/** True iff \a link holds the \c NULL pointer. */
+CU_SINLINE cu_bool_t
+cu_weakptr_is_null(cu_hidden_ptr_t *link)
 {
-    *link = cu_hide_ptr(ptr);
-    GC_general_register_disappearing_link((void **)link, ptr);
+    return *link != NULL;
 }
-
-/** Construct \a link as a weak pointer with a NULL value. */
-CU_SINLINE void
-cu_weakptr_init_null(cu_hidden_ptr_t *link)
-{
-    *link = 0;
-}
-
-CU_SINLINE void
-cu_weakptr_dct_even(cu_hidden_ptr_t *link)
-{
-    if ((uintptr_t)*link & 1)
-	GC_unregister_disappearing_link((void **)link);
-}
-
-CU_SINLINE void
-cu_weakptr_clear_even(cu_hidden_ptr_t *link)
-{
-    if ((uintptr_t)*link & 1)
-	GC_unregister_disappearing_link((void **)link);
-    *link = 0;
-}
-
-CU_SINLINE void
-cu_weakptr_set_even(cu_hidden_ptr_t *link, void *obj)
-{
-    if ((uintptr_t)*link & 1)
-	GC_unregister_disappearing_link((void **)link);
-    *link = cu_hide_ptr(obj);
-    GC_general_register_disappearing_link((void **)link, obj);
-}
-
-void *cuP_weakptr_get_locked(void *link);
 
 /** Safely return the value of the weak pointer \a link, or \c NULL if the
  ** object it pointed to was recycled. */
@@ -78,10 +45,50 @@ cu_weakptr_get(cu_hidden_ptr_t *link)
 	return NULL;
 }
 
-/*!\deprecated Use cu_weakptr_init. */
-#define cu_weakptr_cct		cu_weakptr_init
-/*!\deprecated Use cu_weakptr_init_null. */
-#define cu_weakptr_cct_null	cu_weakptr_init_null
+/** Construct \a link as a weak pointer with a NULL value. */
+CU_SINLINE void
+cu_weakptr_init_null(cu_hidden_ptr_t *link)
+{
+    *link = 0;
+}
+
+/** Construct \a link as a weak pointer to \a ptr.  If \a ptr gets collected,
+ ** the link will be cleared, as manifested by a NULL return from \c
+ ** cu_weakptr_get(link).
+ ** \pre \a ptr != \c NULL */
+CU_SINLINE void
+cu_weakptr_init(cu_hidden_ptr_t *link, void *ptr)
+{
+    *link = cu_hide_ptr(ptr);
+    GC_general_register_disappearing_link((void **)link, ptr);
+}
+
+/** Release any disappearing link registration for \a link. */
+CU_SINLINE void
+cu_weakptr_deinit(cu_hidden_ptr_t *link)
+{
+    if ((uintptr_t)*link)
+	GC_unregister_disappearing_link((void **)link);
+}
+
+/** Assign \c NULL to \a link, releasing any previous disappearing link
+ ** registration. */
+CU_SINLINE void
+cu_weakptr_assign_null(cu_hidden_ptr_t *link)
+{
+    cu_weakptr_deinit(link);
+    cu_weakptr_init_null(link);
+}
+
+/** Assign a non-\c NULL value to \a link, re-registering the disappearing
+ ** link.
+ ** \pre \a ptr != \c NULL */
+CU_SINLINE void
+cu_weakptr_assign(cu_hidden_ptr_t *link, void *obj)
+{
+    cu_weakptr_deinit(link);
+    cu_weakptr_init(link, obj);
+}
 
 /** @} */
 CU_END_DECLARATIONS
