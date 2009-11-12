@@ -20,9 +20,10 @@
 #include <errno.h>
 
 #define N_ALLOC 10000000
+#define N_ALLOC_TH 3
 
 static cuoo_type_t _obj_type;
-static AO_t done = 0;
+static AO_t pending = N_ALLOC_TH;
 
 static void *
 _alloc_proc(void *arg)
@@ -35,14 +36,14 @@ _alloc_proc(void *arg)
 			 CUOO_HCOBJ_SHIFT);
 	cu_test_assert(*obj == (cu_word_t)arg);
     }
-    AO_store(&done, 1);
+    AO_fetch_and_add(&pending, -1);
     return NULL;
 }
 
 static void *
 _gcollect_proc(void *arg)
 {
-    while (!AO_load(&done))
+    while (AO_load(&pending))
 	GC_gcollect();
     return NULL;
 }
@@ -57,7 +58,7 @@ _fail(int err, char const *func_name)
 int
 main()
 {
-    pthread_t alloc_pth[3], gcollect_pth;
+    pthread_t alloc_pth[N_ALLOC_TH], gcollect_pth;
     int i, err;
 
     cuoo_init();
@@ -66,11 +67,11 @@ main()
     err = GC_pthread_create(&gcollect_pth, NULL, _gcollect_proc, NULL);
     if (err) _fail(err, "GC_pthread_create");
 
-    for (i = 0; i < 3; ++i) {
+    for (i = 0; i < N_ALLOC_TH; ++i) {
 	err = GC_pthread_create(&alloc_pth[i], NULL, _alloc_proc, &i + i);
 	if (err) _fail(err, "GC_pthread_create");
     }
-    for (i = 0; i < 3; ++i) {
+    for (i = 0; i < N_ALLOC_TH; ++i) {
 	err = GC_pthread_join(alloc_pth[i], NULL);
 	if (err) _fail(err, "GC_pthread_join");
     }
