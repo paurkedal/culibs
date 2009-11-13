@@ -46,7 +46,7 @@
 
 /* Define non-zero to use GC_is_marked and GC_set_mark_bit instead of encoding
  * the mark in the object itself. */
-#define CUOO_HC_USE_GC_MARK 0
+#define CUOO_HC_USE_GC_MARK 1
 
 /* The limits to the size of the hash-sets, expressed as fractions of the
  * capacity. */
