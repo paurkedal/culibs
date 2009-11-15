@@ -46,22 +46,20 @@
 
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cu_memory cu/memory.h: Memory Allocation
- ** @{ \ingroup cu_base_mod */
 
 #ifdef CUCONF_HAVE_STDINT_H
 typedef uintptr_t cu_uintptr_t;
 #else
 typedef unsigned long cu_uintptr_t;
 #endif
-
 void cu_raise_out_of_memory(size_t size) CU_ATTR_NORETURN;
 void cu_regh_out_of_memory(void (*f)(size_t));
 
+/** \defgroup cu_memory cu/memory.h: Memory Allocation
+ ** @{ \ingroup cu_base_mod */
 
-
-/* On-Stack Memory
- * =============== */
+/** \name Stack Allocation
+ ** @{ */
 
 /** Allocate memory on the stack.  (This is just an alias for alloca used in
  ** the library for quick replacement when debugging stack-related issues.) */
@@ -70,19 +68,14 @@ void cu_regh_out_of_memory(void (*f)(size_t));
 /** The counterpart of \ref cu_salloc, which is a noop. */
 #define		cu_sfree(p) ((void)(p))
 
-
-/* Garbage Collected Memory
- * ========================
- *
- * The following functions calls the Boehm-Demers-Weiser conservative
- * garbage collector functions, and adds an additional test to assert
- * non-NULL result.  It also adds more debugging info when not
- * switched off.  Another reason for this API indirection is to make it
- * simpler to plug in a different collector. */
-
-
-/* alloc, avail and free
- * --------------------- */
+/** @}
+ ** \name Dynamic Memory Allocation
+ ** @{
+ **
+ ** Most of these functions call the Boehm-Demers-Weiser conservative garbage
+ ** collector to do the real work, but also asserts that the result is non-\c
+ ** NULL.
+ **/
 
 #if defined(CUCONF_DEBUG_MEMORY) && !defined(CU_IN_DOXYGEN)
 
@@ -90,18 +83,11 @@ void *cuD_galloc(size_t size, char const *file, int line);
 void *cuD_galloc_atomic(size_t size, char const *file, int line);
 void *cuD_ualloc(size_t size, char const *file, int line);
 void *cuD_ualloc_atomic(size_t size, char const *file, int line);
-void cuD_gfree(void *ptr, char const *file, int line);
-void cuD_ufree_atomic(void *ptr, char const *file, int line);
 
 #define cu_galloc(size)		cuD_galloc(size, __FILE__, __LINE__)
 #define cu_galloc_atomic(size)	cuD_galloc_atomic(size, __FILE__, __LINE__)
 #define cu_ualloc(size)		cuD_ualloc(size, __FILE__, __LINE__)
 #define cu_ualloc_atomic(size)	cuD_ualloc_atomic(size, __FILE__, __LINE__)
-
-#define cu_gfree(ptr)		cuD_gfree(ptr, __FILE__, __LINE__)
-#define cu_gfree_atomic		cu_gfree
-#define cu_ufree		cu_gfree
-#define cu_ufree_atomic(ptr)	cuD_ufree_atomic(ptr, __FILE__, __LINE__)
 
 #else /* !CUCONF_DEBUG_MEMORY */
 
@@ -166,22 +152,6 @@ cu_ualloc_atomic(size_t size)
     return p;
 }
 
-/** Free traceable collectable memory (optional). */
-#define cu_gfree GC_free
-
-/** Free atomic collectable memory (optional). */
-#define cu_gfree_atomic cu_gfree
-
-/** Free traceable uncollectable memory. */
-#define cu_ufree cu_gfree
-
-/** Free atomic uncollectable memory. */
-#ifdef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
-#  define cu_ufree_atomic cu_gfree
-#else
-#  define cu_ufree_atomic free
-#endif
-
 #endif /* CUCONF_DEBUG_MEMORY */
 
 
@@ -204,6 +174,42 @@ void *cuP_uallocz_atomic(size_t size, char const *file, int line);
 void *cu_uallocz_atomic(size_t size);
 #endif
 
+#if defined(CUCONF_DEBUG_MEMORY) && !defined(CU_IN_DOXYGEN)
+
+void cuD_gfree(void *ptr, char const *file, int line);
+void cuD_ufree_atomic(void *ptr, char const *file, int line);
+#  define cu_gfree(ptr)		cuD_gfree(ptr, __FILE__, __LINE__)
+#  define cu_gfree_atomic	cu_gfree
+#  define cu_ufree		cu_gfree
+#  define cu_ufree_atomic(ptr)	cuD_ufree_atomic(ptr, __FILE__, __LINE__)
+
+#else /* !CUCONF_DEBUG_MEMORY */
+
+/** Free traceable collectable memory (optional). */
+#  define cu_gfree GC_free
+
+/** Free atomic collectable memory (optional). */
+#  define cu_gfree_atomic cu_gfree
+
+/** Free traceable uncollectable memory. */
+#  define cu_ufree cu_gfree
+
+/** Free atomic uncollectable memory. */
+#  ifdef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
+#    define cu_ufree_atomic cu_gfree
+#  else
+#    define cu_ufree_atomic free
+#  endif
+
+#endif
+
+/** @}
+ ** \name Typed Memory Allocation Macros
+ ** @{
+ **
+ ** These are straight-forward convenience macros which passes the size of the
+ ** given type to the corresponding allocation functions, and cast the result
+ ** to the given type. */
 
 /** Shortcut to allocate an object of type \a type using \ref cu_salloc. */
 #define cu_snew(type, n)	((type *)cu_salloc(sizeof(type)))
@@ -236,9 +242,9 @@ void *cu_uallocz_atomic(size_t size);
 #define cu_unewarrz(type, n)        ((type *)cu_uallocz(sizeof(type)*(n)))
 #define cu_unewarrz_atomic(type, n) ((type *)cu_uallocz_atomic(sizeof(type)*(n)))
 
-
-/* Other GC facilities
- * ------------------- */
+/** @}
+ ** \name Supplementary Definitions
+ ** @{ */
 
 /** Notify that the pointer \a ptr_lvalue in traceable memory is no longer
  ** needed.  It will be left as a tuning option whether to zero the pointer or
@@ -278,7 +284,8 @@ void *cuD_gc_base(void *);
 	   : *(p) = (q))
 #endif
 
-/** @} */
+/** @}
+ ** @} */
 
 #if defined(CU_COMPAT) && CU_COMPAT < 20091115
 #  define cu_malloc	malloc
