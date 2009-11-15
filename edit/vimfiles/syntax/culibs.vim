@@ -17,6 +17,7 @@ syn keyword cStorageClass CU_ATTR_UNUSED CU_ATTR_DEPRECATED CU_ATTR_MALLOC
 
 " Types
 syn match cType '\<cu\(con\|dyn\|ex\|flow\|fo\|gra\|oo\|os\|sto\|text\)\?P\?_\i*_t\>'
+syn keyword cType cuex_t
 
 " Control Flow
 syn keyword cStatement cu_expect cu_expect_true cu_expect_false
