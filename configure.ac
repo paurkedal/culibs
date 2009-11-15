@@ -231,7 +231,7 @@ fi
 AC_ARG_ENABLE([debug-memory],
     [AC_HELP_STRING([--enable-debug-memory],
 	[Enable metadata on memory blocks, used for debugging.])])
-if test x"$enable_debug_metadata" = xyes; then
+if test x"$enable_debug_memory" = xyes; then
     AC_DEFINE([CUCONF_DEBUG_MEMORY], 1, [Define to enable memory metadata.])
 fi
 

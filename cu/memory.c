@@ -16,13 +16,13 @@
  */
 
 
-#define CU_DEBUG 1
 #include <cu/conf.h>
 #include <cu/memory.h>
 #include <cu/debug.h>
 #include <cu/tstate.h>
 #include <cu/util.h>
 #include <cu/diag.h>
+#include <cu/ptr.h>
 
 #include <gc/gc_mark.h>
 
@@ -81,7 +81,7 @@ static ptrdiff_t cuD_gc_base_shift = -1;
 
 #ifdef CUCONF_DEBUG_MEMORY
 void *
-cu_gc_base(void *ptr)
+cuD_gc_base(void *ptr)
 {
     /* This compensates for the GC_debug_* allocators.  It isn't
      * needed at the moment, since we can't use these allocators with
@@ -92,17 +92,7 @@ cu_gc_base(void *ptr)
     if (ptr == NULL)
 	return ptr;
     else
-	return ptr + cuD_gc_base_shift;
-}
-
-CU_SINLINE void
-cuP_dbginfo_init(cuP_dbginfo_t hdr, char const *file, int line)
-{
-    hdr->name = file;
-    hdr->line = line;
-    hdr->prev = NULL;
-    hdr->next = NULL;
-    hdr->cminfo_chain = NULL;
+	return cu_ptr_add(ptr, cuD_gc_base_shift);
 }
 #endif
 
@@ -120,42 +110,76 @@ cuD_check_size(size_t size, char const *file, int line)
 
 #ifdef CUCONF_DEBUG_MEMORY
 
-void *cu_galloc_D(size_t size, char const *file, int line)
+void *
+cuD_galloc(size_t size, char const *file, int line)
 {
-    void *p;
-    p = GC_debug_malloc(size, file, line);
+    void *p = GC_debug_malloc(size, file, line);
     if (p == NULL)
 	cu_raise_out_of_memory(size);
+    return p;
+}
+
+void *
+cuD_galloc_atomic(size_t size, char const *file, int line)
+{
+    void *p = GC_debug_malloc_atomic(size, file, line);
+    if (p == NULL)
+	cu_raise_out_of_memory(size);
+    return p;
+}
+
+void *
+cuD_ualloc(size_t size, char const *file, int line)
+{
+    void *p = GC_debug_malloc_uncollectable(size, file, line);
+    if (p == NULL)
+	cu_raise_out_of_memory(size);
+    return p;
+}
+
+void *
+cuD_ualloc_atomic(size_t size, char const *file, int line)
+{
+#ifdef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
+    void *p = GC_malloc_atomic_uncollectable(size);
+#else
+    void *p = malloc(size);
+#endif
+    if (p == NULL)
+	cu_raise_out_of_memory(size);
+    return p;
 }
 
 void
-cu_gfree_D(void *ptr, char const *file, int line)
+cuD_gfree(void *ptr, char const *file, int line)
 {
     void *base;
     if (!ptr)
 	return;
-    base = cu_gc_base(ptr);
+    base = cuD_gc_base(ptr);
     if (base != ptr)
 	cu_bugf("Invalid pointer passed to cu_gfree: %p (base = %p)",
 		 ptr, base);
     GC_debug_free(ptr);
 }
 
-#ifndef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
 void
-cu_gfree_au_D(void *ptr, char const *file, int line)
+cuD_ufree_atomic(void *ptr, char const *file, int line)
 {
+#ifdef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
     void *base;
     if (!ptr)
 	return;
-    base = cu_gc_base(ptr);
+    base = cuD_gc_base(ptr);
     if (base != ptr)
 	cu_bugf_fl(file, line,
 		    "Invalid pointer passed to cu_ufree_atomic: %p (base = %p)",
 		    ptr, base);
+    GC_free(ptr);
+#else
     free(ptr);
-}
 #endif
+}
 
 #endif /* CUCONF_DEBUG_MEMORY */
 
@@ -172,50 +196,6 @@ cuP_weakptr_get_locked(void *link)
     else
 	return NULL;
 }
-
-#ifdef CUCONF_DEBUG_MEMORY
-struct cuP_debug_finaliser_cd_s
-{
-    GC_finalization_proc fn;
-    void *cd;
-};
-static void
-cuP_debug_finaliser(void *obj, void *cd)
-{
-    obj += CU_ALIGNED_SIZEOF(struct cuP_dbginfo_s);
-    assert(obj == cu_gc_base(obj));
-    (*((struct cuP_debug_finaliser_cd_s *)cd)->fn)(
-	obj,
-	((struct cuP_debug_finaliser_cd_s *)cd)->cd);
-}
-void
-cuD_gc_register_finaliser(void *ptr, GC_finalization_proc fn, void *cd,
-			       GC_finalization_proc *ofn, void **ocd)
-{
-#ifndef CU_NDEBUG
-    if (ptr != cu_gc_base(ptr)) {
-	cu_errf("Non-base pointer %p vs %p passed for registration "
-		 "of finaliser.", ptr, cu_gc_base(ptr));
-	cu_debug_abort();
-    }
-#endif
-    GC_register_finalizer(ptr, fn, cd, ofn, ocd);
-}
-void
-cuD_gc_register_finaliser_no_order(void *ptr,
-				       GC_finalization_proc fn, void *cd,
-				       GC_finalization_proc *ofn, void **ocd)
-{
-#ifndef CU_NDEBUG
-    if (ptr != cu_gc_base(ptr)) {
-	cu_errf("Non-base pointer %p vs %p passed for registration "
-		 "of finaliser.", ptr, cu_gc_base(ptr));
-	cu_debug_abort();
-    }
-#endif
-    GC_register_finalizer_no_order(ptr, fn, cd, ofn, ocd);
-}
-#endif /* CUCONF_DEBUG_MEMORY */
 
 
 /* Initialisation
