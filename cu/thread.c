@@ -56,7 +56,7 @@ _thread_cleanup(void *null)
     while (node) {
 	cu_call0(node->fn);
 	node_next = node->next;
-	cu_gfree_u(node);
+	cu_ufree(node);
 	node = node_next;
     }
     cu_iter_hook_call(&_thread_exit_hook);
@@ -133,7 +133,7 @@ cu_thread_atexit(cu_clop0(fn, void))
 {
     cuP_tstate_t tstate = cuP_tstate();
     _thread_atexit_node_t node;
-    node = cu_gnew_u(struct cuP_thread_atexit_node_s);
+    node = cu_unew(struct cuP_thread_atexit_node_s);
     node->fn = fn;
     node->next = tstate->atexit_chain;
     tstate->atexit_chain = node;

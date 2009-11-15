@@ -104,7 +104,7 @@ CU_BEGIN_DECLARATIONS
     cu_clop_def0(static_name##_on_thread_entry, void)			\
     {									\
 	int err_code;							\
-	name##_t tls = cu_gnew_u(struct name##_s);			\
+	name##_t tls = cu_unew(struct name##_s);			\
 	static_name##_init(tls);					\
 	err_code = pthread_setspecific(private_name##_key, tls);	\
 	if (err_code)							\
@@ -114,7 +114,7 @@ CU_BEGIN_DECLARATIONS
     void static_name##_on_thread_exit(void *tls)			\
     {									\
 	static_name##_destruct(tls);					\
-	cu_gfree_u(tls);						\
+	cu_ufree(tls);							\
     }									\
 									\
     CU_END_BOILERPLATE

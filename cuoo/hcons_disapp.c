@@ -159,7 +159,7 @@ _hcset_insert(_hcset_t hcset, void *obj)
 
     /* If the head links to a node, push a new node in front. */
     if (_is_hcnode(*new_link)) {
-	_hcnode_t new_node = cu_gnew_au(struct _hcnode_s);
+	_hcnode_t new_node = cu_unew_atomic(struct _hcnode_s);
 	_init_disappearing(&new_node->obj, obj);
 	new_node->next = *new_link;
 	*new_link = _hcnode_to_ptr(new_node);
@@ -170,7 +170,7 @@ _hcset_insert(_hcset_t hcset, void *obj)
     else if ((coll_obj = _get_disappearing(new_link))) {
 	_hcnode_t new_node;
 	_unreg_disappearing(new_link);
-	new_node = cu_gnew_au(struct _hcnode_s);
+	new_node = cu_unew_atomic(struct _hcnode_s);
 	_init_disappearing(&new_node->obj, obj);
 	_init_disappearing(&new_node->next, coll_obj);
 	*new_link = _hcnode_to_ptr(new_node);
@@ -195,7 +195,7 @@ _hcset_resize_locked(_hcset_t hcset, size_t cnt)
     old_end = old_begin + hcset->mask + 1;
 
     /* Initialise 'hcset' to an empty set of the right capacity. */
-    hcset->arr = cu_gnewarr_au(void *, new_size);
+    hcset->arr = cu_unewarr_atomic(void *, new_size);
     memset(hcset->arr, 0, sizeof(void *)*new_size);
     hcset->mask = new_mask;
 
@@ -208,7 +208,7 @@ _hcset_resize_locked(_hcset_t hcset, size_t cnt)
 	while (_is_hcnode(*l)) {
 	    _hcnode_t node = _hcnode_from_ptr(*l);
 	    if (free_node)
-		cu_gfree_au(free_node);
+		cu_ufree_atomic(free_node);
 	    free_node = node;
 	    obj = _get_disappearing(&node->obj);
 	    if (obj) {
@@ -224,9 +224,9 @@ _hcset_resize_locked(_hcset_t hcset, size_t cnt)
 	}
 
 	if (free_node)
-	    cu_gfree_au(free_node);
+	    cu_ufree_atomic(free_node);
     }
-    cu_gfree_au(old_begin);
+    cu_ufree_atomic(old_begin);
 }
 
 static void
@@ -267,7 +267,7 @@ _hcset_adjust(_hcset_t hcset)
 		l = &node->next;
 	    else if (_is_hcnode(node->next)) {
 		*l = node->next;
-		cu_gfree_au(node);
+		cu_ufree_atomic(node);
 	    }
 	    else {
 		void *obj = _get_disappearing(&node->next);
@@ -277,7 +277,7 @@ _hcset_adjust(_hcset_t hcset)
 		}
 		else
 		    *l = NULL;
-		cu_gfree_au(node);
+		cu_ufree_atomic(node);
 	    }
 	}
     }
@@ -333,7 +333,7 @@ _halloc(cuex_meta_t meta, size_t size, size_t key_sizew, void *key,
 	if (!obj_link) {
 	    _unreg_disappearing(link);
 	    *link = NULL;
-	    node = cu_gnew_au(struct _hcnode_s);
+	    node = cu_unew_atomic(struct _hcnode_s);
 	    _init_disappearing(&node->obj, obj);
 	    *link = _hcnode_to_ptr(node);
 	    obj_link = &node->next;
@@ -378,5 +378,5 @@ cuooP_hcons_init()
     cu_mutex_init(&_g_hcset.mutex);
     _g_hcset.mask = CUOO_HCONS_INIT_CAP - 1;
     _g_hcset.insert_cnt = 0;
-    _g_hcset.arr = cu_gnewarr_au(void *, CUOO_HCONS_INIT_CAP);
+    _g_hcset.arr = cu_unewarr_atomic(void *, CUOO_HCONS_INIT_CAP);
 }

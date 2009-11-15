@@ -59,15 +59,9 @@ void cu_raise_out_of_memory(size_t size) CU_ATTR_NORETURN;
 void cu_regh_out_of_memory(void (*f)(size_t));
 
 
-/* Plain Dynamic Memory
- * ==================== */
 
-#define		cu_malloc(size)	(malloc(size))
-#define		cu_mfree(p)		free(p)
-
-
-/* Stack-bound Memory
- * ================== */
+/* On-Stack Memory
+ * =============== */
 
 /** Allocate memory on the stack.  (This is just an alias for alloca used in
  ** the library for quick replacement when debugging stack-related issues.) */
@@ -99,11 +93,11 @@ void *cu_galloc_au_D(size_t size, char const *file, int line);
 void cu_gfree_D(void *ptr, char const *file, int line);
 void cu_gfree_au_D(void *ptr, char const *file, int line);
 #define cu_galloc(size) cu_galloc_D(size, __FILE__, __LINE__)
-#define cu_galloc_a(size) cu_galloc_a_D(size, __FILE__, __LINE__)
-#define cu_galloc_u(size) cu_galloc_u_D(size, __FILE__, __LINE__)
-#define cu_galloc_au(size) cu_galloc_au_D(size, __FILE__, __LINE__)
+#define cu_galloc_atomic(size) cu_galloc_a_D(size, __FILE__, __LINE__)
+#define cu_ualloc(size) cu_galloc_u_D(size, __FILE__, __LINE__)
+#define cu_ualloc_atomic(size) cu_galloc_au_D(size, __FILE__, __LINE__)
 #define cu_gfree(ptr) cu_gfree_D(ptr, __FILE__, __LINE__)
-#define cu_gfree_au(ptr) cu_gfree_au_D(ptr, __FILE__, __LINE__)
+#define cu_ufree_atomic(ptr) cu_gfree_au_D(ptr, __FILE__, __LINE__)
 
 #else /* !CUCONF_DEBUG_MEMORY */
 
@@ -126,7 +120,7 @@ cu_galloc(size_t size)
 /** Allocate a memory region of \a size bytes of untraced but collectable
  ** memory.  \c GC_malloc_atomic with a check for \c NULL. */
 CU_SINLINE void *
-cu_galloc_a(size_t size)
+cu_galloc_atomic(size_t size)
 {
     void *p;
 #ifdef CUCONF_HAVE_GC_LOCAL_MALLOC_ATOMIC
@@ -142,7 +136,7 @@ cu_galloc_a(size_t size)
 /** Returns \a size bytes of traced but uncollectable memory.
  ** \c GC_malloc_uncollectable with a check for \c NULL. */
 CU_SINLINE void *
-cu_galloc_u(size_t size)
+cu_ualloc(size_t size)
 {
     void *p;
     p = GC_malloc_uncollectable(size);
@@ -153,9 +147,9 @@ cu_galloc_u(size_t size)
 
 /** Returns \a size bytes of untraced and uncollectable memory. May be
  ** implemented as \c GC_malloc_atomic_uncollectable, if available or \c
- ** malloc, so use \c cu_gfree_au to release it. */
+ ** malloc, so use \c cu_ufree_atomic to release it. */
 CU_SINLINE void *
-cu_galloc_au(size_t size)
+cu_ualloc_atomic(size_t size)
 {
     void *p;
 #ifdef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
@@ -168,50 +162,56 @@ cu_galloc_au(size_t size)
     return p;
 }
 
-/** Allocate cleared collected memory. */
-#define cu_cgalloc cu_galloc
+/** Allocate cleared traceable collectable memory. */
+#define cu_gallocz cu_galloc
 
-/** Allocate cleared atomic collected memory. */
-#define cu_cgalloc_a cu_galloc_a
+/** Allocate cleared atomic collectable memory. */
+#define cu_gallocz_atomic cu_galloc_atomic
 
-/** Allocate cleared traced but uncollected memory. */
-#define cu_cgalloc_u cu_galloc_u
+/** Allocate cleared traceable uncollectable memory. */
+#define cu_uallocz cu_ualloc
 
-/** Frees memory allocated with \c cu_galloc, \c cu_galloc_a, or \c
- ** cu_galloc_u, but only the latter really needs to be freed explicitely. */
+/** Allocate cleared atomic uncollectable memory. */
+#define cu_uallocz_atomic cu_ualloc_atomic
+
+/** Free traceable collectable memory (optional). */
 #define cu_gfree GC_free
+
+/** Free atomic collectable memory (optional). */
+#define cu_gfree_atomic cu_gfree
+
+/** Free traceable uncollectable memory. */
+#define cu_ufree cu_gfree
+
+/** Free atomic uncollectable memory. */
 #ifdef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
-/** Frees memory allocated with \c cu_galloc_au. */
-#  define cu_gfree_au GC_free
+#  define cu_ufree_atomic GC_free
 #else
-#  define cu_gfree_au free
+#  define cu_ufree_atomic free
 #endif
 
 #endif /* CUCONF_DEBUG_MEMORY */
 
-#define cu_gfree_u cu_gfree
-#define cu_gfree_a cu_gfree
-
 /** Shortcut to allocate an object of type \a type using \ref cu_galloc. */
 #define	cu_gnew(type) ((type*)cu_galloc(sizeof(type)))
 
-/** Shortcut to allocate an object of type \a type using \ref cu_galloc_a. */
-#define cu_gnew_a(type) ((type *)cu_galloc_a(sizeof(type)))
+/** Shortcut to allocate an object of type \a type using \ref cu_galloc_atomic. */
+#define cu_gnew_atomic(type) ((type *)cu_galloc_atomic(sizeof(type)))
 
-/** Shortcut to allocate an object of type \a type using \ref cu_galloc_u. */
-#define cu_gnew_u(type) ((type *)cu_galloc_u(sizeof(type)))
+/** Shortcut to allocate an object of type \a type using \ref cu_ualloc. */
+#define cu_unew(type) ((type *)cu_ualloc(sizeof(type)))
 
-/** Shortcut to allocate an object of type \a type using \ref cu_galloc_au. */
-#define cu_gnew_au(type) ((type *)cu_galloc_au(sizeof(type)))
+/** Shortcut to allocate an object of type \a type using \ref cu_ualloc_atomic. */
+#define cu_unew_atomic(type) ((type *)cu_ualloc_atomic(sizeof(type)))
 
 /** A shortcut to allocate an cleared object of type \a type using \ref
- ** cu_cgalloc. */
-#define cu_cgnew(type) ((type *)cu_cgalloc(sizeof(type)))
+ ** cu_gallocz. */
+#define cu_gnewz(type) ((type *)cu_gallocz(sizeof(type)))
 
-#define cu_gnewarr(type, n)	((type *)cu_galloc(sizeof(type)*(n)))
-#define cu_gnewarr_a(type, n)	((type *)cu_galloc_a(sizeof(type)*(n)))
-#define cu_gnewarr_u(type, n)	((type *)cu_galloc_u(sizeof(type)*(n)))
-#define cu_gnewarr_au(type, n)	((type *)cu_galloc_au(sizeof(type)*(n)))
+#define cu_gnewarr(type, n)        ((type *)cu_galloc(sizeof(type)*(n)))
+#define cu_gnewarr_atomic(type, n) ((type *)cu_galloc_atomic(sizeof(type)*(n)))
+#define cu_unewarr(type, n)        ((type *)cu_ualloc(sizeof(type)*(n)))
+#define cu_unewarr_atomic(type, n) ((type *)cu_ualloc_atomic(sizeof(type)*(n)))
 
 #define cu_snew(type, n)	((type *)cu_salloc(sizeof(type)))
 #define cu_snewarr(type, n)	((type *)cu_salloc(sizeof(type)*(n)))
@@ -242,10 +242,10 @@ typedef struct cu_hidden_ptr_s *cu_hidden_ptr_t;
 
 #ifdef CUCONF_DEBUG_MEMORY
 void cuD_gc_register_finaliser(void *ptr, GC_finalization_proc, void *,
-				    GC_finalization_proc *, void **);
+			       GC_finalization_proc *, void **);
 void cuD_gc_register_finaliser_no_order(void *ptr, GC_finalization_proc,
-					     void *, GC_finalization_proc *,
-					     void**);
+					void *, GC_finalization_proc *,
+					void **);
 void cu_gc_base(void *);
 #else
 #define cu_gc_register_finaliser GC_register_finalizer
@@ -263,6 +263,28 @@ void *cu_gc_base_D(void *);
 #endif
 
 /** @} */
+
+#if defined(CU_COMPAT) && CU_COMPAT < 20091115
+#  define cu_malloc	malloc
+#  define cu_mfree	free
+#  define cu_galloc_a	cu_galloc_atomic
+#  define cu_galloc_u	cu_ualloc
+#  define cu_galloc_au	cu_ualloc_atomic
+#  define cu_cgalloc	cu_gallocz
+#  define cu_cgalloc_a	cu_gallocz_atomic
+#  define cu_cgalloc_u	cu_uallocz
+#  define cu_gfree_a	cu_gfree_atomic
+#  define cu_gfree_u	cu_ufree
+#  define cu_gfree_au	cu_ufree_atomic
+#  define cu_gnew_a	cu_gnew_atomic
+#  define cu_gnew_u	cu_unew
+#  define cu_gnew_au	cu_unew_atomic
+#  define cu_cgnew	cu_gnewz
+#  define cu_gnewarr_a	cu_gnewarr_atomic
+#  define cu_gnewarr_u	cu_unewarr
+#  define cu_gnewarr_au	cu_unewarr_atomic
+#endif
+
 CU_END_DECLARATIONS
 
 #endif

@@ -27,7 +27,7 @@ cu_wstring_t
 cu_wstring_of_arr(cu_wchar_t const *src_arr, size_t src_len)
 {
     cu_wstring_t s = cu_gnew(struct cu_wstring_s);
-    cu_wchar_t *arr = cu_galloc_a(sizeof(cu_wchar_t)*src_len);
+    cu_wchar_t *arr = cu_galloc_atomic(sizeof(cu_wchar_t)*src_len);
     memcpy(arr, src_arr, sizeof(cu_wchar_t)*src_len);
     s->arr = arr;
     s->len = src_len;
@@ -38,7 +38,7 @@ cu_wstring_t
 cu_wstring_of_arr_o(cu_wchar_t const *src_arr, size_t src_len)
 {
     cu_wstring_t s = cuoo_onew(cu_wstring);
-    cu_wchar_t *arr = cu_galloc_a(sizeof(cu_wchar_t)*src_len);
+    cu_wchar_t *arr = cu_galloc_atomic(sizeof(cu_wchar_t)*src_len);
     memcpy(arr, src_arr, sizeof(cu_wchar_t)*src_len);
     s->arr = arr;
     s->len = src_len;
@@ -114,7 +114,7 @@ cu_wstring_cat2(cu_wstring_t sl, cu_wstring_t sr)
 	return sr;
     if (sr->len == 0)
 	return sl;
-    arr = cu_galloc_a(sizeof(cu_wchar_t)*(sl->len + sr->len));
+    arr = cu_galloc_atomic(sizeof(cu_wchar_t)*(sl->len + sr->len));
     memcpy(arr, sl->arr, sizeof(cu_wchar_t)*sl->len);
     memcpy(arr + sl->len, sr->arr, sizeof(cu_wchar_t)*sr->len);
     return cu_wstring_of_arr_ref(arr, sl->len + sr->len);
@@ -128,7 +128,7 @@ cu_wstring_cat2_o(cu_wstring_t sl, cu_wstring_t sr)
 	return sr;
     if (sr->len == 0)
 	return sl;
-    arr = cu_galloc_a(sizeof(cu_wchar_t)*(sl->len + sr->len));
+    arr = cu_galloc_atomic(sizeof(cu_wchar_t)*(sl->len + sr->len));
     memcpy(arr, sl->arr, sizeof(cu_wchar_t)*sl->len);
     memcpy(arr + sl->len, sr->arr, sizeof(cu_wchar_t)*sr->len);
     return cu_wstring_of_arr_ref_o(arr, sl->len + sr->len);
@@ -138,7 +138,7 @@ cu_wstring_t
 cu_wstring_cat3(cu_wstring_t s0, cu_wstring_t s1, cu_wstring_t s2)
 {
     cu_wchar_t *arr, *p;
-    arr = cu_galloc_a(sizeof(cu_wchar_t)*(s0->len + s1->len + s2->len));
+    arr = cu_galloc_atomic(sizeof(cu_wchar_t)*(s0->len + s1->len + s2->len));
     p = arr;
     memcpy(p, s0->arr, sizeof(cu_wchar_t)*s0->len); p += s0->len;
     memcpy(p, s1->arr, sizeof(cu_wchar_t)*s1->len); p += s1->len;
@@ -150,7 +150,7 @@ cu_wstring_t
 cu_wstring_cat3_o(cu_wstring_t s0, cu_wstring_t s1, cu_wstring_t s2)
 {
     cu_wchar_t *arr, *p;
-    arr = cu_galloc_a(sizeof(cu_wchar_t)*(s0->len + s1->len + s2->len));
+    arr = cu_galloc_atomic(sizeof(cu_wchar_t)*(s0->len + s1->len + s2->len));
     p = arr;
     memcpy(p, s0->arr, sizeof(cu_wchar_t)*s0->len); p += s0->len;
     memcpy(p, s1->arr, sizeof(cu_wchar_t)*s1->len); p += s1->len;
@@ -203,7 +203,7 @@ cu_wstring_t
 cu_wstring_image(cu_wstring_t s, cu_clop(f, cu_wchar_t, cu_wchar_t))
 {
     size_t i;
-    cu_wchar_t *arr = cu_galloc_a(sizeof(cu_wchar_t)*s->len);
+    cu_wchar_t *arr = cu_galloc_atomic(sizeof(cu_wchar_t)*s->len);
     for (i = 0; i < s->len; ++i)
 	arr[i] = cu_call(f, s->arr[i]);
     return cu_wstring_of_arr(arr, s->len);
@@ -213,7 +213,7 @@ cu_wstring_t
 cu_wstring_image_o(cu_wstring_t s, cu_clop(f, cu_wchar_t, cu_wchar_t))
 {
     size_t i;
-    cu_wchar_t *arr = cu_galloc_a(sizeof(cu_wchar_t)*s->len);
+    cu_wchar_t *arr = cu_galloc_atomic(sizeof(cu_wchar_t)*s->len);
     for (i = 0; i < s->len; ++i)
 	arr[i] = cu_call(f, s->arr[i]);
     return cu_wstring_of_arr_o(arr, s->len);

@@ -151,7 +151,7 @@ cu_gfree_au_D(void *ptr, char const *file, int line)
     base = cu_gc_base(ptr);
     if (base != ptr)
 	cu_bugf_fl(file, line,
-		    "Invalid pointer passed to cu_gfree_au: %p (base = %p)",
+		    "Invalid pointer passed to cu_ufree_atomic: %p (base = %p)",
 		    ptr, base);
     free(ptr);
 }

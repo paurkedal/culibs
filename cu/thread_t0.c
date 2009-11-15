@@ -37,7 +37,7 @@ static int _thread_status[SPAWN_COUNT + 1];
 
 cu_clop_def0(_on_thread_entry, void)
 {
-    _tls_t tls = cu_gnew_u(struct _tls_s);
+    _tls_t tls = cu_unew(struct _tls_s);
     tls->id = AO_fetch_and_add(&_tls_next_id, 1);
     cu_test_assert_int_leq(tls->id, SPAWN_COUNT);
     cu_test_assert_int_eq(_thread_status[tls->id], 0);

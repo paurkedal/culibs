@@ -84,7 +84,7 @@ _installdir_finish(cu_installdirs_t installdirs, cu_installdir_t installdir)
 	if (!ref_installdir->dir)
 	    _installdir_finish(installdirs, ref_installdir);
 	prefix_len = strlen(ref_installdir->dir);
-	dir = cu_galloc_au(prefix_len + strlen(installdir->suffix) + 1);
+	dir = cu_ualloc_atomic(prefix_len + strlen(installdir->suffix) + 1);
 	strcpy(dir, ref_installdir->dir);
 	strcpy(dir + prefix_len, installdir->suffix);
 	installdir->dir = dir;

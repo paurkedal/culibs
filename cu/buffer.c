@@ -23,7 +23,7 @@
 void
 cu_buffer_init(cu_buffer_t buf, size_t init_cap)
 {
-    void *p = cu_galloc_a(init_cap);
+    void *p = cu_galloc_atomic(init_cap);
     buf->storage_start = p;
     buf->content_start = p;
     buf->content_end = p;
@@ -71,7 +71,7 @@ cuP_buffer_fix_fullcap(cu_buffer_t buf, size_t fullcap)
 	size_t storage_size = cu_ptr_diff(storage_end, storage_start);
 	if (fullcap < storage_size*2)
 	    fullcap = storage_size*2;
-	void *p = cu_galloc_a(fullcap);
+	void *p = cu_galloc_atomic(fullcap);
 	buf->storage_start = p;
 	buf->content_start = p;
 	buf->content_end = cu_ptr_add(p, content_size);

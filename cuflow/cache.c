@@ -52,7 +52,7 @@ cuflow_cache_cct(cuflow_cache_t cache, cuflow_cacheconf_t conf,
 	bin->cap = MIN_CAP;
 	bin->size = 0;
 	bin->access_since_pruned = 0;
-	bin->link_arr = cu_cgalloc(MIN_CAP*sizeof(struct cuflowP_cachebin_s));
+	bin->link_arr = cu_gallocz(MIN_CAP*sizeof(struct cuflowP_cachebin_s));
     }
 #if 0
     cu_mutex_lock(&conf->cache_link_mutex);
@@ -104,7 +104,7 @@ _resize_lck(cuflowP_cachebin_t bin, size_t new_cap)
     cuflow_cacheobj_t *old_link_arr = bin->link_arr;
     cuflow_cacheobj_t *old_link_arr_end = old_link_arr + bin->cap;
     bin->cap = new_cap;
-    bin->link_arr = cu_cgalloc(sizeof(struct cuflowP_cachebin_s)*new_cap);
+    bin->link_arr = cu_gallocz(sizeof(struct cuflowP_cachebin_s)*new_cap);
     while (old_link_arr != old_link_arr_end) {
 	cuflow_cacheobj_t obj = *old_link_arr;
 	while (obj) {

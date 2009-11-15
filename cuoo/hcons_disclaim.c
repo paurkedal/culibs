@@ -94,8 +94,8 @@ cu_dlog_def(_file, "cuoo.hcons");
 #   define ARR_ALLOC(size) malloc(size)
 #   define ARR_FREE(ptr) free(ptr)
 #else
-#   define ARR_ALLOC(size) cu_galloc_au(size)
-#   define ARR_FREE(ptr) cu_gfree_au(ptr)
+#   define ARR_ALLOC(size) cu_ualloc_atomic(size)
+#   define ARR_FREE(ptr) cu_ufree_atomic(ptr)
 #endif
 
 #if CUOO_ENABLE_COLL_STATS

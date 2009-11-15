@@ -34,7 +34,7 @@ cucon_arr_init(cucon_arr_t arr, cu_bool_t is_atomic, size_t init_size)
     arr->size = init_size;
     if (is_atomic) {
 	arr->cap = init_size | ATOMIC_BIT;
-	arr->carr = init_size? cu_galloc_a(init_size) : NULL;
+	arr->carr = init_size? cu_galloc_atomic(init_size) : NULL;
     }
     else {
 	arr->cap = init_size;
@@ -107,7 +107,7 @@ _arr_realloc(cucon_arr_t arr, size_t new_cap)
     char *old_carr = arr->carr;
     if (arr->cap & ATOMIC_BIT) {
 	arr->cap = new_cap | ATOMIC_BIT;
-	arr->carr = cu_galloc_a(new_cap);
+	arr->carr = cu_galloc_atomic(new_cap);
     }
     else {
 	arr->cap = new_cap;
