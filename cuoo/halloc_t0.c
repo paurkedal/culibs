@@ -18,8 +18,9 @@
 #include <cuoo/halloc.h>
 #include <cu/test.h>
 #include <cu/ptr.h>
+#include <stdlib.h>
 
-#define N_ALLOC 10000
+#define N_ALLOC 40000
 #define MAX_SIZEW 5
 
 static cuoo_type_t _testobj_type_arr[MAX_SIZEW];
@@ -34,22 +35,22 @@ _testobj_init(cu_word_t *tpl, int J, int i)
 
 /* Test that equal object data gives the same object pointer. */
 void
-test()
+test(int n_alloc)
 {
     int i, J, k;
-    cu_word_t *obj_arr[N_ALLOC];
+    cu_word_t **obj_arr = cu_snewarr(cu_word_t *, n_alloc);
     for (J = 1; J < MAX_SIZEW; ++J)
 	_testobj_type_arr[J - 1]
 	    = cuoo_type_new_opaque_hcs(NULL, J*sizeof(cu_word_t));
     for (k = 0; k < 100; ++k) {
-	for (i = 0; i < N_ALLOC; ++i) {
+	for (i = 0; i < n_alloc; ++i) {
 	    cu_word_t tpl[MAX_SIZEW];
 	    int J = i % (MAX_SIZEW - 1) + 1;
 	    _testobj_init(tpl, J, i);
 	    obj_arr[i] =
 		cuoo_halloc(_testobj_type_arr[J - 1], J*sizeof(cu_word_t), tpl);
 	}
-	for (i = 0; i < N_ALLOC; ++i) {
+	for (i = 0; i < n_alloc; ++i) {
 	    cu_word_t *obj;
 	    cu_word_t tpl[4];
 	    int J = i % (MAX_SIZEW - 1) + 1;
@@ -60,14 +61,15 @@ test()
 				  cu_ptr_add(obj_arr[i], CUOO_HCOBJ_SHIFT),
 				  J*sizeof(cu_word_t)) == 0);
 	}
+	memset(obj_arr, 0, sizeof(cu_word_t *)*n_alloc);
 	GC_gcollect();
     }
 }
 
 int
-main()
+main(int argc, char **argv)
 {
     cu_init();
-    test();
+    test(argc >= 2? atoi(argv[1]) : N_ALLOC);
     return 2*!!cu_test_bug_count();
 }
