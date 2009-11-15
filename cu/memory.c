@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #if 0
 #  include <gc/private/gc_priv.h>
@@ -183,6 +184,27 @@ cuD_ufree_atomic(void *ptr, char const *file, int line)
 
 #endif /* CUCONF_DEBUG_MEMORY */
 
+#ifndef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
+void *
+cuD_uallocz_atomic(size_t size, char const *file, int line)
+{
+    void *p = malloc(size);
+    if (!p)
+	cu_raise_out_of_memory(size);
+    memset(p, 0, size);
+    return p;
+}
+
+void *
+(cu_uallocz_atomic)(size_t size)
+{
+    void *p = malloc(size);
+    if (!p)
+	cu_raise_out_of_memory(size);
+    memset(p, 0, size);
+    return p;
+}
+#endif
 
 
 /* Other GC facilities

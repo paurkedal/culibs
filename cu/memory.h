@@ -195,7 +195,14 @@ cu_ualloc_atomic(size_t size)
 #define cu_uallocz		cu_ualloc
 
 /** Allocate cleared atomic uncollectable memory. */
-#define cu_uallocz_atomic	cu_ualloc_atomic
+#if defined(CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE)
+#  define cu_uallocz_atomic	cu_ualloc_atomic
+#elif defined(CUCONF_DEBUG_MEMORY) && !defined(CU_IN_DOXYGEN)
+void *cuP_uallocz_atomic(size_t size, char const *file, int line);
+#  define cu_uallocz_atomic(size) cuP_uallocz_atomic(size, __FILE__, __LINE__)
+#else
+void *cu_uallocz_atomic(size_t size);
+#endif
 
 
 /** Shortcut to allocate an object of type \a type using \ref cu_salloc. */
@@ -213,16 +220,21 @@ cu_ualloc_atomic(size_t size)
 /** Shortcut to allocate an object of type \a type using \ref cu_ualloc_atomic. */
 #define cu_unew_atomic(type) ((type *)cu_ualloc_atomic(sizeof(type)))
 
-
-/** A shortcut to allocate an cleared object of type \a type using \ref
- ** cu_gallocz. */
-#define cu_gnewz(type) ((type *)cu_gallocz(sizeof(type)))
+#define cu_gnewz(type)		((type *)cu_gallocz(sizeof(type)))
+#define cu_gnewz_atomic(type)	((type *)cu_gallocz_atomic(sizeof(type)))
+#define cu_unewz(type)		((type *)cu_uallocz(sizeof(type)))
+#define cu_unewz_atomic(type)	((type *)cu_uallocz_atomic(sizeof(type)))
 
 #define cu_snewarr(type, n)	   ((type *)cu_salloc(sizeof(type)*(n)))
 #define cu_gnewarr(type, n)        ((type *)cu_galloc(sizeof(type)*(n)))
 #define cu_gnewarr_atomic(type, n) ((type *)cu_galloc_atomic(sizeof(type)*(n)))
 #define cu_unewarr(type, n)        ((type *)cu_ualloc(sizeof(type)*(n)))
 #define cu_unewarr_atomic(type, n) ((type *)cu_ualloc_atomic(sizeof(type)*(n)))
+
+#define cu_gnewarrz(type, n)        ((type *)cu_gallocz(sizeof(type)*(n)))
+#define cu_gnewarrz_atomic(type, n) ((type *)cu_gallocz_atomic(sizeof(type)*(n)))
+#define cu_unewarrz(type, n)        ((type *)cu_uallocz(sizeof(type)*(n)))
+#define cu_unewarrz_atomic(type, n) ((type *)cu_uallocz_atomic(sizeof(type)*(n)))
 
 
 /* Other GC facilities
