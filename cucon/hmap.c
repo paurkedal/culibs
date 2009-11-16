@@ -152,7 +152,7 @@ cucon_hmap_multi_insert_node(cucon_hmap_t map, cucon_hmap_node_t newnode)
 }
 
 void *
-cucon_hmap_erase(cucon_hmap_t map, void const *key)
+cucon_hmap_pop_mem(cucon_hmap_t map, void const *key)
 {
     cu_hash_t idx = cu_call(map->hash, key) & map->mask;
     cucon_hmap_node_t *node = &map->table[idx];
@@ -171,7 +171,14 @@ cucon_hmap_erase(cucon_hmap_t map, void const *key)
 }
 
 void *
-cucon_hmap_erase_keep_capacity(cucon_hmap_t map, void const *key)
+cucon_hmap_pop_ptr(cucon_hmap_t map, void const *key)
+{
+    void *p = cucon_hmap_pop_mem(map, key);
+    return p? *(void **)p : NULL;
+}
+
+void *
+cucon_hmap_isocap_pop_mem(cucon_hmap_t map, void const *key)
 {
     cu_hash_t idx = cu_call(map->hash, key) & map->mask;
     cucon_hmap_node_t *node = &map->table[idx];
@@ -187,17 +194,24 @@ cucon_hmap_erase_keep_capacity(cucon_hmap_t map, void const *key)
     return NULL;
 }
 
+void *
+cucon_hmap_isocap_pop_ptr(cucon_hmap_t map, void const *key)
+{
+    void *p = cucon_hmap_isocap_pop_mem(map, key);
+    return p? *(void **)p : NULL;
+}
+
 void
-cucon_hmap_set_capacity(cucon_hmap_t map, int newsize)
+cucon_hmap_set_capacity(cucon_hmap_t map, size_t cap)
 {
     cucon_hmap_node_t *u;
     cucon_hmap_node_t *u_beg = map->table;
     cucon_hmap_node_t *u_end = u_beg + (map->mask + 1);
-    map->table = cu_galloc(sizeof(cucon_hmap_node_t)*(newsize+1));
-    memset(map->table, 0, sizeof(cucon_hmap_node_t)*newsize);
+    map->table = cu_galloc(sizeof(cucon_hmap_node_t)*(cap + 1));
+    memset(map->table, 0, sizeof(cucon_hmap_node_t)*cap);
     map->size = 0;
-    map->mask = newsize-1;
-    map->table[newsize] = &map->tail;
+    map->mask = cap - 1;
+    map->table[cap] = &map->tail;
     for (u = u_beg; u != u_end; ++u) {
 	cucon_hmap_node_t node;
 	for (node = *u; node != NULL;) {

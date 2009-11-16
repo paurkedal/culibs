@@ -14,3 +14,9 @@ s/\<cu_cgnew\>/cu_gnewz/g
 s/\<cu_gnewarr_a\>/cu_gnewarr_atomic/g
 s/\<cu_gnewarr_u\>/cu_unewarr/g
 s/\<cu_gnewarr_au\>/cu_unewarr_atomic/g
+
+s/\<cucon_hmap_size\>/cucon_hmap_card/g
+s/\<cucon_hmap_erase\>/cucon_hmap_pop_mem/g
+s/\<cucon_hmap_erase_keep_capacity\>/cucon_hmap_isocap_pop_mem/g
+s/\<cucon_hset_size\>/cucon_hset_card/g
+s/\<cucon_hset_erase_keep_capacity\>/cucon_isocap_erase/g

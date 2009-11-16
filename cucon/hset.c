@@ -37,7 +37,7 @@ cu_clos_def(_hset_subeq_cb,
 cu_bool_t
 cucon_hset_subeq(cucon_hset_t hs0, cucon_hset_t hs1)
 {
-    if (cucon_hset_size(hs0) > cucon_hset_size(hs1))
+    if (cucon_hset_card(hs0) > cucon_hset_card(hs1))
 	return cu_false;
     else {
 	_hset_subeq_cb_t cb;
@@ -49,7 +49,7 @@ cucon_hset_subeq(cucon_hset_t hs0, cucon_hset_t hs1)
 cu_bool_t
 cucon_hset_sub(cucon_hset_t hs0, cucon_hset_t hs1)
 {
-    if (cucon_hset_size(hs0) >= cucon_hset_size(hs1))
+    if (cucon_hset_card(hs0) >= cucon_hset_card(hs1))
 	return cu_false;
     else {
 	_hset_subeq_cb_t cb;
@@ -61,7 +61,7 @@ cucon_hset_sub(cucon_hset_t hs0, cucon_hset_t hs1)
 cu_bool_t
 cucon_hset_eq(cucon_hset_t hs0, cucon_hset_t hs1)
 {
-    if (cucon_hset_size(hs0) != cucon_hset_size(hs1))
+    if (cucon_hset_card(hs0) != cucon_hset_card(hs1))
 	return cu_false;
     else {
 	_hset_subeq_cb_t cb;
