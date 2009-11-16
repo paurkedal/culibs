@@ -18,12 +18,11 @@
 #ifndef CU_STR_H
 #define CU_STR_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
 #include <cu/fwd.h>
 #include <cu/clos.h>
-#include <cuoo/type.h>
+#include <cuoo/meta.h>
+#include <stdlib.h>
+#include <stdarg.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_str_h cu/str.h: Multi-Byte Strings

@@ -17,9 +17,9 @@
 
 #include <cu/diag.h>
 #include <cu/logging.h>
-#include <cu/str.h>
 #include <cu/sref.h>
-#include <cucon/pmap.h>
+#include <cu/debug.h>
+#include <atomic_ops.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>

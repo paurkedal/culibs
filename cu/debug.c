@@ -23,6 +23,8 @@
 #include <cu/memory.h>
 #include <cucon/hset.h>
 #include <cu/str.h>
+#include <cu/thread.h>
+#include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

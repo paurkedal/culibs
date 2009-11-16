@@ -20,6 +20,8 @@
 #include <cuos/dirpile.h>
 #include <cu/thread.h>
 #include <cu/str.h>
+#include <cu/debug.h>
+#include <cu/memory.h>
 #include <atomic_ops.h>
 
 cu_dlog_def(_file, "dtag=cuos.user_dirs");

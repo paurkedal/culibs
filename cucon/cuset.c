@@ -18,6 +18,7 @@
 #include <cucon/list.h>
 #include <cucon/rbset.h>
 #include <cu/str.h>
+#include <cu/debug.h>
 
 #include <argp.h>
 #include <string.h>
@@ -234,7 +235,7 @@ main(int argc, char **argv)
 	case main_mode_set_isecn:
 	    set = cucon_rbset_new_str_cmp();
 	    p = args.positional;
-	    assert(*p);
+	    cu_debug_assert(*p);
 	    set = load_set_union(open_in(*p), set);
 	    ++p;
 	    while (*p) {
@@ -245,7 +246,7 @@ main(int argc, char **argv)
 	case main_mode_set_minus:
 	    set = cucon_rbset_new_str_cmp();
 	    p = args.positional;
-	    assert(*p);
+	    cu_debug_assert(*p);
 	    set = load_set_union(open_in(*p), set);
 	    ++p;
 	    while (*p) {

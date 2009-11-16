@@ -20,6 +20,7 @@
 #include <cu/conf.h>
 #include <cu/str.h>
 #include <cu/installdirs.h>
+#include <cu/debug.h>
 #include <locale.h>
 #include <string.h>
 #include <gc/gc.h>

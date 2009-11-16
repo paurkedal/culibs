@@ -19,6 +19,7 @@
 #include <cu/str.h>
 #include <cucon/list.h>
 #include <cu/str.h>
+#include <cu/diag.h>
 #include <cuos/path.h>
 #include <cuos/process.h>
 #include <sys/types.h>

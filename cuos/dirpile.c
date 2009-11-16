@@ -19,6 +19,8 @@
 #include <cuos/path.h>
 #include <cuos/fs.h>
 #include <cu/str.h>
+#include <cu/memory.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
