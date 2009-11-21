@@ -6,6 +6,7 @@ AC_CONFIG_SRCDIR([cu/clos.h])
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([nostdinc no-define dist-bzip2 subdir-objects foreign])
 AM_CONFIG_HEADER([config_raw.h])
+CUAC_PACKAGE_VERSION
 
 AM_PROG_CC_C_O
 AC_PROG_CXX

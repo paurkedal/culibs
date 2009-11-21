@@ -15,12 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef CU_CONF_H
+#define CU_CONF_H
+
 #include <cu/conf_ac.h>
 #include <cu/conf_fixed.h>
+
+#define CU_3VERSION(v0, v1, v2) (((v0)<<24) + ((v1)<<16) + ((v2) << 8))
+#define CU_2VERSION(v0, v1) CU_3VERSION(v0, v1, 0)
+
+#define CUCONF_VERSION	CU_3VERSION(CUCONF_PACKAGE_VERSION_0, \
+				    CUCONF_PACKAGE_VERSION_1, \
+				    CUCONF_PACKAGE_VERSION_2)
+
 #ifdef CUCONF_HAVE_GC_REGISTER_RECLAIM_NOTIFIER
 #  define CUCONF_ENABLE_GC_DISCLAIM
 #endif
 #ifdef NDEBUG
 #  define CU_NDEBUG
 #  define CU_NDEBUG_CLIENT
+#endif
+
 #endif
