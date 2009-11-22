@@ -34,4 +34,11 @@
 #  define cuex_tpvar_s		cuex_tpvar
 #  define cuex_tvar_s		cuex_tvar
 #  define cuex_var_s		cuex_var
+#  define cuex_ssfn_s		cuex_ssfn
+#  define cuex_ssfn_find_it_s	cuex_ssfn_find_it
+#  define cuex_ssfn_matchinfo_s	cuex_ssfn_matchinfo
+#  define cuex_ssfn_node_s	cuex_ssfn_node
+#  define cuex_stats_s		cuex_stats
+#  define cuex_ltree_node_s	cuex_ltree_node
+#  define cuex_xvarops_s	cuex_xvarops
 #endif

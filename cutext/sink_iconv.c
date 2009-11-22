@@ -138,7 +138,7 @@ _iconv_leave(cutext_sink_t sink, struct cufo_tag *tag)
     (*subsink->descriptor->leave)(subsink, tag);
 }
 
-static struct cutext_sink_descriptor_s _iconv_descriptor = {
+static struct cutext_sink_descriptor _iconv_descriptor = {
     CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .flags = 0,
     .write = _iconv_write,

@@ -66,7 +66,7 @@ struct cugra_graph_with_arcset
     cu_inherit (cugra_graph);
     size_t arcset_size;
     size_t arcset_mask;
-    struct cugraP_arcset_node_s **arcset_arr;
+    struct cugraP_arcset_node **arcset_arr;
 };
 
 struct cugra_vertex
@@ -75,7 +75,7 @@ struct cugra_vertex
     struct cu_dlink adj_link[2];
 };
 
-struct cugra_adjlink_s
+struct cugra_adjlink
 {
     struct cu_dlink link;
     cugra_vertex_t vertex;
@@ -83,14 +83,14 @@ struct cugra_adjlink_s
 
 struct cugra_arc
 {
-    struct cugra_adjlink_s adj[2];
+    struct cugra_adjlink adj[2];
 };
 
-/* Offset of the cugra_adjlink_s.link inside a cugra_arc. */
+/* Offset of the cugra_adjlink.link inside a cugra_arc. */
 #define CUGRAP_ARC_ADJLINK_LINK_OFFSET(dir)		\
       ( offsetof(struct cugra_arc, adj[0])		\
-      + sizeof(struct cugra_adjlink_s)*(dir)		\
-      + offsetof(struct cugra_adjlink_s, link) )
+      + sizeof(struct cugra_adjlink)*(dir)		\
+      + offsetof(struct cugra_adjlink, link) )
 
 
 /*!Construct \a G as an empty graph.  This constructor does not support the

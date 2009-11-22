@@ -68,8 +68,8 @@ _unlink_arc(cugra_arc_t a)
 /* Arcset Internals
  * ---------------- */
 
-typedef struct cugraP_arcset_node_s *_arcset_node_t;
-struct cugraP_arcset_node_s
+typedef struct cugraP_arcset_node *_arcset_node_t;
+struct cugraP_arcset_node
 {
     _arcset_node_t next;
     struct cugra_arc arc;
@@ -158,7 +158,7 @@ _arcset_insert(cugra_graph_with_arcset_t G,
 
     /* No existing arc, insert it. */
     *p = cu_galloc(arc_size
-		   + sizeof(struct cugraP_arcset_node_s)
+		   + sizeof(struct cugraP_arcset_node)
 		   - sizeof(struct cugra_arc));
     CU_GCLEAR_PTR((*p)->next);
     *arc_out = &(*p)->arc;

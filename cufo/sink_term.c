@@ -257,7 +257,7 @@ _termsink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
     }
 }
 
-static struct cutext_sink_descriptor_s _termsink_descriptor = {
+static struct cutext_sink_descriptor _termsink_descriptor = {
     CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .write = _termsink_write,
     .flags = CUTEXT_SINK_FLAG_CLOGFREE,

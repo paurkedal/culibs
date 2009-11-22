@@ -39,7 +39,7 @@ CU_BEGIN_DECLARATIONS
  * because the need for the header depends on the configuration.
  */
 
-typedef struct cuooP_hcobj_s *cuooP_hcobj_t;
+typedef struct cuooP_hcobj *cuooP_hcobj_t;
 
 #ifdef CUCONF_ENABLE_GC_DISCLAIM
 
@@ -52,15 +52,15 @@ typedef struct cuooP_hcobj_s *cuooP_hcobj_t;
 
 /*!Put this, without semicolon, at the beginning of struct bodies which are
  * used for hash-consed objects. */
-#define CUOO_HCOBJ CUOO_OBJ cu_inherit (cuooP_hcobj_s);
+#define CUOO_HCOBJ CUOO_OBJ cu_inherit (cuooP_hcobj);
 
 /*!The offset of the key-part of hash-consed object struct. */
-#define CUOO_HCOBJ_SHIFT sizeof(struct cuooP_hcobj_s)
+#define CUOO_HCOBJ_SHIFT sizeof(struct cuooP_hcobj)
 
 #define CUOO_HCOBJ_INIT CUOO_OBJ_INIT { 0 },
 
 /*!Internal, use the \ref CUOO_HCOBJ macro instead. */
-struct cuooP_hcobj_s
+struct cuooP_hcobj
 {
     AO_t hcset_next;
 #if CUOO_HC_GENERATION

@@ -31,15 +31,15 @@ CU_BEGIN_DECLARATIONS
 /* Structural Semantic Functions
  * ============================= */
 
-typedef struct cuex_ssfn_node_s *cuex_ssfn_node_t;
-typedef struct cuex_ssfn_s *cuex_ssfn_t;
+typedef struct cuex_ssfn_node *cuex_ssfn_node_t;
+typedef struct cuex_ssfn *cuex_ssfn_t;
 typedef unsigned long cuex_ssfn_seqno_t;
 
-struct cuex_ssfn_node_s
+struct cuex_ssfn_node
 {
     /* Match on current operand. */
-    struct cucon_pmap match_exaddr;	/* cuex_t → cuex_ssfn_node_s */
-    struct cucon_umap match_opr;	/* opr → cuex_ssfn_node_s */
+    struct cucon_pmap match_exaddr;	/* cuex_t → cuex_ssfn_node */
+    struct cucon_umap match_opr;	/* opr → cuex_ssfn_node */
 
     /* For patterns with a universal match on the current operand,
      * link to the match for the next operand.  When there are no more
@@ -50,9 +50,9 @@ struct cuex_ssfn_node_s
     cuex_ssfn_seqno_t seqno;
 };
 
-struct cuex_ssfn_s
+struct cuex_ssfn
 {
-    cu_inherit (cuex_ssfn_node_s);
+    cu_inherit (cuex_ssfn_node);
 };
 
 
@@ -122,8 +122,8 @@ cuex_ssfn_intersection_find_aux(
  *
  * Weak-preserving means that no weak variables in the ssfn patterns
  * are substituted.  */
-typedef struct cuex_ssfn_matchinfo_s *cuex_ssfn_matchinfo_t;
-struct cuex_ssfn_matchinfo_s
+typedef struct cuex_ssfn_matchinfo *cuex_ssfn_matchinfo_t;
+struct cuex_ssfn_matchinfo
 {
     cu_bool_t is_wp;
 };
@@ -174,8 +174,8 @@ void cuex_ssfn_dump_keys(cuex_ssfn_t ssfn, FILE *out);
 /* cuex_ssfn_find_it_t
  * ------------------ */
 
-typedef struct cuex_ssfn_find_it_s *cuex_ssfn_find_it_t;
-typedef struct cuexP_ssfn_find_jargs_s {
+typedef struct cuex_ssfn_find_it *cuex_ssfn_find_it_t;
+typedef struct cuexP_ssfn_find_jargs {
     struct cucon_stack input;
     struct cucon_stack output;
     struct cucon_stack sctr;
@@ -183,10 +183,10 @@ typedef struct cuexP_ssfn_find_jargs_s {
     cu_clop(receiver, cu_bool_t, cu_count_t arg_cnt, cuex_t *arg_arr, void *);
     cu_count_t arg_cnt;
 } *cuexP_ssfn_find_jargs_t;
-struct cuex_ssfn_find_it_s
+struct cuex_ssfn_find_it
 {
     struct cucon_stack stack;
-    struct cuexP_ssfn_find_jargs_s jargs;
+    struct cuexP_ssfn_find_jargs jargs;
     void *slot;
     cu_count_t arg_cnt;
     cuex_t *arg_arr;

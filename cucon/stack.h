@@ -147,7 +147,7 @@ CU_SINLINE int cucon_stack_pop_int(cucon_stack_t stack)
 /* == Marks == */
 
 /*!An indicator of a level on a stack. */
-typedef struct cuconP_stack_mark_s *cucon_stack_mark_t;
+typedef struct cucon_stack_mark *cucon_stack_mark_t;
 
 /*!A mark which can be used with \ref cucon_stack_unwind_to_mark. Note that
  * marks don't survive operations which re-allocate the stack, such as \ref

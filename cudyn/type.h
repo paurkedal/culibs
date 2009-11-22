@@ -184,7 +184,7 @@ CU_SINLINE size_t cudyn_arrtype_elt_cnt(cudyn_arrtype_t t)
 /* Tuple Types
  * =========== */
 
-struct cudyn_tupcomp_s
+struct cudyn_tupcomp
 {
     cuoo_type_t type;
     cu_offset_t bitoffset;
@@ -193,7 +193,7 @@ struct cudyn_tuptype
 {
     cu_inherit (cudyn_inltype);
     size_t tcomp_cnt;
-    struct cudyn_tupcomp_s *tcomp_arr;
+    struct cudyn_tupcomp *tcomp_arr;
     struct cucon_pmap scomp_map;
 };
 
@@ -256,7 +256,7 @@ cudyn_tuptype_offset_at(cudyn_tuptype_t t, cudyn_tupindex_t i)
 
 typedef uintptr_t cudyn_cnum_t;
 
-struct cudyn_dunpart_s
+struct cudyn_dunpart
 {
     cudyn_cnum_t cnum;
     cuoo_type_t type;

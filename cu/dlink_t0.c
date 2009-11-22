@@ -56,7 +56,7 @@ _new_cycle_upto(int n)
 static int
 _value(cu_dlink_t l)
 {
-    return cu_downcast(_link, cu_dlink, l)->value;
+    return cu_from(_link, cu_dlink, l)->value;
 }
 
 int

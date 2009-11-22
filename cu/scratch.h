@@ -28,17 +28,17 @@ CU_BEGIN_DECLARATIONS
  * inner loops when \ref cu_salloc is not feasible.
  */
 
-typedef struct cu_scratch_s *cu_scratch_t;
+typedef struct cu_scratch *cu_scratch_t;
 
 /*!Reusable scratch memory. */
-struct cu_scratch_s
+struct cu_scratch
 {
     size_t size;
     void *ptr;
 };
 
 /*!An initialiser which can be assigned in a declaration of a variable of type
- * <tt>struct \ref cu_scratch_s</tt>. */
+ * <tt>struct \ref cu_scratch</tt>. */
 #define CU_SCRATCH_INIT { 0, NULL }
 
 /*!Alternative to \ref CU_SCRATCH_INIT. */

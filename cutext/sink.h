@@ -65,8 +65,8 @@ cutext_sink_info_key_inherits(cutext_sink_info_key_t key)
 struct cufo_tag;
 struct cufo_attrbind;
 
-typedef struct cutext_sink_descriptor_s *cutext_sink_descriptor_t;
-struct cutext_sink_descriptor_s
+typedef struct cutext_sink_descriptor *cutext_sink_descriptor_t;
+struct cutext_sink_descriptor
 {
     unsigned int flags;
 

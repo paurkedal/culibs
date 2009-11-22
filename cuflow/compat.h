@@ -19,7 +19,12 @@
 #  define cuflow_tstate_s	cuflow_tstate
 #  define cuflow_continuation_s	cuflow_continuation
 #  define cuflow_cacheconf_s	cuflow_cacheconf
+#  define cuflow_exeq_s		cuflow_exeq
+#  define cuflow_exeq_entry_s	cuflow_exeq_entry
 #  define cuflow_gflexq_s	cuflow_gflexq
+#  define cuflow_gflexq_entry_s	cuflow_gflexq_entry
 #  define cuflow_promise_s	cuflow_promise
 #  define cuflow_workq_s	cuflow_workq
+#  define cuflow_cache_s	cuflow_cache
+#  define cuflow_cacheobj_s	cuflow_cacheobj
 #endif

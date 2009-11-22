@@ -186,7 +186,7 @@ _dcountsink_write(cutext_sink_t sink, void const *arr, size_t len)
     return len;
 }
 
-static struct cutext_sink_descriptor_s _dcountsink_descriptor = {
+static struct cutext_sink_descriptor _dcountsink_descriptor = {
     CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .flags = CUTEXT_SINK_FLAG_CLOGFREE,
     .write = _dcountsink_write

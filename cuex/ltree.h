@@ -47,7 +47,7 @@ cuex_is_oR_ltree(cuex_meta_t opr)
     return cuex_opr_sans_arity(cuexP_og_ltree_strip(opr)) == CUEXP_OR_LTREE(0);
 }
 
-struct cuex_ltree_node_s
+struct cuex_ltree_node
 {
     CUOO_HCOBJ
     cuex_t sub[CUEX_LTREE_FANOUT];

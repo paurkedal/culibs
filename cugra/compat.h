@@ -18,6 +18,7 @@
 #if CU_COMPAT < 20091122 && !defined(cugra_graph_s)
 #  define cugra_graph_s			cugra_graph
 #  define cugra_vertex_s		cugra_vertex
+#  define cugra_adjlink_s		cugra_adjlink
 #  define cugra_arc_s			cugra_arc
 #  define cugra_graph_with_arcset_s	cugra_graph_with_arcset
 #  define cugra_walk_SCC_s		cugra_walk_SCC

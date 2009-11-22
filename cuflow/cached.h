@@ -45,32 +45,32 @@ struct cuflowP_cached_node
 #define CUFLOW_CACHED_GRAN_SIZEW 1
 #define CUFLOW_CACHED_GRAN_SIZEB (CU_WORD_SIZE*CUFLOW_CACHED_GRAN_SIZEW)
 #define CUFLOW_CACHED_ARG_SIZEG(NAME)					\
-    ((sizeof(struct NAME##_arg_s) + CUFLOW_CACHED_GRAN_SIZEB - 1) /	\
+    ((sizeof(struct NAME##_arg) + CUFLOW_CACHED_GRAN_SIZEB - 1) /	\
      CUFLOW_CACHED_GRAN_SIZEB)
 #define CUFLOW_CACHED_ARG_SIZE(NAME)					\
     (CUFLOW_CACHED_ARG_SIZEG(NAME)*CUFLOW_CACHED_GRAN_SIZEB)
 
 #define cuflowP_cached_decls(NAME, arg_members, res_members, linkage)	\
-    typedef struct NAME##_node_s NAME##_node_t;				\
+    typedef struct NAME##_node NAME##_node_t;				\
 									\
-    typedef struct NAME##_arg_s {					\
-	void (*fn)(struct NAME##_arg_s *);				\
+    typedef struct NAME##_arg {						\
+	void (*fn)(struct NAME##_arg *);				\
 	cuPP_splice arg_members						\
     } NAME##_arg_t;							\
 									\
     typedef union NAME##_u {						\
-	struct NAME##_arg_s arg;					\
+	struct NAME##_arg arg;						\
 	char cuL_padding[CUFLOW_CACHED_ARG_SIZE(NAME)];			\
     } NAME##_t;								\
 									\
-    typedef struct NAME##_result_s {					\
+    typedef struct NAME##_result {					\
 	cuPP_splice res_members						\
     } *NAME##_result_t;							\
 									\
-    struct NAME##_node_s {						\
+    struct NAME##_node {						\
 	cu_inherit (cuflowP_cached_node);				\
 	NAME##_t padded_arg;						\
-	struct NAME##_result_s res;					\
+	struct NAME##_result res;					\
     };									\
 									\
     linkage void NAME##_fn(NAME##_arg_t *arg);				\
@@ -120,7 +120,7 @@ struct cuflowP_cached_node
 
 #define CUFLOW_CACHED_NODE_FROM_ARG(NAME, arg)				\
     ((NAME##_node_t *)							\
-     ((char *)(arg) - offsetof(struct NAME##_node_s, padded_arg)))
+     ((char *)(arg) - offsetof(struct NAME##_node, padded_arg)))
 
 /*!Used in a cached function definition, inserts declarations and
  * initialisation of two local variables \e arg and \e res.  \e arg is the
@@ -145,7 +145,7 @@ void *cuflowP_sched_cached_call(void *arg, size_t, size_t);
 	{								\
 	    NAME##_node_t *cuL_node = cuflowP_cached_call(		\
 		    &cuL_padded_arg, CUFLOW_CACHED_ARG_SIZEG(NAME),	\
-		    sizeof(struct NAME##_node_s));			\
+		    sizeof(struct NAME##_node));			\
 	    *(result_out) = &cuL_node->res;				\
 	}								\
     } while (0)
@@ -158,7 +158,7 @@ void *cuflowP_sched_cached_call(void *arg, size_t, size_t);
 	{ cuPP_splice arg_block }					\
 	*(promise_out) = (NAME##_promise_t)cuflowP_sched_cached_call(	\
 		    &cuL_padded_arg, CUFLOW_CACHED_ARG_SIZEG(NAME),	\
-		    sizeof(struct NAME##_node_s));			\
+		    sizeof(struct NAME##_node));			\
     } while (0)
 
 /*!@}*/

@@ -237,8 +237,8 @@ CU_SINLINE cuex_var_t cuex_rvar(unsigned int index)
 
 /*!@}*/
 
-typedef struct cuex_xvarops_s *cuex_xvarops_t;
-struct cuex_xvarops_s
+typedef struct cuex_xvarops *cuex_xvarops_t;
+struct cuex_xvarops
 {
     void (*foprint)(cufo_stream_t fos, void *);
 };

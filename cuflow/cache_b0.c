@@ -39,7 +39,7 @@ void test()
     int i;
     clock_t t = -clock();
     for (i = 0; i < CALL_CNT; ++i) {
-	struct fn1_key_s key;
+	struct fn1_key key;
 	fn1_obj_t *obj;
 	key.i = i;
 	obj = testcache_call(fn1, &key);
@@ -48,7 +48,7 @@ void test()
     printf("%lg s per uncached call\n", t/((double)CLOCKS_PER_SEC*CALL_CNT));
     t = -clock();
     for (i = 0; i < CALL_CNT; ++i) {
-	struct fn1_key_s key;
+	struct fn1_key key;
 	fn1_obj_t *obj;
 	key.i = 0;
 	obj = testcache_call(fn1, &key);

@@ -33,8 +33,8 @@ CU_BEGIN_DECLARATIONS
 #define CUFLOW_PROFILE_SCHED 0
 #define CUFLOW_CALLS_BETWEEN_SCHED 1
 
-typedef struct cuflow_exeq_s *cuflow_exeq_t;
-typedef struct cuflow_exeq_entry_s *cuflow_exeq_entry_t;
+typedef struct cuflow_exeq *cuflow_exeq_t;
+typedef struct cuflow_exeq_entry *cuflow_exeq_entry_t;
 
 typedef enum {
     cuflow_exeqpri_begin	= 0,
@@ -53,17 +53,17 @@ CU_SINLINE cu_bool_t
 cuflow_exeqpri_prior(cuflow_exeqpri_t pri0, cuflow_exeqpri_t pri1)
 { return pri0 < pri1; }
 
-struct cuflow_exeq_entry_s
+struct cuflow_exeq_entry
 {
     cu_clop0(fn, void);
     AO_t *cdisj;
 };
 
-struct cuflow_exeq_s
+struct cuflow_exeq
 {
     pthread_mutex_t pickup_mutex;
     cuflow_exeqpri_t priority;
-    struct cuflow_exeq_entry_s call_arr[CUFLOW_EXEQ_SIZE];
+    struct cuflow_exeq_entry call_arr[CUFLOW_EXEQ_SIZE];
     AO_t head, tail;
 #if CUFLOW_CALLS_BETWEEN_SCHED > 1
     int calls_till_sched;

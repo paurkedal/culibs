@@ -203,7 +203,7 @@ _xmlsink_iterA_subsinks(cutext_sink_t sink, cu_clop(f, cu_bool_t, cutext_sink_t)
     return cu_call(f, xmlsink->subsink);
 }
 
-static struct cutext_sink_descriptor_s _xmlsink_descriptor = {
+static struct cutext_sink_descriptor _xmlsink_descriptor = {
     CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .flags = CUTEXT_SINK_FLAG_CLOGFREE,
     .write = _xmlsink_write,

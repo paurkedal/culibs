@@ -44,6 +44,7 @@ s/\<cu_wstring_s\>/cu_wstring/g
 s/\<cu_hook_node_s\>/cu_hook_node/g
 s/\<cu_installdir_s\>/cu_installdir/g
 s/\<cu_hidden_ptr_s\>/cu_hidden_ptr/g
+s/\<cu_scratch_s\>/cu_scratch/g
 s/\<cucon_arr_s\>/cucon_arr/g
 s/\<cucon_bitvect_s\>/cucon_bitvect/g
 s/\<cucon_digraph_s\>/cucon_digraph/g
@@ -92,6 +93,8 @@ s/\<cucon_hmap_itr_s\>/cucon_hmap_itr/g
 s/\<cuoo_layout_s\>/cuoo_layout/g
 s/\<cuoo_prop_s\>/cuoo_prop/g
 s/\<cuoo_type_s\>/cuoo_type/g
+s/\<cuoo_libinfo_s\>/cuoo_libinfo/g
+s/\<cuoo_intf_serialisable_s\>/cuoo_intf_serialisable/g
 s/\<cuos_dirpile_s\>/cuos_dirpile/g
 s/\<cuos_pkg_user_dirs_s\>/cuos_pkg_user_dirs/g
 s/\<cutext_sink_s\>/cutext_sink/g
@@ -99,6 +102,8 @@ s/\<cutext_countsink_s\>/cutext_countsink/g
 s/\<cutext_buffersink_s\>/cutext_buffersink/g
 s/\<cutext_src_s\>/cutext_src/g
 s/\<cutext_ucs4src_s\>/cutext_ucs4src/g
+s/\<cutext_sink_descriptor_s\>/cutext_sink_descriptor/g
+s/\<cufo_convinfo_s\>/cufo_convinfo/g
 s/\<cufo_prispec_s\>/cufo_prispec/g
 s/\<cufo_stream_s\>/cufo_stream/g
 s/\<cufo_tag_s\>/cufo_tag/g
@@ -116,8 +121,14 @@ s/\<cuflow_cacheconf_s\>/cuflow_cacheconf/g
 s/\<cuflow_gflexq_s\>/cuflow_gflexq/g
 s/\<cuflow_promise_s\>/cuflow_promise/g
 s/\<cuflow_workq_s\>/cuflow_workq/g
+s/\<cuflow_exeq_s\>/cuflow_exeq/g
+s/\<cuflow_exeq_entry_s\>/cuflow_exeq_entry/g
+s/\<cuflow_gflexq_entry_s\>/cuflow_gflexq_entry/g
+s/\<cuflow_cache_s\>/cuflow_cache/g
+s/\<cuflow_cacheobj_s\>/cuflow_cacheobj/g
 s/\<cugra_graph_s\>/cugra_graph/g
 s/\<cugra_vertex_s\>/cugra_vertex/g
+s/\<cugra_adjlink_s\>/cugra_adjlink/g
 s/\<cugra_arc_s\>/cugra_arc/g
 s/\<cugra_graph_with_arcset_s\>/cugra_graph_with_arcset/g
 s/\<cugra_walk_SCC_s\>/cugra_walk_SCC/g
@@ -149,3 +160,12 @@ s/\<cuex_veqv_s\>/cuex_veqv/g
 s/\<cuex_tpvar_s\>/cuex_tpvar/g
 s/\<cuex_tvar_s\>/cuex_tvar/g
 s/\<cuex_var_s\>/cuex_var/g
+s/\<cuex_ssfn_s\>/cuex_ssfn/g
+s/\<cuex_ssfn_find_it_s\>/cuex_ssfn_find_it/g
+s/\<cuex_ssfn_matchinfo_s\>/cuex_ssfn_matchinfo/g
+s/\<cuex_ssfn_node_s\>/cuex_ssfn_node/g
+s/\<cuex_stats_s\>/cuex_stats/g
+s/\<cuex_ltree_node_s\>/cuex_ltree_node/g
+s/\<cuex_xvarops_s\>/cuex_xvarops/g
+s/\<cu_upcast\>/cu_to/g
+s/\<cu_downcast\>/cu_from/g

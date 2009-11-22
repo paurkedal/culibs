@@ -23,7 +23,7 @@
 void
 cucon_rbset_init(cucon_rbset_t rbset, cu_clop(cmp, int, void *, void *))
 {
-    cucon_rbtree_init(cu_upcast(cucon_rbtree, rbset));
+    cucon_rbtree_init(cu_to(cucon_rbtree, rbset));
     rbset->cmp = cmp;
 }
 
@@ -31,7 +31,7 @@ cucon_rbset_t
 cucon_rbset_new(cu_clop(cmp, int, void *, void *))
 {
     cucon_rbset_t rbset = cu_gnew(struct cucon_rbset);
-    cucon_rbtree_init(cu_upcast(cucon_rbtree, rbset));
+    cucon_rbtree_init(cu_to(cucon_rbtree, rbset));
     rbset->cmp = cmp;
     return rbset;
 }
@@ -56,7 +56,7 @@ cucon_rbset_nearest(cucon_rbset_t set, void *key,
 {
     cucon_rbnode_t below, equal, above;
     cucon_rbtree_nearest2p(cu_to(cucon_rbtree, set), set->cmp,
-				       key, &below, &equal, &above);
+			   key, &below, &equal, &above);
     if (below)
 	*(void **)below_out = cucon_rbnode_ptr(below);
     else

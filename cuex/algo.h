@@ -227,7 +227,7 @@ cu_clos_edec(cuex_pset_curried_erase_ex,
 
 
 /*!The statistics returned by \ref cuex_stats. */
-typedef struct cuex_stats_s
+typedef struct cuex_stats
 {
     size_t node_cnt;		/*!< total number of nodes */
     size_t   var_cnt;		/*!< number of variables of any kind */

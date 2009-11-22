@@ -85,14 +85,14 @@ _strsink_info(cutext_sink_t sink, cutext_sink_info_key_t key)
     }
 }
 
-static struct cutext_sink_descriptor_s _wstringsink_descriptor = {
+static struct cutext_sink_descriptor _wstringsink_descriptor = {
     CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .write = _bufsink_write,
     .finish = _wstringsink_finish,
     .info = _wstringsink_info
 };
 
-static struct cutext_sink_descriptor_s _strsink_descriptor = {
+static struct cutext_sink_descriptor _strsink_descriptor = {
     CUTEXT_SINK_DESCRIPTOR_DEFAULTS,
     .write = _bufsink_write,
     .finish = _strsink_finish,

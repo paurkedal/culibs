@@ -35,8 +35,8 @@
 #define BUFFER(fos) cu_to(cu_buffer, fos)
 
 #ifdef CUCONF_DEBUG_CLIENT
-typedef struct cufoP_tag_stack_s *cufoP_tag_stack_t;
-struct cufoP_tag_stack_s
+typedef struct cufoP_tag_stack *cufoP_tag_stack_t;
+struct cufoP_tag_stack
 {
     cufoP_tag_stack_t next;
     cufo_tag_t tag;
@@ -167,7 +167,7 @@ cufoP_flush(cufo_stream_t fos, unsigned int flags)
     size_t src_size;
     char *wr_buf;
     size_t wr_size;
-    struct cufo_convinfo_s *convinfo;
+    struct cufo_convinfo *convinfo;
 
     if (cufo_have_error(fos)) {
 	cu_buffer_clear(BUFFER(fos));
@@ -388,7 +388,7 @@ cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
     struct cucon_arr arr;
     cufo_attrbind_t attrbinds;
 #ifdef CUCONF_DEBUG_CLIENT
-    cufoP_tag_stack_t tag_stack = cu_gnew(struct cufoP_tag_stack_s);
+    cufoP_tag_stack_t tag_stack = cu_gnew(struct cufoP_tag_stack);
     tag_stack->next = fos->tag_stack;
     tag_stack->tag = tag;
     fos->tag_stack = tag_stack;

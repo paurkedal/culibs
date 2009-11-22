@@ -19,4 +19,6 @@
 #  define cuoo_layout_s	cuoo_layout
 #  define cuoo_prop_s	cuoo_prop
 #  define cuoo_type_s	cuoo_type
+#  define cuoo_libinfo_s cuoo_libinfo
+#  define cuoo_intf_serialisable_s cuoo_intf_serialisable
 #endif

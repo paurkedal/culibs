@@ -67,7 +67,7 @@ typedef void (*cufo_print_ptr_fn_t)(cufo_stream_t fos, cufo_prispec_t spec,
 #define CUFO_SFLAG_SHOW_TYPE_IF_UNPRINTABLE	(1u << 0)
 #define CUFO_SFLAG_HAVE_ERROR			(1u << 16)
 
-struct cufo_convinfo_s
+struct cufo_convinfo
 {
     iconv_t cd;
     unsigned int wr_scale;
@@ -80,9 +80,9 @@ struct cufo_stream
     cu_bool_least_t is_wide;
     char lastchar;
     unsigned int flags;
-    struct cufo_convinfo_s convinfo[2]; /* = { multibyte_iconv, wide_iconv } */
+    struct cufo_convinfo convinfo[2]; /* = { multibyte_iconv, wide_iconv } */
 #ifdef CUCONF_DEBUG_CLIENT
-    struct cufoP_tag_stack_s *tag_stack;
+    struct cufoP_tag_stack *tag_stack;
 #endif
     struct cucon_hzmap clientstate_map;
     cu_mutex_t mutex;

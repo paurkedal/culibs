@@ -25,7 +25,7 @@
 
 #define FN_ARR_SIZE 1
 
-#define FN0_FNCODE CUFLOW_FNCODE(0, sizeof(fn0_key_s)/sizeof(cu_word_t))
+#define FN0_FNCODE CUFLOW_FNCODE(0, sizeof(fn0_key)/sizeof(cu_word_t))
 
 cuflow_cached_edcl(fn0,
     ( double xL;

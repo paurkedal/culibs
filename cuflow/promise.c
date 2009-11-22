@@ -33,7 +33,7 @@ cuflowP_promise_process(cuflow_promise_t promise,
     cuflow_gworkq_lock();
     if (promise->state < state) {
 	cuflow_gflexq_t gflexq;
-	struct cuflow_gflexq_entry_s entry;
+	struct cuflow_gflexq_entry entry;
 	if (promise->state == cuflow_promise_state_latent) {
 	    /* Replace initiator with gflexq. */
 	    cuflow_promise_initiator_t initiator;

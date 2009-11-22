@@ -48,9 +48,9 @@ struct cuflow_gflexq
     struct cucon_list subqueue_list;
 };
 
-typedef struct cuflow_gflexq_entry_s *cuflow_gflexq_entry_t;
+typedef struct cuflow_gflexq_entry *cuflow_gflexq_entry_t;
 /*!The state saved by \ref cuflow_gflexq_enter. */
-struct cuflow_gflexq_entry_s
+struct cuflow_gflexq_entry
 {
     cuflow_gflexq_t gflexq;
     cucon_listnode_t subqueue_it;

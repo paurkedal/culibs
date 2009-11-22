@@ -219,11 +219,11 @@ cu_clos_def(_tuptype_finish_sigprod_cb,
 	  cudyn_tuptype_t t; ))
 {
     cu_clos_self(_tuptype_finish_sigprod_cb);
-    struct cudyn_tupcomp_s *comp;
+    struct cudyn_tupcomp *comp;
     cu_debug_assert(cu_is_idr(idr));
     cu_debug_assert(cuoo_is_type(subt));
     if (!cucon_pmap_insert_mem(&self->t->scomp_map, idr,
-			       sizeof(struct cudyn_tupcomp_s), &comp))
+			       sizeof(struct cudyn_tupcomp), &comp))
 	cu_debug_unreachable();
     subt = cuoo_type_glck(subt);
     if (!subt)
@@ -271,7 +271,7 @@ _tuptype_init_glck(cudyn_tuptype_t t)
 	if (cuex_meta(ex1) == CUEX_O4ACI_SIGPROD) {
 	    t->tcomp_cnt = cuex_binary_left_depth(CUEX_O2_GPROD, ex0) + 1;
 	    t->tcomp_arr =
-		cu_galloc(t->tcomp_cnt*sizeof(struct cudyn_tupcomp_s));
+		cu_galloc(t->tcomp_cnt*sizeof(struct cudyn_tupcomp));
 	    lyo = _tuptype_finish_gprod_glck(t, ex0, t->tcomp_cnt - 1);
 	    if (!lyo)
 		return;
@@ -284,7 +284,7 @@ _tuptype_init_glck(cudyn_tuptype_t t)
 	{
 	    t->tcomp_cnt = cuex_binary_left_depth(CUEX_O2_GPROD, ex) + 1;
 	    t->tcomp_arr =
-		cu_galloc(t->tcomp_cnt*sizeof(struct cudyn_tupcomp_s));
+		cu_galloc(t->tcomp_cnt*sizeof(struct cudyn_tupcomp));
 	    lyo = _tuptype_finish_gprod_glck(t, ex, t->tcomp_cnt - 1);
 	    if (!lyo)
 		return;
@@ -304,7 +304,7 @@ _tuptype_init_glck(cudyn_tuptype_t t)
 	if (!t0)
 	    return;
 	t->tcomp_cnt = 1;
-	t->tcomp_arr = cu_galloc(sizeof(struct cudyn_tupcomp_s));
+	t->tcomp_arr = cu_galloc(sizeof(struct cudyn_tupcomp));
 	t->tcomp_arr[0].type = t0;
 	t->tcomp_arr[0].bitoffset = 0;
 	lyo = cuoo_type_layout(t0);
@@ -358,7 +358,7 @@ cu_clos_def(_tuptype_conj_cb,
 	( cu_clop(cb, cu_bool_t, cu_idr_t, cu_offset_t, cuoo_type_t); ))
 {
     cu_clos_self(_tuptype_conj_cb);
-    struct cudyn_tupcomp_s *comp = slot;
+    struct cudyn_tupcomp *comp = slot;
     return cu_call(self->cb, (cu_idr_t)idr, comp->bitoffset, comp->type);
 }
 
@@ -368,7 +368,7 @@ cudyn_tuptype_conj(cudyn_tuptype_t t,
 {
     _tuptype_conj_cb_t scb;
     size_t i;
-    struct cudyn_tupcomp_s *comp = t->tcomp_arr;
+    struct cudyn_tupcomp *comp = t->tcomp_arr;
     for (i = 0; i < t->tcomp_cnt; ++i) {
 	if (!cu_call(cb, NULL, comp->bitoffset, comp->type))
 	    return cu_false;

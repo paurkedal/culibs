@@ -24,13 +24,13 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_serialisable_h cuoo/serialisable.h: Interface for Serialisable Objects
  *@{\ingroup cuoo_mod */
 
-struct cuoo_libinfo_s
+struct cuoo_libinfo
 {
     char const *uri;
     int version[8];
 };
 
-struct cuoo_intf_serialisable_s
+struct cuoo_intf_serialisable
 {
     /* These are indexed at the start of the file, then integers are used.
      * Serialisable objects must register themselves under their URI in order

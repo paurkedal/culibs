@@ -58,7 +58,7 @@ print OUT_H <<__end__;
 
 CU_BEGIN_DECLARATIONS
 
-extern struct cuflow_cache_s ${prefix}_cache;
+extern struct cuflow_cache ${prefix}_cache;
 
 /* Call this at program startup to initialise the cache. */
 void ${prefix}_init(cuflow_cacheconf_t conf);
@@ -67,7 +67,7 @@ void ${prefix}_init(cuflow_cacheconf_t conf);
     (PFX##_obj_t *)cuflow_cache_call( \\
 	\&${prefix}_cache, \\
 	CUFLOW_FNCODE(PFX##_index, \\
-		      sizeof(struct PFX##_key_s)/sizeof(cu_word_t)), \\
+		      sizeof(struct PFX##_key)/sizeof(cu_word_t)), \\
 	(cuflow_cacheobj_t)(1? (key) : (PFX##_key_t *)NULL))
 
 __end__
@@ -96,7 +96,7 @@ for my $fn (sort(keys %fnset)) {
 print OUT_C <<__end__;
 };
 
-struct cuflow_cache_s ${prefix}_cache;
+struct cuflow_cache ${prefix}_cache;
 
 void
 ${prefix}_init(cuflow_cacheconf_t conf)

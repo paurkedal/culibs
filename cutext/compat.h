@@ -21,4 +21,5 @@
 #  define cutext_buffersink_s	cutext_buffersink
 #  define cutext_src_s		cutext_src
 #  define cutext_ucs4src_s	cutext_ucs4src
+#  define cutext_sink_descriptor_s cutext_sink_descriptor
 #endif

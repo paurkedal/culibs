@@ -16,6 +16,7 @@
  */
 
 #if CU_COMPAT < 20091122 && !defined(cufo_prispec_s)
+#  define cufo_convinfo_s	cufo_convinfo
 #  define cufo_prispec_s	cufo_prispec
 #  define cufo_stream_s		cufo_stream
 #  define cufo_tag_s		cufo_tag

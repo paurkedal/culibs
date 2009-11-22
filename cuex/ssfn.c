@@ -123,13 +123,13 @@ cuex_ssfn_node_cct(cuex_ssfn_node_t node, cuex_ssfn_seqno_t seqno)
 void
 cuex_ssfn_cct(cuex_ssfn_t ssfn)
 {
-    cuex_ssfn_node_cct(cu_upcast(cuex_ssfn_node_s, ssfn), 0);
+    cuex_ssfn_node_cct(cu_to(cuex_ssfn_node, ssfn), 0);
 }
 
 cuex_ssfn_t
 cuex_ssfn_new(void)
 {
-    cuex_ssfn_t ssfn = cu_galloc(sizeof(struct cuex_ssfn_s));
+    cuex_ssfn_t ssfn = cu_galloc(sizeof(struct cuex_ssfn));
     cuex_ssfn_cct(ssfn);
     return ssfn;
 }
@@ -137,7 +137,7 @@ cuex_ssfn_new(void)
 void
 cuex_ssfn_dct(cuex_ssfn_t ssfn)
 {
-    memset(ssfn, 0, sizeof(struct cuex_ssfn_s));
+    memset(ssfn, 0, sizeof(struct cuex_ssfn));
 }
 
 void
@@ -153,7 +153,7 @@ cuex_ssfn_node_t
 cuex_ssfn_node_new_sub(cu_count_t arg_cnt, cuex_ssfn_seqno_t seqno)
 {
     cuex_ssfn_node_t node
-	= cu_galloc(CU_ALIGNED_SIZEOF(struct cuex_ssfn_node_s)
+	= cu_galloc(CU_ALIGNED_SIZEOF(struct cuex_ssfn_node)
 		     + sizeof(cuex_ssfn_node_t)*arg_cnt);
     cuex_ssfn_node_cct(node, seqno);
     while (arg_cnt > 0)
@@ -198,7 +198,7 @@ cu_clos_def(_ssfn_init_copy_opr,
     }
     else {
 	cu_count_t var_cnt = jargs->var_cnt;
-	node = cucon_umap_node_alloc(CU_ALIGNED_SIZEOF(struct cuex_ssfn_node_s)
+	node = cucon_umap_node_alloc(CU_ALIGNED_SIZEOF(struct cuex_ssfn_node)
 				     + sizeof(cuex_ssfn_node_t)*var_cnt);
 	_ssfn_init_copy(cucon_umap_node_get_mem(node), src_slot, jargs);
     }
@@ -223,7 +223,7 @@ _ssfn_init_copy(cuex_ssfn_node_t dst, cuex_ssfn_node_t src,
 	--jargs->pending_cnt;
 	if (jargs->pending_cnt > 0) {
 	    sub_size
-		= CU_ALIGNED_SIZEOF(struct cuex_ssfn_node_s)
+		= CU_ALIGNED_SIZEOF(struct cuex_ssfn_node)
 		+ sizeof(cuex_ssfn_node_t)*var_cnt;
 	    sub_size_var_cntn = sub_size + sizeof(cuex_ssfn_node_t);
 	}
@@ -277,8 +277,8 @@ cuex_ssfn_cct_copy_mem(cuex_ssfn_t dst, cuex_ssfn_t src,
     jargs.var_cnt = 0;
     jargs.pending_cnt = 1;
     jargs.value_cct_copy = value_cct_copy;
-    _ssfn_init_copy(cu_upcast(cuex_ssfn_node_s, dst),
-		    cu_upcast(cuex_ssfn_node_s, src), &jargs);
+    _ssfn_init_copy(cu_to(cuex_ssfn_node, dst),
+		    cu_to(cuex_ssfn_node, src), &jargs);
 }
 
 cuex_ssfn_t
@@ -286,7 +286,7 @@ cuex_ssfn_new_copy_mem(cuex_ssfn_t src,
 		       size_t slot_size,
 		       cu_clop(value_cct_copy, void, void *, void *))
 {
-    cuex_ssfn_t dst = cu_gnew(struct cuex_ssfn_s);
+    cuex_ssfn_t dst = cu_gnew(struct cuex_ssfn);
     cuex_ssfn_cct_copy_mem(dst, src, slot_size, value_cct_copy);
     return dst;
 }
@@ -390,7 +390,7 @@ void
 cuex_ssfn_find(cuex_ssfn_t ssfn, cuex_t key,
 	       cu_clop(out, cu_bool_t, cu_count_t, cuex_t *, void *))
 {
-    struct cuexP_ssfn_find_jargs_s jargs;
+    struct cuexP_ssfn_find_jargs jargs;
     cucon_stack_init(&jargs.input);
     cucon_stack_init(&jargs.output);
     cucon_stack_init(&jargs.sctr);
@@ -398,7 +398,7 @@ cuex_ssfn_find(cuex_ssfn_t ssfn, cuex_t key,
     jargs.receiver = out;
     jargs.arg_cnt = 0;
     CUCON_STACK_PUSH(&jargs.input, cuex_t, key);
-    cuexP_ssfn_find(cu_upcast(cuex_ssfn_node_s, ssfn), &jargs);
+    cuexP_ssfn_find(cu_to(cuex_ssfn_node, ssfn), &jargs);
 }
 
 
@@ -433,7 +433,7 @@ cuex_ssfn_find_it_cct(cuex_ssfn_find_it_t find_it, cuex_ssfn_t ssfn, cuex_t key)
     cucon_stack_init(&find_it->stack);
     frame = cucon_stack_alloc(&find_it->stack,
 			    sizeof(struct cuexP_ssfn_find_it_frame_s));
-    frame->node = cu_upcast(cuex_ssfn_node_s, ssfn);
+    frame->node = cu_to(cuex_ssfn_node, ssfn);
     cucon_stack_init(&find_it->jargs.input);
     cucon_stack_init(&find_it->jargs.output);
     cucon_stack_init(&find_it->jargs.sctr);
@@ -447,7 +447,7 @@ cuex_ssfn_find_it_cct(cuex_ssfn_find_it_t find_it, cuex_ssfn_t ssfn, cuex_t key)
 cuex_ssfn_find_it_t
 cuex_ssfn_find_it_new(cuex_ssfn_t ssfn, cuex_t key)
 {
-    cuex_ssfn_find_it_t find_it = cu_gnew(struct cuex_ssfn_find_it_s);
+    cuex_ssfn_find_it_t find_it = cu_gnew(struct cuex_ssfn_find_it);
     cuex_ssfn_find_it_cct(find_it, ssfn, key);
     return find_it;
 }
@@ -735,7 +735,7 @@ tail_rec:
 	    cuex_ssfn_node_t subnode;
 	    if (cucon_umap_insert_mem(
 		    &node->match_opr, cuex_meta(ex),
-		    CU_ALIGNED_SIZEOF(struct cuex_ssfn_node_s)
+		    CU_ALIGNED_SIZEOF(struct cuex_ssfn_node)
 		    + sizeof(cuex_ssfn_node_t)*jargs->var_cnt,
 		    (void *)&subnode))
 		cuex_ssfn_node_cct_sub(subnode, jargs->var_cnt, jargs->seqno);
@@ -752,7 +752,7 @@ tail_rec:
 	    cuex_ssfn_node_t subnode;
 	    if (cucon_pmap_insert_mem(
 		    &node->match_exaddr, ex,
-		    CU_ALIGNED_SIZEOF(struct cuex_ssfn_node_s)
+		    CU_ALIGNED_SIZEOF(struct cuex_ssfn_node)
 		    + sizeof(cuex_ssfn_node_t)*jargs->var_cnt,
 		    (void *)&subnode))
 		cuex_ssfn_node_cct_sub(subnode, jargs->var_cnt,
@@ -806,7 +806,7 @@ tail_rec:
 		    cuex_ssfn_node_t subnode;
 		    if (cucon_pmap_insert_mem(
 			    &node->match_exaddr, ex,
-			    CU_ALIGNED_SIZEOF(struct cuex_ssfn_node_s)
+			    CU_ALIGNED_SIZEOF(struct cuex_ssfn_node)
 			    + sizeof(cuex_ssfn_node_t)*jargs->var_cnt,
 			    (void *)&subnode))
 			cuex_ssfn_node_cct_sub(subnode, jargs->var_cnt,
@@ -848,7 +848,7 @@ cuex_ssfn_insert_mem(cuex_ssfn_t ssfn, cuex_t patn,
     jargs.var_cnt = 0;
     cucon_pmap_init(&jargs.var_to_index);
     CUCON_STACK_PUSH(&jargs.input, cuex_t, patn);
-    st = cuexP_ssfn_insert_mem(cu_upcast(cuex_ssfn_node_s, ssfn), &jargs);
+    st = cuexP_ssfn_insert_mem(cu_to(cuex_ssfn_node, ssfn), &jargs);
     n = cucon_pmap_size(&jargs.var_to_index);
     if (var_cnt_out)
 	*var_cnt_out = n;
@@ -883,7 +883,7 @@ typedef struct cuexP_ssfn_find_mgu_jargs_s
     cu_bool_t do_lgr_w;
     cu_bool_t do_mgr;
     cu_bool_t do_mgr_w;
-    struct cuex_ssfn_matchinfo_s minfo;
+    struct cuex_ssfn_matchinfo minfo;
     cuex_ssfn_ctrl_t ctrl;
     cuex_ssfn_seqno_t min_seqno;
 } *cuexP_ssfn_find_mgu_jargs_t;
@@ -1380,7 +1380,7 @@ cuex_ssfn_find_mgr(cuex_ssfn_t ssfn, cuex_subst_t subst, cuex_t key,
     jargs.sctr_most_specific = NULL;
     jargs.ctrl = cuex_ssfn_ctrl_unmatched;
     jargs.min_seqno = min_seqno;
-    cuexP_ssfn_find_mgu(cu_upcast(cuex_ssfn_node_s, ssfn), &jargs);
+    cuexP_ssfn_find_mgu(cu_to(cuex_ssfn_node, ssfn), &jargs);
     return jargs.ctrl;
 }
 
@@ -1405,7 +1405,7 @@ cuex_ssfn_find_wpmgr(cuex_ssfn_t ssfn, cuex_subst_t subst, cuex_t key,
     jargs.sctr_most_specific = NULL;
     jargs.ctrl = cuex_ssfn_ctrl_unmatched;
     jargs.min_seqno = min_seqno;
-    cuexP_ssfn_find_mgu(cu_upcast(cuex_ssfn_node_s, ssfn), &jargs);
+    cuexP_ssfn_find_mgu(cu_to(cuex_ssfn_node, ssfn), &jargs);
     return jargs.ctrl;
 }
 
@@ -1430,7 +1430,7 @@ cuex_ssfn_find_lgr(cuex_ssfn_t ssfn, cuex_subst_t subst, cuex_t key,
     jargs.sctr_most_specific = NULL;
     jargs.ctrl = cuex_ssfn_ctrl_unmatched;
     jargs.min_seqno = min_seqno;
-    cuexP_ssfn_find_mgu(cu_upcast(cuex_ssfn_node_s, ssfn), &jargs);
+    cuexP_ssfn_find_mgu(cu_to(cuex_ssfn_node, ssfn), &jargs);
     return jargs.ctrl;
 }
 
@@ -1455,7 +1455,7 @@ cuex_ssfn_find_mgu(cuex_ssfn_t ssfn, cuex_subst_t subst, cuex_t key,
     jargs.sctr_most_specific = NULL;
     jargs.ctrl = cuex_ssfn_ctrl_unmatched;
     jargs.min_seqno = min_seqno;
-    cuexP_ssfn_find_mgu(cu_upcast(cuex_ssfn_node_s, ssfn), &jargs);
+    cuexP_ssfn_find_mgu(cu_to(cuex_ssfn_node, ssfn), &jargs);
     return jargs.ctrl;
 }
 
@@ -1480,7 +1480,7 @@ cuex_ssfn_find_wpmgu(cuex_ssfn_t ssfn, cuex_subst_t subst, cuex_t key,
     jargs.sctr_most_specific = NULL;
     jargs.ctrl = cuex_ssfn_ctrl_unmatched;
     jargs.min_seqno = min_seqno;
-    cuexP_ssfn_find_mgu(cu_upcast(cuex_ssfn_node_s, ssfn), &jargs);
+    cuexP_ssfn_find_mgu(cu_to(cuex_ssfn_node, ssfn), &jargs);
     return jargs.ctrl;
 }
 
@@ -1724,7 +1724,7 @@ cuex_ssfn_find_eqr(cuex_ssfn_t ssfn, cuex_t key,
     jargs.ctrl = cuex_ssfn_ctrl_unmatched;
     jargs.cb = cb;
     cucon_pmap_init(&jargs.blocked_key_vars);
-    cuexP_ssfn_find_eqr(cu_upcast(cuex_ssfn_node_s, ssfn), &jargs);
+    cuexP_ssfn_find_eqr(cu_to(cuex_ssfn_node, ssfn), &jargs);
     return jargs.ctrl;
 }
 

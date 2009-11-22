@@ -32,7 +32,7 @@ static void
 ssfn_find_alt(cuex_ssfn_t ssfn, cuex_t key,
 	      cu_clop(out, cu_bool_t, cu_count_t, cuex_t *, void *))
 {
-    struct cuex_ssfn_find_it_s it;
+    struct cuex_ssfn_find_it it;
     cuex_ssfn_find_it_cct(&it, ssfn, key);
     for (; !cuex_ssfn_find_it_is_end(&it); cuex_ssfn_find_it_advance(&it))
 	if (cu_call(out,

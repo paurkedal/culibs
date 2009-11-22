@@ -51,4 +51,5 @@
 #  define cu_hook_node_s	cu_hook_node
 #  define cu_installdirs_s	cu_installdirs
 #  define cu_hidden_ptr_s	cu_hidden_ptr
+#  define cu_scratch_s		cu_scratch
 #endif
