@@ -81,13 +81,21 @@ void cu_regh_out_of_memory(void (*f)(size_t));
 
 void *cuD_galloc(size_t size, char const *file, int line);
 void *cuD_galloc_atomic(size_t size, char const *file, int line);
+void *cuD_gallocz_atomic(size_t size, char const *file, int line);
+
 void *cuD_ualloc(size_t size, char const *file, int line);
 void *cuD_ualloc_atomic(size_t size, char const *file, int line);
+void *cuD_uallocz_atomic(size_t size, char const *file, int line);
 
 #define cu_galloc(size)		cuD_galloc(size, __FILE__, __LINE__)
 #define cu_galloc_atomic(size)	cuD_galloc_atomic(size, __FILE__, __LINE__)
+#define cu_gallocz(size)	cuD_galloc(size, __FILE__, __LINE__)
+#define cu_gallocz_atomic(size)	cuD_gallocz_atomic(size, __FILE__, __LINE__)
+
 #define cu_ualloc(size)		cuD_ualloc(size, __FILE__, __LINE__)
 #define cu_ualloc_atomic(size)	cuD_ualloc_atomic(size, __FILE__, __LINE__)
+#define cu_uallocz(size)	cuD_ualloc(size, __FILE__, __LINE__)
+#define cu_uallocz_atomic(size)	cuD_uallocz_atomic(size, __FILE__, __LINE__)
 
 #else /* !CUCONF_DEBUG_MEMORY */
 
@@ -123,6 +131,12 @@ cu_galloc_atomic(size_t size)
     return p;
 }
 
+/** Allocate cleared traceable collectable memory. */
+CU_SINLINE void *cu_gallocz(size_t size) { return cu_galloc(size); }
+
+/** Allocate cleared atomic collectable memory. */
+void *cu_gallocz_atomic(size_t size);
+
 /** Returns \a size bytes of traced but uncollectable memory.
  ** \c GC_malloc_uncollectable with a check for \c NULL. */
 CU_SINLINE void *
@@ -152,27 +166,14 @@ cu_ualloc_atomic(size_t size)
     return p;
 }
 
-#endif /* CUCONF_DEBUG_MEMORY */
-
-
-/** Allocate cleared traceable collectable memory. */
-#define cu_gallocz		cu_galloc
-
-/** Allocate cleared atomic collectable memory. */
-#define cu_gallocz_atomic	cu_galloc_atomic
-
 /** Allocate cleared traceable uncollectable memory. */
-#define cu_uallocz		cu_ualloc
+CU_SINLINE void *cu_uallocz(size_t size) { return cu_ualloc(size); }
 
 /** Allocate cleared atomic uncollectable memory. */
-#if defined(CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE)
-#  define cu_uallocz_atomic	cu_ualloc_atomic
-#elif defined(CUCONF_DEBUG_MEMORY) && !defined(CU_IN_DOXYGEN)
-void *cuP_uallocz_atomic(size_t size, char const *file, int line);
-#  define cu_uallocz_atomic(size) cuP_uallocz_atomic(size, __FILE__, __LINE__)
-#else
 void *cu_uallocz_atomic(size_t size);
-#endif
+
+#endif /* CUCONF_DEBUG_MEMORY */
+
 
 #if defined(CUCONF_DEBUG_MEMORY) && !defined(CU_IN_DOXYGEN)
 

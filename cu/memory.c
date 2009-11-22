@@ -130,6 +130,16 @@ cuD_galloc_atomic(size_t size, char const *file, int line)
 }
 
 void *
+cuD_gallocz_atomic(size_t size, char const *file, int line)
+{
+    void *p = GC_debug_malloc_atomic(size, file, line);
+    if (p == NULL)
+	cu_raise_out_of_memory(size);
+    memset(p, 0, size);
+    return p;
+}
+
+void *
 cuD_ualloc(size_t size, char const *file, int line)
 {
     void *p = GC_debug_malloc_uncollectable(size, file, line);
@@ -151,6 +161,20 @@ cuD_ualloc_atomic(size_t size, char const *file, int line)
     return p;
 }
 
+void *
+cuD_uallocz_atomic(size_t size, char const *file, int line)
+{
+#ifdef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
+    void *p = GC_malloc_atomic_uncollectable(size);
+#else
+    void *p = malloc(size);
+#endif
+    if (p == NULL)
+	cu_raise_out_of_memory(size);
+    memset(p, 0, size);
+    return p;
+}
+
 void
 cuD_gfree(void *ptr, char const *file, int line)
 {
@@ -160,7 +184,7 @@ cuD_gfree(void *ptr, char const *file, int line)
     base = cuD_gc_base(ptr);
     if (base != ptr)
 	cu_bugf("Invalid pointer passed to cu_gfree: %p (base = %p)",
-		 ptr, base);
+		ptr, base);
     GC_debug_free(ptr);
 }
 
@@ -168,14 +192,6 @@ void
 cuD_ufree_atomic(void *ptr, char const *file, int line)
 {
 #ifdef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
-    void *base;
-    if (!ptr)
-	return;
-    base = cuD_gc_base(ptr);
-    if (base != ptr)
-	cu_bugf_fl(file, line,
-		    "Invalid pointer passed to cu_ufree_atomic: %p (base = %p)",
-		    ptr, base);
     GC_free(ptr);
 #else
     free(ptr);
@@ -184,13 +200,11 @@ cuD_ufree_atomic(void *ptr, char const *file, int line)
 
 #endif /* CUCONF_DEBUG_MEMORY */
 
-#ifndef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
 void *
-cuD_uallocz_atomic(size_t size, char const *file, int line)
+(cu_gallocz_atomic)(size_t size)
 {
-    void *p = malloc(size);
-    if (!p)
-	cu_raise_out_of_memory(size);
+    void *p = GC_malloc_atomic(size);
+    if (!p) cu_raise_out_of_memory(size);
     memset(p, 0, size);
     return p;
 }
@@ -198,13 +212,15 @@ cuD_uallocz_atomic(size_t size, char const *file, int line)
 void *
 (cu_uallocz_atomic)(size_t size)
 {
+#ifdef CUCONF_HAVE_GC_MALLOC_ATOMIC_UNCOLLECTABLE
+    void *p = GC_malloc_atomic_uncollectable(size);
+#else
     void *p = malloc(size);
-    if (!p)
-	cu_raise_out_of_memory(size);
+#endif
+    if (!p) cu_raise_out_of_memory(size);
     memset(p, 0, size);
     return p;
 }
-#endif
 
 
 /* Other GC facilities
@@ -233,6 +249,6 @@ cuP_memory_init()
 
     /* Determine size of debug header. */
     ptr = cu_galloc(1);
-    cuD_gc_base_shift = (char*)ptr - (char*)GC_base(ptr);
+    cuD_gc_base_shift = (char *)ptr - (char *)GC_base(ptr);
     cu_gfree(ptr);
 }

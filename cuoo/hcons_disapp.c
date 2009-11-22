@@ -62,6 +62,9 @@ CU_SINLINE void
 _init_disappearing(void **link, void *obj)
 {
     *link = obj;
+#ifdef CUCONF_DEBUG_MEMORY
+    obj = GC_base(obj);
+#endif
 #ifdef CU_HCONS_NDEBUG
     GC_general_register_disappearing_link(link, obj);
 #else
@@ -195,8 +198,7 @@ _hcset_resize_locked(_hcset_t hcset, size_t cnt)
     old_end = old_begin + hcset->mask + 1;
 
     /* Initialise 'hcset' to an empty set of the right capacity. */
-    hcset->arr = cu_unewarr_atomic(void *, new_size);
-    memset(hcset->arr, 0, sizeof(void *)*new_size);
+    hcset->arr = cu_unewarrz_atomic(void *, new_size);
     hcset->mask = new_mask;
 
     /* Drop disappearing links and free nodes from the old array, while
@@ -378,5 +380,5 @@ cuooP_hcons_init()
     cu_mutex_init(&_g_hcset.mutex);
     _g_hcset.mask = CUOO_HCONS_INIT_CAP - 1;
     _g_hcset.insert_cnt = 0;
-    _g_hcset.arr = cu_unewarr_atomic(void *, CUOO_HCONS_INIT_CAP);
+    _g_hcset.arr = cu_unewarrz_atomic(void *, CUOO_HCONS_INIT_CAP);
 }
