@@ -91,10 +91,10 @@ typedef enum {
 
 #define cuex_meta_kind(meta) ((cuex_meta_kind_t)((meta) & 3))
 
-/*!Cast a \ref cuex_meta_t to a \ref cuoo_type_s "cuoo_type_t", assumig \ref
+/*!Cast a \ref cuex_meta_t to a \ref cuoo_type "cuoo_type_t", assumig \ref
  * cuex_meta_is_type(\a meta) is true. */
 #define cuoo_type_from_meta(meta) ((cuoo_type_t)(meta))
-/*!Cast a \ref cuoo_type_s "cuoo_type_t" to a \ref cuex_meta_t. */
+/*!Cast a \ref cuoo_type "cuoo_type_t" to a \ref cuex_meta_t. */
 #define cuoo_type_to_meta(ptr) ((cuex_meta_t)(ptr))
 
 /* Meta codes: other.varmeta */

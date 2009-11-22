@@ -27,7 +27,7 @@ cuP_hook_init(cu_hook_node_t hook)
 void
 cuP_hook_prepend(cu_hook_node_t hook, cu_clop0(f, void))
 {
-    cu_hook_node_t node = cu_gnew(struct cu_hook_node_s);
+    cu_hook_node_t node = cu_gnew(struct cu_hook_node);
     node->f = f;
     cu_dlink_insert_after(cu_to(cu_dlink, hook), cu_to(cu_dlink, node));
 }
@@ -35,7 +35,7 @@ cuP_hook_prepend(cu_hook_node_t hook, cu_clop0(f, void))
 void
 cuP_hook_append(cu_hook_node_t hook, cu_clop0(f, void))
 {
-    cu_hook_node_t node = cu_gnew(struct cu_hook_node_s);
+    cu_hook_node_t node = cu_gnew(struct cu_hook_node);
     node->f = f;
     cu_dlink_insert_before(cu_to(cu_dlink, hook), cu_to(cu_dlink, node));
 }

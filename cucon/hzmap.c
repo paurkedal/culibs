@@ -81,7 +81,7 @@ cucon_hzmap_init(map_t map, cu_shortsize_t key_size_w)
 map_t
 cucon_hzmap_new(cu_shortsize_t key_size_w)
 {
-    map_t map = cu_gnew(struct cucon_hzmap_s);
+    map_t map = cu_gnew(struct cucon_hzmap);
     cucon_hzmap_init(map, key_size_w);
     return map;
 }
@@ -224,7 +224,7 @@ cucon_hzmap_insert_void(map_t map, void const *key)
 	    return cu_false;
 	p = &(*p)->next;
     }
-    *p = cu_galloc(sizeof(struct cucon_hzmap_node_s)
+    *p = cu_galloc(sizeof(struct cucon_hzmap_node)
 		   + key_size_w*sizeof(cu_word_t));
     CU_GCLEAR_PTR((*p)->next);
     key_copy(key_size_w, node_key(*p), key);

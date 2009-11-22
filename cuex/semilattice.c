@@ -24,8 +24,8 @@
 #include <cufo/tagdefs.h>
 #include <inttypes.h>
 
-typedef struct cuex_semilattice_s *cuex_semilattice_t;
-struct cuex_semilattice_s
+typedef struct cuex_semilattice *cuex_semilattice_t;
+struct cuex_semilattice
 {
     CUOO_HCOBJ
     cuex_meta_t meet;
@@ -195,5 +195,5 @@ cuexP_semilattice_init(void)
     cuexP_semilattice_type
 	= cuoo_type_new_opaque_hcs(
 	    _semilattice_dispatch,
-	    sizeof(struct cuex_semilattice_s) - CUOO_HCOBJ_SHIFT);
+	    sizeof(struct cuex_semilattice) - CUOO_HCOBJ_SHIFT);
 }

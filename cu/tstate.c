@@ -28,7 +28,7 @@ cuP_tstate_t cuP_tstate_chain = NULL;
 static void
 _tstate_init(cuP_tstate_t tls)
 {
-    memset(tls, 0, sizeof(struct cuP_tstate_s));
+    memset(tls, 0, sizeof(struct cuP_tstate));
 
     tls->priority = 7; /* normal priority, cf cuflow/gworkq.h */
     tls->atexit_chain = NULL;

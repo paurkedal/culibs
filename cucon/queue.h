@@ -25,19 +25,19 @@ CU_BEGIN_DECLARATIONS
 /*!\file
  * \deprecated Not sure if this will be kept. */
 
-struct cucon_queue_node_s
+struct cucon_queue_node
 {
-    struct cucon_queue_node_s *next;
+    struct cucon_queue_node *next;
     char *begin;
     char *end;
 };
 
-typedef struct cucon_queue_s *cucon_queue_t;
-struct cucon_queue_s
+typedef struct cucon_queue *cucon_queue_t;
+struct cucon_queue
 {
     char *front_cur;
-    struct cucon_queue_node_s *front;
-    struct cucon_queue_node_s *back;
+    struct cucon_queue_node *front;
+    struct cucon_queue_node *back;
     char *back_cap_end;
 };
 

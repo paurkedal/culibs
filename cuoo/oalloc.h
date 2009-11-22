@@ -89,13 +89,13 @@ cuoo_oalloc_unord_fin(cuoo_type_t type, size_t size)
 }
 
 #define cuoo_onew(prefix)						\
-    ((struct prefix##_s *)						\
-     cuoo_oalloc(prefix##_type(), sizeof(struct prefix##_s)))
+    ((struct prefix *)							\
+     cuoo_oalloc(prefix##_type(), sizeof(struct prefix)))
 
 #define cuoo_onew_ord_fin(prefix)					\
-    ((struct prefix##_s *)						\
+    ((struct prefix *)							\
      cuexP_oalloc_ord_fin_raw(cuoo_type_to_meta(prefix##_type()),	\
-			      CUOO_OBJ_ALLOC_SIZEG(sizeof(struct prefix##_s))))
+			      CUOO_OBJ_ALLOC_SIZEG(sizeof(struct prefix))))
 
 /*!@}*/
 CU_END_DECLARATIONS

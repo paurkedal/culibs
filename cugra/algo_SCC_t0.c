@@ -20,70 +20,70 @@
 #include <cucon/uset.h>
 #include <cu/test.h>
 
-typedef struct my_vertex_s *my_vertex_t;
-typedef struct my_subvertex_s *my_subvertex_t;
-typedef struct my_cb_s *my_cb_t;
+typedef struct _my_vertex *_my_vertex_t;
+typedef struct _my_subvertex *_my_subvertex_t;
+typedef struct _my_cb *_my_cb_t;
 
-struct my_vertex_s
+struct _my_vertex
 {
-    cu_inherit (cugra_vertex_s);
+    cu_inherit (cugra_vertex);
     int label;
 };
 
-struct my_subvertex_s
+struct _my_subvertex
 {
-    cu_inherit (cugra_vertex_s);
-    struct cucon_uset_s labels;
+    cu_inherit (cugra_vertex);
+    struct cucon_uset labels;
 };
 
-struct my_cb_s
+struct _my_cb
 {
-    cu_inherit (cugra_walk_SCC_s);
+    cu_inherit (cugra_walk_SCC);
     cugra_graph_t G;
 };
 
 void *
-my_enter_component(cugra_walk_SCC_t self)
+_my_enter_component(cugra_walk_SCC_t self)
 {
-    my_subvertex_t cpt = cu_gnew(struct my_subvertex_s);
+    _my_subvertex_t cpt = cu_gnew(struct _my_subvertex);
     printf("New component:\n");
     cucon_uset_init(&cpt->labels);
-    cugra_graph_vertex_init(cu_from(my_cb, cugra_walk_SCC, self)->G,
+    cugra_graph_vertex_init(cu_from(_my_cb, cugra_walk_SCC, self)->G,
 			    cu_to(cugra_vertex, cpt));
     return cpt;
 }
 
 void
-my_pass_vertex(cugra_walk_SCC_t self, void *cpt, cugra_vertex_t v)
+_my_pass_vertex(cugra_walk_SCC_t self, void *cpt, cugra_vertex_t v)
 {
-    int label = cu_from(my_vertex, cugra_vertex, v)->label;
+    int label = cu_from(_my_vertex, cugra_vertex, v)->label;
     printf("    Vertex %d.\n", label);
-    cucon_uset_insert(&((my_subvertex_t)cpt)->labels, label);
+    cucon_uset_insert(&((_my_subvertex_t)cpt)->labels, label);
 }
 
-void my_leave_component(cugra_walk_SCC_t self, void *cpt) {}
+void _my_leave_component(cugra_walk_SCC_t self, void *cpt) {}
 
 void
-my_connect_components(cugra_walk_SCC_t self, void *tail, void *head)
+_my_connect_components(cugra_walk_SCC_t self, void *tail, void *head)
 {
     printf("Connect ");
-    cucon_uset_print(&((my_subvertex_t)tail)->labels, stdout);
+    cucon_uset_print(&((_my_subvertex_t)tail)->labels, stdout);
     printf(" --> ");
-    cucon_uset_print(&((my_subvertex_t)head)->labels, stdout);
+    cucon_uset_print(&((_my_subvertex_t)head)->labels, stdout);
     printf("\n");
 }
 
-struct cugra_walk_SCC_vt_s my_walk_vt = {
-    .enter_component = my_enter_component,
-    .pass_vertex = my_pass_vertex,
-    .leave_component = my_leave_component,
-    .connect_components = my_connect_components,
+struct cugra_walk_SCC_vt _my_walk_vt = {
+    .enter_component = _my_enter_component,
+    .pass_vertex = _my_pass_vertex,
+    .leave_component = _my_leave_component,
+    .connect_components = _my_connect_components,
 };
 
 void
-my_cb_init(my_cb_t cb)
+_my_cb_init(_my_cb_t cb)
 {
-    cu_to(cugra_walk_SCC, cb)->vt = &my_walk_vt;
+    cu_to(cugra_walk_SCC, cb)->vt = &_my_walk_vt;
     cb->G = cugra_graph_new(0);
 }
 
@@ -93,7 +93,7 @@ vertex(cugra_graph_t G, cucon_umap_t M, int label)
     cugra_vertex_t *v;
     if (cucon_umap_insert_mem(M, label, sizeof(void *), &v)) {
 	*v = cugra_graph_vertex_new_mem(G, sizeof(int));
-	cu_from(my_vertex, cugra_vertex, *v)->label = label;
+	cu_from(_my_vertex, cugra_vertex, *v)->label = label;
     }
     return *v;
 }
@@ -101,8 +101,8 @@ vertex(cugra_graph_t G, cucon_umap_t M, int label)
 void
 test()
 {
-    struct cucon_umap_s M;
-    struct my_cb_s cb;
+    struct cucon_umap M;
+    struct _my_cb cb;
     cugra_graph_t G = cugra_graph_new(0);
 
     cucon_umap_init(&M);
@@ -113,7 +113,7 @@ test()
     A(7, 6); A(7, 7);
     A(8, 9); A(9, 10); A(10, 8); A(9, 0); A(9, 6);
 #undef A
-    my_cb_init(&cb);
+    _my_cb_init(&cb);
     cugra_walk_SCC(cu_to(cugra_walk_SCC, &cb), G, cugra_direction_out);
 }
 

@@ -22,7 +22,7 @@
 cucon_digraph_t
 cucon_digraph_new(cucon_digraph_opt_t options)
 {
-    cucon_digraph_t g = cu_gnew(struct cucon_digraph_s);
+    cucon_digraph_t g = cu_gnew(struct cucon_digraph);
     g->options = options;
     cucon_list_init(&g->vertices);
     cucon_list_init(&g->edges);
@@ -40,11 +40,11 @@ cucon_digraph_insert_vertex_mem(cucon_digraph_t g, size_t value_size)
 	cucon_listnode_t it
 	    = cucon_list_append_mem(
 		&g->vertices,
-		CU_ALIGNED_SIZEOF(struct cucon_digraph_vertex_s) + value_size);
+		CU_ALIGNED_SIZEOF(struct cucon_digraph_vertex) + value_size);
 	v = cucon_listnode_mem(it);
     }
     else
-	v = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_digraph_vertex_s)
+	v = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_digraph_vertex)
 		       + value_size);
     cucon_list_init(&v->output_edges);
     return v;
@@ -82,12 +82,12 @@ cucon_digraph_insert_edge_mem(cucon_digraph_t g,
     if (g->options & cucon_digraph_opt_list_of_edges) {
 	cucon_listnode_t it = cucon_list_append_mem(
 	    &g->edges,
-	    CU_ALIGNED_SIZEOF(struct cucon_digraph_edge_s)
+	    CU_ALIGNED_SIZEOF(struct cucon_digraph_edge)
 	    + value_size);
 	e = cucon_listnode_mem(it);
     }
     else
-	e = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_digraph_edge_s)
+	e = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_digraph_edge)
 		       + value_size);
     e->src = src;
     e->dst = dst;

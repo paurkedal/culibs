@@ -30,7 +30,7 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_subst_h cuex/subst.h: Substitutions
  * @{ \ingroup cuex_mod
  * Substitutions are here implemented as maps from variables to equivalence
- * sets of variables and value-expressions.  A \ref cuex_subst_s
+ * sets of variables and value-expressions.  A \ref cuex_subst
  * "cuex_subst_t" has a specified set of active quantification kinds.  \ref
  * cuex_subst_unify will attempt to extend the substitution so as to unify two
  * expressions by adding bindings for variables with active quantification.
@@ -39,12 +39,12 @@ CU_BEGIN_DECLARATIONS
  * is an expression.  This is handled by mapping each variable \e x to (\e S,
  * \e e), where \e S is the set of \e x and all variables equivalent to it and
  * \e e is an optional binding for all variables in \e S.  (\e S, \e e) is
- * represented by \ref cuex_veqv_s and is shared between variables in \e S.
+ * represented by \ref cuex_veqv and is shared between variables in \e S.
  */
 
 /*!An equivalence set of variables with an optional binding. This is only
- * used as part of a \ref cuex_subst_s. */
-struct cuex_veqv_s
+ * used as part of a \ref cuex_subst. */
+struct cuex_veqv
 {
     unsigned int qcode : 8;	/* Actual type is cuex_qcode_t. */
     cu_bool_t is_feedback_var : 1;
@@ -89,12 +89,12 @@ CU_SINLINE cuex_var_t cuex_veqv_it_get(cuex_veqv_it_t it)
 { return (cuex_var_t)cucon_slink_get_ptr(it); }
 
 /*!The representation of a substitution. */
-struct cuex_subst_s
+struct cuex_subst
 {
     size_t clone_cnt;
     size_t shadow_access_cnt;
     cuex_subst_t shadowed;
-    struct cucon_pmap_s var_to_veqv;
+    struct cucon_pmap var_to_veqv;
     unsigned int qcset : 8;	/* Actual type is cuex_qcset_t. */
     cu_bool_least_t is_idem;
 };
@@ -304,7 +304,7 @@ cuex_subst_t cuex_subst_fragment_project(cuex_subst_t subst,
  * \see cuex_subst_mark_min_feedback */
 void cuex_subst_render_idempotent(cuex_subst_t subst);
 
-/*!Mark all \ref cuex_veqv_s "cuex_veqv_t" nodes of \a subst which are part of
+/*!Mark all \ref cuex_veqv "cuex_veqv_t" nodes of \a subst which are part of
  * a minimum feedback variable set.  The marks can be inspected with \ref
  * cuex_veqv_is_feedback.
  * \note Only available if built with BuDDY.
@@ -312,7 +312,7 @@ void cuex_subst_render_idempotent(cuex_subst_t subst);
  * \see cuex_subst_render_idempotent */
 cu_bool_t cuex_subst_mark_min_feedback(cuex_subst_t subst);
 
-/*!Mark all \ref cuex_veqv_s "cuex_veqv_t" nodes of \a subst which are part of
+/*!Mark all \ref cuex_veqv "cuex_veqv_t" nodes of \a subst which are part of
  * a circular dependency.  Considering \a subst to be a directed graph, this
  * marks all strongly connected nodes.  The marks can be inspected with \ref
  * cuex_veqv_is_feedback.

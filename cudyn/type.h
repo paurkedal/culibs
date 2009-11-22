@@ -35,9 +35,9 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cudyn_type_h cudyn/type.h: Dynamic Types
  * @{ \ingroup cudyn_mod */
 
-struct cudyn_inltype_s
+struct cudyn_inltype
 {
-    cu_inherit (cuoo_type_s);
+    cu_inherit (cuoo_type);
     AO_t layout;	/* actually cuoo_layout_t */
 #ifdef CUCONF_HAVE_LIBFFI
     AO_t ffitype;
@@ -70,9 +70,9 @@ CU_SINLINE cu_bool_t cudyn_is_cuex_type(cuoo_type_t t)
 /* Pointer Types
  * ============= */
 
-struct cudyn_ptrtype_s
+struct cudyn_ptrtype
 {
-    cu_inherit (cudyn_inltype_s);
+    cu_inherit (cudyn_inltype);
 };
 
 /*!The type of pointer types. */
@@ -102,9 +102,9 @@ cudyn_ptrtype_t cudyn_ptrtype_from_ex(cuex_t e);
 /* Elementary Types
  * ================ */
 
-struct cudyn_elmtype_s
+struct cudyn_elmtype
 {
-    cu_inherit (cudyn_inltype_s);
+    cu_inherit (cudyn_inltype);
 };
 
 /*!The type of elementary types. */
@@ -139,9 +139,9 @@ cudyn_elmtype_t cudyn_elmtype_new(cuoo_shape_t shape, cuoo_impl_t impl,
 /* Array Types
  * =========== */
 
-struct cudyn_arrtype_s
+struct cudyn_arrtype
 {
-    cu_inherit (cudyn_inltype_s);
+    cu_inherit (cudyn_inltype);
     size_t elt_cnt;
     cuoo_type_t elt_type;
 };
@@ -189,12 +189,12 @@ struct cudyn_tupcomp_s
     cuoo_type_t type;
     cu_offset_t bitoffset;
 };
-struct cudyn_tuptype_s
+struct cudyn_tuptype
 {
-    cu_inherit (cudyn_inltype_s);
+    cu_inherit (cudyn_inltype);
     size_t tcomp_cnt;
     struct cudyn_tupcomp_s *tcomp_arr;
-    struct cucon_pmap_s scomp_map;
+    struct cucon_pmap scomp_map;
 };
 
 typedef int cudyn_tupindex_t;
@@ -267,10 +267,10 @@ struct cudyn_dunpart_s
  * same size for all component types.  By convention, enumerate them left
  * to right, starting with 0.  Unions made this way can be extended by
  * adding to the right. */
-struct cudyn_duntype_s
+struct cudyn_duntype
 {
-    cu_inherit (cudyn_inltype_s);
-    struct cucon_pmap_s idr_to_part;
+    cu_inherit (cudyn_inltype);
+    struct cucon_pmap idr_to_part;
 };
 
 /*!Type type of discriminated union types. */
@@ -284,7 +284,7 @@ CU_SINLINE cu_bool_t cuoo_type_is_duntype(cuoo_type_t t)
 #define cudyn_duntype_to_type(t) \
     cu_to2(cuoo_type, cudyn_inltype, t)
 #define cudyn_duntype_from_type(t) \
-    cu_from2(cudyn_duntype, cudyn_inltype_s, cuoo_type, t)
+    cu_from2(cudyn_duntype, cudyn_inltype, cuoo_type, t)
 
 /*!Return the discriminated union of the partitions formed by joining
  * the keys of \a partmap as discriminators with the values of \a partmap.

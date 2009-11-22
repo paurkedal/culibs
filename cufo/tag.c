@@ -57,6 +57,6 @@ void
 cufoP_tag_init()
 {
     cufoP_tag_type = cuoo_type_new_opaque_hcs(
-	_tag_dispatch, sizeof(struct cufo_tag_s) - CUOO_HCOBJ_SHIFT);
+	_tag_dispatch, sizeof(struct cufo_tag) - CUOO_HCOBJ_SHIFT);
     cufoP_culibs_namespace = cufo_namespace("http://www.eideticdew.org/culibs");
 }

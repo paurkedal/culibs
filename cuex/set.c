@@ -26,8 +26,8 @@
 #include <cufo/tagdefs.h>
 #include <cu/ptr_seq.h>
 
-typedef struct cuex_set_s *cuex_set_t;
-struct cuex_set_s
+typedef struct cuex_set *cuex_set_t;
+struct cuex_set
 {
     CUOO_HCOBJ
     cuex_t atree;
@@ -126,19 +126,19 @@ cuex_set_order(cuex_t S0, cuex_t S1)
 /* == Compound Implementation == */
 
 static void *
-comm_iter_source_get(cu_ptr_source_t source)
+_comm_iter_source_get(cu_ptr_source_t source)
 {
     return cuex_atree_itr_get(source + 1);
 }
 
 static cu_ptr_source_t
-comm_iter_source(cuex_intf_compound_t impl, cuex_t S)
+_comm_iter_source(cuex_intf_compound_t impl, cuex_t S)
 {
     cu_ptr_source_t source;
     size_t atree_itr_size = cuex_atree_itr_size(SET(S)->atree);
-    source = cu_galloc(sizeof(struct cu_ptr_source_s) + atree_itr_size);
+    source = cu_galloc(sizeof(struct cu_ptr_source) + atree_itr_size);
     cuex_atree_itr_init(source + 1, SET(S)->atree);
-    cu_ptr_source_init(source, comm_iter_source_get);
+    cu_ptr_source_init(source, _comm_iter_source_get);
     return source;
 }
 
@@ -147,60 +147,60 @@ cuex_set_iter_source(cuex_t S)
 {
     if (!cuex_is_set(S))
 	cu_bugf("cuex_set_iter_source, first arg: expected a set, got %!.", S);
-    return comm_iter_source(NULL, S);
+    return _comm_iter_source(NULL, S);
 }
 
-typedef struct comm_build_sinktor_s *comm_build_sinktor_t;
-struct comm_build_sinktor_s
+typedef struct _comm_build_sinktor *_comm_build_sinktor_t;
+struct _comm_build_sinktor
 {
-    cu_inherit (cu_ptr_sinktor_s);
+    cu_inherit (cu_ptr_sinktor);
     cuex_t new_atree;
 };
 
 static void
-comm_build_sinktor_put(cu_ptr_sink_t sink, void *e)
+_comm_build_sinktor_put(cu_ptr_sink_t sink, void *e)
 {
-    comm_build_sinktor_t self
-	= cu_from2(comm_build_sinktor, cu_ptr_sinktor, cu_ptr_sink, sink);
+    _comm_build_sinktor_t self
+	= cu_from2(_comm_build_sinktor, cu_ptr_sinktor, cu_ptr_sink, sink);
     self->new_atree = cuex_atree_insert(_set_key, self->new_atree, e);
 }
 
 static void *
-comm_build_sinktor_finish(cu_ptr_sinktor_t sinktor)
+_comm_build_sinktor_finish(cu_ptr_sinktor_t sinktor)
 {
-    comm_build_sinktor_t self
-	= cu_from(comm_build_sinktor, cu_ptr_sinktor, sinktor);
+    _comm_build_sinktor_t self
+	= cu_from(_comm_build_sinktor, cu_ptr_sinktor, sinktor);
     return _set_new(self->new_atree);
 }
 
 static cu_ptr_sinktor_t
-comm_build_sinktor(cuex_intf_compound_t impl, cuex_t S)
+_comm_build_sinktor(cuex_intf_compound_t impl, cuex_t S)
 {
-    comm_build_sinktor_t self = cu_gnew(struct comm_build_sinktor_s);
+    _comm_build_sinktor_t self = cu_gnew(struct _comm_build_sinktor);
     cu_ptr_sinktor_init(cu_to(cu_ptr_sinktor, self),
-			comm_build_sinktor_put,
-			comm_build_sinktor_finish);
+			_comm_build_sinktor_put,
+			_comm_build_sinktor_finish);
     self->new_atree = cuex_atree_empty();
     return cu_to(cu_ptr_sinktor, self);
 }
 
 static cu_ptr_sinktor_t
-comm_union_sinktor(cuex_intf_compound_t impl, cuex_t S)
+_comm_union_sinktor(cuex_intf_compound_t impl, cuex_t S)
 {
-    comm_build_sinktor_t self = cu_gnew(struct comm_build_sinktor_s);
+    _comm_build_sinktor_t self = cu_gnew(struct _comm_build_sinktor);
     cu_ptr_sinktor_init(cu_to(cu_ptr_sinktor, self),
-			comm_build_sinktor_put,
-			comm_build_sinktor_finish);
+			_comm_build_sinktor_put,
+			_comm_build_sinktor_finish);
     self->new_atree = SET(S)->atree;
     return cu_to(cu_ptr_sinktor, self);
 }
 
-static struct cuex_intf_compound_s _set_compound = {
+static struct cuex_intf_compound _set_compound = {
     .flags = CUEX_COMPOUNDFLAG_PREFER_COMM
 	   | CUEX_COMPOUNDFLAG_COMM_IDEMPOTENT,
-    .comm_iter_source = &comm_iter_source,
-    .comm_build_sinktor = &comm_build_sinktor,
-    .comm_union_sinktor = &comm_union_sinktor,
+    .comm_iter_source = &_comm_iter_source,
+    .comm_build_sinktor = &_comm_build_sinktor,
+    .comm_union_sinktor = &_comm_union_sinktor,
 };
 
 
@@ -247,6 +247,6 @@ cuexP_set_init()
 {
     cuex_intf_compound_finish(&_set_compound);
     cuexP_set_type = cuoo_type_new_opaque_hcs(
-	_set_dispatch, sizeof(struct cuex_set_s) - CUOO_HCOBJ_SHIFT);
+	_set_dispatch, sizeof(struct cuex_set) - CUOO_HCOBJ_SHIFT);
     cuexP_set_empty = _set_new(cuex_atree_empty());
 }

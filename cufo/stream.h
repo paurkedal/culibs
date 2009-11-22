@@ -50,7 +50,7 @@ void *cufoP_stream_produce(cufo_stream_t fos, size_t len);
 #define CUFO_PRIFLAG_HASH	 8	/* alternate form */
 #define CUFO_PRIFLAG_ZERO	16	/* zero padded */
 
-struct cufo_prispec_s
+struct cufo_prispec
 {
     unsigned int flags;
     int width;		/* -1 if unspecified */
@@ -73,9 +73,9 @@ struct cufo_convinfo_s
     unsigned int wr_scale;
 };
 
-struct cufo_stream_s
+struct cufo_stream
 {
-    cu_inherit (cu_buffer_s);
+    cu_inherit (cu_buffer);
     cutext_sink_t target;
     cu_bool_least_t is_wide;
     char lastchar;
@@ -84,7 +84,7 @@ struct cufo_stream_s
 #ifdef CUCONF_DEBUG_CLIENT
     struct cufoP_tag_stack_s *tag_stack;
 #endif
-    struct cucon_hzmap_s clientstate_map;
+    struct cucon_hzmap clientstate_map;
     cu_mutex_t mutex;
 };
 

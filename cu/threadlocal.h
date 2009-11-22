@@ -33,7 +33,7 @@ CU_BEGIN_DECLARATIONS
  ** storage is used.
  **
  ** \def CU_THREADLOCAL_DECL(NAME, PRIVATE_NAME)
- ** Emits declarations for the header file.  Assuming that the struct NAME_s
+ ** Emits declarations for the header file.  Assuming that the struct NAME
  ** and an associated pointer NAME_t have been defined, this provides a
  ** function <tt>NAME_t NAME(void)</tt> which returns the thread-local storage.
  ** \a PRIVATE_NAME is a prefix for for identifiers which are to be considered
@@ -56,7 +56,7 @@ CU_BEGIN_DECLARATIONS
 #ifdef CUCONF_HAVE_THREAD_KEYWORD
 
 #  define CU_THREADLOCAL_DECL(name, private_name)			\
-    extern __thread struct name##_s private_name##_inst;		\
+    extern __thread struct name private_name##_inst;			\
 									\
     /** Returns thread-local state. */					\
     CU_SINLINE name##_t name(void)					\
@@ -65,7 +65,7 @@ CU_BEGIN_DECLARATIONS
     CU_END_BOILERPLATE
 
 #  define CU_THREADLOCAL_DEF(name, private_name, static_name)		\
-    __thread struct name##_s private_name##_inst;			\
+    __thread struct name private_name##_inst;				\
 									\
     cu_clop_def0(static_name##_on_thread_entry, void)			\
     {									\
@@ -104,7 +104,7 @@ CU_BEGIN_DECLARATIONS
     cu_clop_def0(static_name##_on_thread_entry, void)			\
     {									\
 	int err_code;							\
-	name##_t tls = cu_unew(struct name##_s);			\
+	name##_t tls = cu_unew(struct name);				\
 	static_name##_init(tls);					\
 	err_code = pthread_setspecific(private_name##_key, tls);	\
 	if (err_code)							\

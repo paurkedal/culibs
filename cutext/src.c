@@ -37,7 +37,7 @@ cutext_src_init(cutext_src_t src, cutext_producer_t producer)
 cutext_src_t
 cutext_src_new(cutext_producer_t producer)
 {
-    cutext_src_t src = cu_gnew(struct cutext_src_s);
+    cutext_src_t src = cu_gnew(struct cutext_src);
     cutext_src_init(src, producer);
     return src;
 }
@@ -53,7 +53,7 @@ cutext_src_init_grab(cutext_src_t src_init, cutext_src_t src_drop)
 cutext_src_t
 cutext_src_new_grab(cutext_src_t src_drop)
 {
-    cutext_src_t src = cu_gnew(struct cutext_src_s);
+    cutext_src_t src = cu_gnew(struct cutext_src);
     cutext_src_init_grab(src, src_drop);
     return src;
 }

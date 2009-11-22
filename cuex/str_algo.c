@@ -28,7 +28,7 @@ cuex_left_idrjoin_charbuf(cu_buffer_t buf, cuex_meta_t opr, cuex_t e,
 			  char const *delim)
 {
     char const *name;
-    struct cucon_stack_s stack;
+    struct cucon_stack stack;
     size_t delim_len = strlen(delim);
     cucon_stack_init(&stack);
 
@@ -56,7 +56,7 @@ cuex_left_idrjoin_charbuf(cu_buffer_t buf, cuex_meta_t opr, cuex_t e,
 cu_str_t
 cuex_left_idrjoin_str(cuex_meta_t opr, cuex_t e, char const *delim)
 {
-    struct cu_buffer_s buf;
+    struct cu_buffer buf;
     if (cuex_left_idrjoin_charbuf(&buf, opr, e, delim))
 	return cu_str_new_charr(cu_buffer_content_start(&buf),
 				cu_buffer_content_size(&buf));
@@ -67,7 +67,7 @@ cuex_left_idrjoin_str(cuex_meta_t opr, cuex_t e, char const *delim)
 char const *
 cuex_left_idrjoin_cstr(cuex_meta_t opr, cuex_t e, char const *delim)
 {
-    struct cu_buffer_s buf;
+    struct cu_buffer buf;
     size_t len;
     char *cstr;
 

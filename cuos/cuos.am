@@ -1,13 +1,14 @@
 if enable_cuos
 
 cuos_headers = \
-	cuos/process.h \
-	cuos/path.h \
+	cuos/compat.h \
 	cuos/file.h \
 	cuos/fs.h \
 	cuos/fwd.h \
 	cuos/dirpile.h \
 	cuos/dsink.h \
+	cuos/path.h \
+	cuos/process.h \
 	cuos/time.h \
 	cuos/user_dirs.h
 

@@ -38,8 +38,8 @@ typedef unsigned long cuex_ssfn_seqno_t;
 struct cuex_ssfn_node_s
 {
     /* Match on current operand. */
-    struct cucon_pmap_s match_exaddr;	/* cuex_t → cuex_ssfn_node_s */
-    struct cucon_umap_s match_opr;	/* opr → cuex_ssfn_node_s */
+    struct cucon_pmap match_exaddr;	/* cuex_t → cuex_ssfn_node_s */
+    struct cucon_umap match_opr;	/* opr → cuex_ssfn_node_s */
 
     /* For patterns with a universal match on the current operand,
      * link to the match for the next operand.  When there are no more
@@ -176,16 +176,16 @@ void cuex_ssfn_dump_keys(cuex_ssfn_t ssfn, FILE *out);
 
 typedef struct cuex_ssfn_find_it_s *cuex_ssfn_find_it_t;
 typedef struct cuexP_ssfn_find_jargs_s {
-    struct cucon_stack_s input;
-    struct cucon_stack_s output;
-    struct cucon_stack_s sctr;
+    struct cucon_stack input;
+    struct cucon_stack output;
+    struct cucon_stack sctr;
     int *sctr_most_specific;
     cu_clop(receiver, cu_bool_t, cu_count_t arg_cnt, cuex_t *arg_arr, void *);
     cu_count_t arg_cnt;
 } *cuexP_ssfn_find_jargs_t;
 struct cuex_ssfn_find_it_s
 {
-    struct cucon_stack_s stack;
+    struct cucon_stack stack;
     struct cuexP_ssfn_find_jargs_s jargs;
     void *slot;
     cu_count_t arg_cnt;

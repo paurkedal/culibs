@@ -43,8 +43,8 @@ CU_BEGIN_DECLARATIONS
  * \see cuex_tuple_h
  */
 
-typedef struct cuex_tmonoid_s *cuex_tmonoid_t;
-struct cuex_tmonoid_s
+typedef struct cuex_tmonoid *cuex_tmonoid_t;
+struct cuex_tmonoid
 {
     CUOO_HCOBJ
     cuex_meta_t opr;
@@ -172,8 +172,8 @@ cu_ptr_source_t cuex_tmonoid_factor_source(cuex_meta_t mult, cuex_t x,
 cu_ptr_source_t cuex_any_tmonoid_factor_source(cuex_t x,
 					       ptrdiff_t i, ptrdiff_t j);
 
-struct cuex_tmonoid_itr_s { struct cuex_ltree_itr_s sub; };
-typedef struct cuex_tmonoid_itr_s cuex_tmonoid_itr_t;
+struct cuex_tmonoid_itr { struct cuex_ltree_itr sub; };
+typedef struct cuex_tmonoid_itr cuex_tmonoid_itr_t;
 
 void cuex_tmonoid_itr_init_full(cuex_meta_t mult, cuex_tmonoid_itr_t *itr,
 				cuex_t x);

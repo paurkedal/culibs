@@ -27,10 +27,10 @@ CU_BEGIN_DECLARATIONS
  ** @{ \ingroup cu_util_mod */
 
 /** A node of a hook for use in hook implementations. */
-typedef struct cu_hook_node_s *cu_hook_node_t;
-struct cu_hook_node_s
+typedef struct cu_hook_node *cu_hook_node_t;
+struct cu_hook_node
 {
-    cu_inherit (cu_dlink_s);
+    cu_inherit (cu_dlink);
     cu_clop0(f, void);
 };
 
@@ -46,8 +46,8 @@ void cuP_hook_append(cu_hook_node_t hook, cu_clop0(f, void));
  ** with suffixes _init, _prepend, and _append.  The _call function is hook
  ** dependent, and can be defined using \ref CU_HOOK_FOR. */
 #define CU_HOOK_TEMPLATE(name, f_decl)					\
-    typedef struct name##_s *name##_t; /* abstract */			\
-    struct name##_s { cu_inherit (cu_hook_node_s); };			\
+    typedef struct name *name##_t; /* abstract */			\
+    struct name { cu_inherit (cu_hook_node); };				\
 									\
     /*!Initialise \a hook as an empty hook. */				\
     CU_SINLINE void name##_init(name##_t hook)				\

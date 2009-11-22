@@ -215,7 +215,7 @@ cuex_free_vars_conj(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
 		    cu_clop(f, cu_bool_t, cuex_var_t, cucon_pset_t))
 {
     if (!excl) {
-	excl = cu_salloc(sizeof(struct cucon_pset_s));
+	excl = cu_salloc(sizeof(struct cucon_pset));
 	cucon_pset_init(excl);
     }
     return _free_vars_conj(e, qcset, excl, f);
@@ -282,7 +282,7 @@ cuex_t
 cuex_free_vars_tran(cuex_t e, cuex_qcset_t qcset, cucon_pset_t excl,
 		    cu_clop(f, cuex_t, cuex_t, cucon_pset_t))
 {
-    struct cucon_pset_s excl_l;
+    struct cucon_pset excl_l;
     if (!excl) {
 	excl = &excl_l;
 	cucon_pset_init(&excl_l);

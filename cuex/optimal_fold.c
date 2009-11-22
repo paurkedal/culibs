@@ -35,27 +35,27 @@
 
 cu_dlog_def(_file, "dtag=cuex.optimal_fold");
 
-typedef struct _block_s *_block_t;
-typedef struct _buildframe_s *_buildframe_t;
-typedef struct _buildstate_s *_buildstate_t;
-typedef struct _state_s *_state_t;
-typedef struct _state_set_s *_state_set_t;
+typedef struct _block *_block_t;
+typedef struct _buildframe *_buildframe_t;
+typedef struct _buildstate *_buildstate_t;
+typedef struct _state *_state_t;
+typedef struct _state_set *_state_set_t;
 
 
 /* States
  * ====== */
 
-struct _state_s
+struct _state
 {
-    cu_inherit (cucon_listnode_s);
+    cu_inherit (cucon_listnode);
     _block_t block;
-    struct cucon_parr_s invtran; /* of cucon_slink_t of _state_t */
+    struct cucon_parr invtran; /* of cucon_slink_t of _state_t */
     cuex_t e;
     size_t r;
     _state_t sub[1];
 };
 
-struct _state_set_s
+struct _state_set
 {
     cucon_slink_t state_link;
     size_t state_count;
@@ -70,7 +70,7 @@ static _state_t
 _state_new(int r, cuex_t e)
 {
     _state_t state;
-    state = cu_galloc(sizeof(struct _state_s) + (r - 1)*sizeof(_state_t));
+    state = cu_galloc(sizeof(struct _state) + (r - 1)*sizeof(_state_t));
     cu_debug_assert(e);
     cucon_parr_init_empty(&state->invtran);
     state->e = e;
@@ -107,18 +107,18 @@ _state_connect(_state_t state, cu_rank_t a, cu_rank_t b, _state_t substate)
  * ====== */
 
 /* Holds various information about an element of a partition. */
-struct _block_s
+struct _block
 {
     /* The current set of states of this block.  The states are incrementally
      * moved over to the target block during the iteration over t ∈ δ⁻¹(s, a)
      * where s ∈ C(i, a). */
-    struct cucon_list_s state_list; /* of _state_s nodes */
+    struct cucon_list state_list; /* of _state nodes */
     size_t state_count;
 
     /* The set C(i, a) = { s | s ∈ B(i) ∧ ∃t δ(a, t) = s }, regenerated from
      * scratch on each iteration for changed blocks. */
     size_t occur_set_count;
-    struct _state_set_s *occur_set_arr; /* of cucon_slink_t of _state_t */
+    struct _state_set *occur_set_arr; /* of cucon_slink_t of _state_t */
 
     /* The target block being built.  This is allocated on demand, which also
      * triggers linking the block on an update link. */
@@ -174,7 +174,7 @@ _block_reindex(_block_t block)
 	    r_max = a;
     }
     block->occur_set_count = r_max;
-    block->occur_set_arr = cu_galloc(sizeof(struct _state_set_s)*r_max);
+    block->occur_set_arr = cu_galloc(sizeof(struct _state_set)*r_max);
     for (a = 0; a < r_max; ++a) {
 	block->occur_set_arr[a].state_count = 0;
 	block->occur_set_arr[a].state_link = NULL;
@@ -183,7 +183,7 @@ _block_reindex(_block_t block)
     cu_dlogf(_file, "Update block %p, r_max = %d", block, r_max);
     _for_states_in_block(state, block) {
 	cucon_slink_t *itr_invtran;
-	struct _state_set_s *itr_selectset;
+	struct _state_set *itr_selectset;
 	a = cucon_parr_size(&state->invtran);
 	itr_invtran = cucon_parr_ref_at(&state->invtran, a);
 	itr_selectset = block->occur_set_arr + a;
@@ -204,7 +204,7 @@ _block_reindex(_block_t block)
 /* Partition State
  * =============== */
 
-struct _buildframe_s
+struct _buildframe
 {
     _state_t state;
     cuex_t e;
@@ -216,17 +216,17 @@ _buildframe_is_mubind(_buildframe_t bf)
     return cuex_meta(bf->e) == CUEX_O1_MU;
 }
 
-struct _buildstate_s
+struct _buildstate
 {
     int r_max;
 
     /* Maps from pruned expressions to the block of the initial partition where
      * the corresponding state belongs. */
-    struct cucon_pmap_s ekey_to_block;
+    struct cucon_pmap ekey_to_block;
 
     /* This block contains the states of all λ-variables.  Each of these states
      * link back to the state of the expression binding the variable. */
-    struct _block_s lambdavar_block;
+    struct _block lambdavar_block;
 
     /* The biggest stack address, points just after the bottom element. */
     _buildframe_t sp_max;
@@ -247,7 +247,7 @@ _buildstate_init(_buildstate_t bst, cuex_t e)
     bst->r_max = r_max;
     cucon_pmap_init(&bst->ekey_to_block);
     _block_init(&bst->lambdavar_block);
-    bst->sp_max = cu_galloc(sizeof(struct _buildframe_s)*depth);
+    bst->sp_max = cu_galloc(sizeof(struct _buildframe)*depth);
     bst->sp_max += depth;
     return cu_true;
 }
@@ -448,7 +448,7 @@ _build_partition(_buildstate_t bst, cuex_occurtree_t ot, _buildframe_t sp,
 
 	/* Locate or create the block */
 	if (cucon_pmap_insert_mem(&bst->ekey_to_block, ekey,
-				  sizeof(struct _block_s), &block)) {
+				  sizeof(struct _block), &block)) {
 	    _block_init(block);
 	    cu_dlogf(_file, "New block %p: %!", block, e);
 	} else
@@ -466,7 +466,7 @@ _build_partition(_buildstate_t bst, cuex_occurtree_t ot, _buildframe_t sp,
  * initial work and call _block_reindex on the blocks. */
 cu_clos_def(_add_pending_block, cu_prot(void, void const *key, void *block),
     ( cu_rank_t r_max;
-      struct cucon_pset_s *pending_arr; ))
+      struct cucon_pset *pending_arr; ))
 {
     cu_rank_t a;
     cu_clos_self(_add_pending_block);
@@ -483,7 +483,7 @@ cu_clos_def(_add_pending_block, cu_prot(void, void const *key, void *block),
 
 /* Pick the next operand number and block by which to refine the partition. */
 static cu_bool_t
-_pick_block(int r_max, struct cucon_pset_s *pending_arr,
+_pick_block(int r_max, struct cucon_pset *pending_arr,
 	    int *a_inout, _block_t *block_out)
 {
     int ap = *a_inout;
@@ -504,7 +504,7 @@ _pick_block(int r_max, struct cucon_pset_s *pending_arr,
  * set of blocks which will be use to refine the partition, based on operand
  * number i of the states. */
 static void
-_refine_partition(int r_max, struct cucon_pset_s *pending_arr)
+_refine_partition(int r_max, struct cucon_pset *pending_arr)
 {
     _block_t block;
     int a = 0;
@@ -528,7 +528,7 @@ _refine_partition(int r_max, struct cucon_pset_s *pending_arr)
 		/* Allocate block_k if necessary. */
 		if (!block_k) {
 		    /* Construct a new block to split j into. */
-		    block_k = cu_gnew(struct _block_s);
+		    block_k = cu_gnew(struct _block);
 		    block_j->target = block_k;
 		    _block_init(block_k);
 
@@ -762,10 +762,10 @@ cuex_t
 cuex_optimal_fold(cuex_t e)
 {
     int a;
-    struct _buildstate_s bst;
+    struct _buildstate bst;
     _state_t top_state;
     _add_pending_block_t apb_cb;
-    struct cucon_pset_s *pending_arr;
+    struct cucon_pset *pending_arr;
     cuex_occurtree_t ot;
 
     /* Create initial partition. */
@@ -775,7 +775,7 @@ cuex_optimal_fold(cuex_t e)
     top_state = _build_partition(&bst, ot, bst.sp_max, 0, cuex_mupath_null());
 
     /* Refine partition. */
-    pending_arr = cu_salloc(sizeof(struct cucon_pset_s)*bst.r_max);
+    pending_arr = cu_salloc(sizeof(struct cucon_pset)*bst.r_max);
     for (a = 0; a < bst.r_max; ++a)
 	cucon_pset_init(&pending_arr[a]);
     apb_cb.r_max = bst.r_max;

@@ -35,7 +35,7 @@ cu_sref_init(cu_sref_t srf, cu_str_t path, int line, int column)
 cu_sref_t
 cu_sref_new(cu_str_t path, int line, int column)
 {
-    cu_sref_t srf = cu_gnew(struct cu_sref_s);
+    cu_sref_t srf = cu_gnew(struct cu_sref);
     srf->chain_tail = NULL;
     srf->path = path;
     srf->line = line;
@@ -72,7 +72,7 @@ cu_sref_new_range(cu_str_t path,
 		  int first_line, int first_column,
 		  int last_line, int last_column)
 {
-    cu_sref_t srf = cu_gnew(struct cu_sref_s);
+    cu_sref_t srf = cu_gnew(struct cu_sref);
     cu_sref_init_range(srf, path,
 		      first_line, first_column, last_line, last_column);
     return srf;
@@ -99,7 +99,7 @@ cu_sref_init_span(cu_sref_t srf, cu_sref_t first, cu_sref_t last)
 cu_sref_t
 cu_sref_new_sref_range(cu_sref_t first, cu_sref_t last)
 {
-    cu_sref_t srf = cu_gnew(struct cu_sref_s);
+    cu_sref_t srf = cu_gnew(struct cu_sref);
     cu_sref_init_span(srf, first, last);
     return srf;
 }
@@ -184,7 +184,7 @@ cu_sref_init_copy(cu_sref_t srf, cu_sref_t srf0)
 cu_sref_t
 cu_sref_new_copy(cu_sref_t srf0)
 {
-    cu_sref_t srf = cu_gnew(struct cu_sref_s);
+    cu_sref_t srf = cu_gnew(struct cu_sref);
     cu_sref_init_copy(srf, srf0);
     return srf;
 }

@@ -62,7 +62,7 @@ CU_BEGIN_DECLARATIONS
 
 char const *cuex_qcode_name(cuex_qcode_t quant);
 
-struct cuex_pvar_s
+struct cuex_pvar
 {
     CUOO_OBJ
     cu_offset_t offset;	/* In bits if 'type' is a bitfield */

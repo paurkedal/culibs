@@ -36,7 +36,7 @@ cucon_bitvect_init_uninit(cucon_bitvect_t bv, size_t size)
 cucon_bitvect_t
 cucon_bitvect_new_uninit(size_t size)
 {
-    cucon_bitvect_t bv = cu_gnew(struct cucon_bitvect_s);
+    cucon_bitvect_t bv = cu_gnew(struct cucon_bitvect);
     cucon_bitvect_init_uninit(bv, size);
     return bv;
 }
@@ -53,7 +53,7 @@ cucon_bitvect_init_fill(cucon_bitvect_t bv, size_t size, cu_bool_t val)
 cucon_bitvect_t
 cucon_bitvect_new_fill(size_t size, cu_bool_t val)
 {
-    cucon_bitvect_t bv = cu_gnew(struct cucon_bitvect_s);
+    cucon_bitvect_t bv = cu_gnew(struct cucon_bitvect);
     cucon_bitvect_init_fill(bv, size, val);
     return bv;
 }
@@ -71,7 +71,7 @@ cucon_bitvect_init_copy(cucon_bitvect_t bv, cucon_bitvect_t bv_src)
 cucon_bitvect_t
 cucon_bitvect_new_copy(cucon_bitvect_t bv_src)
 {
-    cucon_bitvect_t bv = cu_gnew(struct cucon_bitvect_s);
+    cucon_bitvect_t bv = cu_gnew(struct cucon_bitvect);
     cucon_bitvect_init_copy(bv, bv_src);
     return bv;
 }

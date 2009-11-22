@@ -27,7 +27,7 @@ CU_BEGIN_DECLARATIONS
 typedef unsigned int cuconP_bitvect_word_t;
 #define cuconP_bitvect_word_width (sizeof(cuconP_bitvect_word_t)*8)
 
-struct cucon_bitvect_s
+struct cucon_bitvect
 {
     size_t size;
     cuconP_bitvect_word_t *arr;

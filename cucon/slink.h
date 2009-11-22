@@ -26,7 +26,7 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_slink_h cucon/slink.h: A singly linked list.
  * @{\ingroup cucon_linear_mod */
 
-struct cucon_slink_s
+struct cucon_slink
 {
     cucon_slink_t next;
 };

@@ -21,7 +21,7 @@
 #define WORKQSEG_SIZE 32
 #define WORKQ_MAX_FREE_SEG_CNT 2
 
-struct cuflowP_workqseg_s
+struct cuflowP_workqseg
 {
     cuflowP_workqseg_t next;
     cuflow_workq_fn_t fn_arr[WORKQSEG_SIZE];
@@ -43,7 +43,7 @@ void
 cuflow_workq_init(cuflow_workq_t wq)
 {
 #if 0
-    cuflowP_workqseg_t seg = cu_gnew(struct cuflowP_workqseg_s);
+    cuflowP_workqseg_t seg = cu_gnew(struct cuflowP_workqseg);
     wq->head_seg = wq->tail_seg = wq->last_seg = seg;
     wq->head_cur = wq->head_end = wq->tail_cur = workqseg_begin(seg);
     wq->tail_end = workqseg_end(seg);
@@ -59,7 +59,7 @@ void
 cuflowP_workq_advance_tail(cuflow_workq_t wq)
 {
     if (wq->free_seg_cnt == 0) {
-	cuflowP_workqseg_t seg = cu_gnew(struct cuflowP_workqseg_s);
+	cuflowP_workqseg_t seg = cu_gnew(struct cuflowP_workqseg);
 	cu_debug_assert(wq->tail_seg == wq->last_seg);
 	if (wq->last_seg == NULL) { /* if not used since construction */
 	    wq->head_seg = seg;

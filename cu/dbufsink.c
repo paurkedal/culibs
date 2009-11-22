@@ -49,7 +49,7 @@ _wstring_control(cu_dsink_t sink, int fn, va_list va)
 cu_dsink_t
 cu_dsink_new_wstring()
 {
-    cu_dbufsink_t sink = cu_gnew(struct cu_dbufsink_s);
+    cu_dbufsink_t sink = cu_gnew(struct cu_dbufsink);
     cu_dsink_init(cu_to(cu_dsink, sink), _wstring_control, _bufsink_write);
     cu_buffer_init(&sink->buffer, 32);
     return cu_to(cu_dsink, sink);
@@ -72,7 +72,7 @@ _str_control(cu_dsink_t sink, int fn, va_list va)
 cu_dsink_t
 cu_dsink_new_str(void)
 {
-    cu_dbufsink_t sink = cu_gnew(struct cu_dbufsink_s);
+    cu_dbufsink_t sink = cu_gnew(struct cu_dbufsink);
     cu_dsink_init(cu_to(cu_dsink, sink), _str_control, _bufsink_write);
     cu_buffer_init(&sink->buffer, 16);
     return cu_to(cu_dsink, sink);

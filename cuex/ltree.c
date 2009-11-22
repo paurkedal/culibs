@@ -213,7 +213,7 @@ cuex_ltree_append_from_source(cuex_t x, cu_ptr_source_t source)
 cuex_t
 cuex_ltree_append_from_array(cuex_t ltree, cuex_t *arr, size_t cnt)
 {
-    struct cu_ptr_array_source_s src;
+    struct cu_ptr_array_source src;
     cu_ptr_array_source_init(&src, arr, arr + cnt);
     return cuex_ltree_append_from_source(ltree, cu_to(cu_ptr_source, &src));
 }
@@ -245,7 +245,7 @@ cuex_ltree_from_source(cu_ptr_source_t source)
 cuex_t
 cuex_ltree_from_array(cuex_t *elt_array, size_t elt_count)
 {
-    struct cu_ptr_array_source_s src;
+    struct cu_ptr_array_source src;
     cu_ptr_array_source_init(&src, elt_array, elt_array + elt_count);
     return cuex_ltree_append_from_source(cuex_ltree_empty(),
 					 cu_to(cu_ptr_source, &src));
@@ -501,25 +501,25 @@ cuex_ltree_itr_get(cuex_ltree_itr_t *itr)
     return r;
 }
 
-typedef struct iter_source_s *iter_source_t;
-struct iter_source_s
+typedef struct _iter_source *_iter_source_t;
+struct _iter_source
 {
-    cu_inherit (cu_ptr_source_s);
-    struct cuex_ltree_itr_s itr;
+    cu_inherit (cu_ptr_source);
+    struct cuex_ltree_itr itr;
 };
 
 static void *
-iter_source_get(cu_ptr_source_t source)
+_iter_source_get(cu_ptr_source_t source)
 {
-    iter_source_t self = cu_from(iter_source, cu_ptr_source, source);
+    _iter_source_t self = cu_from(_iter_source, cu_ptr_source, source);
     return cuex_ltree_itr_get(&self->itr);
 }
 
 cu_ptr_source_t
 cuex_ltree_full_source(cuex_t x)
 {
-    iter_source_t self = cu_gnew(struct iter_source_s);
-    cu_ptr_source_init(cu_to(cu_ptr_source, self), iter_source_get);
+    _iter_source_t self = cu_gnew(struct _iter_source);
+    cu_ptr_source_init(cu_to(cu_ptr_source, self), _iter_source_get);
     cuex_ltree_itr_init_full(&self->itr, x);
     return cu_to(cu_ptr_source, self);
 }
@@ -527,8 +527,8 @@ cuex_ltree_full_source(cuex_t x)
 cu_ptr_source_t
 cuex_ltree_slice_source(cuex_t x, ptrdiff_t i, ptrdiff_t j)
 {
-    iter_source_t self = cu_gnew(struct iter_source_s);
-    cu_ptr_source_init(cu_to(cu_ptr_source, self), iter_source_get);
+    _iter_source_t self = cu_gnew(struct _iter_source);
+    cu_ptr_source_init(cu_to(cu_ptr_source, self), _iter_source_get);
     cuex_ltree_itr_init_slice(&self->itr, x, i, j);
     return cu_to(cu_ptr_source, self);
 }

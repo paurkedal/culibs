@@ -40,7 +40,7 @@ cu_clop_def(incr1, cuex_t, cuex_t e)
 void
 test(int N, cu_bool_t print)
 {
-    struct cucon_pset_s keys;
+    struct cucon_pset keys;
     int i;
     cuex_t e = cuex_atree_empty();
 

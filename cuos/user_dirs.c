@@ -30,9 +30,9 @@ static AO_t _init_done = 0; /* 1 for *_home and 2 for also *_dirs */
 static pthread_mutex_t _init_mutex = CU_MUTEX_INITIALISER;
 
 /* From the variables or fixed defaults. */
-static struct cu_str_s _user_config_home;
-static struct cu_str_s _user_data_home;
-static struct cu_str_s _user_cache_home;
+static struct cu_str _user_config_home;
+static struct cu_str _user_data_home;
+static struct cu_str _user_cache_home;
 
 void cuos_reset_user_dirs(void) { AO_store(&_init_done, 0); }
 

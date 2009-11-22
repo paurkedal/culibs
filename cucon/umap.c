@@ -93,7 +93,7 @@ cucon_umap_init(cucon_umap_t umap)
 cucon_umap_t
 cucon_umap_new()
 {
-    cucon_umap_t umap = cu_galloc(sizeof(struct cucon_umap_s));
+    cucon_umap_t umap = cu_galloc(sizeof(struct cucon_umap));
     cucon_umap_init(umap);
     return umap;
 }
@@ -111,7 +111,7 @@ cucon_umap_init_copy_void(cucon_umap_t dst, cucon_umap_t src)
 	cucon_umap_node_t src_node = src->arr[n];
 	cucon_umap_node_t *dst_node = &dst->arr[n];
 	while (src_node) {
-	    *dst_node = cu_gnew(struct cucon_umap_node_s);
+	    *dst_node = cu_gnew(struct cucon_umap_node);
 	    (*dst_node)->key = src_node->key;
 	    dst_node = &(*dst_node)->next;
 	    src_node = src_node->next;
@@ -124,7 +124,7 @@ cucon_umap_init_copy_void(cucon_umap_t dst, cucon_umap_t src)
 cucon_umap_t
 cucon_umap_new_copy_void(cucon_umap_t src)
 {
-    cucon_umap_t dst = cu_gnew(struct cucon_umap_s);
+    cucon_umap_t dst = cu_gnew(struct cucon_umap);
     cucon_umap_init_copy_void(dst, src);
     return dst;
 }
@@ -134,7 +134,7 @@ cucon_umap_init_copy_mem(cucon_umap_t dst, cucon_umap_t src, size_t slot_size)
 {
     size_t N = src->mask;
     size_t n;
-    size_t full_size = sizeof(struct cucon_umap_node_s) + slot_size;
+    size_t full_size = sizeof(struct cucon_umap_node) + slot_size;
     dst->size = src->size;
     dst->mask = N;
     ++N;
@@ -168,7 +168,7 @@ cucon_umap_init_copy_mem_ctor(
 	cucon_umap_node_t src_node = src->arr[n];
 	cucon_umap_node_t *dst_node = &dst->arr[n];
 	while (src_node) {
-	    *dst_node = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_umap_node_s)
+	    *dst_node = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_umap_node)
 				   + slot_size);
 	    (*dst_node)->key = src_node->key;
 	    cu_call(value_cct_copy,
@@ -213,7 +213,7 @@ cucon_umap_init_copy_node(
 void
 cucon_umap_swap(cucon_umap_t umap0, cucon_umap_t umap1)
 {
-    struct cucon_umap_s umap2;
+    struct cucon_umap umap2;
     memcpy(&umap2, umap0, sizeof(umap2));
     memcpy(umap0, umap1, sizeof(umap2));
     memcpy(umap1, &umap2, sizeof(umap2));
@@ -394,7 +394,7 @@ cucon_umap_insert_mem(cucon_umap_t umap, uintptr_t key, size_t size,
     }
     ++umap->size;
     node = *node0
-	= cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_umap_node_s) + size);
+	= cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_umap_node) + size);
     node->key = key;
     node->next = NULL;
     if (value)
@@ -565,7 +565,7 @@ void *
 cucon_umap_find_mem(cucon_umap_t umap, uintptr_t key)
 {
     unsigned long hash = HASH(key) & umap->mask;
-    struct cucon_umap_node_s *node0 = umap->arr[hash];
+    struct cucon_umap_node *node0 = umap->arr[hash];
     while (node0) {
 	if (node0->key == key)
 	    return CU_ALIGNED_PTR_END(node0);
@@ -578,7 +578,7 @@ void *
 cucon_umap_find_ptr(cucon_umap_t umap, uintptr_t key)
 {
     unsigned long hash = HASH(key) & umap->mask;
-    struct cucon_umap_node_s *node0 = umap->arr[hash];
+    struct cucon_umap_node *node0 = umap->arr[hash];
     while (node0) {
 	if (node0->key == key)
 	    return *(void**)CU_ALIGNED_PTR_END(node0);

@@ -34,7 +34,7 @@ typedef enum {
     cufo_attrtype_int,
 } cufo_attrtype_t;
 
-struct cufo_attr_s
+struct cufo_attr
 {
     cufo_namespace_t ns;
     cu_idr_t idr;
@@ -71,7 +71,7 @@ CU_SINLINE cu_box_t cufoP_cktype_cstr(char const *s)
 #define CUFO_ATTR_CSTR(attr, s)	attr, cufoP_cktype_cstr(s)
 #define CUFO_ATTR_ENUM(attr, i)	attr, cufoP_cktype_int(i)
 
-struct cufo_attrbind_s
+struct cufo_attrbind
 {
     cufo_attr_t attr;
     cu_box_t value;

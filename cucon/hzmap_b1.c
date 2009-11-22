@@ -22,7 +22,7 @@ void
 profile(int N)
 {
     int i;
-    struct cucon_hzmap_s map;
+    struct cucon_hzmap map;
     cucon_hzmap_init(&map, 1);
     for (i = 0; i < N; ++i) {
 	cu_word_t key = i*i%N;

@@ -43,12 +43,12 @@ CU_BEGIN_DECLARATIONS
 
 #define CUFLOWP_CACHEOBJ_HDR(obj) ((cuflowP_cacheobjhdr_t)(obj) - 1)
 
-typedef struct cuflowP_cachebin_s *cuflowP_cachebin_t;
+typedef struct cuflowP_cachebin *cuflowP_cachebin_t;
 typedef struct cuflow_cache_s *cuflow_cache_t;
-typedef struct cuflowP_cacheobjhdr_s *cuflowP_cacheobjhdr_t;
+typedef struct cuflowP_cacheobjhdr *cuflowP_cacheobjhdr_t;
 typedef struct cuflow_cacheobj_s *cuflow_cacheobj_t;
 
-struct cuflowP_cachebin_s
+struct cuflowP_cachebin
 {
     cu_mutex_t mutex;
     size_t cap;
@@ -59,13 +59,13 @@ struct cuflowP_cachebin_s
 
 struct cuflow_cache_s
 {
-    cu_inherit (cu_dlink_s);
+    cu_inherit (cu_dlink);
     cuflow_cacheconf_t conf;
-    struct cuflowP_cachebin_s bin_arr[CUFLOWP_CACHE_BIN_COUNT];
+    struct cuflowP_cachebin bin_arr[CUFLOWP_CACHE_BIN_COUNT];
     cuflow_cacheobj_t (**fn_arr)(cuflow_cacheobj_t key);
 };
 
-struct cuflowP_cacheobjhdr_s
+struct cuflowP_cacheobjhdr
 {
     cuflow_cacheobj_t next;
     unsigned int access_ticks;

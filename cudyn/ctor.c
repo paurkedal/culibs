@@ -50,5 +50,5 @@ void
 cudyn_ctor_init()
 {
     cudynP_ctortype_type = cuoo_type_new_opaque_hcs(
-	cuoo_impl_none, sizeof(struct cudyn_ctortype_s) - CUOO_HCOBJ_SHIFT);
+	cuoo_impl_none, sizeof(struct cudyn_ctortype) - CUOO_HCOBJ_SHIFT);
 }

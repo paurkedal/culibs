@@ -25,10 +25,10 @@
 
 #define IC_WRITE_BUFSIZE 2048
 
-typedef struct _iconv_dsink_s *_iconv_dsink_t;
-struct _iconv_dsink_s
+typedef struct _iconv_dsink *_iconv_dsink_t;
+struct _iconv_dsink
 {
-    cu_inherit (cu_dsink_s);
+    cu_inherit (cu_dsink);
     cu_dsink_t target_sink;
     iconv_t cd;
 };
@@ -100,7 +100,7 @@ cutext_dsink_open_iconv(char const *source_encoding,
 			char const *target_encoding,
 			cu_dsink_t target_sink)
 {
-    _iconv_dsink_t sink = cu_gnew(struct _iconv_dsink_s);
+    _iconv_dsink_t sink = cu_gnew(struct _iconv_dsink);
     cu_dsink_init(cu_to(cu_dsink, sink), _iconv_control, _iconv_write);
     sink->target_sink = target_sink;
     sink->cd = iconv_open(target_encoding, source_encoding);

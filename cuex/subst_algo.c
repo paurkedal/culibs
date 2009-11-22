@@ -53,7 +53,7 @@ rec:
 cuex_var_t
 cuex_subst_insert_expand(cuex_subst_t dst, cuex_t ex, cuex_subst_t src)
 {
-    struct cucon_pmap_s ex_to_var;
+    struct cucon_pmap ex_to_var;
     cucon_pmap_init(&ex_to_var);
     return cuex_subst_insert_fragment_accum(dst, &ex_to_var, ex, src);
 }
@@ -61,7 +61,7 @@ cuex_subst_insert_expand(cuex_subst_t dst, cuex_t ex, cuex_subst_t src)
 #if 0
 cu_clos_def(_expand_cb,
 	    cu_prot(void, void const *var, void *slot),
-	    ( struct cucon_pmap_s ex_to_var;
+	    ( struct cucon_pmap ex_to_var;
 	      cuex_subst_t src;
 	      cuex_subst_t dst; ))
 {

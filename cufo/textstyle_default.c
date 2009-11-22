@@ -22,7 +22,7 @@
 typedef struct _dtx_sink_s *_dtx_sink_t;
 struct _dtx_sink_s
 {
-    cu_inherit (cufo_textsink_s);
+    cu_inherit (cufo_textsink);
 };
 #define STATE(tstate) cu_from(_dtx_sink, cufo_textsink, tstate)
 
@@ -65,7 +65,7 @@ _codepre_leave(cufo_textsink_t sink, cufo_tag_t tag)
 CUFO_TEXTSTYLER_STATIC(_indent);
 CUFO_TEXTSTYLER_STATIC(_codepre);
 
-struct cufo_textstyle_s cufoP_default_textstyle;
+struct cufo_textstyle cufoP_default_textstyle;
 
 void
 cufoP_textstyle_default_init(void)

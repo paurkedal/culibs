@@ -30,7 +30,7 @@ CU_BEGIN_DECLARATIONS
  ** and hash-consed pair:
  **
  ** \code
- ** struct pair_s {
+ ** struct pair {
  **     CUOO_HCOBJ
  **     cuex_t left;
  **     cuex_t right;
@@ -38,7 +38,7 @@ CU_BEGIN_DECLARATIONS
  **
  ** cuoo_type_t pair_type();
  **
- ** struct pair_s *pair_new(cuex_t left, cuex_t right)
+ ** struct pair *pair_new(cuex_t left, cuex_t right)
  ** {
  **     cuoo_hctem_decl(pair, key);
  **     cuoo_hctem_init(pair, key);
@@ -53,10 +53,10 @@ CU_BEGIN_DECLARATIONS
  ** generic functions from \ref cuoo_halloc_h "cuoo/halloc.h".
  **/
 
-/** Assuming a declaration of a struct <tt><em>prefix</em>_s</tt> which starts
+/** Assuming a declaration of <tt>struct <em>prefix</em></tt> which starts
  ** with a \ref CUOO_HCOBJ statement, this macro returns the key-size to use
  ** for hash-consing object of the struct. */
-#define cuoo_hctem_key_size(prefix) (sizeof(struct prefix##_s) - CUOO_HCOBJ_SHIFT)
+#define cuoo_hctem_key_size(prefix) (sizeof(struct prefix) - CUOO_HCOBJ_SHIFT)
 
 /** This macro emits a declaration of a key-template used for hash-consed
  ** allocation.  \a key must be initialised with \ref cuoo_hctem_init and
@@ -64,7 +64,7 @@ CU_BEGIN_DECLARATIONS
 #ifdef CUOO_HCTEM_EXCLUDE_HCOBJ_SHIFT
 #  define cuoo_hctem_decl(prefix, key) char key[cuoo_hctem_key_size(prefix)]
 #else
-#  define cuoo_hctem_decl(prefix, tem) struct prefix##_s tem
+#  define cuoo_hctem_decl(prefix, tem) struct prefix tem
 #endif
 
 /** This macro initialises the template \a key, which must be declared with
@@ -84,7 +84,7 @@ CU_BEGIN_DECLARATIONS
  ** template struct, which has type <tt><em>prefix</em>_s *</tt>. */
 #ifdef CUOO_HCTEM_EXCLUDE_HCOBJ_SHIFT
 #  define cuoo_hctem_get(prefix, key)					\
-	((struct prefix##_s *)((char *)(key) - CUOO_HCOBJ_SHIFT))
+	((struct prefix *)((char *)(key) - CUOO_HCOBJ_SHIFT))
 #else
 #  define cuoo_hctem_get(prefix, key) (&(key))
 #endif
@@ -103,12 +103,12 @@ CU_BEGIN_DECLARATIONS
  ** pre-initialised template \a key.  This macro is used in conjunction with
  ** \ref cuoo_hctem_decl, \ref cuoo_hctem_init, \ref cuoo_hctem_get. */
 #define cuoo_hctem_new(prefix, key) \
-    ((struct prefix##_s *) \
+    ((struct prefix *) \
      cuoo_halloc(prefix##_type(), cuoo_hctem_key_size(prefix), \
 		 cuoo_hctem_key(prefix, key)))
 
 #define cuoo_hctem_new_of_type(prefix, key, type) \
-    ((struct prefix##_s *) \
+    ((struct prefix *) \
      cuoo_halloc(type, cuoo_hctem_key_size(prefix), \
 		 cuoo_hctem_key(prefix, key)))
 

@@ -5,6 +5,7 @@ cucon_headers = \
 	cucon/algo_colour.h \
 	cucon/arr.h \
 	cucon/bitvect.h \
+	cucon/compat.h \
 	cucon/digraph.h \
 	cucon/frame.h \
 	cucon/hmap.h \

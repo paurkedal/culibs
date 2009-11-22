@@ -28,7 +28,7 @@ cuoo_prop_cct(cuoo_prop_t prop)
 cuoo_prop_t
 cuoo_prop_new()
 {
-    cuoo_prop_t prop = cu_gnew(struct cuoo_prop_s);
+    cuoo_prop_t prop = cu_gnew(struct cuoo_prop);
     cuoo_prop_cct(prop);
     return prop;
 }

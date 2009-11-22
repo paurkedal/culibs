@@ -43,11 +43,11 @@ CU_BEGIN_DECLARATIONS
  */
 
 /*!A node of a red-black tree. */
-struct cucon_rbnode_s
+struct cucon_rbnode
 {
     size_t is_black; /* size_t due to root-node packing, see bottom of file. */
-    struct cucon_rbnode_s *left;
-    struct cucon_rbnode_s *right;
+    struct cucon_rbnode *left;
+    struct cucon_rbnode *right;
     /* variable size value */
 };
 
@@ -66,9 +66,9 @@ CU_SINLINE cucon_rbnode_t
 cucon_rbnode_right(cucon_rbnode_t node) { return node->right; }
 
 /*!The red-black tree structure. */
-struct cucon_rbtree_s
+struct cucon_rbtree
 {
-    struct cucon_rbnode_s *root;
+    struct cucon_rbnode *root;
 };
 
 /*!Construct an empty tree. */

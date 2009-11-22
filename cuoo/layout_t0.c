@@ -31,7 +31,7 @@ show_live_data_size(cuoo_layout_t lo)
 {
     size_t size = 0;
     while (lo) {
-	size += sizeof(struct cuoo_layout_s) + sizeof(cuex_meta_t);
+	size += sizeof(struct cuoo_layout) + sizeof(cuex_meta_t);
 	lo = lo->prefix;
     }
     printf("Approx. live data size = %ld\n", (long)size);

@@ -40,7 +40,7 @@ cuex_init()
 	return;
     done_init = 1;
 
-    cu_debug_assert(sizeof(struct cuex_tpvar_s)/sizeof(cu_word_t) <=
+    cu_debug_assert(sizeof(struct cuex_tpvar)/sizeof(cu_word_t) <=
 		    (1 << CUEXP_VARMETA_WSIZE_WIDTH));
 
     cufo_init();

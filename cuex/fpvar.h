@@ -28,7 +28,7 @@ CU_BEGIN_DECLARATIONS
  * and type.  Note that local functions, if supported by the application, may
  * have clashing variables, and this must be dealt with when traversing
  * expression trees.  It this is not feasible, it is suggested to give up
- * hash-cons equivalence and use \ref cuex_tvar_s "cuex_tvar_t" instead. */
+ * hash-cons equivalence and use \ref cuex_tvar "cuex_tvar_t" instead. */
 
 #define cuex_fpvarmeta(index)						\
     cuex_varmeta_kqis(cuex_varkind_fpvar, cuex_qcode_u, index,		\
@@ -36,7 +36,7 @@ CU_BEGIN_DECLARATIONS
 #define cuex_is_fpvarmeta(meta) cuex_is_varmeta_k(meta, cuex_varkind_fpvar)
 
 /*!A formal parameter variable. */
-struct cuex_fpvar_s
+struct cuex_fpvar
 {
     CUOO_HCOBJ
     cuex_t type;

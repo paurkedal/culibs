@@ -31,9 +31,9 @@ test()
     int N = 10000;
     cu_word_t i;
     cu_word_t const *p;
-    struct cucon_hzset_s set;
+    struct cucon_hzset set;
     divides_t divides;
-    struct cucon_hzset_itr_s itr;
+    struct cucon_hzset_itr itr;
     int count;
 
     /* Build set. */

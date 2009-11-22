@@ -41,46 +41,26 @@
 	((void)((ptr)->_vbase_##base_s = vbase))
 
 #define cu_base_offset(sup, base) \
-	offsetof(struct sup##_s, _base_##base##_s)
+	offsetof(struct sup, _base_##base)
 
-#define cu_to(b1, o) (&(o)->_base_##b1##_s)
+#define cu_to(b1, o) (&(o)->CU_BASE_FIELD(b1))
 #define cu_to2(b2, b1, o) cu_to(b2, cu_to(b1, o))
 #define cu_to3(b3, b2, b1, o) cu_to(b3, cu_to2(b2, b1, o))
 #define cu_to4(b4, b3, b2, b1, o) cu_to(b4, cu_to3(b3, b2, b1, o))
+#define cu_to5(b5, b4, b3, b2, b1, o) cu_to(b5, cu_to4(b4, b3, b2, b1, o))
+#define cu_to_virtual(base_s, o) ((o)->_vbase_##base_s)
 
-#define cu_from(s1, s0, o)						\
-    ((struct s1##_s *)((char *)CU_MARG(struct s0##_s *, o)		\
-		       - offsetof(struct s1##_s, _base_##s0##_s)))
-#define cu_from2(s2, s1, s0, o)						\
+#define cu_from(s1, s0, o) \
+    ((struct s1 *)((char *)CU_MARG(struct s0 *, o) \
+		   - offsetof(struct s1, _base_##s0)))
+#define cu_from2(s2, s1, s0, o) \
     cu_from(s2, s1, cu_from(s1, s0, o))
-#define cu_from3(s3, s2, s1, s0, o)					\
+#define cu_from3(s3, s2, s1, s0, o) \
     cu_from(s3, s2, cu_from2(s2, s1, s0, o))
-#define cu_from4(s4, s3, s2, s1, s0, o)					\
+#define cu_from4(s4, s3, s2, s1, s0, o) \
     cu_from(s4, s3, cu_from3(s3, s2, s1, s0, o))
-
-#define cu_upcast(base_s, o) (&(o)->CU_BASE_FIELD(base_s))
-#define cu_upcast2(t0, t1, o) \
-    cu_upcast(t0, cu_upcast(t1, (o)))
-#define cu_upcast3(t0, t1, t2, o) \
-    cu_upcast(t0, cu_upcast2(t1, t2, (o)))
-#define cu_upcast4(t0, t1, t2, t3, o) \
-    cu_upcast(t0, cu_upcast3(t1, t2, t3, (o)))
-#define cu_upcast5(t0, t1, t2, t3, t4, o) \
-    cu_upcast(t0, cu_upcast4(t1, t2, t3, t4, (o)))
-#define cu_upcast_virtual(base_s, o) ((o)->_vbase_##base_s)
-
-#define cu_downcast(sub_s, base_s, o)					\
-    ((struct sub_s *)((char*)CU_MARG(struct base_s *, o)		\
-		      - offsetof(struct sub_s, CU_BASE_FIELD(base_s))))
-#define cu_downcast2(s0, s1, s2, o) \
-    cu_downcast(s0, s1, cu_downcast(s1, s2, (o)))
-#define cu_downcast3(s0, s1, s2, s3, o) \
-    cu_downcast(s0, s1, cu_downcast2(s1, s2, s3, (o)))
-#define cu_downcast4(s0, s1, s2, s3, s4, o) \
-    cu_downcast(s0, s1, cu_downcast3(s1, s2, s3, s4, (o)))
-#define cu_downcast5(s0, s1, s2, s3, s4, s5, o) \
-    cu_downcast(s0, s1, cu_downcast4(s1, s2, s3, s4, s5, (o)))
-/* For cu_downcast_virtual(sub_s, base_s, o) see "old/object.h". */
+#define cu_from5(s0, s1, s2, s3, s4, s5, o) \
+    cu_sub(s0, s1, cu_sub4(s1, s2, s3, s4, s5, (o)))
 
 /** @} */
 #endif

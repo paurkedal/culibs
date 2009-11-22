@@ -180,23 +180,23 @@ typedef int cu_countdiff_t;
 /* Compound Types
  * -------------- */
 
-typedef struct cu_buffer_s	*cu_buffer_t;		/* buffer.h */
-typedef struct cu_dlink_s	*cu_dlink_t;		/* dlink.h */
-typedef struct cu_dbufsink_s	*cu_dbufsink_t;		/* dsink.h */
-typedef struct cu_dcountsink_s	*cu_dcountsink_t;	/* dsink.h */
-typedef struct cu_dsink_s	*cu_dsink_t;		/* dsink.h */
-typedef struct cu_dsource_s	*cu_dsource_t;		/* dsource.h */
-typedef struct cu_idr_s		*cu_idr_t;		/* idr.h */
-typedef struct cu_log_facility_s*cu_log_facility_t;	/* logging.h */
-typedef struct cu_ptr_array_source_s *cu_ptr_array_source_t; /* ptr_seq.h */
-typedef struct cu_ptr_source_s	*cu_ptr_source_t;	/* ptr_seq.h */
-typedef struct cu_ptr_sink_s	*cu_ptr_sink_t;		/* ptr_seq.h */
-typedef struct cu_ptr_junction_s*cu_ptr_junction_t;	/* ptr_seq.h */
-typedef struct cu_ptr_sinktor_s *cu_ptr_sinktor_t;	/* ptr_seq.h */
-typedef struct cu_ptr_junctor_s *cu_ptr_junctor_t;	/* ptr_seq.h */
-typedef struct cu_sref_s	*cu_sref_t;		/* srcref.h */
-typedef struct cu_str_s		*cu_str_t;		/* str.h */
-typedef struct cu_wstring_s	*cu_wstring_t;		/* wstring.h */
+typedef struct cu_buffer	*cu_buffer_t;		/* buffer.h */
+typedef struct cu_dlink		*cu_dlink_t;		/* dlink.h */
+typedef struct cu_dbufsink	*cu_dbufsink_t;		/* dsink.h */
+typedef struct cu_dcountsink	*cu_dcountsink_t;	/* dsink.h */
+typedef struct cu_dsink		*cu_dsink_t;		/* dsink.h */
+typedef struct cu_dsource	*cu_dsource_t;		/* dsource.h */
+typedef struct cu_idr		*cu_idr_t;		/* idr.h */
+typedef struct cu_log_facility	*cu_log_facility_t;	/* logging.h */
+typedef struct cu_ptr_array_source *cu_ptr_array_source_t; /* ptr_seq.h */
+typedef struct cu_ptr_source	*cu_ptr_source_t;	/* ptr_seq.h */
+typedef struct cu_ptr_sink	*cu_ptr_sink_t;		/* ptr_seq.h */
+typedef struct cu_ptr_junction	*cu_ptr_junction_t;	/* ptr_seq.h */
+typedef struct cu_ptr_sinktor	*cu_ptr_sinktor_t;	/* ptr_seq.h */
+typedef struct cu_ptr_junctor	*cu_ptr_junctor_t;	/* ptr_seq.h */
+typedef struct cu_sref		*cu_sref_t;		/* srcref.h */
+typedef struct cu_str		*cu_str_t;		/* str.h */
+typedef struct cu_wstring	*cu_wstring_t;		/* wstring.h */
 
 
 /* Declarations of Some Common Functions
@@ -210,4 +210,7 @@ void cu_init(void);
 /** @} */
 CU_END_DECLARATIONS
 
+#ifndef CU_NCOMPAT
+#  include <cu/compat.h>
+#endif
 #endif

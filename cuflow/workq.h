@@ -28,9 +28,9 @@ CU_BEGIN_DECLARATIONS
 /*!The type of function which can be queued on work queues. */
 typedef cu_clop0(cuflow_workq_fn_t, void);
 
-typedef struct cuflowP_workqseg_s *cuflowP_workqseg_t;
+typedef struct cuflowP_workqseg *cuflowP_workqseg_t;
 
-struct cuflow_workq_s
+struct cuflow_workq
 {
     cuflowP_workqseg_t head_seg;
     cuflow_workq_fn_t *head_cur;

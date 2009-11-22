@@ -45,7 +45,7 @@ cucon_arr_init(cucon_arr_t arr, cu_bool_t is_atomic, size_t init_size)
 cucon_arr_t
 cucon_arr_new(cu_bool_t is_atomic, size_t init_size)
 {
-    cucon_arr_t arr = cu_gnew(struct cucon_arr_s);
+    cucon_arr_t arr = cu_gnew(struct cucon_arr);
     cucon_arr_init(arr, is_atomic, init_size);
     return arr;
 }
@@ -61,7 +61,7 @@ cucon_arr_init_empty(cucon_arr_t arr)
 cucon_arr_t
 cucon_arr_new_empty(void)
 {
-    cucon_arr_t arr = cu_gnew(struct cucon_arr_s);
+    cucon_arr_t arr = cu_gnew(struct cucon_arr);
     cucon_arr_init_empty(arr);
     return arr;
 }
@@ -77,7 +77,7 @@ cucon_arr_init_size(cucon_arr_t arr, size_t size)
 cucon_arr_t
 cucon_arr_new_size(size_t size)
 {
-    cucon_arr_t arr = cu_gnew(struct cucon_arr_s);
+    cucon_arr_t arr = cu_gnew(struct cucon_arr);
     cucon_arr_init_size(arr, size);
     return arr;
 }

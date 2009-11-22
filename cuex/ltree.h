@@ -92,13 +92,13 @@ cu_bool_t cuex_ltree_forall(cu_clop(fn, cu_bool_t, cuex_t), cuex_t tree);
 
 /*!Opaque iterator type to be initialised with \ref cuex_ltree_itr_init_full or
  * \ref cuex_ltree_itr_init_slice. */
-struct cuex_ltree_itr_s
+struct cuex_ltree_itr
 {
     size_t i_cur;
     size_t i_end;
     cuex_t stack[CUEXP_OA_LTREE_DEPTH_MAXP];
 };
-typedef struct cuex_ltree_itr_s cuex_ltree_itr_t;
+typedef struct cuex_ltree_itr cuex_ltree_itr_t;
 
 /*!Construct \a itr to iterate over all elements of \a tree. */
 void cuex_ltree_itr_init_full(cuex_ltree_itr_t *itr, cuex_t tree);

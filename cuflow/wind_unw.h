@@ -27,14 +27,14 @@
 CU_BEGIN_DECLARATIONS
 
 
-typedef struct cuflowP_windstate_s *cuflowP_windstate_t;
-struct cuflowP_windstate_s
+typedef struct cuflowP_windstate *cuflowP_windstate_t;
+struct cuflowP_windstate
 {
     cuflowP_windargs_t windargs;
 };
 
-typedef struct cuflowP_fninfo_s *cuflowP_fninfo_t;
-struct cuflowP_fninfo_s
+typedef struct cuflowP_fninfo *cuflowP_fninfo_t;
+struct cuflowP_fninfo
 {
     unw_word_t key;
     cuflowP_fninfo_t next;
@@ -47,7 +47,7 @@ void cuflowP_wind_init_function(int *done_init, cuflowP_windstate_t wst,
 
 #define cuflowP_wind_gotos(on_unw, on_rew, on_xc)			\
     static int cuflowL_done_init = 0;					\
-    static struct cuflowP_fninfo_s cuflowL_fninfo;			\
+    static struct cuflowP_fninfo cuflowL_fninfo;			\
     cuflowP_windargs_t cuflowL_windargs = NULL;				\
     if (!cuflowL_done_init) {						\
 	cuflowP_wind_init_function(&cuflowL_done_init,			\

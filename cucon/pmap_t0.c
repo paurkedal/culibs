@@ -73,7 +73,7 @@ test_isecn_union()
 {
     size_t N = 10000;
     size_t n;
-    struct cucon_umap_s S, T;
+    struct cucon_umap S, T;
     size_t S_cnt = 0;
     size_t T_cnt = 0;
     uintptr_t sum = 0;

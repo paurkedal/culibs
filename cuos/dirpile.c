@@ -34,7 +34,7 @@ cuos_dirpile_init(cuos_dirpile_t pile)
 cuos_dirpile_t
 cuos_dirpile_new(void)
 {
-    cuos_dirpile_t pile = cu_gnew(struct cuos_dirpile_s);
+    cuos_dirpile_t pile = cu_gnew(struct cuos_dirpile);
     cuos_dirpile_init(pile);
     return pile;
 }
@@ -50,7 +50,7 @@ cuos_dirpile_init_sub(cuos_dirpile_t pile,
 cuos_dirpile_t
 cuos_dirpile_new_sub(cuos_dirpile_t src_pile, cu_str_t src_subdir)
 {
-    cuos_dirpile_t pile = cu_gnew(struct cuos_dirpile_s);
+    cuos_dirpile_t pile = cu_gnew(struct cuos_dirpile);
     cuos_dirpile_init_sub(pile, src_pile, src_subdir);
     return pile;
 }

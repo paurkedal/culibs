@@ -26,13 +26,13 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_pritree cucon/pritree.h: Priority Queues (Tree-Based, Priority Stored Directly)
  * @{\ingroup cucon_misc_mod */
 
-struct cucon_pritree_s
+struct cucon_pritree
 {
     cucon_prinode_t front;
     size_t size;
 };
 
-struct cucon_prinode_s
+struct cucon_prinode
 {
     double priority;
     cucon_prinode_t prior;

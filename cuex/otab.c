@@ -92,7 +92,7 @@ cuex_otab_init(cuex_otab_t tab, int width,
     all = cu_from2(cuex_otab_range, cuex_otab_simplerange, cuex_otab_def,
 		   otab_allocdef(tab, cu_idr_by_cstr("__all"), NULL,
 				 cuex_otab_range_kind,
-				 sizeof(struct cuex_otab_range_s)));
+				 sizeof(struct cuex_otab_range)));
     SIMPLERANGE(all)->super = NULL;
     SIMPLERANGE(all)->range_low_bit = 0;
     SIMPLERANGE(all)->range_min = 0;
@@ -111,7 +111,7 @@ cuex_otab_t
 cuex_otab_new(int width,
 	      void (*error)(cuex_otab_t, cu_sref_t, char const *msg, ...))
 {
-    cuex_otab_t tab = cu_gnew(struct cuex_otab_s);
+    cuex_otab_t tab = cu_gnew(struct cuex_otab);
     cuex_otab_init(tab, width, error);
     return tab;
 }
@@ -194,7 +194,7 @@ cuex_otab_defrange(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
     cuex_otab_def_t def;
     cuex_otab_range_t rng;
     def = otab_allocdef(tab, idr, sref, cuex_otab_range_kind,
-			sizeof(struct cuex_otab_range_s));
+			sizeof(struct cuex_otab_range));
     if (!def)
 	return NULL;
     rng = cu_from2(cuex_otab_range, cuex_otab_simplerange, cuex_otab_def, def);
@@ -236,7 +236,7 @@ cuex_otab_defprop(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
 	return NULL;
     }
     def = otab_allocdef(tab, idr, sref, cuex_otab_prop_kind,
-			sizeof(struct cuex_otab_prop_s));
+			sizeof(struct cuex_otab_prop));
     if (!def)
 	return NULL;
     prop = cu_from(cuex_otab_prop, cuex_otab_def, def);
@@ -257,7 +257,7 @@ cuex_otab_reserve(cuex_otab_t tab, cu_sref_t sref, cuex_otab_range_t super,
     cuex_otab_def_t def;
     cuex_otab_reservation_t rsv;
     def = otab_allocdef(tab, NULL, sref, cuex_otab_reservation_kind,
-			sizeof(struct cuex_otab_reservation_s));
+			sizeof(struct cuex_otab_reservation));
     rsv = cu_from2(cuex_otab_reservation, cuex_otab_simplerange,
 		   cuex_otab_def, def);
     if (!simplerange_init(tab, cu_to(cuex_otab_simplerange, rsv),
@@ -300,7 +300,7 @@ cu_clos_def(alloc_in_reservation,
 	    cu_debug_assert(cucon_bitvect_at(&rsv->multi_freemask,
 					     index));
 	    cucon_bitvect_set_at(&rsv->multi_freemask, index, cu_false);
-	    i = cucon_arr_size(&rsv->freemask)/sizeof(struct cucon_bitvect_s);
+	    i = cucon_arr_size(&rsv->freemask)/sizeof(struct cucon_bitvect);
 	    bv = cucon_arr_ref_at(&rsv->freemask, 0);
 	    while (i--) {
 		cu_debug_assert(cucon_bitvect_at(bv, index));
@@ -309,11 +309,11 @@ cu_clos_def(alloc_in_reservation,
 	}
     }
     else {
-	i = cucon_arr_size(&rsv->freemask)/sizeof(struct cucon_bitvect_s);
+	i = cucon_arr_size(&rsv->freemask)/sizeof(struct cucon_bitvect);
 	if (i <= self->r) {
 	    bv = cucon_arr_extend_gp(&rsv->freemask,
 				     (self->r + 1 - i)
-				     * sizeof(struct cucon_bitvect_s));
+				     * sizeof(struct cucon_bitvect));
 	    cu_dlogf(_file, "RSV %p: Expanding to arity %d", rsv, self->r);
 	    do
 		cucon_bitvect_init_copy(bv++, &rsv->multi_freemask);
@@ -322,7 +322,7 @@ cu_clos_def(alloc_in_reservation,
 	}
 	else
 	    bv = cucon_arr_ref_at(&rsv->freemask,
-				  self->r*sizeof(struct cucon_bitvect_s));
+				  self->r*sizeof(struct cucon_bitvect));
 	index = cucon_bitvect_find(bv, 0, cu_true);
 	if (index != (size_t)-1)
 	    cucon_bitvect_set_at(bv, index, cu_false);
@@ -349,7 +349,7 @@ cuex_otab_defopr(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
     cuex_otab_def_t def;
     cuex_otab_opr_t op;
     def = otab_allocdef(tab, idr, sref, cuex_otab_opr_kind,
-			sizeof(struct cuex_otab_opr_s));
+			sizeof(struct cuex_otab_opr));
     if (!def)
 	return NULL;
     op = cu_from(cuex_otab_opr, cuex_otab_def, def);
@@ -766,7 +766,7 @@ cuex_otab_print_std_sources(cuex_otab_t tab, cu_str_t path_h, cu_str_t path_c)
 	    "#include <cuex/oprinfo.h>\n"
 	    "#include <%s.h>\n"
 	    "%s\n"
-	    "static struct cuex_oprinfo_s oprinfo_arr[] = {\n",
+	    "static struct cuex_oprinfo oprinfo_arr[] = {\n",
 	    cu_str_to_cstr(tab_cpath),
 	    tab->c_prologue? cu_str_to_cstr(tab->c_prologue) : "");
 

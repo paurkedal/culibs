@@ -22,7 +22,7 @@
 typedef struct _link *_link_t;
 struct _link
 {
-    cu_inherit (cu_dlink_s);
+    cu_inherit (cu_dlink);
     int value;
 };
 
@@ -56,7 +56,7 @@ _new_cycle_upto(int n)
 static int
 _value(cu_dlink_t l)
 {
-    return cu_downcast(_link, cu_dlink_s, l)->value;
+    return cu_downcast(_link, cu_dlink, l)->value;
 }
 
 int

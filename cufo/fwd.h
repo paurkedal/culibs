@@ -24,20 +24,20 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cufo_fwd_h cufo/fwd.h: Forward Declarations
  *@{\ingroup cufo_mod */
 
-typedef struct cufo_prispec_s *cufo_prispec_t;
-typedef struct cufo_stream_s *cufo_stream_t;
+typedef struct cufo_prispec *cufo_prispec_t;
+typedef struct cufo_stream *cufo_stream_t;
 
-typedef struct cufo_tag_s *cufo_tag_t;
-typedef struct cufo_namespace_s *cufo_namespace_t;
-typedef struct cufo_attr_s *cufo_attr_t;
-typedef struct cufo_attrbind_s *cufo_attrbind_t;
+typedef struct cufo_tag *cufo_tag_t;
+typedef struct cufo_namespace *cufo_namespace_t;
+typedef struct cufo_attr *cufo_attr_t;
+typedef struct cufo_attrbind *cufo_attrbind_t;
 
-typedef struct cufo_termface_s *cufo_termface_t;
-typedef struct cufo_termstyle_s *cufo_termstyle_t;
-typedef struct cufo_textsink_s *cufo_textsink_t;
+typedef struct cufo_termface *cufo_termface_t;
+typedef struct cufo_termstyle *cufo_termstyle_t;
+typedef struct cufo_textsink *cufo_textsink_t;
 
-typedef struct cufo_textstyle_s *cufo_textstyle_t;
-typedef struct cufo_textstyler_s *cufo_textstyler_t;
+typedef struct cufo_textstyle *cufo_textstyle_t;
+typedef struct cufo_textstyler *cufo_textstyler_t;
 
 /** Initialises \c libcufo, as is mandatory before before using the library.
  ** You may also want to call this function even if you don't use \c libcufo
@@ -50,4 +50,7 @@ void cufo_init(void);
 /*!@}*/
 CU_END_DECLARATIONS
 
+#ifndef CU_NCOMPAT
+#  include <cufo/compat.h>
+#endif
 #endif

@@ -30,7 +30,7 @@ extern cuoo_type_t cufoP_namespace_type, cufoP_tag_type;
 /*!\defgroup cufo_tag_h cufo/tag.h: Tags for Light-Weight Markup
  *@{\ingroup cufo_mod */
 
-struct cufo_namespace_s;
+struct cufo_namespace;
 
 CU_SINLINE cufo_namespace_t cufo_namespace(char const *url)
 { return (cufo_namespace_t)cu_idr_by_cstr(url); }
@@ -46,7 +46,7 @@ cufo_namespace_url(cufo_namespace_t ns)
 CU_SINLINE cufo_namespace_t cufo_culibs_namespace(void)
 { return cufoP_culibs_namespace; }
 
-struct cufo_tag_s
+struct cufo_tag
 {
     CUOO_HCOBJ
     cufo_namespace_t ns;

@@ -33,7 +33,7 @@ cucon_pritree_init(cucon_pritree_t pritree)
 cucon_pritree_t
 cucon_pritree_new()
 {
-    cucon_pritree_t pritree = cu_gnew(struct cucon_pritree_s);
+    cucon_pritree_t pritree = cu_gnew(struct cucon_pritree);
     pritree->front = NULL;
     pritree->size = 0;
     return pritree;

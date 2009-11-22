@@ -60,7 +60,7 @@ typedef cu_clop(cu_log_binder_t, cu_bool_t, cu_log_facility_t new_facility);
 /** A logging facility, which combines a printf-style format callback with
  ** various meta information which said function can use to determine whether,
  ** where, and how to log. */
-struct cu_log_facility_s
+struct cu_log_facility
 {
     unsigned int severity : 8;	/* Actual type is cu_log_severity_t. */
     unsigned int origin : 8;	/* Actual type is cu_log_origin_t. */
@@ -70,7 +70,7 @@ struct cu_log_facility_s
     cu_vlogf_t vlogf;
 };
 
-/** Expands to an initialiser for \ref cu_log_facility_s. */
+/** Expands to an initialiser for \ref cu_log_facility. */
 #define CU_LOG_FACILITY_INITIALISER(severity, origin, keys, flags) \
     { severity, origin, flags, keys, NULL, NULL }
 

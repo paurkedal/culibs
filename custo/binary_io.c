@@ -315,7 +315,7 @@ custo_fread_str_init(cu_str_t str, FILE *file)
 cu_str_t
 custo_fread_str_new(FILE *file)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     custo_fread_str_init(str, file);
     return str;
 }

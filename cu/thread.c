@@ -25,20 +25,20 @@ cu_dlog_def(_file, "dtag=cu.thread");
 
 cu_mutex_t cuP_pmutex_arr[cuP_PMUTEX_CNT];
 
-typedef struct _thread_data_s {
+typedef struct _thread_data {
     void *(*cf)(void *);
     void *cd;
 } *_thread_data_t;
 
-typedef struct cuP_thread_atexit_node_s *_thread_atexit_node_t;
-struct cuP_thread_atexit_node_s
+typedef struct cuP_thread_atexit_node *_thread_atexit_node_t;
+struct cuP_thread_atexit_node
 {
     _thread_atexit_node_t next;
     cu_clop0(fn, void);
 };
 
-static struct cu_iter_hook_s _thread_entry_hook;
-static struct cu_iter_hook_s _thread_exit_hook;
+static struct cu_iter_hook _thread_entry_hook;
+static struct cu_iter_hook _thread_exit_hook;
 
 #ifdef CUCONF_HAVE_THREAD_KEYWORD
 static __thread cu_bool_t _thread_init_done = cu_false;
@@ -82,7 +82,7 @@ int
 cu_pthread_create(pthread_t *th_out, pthread_attr_t const *attrs,
 		  void *(*cf)(void *), void *cd)
 {
-    _thread_data_t subcd = cu_gnew(struct _thread_data_s);
+    _thread_data_t subcd = cu_gnew(struct _thread_data);
     subcd->cf = cf;
     subcd->cd = cd;
     return GC_pthread_create(th_out, attrs, _thread_start, subcd);
@@ -133,7 +133,7 @@ cu_thread_atexit(cu_clop0(fn, void))
 {
     cuP_tstate_t tstate = cuP_tstate();
     _thread_atexit_node_t node;
-    node = cu_unew(struct cuP_thread_atexit_node_s);
+    node = cu_unew(struct cuP_thread_atexit_node);
     node->fn = fn;
     node->next = tstate->atexit_chain;
     tstate->atexit_chain = node;

@@ -23,8 +23,8 @@
 #include <time.h>
 #include <stdio.h>
 
-typedef struct _frame_s *_frame_t;
-struct _frame_s
+typedef struct _frame *_frame_t;
+struct _frame
 {
     long data[4];
 };
@@ -35,7 +35,7 @@ static void
 _benchmark(int N, int I)
 {
     int n, i, j;
-    struct cucon_stack_s stack;
+    struct cucon_stack stack;
     clock_t t_grow = 0, t_access = 0;
     _frame_t frame;
     int sum = 0;
@@ -44,7 +44,7 @@ _benchmark(int N, int I)
 	t_grow -= clock();
 	cucon_stack_init(&stack);
 	for (n = 0; n < N; ++n) {
-	    frame = cucon_stack_alloc(&stack, sizeof(struct _frame_s));
+	    frame = cucon_stack_alloc(&stack, sizeof(struct _frame));
 	    for (j = 0; j < 4; ++j)
 		frame->data[j] = n;
 	}
@@ -52,7 +52,7 @@ _benchmark(int N, int I)
 
 	t_access -= clock();
 	for (n = 0; n < N; ++n) {
-	    frame = cucon_stack_at(&stack, n*sizeof(struct _frame_s));
+	    frame = cucon_stack_at(&stack, n*sizeof(struct _frame));
 	    for (j = 0; j < 4; ++j)
 		sum += frame->data[j];
 	}

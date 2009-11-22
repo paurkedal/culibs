@@ -43,12 +43,12 @@ struct cuflow_worker_s
 
 static pthread_mutex_t		work_mutex = CU_MUTEX_INITIALISER;
 static pthread_cond_t		work_cond = PTHREAD_COND_INITIALIZER;
-static struct cucon_priq_s	work_atq;
-static struct cucon_list_s	work_nowlist;
-static struct cucon_list_s	work_scheduler_list;
+static struct cucon_priq	work_atq;
+static struct cucon_list	work_nowlist;
+static struct cucon_list	work_scheduler_list;
 
 static pthread_mutex_t		workers_mutex = CU_MUTEX_INITIALISER;
-static struct cucon_list_s	workers_list; /* of struct cucon_worker_s */
+static struct cucon_list	workers_list; /* of struct cuflow_worker_s */
 static AO_t			workers_count = 0;
 
 /* Other parts doing "on signal" work can increment this when there is work to

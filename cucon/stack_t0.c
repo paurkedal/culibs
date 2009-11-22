@@ -24,9 +24,9 @@ main()
 {
     void *ptr;
     int i;
-    struct cucon_stack_s stack;
-    struct cucon_stack_s stack_cp;
-    struct cucon_stack_itr_s itr;
+    struct cucon_stack stack;
+    struct cucon_stack stack_cp;
+    struct cucon_stack_itr itr;
 
     cu_init();
 

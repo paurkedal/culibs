@@ -57,7 +57,7 @@ cucon_hmap_t
 cucon_hmap_new(cu_clop(eq, cu_bool_t, void const *, void const *),
 	       cu_clop(hash, cu_hash_t, void const *))
 {
-    cucon_hmap_t map = cu_galloc(sizeof(struct cucon_hmap_s));
+    cucon_hmap_t map = cu_galloc(sizeof(struct cucon_hmap));
     cucon_hmap_init(map, eq, hash);
     return map;
 }
@@ -115,7 +115,7 @@ cucon_hmap_insert_mem(cucon_hmap_t map, void const *key,
 	}
 	node = node->next;
     }
-    node = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_hmap_node_s) + slot_size);
+    node = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_hmap_node) + slot_size);
     node->key = key;
     node->next = map->table[idx];
     map->table[idx] = node;

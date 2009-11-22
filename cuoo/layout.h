@@ -28,7 +28,7 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_layout_h cuoo/layout.h: Packing Memory-Layout Allocator
  * @{\ingroup cuoo_mod */
 
-struct cuoo_layout_s
+struct cuoo_layout
 {
     CUOO_HCOBJ
     cuoo_layout_t prefix;

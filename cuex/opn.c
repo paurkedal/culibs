@@ -169,7 +169,7 @@ cu_ptr_source_t
 cuex_opn_ncomm_source(cuex_t e)
 {
     cuex_opn_source_t src;
-    src = cu_gnew(struct cuex_opn_source_s);
+    src = cu_gnew(struct cuex_opn_source);
     cuex_opn_ncomm_source_init(src, e);
     return cu_to(cu_ptr_source, src);
 }
@@ -285,7 +285,7 @@ cu_ptr_source_t
 cuex_opn_comm_source(cuex_t e)
 {
     cuex_opn_source_t src;
-    src = cu_gnew(struct cuex_opn_source_s);
+    src = cu_gnew(struct cuex_opn_source);
     cuex_opn_comm_source_init(src, e);
     return cu_to(cu_ptr_source, src);
 }

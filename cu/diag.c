@@ -32,7 +32,7 @@ static AO_t _error_count;
 static AO_t _warning_count;
 
 enum {FI_VERB, FI_WARN, FI_ERR, FI_DEBUG, FI_BUG};
-static struct cu_log_facility_s _log_facility_arr[] = {
+static struct cu_log_facility _log_facility_arr[] = {
     {CU_LOG_INFO,	CU_LOG_USER},
     {CU_LOG_WARNING,	CU_LOG_USER},
     {CU_LOG_ERROR,	CU_LOG_USER},

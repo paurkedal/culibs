@@ -28,13 +28,13 @@ cu_idr_t
 cu_idr_by_cstr(char const *cstr)
 {
     size_t cstr_size = strlen(cstr) + 1;
-    size_t key_size = CUOO_HCOBJ_KEY_SIZE(sizeof(struct cu_idr_s) + cstr_size);
+    size_t key_size = CUOO_HCOBJ_KEY_SIZE(sizeof(struct cu_idr) + cstr_size);
     cu_idr_t idr = cu_salloc(key_size + CUOO_HCOBJ_SHIFT);
     char *a_cstr = (char *)(idr + 1);
     idr->key_size = key_size;
     memcpy(a_cstr, cstr, cstr_size);
     memset(a_cstr + cstr_size, 0,
-	   key_size - sizeof(struct cu_idr_s) - cstr_size + CUOO_HCOBJ_SHIFT);
+	   key_size - sizeof(struct cu_idr) - cstr_size + CUOO_HCOBJ_SHIFT);
     idr = cuoo_halloc(cu_idr_type(), key_size, (char *)idr + CUOO_HCOBJ_SHIFT);
     return idr;
 }
@@ -43,13 +43,13 @@ cu_idr_t
 cu_idr_by_charr(char const *arr, size_t charr_size)
 {
     size_t cstr_size = charr_size + 1;
-    size_t key_size = CUOO_HCOBJ_KEY_SIZE(sizeof(struct cu_idr_s) + cstr_size);
+    size_t key_size = CUOO_HCOBJ_KEY_SIZE(sizeof(struct cu_idr) + cstr_size);
     cu_idr_t idr = cu_salloc(key_size + CUOO_HCOBJ_SHIFT);
     char *a_arr = (char *)(idr + 1);
     idr->key_size = key_size;
     memcpy(a_arr, arr, charr_size);
     memset(a_arr + charr_size, 0,
-	   key_size - sizeof(struct cu_idr_s) - charr_size + CUOO_HCOBJ_SHIFT);
+	   key_size - sizeof(struct cu_idr) - charr_size + CUOO_HCOBJ_SHIFT);
     idr = cuoo_halloc(cu_idr_type(), key_size, (char *)idr + CUOO_HCOBJ_SHIFT);
     return idr;
 }

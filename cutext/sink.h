@@ -32,7 +32,7 @@ CU_BEGIN_DECLARATIONS
  **
  ** A data sink is said to be <i>clog-free</i> if it's write-callback is
  ** guaranteed to always cosume all data provided to it.  Data sinks derived
- ** form \ref cutext_sink_s may or may not be clog-free.  This property may be
+ ** form \ref cutext_sink may or may not be clog-free.  This property may be
  ** essential to some callers, and since this is not checked at compile time,
  ** it's recommendable that
  ** <ul>
@@ -62,8 +62,8 @@ CU_SINLINE cu_bool_t
 cutext_sink_info_key_inherits(cutext_sink_info_key_t key)
 { return key & 1; }
 
-struct cufo_tag_s;
-struct cufo_attrbind_s;
+struct cufo_tag;
+struct cufo_attrbind;
 
 typedef struct cutext_sink_descriptor_s *cutext_sink_descriptor_t;
 struct cutext_sink_descriptor_s
@@ -76,9 +76,9 @@ struct cutext_sink_descriptor_s
     void (*discard)(cutext_sink_t);
     cu_bool_t (*iterA_subsinks)(cutext_sink_t, cu_clop(f, cu_bool_t, cutext_sink_t));
     cu_box_t (*info)(cutext_sink_t, cutext_sink_info_key_t);
-    cu_bool_t (*enter)(cutext_sink_t, struct cufo_tag_s *,
-		       struct cufo_attrbind_s *);
-    void (*leave)(cutext_sink_t, struct cufo_tag_s *);
+    cu_bool_t (*enter)(cutext_sink_t, struct cufo_tag *,
+		       struct cufo_attrbind *);
+    void (*leave)(cutext_sink_t, struct cufo_tag *);
 };
 
 #define CUTEXT_SINK_FLAG_CLOGFREE 1
@@ -95,7 +95,7 @@ struct cutext_sink_descriptor_s
     .leave = cutext_sink_noop_leave
 
 /** Base struct for data sinks. */
-struct cutext_sink_s
+struct cutext_sink
 {
     cutext_sink_descriptor_t descriptor;
 };
@@ -201,9 +201,9 @@ cu_bool_t cutext_sink_subsinks_flush(cutext_sink_t);
 cu_bool_t cutext_sink_empty_iterA_subsinks(cutext_sink_t,
 					cu_clop(f, cu_bool_t, cutext_sink_t));
 cu_box_t cutext_sink_default_info(cutext_sink_t, cutext_sink_info_key_t);
-cu_bool_t cutext_sink_noop_enter(cutext_sink_t, struct cufo_tag_s *,
-				 struct cufo_attrbind_s *);
-void cutext_sink_noop_leave(cutext_sink_t, struct cufo_tag_s *);
+cu_bool_t cutext_sink_noop_enter(cutext_sink_t, struct cufo_tag *,
+				 struct cufo_attrbind *);
+void cutext_sink_noop_leave(cutext_sink_t, struct cufo_tag *);
 
 /** @} */
 /** \name Sink Implementations
@@ -233,9 +233,9 @@ cutext_sink_t cutext_sink_stack_iconv(char const *new_encoding,
 				      cutext_sink_t subsink);
 
 /** A sink which counts the number of bytes written. */
-struct cutext_countsink_s
+struct cutext_countsink
 {
-    cu_inherit (cutext_sink_s);
+    cu_inherit (cutext_sink);
     ssize_t count;
 };
 
@@ -252,10 +252,10 @@ cutext_countsink_count(cutext_countsink_t sink)
 { return sink->count; }
 
 /** A sink which copy the data written into a buffer. */
-struct cutext_buffersink_s
+struct cutext_buffersink
 {
-    cu_inherit (cutext_sink_s);
-    struct cu_buffer_s buffer;
+    cu_inherit (cutext_sink);
+    struct cu_buffer buffer;
 };
 
 CU_SINLINE cutext_sink_t

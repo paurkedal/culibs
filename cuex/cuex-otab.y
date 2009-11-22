@@ -20,20 +20,20 @@
 #include <argp.h>
 #include <errno.h>
 
-typedef struct ot_intrange_s *ot_intrange_t;
-typedef struct ot_state_s *ot_state_t;
-typedef union ot_value_u *ot_value_t;
+typedef struct ot_intrange *ot_intrange_t;
+typedef struct ot_state *ot_state_t;
+typedef union ot_value *ot_value_t;
 
-struct ot_intrange_s
+struct ot_intrange
 {
     cuex_meta_t min;
     cuex_meta_t maxp1;
 };
 
-struct ot_state_s
+struct ot_state
 {
     cuex_otab_t otab;
-    struct cu_sref_s sref;
+    struct cu_sref sref;
     FILE *in;
     cu_bool_t is_extern;
     int error_cnt;
@@ -61,7 +61,7 @@ void ot_state_defoption(ot_state_t state, cu_sref_t sref,
 static int yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state);
 static void yyerror(cu_sref_t loc, ot_state_t state, char const *msg);
 
-#define YYLTYPE struct cu_sref_s
+#define YYLTYPE struct cu_sref
 #define YYLLOC_DEFAULT(lhs, rhs, n)					\
     do {								\
 	if (n)								\
@@ -79,7 +79,7 @@ static void yyerror(cu_sref_t loc, ot_state_t state, char const *msg);
 %lex-param {ot_state_t state}
 %initial-action { cu_sref_cct_copy(&@$, &state->sref); }
 
-%union ot_value_u {
+%union ot_value {
     int i;
     cu_idr_t idr;
     ot_intrange_t intrange;
@@ -169,19 +169,19 @@ times_expr:
 intrange:
     int_expr CTO int_expr
     {
-	$$ = cu_gnew(struct ot_intrange_s);
+	$$ = cu_gnew(struct ot_intrange);
 	$$->min = $1;
 	$$->maxp1 = $3 + 1;
     }
   | int_expr LTO int_expr
     {
-	$$ = cu_gnew(struct ot_intrange_s);
+	$$ = cu_gnew(struct ot_intrange);
 	$$->min = $1;
 	$$->maxp1 = $3;
     }
   | int_expr RTO int_expr
     {
-	$$ = cu_gnew(struct ot_intrange_s);
+	$$ = cu_gnew(struct ot_intrange);
 	$$->min = $1 + 1;
 	$$->maxp1 = $3;
     }
@@ -281,7 +281,7 @@ yyerror(cu_sref_t loc, ot_state_t state, char const *msg)
     cu_errf_at(loc, "%s", msg);
 }
 
-static struct cucon_pmap_s ot_keyword_map;
+static struct cucon_pmap ot_keyword_map;
 
 static int
 yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
@@ -460,7 +460,7 @@ ot_error_cb(cuex_otab_t tab, cu_sref_t sref, char const *msg, ...)
 int
 ot_parse_file(cuex_otab_t tab, cu_str_t path, cucon_list_t import_paths)
 {
-    struct ot_state_s state;
+    struct ot_state state;
     state.import_paths = import_paths;
     state.error_cnt = 0;
     state.otab = tab;
@@ -579,18 +579,18 @@ ot_init()
 /* Main
  * ==== */
 
-struct main_opts_s
+struct main_opts
 {
     char const *path;
     char const *out_base;
     cu_bool_t update;
-    struct cucon_list_s import_paths;
+    struct cucon_list import_paths;
 };
 
 error_t
 main_parseopt(int key, char *arg, struct argp_state *state)
 {
-    struct main_opts_s *opts = state->input;
+    struct main_opts *opts = state->input;
     switch (key) {
 	case ARGP_KEY_ARG:
 	    if (opts->path)
@@ -635,7 +635,7 @@ int
 main(int argc, char **argv)
 {
     cuex_otab_t otab;
-    struct main_opts_s main_opts;
+    struct main_opts main_opts;
     int err_cnt;
     cucon_init();
     ot_init();

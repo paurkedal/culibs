@@ -33,7 +33,7 @@ void
 _test_iter()
 {
     int i, iS, iE;
-    struct cu_iter_hook_s hook;
+    struct cu_iter_hook hook;
     _test_iter_func_t f[N_FUNC];
 
     cu_iter_hook_init(&hook);
@@ -65,7 +65,7 @@ void
 _test_iterA_ptr()
 {
     int i, iS, iE, arg[2];
-    struct cu_iterA_ptr_hook_s hook;
+    struct cu_iterA_ptr_hook hook;
     _test_iterA_ptr_func_t f[N_FUNC];
 
     cu_iterA_ptr_hook_init(&hook);

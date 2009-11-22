@@ -19,9 +19,10 @@
 #include <cuos/fs.h>
 #include <cu/str.h>
 #include <cu/test.h>
+#include <stdio.h>
 
-void
-test_dirpile()
+static void
+_test_dirpile()
 {
     cuos_dirpile_t pile = cuos_dirpile_new();
     cu_str_t path_a = cu_str_new_cstr("tmp.dirpile_t0/a");
@@ -48,6 +49,6 @@ int
 main()
 {
     cuos_init();
-    test_dirpile();
+    _test_dirpile();
     return 2*!!cu_test_bug_count();
 }

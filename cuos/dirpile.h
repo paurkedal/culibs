@@ -32,9 +32,9 @@ CU_BEGIN_DECLARATIONS
  **/
 
 /** A "pile" of directories for prioritized searches of relative paths. */
-struct cuos_dirpile_s
+struct cuos_dirpile
 {
-    struct cucon_list_s top_dirs;
+    struct cucon_list top_dirs;
 };
 
 /** Initialise an empty pile of directories. */

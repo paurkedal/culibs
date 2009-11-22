@@ -25,10 +25,10 @@
 
 #define IC_WRITE_BUFSIZE 2048
 
-typedef struct _iconvsink_s *_iconvsink_t;
-struct _iconvsink_s
+typedef struct _iconvsink *_iconvsink_t;
+struct _iconvsink
 {
-    cu_inherit (cutext_sink_s);
+    cu_inherit (cutext_sink);
     cutext_sink_t subsink;
     iconv_t cd;
     char const *encoding;
@@ -124,15 +124,15 @@ _iconv_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 }
 
 static cu_bool_t
-_iconv_enter(cutext_sink_t sink, struct cufo_tag_s *tag,
-	     struct cufo_attrbind_s *attrbinds)
+_iconv_enter(cutext_sink_t sink, struct cufo_tag *tag,
+	     struct cufo_attrbind *attrbinds)
 {
     cutext_sink_t subsink = ICSINK(sink)->subsink;
     return (*subsink->descriptor->enter)(subsink, tag, attrbinds);
 }
 
 static void
-_iconv_leave(cutext_sink_t sink, struct cufo_tag_s *tag)
+_iconv_leave(cutext_sink_t sink, struct cufo_tag *tag)
 {
     cutext_sink_t subsink = ICSINK(sink)->subsink;
     (*subsink->descriptor->leave)(subsink, tag);
@@ -155,7 +155,7 @@ cutext_sink_t
 cutext_sink_stack_iconv(char const *new_encoding, cutext_sink_t subsink)
 {
     char const *sub_encoding = cutext_sink_encoding(subsink);
-    _iconvsink_t sink = cu_gnew(struct _iconvsink_s);
+    _iconvsink_t sink = cu_gnew(struct _iconvsink);
     if (sub_encoding == NULL)
 	cu_bugf("The subsink passed to cutext_sink_open_iconv must report "
 		"its encoding.");

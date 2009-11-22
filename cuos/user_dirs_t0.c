@@ -20,6 +20,7 @@
 #include <cuos/fs.h>
 #include <cu/test.h>
 #include <cu/str.h>
+#include <cu/thread.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -45,7 +46,7 @@ extern cu_installdirs_t cuconfP_installdirs;
 static void
 _show_pkg_user_dirs(cu_bool_t use_instdirs)
 {
-    struct cuos_pkg_user_dirs_s udirs
+    struct cuos_pkg_user_dirs udirs
 	= CUOS_PKG_USER_DIRS_INITZ("libfoo", "LIBFOO",
 				   use_instdirs? cuconfP_installdirs : NULL);
     cuos_pkg_user_dirs_ensure_init(&udirs);

@@ -24,9 +24,9 @@
 
 CU_BEGIN_DECLARATIONS
 
-struct cudyn_ctortype_s
+struct cudyn_ctortype
 {
-    cu_inherit (cuoo_type_s);
+    cu_inherit (cuoo_type);
     cudyn_duntype_t fulltype;
     cudyn_tuptype_t parttype;
 };

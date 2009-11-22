@@ -28,7 +28,7 @@ CU_BEGIN_DECLARATIONS
  * a file, with either line-precision or column-precision.
  */
 
-struct cu_sref_s
+struct cu_sref
 {
     cu_sref_t chain_tail;
     cu_str_t path;

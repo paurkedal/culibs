@@ -43,14 +43,14 @@ CU_BEGIN_DECLARATIONS
  * \deprecated Replaced by the \ref cugra_mod "cugra" library.
  */
 
-struct cucon_digraph_vertex_s
+struct cucon_digraph_vertex
 {
-    struct cucon_list_s output_edges;
+    struct cucon_list output_edges;
 };
 
-struct cucon_digraph_edge_s
+struct cucon_digraph_edge
 {
-    struct cucon_listnode_s as_output;
+    struct cucon_listnode as_output;
     cucon_digraph_vertex_t src;
     cucon_digraph_vertex_t dst;
 };
@@ -76,11 +76,11 @@ typedef unsigned int cucon_digraph_opt_t;
 /* The digraph has no loops (a binary or of the two above). */
 #define cucon_digraph_opt_no_loops		0x30
 
-struct cucon_digraph_s
+struct cucon_digraph
 {
     cucon_digraph_opt_t options;
-    struct cucon_list_s vertices;	/* of struct cucon_digraph_vertex_s */
-    struct cucon_list_s edges;	/* of struct cucon_digraph_edge_s */
+    struct cucon_list vertices;	/* of struct cucon_digraph_vertex */
+    struct cucon_list edges;	/* of struct cucon_digraph_edge */
 #ifdef CUCONF_ENABLE_THREADS
     cu_mutex_t mutex;
 #endif
@@ -157,7 +157,7 @@ typedef cucon_listnode_t cucon_digraph_all_vertices_it_t;
 #define cuconP_OUTEDGE(e)						\
 	((cucon_digraph_edge_t)						\
 	 (cu_ptr_sub((void *)e,						\
-		     offsetof(struct cucon_digraph_edge_s, as_output))))
+		     offsetof(struct cucon_digraph_edge, as_output))))
 #define cuconP_OUTEDGE_TO_IT(e)						\
 	(&CU_MARG(cucon_digraph_edge_t, e)->as_output)
 

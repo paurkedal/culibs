@@ -222,29 +222,29 @@ _empty_sink_put(cu_ptr_sink_t sink, void *ptr)
     cu_bugf("Tried to return value to empty junctor.");
 }
 
-struct cu_ptr_source_s cuP_empty_ptr_source = {_empty_source_get};
-struct cu_ptr_sink_s cuP_empty_ptr_sink = {_empty_sink_put};
-struct cu_ptr_junction_s cuP_empty_ptr_junction = {
+struct cu_ptr_source cuP_empty_ptr_source = {_empty_source_get};
+struct cu_ptr_sink cuP_empty_ptr_sink = {_empty_sink_put};
+struct cu_ptr_junction cuP_empty_ptr_junction = {
     {_empty_source_get}, {_empty_sink_put}
 };
 
-struct cu_empty_ptr_junctor_s
+struct _empty_ptr_junctor
 {
-    cu_inherit (cu_ptr_junctor_s);
+    cu_inherit (cu_ptr_junctor);
     void *result;
 };
 
 static void *
 _empty_junctor_finish(cu_ptr_junctor_t jct)
 {
-    return cu_from(cu_empty_ptr_junctor, cu_ptr_junctor, jct)->result;
+    return cu_from(_empty_ptr_junctor, cu_ptr_junctor, jct)->result;
 }
 
 cu_ptr_junctor_t
 cu_empty_ptr_junctor(void *result)
 {
-    struct cu_empty_ptr_junctor_s *jct;
-    jct = cu_gnew(struct cu_empty_ptr_junctor_s);
+    struct _empty_ptr_junctor *jct;
+    jct = cu_gnew(struct _empty_ptr_junctor);
     jct->result = result;
     cu_ptr_junctor_init(cu_to(cu_ptr_junctor, jct),
 			_empty_source_get, _empty_sink_put,
@@ -255,10 +255,10 @@ cu_empty_ptr_junctor(void *result)
 
 /* Adaptor: Junction from Source and Sink */
 
-typedef struct _junction_from_source_sink_s *_junction_from_source_sink_t;
-struct _junction_from_source_sink_s
+typedef struct _junction_from_source_sink *_junction_from_source_sink_t;
+struct _junction_from_source_sink
 {
-    cu_inherit (cu_ptr_junction_s);
+    cu_inherit (cu_ptr_junction);
     cu_ptr_source_t source;
     cu_ptr_sink_t sink;
 };
@@ -285,7 +285,7 @@ cu_ptr_junction_t
 cu_ptr_junction_from_source_sink(cu_ptr_source_t source, cu_ptr_sink_t sink)
 {
     _junction_from_source_sink_t self;
-    self = cu_gnew(struct _junction_from_source_sink_s);
+    self = cu_gnew(struct _junction_from_source_sink);
     cu_ptr_junction_init(cu_to(cu_ptr_junction, self),
 			 _junction_from_source_sink_get,
 			 _junction_from_source_sink_put);
@@ -297,10 +297,10 @@ cu_ptr_junction_from_source_sink(cu_ptr_source_t source, cu_ptr_sink_t sink)
 
 /* Adaptor: Junctor from Source and Sinktor */
 
-typedef struct _junctor_from_source_sinktor_s *_junctor_from_source_sinktor_t;
-struct _junctor_from_source_sinktor_s
+typedef struct _junctor_from_source_sinktor *_junctor_from_source_sinktor_t;
+struct _junctor_from_source_sinktor
 {
-    cu_inherit (cu_ptr_junctor_s);
+    cu_inherit (cu_ptr_junctor);
     cu_ptr_source_t source;
     cu_ptr_sinktor_t sinktor;
 };
@@ -336,7 +336,7 @@ cu_ptr_junctor_from_source_sinktor(cu_ptr_source_t source,
 				   cu_ptr_sinktor_t sinktor)
 {
     _junctor_from_source_sinktor_t self;
-    self = cu_gnew(struct _junctor_from_source_sinktor_s);
+    self = cu_gnew(struct _junctor_from_source_sinktor);
     cu_ptr_junctor_init(cu_to(cu_ptr_junctor, self),
 			_junctor_from_source_sinktor_get,
 			_junctor_from_source_sinktor_put,
@@ -370,7 +370,7 @@ cu_ptr_array_source_init(cu_ptr_array_source_t src, void **begin, void **end)
 cu_ptr_source_t
 cu_ptr_source_from_array(void **begin, void **end)
 {
-    cu_ptr_array_source_t src = cu_gnew(struct cu_ptr_array_source_s);
+    cu_ptr_array_source_t src = cu_gnew(struct cu_ptr_array_source);
     cu_ptr_array_source_init(src, begin, end);
     return cu_to(cu_ptr_source, src);
 }

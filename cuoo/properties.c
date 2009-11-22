@@ -20,8 +20,8 @@
 #include <cuoo/intf.h>
 #include <cu/sref.h>
 
-struct cuoo_prop_s cuooP_raw_c_name_prop;
-struct cuoo_prop_s cuooP_sref_prop;
+struct cuoo_prop cuooP_raw_c_name_prop;
+struct cuoo_prop cuooP_sref_prop;
 
 void
 cuoo_sref_push(cuex_t ex, cu_sref_t sref)

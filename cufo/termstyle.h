@@ -32,7 +32,7 @@ CU_BEGIN_DECLARATIONS
 #define CUFO_TERMFACE_BOLD 16
 #define CUFO_TERMFACE_REVERSE 32
 
-struct cufo_termface_s
+struct cufo_termface
 {
     uint_least8_t enables;
     uint_least8_t booleans;
@@ -68,9 +68,9 @@ CU_SINLINE void cufo_termface_set_reverse(cufo_termface_t face, cu_bool_t val)
 { cufo_termface_set_bool(face, CUFO_TERMFACE_REVERSE, val); }
 
 
-struct cufo_termstyle_s
+struct cufo_termstyle
 {
-    struct cucon_pmap_s face_map;
+    struct cucon_pmap face_map;
 };
 
 void cufo_termstyle_init(cufo_termstyle_t style);

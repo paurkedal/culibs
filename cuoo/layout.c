@@ -448,7 +448,7 @@ cuooP_layout_init()
     cu_offset_t ignore;
     cuooP_layout_type =
 	cuoo_type_new_opaque_hcs(_layout_impl,
-			     sizeof(struct cuoo_layout_s) - CUOO_HCOBJ_SHIFT);
+			     sizeof(struct cuoo_layout) - CUOO_HCOBJ_SHIFT);
     cuooP_layout_ptr = cuoo_layout_pack_bits(NULL,
 					  sizeof(void *)*8,
 					  sizeof(void *)*8, &ignore);

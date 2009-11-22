@@ -27,9 +27,9 @@ CU_BEGIN_DECLARATIONS
 
 typedef cu_clop(cutext_producer_t, cutext_status_t, void **p, size_t size);
 
-struct cutext_src_s
+struct cutext_src
 {
-    struct cu_buffer_s buf;
+    struct cu_buffer buf;
     cutext_producer_t produce;
 };
 

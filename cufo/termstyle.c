@@ -33,7 +33,7 @@
  * register our log binder, so don't use extended format specifiers here. */
 cu_dlog_def(_file, "dtag=cufo.termstyle");
 
-extern struct cuos_pkg_user_dirs_s cufoP_user_dirs;
+extern struct cuos_pkg_user_dirs cufoP_user_dirs;
 
 static struct { char const *name; unsigned int mask; } _booleans[] = {
     {"italic",    CUFO_TERMFACE_ITALIC},
@@ -47,13 +47,13 @@ static struct { char const *name; unsigned int mask; } _booleans[] = {
 void
 cufo_termface_init(cufo_termface_t face)
 {
-    memset(face, 0, sizeof(struct cufo_termface_s));
+    memset(face, 0, sizeof(struct cufo_termface));
 }
 
 cufo_termface_t
 cufo_termface_new()
 {
-    cufo_termface_t face = cu_gnew(struct cufo_termface_s);
+    cufo_termface_t face = cu_gnew(struct cufo_termface);
     cufo_termface_init(face);
     return face;
 }
@@ -153,7 +153,7 @@ cufo_termstyle_init(cufo_termstyle_t style)
 cufo_termstyle_t
 cufo_termstyle_new(void)
 {
-    cufo_termstyle_t style = cu_gnew(struct cufo_termstyle_s);
+    cufo_termstyle_t style = cu_gnew(struct cufo_termstyle);
     cufo_termstyle_init(style);
     return style;
 }
@@ -169,7 +169,7 @@ cufo_termstyle_ref(cufo_termstyle_t style, cufo_tag_t tag)
 {
     cufo_termface_t face;
     if (cucon_pmap_insert_mem(&style->face_map, tag,
-			      sizeof(struct cufo_termstyle_s), &face))
+			      sizeof(struct cufo_termstyle), &face))
 	cufo_termface_init(face);
     return face;
 }
@@ -177,7 +177,7 @@ cufo_termstyle_ref(cufo_termstyle_t style, cufo_tag_t tag)
 static void
 _termstyle_loadinto(cufo_termstyle_t style, cu_str_t path, FILE *in)
 {
-    struct cu_sref_s loc;
+    struct cu_sref loc;
     cu_sref_init(&loc, path, 0, -1);
     for (;;) {
 	char buf[160];

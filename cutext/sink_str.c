@@ -102,7 +102,7 @@ static struct cutext_sink_descriptor_s _strsink_descriptor = {
 cutext_sink_t
 cutext_sink_new_wstring()
 {
-    cutext_buffersink_t sink = cu_gnew(struct cutext_buffersink_s);
+    cutext_buffersink_t sink = cu_gnew(struct cutext_buffersink);
     cutext_sink_init(cu_to(cutext_sink, sink), &_wstringsink_descriptor);
     cu_buffer_init(&sink->buffer, 32);
     return cu_to(cutext_sink, sink);
@@ -111,7 +111,7 @@ cutext_sink_new_wstring()
 cutext_sink_t
 cutext_sink_new_str(void)
 {
-    cutext_buffersink_t sink = cu_gnew(struct cutext_buffersink_s);
+    cutext_buffersink_t sink = cu_gnew(struct cutext_buffersink);
     cutext_sink_init(cu_to(cutext_sink, sink), &_strsink_descriptor);
     cu_buffer_init(&sink->buffer, 16);
     return cu_to(cutext_sink, sink);

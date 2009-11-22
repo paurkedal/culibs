@@ -22,74 +22,75 @@
 
 #define N_ALLOC 0x2000000
 
-CU_SINLINE void ignore_pointer(void *ptr) {}
+CU_SINLINE void _ignore_pointer(void *ptr) {}
 
-typedef struct test_s *test_t;
-struct test_s
+typedef struct _test *_test_t;
+struct _test
 {
     CUOO_HCOBJ
     int arg0;
     int arg1;
 };
 
-cuoo_type_t _test_type;
-CU_SINLINE cuoo_type_t test_type()
-{ return _test_type; }
+static cuoo_type_t _g_test_type;
 
-void
-test_GC_malloc(int alloc_count)
+CU_SINLINE cuoo_type_t _test_type()
+{ return _g_test_type; }
+
+static void
+_test_GC_malloc(int alloc_count)
 {
     int i;
     for (i = 0; i < alloc_count; ++i) {
-	test_t o = GC_malloc(sizeof(struct test_s));
+	_test_t o = GC_malloc(sizeof(struct _test));
 	o->arg0 = i;
 	o->arg1 = i;
     }
 }
 
-void
-test_onew(int alloc_count)
+static void
+_test_onew(int alloc_count)
 {
     int i;
     for (i = 0; i < alloc_count; ++i) {
-	test_t o = cuoo_onew(test);
+	_test_t o = cuoo_onew(_test);
 	o->arg0 = i;
 	o->arg1 = i;
     }
 }
 
-void
-test_hnew_noneq(int alloc_count)
+static void
+_test_hnew_noneq(int alloc_count)
 {
     int i;
     for (i = 0; i < alloc_count; ++i) {
-	cuoo_hctem_decl(test, tem);
-	cuoo_hctem_init(test, tem);
-	cuoo_hctem_get(test, tem)->arg0 = i;
-	cuoo_hctem_get(test, tem)->arg1 = i;
-	ignore_pointer(cuoo_hctem_new(test, tem));
+	cuoo_hctem_decl(_test, tem);
+	cuoo_hctem_init(_test, tem);
+	cuoo_hctem_get(_test, tem)->arg0 = i;
+	cuoo_hctem_get(_test, tem)->arg1 = i;
+	_ignore_pointer(cuoo_hctem_new(_test, tem));
     }
 }
 
-void
-test_hnew_eq(int alloc_count)
+static void
+_test_hnew_eq(int alloc_count)
 {
     int i;
     for (i = 0; i < alloc_count; ++i) {
-	cuoo_hctem_decl(test, tem);
-	cuoo_hctem_init(test, tem);
-	cuoo_hctem_get(test, tem)->arg0 = 0;
-	cuoo_hctem_get(test, tem)->arg1 = 0;
-	ignore_pointer(cuoo_hctem_new(test, tem));
+	cuoo_hctem_decl(_test, tem);
+	cuoo_hctem_init(_test, tem);
+	cuoo_hctem_get(_test, tem)->arg0 = 0;
+	cuoo_hctem_get(_test, tem)->arg1 = 0;
+	_ignore_pointer(cuoo_hctem_new(_test, tem));
     }
 }
 
-void
-test_malloc_free(int alloc_count)
+static void
+_test_malloc_free(int alloc_count)
 {
     int i;
     for (i = 0; i < alloc_count; ++i) {
-	test_t o = malloc(sizeof(struct test_s));
+	_test_t o = malloc(sizeof(struct _test));
 	o->arg0 = i;
 	o->arg1 = i;
 	free(o);
@@ -105,8 +106,8 @@ struct thread_carg_s
     clock_t time_out;
 };
 
-void *
-thread_main(void *carg)
+static void *
+_thread_main(void *carg)
 {
 #define carg ((struct thread_carg_s *)carg)
     carg->time_out = -clock();
@@ -150,26 +151,26 @@ main(int argc, char **argv)
 
     switch (alloc_type) {
 	case 0:
-	    test = test_GC_malloc;
+	    test = _test_GC_malloc;
 	    break;
 	case 1:
-	    test = test_onew;
+	    test = _test_onew;
 	    break;
 	case 2:
-	    test = test_hnew_noneq;
+	    test = _test_hnew_noneq;
 	    break;
 	case 3:
-	    test = test_hnew_eq;
+	    test = _test_hnew_eq;
 	    break;
 	case 4:
-	    test = test_malloc_free;
+	    test = _test_malloc_free;
 	    break;
 	default:
 	    exit(2);
     }
 
-    _test_type = cuoo_type_new_opaque_hcs(
-	cuoo_impl_none, sizeof(struct test_s) - CUOO_HCOBJ_SHIFT);
+    _g_test_type = cuoo_type_new_opaque_hcs(
+	cuoo_impl_none, sizeof(struct _test) - CUOO_HCOBJ_SHIFT);
     printf("thread_count = %d, alloc_count = %d, alloc_type = %s\n",
 	   thread_count, alloc_count, alloc_name_arr[alloc_type]);
     t = -clock();
@@ -181,7 +182,7 @@ main(int argc, char **argv)
 	thread_arg[i].test = test;
 	thread_arg[i].alloc_type = alloc_type;
 	cu_thread_create(&thread_arg[i].thread, NULL,
-			 thread_main, &thread_arg[i]);
+			 _thread_main, &thread_arg[i]);
     }
     for (i = 0; i < thread_count; ++i)
 	cu_thread_join(thread_arg[i].thread, NULL);

@@ -83,8 +83,8 @@ typedef enum {
     CU_INSTALLDIR_NONE
 } cu_installdir_key_t;
 
-typedef struct cu_installdir_s *cu_installdir_t;
-struct cu_installdir_s
+typedef struct cu_installdir *cu_installdir_t;
+struct cu_installdir
 {
     char const *name;
     cu_installdir_key_t key;
@@ -95,7 +95,7 @@ struct cu_installdir_s
 };
 
 /** An array describing the installation directories of a package. */
-typedef struct cu_installdir_s cu_installdirs_t[CU_INSTALLDIR_NONE + 1];
+typedef struct cu_installdir cu_installdirs_t[CU_INSTALLDIR_NONE + 1];
 
 /** Set the installation directory indicated by \a key to \a dir.  The
  ** directory may be a prefix for other directories, in which case \ref

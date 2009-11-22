@@ -43,7 +43,7 @@ CU_BEGIN_DECLARATIONS
 /** \name API */
 
 /** A pointer sequence source. */
-struct cu_ptr_source_s
+struct cu_ptr_source
 {
     void *(*get)(cu_ptr_source_t self);
 };
@@ -64,7 +64,7 @@ cu_ptr_source_get(cu_ptr_source_t source)
 
 
 /** A pointer sequence sink. */
-struct cu_ptr_sink_s
+struct cu_ptr_sink
 {
     void (*put)(cu_ptr_sink_t self, void *elt);
 };
@@ -84,10 +84,10 @@ cu_ptr_sink_put(cu_ptr_sink_t sink, void *elt)
 
 
 /** A pointer sequence junction (source and sink). */
-struct cu_ptr_junction_s
+struct cu_ptr_junction
 {
-    cu_inherit (cu_ptr_source_s);
-    cu_inherit (cu_ptr_sink_s);
+    cu_inherit (cu_ptr_source);
+    cu_inherit (cu_ptr_sink);
 };
 
 /** Initialises the callbacks of \a junction. */
@@ -122,9 +122,9 @@ cu_ptr_junction_sink(cu_ptr_junction_t junction)
 
 
 /** A pointer sequence sink and constructor. */
-struct cu_ptr_sinktor_s
+struct cu_ptr_sinktor
 {
-    cu_inherit (cu_ptr_sink_s);
+    cu_inherit (cu_ptr_sink);
     void *(*finish)(cu_ptr_sinktor_t self);
 };
 
@@ -155,9 +155,9 @@ cu_ptr_sinktor_sink(cu_ptr_sinktor_t sinktor)
 
 
 /** A pointer sequence junction and constructor. */
-struct cu_ptr_junctor_s
+struct cu_ptr_junctor
 {
-    cu_inherit (cu_ptr_junction_s);
+    cu_inherit (cu_ptr_junction);
     void *(*finish)(cu_ptr_junctor_t self);
 };
 
@@ -213,9 +213,9 @@ cu_ptr_junction_t cu_ptr_junction_from_source_sink(cu_ptr_source_t source,
 cu_ptr_junctor_t cu_ptr_junctor_from_source_sinktor(cu_ptr_source_t source,
 						    cu_ptr_sinktor_t sinktor);
 
-struct cu_ptr_array_source_s
+struct cu_ptr_array_source
 {
-    cu_inherit (cu_ptr_source_s);
+    cu_inherit (cu_ptr_source);
     void **cur, **end;
 };
 
@@ -226,9 +226,9 @@ void cu_ptr_array_source_init(cu_ptr_array_source_t src,
 /** A source which fetches pointers from [\a begin, \a end). */
 cu_ptr_source_t cu_ptr_source_from_array(void **begin, void **end);
 
-extern struct cu_ptr_source_s cuP_empty_ptr_source;
-extern struct cu_ptr_sink_s cuP_empty_ptr_sink;
-extern struct cu_ptr_junction_s cuP_empty_ptr_junction;
+extern struct cu_ptr_source cuP_empty_ptr_source;
+extern struct cu_ptr_sink cuP_empty_ptr_sink;
+extern struct cu_ptr_junction cuP_empty_ptr_junction;
 
 /** A source which always returns \c NULL. */
 CU_SINLINE cu_ptr_source_t cu_empty_ptr_source()

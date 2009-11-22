@@ -89,15 +89,15 @@ cu_bool_t cuos_dirrec_conj_files(cu_str_t dname,
 cu_bool_t cuos_dirreccoll_conj_files(cu_str_t dname,
 				     cu_clop(cb, cu_bool_t, cu_str_t));
 
-/** \deprecated Use \ref cuos_dirpile_s. */
+/** \deprecated Use \ref cuos_dirpile. */
 cu_bool_t
 cuos_prefixsearch_conj(cucon_list_t prefixlist, cu_str_t suffix,
 		       cu_clop(cb, cu_bool_t, cu_str_t result));
 
-/** \deprecated Use \ref cuos_dirpile_s. */
+/** \deprecated Use \ref cuos_dirpile. */
 cu_str_t cuos_prefixsearch_first(cucon_list_t prefixlist, cu_str_t suffix);
 
-/** \deprecated Use \ref cuos_dirpile_s. */
+/** \deprecated Use \ref cuos_dirpile. */
 void cuos_prefixsearch_append_all(cucon_list_t prefixlist, cu_str_t suffix,
 				  cucon_list_t result);
 

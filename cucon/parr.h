@@ -30,9 +30,9 @@ CU_BEGIN_DECLARATIONS
  * \see cucon_arr_h
  */
 
-struct cucon_parr_s
+struct cucon_parr
 {
-    struct cucon_arr_s arr;
+    struct cucon_arr arr;
 };
 
 /** Initialises \a arr to as empty array. */

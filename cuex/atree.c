@@ -147,9 +147,9 @@ cu_clos_def(_order_kv_adaptor,
 		   cuex_opn_at(e0, 1), cuex_opn_at(e1, 1));
 }
 
-typedef struct cuex_anode_s *cuex_atree_t;
+typedef struct cuex_anode *cuex_atree_t;
 
-struct cuex_anode_s
+struct cuex_anode
 {
     CUOO_HCOBJ
     cu_word_t centre;
@@ -1365,5 +1365,5 @@ void
 cuexP_atree_init()
 {
     cuexP_anode_type = cuoo_type_new_opaque_hcs(
-	_atree_impl, sizeof(struct cuex_anode_s) - CUOO_HCOBJ_SHIFT);
+	_atree_impl, sizeof(struct cuex_anode) - CUOO_HCOBJ_SHIFT);
 }

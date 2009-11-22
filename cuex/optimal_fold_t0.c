@@ -57,7 +57,7 @@ cu_dlog_def(_file, "dtag=cuex.optimal_fold");
 #define MINIMISE cuex_optimal_fold
 #endif
 
-typedef struct _depth_eq_frame_s {
+typedef struct _depth_eq_frame {
     cuex_t e;
     int depth;
 } *_depth_eq_frame_t;
@@ -89,14 +89,14 @@ _depth_eq_aux(cuex_t e0, _depth_eq_frame_t muf0,
 	    }
 	}
 	else if (m0 == CUEX_O1_MU) {
-	    muf0 = cucon_frame_push(muf0, sizeof(struct _depth_eq_frame_s));
+	    muf0 = cucon_frame_push(muf0, sizeof(struct _depth_eq_frame));
 	    muf0->e = e0;
 	    muf0->depth = depth;
 	    e0 = cuex_opn_at(e0, 0);
 	    m0 = cuex_meta(e0);
 	}
 	if (cuex_og_binder_contains(m0)) {
-	    muf0 = cucon_frame_push(muf0, sizeof(struct _depth_eq_frame_s));
+	    muf0 = cucon_frame_push(muf0, sizeof(struct _depth_eq_frame));
 	    muf0->e = e0;
 	    muf0->depth = depth;
 	}
@@ -112,14 +112,14 @@ _depth_eq_aux(cuex_t e0, _depth_eq_frame_t muf0,
 	    }
 	}
 	else if (m1 == CUEX_O1_MU) {
-	    muf1 = cucon_frame_push(muf1, sizeof(struct _depth_eq_frame_s));
+	    muf1 = cucon_frame_push(muf1, sizeof(struct _depth_eq_frame));
 	    muf1->e = e1;
 	    muf1->depth = depth;
 	    e1 = cuex_opn_at(e1, 0);
 	    m1 = cuex_meta(e1);
 	}
 	if (cuex_og_binder_contains(m1)) {
-	    muf1 = cucon_frame_push(muf1, sizeof(struct _depth_eq_frame_s));
+	    muf1 = cucon_frame_push(muf1, sizeof(struct _depth_eq_frame));
 	    muf1->e = e1;
 	    muf1->depth = depth;
 	}
@@ -174,7 +174,7 @@ _depth_eq_aux(cuex_t e0, _depth_eq_frame_t muf0,
 	    }
 	    else {
 		cu_ptr_source_t ps;
-		struct cucon_list_s l0;
+		struct cucon_list l0;
 		ps = cuex_compound_comm_iter_source(ci, e0);
 		cucon_list_init(&l0);
 		while ((e0p = cu_ptr_source_get(ps)))
@@ -322,14 +322,14 @@ _unfold_random(cuex_t e, int *n, double x)
     return e;
 }
 
-struct _clock_avg_state_s
+struct _clock_avg_state
 {
     int count;
     clock_t time;
 };
 
 static void
-_test(struct _clock_avg_state_s *bench_arr)
+_test(struct _clock_avg_state *bench_arr)
 {
     static int run = 0;
     cuex_t e, ep, epp, eppp, eT;
@@ -395,7 +395,7 @@ main(int argc, char **argv)
 {
     FILE *out;
     int i;
-    struct _clock_avg_state_s bench_arr[PLOT_BIN_COUNT];
+    struct _clock_avg_state bench_arr[PLOT_BIN_COUNT];
     cuex_init();
 
     if (argc >= 2)

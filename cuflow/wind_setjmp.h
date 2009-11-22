@@ -28,29 +28,29 @@
 
 CU_BEGIN_DECLARATIONS
 
-typedef struct cuflowP_windstate_s *cuflowP_windstate_t;
+typedef struct cuflowP_windstate *cuflowP_windstate_t;
 
-struct cuflowP_windstate_s
+struct cuflowP_windstate
 {
     cuflowP_windstate_t prev;
     sigjmp_buf door;
     cuflowP_windargs_t windargs;
 };
 
-#define cuflowP_wind_gotos(on_unw, on_rew, on_xc)		\
-    struct cuflowP_windstate_s cuflowP_windstate;		\
-    cuflowP_push_windstate(&cuflowP_windstate);		\
-    if (sigsetjmp(cuflowP_windstate.door, 1))		\
-	switch (cuflowP_windstate.windargs->direction) {	\
-	case cuflow_wind_direction_unwind:		\
-	    on_unw;					\
-	case cuflow_wind_direction_rewind:		\
-	    on_rew;					\
-	case cuflow_wind_direction_except:		\
-	    on_xc;					\
-	default:					\
-	    assert(!"Not reached.");			\
-	    break;					\
+#define cuflowP_wind_gotos(on_unw, on_rew, on_xc)			\
+    struct cuflowP_windstate cuflowP_windstate;				\
+    cuflowP_push_windstate(&cuflowP_windstate);				\
+    if (sigsetjmp(cuflowP_windstate.door, 1))				\
+	switch (cuflowP_windstate.windargs->direction) {		\
+	    case cuflow_wind_direction_unwind:				\
+		on_unw;							\
+	    case cuflow_wind_direction_rewind:				\
+		on_rew;							\
+	    case cuflow_wind_direction_except:				\
+		on_xc;							\
+	    default:							\
+		assert(!"Not reached.");				\
+		break;							\
 	}
 
 CU_ATTR_NORETURN void cuflowP_unwind(cuflowP_windstate_t);
@@ -58,10 +58,10 @@ CU_ATTR_NORETURN void cuflowP_rewind(cuflowP_windstate_t);
 #define cuflow_rewind_continue cuflowP_rewind(&cuflowP_windstate)
 #define cuflow_unwind_continue cuflowP_unwind(&cuflowP_windstate)
 #define cuflow_except_continue cuflowP_unwind(&cuflowP_windstate)
-#define cuflow_wind_return(val)					\
-    do {							\
+#define cuflow_wind_return(val)						\
+    do {								\
 	cuP_tstate()->windstate = cuflowP_windstate.prev;		\
-	return val;						\
+	return val;							\
     } while (0)
 CU_ATTR_NORETURN void cuflowP_throw(cuflowP_windargs_t windargs);
 

@@ -34,9 +34,9 @@ CU_BEGIN_DECLARATIONS
 /* Red-black Tree Based Sets
  * ========================= */
 
-struct cucon_rbset_s
+struct cucon_rbset
 {
-    cu_inherit (cucon_rbtree_s);
+    cu_inherit (cucon_rbtree);
     cu_clop(cmp, int, void *, void *);
 };
 
@@ -63,7 +63,7 @@ cucon_rbset_t cucon_rbset_new_str_cmp(void);
 CU_SINLINE cu_bool_t
 cucon_rbset_insert(cucon_rbset_t rbset, void *key)
 {
-    return cucon_rbtree_insert2p_ptr(cu_upcast(cucon_rbtree_s, rbset),
+    return cucon_rbtree_insert2p_ptr(cu_upcast(cucon_rbtree, rbset),
 				     rbset->cmp, &key);
 }
 
@@ -71,7 +71,7 @@ cucon_rbset_insert(cucon_rbset_t rbset, void *key)
 CU_SINLINE cu_bool_t
 cucon_rbset_erase(cucon_rbset_t rbset, void *key)
 {
-    return cucon_rbtree_erase2p(cu_upcast(cucon_rbtree_s, rbset),
+    return cucon_rbtree_erase2p(cu_upcast(cucon_rbtree, rbset),
 				rbset->cmp, key) != NULL;
 }
 
@@ -79,7 +79,7 @@ cucon_rbset_erase(cucon_rbset_t rbset, void *key)
 CU_SINLINE void *
 cucon_rbset_find(cucon_rbset_t rbset, void *key)
 {
-    return cucon_rbtree_find2p_ptr(cu_upcast(cucon_rbtree_s, rbset),
+    return cucon_rbtree_find2p_ptr(cu_upcast(cucon_rbtree, rbset),
 				   rbset->cmp, key);
 }
 

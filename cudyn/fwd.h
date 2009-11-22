@@ -22,16 +22,19 @@
 
 CU_BEGIN_DECLARATIONS
 
-typedef struct cudyn_proto_s	*cudyn_proto_t;
-typedef struct cudyn_arrtype_s	*cudyn_arrtype_t;
-typedef struct cudyn_ctortype_s	*cudyn_ctortype_t;
-typedef struct cudyn_inltype_s	*cudyn_inltype_t;
-typedef struct cudyn_elmtype_s	*cudyn_elmtype_t;
-typedef struct cudyn_ptrtype_s	*cudyn_ptrtype_t;
-typedef struct cudyn_sngtype_s	*cudyn_sngtype_t;
-typedef struct cudyn_tuptype_s	*cudyn_tuptype_t;
-typedef struct cudyn_duntype_s	*cudyn_duntype_t;
+typedef struct cudyn_proto	*cudyn_proto_t;
+typedef struct cudyn_arrtype	*cudyn_arrtype_t;
+typedef struct cudyn_ctortype	*cudyn_ctortype_t;
+typedef struct cudyn_inltype	*cudyn_inltype_t;
+typedef struct cudyn_elmtype	*cudyn_elmtype_t;
+typedef struct cudyn_ptrtype	*cudyn_ptrtype_t;
+typedef struct cudyn_sngtype	*cudyn_sngtype_t;
+typedef struct cudyn_tuptype	*cudyn_tuptype_t;
+typedef struct cudyn_duntype	*cudyn_duntype_t;
 
 CU_END_DECLARATIONS
 
+#ifndef CU_NCOMPAT
+#  include <cu/compat.h>
+#endif
 #endif

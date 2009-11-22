@@ -160,7 +160,7 @@ _arrtype(cuex_t ex, cu_bool_t have_lock)
 {
     cudyn_arrtype_t t;
     t = cuoo_hxnew_setao(cudyn_arrtype, sizeof(cuex_t), &ex,
-			 offsetof(struct cudyn_inltype_s, layout), 0);
+			 offsetof(struct cudyn_inltype, layout), 0);
     if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
 	if (!have_lock)
 	    cu_mutex_lock(&_type_mutex);
@@ -322,7 +322,7 @@ _tuptype(cuex_t ex, cu_bool_t have_lock)
 {
     cudyn_tuptype_t t;
     t = cuoo_hxnew_setao(cudyn_tuptype, sizeof(cuex_t), &ex,
-			 offsetof(struct cudyn_inltype_s, layout), 0);
+			 offsetof(struct cudyn_inltype, layout), 0);
     if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
 	if (!have_lock)
 	    cu_mutex_lock(&_type_mutex);
@@ -478,7 +478,7 @@ _duntype(cuex_t ex, cu_bool_t have_lock)
 {
     cudyn_duntype_t t;
     t = cuoo_hxnew_setao(cudyn_duntype, sizeof(cuex_t), &ex,
-			 offsetof(struct cudyn_inltype_s, layout), 0);
+			 offsetof(struct cudyn_inltype, layout), 0);
     if (!AO_load_acquire_read(&cu_to(cudyn_inltype, t)->layout)) {
 	if (!have_lock)
 	    cu_mutex_lock(&_type_mutex);
@@ -508,9 +508,9 @@ _default_type(cuex_t ex)
 {
     cuoo_type_t t;
     t = cuoo_hxalloc_setao(cuoo_type_type(),
-			   sizeof(struct cuoo_type_s) + sizeof(AO_t),
+			   sizeof(struct cuoo_type) + sizeof(AO_t),
 			   sizeof(cuex_t), &ex,
-			   sizeof(struct cuoo_type_s), 0);
+			   sizeof(struct cuoo_type), 0);
     if (!AO_load_acquire_read((AO_t *)(t + 1)))
 	cuoo_type_init_general_hcs(t, CUOO_SHAPE_BY_EXPR,
 				   cuoo_impl_none, ex, cuex_type_size(ex));
@@ -591,7 +591,7 @@ cudynP_type_init()
 {
     cudynP_cuex_type = cuoo_type_new_opaque(cuoo_impl_none);
     cudynP_ptrtype_type = cuoo_type_new_metatype_hcs(
-	cuoo_impl_none, sizeof(struct cudyn_ptrtype_s) - CUOO_HCOBJ_SHIFT);
+	cuoo_impl_none, sizeof(struct cudyn_ptrtype) - CUOO_HCOBJ_SHIFT);
     cudynP_elmtype_type = cuoo_type_new_metatype(_elmtype_impl);
     cudynP_arrtype_type = cuoo_type_new_metatype_hce(cuoo_impl_none);
     cudynP_tuptype_type = cuoo_type_new_metatype_hce(_tuptype_impl);

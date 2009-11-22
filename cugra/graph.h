@@ -55,40 +55,40 @@ typedef enum {
     cugra_direction_END
 } cugra_direction_t;
 
-struct cugra_graph_s
+struct cugra_graph
 {
     unsigned int gflags;
-    struct cu_dlink_s vertices;
+    struct cu_dlink vertices;
 };
 
-struct cugra_graph_with_arcset_s
+struct cugra_graph_with_arcset
 {
-    cu_inherit (cugra_graph_s);
+    cu_inherit (cugra_graph);
     size_t arcset_size;
     size_t arcset_mask;
     struct cugraP_arcset_node_s **arcset_arr;
 };
 
-struct cugra_vertex_s
+struct cugra_vertex
 {
-    struct cu_dlink_s in_graph;
-    struct cu_dlink_s adj_link[2];
+    struct cu_dlink in_graph;
+    struct cu_dlink adj_link[2];
 };
 
 struct cugra_adjlink_s
 {
-    struct cu_dlink_s link;
+    struct cu_dlink link;
     cugra_vertex_t vertex;
 };
 
-struct cugra_arc_s
+struct cugra_arc
 {
     struct cugra_adjlink_s adj[2];
 };
 
-/* Offset of the cugra_adjlink_s.link inside a cugra_arc_s. */
+/* Offset of the cugra_adjlink_s.link inside a cugra_arc. */
 #define CUGRAP_ARC_ADJLINK_LINK_OFFSET(dir)		\
-      ( offsetof(struct cugra_arc_s, adj[0])		\
+      ( offsetof(struct cugra_arc, adj[0])		\
       + sizeof(struct cugra_adjlink_s)*(dir)		\
       + offsetof(struct cugra_adjlink_s, link) )
 
@@ -306,21 +306,21 @@ CU_SINLINE cugra_arc_t cugra_vertex_inarcs_next(cugra_arc_t e)
 CU_SINLINE cugra_vertex_t cugra_graph_vertices_begin(cugra_graph_t G)
 {
     return (cugra_vertex_t)cu_ptr_add(G->vertices.next,
-			-offsetof(struct cugra_vertex_s, in_graph));
+			-offsetof(struct cugra_vertex, in_graph));
 }
 
 /*!An end marker of the sequence of all vertices in \a G. */
 CU_SINLINE cugra_vertex_t cugra_graph_vertices_end(cugra_graph_t G)
 {
     return (cugra_vertex_t)cu_ptr_add(&G->vertices,
-			-offsetof(struct cugra_vertex_s, in_graph));
+			-offsetof(struct cugra_vertex, in_graph));
 }
 
 /*!The vertex after \a v in the sequence of all vertices of a graph. */
 CU_SINLINE cugra_vertex_t cugra_graph_vertices_next(cugra_vertex_t v)
 {
     return (cugra_vertex_t)cu_ptr_add(v->in_graph.next,
-			-offsetof(struct cugra_vertex_s, in_graph));
+			-offsetof(struct cugra_vertex, in_graph));
 }
 
 /*!The first of the sequence of all arcs of \a G. */

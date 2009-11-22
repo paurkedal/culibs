@@ -47,7 +47,7 @@ CU_BEGIN_DECLARATIONS
  * index-value pairs.
  */
 
-typedef struct cuex_intf_compound_s *cuex_intf_compound_t;
+typedef struct cuex_intf_compound *cuex_intf_compound_t;
 
 /*!Set if the non-commutative interface is preferable when an algorithm
  * supports both.
@@ -67,20 +67,20 @@ typedef struct cuex_intf_compound_s *cuex_intf_compound_t;
  * interface.  */
 #define CUEX_COMPOUNDFLAG_COMM_IDEMPOTENT 8
 
-/*!Set iff \ref cuex_intf_compound_s::ncomm_image_junctor allows dropping
+/*!Set iff \ref cuex_intf_compound::ncomm_image_junctor allows dropping
  * elements by omitting some calls to \ref cu_ptr_junction_put. */
 #define CUEX_COMPOUNDFLAG_NCOMM_FILTERABLE_IMAGE 16
 
-/*!Set iff \ref cuex_intf_compound_s::comm_image_junctor allows dropping
+/*!Set iff \ref cuex_intf_compound::comm_image_junctor allows dropping
  * elements by omitting some calls to \ref cu_ptr_junction_put. */
 #define CUEX_COMPOUNDFLAG_COMM_FILTERABLE_IMAGE 32
 
-/*!Set iff \ref cuex_intf_compound_s::ncomm_image_junctor allows adding extra
+/*!Set iff \ref cuex_intf_compound::ncomm_image_junctor allows adding extra
  * elements by calling \ref cu_ptr_junction_put more than once after a call to
  * \ref cu_ptr_junction_get. */
 #define CUEX_COMPOUNDFLAG_NCOMM_EXPANSIVE_IMAGE 64
 
-/*!Set iff \ref cuex_intf_compound_s::comm_image_junctor allows adding extra
+/*!Set iff \ref cuex_intf_compound::comm_image_junctor allows adding extra
  * elements by calling \ref cu_ptr_junction_put more than once after a call to
  * \ref cu_ptr_junction_get. */
 #define CUEX_COMPOUNDFLAG_COMM_EXPANSIVE_IMAGE 128
@@ -131,7 +131,7 @@ typedef struct cuex_intf_compound_s *cuex_intf_compound_t;
  * The \ref comm_union_sinktor may optionally be assigned whenever \ref
  * comm_build_sinktor is defined.
  */
-struct cuex_intf_compound_s
+struct cuex_intf_compound
 {
     unsigned int flags;
 
@@ -191,7 +191,7 @@ CU_SINLINE cuex_intf_compound_t cuex_type_compound(cuoo_type_t type)
 { return (cuex_intf_compound_t)cuoo_type_impl_ptr(type, CUEX_INTF_COMPOUND); }
 
 /*!Verifies that \a impl has been correctly initialised, and may synthesise
- * some missing fields as indicated in \ref cuex_intf_compound_s. */
+ * some missing fields as indicated in \ref cuex_intf_compound. */
 void cuex_intf_compound_finish(cuex_intf_compound_t impl);
 
 /*!Returns the number of elements in \a C. */

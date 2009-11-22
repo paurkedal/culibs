@@ -60,7 +60,7 @@ typedef cu_clop(cuflow_promise_initiator_t, void, cuflow_promise_t);
  * usually already be empty). */
 #define cuflow_promise_state_fulfilled 0x8000
 
-struct cuflow_promise_s
+struct cuflow_promise
 {
     AO_t state;
     union {

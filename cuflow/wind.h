@@ -30,8 +30,8 @@ typedef enum {
     cuflow_wind_direction_except,
 } cuflow_wind_direction_t;
 
-typedef struct cuflowP_windargs_s *cuflowP_windargs_t;
-struct cuflowP_windargs_s
+typedef struct cuflowP_windargs *cuflowP_windargs_t;
+struct cuflowP_windargs
 {
     cuflow_wind_direction_t direction;
     cu_fnptr_t xc_key;

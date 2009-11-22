@@ -30,7 +30,7 @@
 
 typedef struct SCC_vinfo_s *SCC_vinfo_t;
 struct SCC_vinfo_s {
-    cu_inherit (cucon_pmap_node_s);
+    cu_inherit (cucon_pmap_node);
     int index; /* Set to INT_MAX when popped from stack */
     SCC_vinfo_t next_vertex;
     void *cpt;
@@ -41,8 +41,8 @@ struct detect_SCC_state_s
 {
     cugra_direction_t dir;
     cugra_walk_SCC_t walk_struct;
-    struct cucon_pmap_s vinfo_map;
-    struct cucon_stack_s cpt_stack;
+    struct cucon_pmap vinfo_map;
+    struct cucon_stack cpt_stack;
     int index_pool;
     SCC_vinfo_t vertex_stack;
 };
@@ -143,7 +143,7 @@ graph_of_lists_cpt_new(cugra_detect_SCC_t base)
     cugra_vertex_t v;
     graph_of_lists_state_t self;
     self = cu_from(graph_of_lists_state, cugra_detect_SCC, base);
-    v = cugra_graph_vertex_new_mem(self->A, sizeof(struct cucon_list_s));
+    v = cugra_graph_vertex_new_mem(self->A, sizeof(struct cucon_list));
     cucon_list_init(cugra_vertex_mem(v));
     return v;
 }

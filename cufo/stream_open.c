@@ -27,7 +27,7 @@
 cufo_stream_t
 cufo_open_sink(cutext_sink_t sink)
 {
-    cufo_stream_t fos = cu_gnew(struct cufo_stream_s);
+    cufo_stream_t fos = cu_gnew(struct cufo_stream);
     char const *encoding = cutext_sink_encoding(sink);
     cufo_stream_init(fos, encoding, sink);
     return fos;

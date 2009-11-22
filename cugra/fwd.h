@@ -22,12 +22,15 @@
 
 CU_BEGIN_DECLARATIONS
 
-typedef struct cugra_graph_s *cugra_graph_t;
-typedef struct cugra_vertex_s *cugra_vertex_t;
-typedef struct cugra_arc_s *cugra_arc_t;
+typedef struct cugra_graph *cugra_graph_t;
+typedef struct cugra_vertex *cugra_vertex_t;
+typedef struct cugra_arc *cugra_arc_t;
 
 void cugra_init(void);
 
 CU_END_DECLARATIONS
 
+#ifndef CU_NCOMPAT
+#  include <cugra/compat.h>
+#endif
 #endif

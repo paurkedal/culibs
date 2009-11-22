@@ -26,7 +26,7 @@
 #include <cu/str.h>
 #include <cu/sref.h>
 
-struct cu_log_facility_s facility = {
+struct cu_log_facility facility = {
     .origin = CU_LOG_USER,
     .severity = CU_LOG_ERROR,
 };

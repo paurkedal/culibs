@@ -26,12 +26,12 @@
 
 #define WRITE_THRESHOLD 512
 
-typedef struct _bufsink_s *_bufsink_t;
-struct _bufsink_s
+typedef struct _bufsink *_bufsink_t;
+struct _bufsink
 {
-    cu_inherit (cutext_sink_s);
+    cu_inherit (cutext_sink);
     cutext_sink_t subsink;
-    struct cu_buffer_s buf;
+    struct cu_buffer buf;
 };
 
 static cu_bool_t
@@ -134,15 +134,15 @@ _bufsink_iterA_subsinks(cutext_sink_t sink_, cu_clop(f, cu_bool_t, cutext_sink_t
 }
 
 static cu_bool_t
-_bufsink_enter(cutext_sink_t sink_, struct cufo_tag_s *tag,
-	       struct cufo_attrbind_s *attrbinds)
+_bufsink_enter(cutext_sink_t sink_, struct cufo_tag *tag,
+	       struct cufo_attrbind *attrbinds)
 {
     _bufsink_t sink = cu_from(_bufsink, cutext_sink, sink_);
     return (*sink->subsink->descriptor->enter)(sink->subsink, tag, attrbinds);
 }
 
 static void
-_bufsink_leave(cutext_sink_t sink_, struct cufo_tag_s *tag)
+_bufsink_leave(cutext_sink_t sink_, struct cufo_tag *tag)
 {
     _bufsink_t sink = cu_from(_bufsink, cutext_sink, sink_);
     (*sink->subsink->descriptor->leave)(sink->subsink, tag);
@@ -164,7 +164,7 @@ static struct cutext_sink_descriptor_s _bufsink_descriptor = {
 cutext_sink_t
 cutext_sink_stack_buffer(cutext_sink_t subsink)
 {
-    _bufsink_t sink = cu_gnew(struct _bufsink_s);
+    _bufsink_t sink = cu_gnew(struct _bufsink);
     cutext_sink_init(cu_to(cutext_sink, sink), &_bufsink_descriptor);
     sink->subsink = subsink;
     cu_buffer_init(&sink->buf, WRITE_THRESHOLD*2);

@@ -21,31 +21,34 @@
 #include <cuoo/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuex_fwd_h cuex/fwd.h: Forward Declarations
- * @{\ingroup cuex_mod */
+/** \defgroup cuex_fwd_h cuex/fwd.h: Forward Declarations
+ ** @{ \ingroup cuex_mod */
 
-typedef struct cuex_fpvar_s	*cuex_fpvar_t;		/* fpvar.h */
-typedef struct cuex_gvar_s	*cuex_gvar_t;		/* gvar.h */
-typedef struct cuex_occurtree_s	*cuex_occurtree_t;	/* occurtree.h */
-typedef struct cuex_opn_s	*cuex_opn_t;		/* opn.h */
-typedef struct cuex_opn_source_s*cuex_opn_source_t;	/* opn.h */
-typedef struct cuex_oprinfo_s	*cuex_oprinfo_t;	/* oprinfo.h */
-typedef struct cuex_pvar_s	*cuex_pvar_t;		/* pvar.h */
-typedef struct cuex_subst_s	*cuex_subst_t;		/* subst.h */
-typedef struct cuex_veqv_s	*cuex_veqv_t;		/* subst.h */
-typedef struct cuex_tpvar_s	*cuex_tpvar_t;		/* tpvar.h */
-typedef struct cuex_tvar_s	*cuex_tvar_t;		/* tvar.h */
-typedef struct cuex_var_s	*cuex_var_t;		/* var.h */
+typedef struct cuex_fpvar	*cuex_fpvar_t;		/* fpvar.h */
+typedef struct cuex_gvar	*cuex_gvar_t;		/* gvar.h */
+typedef struct cuex_occurtree	*cuex_occurtree_t;	/* occurtree.h */
+typedef struct cuex_opn		*cuex_opn_t;		/* opn.h */
+typedef struct cuex_opn_source	*cuex_opn_source_t;	/* opn.h */
+typedef struct cuex_oprinfo	*cuex_oprinfo_t;	/* oprinfo.h */
+typedef struct cuex_pvar	*cuex_pvar_t;		/* pvar.h */
+typedef struct cuex_subst	*cuex_subst_t;		/* subst.h */
+typedef struct cuex_veqv	*cuex_veqv_t;		/* subst.h */
+typedef struct cuex_tpvar	*cuex_tpvar_t;		/* tpvar.h */
+typedef struct cuex_tvar	*cuex_tvar_t;		/* tvar.h */
+typedef struct cuex_var		*cuex_var_t;		/* var.h */
 
 #define cuex_var_from_ex(ex) ((cuex_var_t)(ex))
 #define cuex_is_idr(ex) (cuex_meta(ex) == cuoo_type_to_meta(cu_idr_type()))
 #define cuex_idr_from_ex(ex) ((cu_idr_t)(ex))
 
-/*!This function must be called before you use the cuex library or start
- * any threads which may use it. */
+/** This function must be called before you use the cuex library or start any
+ ** threads which may use it. */
 void cuex_init(void);
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
+#ifndef CU_NCOMPAT
+#  include <cuex/compat.h>
+#endif
 #endif

@@ -26,7 +26,7 @@
 #include <cu/int.h>
 #include <inttypes.h>
 
-typedef struct _folded_occurtree_frame_s {
+typedef struct _folded_occurtree_frame {
     cuex_occurtree_t ot;
 } *_folded_occurtree_frame_t;
 
@@ -40,7 +40,7 @@ _folded_occurtree(cuex_t e, cu_bool_t force_comm,
 
     if (cuex_meta_is_opr(e_meta)) {
 	int i, r = cuex_opr_r(e_meta);
-	ot = cu_galloc(sizeof(struct cuex_occurtree_s)
+	ot = cu_galloc(sizeof(struct cuex_occurtree)
 		       + (r - 1)*sizeof(cuex_occurtree_t));
 	ot->e = e;
 	if (cuex_og_hole_contains(e_meta)) {
@@ -89,7 +89,7 @@ _folded_occurtree(cuex_t e, cu_bool_t force_comm,
 	    int i = 0, r = cuex_compound_size(ci, e);
 	    cu_ptr_source_t ps;
 	    cuex_t ep;
-	    ot = cu_galloc(sizeof(struct cuex_occurtree_s)
+	    ot = cu_galloc(sizeof(struct cuex_occurtree)
 			   + (r - 1)*sizeof(cuex_occurtree_t));
 	    ot->e = e;
 	    ot->has_ref = cu_false;
@@ -109,7 +109,7 @@ _folded_occurtree(cuex_t e, cu_bool_t force_comm,
 	}
 	/* else fall though */
     }
-    ot = cu_galloc(sizeof(struct cuex_occurtree_s) - sizeof(cuex_occurtree_t));
+    ot = cu_galloc(sizeof(struct cuex_occurtree) - sizeof(cuex_occurtree_t));
     ot->e = e;
     ot->free_vars = cucon_ucset_empty();
     ot->mu_height = -1;
@@ -126,7 +126,7 @@ _folded_occurtree_entry(cuex_t e, cu_bool_t force_comm, int e_depth)
 #else
     size_t sp_size = e_depth;
 #endif
-    sp = cu_snewarr(struct _folded_occurtree_frame_s, sp_size);
+    sp = cu_snewarr(struct _folded_occurtree_frame, sp_size);
 #ifndef CU_NDEBUG
     sp[0].ot = NULL;
 #endif
@@ -142,8 +142,8 @@ cuex_folded_occurtree(cuex_t e, cu_bool_t force_comm)
     return _folded_occurtree_entry(e, force_comm, cuex_max_binding_depth(e));
 }
 
-typedef struct _unfolded_occurtree_frame_s *_unfolded_occurtree_frame_t;
-struct _unfolded_occurtree_frame_s
+typedef struct _unfolded_occurtree_frame *_unfolded_occurtree_frame_t;
+struct _unfolded_occurtree_frame
 {
     cuex_occurtree_t ot;
 };
@@ -239,7 +239,7 @@ cuex_unfolded_occurtree(cuex_t e, cu_bool_t force_comm)
     cuex_occurtree_t ot = _folded_occurtree_entry(e, force_comm, e_depth);
     _unfolded_occurtree_frame_t sp;
     size_t sp_size = e_depth + 1;
-    sp = cu_snewarr(struct _unfolded_occurtree_frame_s, sp_size);
+    sp = cu_snewarr(struct _unfolded_occurtree_frame, sp_size);
     sp += sp_size;
     _unfold_occurtree(ot, force_comm, sp, sp);
     return ot;
@@ -305,7 +305,7 @@ cuex_occurtree_prune_mu(cuex_occurtree_t ot, cuex_opview_t view)
     int e_depth = cuex_max_binding_depth(cuex_occurtree_expr(ot));
     int *sp = cu_snewarr(int, e_depth) + e_depth;
     _prune_mu_t cb;
-    struct cuex_occurtree_s top_ot;
+    struct cuex_occurtree top_ot;
     top_ot.sub[0] = ot;
     cb.ctx_ot = &top_ot;
     cb.view = view;

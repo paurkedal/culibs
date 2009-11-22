@@ -32,9 +32,9 @@ CU_BEGIN_DECLARATIONS
 
 /* The class of C functions
  * ------------------------ */
-struct cudyn_proto_s
+struct cudyn_proto
 {
-    cu_inherit (cuoo_type_s);
+    cu_inherit (cuoo_type);
 
     cudyn_tuptype_t arg_type;
     cuoo_type_t res_type;
@@ -44,7 +44,7 @@ struct cudyn_proto_s
     /* ffi_type args[arity] */
 };
 #define CUDYN_PROTO_KEY_SIZE \
-	(offsetof(struct cudyn_proto_s, cif) - CUOO_HCOBJ_SHIFT)
+	(offsetof(struct cudyn_proto, cif) - CUOO_HCOBJ_SHIFT)
 
 extern cuoo_type_t cudynP_proto_type;
 

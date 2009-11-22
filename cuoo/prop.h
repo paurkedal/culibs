@@ -32,9 +32,9 @@ CU_BEGIN_DECLARATIONS
  * properties.  Local properties which is used within a single thread are
  * more efficiently stored in a \c cucon_pmap_t.  */
 
-struct cuoo_prop_s
+struct cuoo_prop
 {
-    struct cucon_pmap_s pmap;
+    struct cucon_pmap pmap;
     cu_rarex_t rarex;
 };
 

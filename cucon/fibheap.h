@@ -38,7 +38,7 @@ typedef cu_clop(cucon_fibnode_prioreq_t, cu_bool_t,
 /** Base struct for Fibonacci heap nodes. */
 struct cucon_fibnode
 {
-    cu_inherit (cu_dlink_s);
+    cu_inherit (cu_dlink);
     cucon_fibnode_t parent, children;
     cu_bool_t mark;
     int degree; /* The number of children. */

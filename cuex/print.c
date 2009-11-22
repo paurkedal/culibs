@@ -274,8 +274,8 @@ cuexP_write_dot_decls(cuex_t e, FILE *out, cucon_pset_t done, cucon_stack_t bsk)
 void
 cuex_write_dot_decls(cuex_t e, FILE *out)
 {
-    struct cucon_pset_s done;
-    struct cucon_stack_s bsk;
+    struct cucon_pset done;
+    struct cucon_stack bsk;
     cucon_pset_init(&done);
     cucon_stack_init(&bsk);
     cuexP_write_dot_decls(e, out, &done, &bsk);

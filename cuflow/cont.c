@@ -28,7 +28,7 @@ cuflow_call_in_root(cu_clop0(trunk, void), cuflow_mode_t trunk_flow)
 {
     cuflow_mode_t cur_flow;
     cuflow_tstate_t st = cuflow_tstate();
-    struct cuflow_continuation_s root;
+    struct cuflow_continuation root;
     cuflow_continuation_t up = st->onstack_cont;
     root.kind = cuflowP_cntn_kind_frame;
     root.flags = 0;
@@ -219,7 +219,7 @@ cuflow_split(int n)
 #endif
 	cu_dlogf(cuflowP_cont, "cuflow_split(%d), st = %p\n", n, st);
 	assert(st->onstack_cont);
-	cont = GC_MALLOC(sizeof(struct cuflow_continuation_s) + sizeof(int));
+	cont = GC_MALLOC(sizeof(struct cuflow_continuation) + sizeof(int));
 	cu_dlogf(cuflowP_cont, "cont = %p, st = %p\n", cont, st);
 	cont->kind = cuflowP_cntn_kind_continuation;
 	cont->flags = 0;

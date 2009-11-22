@@ -25,8 +25,8 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuoo_properties_h cuoo/properties.h: Predefined Properties
  * @{ \ingroup cuoo_mod */
 
-extern struct cuoo_prop_s cuooP_raw_c_name_prop;
-extern struct cuoo_prop_s cuooP_sref_prop;
+extern struct cuoo_prop cuooP_raw_c_name_prop;
+extern struct cuoo_prop cuooP_sref_prop;
 
 /* The C name of a type or function, if defined.  Contains only stored
  * names, so it will not synthesise names for constructs such as

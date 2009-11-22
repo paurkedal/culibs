@@ -44,7 +44,7 @@ static struct {
 struct main_args {
     main_mode_t mode;
     char *output;
-    struct cucon_list_s inputs;
+    struct cucon_list inputs;
     char **positional;
 };
 

@@ -36,7 +36,7 @@ CU_BEGIN_DECLARATIONS
     typedef struct name##_s *name##_t;					\
     void name##_cct alops##prepend(argl, name##_t);			\
     struct name##_s {							\
-	struct cuflowP_windargs_s windargs;				\
+	struct cuflowP_windargs windargs;				\
 	cuPP_splice sct							\
     }
 #define cuflowP_xc_define(name, ign_t, alops, argl)			\
@@ -48,7 +48,7 @@ CU_BEGIN_DECLARATIONS
 #define cuflow_xc_cct0_m(xc, fn) \
     ((fn)(xc), (xc)->windargs.xc_key = (cu_fnptr_t)(fn))
 
-#define cuflow_throw(name, ...)					\
+#define cuflow_throw(name, ...)						\
     do {								\
 	name##_t xc = GC_malloc(sizeof(struct name##_s));		\
 	cuflow_xc_cct_m(xc, name##_cct, __VA_ARGS__);			\

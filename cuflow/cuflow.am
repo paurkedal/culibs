@@ -3,6 +3,7 @@ if enable_cuflow
 cuflow_headers = \
 	cuflow/fwd.h \
 	cuflow/cdisj.h \
+	cuflow/compat.h \
 	cuflow/errors.h \
 	cuflow/except.h \
 	cuflow/gflexq.h \

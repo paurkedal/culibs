@@ -31,13 +31,13 @@ CU_BEGIN_DECLARATIONS
  */
 
 /*!The text-sink struct for use by text-stylers. */
-struct cufo_textsink_s
+struct cufo_textsink
 {
-    cu_inherit (cutext_sink_s);
+    cu_inherit (cutext_sink);
     cutext_sink_t subsink;
 
-    struct cu_buffer_s buf;
-    struct cu_buffer_s buf_markup;
+    struct cu_buffer buf;
+    struct cu_buffer buf_markup;
     int buffered_width;
 
     cufo_textstyle_t style;
@@ -59,11 +59,11 @@ cufo_textsink_width(cufo_textsink_t sink)
 
 void cufo_textsink_block_boundary(cufo_textsink_t sink);
 
-/*!A \ref cufo_textstyle_s callback for a single tag. */
-struct cufo_textstyler_s
+/*!A \ref cufo_textstyle callback for a single tag. */
+struct cufo_textstyler
 {
     /* Node and key */
-    cu_inherit (cucon_hzmap_node_s);
+    cu_inherit (cucon_hzmap_node);
     cu_word_t tag;
 
     /* Value */
@@ -73,11 +73,11 @@ struct cufo_textstyler_s
 };
 
 /*!A style definition for a text sink. */
-struct cufo_textstyle_s
+struct cufo_textstyle
 {
     size_t sink_size;
     cu_clop(sink_init, void, cufo_textsink_t sink);
-    struct cucon_hzmap_s tag_to_styler;
+    struct cucon_hzmap tag_to_styler;
     cu_wstring_t (*default_enter)(cufo_textsink_t sink, cufo_tag_t tag,
 				  cufo_attrbind_t attrbinds);
     cu_wstring_t (*default_leave)(cufo_textsink_t sink, cufo_tag_t tag);
@@ -85,20 +85,20 @@ struct cufo_textstyle_s
 
 /*!Initialises \a style with the given sink size and sink initialiser.  \a
  * sink_size is the full size of the sink struct of some type derived from
- * \ref cufo_textsink_s.  At sink creation, the \ref cufo_textsink_s base
+ * \ref cufo_textsink.  At sink creation, the \ref cufo_textsink base
  * struct is first initialised, then \a sink_init is called to finish the
  * initialisation. */
 void cufo_textstyle_init(cufo_textstyle_t style, size_t sink_size,
 			 cu_clop(sink_init, void, cufo_textsink_t));
 
 /*!Make a static declaration and partial initialisation of a \ref
- * cufo_textstyler_s struct using \a name as a prefix for the identifiers
+ * cufo_textstyler struct using \a name as a prefix for the identifiers
  * involved.  This will define <i>name</i><tt>_styler</tt> from
  * <i>name</i><tt>_enter</tt> and <i>name</i><tt>_leave</tt>.  Association with
  * a tag is postponed to \a cufo_textstyle_bind_static, since the tags need to
  * be dynamically allocated. */
 #define CUFO_TEXTSTYLER_STATIC(name) \
-    static struct cufo_textstyler_s name##_styler \
+    static struct cufo_textstyler name##_styler \
 	= {CUCON_HZMAP_NODE_INIT, 0, name##_enter, name##_leave}
 
 /*!Bind \a styler, which declared and partly initialised with \ref
@@ -107,7 +107,7 @@ void cufo_textstyle_init(cufo_textstyle_t style, size_t sink_size,
 void cufo_textstyle_bind_static(cufo_textstyle_t style,
 				cufo_tag_t tag, cufo_textstyler_t styler);
 
-struct cufo_textstyle_s cufoP_default_textstyle;
+struct cufo_textstyle cufoP_default_textstyle;
 
 CU_SINLINE cufo_textstyle_t
 cufo_default_textstyle(void)

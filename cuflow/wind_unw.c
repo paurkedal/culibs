@@ -125,7 +125,7 @@ void
 cuflowP_wind_init_function(int *done_init, cuflowP_windstate_t wst,
 			cuflowP_fninfo_t fninfo)
 {
-    static struct cuflowP_windargs_s windargs_normal
+    static struct cuflowP_windargs windargs_normal
 	= { cuflow_wind_direction_normal };
     unw_context_t ucontext;
     unw_cursor_t cursor;
@@ -256,7 +256,7 @@ cuflowP_rewind(volatile cuflowP_windargs_t windargs)
 void
 cuflow_unwind()
 {
-    cuflowP_windargs_t wi = GC_malloc(sizeof(struct cuflowP_windargs_s));
+    cuflowP_windargs_t wi = GC_malloc(sizeof(struct cuflowP_windargs));
     assert(cuflowP_wind_done_init);
     wi->direction = cuflow_wind_direction_unwind;
     cuflowP_unwind(wi);

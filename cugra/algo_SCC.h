@@ -25,10 +25,10 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cugra_algo_SCC_h cugra/algo_SCC.h: Detect strongly connected components
  *@{\ingroup cugra_mod */
 
-typedef struct cugra_walk_SCC_s *cugra_walk_SCC_t;
-typedef struct cugra_walk_SCC_vt_s const *cugra_walk_SCC_vt_t;
+typedef struct cugra_walk_SCC *cugra_walk_SCC_t;
+typedef struct cugra_walk_SCC_vt const *cugra_walk_SCC_vt_t;
 
-struct cugra_walk_SCC_vt_s
+struct cugra_walk_SCC_vt
 {
     void *(*enter_component)(cugra_walk_SCC_t self);
     void (*pass_vertex)(cugra_walk_SCC_t self, void *, cugra_vertex_t);
@@ -37,14 +37,14 @@ struct cugra_walk_SCC_vt_s
 };
 
 #define cugra_walk_SCC_def_vt(name) \
-    struct cugra_walk_SCC_vt_s name##_vt = { \
+    struct cugra_walk_SCC_vt name##_vt = { \
 	.enter_component = name##_enter_component; \
 	.pass_vertext = name##_pass_vertex; \
 	.leave_component = name##_leave_component; \
 	.connect_components = name##_connect_components; \
     }
 
-struct cugra_walk_SCC_s
+struct cugra_walk_SCC
 {
     cugra_walk_SCC_vt_t vt;
 };

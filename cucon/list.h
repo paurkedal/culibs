@@ -27,18 +27,18 @@ CU_BEGIN_DECLARATIONS
 /** \defgroup cucon_list_h cucon/list.h: Doubly Linked Lists
  ** @{ \ingroup cucon_linear_mod */
 
-struct cucon_listnode_s
+struct cucon_listnode
 {
-    struct cucon_listnode_s* prev;
-    struct cucon_listnode_s* next;
+    struct cucon_listnode* prev;
+    struct cucon_listnode* next;
 };
 
-struct cucon_list_s
+struct cucon_list
 {
-    struct cucon_listnode_s eol;
+    struct cucon_listnode eol;
 };
 
-extern struct cucon_list_s cuconP_list_empty;
+extern struct cucon_list cuconP_list_empty;
 
 /** Create an empty list. */
 void cucon_list_init(cucon_list_t);

@@ -33,10 +33,8 @@ CU_BEGIN_DECLARATIONS
  * \see cucon_pmap_h
  */
 
-typedef struct cucon_hzmap_node_s *cucon_hzmap_node_t;
-
-/*!Node base struct for \ref cucon_hzmap_s. */
-struct cucon_hzmap_node_s
+/*!Node base struct for \ref cucon_hzmap. */
+struct cucon_hzmap_node
 {
     cucon_hzmap_node_t next;
 };
@@ -44,7 +42,7 @@ struct cucon_hzmap_node_s
 #define CUCON_HZMAP_NODE_INIT {NULL}
 
 /*!A hash map of fixed-size keys. */
-struct cucon_hzmap_s
+struct cucon_hzmap
 {
 #ifdef CUCON_HZMAP_COMPACT
 #  if CUCONF_SIZEOF_SIZE_T <= 4
@@ -89,7 +87,7 @@ void cucon_hzmap_prepare_insert(cucon_hzmap_t, size_t count);
 
 /*!Given that \a node is initialised with a key of suitable size for \a map,
  * if they key exists in \a map, returns false, else links \a node to \a map
- * and returns true.  The \ref cucon_hzmap_node_s base struct of \a node is
+ * and returns true.  The \ref cucon_hzmap_node base struct of \a node is
  * initialised by this call if the insert takes place. */
 cu_bool_t cucon_hzmap_insert_node(cucon_hzmap_t map, cucon_hzmap_node_t node);
 
@@ -145,7 +143,7 @@ void cucon_hzmap_filter(cu_clop(f, cu_bool_t, cucon_hzmap_node_t),
 void cucon_hzmap_filter_keys(cu_clop(f, cu_bool_t, void const *key),
 			     cucon_hzmap_t map);
 
-struct cucon_hzmap_itr_s
+struct cucon_hzmap_itr
 {
     cucon_hzmap_node_t *arr_cur;
     cucon_hzmap_node_t *arr_end;

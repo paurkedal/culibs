@@ -35,7 +35,7 @@ CU_BEGIN_DECLARATIONS
 
 /** The double link structure.  As opposed to most structure in this library,
  ** this can be considered transparent.  */
-struct cu_dlink_s
+struct cu_dlink
 {
     cu_dlink_t next;	/**< Points to the next element of the link. */
     cu_dlink_t prev;	/**< Points to the previous element of the link. */
@@ -50,7 +50,7 @@ struct cu_dlink_s
 #endif
 
 #define CU_DLINK_SINGLETON_DECL(cuL_var) \
-    struct cu_dlink_s cuL_var = {&cuL_var, &cuL_var}
+    struct cu_dlink cuL_var = {&cuL_var, &cuL_var}
 
 /** Validate the link integrity of \a l. */
 void cu_dlink_validate(cu_dlink_t l);

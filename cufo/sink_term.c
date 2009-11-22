@@ -77,8 +77,8 @@ _tigetint(char const *cap_name, int default_value)
 
 #define FACE_SGR0_MASK (CUFO_TERMFACE_BOLD | CUFO_TERMFACE_REVERSE)
 
-typedef struct _state_s *_state_t;
-struct _state_s
+typedef struct _state *_state_t;
+struct _state
 {
     _state_t prev;
     unsigned int booleans;
@@ -86,12 +86,12 @@ struct _state_s
     short bgcolour;
 };
 
-static struct _state_s _initial_state = {NULL, 0, -1, -1};
+static struct _state _initial_state = {NULL, 0, -1, -1};
 
-typedef struct _termsink_s *_termsink_t;
-struct _termsink_s
+typedef struct _termsink *_termsink_t;
+struct _termsink
 {
-    cu_inherit (cutext_sink_s);
+    cu_inherit (cutext_sink);
     cutext_sink_t subsink;
 
     cufo_termstyle_t style;
@@ -151,7 +151,7 @@ _push_face(_termsink_t sink, cufo_termface_t face)
 {
     unsigned int enables = face->enables;
     _state_t old_state = sink->current_state;
-    _state_t new_state = cu_gnew(struct _state_s);
+    _state_t new_state = cu_gnew(struct _state);
     new_state->prev = old_state;
     new_state->booleans = (old_state->booleans | (enables & face->booleans))
 		       & (~enables | face->booleans);
@@ -178,7 +178,7 @@ _default_termstyle(void)
 {
     static pthread_mutex_t mutex = CU_MUTEX_INITIALISER;
     static AO_t done_init = 0;
-    static struct cufo_termstyle_s style;
+    static struct cufo_termstyle style;
     if (!AO_load_acquire_read(&done_init)) {
 	char const *style_name;
 	cu_mutex_lock(&mutex);
@@ -307,7 +307,7 @@ cufo_termsink_new(cufo_termstyle_t termstyle, char const *term,
 	cu_mutex_unlock(&_curses_mutex);
     }
 
-    sink = cu_gnew(struct _termsink_s);
+    sink = cu_gnew(struct _termsink);
     cutext_sink_init(cu_to(cutext_sink, sink), &_termsink_descriptor);
     sink->subsink = subsink;
     sink->style = termstyle;

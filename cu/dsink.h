@@ -30,7 +30,7 @@ CU_BEGIN_DECLARATIONS
  *
  * A data sink is said to be <i>clog-free</i> if it's write-callback is
  * guaranteed to always cosume all data provided to it.  Data sinks derived
- * form \ref cu_dsink_s may or may not be clog-free.  This property may be
+ * form \ref cu_dsink may or may not be clog-free.  This property may be
  * essential to some callers, and since this is not checked at compile time,
  * it's recommendable that
  * <ul>
@@ -79,7 +79,7 @@ CU_BEGIN_DECLARATIONS
  * @{*/
 
 /*!Base struct for data sinks. */
-struct cu_dsink_s
+struct cu_dsink
 {
     cu_word_t (*control)(cu_dsink_t source, int op, va_list);
     size_t (*write)(cu_dsink_t sink, void const *buf, size_t max_size);
@@ -169,9 +169,9 @@ cu_dsink_t cu_dsink_new_str(void);
 cu_dsink_t cu_dsink_new_wstring(void);
 
 /*!A sink which counts the number of bytes written. */
-struct cu_dcountsink_s
+struct cu_dcountsink
 {
-    cu_inherit (cu_dsink_s);
+    cu_inherit (cu_dsink);
     ssize_t count;
 };
 
@@ -188,10 +188,10 @@ cu_dcountsink_count(cu_dcountsink_t sink)
 { return sink->count; }
 
 /*!A sink which copy the data written into a buffer. */
-struct cu_dbufsink_s
+struct cu_dbufsink
 {
-    cu_inherit (cu_dsink_s);
-    struct cu_buffer_s buffer;
+    cu_inherit (cu_dsink);
+    struct cu_buffer buffer;
 };
 
 CU_SINLINE cu_dsink_t

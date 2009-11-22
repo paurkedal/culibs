@@ -31,8 +31,8 @@ CU_BEGIN_DECLARATIONS
  * degeneracies, including handling of variables is left the client.
  */
 
-typedef struct cuex_monoid_s *cuex_monoid_t;
-struct cuex_monoid_s
+typedef struct cuex_monoid *cuex_monoid_t;
+struct cuex_monoid
 {
     CUOO_HCOBJ
     cuex_meta_t opr;
@@ -160,8 +160,8 @@ cuex_t cuex_monoid_factor_slice(cuex_meta_t mult, cuex_t x,
 cu_ptr_source_t cuex_any_monoid_factor_source(cuex_t e,
 					      ptrdiff_t i, ptrdiff_t j);
 
-struct cuex_monoid_itr_s { struct cuex_ltree_itr_s sub; };
-typedef struct cuex_monoid_itr_s cuex_monoid_itr_t;
+struct cuex_monoid_itr { struct cuex_ltree_itr sub; };
+typedef struct cuex_monoid_itr cuex_monoid_itr_t;
 
 /*!Initialises \a itr for iterating over all \A{mult}-factors of \a x. */
 void cuex_monoid_itr_init_full(cuex_meta_t mult,

@@ -166,7 +166,7 @@ void cucon_ucset_fprint_intptr(cucon_ucset_t set, FILE *out);
 /*!Debug dump of \a set. */
 void cucon_ucset_dump(cucon_ucset_t set, FILE *out);
 
-struct cucon_ucset_itr_s
+struct cucon_ucset_itr
 {
     int sp, pos;
     cucon_ucset_t node_stack[1];

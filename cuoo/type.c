@@ -195,9 +195,9 @@ cuoo_type_new_metatype(cuoo_impl_t impl)
 static cuoo_type_t
 cuoo_type_new_self_instance_hcb(cuoo_shape_t shape, cuoo_impl_t impl)
 {
-    cuoo_type_t type = cuoo_oalloc_self_instance(sizeof(struct cuoo_type_s));
+    cuoo_type_t type = cuoo_oalloc_self_instance(sizeof(struct cuoo_type));
     cuoo_type_init_general_hcs(type, shape, impl, NULL,
-			       sizeof(struct cuoo_type_s) - CUOO_HCOBJ_SHIFT);
+			       sizeof(struct cuoo_type) - CUOO_HCOBJ_SHIFT);
     return type;
 }
 
@@ -273,7 +273,7 @@ cuex_key_hash(void *obj)
 
 #ifdef CUOO_ENABLE_KEYED_PROP
 pthread_mutex_t cuooP_property_mutex = CU_MUTEX_INITIALISER;
-struct cucon_umap_s cuooP_property_map;
+struct cucon_umap cuooP_property_map;
 AO_t cuooP_next_propkey = 1;
 
 cuoo_propkey_t

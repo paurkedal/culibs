@@ -25,12 +25,12 @@
 
 #define WRITE_THRESHOLD 512
 
-typedef struct _bufsink_s *_bufsink_t;
-struct _bufsink_s
+typedef struct _bufsink *_bufsink_t;
+struct _bufsink
 {
-    cu_inherit (cu_dsink_s);
+    cu_inherit (cu_dsink);
     cu_dsink_t subsink;
-    struct cu_buffer_s buf;
+    struct cu_buffer buf;
 };
 
 static cu_word_t
@@ -118,7 +118,7 @@ _bufsink_control(cu_dsink_t sink_, int fc, va_list va)
 cu_dsink_t
 cu_dsink_stack_buffer(cu_dsink_t subsink)
 {
-    _bufsink_t sink = cu_gnew(struct _bufsink_s);
+    _bufsink_t sink = cu_gnew(struct _bufsink);
     cu_dsink_init(cu_to(cu_dsink, sink), _bufsink_control, _bufsink_write);
     sink->subsink = subsink;
     cu_buffer_init(&sink->buf, WRITE_THRESHOLD*2);

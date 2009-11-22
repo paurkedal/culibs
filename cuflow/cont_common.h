@@ -66,10 +66,10 @@ extern pthread_mutex_t cuflowP_g_mutex;
 #  define UNLOCK_GSTATE() ((void)0)
 #endif
 
-#define CUFLOW_STACK_BREAK(PURPOSE, STATE, CONT)				\
-    cuflow_tstate_t STATE = cuflow_tstate();					\
-    cuflow_continuation_t CONT = GC_NEW(struct cuflow_continuation_s);	\
-    cuflowP_set_stack_mark(CONT);						\
+#define CUFLOW_STACK_BREAK(PURPOSE, STATE, CONT)			\
+    cuflow_tstate_t STATE = cuflow_tstate();				\
+    cuflow_continuation_t CONT = GC_NEW(struct cuflow_continuation);	\
+    cuflowP_set_stack_mark(CONT);					\
     CONT->kind = cuflowP_cntn_kind_##PURPOSE;				\
     CONT->flags = 0;							\
     CONT->level = st->onstack_cont->level + 1;				\
@@ -78,7 +78,7 @@ extern pthread_mutex_t cuflowP_g_mutex;
 
 cu_clos_edec(cuflowP_call_cntn,
 	     cu_prot(void, void *arg_ptr),
-    ( struct cuflow_continuation_s cont;
+    ( struct cuflow_continuation cont;
       void *result_ptr;
       size_t result_size; ));
 

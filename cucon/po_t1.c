@@ -25,7 +25,7 @@ po_of_random_ints(unsigned int mask, unsigned int n)
 {
     unsigned int i;
     cucon_po_t po;
-    struct cucon_list_s lst;
+    struct cucon_list lst;
     po = cucon_po_new_mem(sizeof(unsigned int), sizeof(unsigned int));
     *(unsigned int *)cucon_poelt_get_mem(cucon_po_bot(po)) = 0;
     *(unsigned int *)cucon_poelt_get_mem(cucon_po_top(po)) = mask;
@@ -108,7 +108,7 @@ random_elt(cucon_po_t po, unsigned int mask)
 {
     unsigned int k = lrand48() & mask;
     elt_cmp_t cmp;
-    struct cucon_pmap_s range, preds, succs;
+    struct cucon_pmap range, preds, succs;
     pick_first_t first;
     cu_clop(first_clop, cu_bool_t, void const *) = pick_first_prep(&first);
     cmp.k0 = k;
@@ -148,7 +148,7 @@ check_closed_range_and_succs()
     if (gvizout)
 	cucon_po_print_gviz(po, elt_print, gvizout);
     for (i = 0; i < 100; ++i) {
-	struct cucon_pmap_s range, succs;
+	struct cucon_pmap range, succs;
 	cucon_poelt_t e0 = random_elt(po, mask);
 	cucon_poelt_t e1 = random_elt(po, mask);
 	cucon_pmap_init(&range);

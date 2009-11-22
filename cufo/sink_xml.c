@@ -23,10 +23,10 @@
 #include <cu/memory.h>
 #include <cu/buffer.h>
 
-typedef struct _xmlsink_s *_xmlsink_t;
-struct _xmlsink_s
+typedef struct _xmlsink *_xmlsink_t;
+struct _xmlsink
 {
-    cu_inherit (cutext_sink_s);
+    cu_inherit (cutext_sink);
     cutext_sink_t subsink;
 };
 
@@ -100,7 +100,7 @@ _xmlsink_enter(cutext_sink_t sink, cufo_tag_t tag, cufo_attrbind_t attrbinds)
     char const *name;
     size_t name_len;
     cufo_attr_t attr;
-    struct cu_buffer_s buf;
+    struct cu_buffer buf;
 
     name = cufo_tag_name(tag);
     name_len = strlen(name);
@@ -235,7 +235,7 @@ ascii_compat_encoding(char const *enc)
 cutext_sink_t
 cufo_sink_new_xml(cutext_sink_t subsink)
 {
-    _xmlsink_t xmlsink = cu_gnew(struct _xmlsink_s);
+    _xmlsink_t xmlsink = cu_gnew(struct _xmlsink);
     char const *sub_encoding = cutext_sink_encoding(subsink);
     if (!sub_encoding)
 	sub_encoding = "UTF-8";

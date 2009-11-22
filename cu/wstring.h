@@ -31,7 +31,7 @@ extern cu_wstring_t cuP_wstring_empty;
  ** @{ \ingroup cu_type_mod */
 
 /** A string of \ref cu_wchar_t characters. */
-struct cu_wstring_s
+struct cu_wstring
 {
     CUOO_OBJ
     size_t len;

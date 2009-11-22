@@ -5,6 +5,7 @@ cuex_headers = \
 	cuex/algo.h \
 	cuex/atree.h \
 	cuex/binding.h \
+	cuex/compat.h \
 	cuex/compound.h \
 	cuex/ex.h \
 	cuex/fpvar.h \

@@ -133,8 +133,8 @@ render_idempotent_expand(cuex_subst_t sig, cucon_pset_t msc_vars,
 static void
 create_MSC_graphs(cuex_subst_t sig, cucon_stack_t KG)
 {
-    struct cugra_graph_s G_sig;
-    struct cucon_pmap_s var_to_vertex;
+    struct cugra_graph G_sig;
+    struct cucon_pmap var_to_vertex;
     _build_graph_vertex_cb_t vertex_cb;
     _build_graph_arc_cb_t arc_cb;
 
@@ -161,17 +161,17 @@ create_MSC_graphs(cuex_subst_t sig, cucon_stack_t KG)
 void
 cuex_subst_render_idempotent(cuex_subst_t sig)
 {
-    struct cucon_stack_s KG;
+    struct cucon_stack KG;
     create_MSC_graphs(sig, &KG);
     while (!cucon_stack_is_empty(&KG)) {
-	struct cucon_pset_s mfvs_vertices;
-	struct cucon_pset_s msc_vars;
+	struct cucon_pset mfvs_vertices;
+	struct cucon_pset msc_vars;
 	_mark_veqv_cb_t mark_cb;
 	int i, n_V;
 	cuex_t *opd_arr;
 	cuex_veqv_t *veqv_arr;
 	cuex_t recv;
-	struct cucon_pmap_s var_to_rvar;
+	struct cucon_pmap var_to_rvar;
 	cugra_vertex_t vtx;
 	cugra_graph_t G = CUCON_STACK_TOP(&KG, cugra_graph_t);
 	CUCON_STACK_POP(&KG, cugra_graph_t);
@@ -224,13 +224,13 @@ cu_clop_def(mark_veqv_of_vertex, void, void const *vertex)
 cu_bool_t
 cuex_subst_mark_min_feedback(cuex_subst_t sig)
 {
-    struct cucon_stack_s KG;
+    struct cucon_stack KG;
     create_MSC_graphs(sig, &KG);
     if (cucon_stack_is_empty(&KG))
 	return cu_false;
     do {
 	cugra_graph_t G = cucon_stack_pop_ptr(&KG);
-	struct cucon_pset_s mfvs_vertices;
+	struct cucon_pset mfvs_vertices;
 	cugra_MFVS(G, &mfvs_vertices);
 	cucon_pset_iter(&mfvs_vertices, mark_veqv_of_vertex);
     }
@@ -244,7 +244,7 @@ cuex_subst_mark_min_feedback(cuex_subst_t sig)
 cu_bool_t
 cuex_subst_mark_all_feedback(cuex_subst_t sig)
 {
-    struct cucon_stack_s KG;
+    struct cucon_stack KG;
     create_MSC_graphs(sig, &KG);
     if (cucon_stack_is_empty(&KG))
 	return cu_false;

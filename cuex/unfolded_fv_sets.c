@@ -36,7 +36,7 @@ typedef struct FBI_link_s *FBI_link_t;
 
 struct FBI_s
 {
-    struct cucon_uset_s fvset;
+    struct cucon_uset fvset;
     FBI_link_t sub_chain;
     cuex_t e;
 };
@@ -159,7 +159,7 @@ compute_UBI(FBI_link_t fbi_link, cuex_t super_fiictx,
 	cu_dlogf(_file, "fiimap=%p, Processing BI for %p, %!.",
 		 fiimap, fiictx, fiictx);
 	if (cucon_pmap_insert_mem(fiimap, fiictx,
-				  sizeof(struct cucon_uset_s), &lambda_vars)) {
+				  sizeof(struct cucon_uset), &lambda_vars)) {
 	    cucon_uset_t *sp = super_sp - fbi_link->depth;
 	    memset(sp + 1, 0, (fbi_link->depth - 1)*sizeof(*sp));
 	    cu_dlogf(_file, "Enter frame %d", sp_max - sp);
@@ -184,7 +184,7 @@ cucon_pmap_t
 cuex_unfolded_fv_sets(cuex_t e, int max_binding_depth)
 {
     struct FBI_s top_fbi;
-    struct cucon_pmap_s e_to_fbi;
+    struct cucon_pmap e_to_fbi;
     cucon_pmap_t fiimap;
     int max_depth;
     cucon_uset_t *usp_min, *usp_max;

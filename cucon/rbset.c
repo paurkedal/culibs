@@ -23,15 +23,15 @@
 void
 cucon_rbset_init(cucon_rbset_t rbset, cu_clop(cmp, int, void *, void *))
 {
-    cucon_rbtree_init(cu_upcast(cucon_rbtree_s, rbset));
+    cucon_rbtree_init(cu_upcast(cucon_rbtree, rbset));
     rbset->cmp = cmp;
 }
 
 cucon_rbset_t
 cucon_rbset_new(cu_clop(cmp, int, void *, void *))
 {
-    cucon_rbset_t rbset = cu_gnew(struct cucon_rbset_s);
-    cucon_rbtree_init(cu_upcast(cucon_rbtree_s, rbset));
+    cucon_rbset_t rbset = cu_gnew(struct cucon_rbset);
+    cucon_rbtree_init(cu_upcast(cucon_rbtree, rbset));
     rbset->cmp = cmp;
     return rbset;
 }

@@ -29,9 +29,9 @@
 
 CU_BEGIN_DECLARATIONS
 
-struct cucon_rbmap_s
+struct cucon_rbmap
 {
-    cu_inherit (cucon_rbtree_s);
+    cu_inherit (cucon_rbtree);
     cu_clop(cmp, int, void *, void *);
 };
 

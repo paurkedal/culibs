@@ -29,7 +29,7 @@ CU_BEGIN_DECLARATIONS
 #define CU_DSOURCE_ST_SUCCESS 0
 #define CU_DSOURCE_ST_UNIMPL ((cu_word_t)-1)
 
-struct cu_dsource_s
+struct cu_dsource
 {
     cu_word_t (*control)(cu_dsource_t source, int op, va_list);
     size_t (*read)(cu_dsource_t source, void *buf, size_t max_size);

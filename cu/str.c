@@ -73,7 +73,7 @@ cu_str_set_capacity(cu_str_t str, size_t capacity)
 cu_str_t
 cu_str_new()
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     str->arr = 0;
     str->len = 0;
     str->cap = 0;
@@ -101,7 +101,7 @@ cu_str_init_charr(cu_str_t str, char const *ptr, size_t n)
 cu_str_t
 cu_str_new_charr(char const *ptr, size_t n)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     str->arr = cu_galloc_atomic(n + 1);
     str->len = n;
     str->cap = n + 1;
@@ -144,7 +144,7 @@ cu_str_init_static_cstr(cu_str_t str, char const *cstr)
 cu_str_t
 cu_str_new_static_cstr(char const *cstr)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     str->arr = (char *)cstr;
     str->len = strlen(cstr);
     str->cap = 0;
@@ -170,7 +170,7 @@ cu_str_init_uninit(cu_str_t str, size_t n)
 cu_str_t
 cu_str_new_uninit(size_t n)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     str->arr = cu_galloc_atomic(n + 1);
     str->len = n;
     str->cap = n + 1;
@@ -191,7 +191,7 @@ cu_str_t
 cu_str_new_copy(cu_str_t str0)
 {
     /* XX MT */
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     size_t n = str0->len;
     str->arr = cu_galloc_atomic(n + 1);
     str->len = n;
@@ -205,7 +205,7 @@ cu_str_new_copy(cu_str_t str0)
 cu_str_t
 cu_str_new_copy(cu_str_t str0)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     str0->cap = 0;
     str->arr = str0->arr;
     str->len = str0->len;
@@ -282,7 +282,7 @@ cu_str_init_2str(cu_str_t str, cu_str_t x, cu_str_t y)
 cu_str_t
 cu_str_new_2str(cu_str_t x, cu_str_t y)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     cu_str_init_2str(str, x, y);
     return str;
 }
@@ -308,7 +308,7 @@ cu_str_init_2charr(cu_str_t str,
 cu_str_t
 cu_str_new_2charr(char const *s0, size_t n0, char const *s1, size_t n1)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     cu_str_init_2charr(str, s0, n0, s1, n1);
     return str;
 }
@@ -337,7 +337,7 @@ cu_str_t
 cu_str_new_3charr(char const *s0, size_t n0, char const *s1, size_t n1,
 		  char const *s2, size_t n2)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     cu_str_init_3charr(str, s0, n0, s1, n1, s2, n2);
     return str;
 }
@@ -368,7 +368,7 @@ cu_str_init_str_cstr(cu_str_t str, cu_str_t x, char const *y)
 cu_str_t
 cu_str_new_str_cstr(cu_str_t x, char const *y)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     cu_str_init_str_cstr(str, x, y);
     return str;
 }
@@ -394,7 +394,7 @@ cu_str_init_cstr_str(cu_str_t str, char const *x, cu_str_t y)
 cu_str_t
 cu_str_new_cstr_str(char const *x, cu_str_t y)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     cu_str_init_cstr_str(str, x, y);
     return str;
 }
@@ -434,7 +434,7 @@ cu_str_init_str_char(cu_str_t str, cu_str_t x, char c)
 cu_str_t
 cu_str_new_str_char(cu_str_t x, char c)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     cu_str_init_str_char(str, x, c);
     return str;
 }
@@ -460,7 +460,7 @@ cu_str_init_vfmt(cu_str_t str, char const *fmt, va_list va)
 cu_str_t
 cu_str_new_vfmt(char const *fmt, va_list va)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     cu_str_init_vfmt(str, fmt, va);
     return str;
 }
@@ -526,7 +526,7 @@ cu_str_assign_substr(cu_str_t x, size_t pos, size_t len)
 cu_str_t
 cu_str_substr(cu_str_t x, size_t pos, size_t len)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     cu_debug_assert(pos + len <= x->len);
     str->arr = x->arr + pos;
     str->len = len;
@@ -538,7 +538,7 @@ cu_str_substr(cu_str_t x, size_t pos, size_t len)
 cu_str_t
 cu_str_suffix(cu_str_t x, size_t pos)
 {
-    cu_str_t str = cu_gnew(struct cu_str_s);
+    cu_str_t str = cu_gnew(struct cu_str);
     cu_debug_assert(pos <= x->len);
     str->arr = x->arr + pos;
     str->len = x->len - pos;

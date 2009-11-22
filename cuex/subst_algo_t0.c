@@ -21,7 +21,7 @@
 
 
 cuex_subst_t sig;
-struct cucon_pmap_s ex_to_var;
+struct cucon_pmap ex_to_var;
 
 void
 ins(cuex_t ex)

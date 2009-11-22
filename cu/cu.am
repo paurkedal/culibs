@@ -4,6 +4,7 @@ cu_headers = \
 	cu/algo.h \
 	cu/buffer.h \
 	cu/clos.h \
+	cu/compat.h \
 	cu/conf.h \
 	cu/conf_fixed.h \
 	cu/cstr.h \

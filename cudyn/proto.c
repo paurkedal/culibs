@@ -161,9 +161,9 @@ cudyn_proto_by_tuptype(cudyn_tuptype_t arg_type, cuoo_type_t res_type)
 {
     _proto_init_cif_t init;
     size_t r = cudyn_tuptype_tcomp_cnt(arg_type);
-    struct cudyn_proto_s key;
+    struct cudyn_proto key;
     cudyn_proto_t proto;
-    size_t size = sizeof(struct cudyn_proto_s) + r*sizeof(ffi_type *);
+    size_t size = sizeof(struct cudyn_proto) + r*sizeof(ffi_type *);
     cuoo_type_init_general_hcs(cu_to(cuoo_type, &key), CUOO_SHAPE_PROTO,
 			       cuoo_impl_none, NULL, sizeof(cu_fnptr_t));
     key.arg_type = arg_type;

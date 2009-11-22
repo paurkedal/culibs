@@ -128,29 +128,29 @@ cuoo_hxalloc_clear(cuoo_type_t type, size_t struct_size,
 /*!Macro to call \ref cuoo_hxalloc_init based on an identifier prefix.  It is
  * assumed that the following are defined:
  * <ul>
- *   <li><tt>struct <i>prefix</i>_s { CU_HCOBJ ... }</tt> — The struct of the
+ *   <li><tt>struct <i>prefix</i> { CU_HCOBJ ... }</tt> — The struct of the
  *     object, used for size calculation and the return type.</li>
  *   <li><tt>cuoo_type_t <i>prefix</i>_type(void)</tt> — A function or
  *     function-like macro which shall return the dynamic type of the
  *     object.</li>
  * </ul> */
 #define cuoo_hxnew_init(prefix, key_size, key, init_nonkey) \
-    ((struct prefix##_s *) \
-     cuoo_hxalloc_init(prefix##_type(), sizeof(struct prefix##_s), \
+    ((struct prefix *) \
+     cuoo_hxalloc_init(prefix##_type(), sizeof(struct prefix), \
 		       key_size, key, init_nonkey))
 
 /*!Macro to call \ref cuoo_hxalloc_setao based on an indentifier prefix.  See
  * \ref cuoo_hxnew_init for details. */
 #define cuoo_hxnew_setao(prefix, key_size, key, ao_offset, ao_value) \
-    ((struct prefix##_s *) \
-     cuoo_hxalloc_setao(prefix##_type(), sizeof(struct prefix##_s), \
+    ((struct prefix *) \
+     cuoo_hxalloc_setao(prefix##_type(), sizeof(struct prefix), \
 			key_size, key, ao_offset, ao_value))
 
 /*!Macro to call \ref cuoo_hxalloc_clear based on an indentifier prefix.  See
  * \ref cuoo_hxnew_init for details. */
 #define cuoo_hxnew_clear(prefix, key_size, key) \
-    ((struct prefix##_s *) \
-     cuoo_hxalloc_clear(prefix##_type(), sizeof(struct prefix##_s), \
+    ((struct prefix *) \
+     cuoo_hxalloc_clear(prefix##_type(), sizeof(struct prefix), \
 			key_size, key))
 
 /** @} */

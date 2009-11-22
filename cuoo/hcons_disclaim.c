@@ -502,7 +502,7 @@ cuexP_hxalloc_raw(cuex_meta_t meta, size_t sizeg, size_t key_sizew, void *key,
 
 #ifdef CUOO_ENABLE_KEYED_PROP
 extern pthread_mutex_t _property_mutex;
-extern struct cucon_umap_s _property_map;
+extern struct cucon_umap _property_map;
 #endif
 
 int

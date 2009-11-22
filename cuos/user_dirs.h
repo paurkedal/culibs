@@ -63,19 +63,19 @@ cu_str_t cuos_user_cache_path(char const *pkg_name, cu_str_t subpath);
  ** configuration, data, and cache, based on various environment variables and
  ** the package installation directories.  Use \ref CUOS_PKG_USER_DIRS_INITZ as
  ** a static initialiser. */
-struct cuos_pkg_user_dirs_s
+struct cuos_pkg_user_dirs
 {
     char const *pkg_name, *var_prefix;
     cu_installdir_t installdirs;
     AO_t init_done;
     pthread_mutex_t init_mutex;
-    struct cuos_dirpile_s dirs[2];
+    struct cuos_dirpile dirs[2];
     cu_str_t homes[3];
 };
 
-/** A static initialiser for \ref cuos_pkg_user_dirs_s to be used as
+/** A static initialiser for \ref cuos_pkg_user_dirs to be used as
  ** \code
- ** struct cuos_pkg_user_dirs_s foo_user_dirs
+ ** struct cuos_pkg_user_dirs foo_user_dirs
  **     = CUOS_PKG_USER_DIRS_INITZ("foo", "FOO", foo_installdirs);
  ** \endcode
  ** after which <tt>cuos_pkg_user_config_dir(&foo_user_dirs)</tt> would give

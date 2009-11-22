@@ -32,9 +32,9 @@ CU_BEGIN_DECLARATIONS
  ** \see cucon_pset_h
  **/
 
-struct cucon_hset_s
+struct cucon_hset
 {
-    struct cucon_hmap_s impl;
+    struct cucon_hmap impl;
 };
 
 /** Constructs a hash set with equality predicate \a eq and hash function \a

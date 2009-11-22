@@ -47,7 +47,7 @@ print O "#include <cufo/tag.h>\n";
 print O "#include <cu/logging.h>\n\n";
 foreach my $attrdef (@attrdefs) {
     my ($name, $type, $extra) = @$attrdef;
-    print O "struct cufo_attr_s cufoP_attr_${name};\n";
+    print O "struct cufo_attr cufoP_attr_${name};\n";
     if ($type eq 'enum') {
 	print O "char const *cufoP_attrvals_${name}(int i)\n{\n";
 	print O "    switch (i) {\n";

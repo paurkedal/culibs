@@ -69,7 +69,7 @@ cu_bool_t
 cugra_graph_is_acyclic(cugra_graph_t G)
 {
     cugra_vertex_t v;
-    struct cucon_pmap_s vinfo_map;
+    struct cucon_pmap vinfo_map;
     cucon_pmap_init(&vinfo_map);
     cugra_graph_for_vertices(v, G)
 	if (_detect_cycle(v, &vinfo_map))

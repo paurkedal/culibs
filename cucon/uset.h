@@ -29,7 +29,7 @@ CU_BEGIN_DECLARATIONS
  */
 
 /*!A sparse integer-keyed set. */
-struct cucon_uset_s { struct cucon_umap_s impl; };
+struct cucon_uset { struct cucon_umap impl; };
 
 /*!Constructs \a set as an empty set. */
 CU_SINLINE void cucon_uset_init(cucon_uset_t set)

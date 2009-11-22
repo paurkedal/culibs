@@ -59,7 +59,7 @@ init_b(cucon_rumap_t M)
 void
 test_union()
 {
-    struct cucon_rumap_s L, R;
+    struct cucon_rumap L, R;
     size_t overlap;
 
     init_a(&L);

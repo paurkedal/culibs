@@ -24,9 +24,9 @@
 void
 cucon_queue_init(cucon_queue_t q)
 {
-    struct cucon_queue_node_s *new_node;
+    struct cucon_queue_node *new_node;
     q->front = q->back
-	= new_node = cu_galloc(sizeof(struct cucon_queue_node_s) + CHUNK_SIZE);
+	= new_node = cu_galloc(sizeof(struct cucon_queue_node) + CHUNK_SIZE);
     q->front_cur = new_node->begin = new_node->end = (char *)(new_node + 1);
     q->back_cap_end = (char *)(new_node + 1) + CHUNK_SIZE;
 }
@@ -34,7 +34,7 @@ cucon_queue_init(cucon_queue_t q)
 cucon_queue_t
 cucon_queue_new()
 {
-    cucon_queue_t q = cu_gnew(struct cucon_queue_s);
+    cucon_queue_t q = cu_gnew(struct cucon_queue);
     cucon_queue_init(q);
     return q;
 }
@@ -42,11 +42,11 @@ cucon_queue_new()
 void *
 cuconP_queue_push_mem(cucon_queue_t q, size_t size)
 {
-    struct cucon_queue_node_s *new_node;
+    struct cucon_queue_node *new_node;
     size_t alloc_size = size > CHUNK_SIZE? size : CHUNK_SIZE;
     q->back->end -= size;
     q->back = q->back->next = new_node
-	= cu_galloc(sizeof(struct cucon_queue_node_s) + alloc_size);
+	= cu_galloc(sizeof(struct cucon_queue_node) + alloc_size);
     new_node->begin = (char *)(new_node + 1);
     new_node->end = (char *)(new_node + 1) + size;
     q->back_cap_end = (char *)(new_node + 1) + alloc_size;
@@ -56,7 +56,7 @@ cuconP_queue_push_mem(cucon_queue_t q, size_t size)
 void
 cuconP_queue_pop_mem(cucon_queue_t q)
 {
-    struct cucon_queue_node_s *next;
+    struct cucon_queue_node *next;
     do {
 	next = q->front->next;
 	if (next == NULL) {

@@ -66,7 +66,7 @@ _node_new_val(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right,
     cuoo_hctem_get(cucon_ucmap, tem)->value = (uintptr_t)val;
     return cuoo_hctem_new(cucon_ucmap, tem);
 #else
-    cucon_ucmap_t node = cu_gnew(struct cucon_ucmap_s);
+    cucon_ucmap_t node = cu_gnew(struct cucon_ucmap);
     node->key = key;
     node->left = left;
     node->right = right;
@@ -87,7 +87,7 @@ _node_new_noval(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right)
     cuoo_hctem_get(cucon_ucmap, tem)->value = 0;
     return cuoo_hctem_new(cucon_ucmap, tem);
 #else
-    cucon_ucmap_t node = cu_gnew(struct cucon_ucmap_s);
+    cucon_ucmap_t node = cu_gnew(struct cucon_ucmap);
     node->key = key;
     node->left = left;
     node->right = right;
@@ -111,7 +111,7 @@ _node_new_lr(cucon_ucmap_t src_node, cucon_ucmap_t left, cucon_ucmap_t right)
     cuoo_hctem_get(cucon_ucmap, tem)->value = src_node->value;
     return cuoo_hctem_new(cucon_ucmap, tem);
 #else
-    cucon_ucmap_t node = cu_gnew(struct cucon_ucmap_s);
+    cucon_ucmap_t node = cu_gnew(struct cucon_ucmap);
     node->key = src_node->key;
     node->left = left;
     node->right = right;
@@ -443,7 +443,7 @@ cuconP_ucmap_init()
 {
 #if cuconP_UCMAP_ENABLE_HCONS
     cuconP_ucmap_type = cuoo_type_new_opaque_hcs(
-	_ucmap_impl, sizeof(struct cucon_ucmap_s) - CUOO_HCOBJ_SHIFT);
+	_ucmap_impl, sizeof(struct cucon_ucmap) - CUOO_HCOBJ_SHIFT);
 #endif
 }
 

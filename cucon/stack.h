@@ -33,9 +33,9 @@ CU_BEGIN_DECLARATIONS
  *
  * \see cucon_frame_h
  */
-struct cucon_stack_s
+struct cucon_stack
 {
-    struct cucon_stack_s *prev;
+    struct cucon_stack *prev;
     char *begin;	/* lowest address for current capacity */
     char *sp;		/* lowest address in use */
     char *end;		/* boundary to prev */
@@ -163,7 +163,7 @@ void cucon_stack_unwind_to_mark(cucon_stack_t sk, cucon_stack_mark_t mark);
 /* == Iteration == */
 
 /*!Stack iterator struct. */
-struct cucon_stack_itr_s
+struct cucon_stack_itr
 {
     /* Turning to next fragment is eager, except that the last one is kept. */
     cucon_stack_t stack;
@@ -189,14 +189,14 @@ cu_ptr_source_t cucon_stack_ptr_source(cucon_stack_t stack);
 
 /* == Iterators == */
 
-/*!\deprecated Use \ref cucon_stack_itr_s. */
+/*!\deprecated Use \ref cucon_stack_itr. */
 typedef struct cucon_stack_it_s
 {
     cucon_stack_t stack;
     char *sp;
 } cucon_stack_it_t;
 
-/*!\deprecated Use \ref cucon_stack_itr_s. */
+/*!\deprecated Use \ref cucon_stack_itr. */
 CU_SINLINE cucon_stack_it_t
 cucon_stack_begin(cucon_stack_t stack)
 {
@@ -206,13 +206,13 @@ cucon_stack_begin(cucon_stack_t stack)
     return it;
 }
 
-/*!\deprecated Use \ref cucon_stack_itr_s. */
+/*!\deprecated Use \ref cucon_stack_itr. */
 CU_SINLINE cu_bool_t cucon_stack_it_is_end(cucon_stack_it_t it)
 { return it.sp == cuconP_STACK_NOADDRESS; }
 
 void cuconP_stack_it_fix(cucon_stack_it_t *it);
 
-/*!\deprecated Use \ref cucon_stack_itr_s. */
+/*!\deprecated Use \ref cucon_stack_itr. */
 CU_SINLINE void
 cucon_stack_it_advance(cucon_stack_it_t *it, size_t size)
 {
@@ -221,9 +221,9 @@ cucon_stack_it_advance(cucon_stack_it_t *it, size_t size)
 	cuconP_stack_it_fix(it);
 }
 
-/*!\deprecated Use \ref cucon_stack_itr_s. */
+/*!\deprecated Use \ref cucon_stack_itr. */
 CU_SINLINE void *cucon_stack_it_get(cucon_stack_it_t it) { return it.sp; }
-/*!\deprecated Use \ref cucon_stack_itr_s. */
+/*!\deprecated Use \ref cucon_stack_itr. */
 #define cucon_stack_it_get_ptr(it) CUCON_STACK_IT_GET(it, void *)
 
 
@@ -242,11 +242,11 @@ CU_SINLINE void *cucon_stack_it_get(cucon_stack_it_t it) { return it.sp; }
 /* Free 'sizeof(elt_t)' bytes. */
 #define CUCON_STACK_POP(stack, elt_t) cucon_stack_free((stack), sizeof(elt_t))
 
-/*!\deprecated Use \ref cucon_stack_itr_s. */
+/*!\deprecated Use \ref cucon_stack_itr. */
 #define CUCON_STACK_IT_ADVANCE(it, elt_t) \
 	cucon_stack_it_advance(it, sizeof(elt_t))
 
-/*!\deprecated Use \ref cucon_stack_itr_s. */
+/*!\deprecated Use \ref cucon_stack_itr. */
 #define CUCON_STACK_IT_GET(it, elt_t) (*(elt_t*)cucon_stack_it_get(it))
 
 /*!@}*/

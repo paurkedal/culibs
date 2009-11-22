@@ -490,7 +490,7 @@ _ts_sink_new(cutext_sink_t subsink, cufo_textstyle_t style)
 {
     char const *sub_encoding = cutext_sink_encoding(subsink);
     cufo_textsink_t sink;
-    cu_debug_assert(style->sink_size >= sizeof(struct cufo_textsink_s));
+    cu_debug_assert(style->sink_size >= sizeof(struct cufo_textsink));
     sink = cu_galloc(style->sink_size);
     if (!sub_encoding)
 	sub_encoding = "UTF-8";
@@ -525,7 +525,7 @@ cufo_stream_t
 cufo_open_text_sink(cufo_textstyle_t style, cutext_sink_t subsink)
 {
     cutext_sink_t sink;
-    cufo_stream_t fos = cu_gnew(struct cufo_stream_s);
+    cufo_stream_t fos = cu_gnew(struct cufo_stream);
     if (!style)
 	style = cufo_default_textstyle();
     sink = _ts_sink_new(subsink, style);

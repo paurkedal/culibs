@@ -44,7 +44,7 @@ static void
 _mfvs_redure_graph(cugra_graph_t G, cucon_pset_t V, cucon_pmap_t vdst_to_vsrc)
 {
     cugra_vertex_t v;
-    struct cucon_stack_s KV;
+    struct cucon_stack KV;
     cucon_stack_init(&KV);
     cugra_graph_for_vertices(v, G)
 	CUCON_STACK_PUSH(&KV, cugra_vertex_t, v);
@@ -156,10 +156,10 @@ cu_clop_def(_free_bdd, cu_bool_t, void const *v, void *vinfo)
 void
 cugra_MFVS(cugra_graph_t G_src, cucon_pset_t cutset)
 {
-    struct cugra_graph_s G_dst;
+    struct cugra_graph G_dst;
     cugra_graph_t G;
-    struct cucon_stack_s KG;
-    struct cucon_pmap_s vdst_to_vsrc;
+    struct cucon_stack KG;
+    struct cucon_pmap vdst_to_vsrc;
     cugra_graph_init(&G_dst, 0);
     cucon_pmap_init(&vdst_to_vsrc);
     cugra_graph_copy(G_src, &G_dst, NULL, &vdst_to_vsrc);
@@ -169,12 +169,12 @@ cugra_MFVS(cugra_graph_t G_src, cucon_pset_t cutset)
     cu_dlogf(_file, "Start MFVS.");
     while (!cucon_stack_is_empty(&KG)) {
 	cucon_listnode_t it_B;
-	struct cucon_pmap_s vinfo_map;
+	struct cucon_pmap vinfo_map;
 	cugra_vertex_t v;
 	int changes, cur_it_num;
 	BDD g, partial_cutset;
-	struct cucon_umap_s index_to_vertex;
-	struct cucon_list_s B;
+	struct cucon_umap index_to_vertex;
+	struct cucon_list B;
 	int B_cnt;
 	cu_dlogf(_file, "MFVS: %d components on stack",
 		 CUCON_STACK_SIZE(&KG, cugra_graph_t));

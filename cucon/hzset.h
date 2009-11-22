@@ -27,18 +27,16 @@ CU_BEGIN_DECLARATIONS
  * the case when there is no value associated with the keys.
  */
 
-typedef struct cucon_hzset_node_s *cucon_hzset_node_t;
-
-/*!Base struct for \ref cucon_hzset_s nodes. */
-struct cucon_hzset_node_s
+/*!Base struct for \ref cucon_hzset nodes. */
+struct cucon_hzset_node
 {
-    struct cucon_hzmap_node_s impl;
+    struct cucon_hzmap_node impl;
 };
 
 /*!Hash set with fixed-size keys. */
-struct cucon_hzset_s
+struct cucon_hzset
 {
-    struct cucon_hzmap_s impl;
+    struct cucon_hzmap impl;
 };
 
 /*!The number of elements in \a set. */
@@ -59,7 +57,7 @@ CU_SINLINE cucon_hzset_t cucon_hzset_new(cu_shortsize_t key_size_w)
 
 /*!Given that \a node is initialised with a key of suitable size for \a set, if
  * the key exists in \a set, returns false, else inserts \a node into \a set
- * and returns true.  The \ref cucon_hzset_node_s base struct of \a node is
+ * and returns true.  The \ref cucon_hzset_node base struct of \a node is
  * initialised by this call if the insert takes place. */
 CU_SINLINE cu_bool_t
 cucon_hzset_insert_node(cucon_hzset_t set, cucon_hzset_node_t node)
@@ -112,9 +110,9 @@ CU_SINLINE void
 cucon_hzset_filter(cu_clop(f, cu_bool_t, void const *key), cucon_hzset_t set)
 { cucon_hzmap_filter_keys(f, &set->impl); }
 
-struct cucon_hzset_itr_s
+struct cucon_hzset_itr
 {
-    struct cucon_hzmap_itr_s impl;
+    struct cucon_hzmap_itr impl;
 };
 
 /*!Initialise \a itr for iterating over all elements of \a set. */

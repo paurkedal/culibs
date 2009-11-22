@@ -25,7 +25,7 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cu_idr cu/idr.h: Identifiers (Strings with Pointer Equality)
  * @{ \ingroup cu_type_mod */
 
-struct cu_idr_s
+struct cu_idr
 {
     CUOO_HCOBJ
     cu_word_t key_size;

@@ -26,7 +26,7 @@ CU_BEGIN_DECLARATIONS
 /** \defgroup cuex_occurtree_h cuex/occurtree.h: Caching of Variable Occurences
  ** @{ \ingroup cuex_mod */
 
-struct cuex_occurtree_s
+struct cuex_occurtree
 {
     cuex_t e;
     cu_bool_least_t has_ref;

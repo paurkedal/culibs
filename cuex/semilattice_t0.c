@@ -49,7 +49,7 @@ build(int N, int J, cucon_pset_t set)
 void
 test(int N, int J, cu_bool_t do_print)
 {
-    struct cucon_pset_s set;
+    struct cucon_pset set;
     cuex_t e0, e1, e_meet, e_join;
     cucon_pset_init(&set);
     e0 = build(N, J, &set);

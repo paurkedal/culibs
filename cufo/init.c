@@ -31,7 +31,7 @@ void cufoP_printf_init(void);
 void cufoP_init_formats(void);
 
 extern cu_installdirs_t cuconfP_installdirs;
-struct cuos_pkg_user_dirs_s cufoP_user_dirs
+struct cuos_pkg_user_dirs cufoP_user_dirs
     = CUOS_PKG_USER_DIRS_INITZ("cufo", "CUFO", cuconfP_installdirs);
 
 cufo_stream_t cufo_stderr, cufo_stdout;

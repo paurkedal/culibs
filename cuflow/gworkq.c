@@ -21,12 +21,12 @@
 #include <cu/memory.h>
 #include <atomic_ops.h>
 
-struct workq_head_s
+struct _workq_head
 {
-    struct cuflow_gflexq_s gflexq;
+    struct cuflow_gflexq gflexq;
 };
 
-static struct workq_head_s gworkq[cuflow_priority_postmax];
+static struct _workq_head gworkq[cuflow_priority_postmax];
 static AO_t gworkq_priority = 0;
 pthread_mutex_t cuflowP_gworkq_mutex = CU_MUTEX_INITIALISER;
 pthread_cond_t cuflowP_gworkq_cond = PTHREAD_COND_INITIALIZER;
@@ -66,7 +66,7 @@ gworkq_yield_at(int cutoff_priority, cu_bool_t have_lock)
     while (cutoff_priority <= gwq_priority) {
 	/* Pop off the first flexible work queue, else the fixed work
 	 * queue.  Unlink empty flexible queues. */
-	struct workq_head_s *head = &gworkq[gwq_priority];
+	struct _workq_head *head = &gworkq[gwq_priority];
 	cuflow_gflexq_t gflexq = head->gflexq.next;
 	cuflow_workq_fn_t fn;
 	fn = cuflow_workq_pop_front(cu_to(cuflow_workq, gflexq));
@@ -240,7 +240,7 @@ cuflow_gflexq_init(cuflow_gflexq_t gflexq, cuflow_priority_t initpri)
 cuflow_gflexq_t
 cuflow_gflexq_new(cuflow_priority_t initpri)
 {
-    cuflow_gflexq_t gfq = cu_gnew(struct cuflow_gflexq_s);
+    cuflow_gflexq_t gfq = cu_gnew(struct cuflow_gflexq);
     cuflow_gflexq_init(gfq, initpri);
     return gfq;
 }

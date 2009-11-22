@@ -24,10 +24,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-typedef struct _fd_sink_s *_fd_sink_t;
-struct _fd_sink_s
+typedef struct _fd_sink *_fd_sink_t;
+struct _fd_sink
 {
-    cu_inherit (cu_dsink_s);
+    cu_inherit (cu_dsink);
     int fd;
 };
 
@@ -61,7 +61,7 @@ _fd_sink_control_if_close(cu_dsink_t sink, int cmd, va_list va)
 cu_dsink_t
 cuos_dsink_fdopen(int fd)
 {
-    _fd_sink_t sink = cu_gnew(struct _fd_sink_s);
+    _fd_sink_t sink = cu_gnew(struct _fd_sink);
     cu_dsink_init(cu_to(cu_dsink, sink),
 		  _fd_sink_control_if_not_close, _fd_sink_write);
     sink->fd = fd;
@@ -71,7 +71,7 @@ cuos_dsink_fdopen(int fd)
 cu_dsink_t
 cuos_dsink_fdopen_close(int fd)
 {
-    _fd_sink_t sink = cu_gnew(struct _fd_sink_s);
+    _fd_sink_t sink = cu_gnew(struct _fd_sink);
     cu_dsink_init(cu_to(cu_dsink, sink),
 		  _fd_sink_control_if_close, _fd_sink_write);
     sink->fd = fd;

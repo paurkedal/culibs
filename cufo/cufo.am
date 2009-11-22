@@ -6,6 +6,7 @@ dist_cufo_style_DATA = cufo/default-dark.style cufo/default-light.style
 cufo_headers = \
 	cufo/attr.h \
 	cufo/attrdefs.h \
+	cufo/compat.h \
 	cufo/fwd.h \
 	cufo/sink.h \
 	cufo/stream.h \

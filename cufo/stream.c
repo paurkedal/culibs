@@ -98,7 +98,7 @@ cufo_stream_clientstate(cufo_stream_t fos, void const *key,
     cucon_hzmap_node_t node;
     cu_word_t wkey = (cu_word_t)key;
     cu_bool_t st;
-#define NODEBASE_SIZE (sizeof(struct cucon_hzmap_node_s) + sizeof(cu_word_t))
+#define NODEBASE_SIZE (sizeof(struct cucon_hzmap_node) + sizeof(cu_word_t))
     st = cucon_hzmap_insert(&fos->clientstate_map, &wkey,
 			    NODEBASE_SIZE + state_size, &node);
     *(void **)state_out = cu_ptr_add(node, NODEBASE_SIZE);
@@ -385,7 +385,7 @@ cufo_space(cufo_stream_t fos)
 cu_bool_t
 cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 {
-    struct cucon_arr_s arr;
+    struct cucon_arr arr;
     cufo_attrbind_t attrbinds;
 #ifdef CUCONF_DEBUG_CLIENT
     cufoP_tag_stack_t tag_stack = cu_gnew(struct cufoP_tag_stack_s);
@@ -397,7 +397,7 @@ cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
     for (;;) {
 	cufo_attr_t attr = va_arg(va, cufo_attr_t);
 	cufo_attrbind_t bind;
-	bind = cucon_arr_extend_gp(&arr, sizeof(struct cufo_attrbind_s));
+	bind = cucon_arr_extend_gp(&arr, sizeof(struct cufo_attrbind));
 	bind->attr = attr;
 	if (attr == NULL)
 	    break;

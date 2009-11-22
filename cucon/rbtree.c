@@ -57,7 +57,7 @@ cucon_rbtree_init(cucon_rbtree_t tree)
 cucon_rbtree_t
 cucon_rbtree_new(void)
 {
-    cucon_rbtree_t tree = cu_gnew(struct cucon_rbtree_s);
+    cucon_rbtree_t tree = cu_gnew(struct cucon_rbtree);
     tree->root = NULL;
     return tree;
 }
@@ -71,7 +71,7 @@ cucon_rbtree_cct_copy_ctive(cucon_rbtree_t tree, cucon_rbtree_t src)
 cucon_rbtree_t
 cucon_rbtree_new_copy_ctive(cucon_rbtree_t src)
 {
-    cucon_rbtree_t tree = cu_gnew(struct cucon_rbtree_s);
+    cucon_rbtree_t tree = cu_gnew(struct cucon_rbtree);
     tree->root = src->root;
     return tree;
 }
@@ -79,7 +79,7 @@ cucon_rbtree_new_copy_ctive(cucon_rbtree_t src)
 CU_SINLINE cucon_rbnode_t
 _copy_ptrnode(cucon_rbnode_t src)
 {
-    cucon_rbnode_t dst = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_rbnode_s)
+    cucon_rbnode_t dst = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_rbnode)
 				   + sizeof(void *));
     dst->is_black = src->is_black;
     *(void **)cucon_rbnode_mem(dst) = *(void **)cucon_rbnode_mem(src);
@@ -90,7 +90,7 @@ cucon_rbnode_t
 cucon_rbnode_new_copy(cucon_rbnode_t src, size_t slot_size)
 {
     cucon_rbnode_t dst
-	= cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_rbnode_s) + slot_size);
+	= cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_rbnode) + slot_size);
     dst->is_black = src->is_black;
 #ifndef NDEBUG
     dst->left = (void *)-1;
@@ -120,7 +120,7 @@ cucon_rbtree_cct_copy_node(cucon_rbtree_t dst, cucon_rbtree_t src,
 cucon_rbtree_t
 cucon_rbtree_new_copy_node(cucon_rbtree_t src, cucon_rbnode_copier_t node_new_copy)
 {
-    cucon_rbtree_t tree = cu_gnew(struct cucon_rbtree_s);
+    cucon_rbtree_t tree = cu_gnew(struct cucon_rbtree);
     cucon_rbtree_cct_copy_node(tree, src, node_new_copy);
     return tree;
 }
@@ -145,7 +145,7 @@ cucon_rbtree_cct_copy_ptr(cucon_rbtree_t dst, cucon_rbtree_t src)
 cucon_rbtree_t
 cucon_rbtree_new_copy_ptr(cucon_rbtree_t src)
 {
-    cucon_rbtree_t dst = cu_gnew(struct cucon_rbtree_s);
+    cucon_rbtree_t dst = cu_gnew(struct cucon_rbtree);
     cuconP_rbnode_copy_rec_ptr(src->root, &dst->root);
     return dst;
 }
@@ -395,7 +395,7 @@ cucon_rbtree_insert1m_mem(cucon_rbtree_t tree, cu_clop(compare, int, void *),
 	    return cu_false;
 	}
     }
-    *--sp = x = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_rbnode_s)
+    *--sp = x = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_rbnode)
 			   + slot_size);
     if (sp[1]) {
 	if (cmp < 0)
@@ -480,7 +480,7 @@ cucon_rbtree_insert2p_ptr(cucon_rbtree_t tree,
     cucon_rbnode_t node;
     if (cucon_rbtree_insert2p_node(
 		tree, compare, *(void **)ptr_io,
-		sizeof(struct cucon_rbnode_s) + sizeof(void *), 0,
+		sizeof(struct cucon_rbnode) + sizeof(void *), 0,
 		&node)) {
 	*(void **)ptr_io = cucon_rbnode_ptr(node);
 	return cu_true;
@@ -509,7 +509,7 @@ cucon_rbtree_cinsert1m_mem(cucon_rbtree_t tree,
     /* Insert */
     x = tree->root;
     if (!x) {
-	x = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_rbnode_s) + slot_size);
+	x = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_rbnode) + slot_size);
 	SET_LEFT(x, NULL);
 	SET_RIGHT(x, NULL);
 	x->is_black = 1;
@@ -531,7 +531,7 @@ cucon_rbtree_cinsert1m_mem(cucon_rbtree_t tree,
 	    return cu_false;
 	}
     }
-    *--sp = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_rbnode_s) + slot_size);
+    *--sp = cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_rbnode) + slot_size);
     sp_leaf = sp;
     x1 = cu_call(node_new_copy, sp_root[0]);
     for (sp = sp_root - 1; sp != sp_leaf; --sp) {

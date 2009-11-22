@@ -28,7 +28,7 @@
 typedef struct mynode_s *mynode_t;
 struct mynode_s
 {
-    cu_inherit (cucon_hzmap_node_s);
+    cu_inherit (cucon_hzmap_node);
     cu_word_t key[2];
     cu_word_t sum;
 };
@@ -100,7 +100,7 @@ int
 main()
 {
     int i;
-    struct cucon_hzmap_s map;
+    struct cucon_hzmap map;
     cu_init();
     for (i = 0; i < N_REP; ++i)
 	test(&map, 0);

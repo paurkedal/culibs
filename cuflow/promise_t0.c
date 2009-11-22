@@ -25,7 +25,7 @@
 #define TH_CNT 10
 #define JOB_CNT 20
 
-static struct cuflow_promise_s promise;
+static struct cuflow_promise promise;
 static pthread_key_t thread_info_key;
 
 struct thread_info_s

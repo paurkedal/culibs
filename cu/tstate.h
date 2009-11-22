@@ -55,20 +55,20 @@ typedef enum {
 
 typedef AO_t cu_rarex_t;
 
-typedef struct cuP_tstate_s *cuP_tstate_t;
-struct cuP_tstate_s
+typedef struct cuP_tstate *cuP_tstate_t;
+struct cuP_tstate
 {
     cuP_tstate_t next;
 
     /* cu */
-    struct cuP_thread_atexit_node_s *atexit_chain;
+    struct cuP_thread_atexit_node *atexit_chain;
     void *ord_fl_arr[cuP_FL_CNT];
     void *unord_fl_arr[cuP_FL_CNT];
     cu_rarex_t *jammed_on_rarex;
     cu_bool_t jammed_on_write;
 
     /* cuflow */
-    struct cuflowP_windstate_s *windstate;
+    struct cuflowP_windstate *windstate;
     int priority;
     void *gflexq;
 

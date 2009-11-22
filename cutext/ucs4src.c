@@ -38,7 +38,7 @@ cutext_ucs4src_t
 cutext_ucs4src_new(cutext_producer_t producer,
 		   cu_str_t path, int line, int column)
 {
-    cutext_ucs4src_t ucs4src = cu_gnew(struct cutext_ucs4src_s);
+    cutext_ucs4src_t ucs4src = cu_gnew(struct cutext_ucs4src);
     cutext_ucs4src_init(ucs4src, producer, path, line, column);
     return ucs4src;
 }
@@ -210,7 +210,7 @@ cutext_ucs4src_t
 cutext_ucs4src_new_detect(cutext_producer_t producer,
 			  cu_str_t path, int line, int column)
 {
-    cutext_ucs4src_t ucs4src = cu_gnew(struct cutext_ucs4src_s);
+    cutext_ucs4src_t ucs4src = cu_gnew(struct cutext_ucs4src);
     cutext_ucs4src_init_detect(ucs4src, producer, path, line, column);
     return ucs4src;
 }

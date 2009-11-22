@@ -256,7 +256,7 @@ void cuD_ufree_atomic(void *ptr, char const *file, int line);
 
 /** A type which represents a pointer that is hidden to the garbage
  ** collector. */
-typedef struct cu_hidden_ptr_s *cu_hidden_ptr_t;
+typedef struct cu_hidden_ptr *cu_hidden_ptr_t;
 
 /** Hide a pointer from the garbage collector. */
 #define cu_hide_ptr(ptr) ((cu_hidden_ptr_t)~(cu_uintptr_t)(ptr))

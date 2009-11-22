@@ -36,7 +36,7 @@
 #  define ARCSET_MAXFILL_DENOM 2
 #endif
 
-typedef struct cugra_graph_with_arcset_s *cugra_graph_with_arcset_t;
+typedef struct cugra_graph_with_arcset *cugra_graph_with_arcset_t;
 
 #define ASGRAPH(G) cu_from(cugra_graph_with_arcset, cugra_graph, G)
 
@@ -72,7 +72,7 @@ typedef struct cugraP_arcset_node_s *_arcset_node_t;
 struct cugraP_arcset_node_s
 {
     _arcset_node_t next;
-    struct cugra_arc_s arc;
+    struct cugra_arc arc;
 };
 
 static void
@@ -159,7 +159,7 @@ _arcset_insert(cugra_graph_with_arcset_t G,
     /* No existing arc, insert it. */
     *p = cu_galloc(arc_size
 		   + sizeof(struct cugraP_arcset_node_s)
-		   - sizeof(struct cugra_arc_s));
+		   - sizeof(struct cugra_arc));
     CU_GCLEAR_PTR((*p)->next);
     *arc_out = &(*p)->arc;
     _init_arc(*arc_out, tail, head);
@@ -215,10 +215,10 @@ cugra_graph_new(unsigned int gflags)
 {
     cugra_graph_t G;
     if (gflags & CUGRA_GFLAG_SIMPLEARCED) {
-	G = cu_galloc(sizeof(struct cugra_graph_with_arcset_s));
+	G = cu_galloc(sizeof(struct cugra_graph_with_arcset));
 	_arcset_init(ASGRAPH(G));
     } else
-	G = cu_gnew(struct cugra_graph_s);
+	G = cu_gnew(struct cugra_graph);
     G->gflags = gflags;
     cu_dlink_init_singleton(&G->vertices);
     return G;
@@ -247,7 +247,7 @@ cugra_graph_vertex_init(cugra_graph_t G, cugra_vertex_t v)
 cugra_vertex_t
 cugra_graph_vertex_new(cugra_graph_t G)
 {
-    cugra_vertex_t v = cu_gnew(struct cugra_vertex_s);
+    cugra_vertex_t v = cu_gnew(struct cugra_vertex);
     _init_vertex(G, v);
     return v;
 }
@@ -255,7 +255,7 @@ cugra_graph_vertex_new(cugra_graph_t G)
 cugra_vertex_t
 cugra_graph_vertex_new_mem(cugra_graph_t G, size_t size)
 {
-    cugra_vertex_t v = cu_galloc(sizeof(struct cugra_vertex_s) + size);
+    cugra_vertex_t v = cu_galloc(sizeof(struct cugra_vertex) + size);
     _init_vertex(G, v);
     return v;
 }
@@ -264,7 +264,7 @@ cugra_vertex_t
 cugra_graph_vertex_new_ptr(cugra_graph_t G, void *ptr)
 {
     cugra_vertex_t v;
-    v = cu_galloc(sizeof(struct cugra_vertex_s) + sizeof(void *));
+    v = cu_galloc(sizeof(struct cugra_vertex) + sizeof(void *));
     *(void **)cugra_vertex_mem(v) = ptr;
     _init_vertex(G, v);
     return v;
@@ -274,7 +274,7 @@ cugra_arc_t
 cugra_graph_arc_new(cugra_vertex_t v_tail, cugra_vertex_t v_head)
 {
     cugra_arc_t a;
-    a = cu_gnew(struct cugra_arc_s);
+    a = cu_gnew(struct cugra_arc);
     _init_arc(a, v_tail, v_head);
     return a;
 }
@@ -284,7 +284,7 @@ cugra_graph_arc_new_mem(cugra_vertex_t v_tail, cugra_vertex_t v_head,
 			size_t size)
 {
     cugra_arc_t a;
-    a = cu_galloc(sizeof(struct cugra_arc_s) + size);
+    a = cu_galloc(sizeof(struct cugra_arc) + size);
     _init_arc(a, v_tail, v_head);
     return a;
 }
@@ -294,7 +294,7 @@ cugra_graph_arc_new_ptr(cugra_vertex_t v_tail, cugra_vertex_t v_head,
 			void *ptr)
 {
     cugra_arc_t a;
-    a = cu_galloc(sizeof(struct cugra_arc_s) + sizeof(void *));
+    a = cu_galloc(sizeof(struct cugra_arc) + sizeof(void *));
     *(void **)cugra_arc_mem(a) = ptr;
     _init_arc(a, v_tail, v_head);
     return a;
@@ -327,9 +327,9 @@ cugra_connect(cugra_graph_t G,
 	if ((G->gflags & CUGRA_GFLAG_UNDIRECTED) && tail > head)
 	    CU_SWAP(cugra_vertex_t, tail, head);
 	return _arcset_insert(ASGRAPH(G), tail, head,
-			      sizeof(struct cugra_arc_s), &arc);
+			      sizeof(struct cugra_arc), &arc);
     } else {
-	arc = cu_gnew(struct cugra_arc_s);
+	arc = cu_gnew(struct cugra_arc);
 	_init_arc(arc, tail, head);
 	return cu_true;
     }
@@ -403,7 +403,7 @@ cugra_eliminate_vertex(cugra_graph_t G, cugra_vertex_t v)
 	}
     } else {
 	cugra_vertex_for_inarcs(in, v) {
-	    struct cucon_pset_s V;
+	    struct cucon_pset V;
 	    cugra_vertex_t v_tail = cugra_arc_tail(in);
 	    cucon_pset_init(&V);
 	    cugra_vertex_for_outarcs(out, v_tail)

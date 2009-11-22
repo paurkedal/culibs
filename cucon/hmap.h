@@ -33,22 +33,22 @@ CU_BEGIN_DECLARATIONS
  ** \see cucon_pmap_h
  **/
 
-typedef struct cucon_hmap_node_s *cucon_hmap_node_t;
-struct cucon_hmap_node_s
+typedef struct cucon_hmap_node *cucon_hmap_node_t;
+struct cucon_hmap_node
 {
     cucon_hmap_node_t next;
     void const *key;
     /* value data */
 };
 
-struct cucon_hmap_s
+struct cucon_hmap
 {
     cu_clop(eq, cu_bool_t, void const *, void const *);
     cu_clop(hash, cu_hash_t, void const *);
     cucon_hmap_node_t *table;
     int size;
     cu_hash_t mask;
-    struct cucon_hmap_node_s tail;
+    struct cucon_hmap_node tail;
 };
 
 /** Initialise \a map as a hash set over objects with equality \a eq and hash
@@ -131,7 +131,7 @@ cu_bool_t cucon_hmap_conj_mem(cucon_hmap_t map,
 			      cu_clop(f, cu_bool_t, void const *, void *));
 
 #if 0
-struct cucon_hmap_itr_s
+struct cucon_hmap_itr
 {
     cucon_hmap_node_t *node_head;
     cucon_hmap_node_t node;

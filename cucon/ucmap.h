@@ -58,7 +58,7 @@ CU_BEGIN_DECLARATIONS
  * uses which do not require constructive updates.
  */
 
-struct cucon_ucmap_s
+struct cucon_ucmap
 {
 #if cuconP_UCMAP_ENABLE_HCONS
     CUOO_HCOBJ

@@ -22,7 +22,7 @@ void
 profile(int N)
 {
     int i;
-    struct cucon_uset_s map;
+    struct cucon_uset map;
     cucon_uset_init(&map);
     for (i = 0; i < N; ++i) {
 	cu_word_t key = i*i%N;

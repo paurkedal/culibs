@@ -38,17 +38,17 @@ CU_BEGIN_DECLARATIONS
  * \see cucon_umap_h */
 
 /*!A pointer-keyed map with variable-sized inline value slots. */
-struct cucon_pmap_s
+struct cucon_pmap
 {
-    struct cucon_umap_s impl;
+    struct cucon_umap impl;
 };
 
-struct cucon_pmap_node_s
+struct cucon_pmap_node
 {
-    struct cucon_umap_node_s impl;
+    struct cucon_umap_node impl;
 };
 
-typedef struct cucon_pmap_node_s *cucon_pmap_node_t;
+typedef struct cucon_pmap_node *cucon_pmap_node_t;
 typedef cucon_umap_it_t cucon_pmap_it_t;
 
 CU_SINLINE void *cucon_pmap_node_key(cucon_pmap_node_t node)
@@ -104,7 +104,7 @@ CU_SINLINE void cucon_pmap_init_copy_node(
 CU_SINLINE cucon_pmap_node_t cucon_pmap_node_alloc(size_t slot_size)
 {
     return (cucon_pmap_node_t)cu_galloc(
-		CU_ALIGNED_SIZEOF(struct cucon_pmap_node_s) + slot_size);
+		CU_ALIGNED_SIZEOF(struct cucon_pmap_node) + slot_size);
 }
 
 CU_SINLINE void *cucon_pmap_node_get_mem(cucon_pmap_node_t node)
@@ -120,7 +120,7 @@ cucon_pmap_insert_init_node(cucon_pmap_t map, cucon_pmap_node_t node)
 { return cucon_umap_insert_init_node(&map->impl, &node->impl); }
 
 /*!If \a key is not in \a map, this call allocates a node of size \a node_size,
- * initialises a \c cucon_pmap_node_s from offset 0 with the key \a key,
+ * initialises a \c cucon_pmap_node from offset 0 with the key \a key,
  * inserts the node into \a map, assigns it to \c *\a node_out, and returns
  * true.  Otherwise, returns false. */
 CU_SINLINE cu_bool_t

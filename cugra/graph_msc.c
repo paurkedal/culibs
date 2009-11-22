@@ -175,7 +175,7 @@ cugra_identify_MSC(cugra_graph_t G, cucon_stack_t vertex_set_stack,
 		   cucon_pmap_t vertex_index_map)
 {
     cugra_vertex_t v;
-    struct cucon_pmap_s vinfomap;
+    struct cucon_pmap vinfomap;
     cucon_pmap_init(&vinfomap);
     cugra_graph_for_vertices(v, G)
 	_collect_msc(v, &vinfomap, 0);
@@ -185,7 +185,7 @@ cugra_identify_MSC(cugra_graph_t G, cucon_stack_t vertex_set_stack,
 void
 cugra_move_MSC_subgraphs(cugra_graph_t G, cucon_stack_t KG)
 {
-    struct cucon_stack_s KV;
+    struct cucon_stack KV;
     cucon_stack_init(&KV);
     cugra_identify_MSC(G, &KV, NULL);
     while (!cucon_stack_is_empty(&KV)) {

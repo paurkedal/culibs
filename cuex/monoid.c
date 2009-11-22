@@ -135,7 +135,7 @@ cuex_t
 cuex_monoid_rightmult_array(cuex_meta_t mult, cuex_t x,
 			    cuex_t *array, size_t count)
 {
-    struct cu_ptr_array_source_s src;
+    struct cu_ptr_array_source src;
     cu_ptr_array_source_init(&src, array, array + count);
     return cuex_monoid_rightmult_source(mult, x, cu_to(cu_ptr_source, &src));
 }
@@ -226,12 +226,12 @@ cuex_any_monoid_factor_source(cuex_t x, ptrdiff_t i, ptrdiff_t j)
 
 /* == Build Sinktor == */
 
-typedef struct _build_sinktor_s *_build_sinktor_t;
-struct _build_sinktor_s
+typedef struct _build_sinktor *_build_sinktor_t;
+struct _build_sinktor
 {
-    cu_inherit (cu_ptr_sinktor_s);
+    cu_inherit (cu_ptr_sinktor);
     cuex_meta_t mult;
-    struct cucon_list_s l;
+    struct cucon_list l;
 };
 
 static void
@@ -257,7 +257,7 @@ _build_sinktor_finish(cu_ptr_sinktor_t sinktor)
 static cu_ptr_sinktor_t
 _build_sinktor(cuex_intf_compound_t impl, void *tpl)
 {
-    _build_sinktor_t self = cu_gnew(struct _build_sinktor_s);
+    _build_sinktor_t self = cu_gnew(struct _build_sinktor);
     cu_ptr_sinktor_init(cu_to(cu_ptr_sinktor, self),
 			_build_sinktor_put, _build_sinktor_finish);
     cu_debug_assert(cuex_is_any_monoid_nongen(tpl));
@@ -298,7 +298,7 @@ _monoid_foprint(cufo_stream_t fos, cufo_prispec_t spec, void *x)
 
 /* == Dispatch == */
 
-static struct cuex_intf_compound_s _compound_impl = {
+static struct cuex_intf_compound _compound_impl = {
     .flags = CUEX_COMPOUNDFLAG_PREFER_NCOMM
 	   | CUEX_COMPOUNDFLAG_NCOMM_FILTERABLE_IMAGE
 	   | CUEX_COMPOUNDFLAG_NCOMM_EXPANSIVE_IMAGE,
@@ -328,5 +328,5 @@ cuexP_monoid_init(void)
 {
     cuex_intf_compound_finish(&_compound_impl);
     cuexP_monoid_type = cuoo_type_new_opaque_hcs(
-	_monoid_dispatch, sizeof(struct cuex_monoid_s) - CUOO_HCOBJ_SHIFT);
+	_monoid_dispatch, sizeof(struct cuex_monoid) - CUOO_HCOBJ_SHIFT);
 }

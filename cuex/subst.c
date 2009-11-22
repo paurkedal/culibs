@@ -38,7 +38,7 @@
 cuex_veqv_t
 cuex_veqv_new(cuex_var_t var)
 {
-    cuex_veqv_t veqv = cu_gnew(struct cuex_veqv_s);
+    cuex_veqv_t veqv = cu_gnew(struct cuex_veqv);
     veqv->qcode = cuex_varmeta_qcode(cuex_meta(var));
     veqv->var_link = cucon_slink_prepend_ptr(cucon_slink_empty(), var);
     veqv->value = NULL;
@@ -48,7 +48,7 @@ cuex_veqv_new(cuex_var_t var)
 cuex_veqv_t
 cuex_veqv_new_copy(cuex_veqv_t src_veqv)
 {
-    cuex_veqv_t veqv = cu_gnew(struct cuex_veqv_s);
+    cuex_veqv_t veqv = cu_gnew(struct cuex_veqv);
     veqv->qcode = src_veqv->qcode;
     veqv->var_link = src_veqv->var_link;
     veqv->value = src_veqv->value;
@@ -65,7 +65,7 @@ cuex_veqv_unify(cuex_veqv_t veqv0, cuex_veqv_t veqv1, cuex_t new_value)
     cuex_var_t head_var;
     cucon_slink_t var_link;
     cucon_slink_t dst_var_link;
-    struct cucon_pmap_s varset;
+    struct cucon_pmap varset;
 /*     cu_debug_assert(veqv0->qcode == veqv1->qcode); /\* XXX *\/ */
     if (veqv1->qcode == cuex_qcode_active_w)
 	veqv1->qcode = veqv0->qcode;
@@ -128,7 +128,7 @@ cuex_subst_init(cuex_subst_t subst, cuex_qcset_t qcset)
 cuex_subst_t
 cuex_subst_new(cuex_qcset_t qcset)
 {
-    cuex_subst_t subst = cu_gnew(struct cuex_subst_s);
+    cuex_subst_t subst = cu_gnew(struct cuex_subst);
     cuexP_subst_init(subst, NULL, qcset, cu_true);
     return subst;
 }
@@ -142,7 +142,7 @@ cuex_subst_init_nonidem(cuex_subst_t subst, cuex_qcset_t qcset)
 cuex_subst_t
 cuex_subst_new_nonidem(cuex_qcset_t qcset)
 {
-    cuex_subst_t subst = cu_gnew(struct cuex_subst_s);
+    cuex_subst_t subst = cu_gnew(struct cuex_subst);
     cuexP_subst_init(subst, NULL, qcset, cu_false);
     return subst;
 }
@@ -150,7 +150,7 @@ cuex_subst_new_nonidem(cuex_qcset_t qcset)
 cuex_subst_t
 cuex_subst_new_clone(cuex_subst_t src_subst, cuex_qcset_t qcset)
 {
-    cuex_subst_t subst = cu_gnew(struct cuex_subst_s);
+    cuex_subst_t subst = cu_gnew(struct cuex_subst);
     while (src_subst && cucon_pmap_size(&src_subst->var_to_veqv) == 0)
 	src_subst = src_subst->shadowed;
     if (src_subst) {
@@ -214,7 +214,7 @@ cu_clos_def(_subst_merge_cb_copy,
     if (var == cucon_slink_get_ptr(var_cur)) {
 	cuex_veqv_t *slot;
 	if (cucon_pmap_insert_mem(self->dst, var,
-				sizeof(struct cuex_veqv_s), &slot)) {
+				sizeof(struct cuex_veqv), &slot)) {
 	    veqv0 = cuex_veqv_new_copy(veqv);
 	    *slot = veqv;
 	    var_cur = cucon_slink_next(var_cur);
@@ -532,7 +532,7 @@ cuex_subst_unblock(cuex_subst_t subst, cuex_var_t v)
 
 cu_clos_def(_unblock_all_cb0,
 	    cu_prot(void, void const *var, void *veqv),
-	    ( struct cucon_pmap_s visited; ) )
+	    ( struct cucon_pmap visited; ) )
 {
 #define veqv ((cuex_veqv_t)veqv)
     cu_clos_self(_unblock_all_cb0);
@@ -893,7 +893,7 @@ cuex_subst_dump(cuex_subst_t subst, FILE *file)
 
 cu_clos_def(_subst_iter_cb,
 	    cu_prot(void, void const *var, void *veqv),
-	    (cu_clop(cb, void, cuex_veqv_t); struct cucon_pmap_s visited;))
+	    (cu_clop(cb, void, cuex_veqv_t); struct cucon_pmap visited;))
 {
 #define veqv ((cuex_veqv_t)veqv)
     cu_clos_self(_subst_iter_cb);
@@ -924,7 +924,7 @@ cuex_subst_iter_veqv(cuex_subst_t subst, cu_clop(cb, void, cuex_veqv_t))
 cu_clos_def(_subst_iter_veqv_cache_cb,
 	    cu_prot(void, void const *var, void *veqv),
     (	cu_clop(f, void, cuex_veqv_t veqv, void *cache, void *sub_data);
-	struct cucon_pmap_s cache;
+	struct cucon_pmap cache;
 	size_t cache_size;
 	cuex_subst_t sig;
     ))
@@ -987,7 +987,7 @@ cuex_subst_iter_veqv_cache_sub(void *sub_data, cuex_t var)
 cu_clos_def(_subst_tran_cache_cb,
 	    cu_prot(void, void const *var, void *veqv),
     (	cu_clop(f, cuex_t, cuex_t value, void *cache, void *sub_data);
-	struct cucon_pmap_s cache;
+	struct cucon_pmap cache;
 	size_t cache_size;
 	cuex_subst_t sig;
 	cuex_subst_t tau;
@@ -1172,7 +1172,7 @@ cu_clos_def(_subst_check_cb,
 
 	/* Occur check. */
 	if (veqv->value) {
-	    struct cucon_pmap_s seen;
+	    struct cucon_pmap seen;
 	    cucon_pmap_init(&seen);
 	    cucon_pmap_insert_void(&seen, veqv);
 	    cuexP_subst_check_ex(subst, veqv->value, &seen);

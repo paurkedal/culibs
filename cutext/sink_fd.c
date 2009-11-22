@@ -27,10 +27,10 @@
 /* Short write indicate error. */
 #define CUCONF_SYS_WRITE_IS_CLOGFREE 1
 
-typedef struct _fd_sink_s *_fd_sink_t;
-struct _fd_sink_s
+typedef struct _fd_sink *_fd_sink_t;
+struct _fd_sink
 {
-    cu_inherit (cutext_sink_s);
+    cu_inherit (cutext_sink);
     int fd;
     char const *encoding;
 };
@@ -103,7 +103,7 @@ cutext_sink_fdopen(char const *encoding, int fd, cu_bool_t close_fd)
     cutext_sink_descriptor_t descr = close_fd
 	? &_fd_sink_descriptor_if_close
 	: &_fd_sink_descriptor_if_not_close;
-    _fd_sink_t sink = cu_gnew(struct _fd_sink_s);
+    _fd_sink_t sink = cu_gnew(struct _fd_sink);
     cutext_sink_init(cu_to(cutext_sink, sink), descr);
     sink->fd = fd;
     sink->encoding = encoding;

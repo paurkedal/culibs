@@ -1,6 +1,7 @@
 if enable_cugra
 
 cugra_headers = \
+	cugra/compat.h \
 	cugra/fwd.h \
 	cugra/graph.h \
 	cugra/algo_SCC.h \

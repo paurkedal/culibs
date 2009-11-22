@@ -52,8 +52,8 @@ cu_clop_def(value_merge, cuex_t, cuex_t e0, cuex_t e1)
 
 cuoo_type_t cuexP_labelling_type;
 
-typedef struct cuex_labelling_s *cuex_labelling_t;
-struct cuex_labelling_s
+typedef struct cuex_labelling *cuex_labelling_t;
+struct cuex_labelling
 {
     CUOO_HCOBJ
     cuex_t atree;
@@ -316,7 +316,7 @@ cuex_labelling_contract_all(cuex_t e)
 {
     if (cuex_is_monoid_nongen(CUEX_O2_TUPLE, e)) {
 	cuex_t ep, L, M;
-	struct cuex_monoid_itr_s itr;
+	struct cuex_monoid_itr itr;
 	cuex_monoid_itr_init_full(CUEX_O2_TUPLE, &itr, e);
 	L = cuex_labelling_empty();
 	M = cuex_monoid_identity(CUEX_O2_TUPLE);
@@ -420,19 +420,19 @@ _labelling_foprint(cufo_stream_t fos, cufo_prispec_t spec, cuex_t L)
 /* == Compound Interface: Iteration == */
 
 static void *
-ncomm_iter_source_get(cu_ptr_source_t source)
+_ncomm_iter_source_get(cu_ptr_source_t source)
 {
     return cuex_atree_itr_get_at_1(source + 1);
 }
 
 static cu_ptr_source_t
-ncomm_iter_source(cuex_intf_compound_t impl, cuex_t L)
+_ncomm_iter_source(cuex_intf_compound_t impl, cuex_t L)
 {
     cu_ptr_source_t source;
     size_t atree_itr_size = cuex_atree_itr_size(LABELLING(L)->atree);
-    source = cu_galloc(sizeof(struct cu_ptr_source_s) + atree_itr_size);
+    source = cu_galloc(sizeof(struct cu_ptr_source) + atree_itr_size);
     cuex_atree_itr_init(source + 1, LABELLING(L)->atree);
-    cu_ptr_source_init(source, ncomm_iter_source_get);
+    cu_ptr_source_init(source, _ncomm_iter_source_get);
     return source;
 }
 
@@ -440,23 +440,23 @@ cu_ptr_source_t
 cuex_labelling_ncomm_iter_source(cuex_t L)
 {
     cu_debug_assert(cuex_is_labelling(L));
-    return ncomm_iter_source(NULL, L);
+    return _ncomm_iter_source(NULL, L);
 }
 
 static void *
-comm_iter_source_get(cu_ptr_source_t source)
+_comm_iter_source_get(cu_ptr_source_t source)
 {
     return cuex_atree_itr_get(source + 1);
 }
 
 static cu_ptr_source_t
-comm_iter_source(cuex_intf_compound_t impl, cuex_t L)
+_comm_iter_source(cuex_intf_compound_t impl, cuex_t L)
 {
     cu_ptr_source_t source;
     size_t atree_itr_size = cuex_atree_itr_size(LABELLING(L)->atree);
-    source = cu_galloc(sizeof(struct cu_ptr_source_s) + atree_itr_size);
+    source = cu_galloc(sizeof(struct cu_ptr_source) + atree_itr_size);
     cuex_atree_itr_init(source + 1, LABELLING(L)->atree);
-    cu_ptr_source_init(source, comm_iter_source_get);
+    cu_ptr_source_init(source, _comm_iter_source_get);
     return source;
 }
 
@@ -464,29 +464,29 @@ cu_ptr_source_t
 cuex_labelling_comm_iter_source(cuex_t L)
 {
     cu_debug_assert(cuex_is_labelling(L));
-    return comm_iter_source(NULL, L);
+    return _comm_iter_source(NULL, L);
 }
 
 
 /* == Compound Interface: Non-commutative == */
 
-typedef struct ncomm_image_junctor_s *ncomm_image_junctor_t;
-struct ncomm_image_junctor_s
+typedef struct _ncomm_image_junctor *_ncomm_image_junctor_t;
+struct _ncomm_image_junctor
 {
-    cu_inherit (cu_ptr_junctor_s);
+    cu_inherit (cu_ptr_junctor);
     cuex_t new_atree;
     cuex_t current_label;
     /* atree iterator follows */
 };
-#define IMAGE_ITR(itr) ((struct ncomm_image_junctor_s *)(itr))
+#define IMAGE_ITR(itr) ((struct _ncomm_image_junctor *)(itr))
 #define IMAGE_ITR_ATREE_ITR(itr) \
-    ((void *)((struct ncomm_image_junctor_s *)(itr) + 1))
+    ((void *)((struct _ncomm_image_junctor *)(itr) + 1))
 
 static cuex_t
-ncomm_image_junctor_get(cu_ptr_source_t source)
+_ncomm_image_junctor_get(cu_ptr_source_t source)
 {
-    ncomm_image_junctor_t self
-	= cu_from3(ncomm_image_junctor,
+    _ncomm_image_junctor_t self
+	= cu_from3(_ncomm_image_junctor,
 		   cu_ptr_junctor, cu_ptr_junction, cu_ptr_source, source);
     cuex_t leaf = cuex_atree_itr_get(self + 1);
     if (leaf) {
@@ -498,10 +498,10 @@ ncomm_image_junctor_get(cu_ptr_source_t source)
 }
 
 static void
-ncomm_image_junctor_put(cu_ptr_sink_t sink, void *elt)
+_ncomm_image_junctor_put(cu_ptr_sink_t sink, void *elt)
 {
-    ncomm_image_junctor_t self
-	= cu_from3(ncomm_image_junctor,
+    _ncomm_image_junctor_t self
+	= cu_from3(_ncomm_image_junctor,
 		   cu_ptr_junctor, cu_ptr_junction, cu_ptr_sink, sink);
     cuex_t l = self->current_label;
 #ifndef CU_NDEBUG_CLIENT
@@ -518,50 +518,50 @@ ncomm_image_junctor_put(cu_ptr_sink_t sink, void *elt)
 }
 
 static cuex_t
-ncomm_image_junctor_finish(cu_ptr_junctor_t junctor)
+_ncomm_image_junctor_finish(cu_ptr_junctor_t junctor)
 {
-    ncomm_image_junctor_t self
-	= cu_from(ncomm_image_junctor, cu_ptr_junctor, junctor);
+    _ncomm_image_junctor_t self
+	= cu_from(_ncomm_image_junctor, cu_ptr_junctor, junctor);
     return labelling(self->new_atree);
 }
 
 static cu_ptr_junctor_t
-ncomm_image_junctor(cuex_intf_compound_t impl, cuex_t L)
+_ncomm_image_junctor(cuex_intf_compound_t impl, cuex_t L)
 {
     size_t atree_itr_size = cuex_atree_itr_size(LABELLING(L)->atree);
-    ncomm_image_junctor_t self
-	= cu_galloc(sizeof(struct ncomm_image_junctor_s) + atree_itr_size);
+    _ncomm_image_junctor_t self
+	= cu_galloc(sizeof(struct _ncomm_image_junctor) + atree_itr_size);
     cuex_atree_itr_init(self + 1, LABELLING(L)->atree);
     self->new_atree = cuex_atree_empty();
     self->current_label = NULL;
     cu_ptr_junctor_init(cu_to(cu_ptr_junctor, self),
-			ncomm_image_junctor_get,
-			ncomm_image_junctor_put,
-			ncomm_image_junctor_finish);
+			_ncomm_image_junctor_get,
+			_ncomm_image_junctor_put,
+			_ncomm_image_junctor_finish);
     return cu_to(cu_ptr_junctor, self);
 }
 
 cu_ptr_junctor_t
 cuex_labelling_ncomm_image_junctor(cuex_t L)
 {
-    return ncomm_image_junctor(NULL, L);
+    return _ncomm_image_junctor(NULL, L);
 }
 
 
 /* == Compound Interface: Commutative */
 
-typedef struct comm_build_sinktor_s *comm_build_sinktor_t;
-struct comm_build_sinktor_s
+typedef struct _comm_build_sinktor *_comm_build_sinktor_t;
+struct _comm_build_sinktor
 {
-    cu_inherit (cu_ptr_sinktor_s);
+    cu_inherit (cu_ptr_sinktor);
     cuex_t new_atree;
 };
 
 static void
-comm_build_sinktor_put(cu_ptr_sink_t sink, void *elt)
+_comm_build_sinktor_put(cu_ptr_sink_t sink, void *elt)
 {
-    comm_build_sinktor_t self
-	= cu_from2(comm_build_sinktor, cu_ptr_sinktor, cu_ptr_sink, sink);
+    _comm_build_sinktor_t self
+	= cu_from2(_comm_build_sinktor, cu_ptr_sinktor, cu_ptr_sink, sink);
     if (cuex_meta(elt) == L_O2_LABEL)
 	self->new_atree = atree_insert(self->new_atree, elt);
     else if (cuex_is_labelling(elt))
@@ -573,46 +573,46 @@ comm_build_sinktor_put(cu_ptr_sink_t sink, void *elt)
 }
 
 static void *
-comm_build_sinktor_finish(cu_ptr_sinktor_t sinktor)
+_comm_build_sinktor_finish(cu_ptr_sinktor_t sinktor)
 {
-    comm_build_sinktor_t self
-	= cu_from(comm_build_sinktor, cu_ptr_sinktor, sinktor);
+    _comm_build_sinktor_t self
+	= cu_from(_comm_build_sinktor, cu_ptr_sinktor, sinktor);
     return labelling(self->new_atree);
 }
 
 static cu_ptr_sinktor_t
-comm_build_sinktor(cuex_intf_compound_t impl, cuex_t L)
+_comm_build_sinktor(cuex_intf_compound_t impl, cuex_t L)
 {
-    comm_build_sinktor_t self = cu_gnew(struct comm_build_sinktor_s);
+    _comm_build_sinktor_t self = cu_gnew(struct _comm_build_sinktor);
     cu_ptr_sinktor_init(cu_to(cu_ptr_sinktor, self),
-			comm_build_sinktor_put,
-			comm_build_sinktor_finish);
+			_comm_build_sinktor_put,
+			_comm_build_sinktor_finish);
     self->new_atree = cuex_atree_empty();
     return cu_to(cu_ptr_sinktor, self);
 }
 
 static cu_ptr_sinktor_t
-comm_union_sinktor(cuex_intf_compound_t impl, cuex_t L)
+_comm_union_sinktor(cuex_intf_compound_t impl, cuex_t L)
 {
-    comm_build_sinktor_t self = cu_gnew(struct comm_build_sinktor_s);
+    _comm_build_sinktor_t self = cu_gnew(struct _comm_build_sinktor);
     cu_ptr_sinktor_init(cu_to(cu_ptr_sinktor, self),
-			comm_build_sinktor_put,
-			comm_build_sinktor_finish);
+			_comm_build_sinktor_put,
+			_comm_build_sinktor_finish);
     self->new_atree = LABELLING(L)->atree;
     return cu_to(cu_ptr_sinktor, self);
 }
 
 cu_ptr_sinktor_t
 cuex_labelling_comm_build_sinktor(void)
-{ return comm_build_sinktor(NULL, NULL); }
+{ return _comm_build_sinktor(NULL, NULL); }
 
 cu_ptr_sinktor_t
 cuex_labelling_comm_union_sinktor(cuex_t L)
-{ return comm_union_sinktor(NULL, L); }
+{ return _comm_union_sinktor(NULL, L); }
 
 #if 0
 static cuex_t
-comm_find(cuex_t L, cuex_t l)
+_comm_find(cuex_t L, cuex_t l)
 {
     return atree_find(LABELLING(L)->atree, l);
 }
@@ -621,17 +621,17 @@ comm_find(cuex_t L, cuex_t l)
 
 /* == Compound Interface == */
 
-static struct cuex_intf_compound_s _labelling_compound = {
+static struct cuex_intf_compound _labelling_compound = {
     .flags = CUEX_COMPOUNDFLAG_PREFER_NCOMM
 	   | CUEX_COMPOUNDFLAG_NCOMM_FILTERABLE_IMAGE
 	   | CUEX_COMPOUNDFLAG_COMM_IDEMPOTENT,
-    .ncomm_iter_source = &ncomm_iter_source,
-    .ncomm_image_junctor = &ncomm_image_junctor,
-    .comm_iter_source = &comm_iter_source,
-    .comm_build_sinktor = &comm_build_sinktor,
-    .comm_union_sinktor = &comm_union_sinktor,
+    .ncomm_iter_source = &_ncomm_iter_source,
+    .ncomm_image_junctor = &_ncomm_image_junctor,
+    .comm_iter_source = &_comm_iter_source,
+    .comm_build_sinktor = &_comm_build_sinktor,
+    .comm_union_sinktor = &_comm_union_sinktor,
 #if 0
-    .comm_find = comm_find,
+    .comm_find = _comm_find,
 #endif
 };
 
@@ -661,6 +661,6 @@ cuexP_labelling_init(void)
 {
     cuex_intf_compound_finish(&_labelling_compound);
     cuexP_labelling_type = cuoo_type_new_opaque_hcs(
-	_labelling_impl, sizeof(struct cuex_labelling_s) - CUOO_HCOBJ_SHIFT);
+	_labelling_impl, sizeof(struct cuex_labelling) - CUOO_HCOBJ_SHIFT);
     cuexP_labelling_empty = labelling(NULL);
 }

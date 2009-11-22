@@ -25,16 +25,19 @@
 
 CU_BEGIN_DECLARATIONS
 
-typedef struct cuflow_continuation_s *cuflow_continuation_t;
-typedef struct cuflow_tstate_s *cuflow_tstate_t;
+typedef struct cuflow_continuation *cuflow_continuation_t;
+typedef struct cuflow_tstate	*cuflow_tstate_t;
 
-typedef struct cuflow_cacheconf_s *	cuflow_cacheconf_t;
-typedef struct cuflow_gflexq_s *	cuflow_gflexq_t;	/* gworkq.h */
-typedef struct cuflow_promise_s *	cuflow_promise_t;	/* promise.h*/
-typedef struct cuflow_workq_s *		cuflow_workq_t;		/* workq.h */
+typedef struct cuflow_cacheconf *cuflow_cacheconf_t;
+typedef struct cuflow_gflexq	*cuflow_gflexq_t;	/* gworkq.h */
+typedef struct cuflow_promise	*cuflow_promise_t;	/* promise.h*/
+typedef struct cuflow_workq	*cuflow_workq_t;	/* workq.h */
 
 void cuflow_init(void);
 
 CU_END_DECLARATIONS
 
+#ifndef CU_NCOMPAT
+#  include <cuflow/compat.h>
+#endif
 #endif

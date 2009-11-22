@@ -306,11 +306,11 @@ cuex_max_binding_depth(cuex_t e)
     return 0;
 }
 
-typedef struct sifi_cr_frame_s *sifi_cr_frame_t;
-struct sifi_cr_frame_s
+typedef struct sifi_cr_frame *sifi_cr_frame_t;
+struct sifi_cr_frame
 {
-    cu_inherit (cucon_listnode_s);
-    struct cucon_list_s fv_list;
+    cu_inherit (cucon_listnode);
+    struct cucon_list fv_list;
     int fv_level;	/* Stack level where curretly linked, or -1. */
     int index;
 };
@@ -323,7 +323,7 @@ sifi_indexing(cuex_t e, unsigned int flags, int l_cur, sifi_cr_frame_t sp,
     if (cuex_meta_is_opr(e_meta)) {
 	if (cuex_og_hole_contains(e_meta)) {
 	    int l;
-	    struct sifi_cr_frame_s *frame_ref, *frame_cur;
+	    struct sifi_cr_frame *frame_ref, *frame_cur;
 
 	    l = cuex_oa_hole_index(e_meta);
 	    if (l >= l_cur) /* is free in full expression */
@@ -341,7 +341,7 @@ sifi_indexing(cuex_t e, unsigned int flags, int l_cur, sifi_cr_frame_t sp,
 	    }
 	}
 	else if (cuex_og_binder_contains(e_meta)) {
-	    struct sifi_cr_frame_s *frame_sub, *frame_cur;
+	    struct sifi_cr_frame *frame_sub, *frame_cur;
 	    int index_p1;
 
 	    /* Create sub-frame (at l_cur + 1) and process sub-expressions. */
@@ -441,7 +441,7 @@ cuex_bi_sifi_indexing_accu(cuex_t e, unsigned int flags, cucon_pmap_t accu)
     int max_depth = cuex_max_binding_depth(e) + 1;
     sifi_cr_frame_t sp;
     
-    sp = cu_salloc(max_depth*sizeof(struct sifi_cr_frame_s));
+    sp = cu_salloc(max_depth*sizeof(struct sifi_cr_frame));
     sp += max_depth;
 
     sifi_indexing(e, flags, 0, sp, accu);

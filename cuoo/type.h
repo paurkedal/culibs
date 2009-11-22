@@ -135,7 +135,7 @@ cuoo_shape_is_singleton(cuoo_shape_t shape)
 }
 
 /*!The dynamic type (base) struct. */
-struct cuoo_type_s
+struct cuoo_type
 {
     CUOO_HCOBJ		/* used optionally */
 
@@ -171,7 +171,7 @@ CU_SINLINE cu_bool_t cuoo_is_type(cuex_t e)
 	&& cuoo_type_from_meta(m)->shape == CUOO_SHAPE_METATYPE;
 }
 
-/*!Cast \a e to a \ref cuoo_type_s "cuoo_type_t", assuming \ref cuoo_is_type(\a
+/*!Cast \a e to a \ref cuoo_type "cuoo_type_t", assuming \ref cuoo_is_type(\a
  * e) is true. */
 CU_SINLINE cuoo_type_t cuoo_type_from_ex(cuex_t e)
 { return (cuoo_type_t)e; }

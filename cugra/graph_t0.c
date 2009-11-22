@@ -30,7 +30,7 @@ cu_clos_def(vertex_label,
 	    cu_prot(cu_str_t, cugra_vertex_t v),
     ( cucon_pmap_t msc_map;
       cucon_pset_t mfvs_set;
-      struct cucon_pmap_s vertex_index_map;
+      struct cucon_pmap vertex_index_map;
       int current_vertex_index; ))
 {
     cu_clos_self(vertex_label);
@@ -67,9 +67,9 @@ test(int vertex_cnt, cu_bool_t do_save)
     cugra_vertex_t v;
     cugra_arc_t a;
     int arc_cnt = 0;
-    struct cucon_stack_s msc_stack;
-    struct cucon_pmap_s msc_pmap;
-    struct cucon_pset_s V;
+    struct cucon_stack msc_stack;
+    struct cucon_pmap msc_pmap;
+    struct cucon_pset V;
     cugra_erase_vertex_clos_t erase_vertex_clos;
 
     for (i = 0; i < vertex_cnt; ++i)

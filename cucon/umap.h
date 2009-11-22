@@ -36,20 +36,20 @@ CU_BEGIN_DECLARATIONS
  * \see cucon_uset_h
  * \see cucon_pmap_h */
 
-typedef struct cucon_umap_node_s *cucon_umap_node_t;
+typedef struct cucon_umap_node *cucon_umap_node_t;
 
 /*!An integer-keyed map with variable-sized inline value slots. */
-struct cucon_umap_s
+struct cucon_umap
 {
     size_t size; /* the number of elements in the map. */
     size_t mask; /* = capacity - 1 */
     cucon_umap_node_t *arr;
 };
 
-struct cucon_umap_node_s
+struct cucon_umap_node
 {
     cu_uintptr_t key;
-    struct cucon_umap_node_s *next;
+    struct cucon_umap_node *next;
     /* variable size data */
 };
 
@@ -61,8 +61,8 @@ CU_SINLINE cu_uintptr_t cucon_umap_node_key(cucon_umap_node_t node)
 
 typedef struct
 {
-    struct cucon_umap_node_s **node_head;
-    struct cucon_umap_node_s *node;
+    struct cucon_umap_node **node_head;
+    struct cucon_umap_node *node;
 } cucon_umap_it_t;
 
 /*!Construct \a map as an empty property map. */
@@ -103,7 +103,7 @@ void cucon_umap_init_copy_node(
     cucon_umap_t dst, cucon_umap_t src,
     cu_clop(node_alloc_copy, cucon_umap_node_t, void *src_slot, uintptr_t key));
 #define cucon_umap_node_alloc(slot_size) \
-	cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_umap_node_s) + slot_size)
+	cu_galloc(CU_ALIGNED_SIZEOF(struct cucon_umap_node) + slot_size)
 #define cucon_umap_node_get_mem(node) \
 	CU_ALIGNED_MARG_END(cucon_umap_node_t, node)
 
@@ -116,7 +116,7 @@ cu_bool_t cucon_umap_insert_init_node(cucon_umap_t map, cucon_umap_node_t node);
 /*!If \a key is not in \a map, allocates a node of size \a node_size,
  * initialises it the key \a key, inserts it, assigns it to \c *\a
  * node_out, and return true.  Otherwise, returns false.  This works if the
- * full node inherits \c cucon_umap_node_s <i>at the top</i> of the struct. */
+ * full node inherits \c cucon_umap_node <i>at the top</i> of the struct. */
 cu_bool_t cucon_umap_insert_new_node(cucon_umap_t map, uintptr_t key,
 				     size_t node_size, cu_ptr_ptr_t node_out);
 

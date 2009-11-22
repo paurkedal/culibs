@@ -37,7 +37,7 @@ typedef enum {
 } cuflowP_cntn_kind_t;
 
 #define cuflowP_cntn_flag_invalid 1
-struct cuflow_continuation_s
+struct cuflow_continuation
 {
     unsigned int	kind : 8;  /* Actual type is cuflowP_cntn_kind_t. */
     unsigned int	flags : 8;
@@ -237,7 +237,7 @@ int cuflow_split(int n);
 /* Thread Local State
  * ================== */
 
-struct cuflow_tstate_s
+struct cuflow_tstate
 {
     /* continuation.c */
     cuflow_continuation_t onstack_cont;
@@ -252,7 +252,7 @@ struct cuflow_tstate_s
 #ifdef CUCONF_ENABLE_THREADS
 cuflow_tstate_t cuflow_tstate();
 #else
-extern struct cuflow_tstate_s _ccf_the_state;
+extern struct cuflow_tstate _ccf_the_state;
 #define cuflow_tstate() (&_ccf_the_state)
 #endif /* !CUCONF_ENABLE_THREADS */
 

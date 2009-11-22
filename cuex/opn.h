@@ -28,13 +28,13 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_opn_h cuex/opn.h: Additional Interface for Operations
  * @{\ingroup cuex_mod */
 
-struct cuex_opn_s
+struct cuex_opn
 {
     CUOO_HCOBJ
     cuex_t operand_arr[1];
 };
 #define cuex_sizeof_opn(N) \
-	(sizeof(struct cuex_opn_s) - sizeof(void *) + (N)*sizeof(void *))
+	(sizeof(struct cuex_opn) - sizeof(void *) + (N)*sizeof(void *))
 
 /*!Create an operation of \a opr applied to the vararg arguments.  The
  * function expects \c cuex_opr_r(opr) vararg arguments of type \c cuex_t,
@@ -207,9 +207,9 @@ cu_bool_t cuex_opn_comm_iterAk(cu_clop(f, cu_bool_t, int, cuex_t), cuex_t e);
 cuex_t cuex_opn_comm_iterimg(cu_clop(f, cuex_t, cuex_t), cuex_t e);
 cuex_t cuex_opn_comm_iterimgk(cu_clop(f, cuex_t, int, cuex_t), cuex_t e);
 
-struct cuex_opn_source_s
+struct cuex_opn_source
 {
-    cu_inherit (cu_ptr_source_s);
+    cu_inherit (cu_ptr_source);
     int i;
     cuex_t e;
 };

@@ -26,7 +26,7 @@ CU_BEGIN_DECLARATIONS
  * \see cucon_pmap_h */
 
 /*!A pointer-keyed set container. */
-struct cucon_pset_s { struct cucon_umap_s impl; };
+struct cucon_pset { struct cucon_umap impl; };
 
 /*!Constructs \a set as an empty set. */
 CU_SINLINE void cucon_pset_init(cucon_pset_t set)

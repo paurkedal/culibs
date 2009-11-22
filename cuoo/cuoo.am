@@ -1,4 +1,5 @@
 cuoo_headers = \
+	cuoo/compat.h \
 	cuoo/fwd.h \
 	cuoo/halloc.h \
 	cuoo/hcobj.h \

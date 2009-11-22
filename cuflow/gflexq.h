@@ -26,7 +26,7 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuflow_gflexq_h cuflow/gflexq.h Global Work Queue with Flexible Priority
  * @{\ingroup cuflow_mod
  *
- * This module provides a data structure \ref cuflow_gflexq_s, a work
+ * This module provides a data structure \ref cuflow_gflexq, a work
  * queue linked to the global work queue at a modifiable priority.
  * These queues are hierachical, each queue can have several subqueues,
  * and several queues can share the same subqueue.  The hierachical
@@ -40,12 +40,12 @@ CU_BEGIN_DECLARATIONS
  * before it is finished. */
 
 /*!A work queue linked to the global work queue at a flexible priority. */
-struct cuflow_gflexq_s
+struct cuflow_gflexq
 {
-    cu_inherit (cuflow_workq_s);
+    cu_inherit (cuflow_workq);
     AO_t priority;
     cuflow_gflexq_t next, prev;  /* gworkq links */
-    struct cucon_list_s subqueue_list;
+    struct cucon_list subqueue_list;
 };
 
 typedef struct cuflow_gflexq_entry_s *cuflow_gflexq_entry_t;

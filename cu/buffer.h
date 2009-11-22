@@ -41,7 +41,7 @@ void cuP_buffer_fix_freecap(cu_buffer_t buf, size_t freecap);
  ** the content is moved at most once on the average.
  **/
 
-struct cu_buffer_s
+struct cu_buffer
 {
     void *storage_start;
     void *content_start;

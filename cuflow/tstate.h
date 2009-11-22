@@ -30,9 +30,9 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuflow_tstate_h cuflow/tstate.h: Thread-Local State
  *@{\ingroup cuflow_mod */
 
-struct cuflow_tstate_s
+struct cuflow_tstate
 {
-    cu_inherit (cu_dlink_s);
+    cu_inherit (cu_dlink);
     struct cuflow_exeq_s exeq[cuflow_exeqpri_end];
     cuflow_exeqpri_t exeqpri;
 };

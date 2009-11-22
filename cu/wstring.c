@@ -26,7 +26,7 @@
 cu_wstring_t
 cu_wstring_of_arr(cu_wchar_t const *src_arr, size_t src_len)
 {
-    cu_wstring_t s = cu_gnew(struct cu_wstring_s);
+    cu_wstring_t s = cu_gnew(struct cu_wstring);
     cu_wchar_t *arr = cu_galloc_atomic(sizeof(cu_wchar_t)*src_len);
     memcpy(arr, src_arr, sizeof(cu_wchar_t)*src_len);
     s->arr = arr;
@@ -48,7 +48,7 @@ cu_wstring_of_arr_o(cu_wchar_t const *src_arr, size_t src_len)
 cu_wstring_t
 cu_wstring_of_arr_ref(cu_wchar_t const *arr, size_t len)
 {
-    cu_wstring_t s = cu_gnew(struct cu_wstring_s);
+    cu_wstring_t s = cu_gnew(struct cu_wstring);
     s->arr = arr;
     s->len = len;
     return s;

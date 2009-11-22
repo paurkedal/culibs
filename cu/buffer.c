@@ -33,7 +33,7 @@ cu_buffer_init(cu_buffer_t buf, size_t init_cap)
 cu_buffer_t
 cu_buffer_new(size_t init_cap)
 {
-    cu_buffer_t buf = cu_gnew(struct cu_buffer_s);
+    cu_buffer_t buf = cu_gnew(struct cu_buffer);
     cu_buffer_init(buf, init_cap);
     return buf;
 }
@@ -41,17 +41,17 @@ cu_buffer_new(size_t init_cap)
 void
 cu_buffer_init_drop(cu_buffer_t buf_init, cu_buffer_t buf_drop)
 {
-    memcpy(buf_init, buf_drop, sizeof(struct cu_buffer_s));
-    memset(buf_drop, 0, sizeof(struct cu_buffer_s));
+    memcpy(buf_init, buf_drop, sizeof(struct cu_buffer));
+    memset(buf_drop, 0, sizeof(struct cu_buffer));
 }
 
 void
 cu_buffer_swap(cu_buffer_t buf0, cu_buffer_t buf1)
 {
-    struct cu_buffer_s buf2;
-    memcpy(&buf2,  buf0, sizeof(struct cu_buffer_s));
-    memcpy( buf1, &buf2, sizeof(struct cu_buffer_s));
-    memcpy( buf0,  buf1, sizeof(struct cu_buffer_s));
+    struct cu_buffer buf2;
+    memcpy(&buf2,  buf0, sizeof(struct cu_buffer));
+    memcpy( buf1, &buf2, sizeof(struct cu_buffer));
+    memcpy( buf0,  buf1, sizeof(struct cu_buffer));
 }
 
 void

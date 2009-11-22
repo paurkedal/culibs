@@ -29,7 +29,7 @@ CU_BEGIN_DECLARATIONS
  * @{ \ingroup cu_type_mod */
 
 /*!A byte string used for ASCII or UTF-8 data. */
-struct cu_str_s
+struct cu_str
 {
     CUOO_OBJ
     char *arr;

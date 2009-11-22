@@ -243,7 +243,7 @@ struct cuex_xvarops_s
     void (*foprint)(cufo_stream_t fos, void *);
 };
 
-extern struct cucon_umap_s cuexP_xvarops;
+extern struct cucon_umap cuexP_xvarops;
 
 /*!Compose a meta for an extended variable kind from the given quantisation,
  * subkind and slot size.  The slot size \a wsize is in words

@@ -134,14 +134,14 @@ cutext_sink_default_info(cutext_sink_t sink, cutext_sink_info_key_t key)
 }
 
 cu_bool_t
-cutext_sink_noop_enter(cutext_sink_t sink, struct cufo_tag_s *tag,
-		       struct cufo_attrbind_s *attrbinds)
+cutext_sink_noop_enter(cutext_sink_t sink, struct cufo_tag *tag,
+		       struct cufo_attrbind *attrbinds)
 {
     return cu_false;
 }
 
 void
-cutext_sink_noop_leave(cutext_sink_t sink, struct cufo_tag_s *tag)
+cutext_sink_noop_leave(cutext_sink_t sink, struct cufo_tag *tag)
 {
 }
 

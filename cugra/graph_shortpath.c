@@ -44,8 +44,8 @@ cugra_shortest_path(cugra_direction_t dir, cugra_vertex_t v_start,
 		    cu_clop(arc_distance, double, cugra_arc_t),
 		    cu_clop(path_unwind, void, cugra_arc_t))
 {
-    struct cucon_priq_s q;
-    struct cucon_pmap_s vprop;
+    struct cucon_priq q;
+    struct cucon_pmap vprop;
     dij_vertex_t dij_v;
     cucon_pmap_init(&vprop);
     cucon_pmap_insert_mem(&vprop, v_start, sizeof(struct dij_vertex_s), &dij_v);

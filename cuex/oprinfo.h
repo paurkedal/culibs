@@ -24,9 +24,9 @@
 
 CU_BEGIN_DECLARATIONS
 
-struct cuex_oprinfo_s
+struct cuex_oprinfo
 {
-    struct cucon_umap_node_s node;
+    struct cucon_umap_node node;
     char const *name;
     size_t cache_size;
     void (*cache_ctor)(cuex_opn_t opn);

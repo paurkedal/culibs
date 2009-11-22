@@ -58,8 +58,8 @@ cuflow_tstate()
 {
     cuflow_tstate_t st = pthread_getspecific(state_key);
     if (!st) {
-	st = GC_MALLOC(sizeof(struct cuflow_tstate_s));
-	memset(st, 0, sizeof(struct cuflow_tstate_s));
+	st = GC_MALLOC(sizeof(struct cuflow_tstate));
+	memset(st, 0, sizeof(struct cuflow_tstate));
 	pthread_setspecific(state_key, st);
     }
     return st;
@@ -77,12 +77,12 @@ cuflow_tstate_init()
 
 #else /* !CUCONF_ENABLE_THREADS */
 
-struct cuflow_tstate_s _ccf_the_state;
+struct cuflow_tstate _ccf_the_state;
 
 void
 cuflow_tstate_init()
 {
-    memset(&_ccf_the_state, 0, sizeof(struct cuflow_tstate_s));
+    memset(&_ccf_the_state, 0, sizeof(struct cuflow_tstate));
 }
 
 #endif /* CUCONF_ENABLE_THREADS */

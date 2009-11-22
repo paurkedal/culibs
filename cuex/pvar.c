@@ -50,7 +50,7 @@ cuex_pvar_t
 cuex_pvar_new(cuex_qcode_t q)
 {
     cuex_pvar_t var = cuexP_oalloc(cuex_pvarmeta(q),
-				  sizeof(struct cuex_pvar_s));
+				  sizeof(struct cuex_pvar));
     var->offset = (cu_offset_t)-1;
     var->module = NULL;
     var->idr = NULL;

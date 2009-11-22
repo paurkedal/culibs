@@ -52,7 +52,7 @@ cuflow_cache_cct(cuflow_cache_t cache, cuflow_cacheconf_t conf,
 	bin->cap = MIN_CAP;
 	bin->size = 0;
 	bin->access_since_pruned = 0;
-	bin->link_arr = cu_gallocz(MIN_CAP*sizeof(struct cuflowP_cachebin_s));
+	bin->link_arr = cu_gallocz(MIN_CAP*sizeof(struct cuflowP_cachebin));
     }
 #if 0
     cu_mutex_lock(&conf->cache_link_mutex);
@@ -77,7 +77,7 @@ cuflow_cacheobj_alloc(size_t full_size, cuflow_cacheobj_t key)
     cuflowP_cacheobjhdr_t base;
     cuflow_cacheobj_t obj;
     size_t key_sizew = CACHEOBJ_KEY_SIZEW(key);
-    full_size += sizeof(struct cuflowP_cacheobjhdr_s);
+    full_size += sizeof(struct cuflowP_cacheobjhdr);
     base = cu_galloc(full_size);
     obj = (cuflow_cacheobj_t)(base + 1);
     cu_wordarr_copy(key_sizew, (cu_word_t *)obj, (cu_word_t *)key);
@@ -104,7 +104,7 @@ _resize_lck(cuflowP_cachebin_t bin, size_t new_cap)
     cuflow_cacheobj_t *old_link_arr = bin->link_arr;
     cuflow_cacheobj_t *old_link_arr_end = old_link_arr + bin->cap;
     bin->cap = new_cap;
-    bin->link_arr = cu_gallocz(sizeof(struct cuflowP_cachebin_s)*new_cap);
+    bin->link_arr = cu_gallocz(sizeof(struct cuflowP_cachebin)*new_cap);
     while (old_link_arr != old_link_arr_end) {
 	cuflow_cacheobj_t obj = *old_link_arr;
 	while (obj) {
@@ -262,7 +262,7 @@ cuflow_cacheconf_cct(cuflow_cacheconf_t conf,
 			   &conf->target_time);
 }
 
-static struct cuflow_cacheconf_s _default_cacheconf;
+static struct cuflow_cacheconf _default_cacheconf;
 
 static cu_bool_t
 _default_manager(cuflow_cacheconf_t conf, struct timespec *t_now)

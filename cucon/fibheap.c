@@ -23,7 +23,7 @@
 #include <math.h>
 
 #define _prioreq(H, n0, n1) cu_call(H->prioreq, n0, n1)
-#define _node(n)	cu_downcast(cucon_fibnode, cu_dlink_s, n)
+#define _node(n)	cu_downcast(cucon_fibnode, cu_dlink, n)
 #define _dlink(n)	cu_to(cu_dlink, n)
 #define _next_node(n)	_node(_dlink(n)->next)
 

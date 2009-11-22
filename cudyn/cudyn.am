@@ -1,6 +1,7 @@
 cudyn_headers = \
-	cudyn/fwd.h \
+	cudyn/compat.h \
 	cudyn/ctor.h \
+	cudyn/fwd.h \
 	cudyn/misc.h \
 	cudyn/type.h \
 	cudyn/typetpl.h

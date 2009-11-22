@@ -164,7 +164,7 @@ cuex_ssfn_node_new_sub(cu_count_t arg_cnt, cuex_ssfn_seqno_t seqno)
 /* Copy and Clone
  * -------------- */
 
-typedef struct _ssfn_init_copy_jargs_s
+typedef struct _ssfn_init_copy_jargs
 {
     size_t slot_size;
     cu_count_t var_cnt;
@@ -272,7 +272,7 @@ cuex_ssfn_cct_copy_mem(cuex_ssfn_t dst, cuex_ssfn_t src,
 		       size_t slot_size,
 		       cu_clop(value_cct_copy, void, void *, void *))
 {
-    struct _ssfn_init_copy_jargs_s jargs;
+    struct _ssfn_init_copy_jargs jargs;
     jargs.slot_size = slot_size;
     jargs.var_cnt = 0;
     jargs.pending_cnt = 1;
@@ -649,7 +649,7 @@ cuex_ssfn_intersection_find_aux(
     cuex_ssfn_find_it_t it_match;
     cuex_ssfn_find_it_t it_spec CU_NOINIT(NULL);
     cucon_listnode_t it_l;
-    struct cucon_priq_s q_it;
+    struct cucon_priq q_it;
 
     cucon_priq_init(&q_it, (cu_clop(, cu_bool_t, void *, void *))
 				cuex_ssfn_find_it_match_lgr_clop);
@@ -700,11 +700,11 @@ cuex_ssfn_intersection_find_aux(
  * -------------------- */
 
 typedef struct cuexP_ssfn_insert_jargs_s {
-    struct cucon_stack_s input;
+    struct cucon_stack input;
     size_t slot_size;
     void **slot;
     cu_count_t var_cnt;
-    struct cucon_pmap_s var_to_index;	/* cu_var_t → cu_count_t */
+    struct cucon_pmap var_to_index;	/* cu_var_t → cu_count_t */
     cuex_ssfn_seqno_t seqno;
 }				     *cuexP_ssfn_insert_jargs_t;
 static cu_bool_t
@@ -870,10 +870,10 @@ cuex_ssfn_insert_mem(cuex_ssfn_t ssfn, cuex_t patn,
 
 typedef struct cuexP_ssfn_find_mgu_jargs_s
 {
-    struct cucon_stack_s targets;
-    struct cucon_stack_s input;
-    struct cucon_stack_s output;
-    struct cucon_stack_s sctr;
+    struct cucon_stack targets;
+    struct cucon_stack input;
+    struct cucon_stack output;
+    struct cucon_stack sctr;
     cuex_ssfn_find_cb_t cb;
     cuex_var_t key_var;
     cuex_t key_arg;
@@ -1577,9 +1577,9 @@ cuex_ssfn_find_single_wpmgr(cuex_ssfn_t ssfn, cuex_subst_t subst, cuex_t key)
 
 typedef struct cuexP_ssfn_find_eqr_jargs_s
 {
-    struct cucon_stack_s input;
-    struct cucon_stack_s output;
-    struct cucon_pmap_s blocked_key_vars;
+    struct cucon_stack input;
+    struct cucon_stack output;
+    struct cucon_pmap blocked_key_vars;
     cuex_ssfn_ctrl_t ctrl;
     cu_clop(cb, cuex_ssfn_ctrl_t, void *);
 } *cuexP_ssfn_find_eqr_jargs_t;

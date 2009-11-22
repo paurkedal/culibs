@@ -26,10 +26,10 @@
 
 CU_BEGIN_DECLARATIONS
 
-struct cutext_ucs4src_s
+struct cutext_ucs4src
 {
-    struct cutext_src_s src;
-    struct cu_sref_s srf;
+    struct cutext_src src;
+    struct cu_sref srf;
     int indentation; /* -1 if unknown (i.e. before first non-blank on line) */
     cutext_status_t st;
     cucon_pmap_t properties;

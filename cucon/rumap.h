@@ -26,9 +26,9 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cucon_rumap cucon/rumap.h: Recursive Hash Map with Integer Keys
  * @{\ingroup cucon_maps_and_sets_mod */
 
-struct cucon_rumap_s
+struct cucon_rumap
 {
-    struct cucon_umap_s branches;
+    struct cucon_umap branches;
     void *data;
 };
 

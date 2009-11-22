@@ -24,10 +24,10 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cufo_attrdefs_h cufo/attrdefs.h: Various Attribute Definitions
  *@{\ingroup cufo_mod */
 
-extern struct cufo_attr_s cufoP_attr_id;
-extern struct cufo_attr_s cufoP_attr_class;
-extern struct cufo_attr_s cufoP_attr_logorigin;
-extern struct cufo_attr_s cufoP_attr_logseverity;
+extern struct cufo_attr cufoP_attr_id;
+extern struct cufo_attr cufoP_attr_class;
+extern struct cufo_attr cufoP_attr_logorigin;
+extern struct cufo_attr cufoP_attr_logseverity;
 
 #define cufoA_id(s)	CUFO_ATTR_CSTR(&cufoP_attr_id, s)
 

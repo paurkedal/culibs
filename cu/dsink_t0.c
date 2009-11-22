@@ -25,18 +25,18 @@
 
 #define TEST_SIZE 4096
 
-typedef struct testsink_s *testsink_t;
-struct testsink_s
+typedef struct _testsink *_testsink_t;
+struct _testsink
 {
-    cu_inherit (cu_dsink_s);
+    cu_inherit (cu_dsink);
     char buf[TEST_SIZE];
     size_t size;
 };
 
-#define TESTSINK(sink) cu_from(testsink, cu_dsink, sink)
+#define TESTSINK(sink) cu_from(_testsink, cu_dsink, sink)
 
 static size_t
-testsink_write(cu_dsink_t sink, void const *data, size_t size)
+_testsink_write(cu_dsink_t sink, void const *data, size_t size)
 {
     size_t wr_size;
     cu_test_assert(TESTSINK(sink)->size + size <= TEST_SIZE);
@@ -50,7 +50,7 @@ testsink_write(cu_dsink_t sink, void const *data, size_t size)
 }
 
 static cu_word_t
-testsink_control(cu_dsink_t sink, int fc, va_list va)
+_testsink_control(cu_dsink_t sink, int fc, va_list va)
 {
     switch (fc) {
 	default:
@@ -58,11 +58,11 @@ testsink_control(cu_dsink_t sink, int fc, va_list va)
     }
 }
 
-testsink_t
-testsink_new(void)
+_testsink_t
+_testsink_new(void)
 {
-    testsink_t sink = cu_gnew(struct testsink_s);
-    cu_dsink_init(cu_to(cu_dsink, sink), testsink_control, testsink_write);
+    _testsink_t sink = cu_gnew(struct _testsink);
+    cu_dsink_init(cu_to(cu_dsink, sink), _testsink_control, _testsink_write);
     sink->size = 0;
     return sink;
 }
@@ -72,7 +72,7 @@ test_dsink_buffer(int i_run)
 {
     char buf[TEST_SIZE];
     int i;
-    testsink_t testsink = testsink_new();
+    _testsink_t testsink = _testsink_new();
     cu_dsink_t sink = cu_dsink_stack_buffer(cu_to(cu_dsink, testsink));
 
     for (i = 0; i < TEST_SIZE; ++i)

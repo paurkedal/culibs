@@ -32,7 +32,7 @@
 CU_BEGIN_DECLARATIONS
 
 /** The priority queue struct. */
-struct cucon_priq_s
+struct cucon_priq
 {
     cu_clop(prior, cu_bool_t, void *, void *);
     size_t count;

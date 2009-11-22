@@ -24,7 +24,7 @@ main()
 {
     size_t N = 100000;
     int n;
-    struct cucon_pritree_s pritree;
+    struct cucon_pritree pritree;
     double x = 1.0;
     cucon_prinode_t *tv;
 
@@ -33,7 +33,7 @@ main()
     tv = cu_salloc(sizeof(cucon_prinode_t)*N);
     cucon_pritree_init(&pritree);
     for (n = 0; n < N; ++n) {
-	tv[n] = cu_gnew(struct cucon_prinode_s);
+	tv[n] = cu_gnew(struct cucon_prinode);
 	cucon_pritree_insert_init(&pritree, tv[n], drand48());
     }
     for (n = 0; n < N; ++n) {
@@ -45,7 +45,7 @@ main()
     assert(cucon_pritree_is_empty(&pritree));
 
     for (n = 0; n < N; ++n) {
-	tv[n] = cu_gnew(struct cucon_prinode_s);
+	tv[n] = cu_gnew(struct cucon_prinode);
 	cucon_pritree_insert_init(&pritree, tv[n], drand48());
     }
     for (n = 0; n < N/2; ++n)

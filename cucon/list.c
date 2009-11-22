@@ -21,7 +21,7 @@
 #include <cu/ptr_seq.h>
 #include <string.h>
 
-struct cucon_list_s cuconP_list_empty;
+struct cucon_list cuconP_list_empty;
 
 void
 cucon_list_init(cucon_list_t list)
@@ -39,7 +39,7 @@ cucon_list_init_copy_mem(cucon_list_t dst, cucon_list_t src, size_t size)
     for (src_node = cucon_list_begin(src); src_node != cucon_list_end(src);
 	 src_node = cucon_listnode_next(src_node)) {
 	cucon_listnode_t dst_node;
-	dst_node = cu_galloc(sizeof(struct cucon_listnode_s) + size);
+	dst_node = cu_galloc(sizeof(struct cucon_listnode) + size);
 	memcpy(cucon_listnode_mem(dst_node),
 	       cucon_listnode_mem(src_node), size);
 	dst_node->prev = prev_dst_node;
@@ -53,7 +53,7 @@ cucon_list_init_copy_mem(cucon_list_t dst, cucon_list_t src, size_t size)
 cucon_list_t
 cucon_list_new(void)
 {
-    cucon_list_t lst = cu_gnew(struct cucon_list_s);
+    cucon_list_t lst = cu_gnew(struct cucon_list);
     cucon_list_init(lst);
     return lst;
 }
@@ -61,7 +61,7 @@ cucon_list_new(void)
 cucon_list_t
 cucon_list_new_copy_mem(cucon_list_t src, size_t size)
 {
-    cucon_list_t dst = cu_gnew(struct cucon_list_s);
+    cucon_list_t dst = cu_gnew(struct cucon_list);
     cucon_list_init_copy_mem(dst, src, size);
     return dst;
 }
@@ -190,8 +190,8 @@ cucon_list_insert_live(cucon_listnode_t pos, cucon_listnode_t node)
 cucon_listnode_t
 cucon_list_insert_mem(cucon_listnode_t pos, size_t size)
 {
-    struct cucon_listnode_s *node
-	= cu_galloc(sizeof(struct cucon_listnode_s) + size);
+    struct cucon_listnode *node
+	= cu_galloc(sizeof(struct cucon_listnode) + size);
     node->next = pos;
     node->prev = pos->prev;
     pos->prev = node;
@@ -203,7 +203,7 @@ cucon_listnode_t
 cucon_list_insert_ptr(cucon_listnode_t pos, void *ptr)
 {
     cucon_listnode_t node;
-    node = cu_galloc(sizeof(struct cucon_listnode_s) + sizeof(void *));
+    node = cu_galloc(sizeof(struct cucon_listnode) + sizeof(void *));
     node->next = pos;
     node->prev = pos->prev;
     pos->prev = node;
@@ -315,10 +315,10 @@ cucon_list_range_iter_mem(cucon_listnode_t first, cucon_listnode_t last,
     }
 }
 
-typedef struct _range_source_s *_range_source_t;
-struct _range_source_s
+typedef struct _range_source *_range_source_t;
+struct _range_source
 {
-    cu_inherit (cu_ptr_source_s);
+    cu_inherit (cu_ptr_source);
     cucon_listnode_t cur;
     cucon_listnode_t end;
 };
@@ -339,7 +339,7 @@ _range_source_get_ptr(cu_ptr_source_t source)
 cu_ptr_source_t
 cucon_listrange_source_ptr(cucon_listnode_t begin, cucon_listnode_t end)
 {
-    _range_source_t self = cu_gnew(struct _range_source_s);
+    _range_source_t self = cu_gnew(struct _range_source);
     cu_ptr_source_init(cu_to(cu_ptr_source, self), _range_source_get_ptr);
     self->cur = begin;
     self->end = end;

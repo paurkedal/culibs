@@ -44,7 +44,7 @@ cucon_priq_init_copy(cucon_priq_t q, cucon_priq_t q_src)
 cucon_priq_t
 cucon_priq_new(cu_clop(prior, cu_bool_t, void *, void *))
 {
-    cucon_priq_t q = cu_gnew(struct cucon_priq_s);
+    cucon_priq_t q = cu_gnew(struct cucon_priq);
     q->prior = prior;
     q->capacity = 0;
     q->count = 0;

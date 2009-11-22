@@ -44,7 +44,7 @@ CU_BEGIN_DECLARATIONS
 #define CUOO_INTF_FOPRINT_FN	0x14
 #define CUOO_INTF_FOPRINT_FN_BOX(fn)	cu_box_fptr(cufo_print_ptr_fn_t, fn)
 
-/*!An object to \ref cu_str_s "cu_str_t" conversion function of type
+/*!An object to \ref cu_str "cu_str_t" conversion function of type
  * <tt>cu_str_t (*)(void *)</tt>. */
 #define CUOO_INTF_TO_STR_FN	0x15
 #define CUOO_INTF_TO_STR_FN_BOX(fn)	cu_box_fptr(cuoo_intf_to_str_fn_t, fn)

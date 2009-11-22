@@ -30,7 +30,7 @@ CU_BEGIN_DECLARATIONS
  ** \see \ref cucon_parr_h
  **/
 
-struct cucon_arr_s
+struct cucon_arr
 {
     size_t size;
     size_t cap;

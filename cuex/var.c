@@ -20,7 +20,7 @@
 
 #define CUEXP_SUBKIND_DYN_START (CUEX_META_C(1) << (CUEXP_VARMETA_INDEX_WIDTH - 1))
 
-struct cucon_umap_s cuexP_xvarops;
+struct cucon_umap cuexP_xvarops;
 static cuex_meta_t cuexP_next_subkind = CUEXP_SUBKIND_DYN_START;
 
 cuex_meta_t

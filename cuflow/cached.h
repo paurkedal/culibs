@@ -32,8 +32,8 @@ CU_BEGIN_DECLARATIONS
 typedef unsigned long cuflow_gain_t;
 typedef cu_clop0(cuflow_cached_clop_t, void);
 
-typedef struct cuflowP_cached_node_s cuflowP_cached_node_t;
-struct cuflowP_cached_node_s
+typedef struct cuflowP_cached_node cuflowP_cached_node_t;
+struct cuflowP_cached_node
 {
     cuflowP_cached_node_t *next;
     AO_t cdisj;
@@ -68,7 +68,7 @@ struct cuflowP_cached_node_s
     } *NAME##_result_t;							\
 									\
     struct NAME##_node_s {						\
-	cu_inherit (cuflowP_cached_node_s);				\
+	cu_inherit (cuflowP_cached_node);				\
 	NAME##_t padded_arg;						\
 	struct NAME##_result_s res;					\
     };									\

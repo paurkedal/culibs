@@ -57,10 +57,10 @@ struct cufoP_tag_stack_s
     cufo_tag_t tag;
 };
 
-typedef struct format_node_s *format_node_t;
-struct format_node_s
+typedef struct _format_node *_format_node_t;
+struct _format_node
 {
-    cu_inherit (cucon_hzmap_node_s);
+    cu_inherit (cucon_hzmap_node);
     cu_word_t wkey[FORMAT_MAP_KEYSIZEW];
     cu_bool_t is_ptr;
     union {
@@ -69,10 +69,10 @@ struct format_node_s
     } u0;
 };
 
-static struct cucon_hzmap_s format_ptr_map;
-static struct cucon_hzmap_s format_va_map;
+static struct cucon_hzmap format_ptr_map;
+static struct cucon_hzmap format_va_map;
 
-static format_node_t
+static _format_node_t
 insert_format(char const *key)
 {
     cucon_hzmap_node_t node;
@@ -84,15 +84,15 @@ insert_format(char const *key)
     memset(wkey, 0, sizeof(wkey));
     memcpy(wkey, key, len);
     if (!cucon_hzmap_insert(&format_ptr_map, wkey,
-			    sizeof(struct format_node_s), &node))
+			    sizeof(struct _format_node), &node))
 	cu_bugf("Format key '%s' has already been registered.", key);
-    return cu_from(format_node, cucon_hzmap_node, node);
+    return cu_from(_format_node, cucon_hzmap_node, node);
 }
 
 void
 cufo_register_ptr_format(char const *key, cufo_print_ptr_fn_t handler)
 {
-    format_node_t node = insert_format(key);
+    _format_node_t node = insert_format(key);
     node->is_ptr = cu_true;
     node->u0.print_ptr = handler;
 }
@@ -100,12 +100,12 @@ cufo_register_ptr_format(char const *key, cufo_print_ptr_fn_t handler)
 void
 cufo_register_va_format(char const *key, cufo_print_fn_t handler)
 {
-    format_node_t node = insert_format(key);
+    _format_node_t node = insert_format(key);
     node->is_ptr = cu_false;
     node->u0.print_va = handler;
 }
 
-static format_node_t
+static _format_node_t
 lookup_format(char const *key, size_t key_len)
 {
     cucon_hzmap_node_t node;
@@ -116,7 +116,7 @@ lookup_format(char const *key, size_t key_len)
     memcpy(wkey, key, key_len);
     node = cucon_hzmap_find(&format_ptr_map, wkey);
     if (node)
-	return cu_from(format_node, cucon_hzmap_node, node);
+	return cu_from(_format_node, cucon_hzmap_node, node);
     else
 	return NULL;
 }
@@ -176,7 +176,7 @@ cufo_printsp_ex(cufo_stream_t fos, cufo_prispec_t spec, cuex_t e)
 void
 cufo_print_ex(cufo_stream_t fos, cuex_t e)
 {
-    struct cufo_prispec_s spec;
+    struct cufo_prispec spec;
     spec.flags = 0;
     spec.width = 0;
     spec.precision = -1;
@@ -504,7 +504,7 @@ break_flags:
 	}
 	case '&': {
 	    cufo_print_fn_t f = cu_va_ref_arg(va_ref, cufo_print_fn_t);
-	    struct cufo_prispec_s spec;
+	    struct cufo_prispec spec;
 	    spec.flags = flags;
 	    spec.width = width;
 	    spec.precision = prec;
@@ -512,7 +512,7 @@ break_flags:
 	    return fmt;
 	}
 	case '!': {
-	    struct cufo_prispec_s spec;
+	    struct cufo_prispec spec;
 	    cuex_t e = cu_va_ref_arg(va_ref, cuex_t);
 	    spec.flags = flags;
 	    spec.width = width;
@@ -528,19 +528,19 @@ break_flags:
 	}
 	case '(': {
 	    char const *s = fmt;
-	    format_node_t format_node;
+	    _format_node_t _format_node;
 	    while (*fmt && *fmt != ')') ++fmt;
-	    format_node = lookup_format(s, fmt - s);
-	    if (format_node) {
-		struct cufo_prispec_s spec;
+	    _format_node = lookup_format(s, fmt - s);
+	    if (_format_node) {
+		struct cufo_prispec spec;
 		spec.flags = flags;
 		spec.width = width;
 		spec.precision = prec;
-		if (format_node->is_ptr) {
+		if (_format_node->is_ptr) {
 		    void *ptr = cu_va_ref_arg(va_ref, void *);
-		    (*format_node->u0.print_ptr)(fos, &spec, ptr);
+		    (*_format_node->u0.print_ptr)(fos, &spec, ptr);
 		} else
-		    (*format_node->u0.print_va)(fos, &spec, va_ref);
+		    (*_format_node->u0.print_va)(fos, &spec, va_ref);
 	    }
 	    else {
 		char *sp = cu_salloc(fmt - s + 1);

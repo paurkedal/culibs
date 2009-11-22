@@ -212,7 +212,7 @@ cu_debug_trap()
 }
 
 
-static struct cucon_hset_s _dtag_hset;
+static struct cucon_hset _dtag_hset;
 
 void
 cu_dtag_enable(char const *key)

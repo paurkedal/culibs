@@ -30,12 +30,12 @@ CU_BEGIN_DECLARATIONS
 /*!\defgroup cuflow_cacheconf_h cuflow/cacheconf.h:
  *@{\ingroup cuflow_mod */
 
-struct cuflow_cacheconf_s
+struct cuflow_cacheconf
 {
     /* Set by this library. */
 #if 0
     pthread_mutex_t cache_link_mutex;
-    struct cu_dlink_s cache_link;
+    struct cu_dlink cache_link;
 #endif
     AO_t current_ticks;
     struct timespec target_time;

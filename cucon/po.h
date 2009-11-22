@@ -31,21 +31,21 @@ CU_BEGIN_DECLARATIONS
 
 #define CUCON_PO_ELT_LINKS_PO 1
 
-struct cucon_po_s
+struct cucon_po
 {
-    struct cucon_poelt_s *bot;
-    struct cucon_poelt_s *top;
+    struct cucon_poelt *bot;
+    struct cucon_poelt *top;
 };
 
-struct cucon_poelt_s
+struct cucon_poelt
 {
-    struct cucon_list_s isuccs;
-    struct cucon_list_s ipreds;
+    struct cucon_list isuccs;
+    struct cucon_list ipreds;
 
     unsigned int level;	/* for topological traversal */
 
 #ifdef CUCON_PO_ELT_LINKS_PO
-    struct cucon_po_s *po;
+    struct cucon_po *po;
 #endif
 };
 

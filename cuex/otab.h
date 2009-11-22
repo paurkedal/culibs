@@ -36,21 +36,21 @@ typedef enum {
     cuex_otab_prop_kind
 } cuex_otab_objkind_t;
 
-typedef struct cuex_otab_s *cuex_otab_t;
-typedef struct cuex_otab_def_s *cuex_otab_def_t;
-typedef struct cuex_otab_opr_s *cuex_otab_opr_t;
-typedef struct cuex_otab_prop_s *cuex_otab_prop_t;
-typedef struct cuex_otab_range_s *cuex_otab_range_t;
-typedef struct cuex_otab_reservation_s *cuex_otab_reservation_t;
-typedef struct cuex_otab_simplerange_s *cuex_otab_simplerange_t;
+typedef struct cuex_otab *cuex_otab_t;
+typedef struct cuex_otab_def *cuex_otab_def_t;
+typedef struct cuex_otab_opr *cuex_otab_opr_t;
+typedef struct cuex_otab_prop *cuex_otab_prop_t;
+typedef struct cuex_otab_range *cuex_otab_range_t;
+typedef struct cuex_otab_reservation *cuex_otab_reservation_t;
+typedef struct cuex_otab_simplerange *cuex_otab_simplerange_t;
 
-struct cuex_otab_s
+struct cuex_otab
 {
     cu_str_t name;
     cu_bool_t is_extern;
     cuex_otab_range_t all;
     int all_width;
-    struct cucon_pmap_s env;
+    struct cucon_pmap env;
     void (*error)(cuex_otab_t tab, cu_sref_t sref, char const *msg, ...);
     cu_str_t h_prologue, h_epilogue, c_prologue, c_epilogue;
 };
@@ -93,7 +93,7 @@ CU_SINLINE void cuex_otab_set_c_prologue(cuex_otab_t tab, cu_str_t str)
 CU_SINLINE void cuex_otab_set_c_epilogue(cuex_otab_t tab, cu_str_t str)
 { tab->c_epilogue = str; }
 
-struct cuex_otab_def_s
+struct cuex_otab_def
 {
     cu_bool_t is_extern;
     cu_idr_t idr; /* NULL for reservation */
@@ -110,21 +110,21 @@ CU_SINLINE cu_idr_t cuex_otab_def_idr(cuex_otab_def_t def)
 CU_SINLINE cu_sref_t cuex_otab_def_sref(cuex_otab_def_t def)
 { return def->sref; }
 
-struct cuex_otab_simplerange_s
+struct cuex_otab_simplerange
 {
-    cu_inherit (cuex_otab_def_s);
+    cu_inherit (cuex_otab_def);
     cuex_otab_range_t super;
     int range_low_bit;		/* of real range bits */
     cuex_meta_t range_min;	/* absolute */
     cuex_meta_t range_maxp1;	/* absolute */
-    struct cucon_rbset_s subrange_set; /* of cuex_otab_simplerange_t */
+    struct cucon_rbset subrange_set; /* of cuex_otab_simplerange_t */
 };
 
-struct cuex_otab_range_s
+struct cuex_otab_range
 {
-    cu_inherit (cuex_otab_simplerange_s);
-    struct cucon_list_s prop_list;
-    struct cucon_list_s opr_list;
+    cu_inherit (cuex_otab_simplerange);
+    struct cucon_list prop_list;
+    struct cucon_list opr_list;
 };
 
 CU_SINLINE cuex_otab_range_t cuex_otab_range_from_def(cuex_otab_def_t def)
@@ -158,9 +158,9 @@ CU_SINLINE cuex_meta_t cuex_otab_range_length(cuex_otab_range_t range)
 CU_SINLINE cuex_meta_t cuex_otab_range_inner_length(cuex_otab_range_t range)
 { return cuex_otab_range_length(range) >> cuex_otab_range_low_bit(range); }
 
-struct cuex_otab_prop_s
+struct cuex_otab_prop
 {
-    cu_inherit (cuex_otab_def_s);
+    cu_inherit (cuex_otab_def);
     cu_bool_t is_implicit;
     int width;
     int low_bit;
@@ -192,13 +192,13 @@ cuex_otab_defprop(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
 		  cuex_otab_range_t super, int width, char const *type_cstr,
 		  cu_bool_t is_implicit);
 
-struct cuex_otab_reservation_s
+struct cuex_otab_reservation
 {
-    cu_inherit (cuex_otab_simplerange_s);
+    cu_inherit (cuex_otab_simplerange);
     cu_bool_t is_full; /* always true if we don't own it */
-    struct cucon_bitvect_s all_freemask;
-    struct cucon_bitvect_s multi_freemask;
-    struct cucon_arr_s freemask; /* of cucon_bitvect_s */
+    struct cucon_bitvect all_freemask;
+    struct cucon_bitvect multi_freemask;
+    struct cucon_arr freemask; /* of cucon_bitvect */
 };
 
 CU_SINLINE cuex_otab_reservation_t
@@ -226,9 +226,9 @@ CU_SINLINE cuex_meta_t
 cuex_otab_reservation_length(cuex_otab_reservation_t rsv)
 { return cuex_otab_reservation_maxp1(rsv) - cuex_otab_reservation_min(rsv); }
 
-struct cuex_otab_opr_s
+struct cuex_otab_opr
 {
-    cu_inherit (cuex_otab_def_s);
+    cu_inherit (cuex_otab_def);
     cu_bool_t has_ctor;
     cuex_meta_t index;
     int r;
