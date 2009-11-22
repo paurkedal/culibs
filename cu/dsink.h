@@ -172,7 +172,7 @@ cu_dsink_t cu_dsink_new_wstring(void);
 struct cu_dcountsink
 {
     cu_inherit (cu_dsink);
-    ssize_t count;
+    size_t count;
 };
 
 CU_SINLINE cu_dsink_t
@@ -183,7 +183,7 @@ cu_dcountsink_to_dsink(cu_dcountsink_t sink)
 void cu_dcountsink_init(cu_dcountsink_t sink);
 
 /*!Returns the number of bytes written to \a sink. */
-CU_SINLINE ssize_t
+CU_SINLINE size_t
 cu_dcountsink_count(cu_dcountsink_t sink)
 { return sink->count; }
 

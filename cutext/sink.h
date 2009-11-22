@@ -236,7 +236,7 @@ cutext_sink_t cutext_sink_stack_iconv(char const *new_encoding,
 struct cutext_countsink
 {
     cu_inherit (cutext_sink);
-    ssize_t count;
+    size_t count;
 };
 
 CU_SINLINE cutext_sink_t
@@ -247,7 +247,7 @@ cutext_countsink_to_sink(cutext_countsink_t sink)
 void cutext_countsink_init(cutext_countsink_t sink);
 
 /** Returns the number of bytes written to \a sink. */
-CU_SINLINE ssize_t
+CU_SINLINE size_t
 cutext_countsink_count(cutext_countsink_t sink)
 { return sink->count; }
 
