@@ -1261,7 +1261,8 @@ struct atree_itr_s
 size_t
 cuex_atree_itr_size(cuex_t tree)
 {
-    return sizeof(struct atree_itr_s) + cuex_atree_depth(tree)*sizeof(cuex_t);
+    return sizeof(struct atree_itr_s)
+	+ (cuex_atree_depth(tree) + 1)*sizeof(cuex_t);
 }
 
 void
