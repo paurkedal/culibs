@@ -1,0 +1,80 @@
+Backward Compatibility
+======================
+
+culibs has two main ways to deal with backward incompatible changes,
+optionally included definitions of old entry points, and sed(1) scripts to
+do simple renaming tasks.
+
+
+Using the sed(1) Scripts
+------------------------
+
+The [`migration`][1] directory contains sed scripts which apply simple
+renaming tasks to source files.  They are named `from-`_VERSION_`.sed`,
+where _VERSION_ is the last release using the old name.  Also, a utility
+`sedi` is provided which works like `sed -i` except that it will should you
+all the changes which will be done and ask you before applying.  Use it like
+
+    sedi -f .../migration/from-0.23.1.sed foo/*.[hcy]
+
+Before answering "yes", its recommendable to do this in a clean working copy
+of a revision-controlled project.
+
+
+Controlling Compatibility Definitions
+-------------------------------------
+
+At any point, the library includes a number of backward compatible
+definitions for dropped names, either in the form of simple aliases, or real
+definitions.  This does not cover every change, but should allow postponing
+most of the work of porting to newer versions.
+
+You can control from how far back you want these definitions by adding
+something like
+
+    #define CU_COMPAT 20080731
+
+before including any culibs header, e.g. globally in your build scripts or
+on the top of each source file.  This means that every backward
+compatibility definition from 2008-07-31 until the current version is to be
+included.  On a production build, you would typically set `CU_COMPAT` to the
+date of the culibs release on which you tested it.
+
+On the other hand, during development, you may define `CU_NCOMPAT` to
+disable all backward compatibility macros.  Once it compiles cleanly, you
+can bump any `CU_COMPAT` definitions to the release date of the culibs
+version you tested against.
+
+
+Defining `CU_COMPAT` in Headers
+-------------------------------
+
+If you export public headers which use culibs, it may be desirable to
+request backward compatibility macros directly from the headers.  You must
+then guard the definition like
+
+    #ifndef CU_COMPAT
+    #  define CU_COMPAT 20080731
+    #endif
+
+in case the client already defined `CU_COMPAT`.  A flexible alternative is
+
+    #if !defined(CU_COMPAT) || CU_COMPAT > 20080731
+    #  undef CU_COMPAT
+    #  define CU_COMPAT 20080731
+    #endif
+
+which gives the maximum backward compatibility required by the client and
+the header.  For the latter to work as intended, the client must include
+your header before any culibs headers, e.g.
+
+    #define CU_COMPAT 20091022  /* Requirement of the client. */
+    #include <foo/api1.h>       /* The foo library will reduce CU_COMPAT to */
+    #include <foo/api2.h>       /* 20080731 and start including from culibs. */
+    #include <cucon/list.h>     /* We still get our backward compat, since */
+    #include <cu/clos.h>        /* >=20080731 includes >=20091022. */
+
+In a generalised form, this "most-dependent-first rule" also maximises the
+chance of detecting missing `#include` statements within headers.
+
+[1]: .
