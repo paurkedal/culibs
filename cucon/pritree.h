@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,15 +23,18 @@
 #include <stdio.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cucon_pritree cucon/pritree.h: Priority Queues (Tree-Based, Priority Stored Directly)
- * @{\ingroup cucon_misc_mod */
+/** \defgroup cucon_pritree cucon/pritree.h: Priority Queues with Explicit Priority
+ ** @{\ingroup cucon_misc_mod */
 
+/** The priority tree struct. */
 struct cucon_pritree
 {
     cucon_prinode_t front;
     size_t size;
 };
 
+/** A node of the priority tree, holding an explicit priority of type \c
+ ** double. */
 struct cucon_prinode
 {
     double priority;
@@ -40,58 +43,58 @@ struct cucon_prinode
     cucon_prinode_t right;
 };
 
-/*!Construct an empty tree. */
+/** Construct an empty tree. */
 void cucon_pritree_init(cucon_pritree_t pritree);
 
-/*!Return an empty tree. */
+/** Return an empty tree. */
 cucon_pritree_t cucon_pritree_new(void);
 
-/*!The front node of \a pretree. */
+/** The front node of \a pretree. */
 #define cucon_pritree_front(pritree) \
 	(CU_MARG(cucon_pritree_t, pritree)->front)
 
-/*!True iff \a pritree is empty. */
+/** True iff \a pritree is empty. */
 #define cucon_pritree_is_empty(pritree) \
 	(CU_MARG(cucon_pritree_t, pritree)->front==NULL)
 
-/*!The number of nodes in \a pretree. */
+/** The number of nodes in \a pretree. */
 #define cucon_pritree_size(pritree) (CU_MARG(cucon_pritree_t, pritree)->size)
 
-/*!Pop off the front of \a pretree.
- * \pre \a pritree is non-empty. */
+/** Pop off the front of \a pretree.
+ ** \pre \a pritree is non-empty. */
 void cucon_pritree_pop(cucon_pritree_t pritree);
 
-/*!Construct \a prinode with priority \a priority and insert it into
- * \a pritree. */
+/** Construct \a prinode with priority \a priority and insert it into \a
+ ** pritree. */
 void cucon_pritree_insert_init(cucon_pritree_t pritree,
 			       cucon_prinode_t prinode,
 			       double priority);
 
-/*!Erase \a prinode from \a pritree. */
+/** Erase \a prinode from \a pritree. */
 void cucon_pritree_erase(cucon_pritree_t pritree, cucon_prinode_t prinode);
 
-/*!Modify the priority of \a prinode to \a priority. */
+/** Modify the priority of \a prinode to \a priority. */
 void cucon_pritree_change_priority(cucon_pritree_t pritree,
 				   cucon_prinode_t prinode,
 				   double priority);
 
-/*!Add a constant to the priorities of all nodes. */
+/** Add a constant to the priorities of all nodes. */
 void cucon_pritree_add_to_all_priorities(cucon_pritree_t pritree, double delta);
 
-/*!The priority of \a prinode. */
+/** The priority of \a prinode. */
 #define cucon_prinode_priority(prinode) \
 	(CU_MARG(cucon_prinode_t, prinode)->priority)
 
-/*!Sequential conjunction over nodes in order from highest priority down to
- * \a min_priority. */
+/** Sequential conjunction over nodes in order from highest priority down to \a
+ ** min_priority. */
 cu_bool_t cucon_prinode_conj_down_to(cucon_prinode_t prinode,
 				     double min_priority,
 				     cu_clop(cb, cu_bool_t, cucon_prinode_t));
 
-/*!Debug dump. */
+/** Debug dump. */
 void cucon_pritree_dump_priorities(cucon_pritree_t pritree, FILE *out);
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

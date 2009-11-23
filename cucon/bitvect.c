@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 
 #define BITVECT_ARRAY_SIZE(size)			\
 	((size + sizeof(cuconP_bitvect_word_t) - 1)	\
-	 /cuconP_bitvect_word_width)
+	 /CUCONP_BITVECT_WORD_WIDTH)
 #define WORD_C(c) ((cuconP_bitvect_word_t)(c))
 
 void
@@ -79,10 +79,10 @@ cucon_bitvect_new_copy(cucon_bitvect_t bv_src)
 void
 cucon_bitvect_fill(cucon_bitvect_t bv, size_t i, size_t j, cu_bool_t val)
 {
-    size_t iword = i/cuconP_bitvect_word_width;
-    size_t ibit = i%cuconP_bitvect_word_width;
-    size_t jword = j/cuconP_bitvect_word_width;
-    size_t jbit = j%cuconP_bitvect_word_width;
+    size_t iword = i/CUCONP_BITVECT_WORD_WIDTH;
+    size_t ibit = i%CUCONP_BITVECT_WORD_WIDTH;
+    size_t jword = j/CUCONP_BITVECT_WORD_WIDTH;
+    size_t jbit = j%CUCONP_BITVECT_WORD_WIDTH;
     if (val) {
 	if (iword == jword) {
 	    if (ibit == jbit)
@@ -120,13 +120,13 @@ cucon_bitvect_find(cucon_bitvect_t bv, size_t start, cu_bool_t val)
 {
     size_t size = bv->size;
     size_t i, l, r;
-    size_t n = cu_ulong_ceil_div(bv->size, cuconP_bitvect_word_width);
+    size_t n = cu_ulong_ceil_div(bv->size, CUCONP_BITVECT_WORD_WIDTH);
     cuconP_bitvect_word_t *arr = bv->arr;
-    i = start / cuconP_bitvect_word_width;
-    l = start % cuconP_bitvect_word_width;
+    i = start / CUCONP_BITVECT_WORD_WIDTH;
+    l = start % CUCONP_BITVECT_WORD_WIDTH;
     if (l) {
 	if (arr[i]) {
-	    r = i*cuconP_bitvect_word_width
+	    r = i*CUCONP_BITVECT_WORD_WIDTH
 		+ (cu_ulong_log2_lowbit(arr[i] >> l) + l);
 	    return r >= size? (size_t)-1 : r;
 	}
@@ -135,14 +135,14 @@ cucon_bitvect_find(cucon_bitvect_t bv, size_t start, cu_bool_t val)
     if (val) {
 	for (; i < n; ++i)
 	    if (arr[i] != 0) {
-		r = i*cuconP_bitvect_word_width
+		r = i*CUCONP_BITVECT_WORD_WIDTH
 		    + cu_ulong_log2_lowbit(arr[i]);
 		return r >= size? (size_t)-1 : r;
 	    }
     } else {
 	for (; i < n; ++i)
 	    if (~arr[i] != 0) {
-		r = i*cuconP_bitvect_word_width
+		r = i*CUCONP_BITVECT_WORD_WIDTH
 		    + cu_ulong_log2_lowbit(~arr[i]);
 		return r >= size? (size_t)-1 : r;
 	    }
@@ -156,16 +156,16 @@ cucon_bitvect_find2(cucon_bitvect_t bv0, cucon_bitvect_t bv1, size_t start,
 {
     size_t size = cu_ulong_min(bv0->size, bv1->size);
     size_t i, l, r;
-    size_t n = cu_ulong_ceil_div(size, cuconP_bitvect_word_width);
+    size_t n = cu_ulong_ceil_div(size, CUCONP_BITVECT_WORD_WIDTH);
     cuconP_bitvect_word_t *arr0 = bv0->arr;
     cuconP_bitvect_word_t *arr1 = bv1->arr;
     cuconP_bitvect_word_t x01;
-    i = start / cuconP_bitvect_word_width;
-    l = start % cuconP_bitvect_word_width;
+    i = start / CUCONP_BITVECT_WORD_WIDTH;
+    l = start % CUCONP_BITVECT_WORD_WIDTH;
     if (l) {
 	x01 = (val0? arr0[i] : ~arr0[i]) & (val1? arr1[i] : ~arr1[i]);
 	if (x01) {
-	    r = i*cuconP_bitvect_word_width
+	    r = i*CUCONP_BITVECT_WORD_WIDTH
 		+ (cu_ulong_log2_lowbit(x01 >> l) + l);
 	    return r >= size? (size_t)-1 : r;
 	}
@@ -174,7 +174,7 @@ cucon_bitvect_find2(cucon_bitvect_t bv0, cucon_bitvect_t bv1, size_t start,
     for (; i < n; ++i) {
 	x01 = (val0? arr0[i] : ~arr0[i]) & (val1? arr1[i] : ~arr1[i]);
 	if (x01) {
-	    r = i*cuconP_bitvect_word_width
+	    r = i*CUCONP_BITVECT_WORD_WIDTH
 		+ cu_ulong_log2_lowbit(x01);
 	    return r >= size? (size_t)-1 : r;
 	}

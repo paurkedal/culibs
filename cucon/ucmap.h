@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@
 #include <limits.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cucon_ucmap_h cucon/ucmap.h: Constructive Maps from Unsigned Integers to Pointers
+/** \defgroup cucon_ucmap_h cucon/ucmap.h: Constructive Maps from Unsigned Integers to Pointers
  * @{\ingroup cucon_maps_and_sets_mod
  * cucon_ucmap_t implements maps from integers to pointers.
  * It is based on binary trees with a structure based on the bit-pattern
@@ -79,22 +79,22 @@ CU_SINLINE cuoo_type_t cucon_ucmap_type()
 
 #define cucon_ucmap_int_none INT_MIN
 
-/*!The empty map. */
+/** The empty map. */
 CU_SINLINE cucon_ucmap_t cucon_ucmap_empty() { return NULL; }
 
-/*!True iff \a map is the empty map. */
+/** True iff \a map is the empty map. */
 CU_SINLINE cu_bool_t
 cucon_ucmap_is_empty(cucon_ucmap_t map) { return map == NULL; }
 
 cucon_ucmap_t cuconP_ucmap_insert_raw(cucon_ucmap_t, uintptr_t, uintptr_t);
 
-/*!Return \a map with any present \a key ↦ \e oldval removed an
- * \a key ↦ \a val inserted. */
+/** Return a map which agrees with \a map everywhere, except that \a key maps
+ ** to \a val. */
 CU_SINLINE cucon_ucmap_t
 cucon_ucmap_insert_ptr(cucon_ucmap_t map, uintptr_t key, void *val)
 { return cuconP_ucmap_insert_raw(map, key, (uintptr_t)val); }
 
-/*!\copydoc cucon_ucmap_insert_ptr */
+/** \copydoc cucon_ucmap_insert_ptr */
 CU_SINLINE cucon_ucmap_t
 cucon_ucmap_insert_int(cucon_ucmap_t map, uintptr_t key, uintptr_t val)
 {
@@ -105,46 +105,46 @@ cucon_ucmap_insert_int(cucon_ucmap_t map, uintptr_t key, uintptr_t val)
 #endif
 }
 
-/*!If \a map has a mapping from \a key, returns the result of erasing it,
- * otherwise returns map. */
+/** If \a map has a mapping from \a key, returns the result of erasing it,
+ ** otherwise returns map. */
 cucon_ucmap_t cucon_ucmap_erase(cucon_ucmap_t map, uintptr_t key);
 
-/*!The mapping for \a key in \a map or \c NULL if none. */
+/** The mapping for \a key in \a map or \c NULL if none. */
 void *cucon_ucmap_find_ptr(cucon_ucmap_t map, uintptr_t key);
 
-/*!The mapping for \a key in \a map, or \c cucon_ucmap_int_none if not
- * found. */
+/** The mapping for \a key in \a map, or \c cucon_ucmap_int_none if
+ ** not found. */
 int cucon_ucmap_find_int(cucon_ucmap_t map, uintptr_t key);
 
-/*!Returns the number of elements in \a map. */
+/** Returns the number of elements in \a map. */
 size_t cucon_ucmap_card(cucon_ucmap_t map);
 
-/*!Call \a f for each key and value pair in \a M, assuming values are
- * pointers. */
+/** Call \a f for each key and value pair in \a M, assuming values are
+ ** pointers. */
 void cucon_ucmap_iter_ptr(cucon_ucmap_t M, cu_clop(f, void, uintptr_t, void *));
 
-/*!Call \a f for each key and value pair in \a M, assuming values are
- * integers. */
+/** Call \a f for each key and value pair in \a M, assuming values are
+ ** integers. */
 void cucon_ucmap_iter_int(cucon_ucmap_t M, cu_clop(f, void, uintptr_t, int));
 
-/*!Sequential conjunction over mappings in order of increasing keys. */
+/** Sequential conjunction over mappings in order of increasing keys. */
 cu_bool_t cucon_ucmap_conj_ptr(cucon_ucmap_t map,
 			       cu_clop(f, cu_bool_t, uintptr_t, void *));
 
-/*!Sequential conjunction over mappings in order of increasing keys. */
+/** Sequential conjunction over mappings in order of increasing keys. */
 cu_bool_t cucon_ucmap_conj_int(cucon_ucmap_t map,
 			       cu_clop(cb, cu_bool_t, uintptr_t, int));
 
-/*!The minimum key in \a map when keys are interpreted as unsigned. */
+/** The minimum key in \a map when keys are interpreted as unsigned. */
 uintptr_t cucon_ucmap_min_ukey(cucon_ucmap_t map);
 
-/*!The maximum key in \a map when keys are interpreted as unsigned. */
+/** The maximum key in \a map when keys are interpreted as unsigned. */
 uintptr_t cucon_ucmap_max_ukey(cucon_ucmap_t map);
 
-/*!Debug dump of \a map. */
+/** Debug dump of \a map. */
 void cucon_ucmap_dump(cucon_ucmap_t map, FILE *out);
 
-/*!@}*/
+/** @} */
 
 CU_END_DECLARATIONS
 

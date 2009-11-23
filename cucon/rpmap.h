@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,32 +21,39 @@
 #include <cucon/rumap.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cucon_rpmap_h cucon/rpmap.h: Recursive Hash Map with Pointer Keys
- *@{\ingroup cucon_maps_and_sets_mod */
+/** \defgroup cucon_rpmap_h cucon/rpmap.h: Recursive Hash Map with Pointer Keys
+ ** @{ \ingroup cucon_maps_and_sets_mod */
 
 struct cucon_rpmap
 {
     struct cucon_rumap impl;
 };
 
+/** \copydoc cucon_rumap_init */
 CU_SINLINE void cucon_rpmap_init(cucon_rpmap_t rmap)
 { cucon_rumap_init(&rmap->impl); }
 
+/** \copydoc cucon_rumap_new */
 CU_SINLINE cucon_rpmap_t cucon_rpmap_new(void)
 { return (cucon_rpmap_t)cucon_rumap_new(); }
 
+/** \copydoc cucon_rumap_value */
 CU_SINLINE void *cucon_rpmap_value(cucon_rpmap_t rmap)
 { return cucon_rumap_value(&rmap->impl); }
 
+/** \copydoc cucon_rumap_set_value */
 CU_SINLINE void cucon_rpmap_set_value(cucon_rpmap_t rmap, void *value)
 { cucon_rumap_set_value(&rmap->impl, value); }
 
+/** \copydoc cucon_rumap_is_leaf */
 CU_SINLINE cu_bool_t cucon_rpmap_is_leaf(cucon_rpmap_t rmap)
 { return cucon_rumap_is_leaf(&rmap->impl); }
 
+/** \copydoc cucon_rumap_mref */
 CU_SINLINE cucon_rpmap_t cucon_rpmap_mref(cucon_rpmap_t rmap, void *key)
 { return (cucon_rpmap_t)cucon_rumap_mref(&rmap->impl, (uintptr_t)key); }
 
+/** \copydoc cucon_rumap_cref */
 CU_SINLINE cucon_rpmap_t
 cucon_rpmap_cref(cucon_rpmap_t rpmap, void *key)
 { return (cucon_rpmap_t)cucon_rumap_cref(&rpmap->impl, (uintptr_t)key); }
@@ -59,7 +66,7 @@ cucon_rpmap_conj(cucon_rpmap_t rpmap,
 			       (cu_clop(, cu_bool_t, uintptr_t, void *))fn);
 }
 
-/*!@}*/
+/** @}*/
 CU_END_DECLARATIONS
 
 #endif

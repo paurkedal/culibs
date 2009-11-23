@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2003--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2003--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,18 +21,23 @@
 #include <cucon/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cucon_stack_h cucon/stack.h: Stacks of Memory
- * @{\ingroup cucon_linear_mod
- *
- * This is a stack in which you can push and pop objects of any size.
- * Memory will be allocated in chunks of fixed size or the size of the
- * object if it is bigger than the predefined size.  This implementation
- * is more low-level that the GNU obstacks.  It does not take care of
- * alignment, and it does not store object sizes on the stack.  On the
- * other hand, that makes it efficient.
- *
- * \see cucon_frame_h
- */
+
+void *cuconP_stack_expand(cucon_stack_t stack, size_t size);
+void cuconP_stack_shrink(cucon_stack_t stack);
+#define cuconP_STACK_NOADDRESS NULL
+
+/** \defgroup cucon_stack_h cucon/stack.h: Stacks of Memory
+ ** @{ \ingroup cucon_linear_mod
+ **
+ ** This is a stack in which you can push and pop objects of any size.  Memory
+ ** will be allocated in chunks of fixed size or the size of the object if it
+ ** is bigger than the predefined size.  This implementation is more low-level
+ ** that the GNU obstacks.  It does not take care of alignment, and it does not
+ ** store object sizes on the stack.  On the other hand, that makes it
+ ** efficient.
+ **
+ ** \see cucon_frame_h
+ **/
 struct cucon_stack
 {
     struct cucon_stack *prev;
@@ -40,36 +45,34 @@ struct cucon_stack
     char *sp;		/* lowest address in use */
     char *end;		/* boundary to prev */
 };
-void *cuconP_stack_expand(cucon_stack_t stack, size_t size);
-void cuconP_stack_shrink(cucon_stack_t stack);
-#define cuconP_STACK_NOADDRESS NULL
 
-/*!Construct \a stack as an empty stack. */
+/** Construct \a stack as an empty stack. */
 void cucon_stack_init(cucon_stack_t stack);
 
-/*!Construct \a dst as a copy of \a src. */
+/** Construct \a dst as a copy of \a src. */
 void cucon_stack_init_copy(cucon_stack_t dst, cucon_stack_t src);
 
-/*!True iff stack is empty. */
+/** True iff stack is empty. */
 CU_SINLINE cu_bool_t cucon_stack_is_empty(cucon_stack_t stack)
 { return stack->begin == cuconP_STACK_NOADDRESS; }
 
-/*!Swap the contents of \a stack0 and \a stack1. */
+/** Swap the contents of \a stack0 and \a stack1. */
 void cucon_stack_swap(cucon_stack_t stack0, cucon_stack_t stack1);
 
-/*!Number of bytes on the stack. Linear time! If you only need to know if the
- * size is 0, use the faster \ref cucon_stack_is_empty. */
+/** Number of bytes on the stack. Linear time! If you only need to know if the
+ ** size is 0, use the faster \ref cucon_stack_is_empty. */
 size_t cucon_stack_size(cucon_stack_t stack);
 
-/*!Stack size in units of <tt>sizeof(void *)</tt>. If you only need to known
- * if the size is 0, use the faster \ref cucon_stack_is_empty. */
+/** Stack size in units of <tt>sizeof(void *)</tt>. If you only need to known
+ ** if the size is 0, use the faster \ref cucon_stack_is_empty. */
 CU_SINLINE size_t cucon_stack_size_ptr(cucon_stack_t stack)
 { return cucon_stack_size(stack)/sizeof(void *); }
 
+/** The number of integers which fits in \a stack. */
 CU_SINLINE size_t cucon_stack_size_int(cucon_stack_t stack)
 { return cucon_stack_size(stack)/sizeof(int); }
 
-/*!Returns a pointer to an object \a pos bytes down the stack. */
+/** Returns a pointer to an object \a pos bytes down the stack. */
 void *cucon_stack_at(cucon_stack_t stack, size_t pos);
 
 CU_SINLINE void *cucon_stack_at_ptr(cucon_stack_t stack, size_t pos)
@@ -78,24 +81,25 @@ CU_SINLINE void *cucon_stack_at_ptr(cucon_stack_t stack, size_t pos)
 CU_SINLINE int cucon_stack_at_int(cucon_stack_t stack, size_t pos)
 { return *(int *)cucon_stack_at(stack, pos*sizeof(int)); }
 
-/*!Returns a pointer to the top object on \a stack. */
+/** Returns a pointer to the top object on \a stack. */
 CU_SINLINE void *cucon_stack_top(cucon_stack_t stack)
 { return stack->sp; }
 
-/*!Returns the top object on \a stack, assuming it is a pointer. */
+/** Returns the top object on \a stack, assuming it is a pointer. */
 CU_SINLINE void *cucon_stack_top_ptr(cucon_stack_t stack)
 { return *(void **)cucon_stack_top(stack); }
 
+/** The top element of \a stack, assuming it is an \c int. */
 CU_SINLINE int cucon_stack_top_int(cucon_stack_t stack)
 { return *(int *)cucon_stack_top(stack); }
 
-/*!Make sure at least \a size bytes from the top of the stack is
- * continuous, reallocating if necessary, and return a pointer to the
- * top of the stack.  */
+/** Make sure at least \a size bytes from the top of the stack is continuous,
+ ** reallocating if necessary, and return a pointer to the top of the
+ ** stack. */
 void *cucon_stack_continuous_top(cucon_stack_t stack, size_t size);
 
-/*!Allocate \a size bytes of space on \a stack.  If you need alignment for
- * subsequent allocations, \a size must be padded to preserve alignment. */
+/** Allocate \a size bytes of space on \a stack.  If you need alignment for
+ ** subsequent allocations, \a size must be padded to preserve alignment. */
 CU_SINLINE void *
 cucon_stack_alloc(cucon_stack_t stack, size_t size)
 {
@@ -106,7 +110,7 @@ cucon_stack_alloc(cucon_stack_t stack, size_t size)
 	return sp;
 }
 
-/*!Free \a size bytes off the top of \a stack. */
+/** Free \a size bytes off the top of \a stack. */
 CU_SINLINE void
 cucon_stack_free(cucon_stack_t stack, size_t size)
 {
@@ -117,18 +121,19 @@ cucon_stack_free(cucon_stack_t stack, size_t size)
     }
 }
 
-/*!Free <tt>sizeof(void *)</tt> from \a stack. */
+/** Free <tt>sizeof(void *)</tt> from \a stack. */
 CU_SINLINE void cucon_stack_free_ptr(cucon_stack_t stack)
 { cucon_stack_free(stack, sizeof(void *)); }
 
-/*!Push \a ptr onto the top of \a stack. */
+/** Push \a ptr onto the top of \a stack. */
 CU_SINLINE void cucon_stack_push_ptr(cucon_stack_t stack, void *ptr)
 { *(void **)cucon_stack_alloc(stack, sizeof(void *)) = ptr; }
 
+/** Push \a i onto \a stack. */
 CU_SINLINE void cucon_stack_push_int(cucon_stack_t stack, int i)
 { *(int *)cucon_stack_alloc(stack, sizeof(int)) = i; }
 
-/*!Pop and return a pointer from the top of \a stack. */
+/** Pop and return a pointer from the top of \a stack. */
 CU_SINLINE void *cucon_stack_pop_ptr(cucon_stack_t stack)
 {
     void *p = cucon_stack_top_ptr(stack);
@@ -136,6 +141,7 @@ CU_SINLINE void *cucon_stack_pop_ptr(cucon_stack_t stack)
     return p;
 }
 
+/** Pop an \c int off \a stack. */
 CU_SINLINE int cucon_stack_pop_int(cucon_stack_t stack)
 {
     int i = cucon_stack_top_int(stack);
@@ -146,23 +152,23 @@ CU_SINLINE int cucon_stack_pop_int(cucon_stack_t stack)
 
 /* == Marks == */
 
-/*!An indicator of a level on a stack. */
+/** An indicator of a level on a stack. */
 typedef struct cucon_stack_mark *cucon_stack_mark_t;
 
-/*!A mark which can be used with \ref cucon_stack_unwind_to_mark. Note that
- * marks don't survive operations which re-allocate the stack, such as \ref
- * cucon_stack_continuous_top. */
+/** A mark which can be used with \ref cucon_stack_unwind_to_mark. Note that
+ ** marks don't survive operations which re-allocate the stack, such as \ref
+ ** cucon_stack_continuous_top. */
 CU_SINLINE cucon_stack_mark_t cucon_stack_mark(cucon_stack_t stack)
 { return (cucon_stack_mark_t)stack->sp; }
 
-/*!Unwind the stack to the state it had when \a mark was created from it.
- * \pre cucon_stack_continuous_top must not have been called since \a mark was
- * created. */
+/** Unwind the stack to the state it had when \a mark was created from it.
+ ** \pre cucon_stack_continuous_top must not have been called since \a mark was
+ ** created. */
 void cucon_stack_unwind_to_mark(cucon_stack_t sk, cucon_stack_mark_t mark);
 
 /* == Iteration == */
 
-/*!Stack iterator struct. */
+/** Stack iterator struct. */
 struct cucon_stack_itr
 {
     /* Turning to next fragment is eager, except that the last one is kept. */
@@ -170,20 +176,20 @@ struct cucon_stack_itr
     char *sp;
 };
 
-/*!Initialise \a itr for iterating from top to bottom of \a stack. */
+/** Initialise \a itr for iterating from top to bottom of \a stack. */
 void cucon_stack_itr_init(cucon_stack_itr_t itr, cucon_stack_t stack);
 
-/*!Get the next \a size bytes stack fragment referred by \a itr and increment
- * \a itr. */
+/** Get the next \a size bytes stack fragment referred by \a itr and increment
+ ** \a itr. */
 void *cucon_stack_itr_get(cucon_stack_itr_t itr, size_t size);
 
-/*!Get the next pointer at \a itr and increment \a itr by the pointer size. */
+/** Get the next pointer at \a itr and increment \a itr by the pointer size. */
 void *cucon_stack_itr_get_ptr(cucon_stack_itr_t itr);
 
 void cucon_stack_itr_advance(cucon_stack_itr_t itr, size_t size);
 
-/*!Assuming the elements of \a stack are pointers, returns a pointer source of
- * all the elements. */
+/** Assuming the elements of \a stack are pointers, returns a pointer source of
+ ** all the elements. */
 cu_ptr_source_t cucon_stack_ptr_source(cucon_stack_t stack);
 
 
@@ -249,7 +255,7 @@ CU_SINLINE void *cucon_stack_it_get(cucon_stack_it_t it) { return it.sp; }
 /*!\deprecated Use \ref cucon_stack_itr. */
 #define CUCON_STACK_IT_GET(it, elt_t) (*(elt_t*)cucon_stack_it_get(it))
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

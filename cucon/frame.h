@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2006--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,14 +21,16 @@
 #include <cucon/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cucon_frame_h cucon/frame.h: Constructive Stack
- *@{\ingroup cucon_linear_mod
- *
- * This implements a stack with constructive operations.  The time and space
- * complexity are logarithmic in the number of stack levels.
- *
- * \see cucon_stack_h
- */
+/** \defgroup cucon_frame_h cucon/frame.h: Constructive Stack
+ ** @{ \ingroup cucon_linear_mod
+ **
+ ** This implements a stack with constructive operations.  The time and space
+ ** complexity are logarithmic in the number of stack levels.
+ **
+ ** \see cucon_stack_h
+ **/
+
+#ifndef CU_IN_DOXYGEN
 
 CU_SINLINE void **
 cuconP_frame_link_slot(void *frame, cu_logsize_fast_t i)
@@ -42,25 +44,27 @@ CU_SINLINE uintptr_t *
 cuconP_frame_depth_slot(void *frame)
 { return ((uintptr_t *)frame - 1); }
 
-/*!The depth of \a frame, where \c NULL has depth 0. */
+#endif
+
+/** The depth of \a frame, where \c NULL has depth 0. */
 CU_SINLINE size_t cucon_frame_depth(void *frame)
 { return frame? *cuconP_frame_depth_slot(frame) : 0; }
 
-/*!Push a subframe of \a frame with \a size bytes of data.  Pass \a frame = \c
- * NULL to create a top level frame.  The returned pointer points into the
- * allocated memory where the user data starts. */
+/** Push a subframe of \a frame with \a size bytes of data.  Pass \a frame = \c
+ ** NULL to create a top level frame.  The returned pointer points into the
+ ** allocated memory where the user data starts. */
 void *cucon_frame_push(void *frame, size_t size);
 
-/*!The parent frame of \a frame, where \a frame is a pointer which was
- * obtained with \ref cucon_frame_push. */
+/** The parent frame of \a frame, where \a frame is a pointer which was
+ ** obtained with \ref cucon_frame_push. */
 CU_SINLINE void *cucon_frame_pop(void *frame)
 { return *cuconP_frame_link_slot(frame, 0); }
 
-/*!Equivalent to the composition of \a depth calls to \ref cucon_frame_pop,
- * except that the time complexity is logarithmic in \a depth. */
+/** Equivalent to the composition of \a depth calls to \ref cucon_frame_pop,
+ ** except that the time complexity is logarithmic in \a depth. */
 void *cucon_frame_at(void *frame, size_t depth);
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

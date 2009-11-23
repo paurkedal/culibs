@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@
 #include <cu/wchar.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cucon_rumap cucon/rumap.h: Recursive Hash Map with Integer Keys
- * @{\ingroup cucon_maps_and_sets_mod */
+/** \defgroup cucon_rumap cucon/rumap.h: Recursive Hash Map with Integer Keys
+ ** @{\ingroup cucon_maps_and_sets_mod */
 
 struct cucon_rumap
 {
@@ -32,32 +32,41 @@ struct cucon_rumap
     void *data;
 };
 
+/** Initialise \a rmap as a leaf with no value. */
 void cucon_rumap_init(cucon_rumap_t rmap);
 
+/** Return a valueless leaf. */
 cucon_rumap_t cucon_rumap_new(void);
 
+/** Swap the values and subtrees of \a map0 and \a map1. */
 void cucon_rumap_swap(cucon_rumap_t map0, cucon_rumap_t map1);
 
+/** The value at \a rmap. */
 CU_SINLINE void *
 cucon_rumap_value(cucon_rumap_t rmap)
 {
     return rmap->data;
 }
 
+/** Assign \a ptr as the value of \a rmap. */
 CU_SINLINE void
 cucon_rumap_set_value(cucon_rumap_t rmap, void *ptr)
 {
     rmap->data = ptr;
 }
 
+/** True iff \a rmap has no branches. */
 CU_SINLINE cu_bool_t
 cucon_rumap_is_leaf(cucon_rumap_t rmap)
 {
     return cucon_umap_is_empty(&rmap->branches);
 }
 
+/** Mutably dereference \a rmap at \a key, constructing a new leaf if \a key
+ ** does not already have a binding. */
 cucon_rumap_t cucon_rumap_mref(cucon_rumap_t rmap, uintptr_t key);
 
+/** Return the branch of \a rmap at \a key or \c NULL if \a key is unbound. */
 CU_SINLINE cucon_rumap_t
 cucon_rumap_cref(cucon_rumap_t rmap, uintptr_t key)
 {
@@ -171,7 +180,7 @@ cucon_rumap_conj(cucon_rumap_t rmap,
 			       (cu_clop(, cu_bool_t, uintptr_t, void *))fn);
 }
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

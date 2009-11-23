@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -296,8 +296,8 @@ void **cu_ptr_source_store(cu_ptr_source_t source, size_t array_size,
  ** source and sink of \a junction. */
 void cu_ptr_junction_short(cu_ptr_junction_t junction);
 
-/*!Transforms the remaining elements of \a source with \a f and puts them in
- * order into \a sink. */
+/** Transforms the remaining elements of \a source with \a f and puts them in
+ ** order into \a sink. */
 void cu_ptr_source_sink_image(cu_clop(f, void *, void *),
 			      cu_ptr_source_t source, cu_ptr_sink_t sink);
 

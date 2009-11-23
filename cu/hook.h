@@ -49,19 +49,19 @@ void cuP_hook_append(cu_hook_node_t hook, cu_clop0(f, void));
     typedef struct name *name##_t; /* abstract */			\
     struct name { cu_inherit (cu_hook_node); };				\
 									\
-    /*!Initialise \a hook as an empty hook. */				\
+    /** Initialise \a hook as an empty hook. */				\
     CU_SINLINE void name##_init(name##_t hook)				\
     { cuP_hook_init((cu_hook_node_t)hook); }				\
 									\
-    /*!True iff \a hook is empty. */					\
+    /** True iff \a hook is empty. */					\
     CU_SINLINE cu_bool_t name##_is_empty(name##_t hook)			\
     { return cu_dlink_is_singleton(cu_to2(cu_dlink, cu_hook_node, hook)); }\
 									\
-    /*!Arrange for \a f to be called before current entries of \a hook. */\
+    /** Arrange for \a f to be called before current entries of \a hook. */\
     CU_SINLINE void name##_prepend(name##_t hook, f_decl)		\
     { cuP_hook_prepend((cu_hook_node_t)hook, (cu_clop0(, void))f); }	\
 									\
-    /*!Arrange for \a f to be called after current entries of \a hook. */\
+    /** Arrange for \a f to be called after current entries of \a hook. */\
     CU_SINLINE void name##_append(name##_t hook, f_decl)		\
     { cuP_hook_append((cu_hook_node_t)hook, (cu_clop0(, void))f); }
 

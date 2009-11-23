@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2006--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +22,14 @@
 #include <cucon/arr.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cucon_parr_h cucon/parr.h: Array of Pointers
- *@{\ingroup cucon_linear_mod
- * This is mostly a light wrapper around \ref cucon_arr_h "cucon/arr.h", with
- * sizes and indices scaled for pointer-typed elements.
- *
- * \see cucon_arr_h
- */
+/** \defgroup cucon_parr_h cucon/parr.h: Array of Pointers
+ ** @{\ingroup cucon_linear_mod
+ **
+ ** This is mostly a light wrapper around \ref cucon_arr_h "cucon/arr.h", with
+ ** sizes and indices scaled for pointer-typed elements.
+ **
+ ** \see cucon_arr_h
+ **/
 
 struct cucon_parr
 {
@@ -55,71 +56,72 @@ CU_SINLINE cucon_parr_t
 cucon_parr_new_size(size_t size)
 { return (cucon_parr_t)cucon_arr_new(cu_false, size*sizeof(void *)); }
 
-/*!Construct a \a arr as an array of \a size elements all equal to \a ptr. */
+/** Construct a \a arr as an array of \a size elements all equal to \a ptr. */
 void cucon_parr_init_fill(cucon_parr_t arr, size_t size, void *ptr);
 
-/*!Returns an array of \a size elements all equal to \a ptr. */
+/** Returns an array of \a size elements all equal to \a ptr. */
 cucon_parr_t cucon_parr_new_fill(size_t size, void *ptr);
 
-/*!\copydoc cucon_arr_swap */
+/** \copydoc cucon_arr_swap */
 CU_SINLINE void
 cucon_parr_swap(cucon_parr_t arr0, cucon_parr_t arr1)
 { cucon_arr_swap(&arr0->arr, &arr1->arr); }
 
-/*!\copydoc cucon_arr_size */
+/** \copydoc cucon_arr_size */
 CU_SINLINE size_t
 cucon_parr_size(cucon_parr_t arr)
 { return cucon_arr_size(&arr->arr)/sizeof(void *); }
 
-/*!\copydoc cucon_arr_ref_at */
+/** \copydoc cucon_arr_ref_at */
 CU_SINLINE cu_ptr_ptr_t
 cucon_parr_ref_at(cucon_parr_t arr, size_t index)
 { return cucon_arr_ref_at(&arr->arr, index*sizeof(void *)); }
 
-/*!Get component \a index of \a arr. */
+/** Get component \a index of \a arr. */
 CU_SINLINE void *
 cucon_parr_at(cucon_parr_t arr, size_t index)
 { return *(void **)cucon_arr_ref_at(&arr->arr, index*sizeof(void *)); }
 
-/*!Set component \a index of \a arr to \a ptr. */
+/** Set component \a index of \a arr to \a ptr. */
 CU_SINLINE void
 cucon_parr_set_at(cucon_parr_t arr, size_t index, void *ptr)
 { *(void **)cucon_arr_ref_at(&arr->arr, index*sizeof(void *)) = ptr; }
 
-/*!\copydoc cucon_arr_resize_gp */
+/** \copydoc cucon_arr_resize_gp */
 CU_SINLINE void
 cucon_parr_resize_gp(cucon_parr_t arr, size_t size)
 { cucon_arr_resize_gp(&arr->arr, size*sizeof(void *)); }
 
-/*!\copydoc cucon_arr_resize_gpmax */
+/** \copydoc cucon_arr_resize_gpmax */
 CU_SINLINE void
 cucon_parr_resize_gpmax(cucon_parr_t arr, size_t size)
 { cucon_arr_resize_gpmax(&arr->arr, size*sizeof(void *)); }
 
-/*!\copydoc cucon_arr_resize_exact */
+/** \copydoc cucon_arr_resize_exact */
 CU_SINLINE void
 cucon_parr_resize_exact(cucon_parr_t arr, size_t size)
 { cucon_arr_resize_exact(&arr->arr, size*sizeof(void *)); }
 
-/*!\copydoc cucon_arr_resize_exactmax */
+/** \copydoc cucon_arr_resize_exactmax */
 CU_SINLINE void
 cucon_parr_resize_exactmax(cucon_parr_t arr, size_t size)
 { cucon_arr_resize_exactmax(&arr->arr, size*sizeof(void *)); }
 
-/*!Perform \ref cucon_parr_resize_gp and set any new elements to \a ptr. */
+/** Perform \ref cucon_parr_resize_gp and set any new elements to \a ptr. */
 void cucon_parr_resize_gp_fill(cucon_parr_t arr, size_t size, void *ptr);
 
-/*!Perform \ref cucon_parr_resize_gpmax and set any new elements to \a ptr. */
+/** Perform \ref cucon_parr_resize_gpmax and set any new elements to \a ptr. */
 void cucon_parr_resize_gpmax_fill(cucon_parr_t arr, size_t size, void *ptr);
 
-/*!Perform \ref cucon_parr_resize_exact and set any new elements to \a ptr. */
+/** Perform \ref cucon_parr_resize_exact and set any new elements to \a ptr. */
 void cucon_parr_resize_exact_fill(cucon_parr_t arr, size_t size, void *ptr);
 
-/*!Perform \ref cucon_parr_resize_exactmax and set any new elements to \a ptr. */
+/** Perform \ref cucon_parr_resize_exactmax and set any new elements to
+ ** \a ptr. */
 void cucon_parr_resize_exactmax_fill(cucon_parr_t arr, size_t size, void *ptr);
 
-/*!Append \a elt to \a arr, extending the capacity in geometric
- * progression. */
+/** Append \a elt to \a arr, extending the capacity in geometric
+ ** progression. */
 CU_SINLINE void
 cucon_parr_append_gp(cucon_parr_t arr, void *elt)
 {
@@ -127,27 +129,27 @@ cucon_parr_append_gp(cucon_parr_t arr, void *elt)
     *p = elt;
 }
 
-/*!Set all elements of \a arr to \a ptr. */
+/** Set all elements of \a arr to \a ptr. */
 void cucon_parr_fill_all(cucon_parr_t arr, void *ptr);
 
-/*!Set elements of \a arr from \a start up to but not including \a end to \a
- * ptr. */
+/** Set elements of \a arr from \a start up to but not including \a end to \a
+ ** ptr. */
 void cucon_parr_fill_range(cucon_parr_t arr,
 			   size_t start, size_t end, void *ptr);
 
-/*!A pointer to the start of the internal array.
- * \see cucon_parr_end */
+/** A pointer to the start of the internal array.
+ ** \see cucon_parr_end */
 CU_SINLINE void **
 cucon_parr_begin(cucon_parr_t arr)
 { return (void **)cucon_arr_begin(&arr->arr); }
 
-/*!A pointer past the end of the internal array.
- * \see cucon_parr_begin */
+/** A pointer past the end of the internal array.
+ ** \see cucon_parr_begin */
 CU_SINLINE void **
 cucon_parr_end(cucon_parr_t arr)
 { return (void **)cucon_arr_end(&arr->arr); }
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

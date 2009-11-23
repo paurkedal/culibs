@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,11 +52,13 @@ cuconf_get_bool(char const *name)
     return v && (strcmp(v, "true") == 0 || strcmp(v, "yes") == 0);
 }
 
+#if defined(CUCONF_DEBUG_SELF) && defined(CUCONF_MUTEX_ERRORCHECK)
 static void *
 _null_thread_proc(void *a)
 {
     return a;
 }
+#endif
 
 void
 cu_set_application_name(char const *name)
