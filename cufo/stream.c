@@ -393,7 +393,7 @@ cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
     tag_stack->tag = tag;
     fos->tag_stack = tag_stack;
 #endif
-    cucon_arr_init_empty(&arr);
+    cucon_arr_init(&arr, cu_false, 0);
     for (;;) {
 	cufo_attr_t attr = va_arg(va, cufo_attr_t);
 	cufo_attrbind_t bind;

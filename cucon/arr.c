@@ -62,7 +62,7 @@ cucon_arr_t
 cucon_arr_new_empty(void)
 {
     cucon_arr_t arr = cu_gnew(struct cucon_arr);
-    cucon_arr_init_empty(arr);
+    cucon_arr_init(arr, cu_false, 0);
     return arr;
 }
 
@@ -78,7 +78,7 @@ cucon_arr_t
 cucon_arr_new_size(size_t size)
 {
     cucon_arr_t arr = cu_gnew(struct cucon_arr);
-    cucon_arr_init_size(arr, size);
+    cucon_arr_init(arr, cu_false, size);
     return arr;
 }
 

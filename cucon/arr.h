@@ -49,19 +49,19 @@ cucon_arr_t cucon_arr_new(cu_bool_t is_atomic, size_t size);
  ** This function has been replaced by \ref cucon_arr_init to enforce
  ** specification of atomicity of the array data.  It will be removed in a
  ** future version. */
-void cucon_arr_init_empty(cucon_arr_t arr);
+void cucon_arr_init_empty(cucon_arr_t arr) CU_ATTR_DEPRECATED;
 
 /** \deprecated
  ** This function has been replaced by \ref cucon_arr_new to enforce
  ** specification of atomicity of the array data.  It will be removed in a
  ** future version. */
-cucon_arr_t cucon_arr_new_empty(void);
+cucon_arr_t cucon_arr_new_empty(void) CU_ATTR_DEPRECATED;
 
 /** \copydoc cucon_arr_init_empty */
-void cucon_arr_init_size(cucon_arr_t arr, size_t size);
+void cucon_arr_init_size(cucon_arr_t arr, size_t size) CU_ATTR_DEPRECATED;
 
 /** \copydoc cucon_arr_new_empty */
-cucon_arr_t cucon_arr_new_size(size_t size);
+cucon_arr_t cucon_arr_new_size(size_t size) CU_ATTR_DEPRECATED;
 
 /** Swap the values of \a arr0 and \a arr1. */
 void cucon_arr_swap(cucon_arr_t arr0, cucon_arr_t arr1);

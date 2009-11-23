@@ -264,7 +264,7 @@ cuex_otab_reserve(cuex_otab_t tab, cu_sref_t sref, cuex_otab_range_t super,
 			  super, rel_min, rel_maxp1))
 	return cu_false;
     rsv->is_full = is_full;
-    cucon_arr_init_empty(&rsv->freemask);
+    cucon_arr_init(&rsv->freemask, cu_false, 0);
     cucon_bitvect_init_fill(&rsv->all_freemask, rel_maxp1 - rel_min, cu_true);
     cucon_bitvect_init_fill(&rsv->multi_freemask, rel_maxp1 - rel_min, cu_true);
     return cu_true;
