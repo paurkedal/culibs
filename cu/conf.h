@@ -31,9 +31,5 @@
 #ifdef CUCONF_HAVE_GC_REGISTER_RECLAIM_NOTIFIER
 #  define CUCONF_ENABLE_GC_DISCLAIM
 #endif
-#ifdef NDEBUG
-#  define CU_NDEBUG
-#  define CU_NDEBUG_CLIENT
-#endif
 
 #endif

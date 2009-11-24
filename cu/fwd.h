@@ -39,6 +39,11 @@ CU_BEGIN_DECLARATIONS
  * it, or define it blank. */
 #define CU_SINLINE static inline
 
+#ifdef NDEBUG
+#  define CU_NDEBUG
+#  define CU_NDEBUG_CLIENT
+#endif
+
 #ifndef CU_MARG
 #  ifndef CU_NDEBUG
 #    define CU_MARG(ptr_t, ptr) ((ptr_t)(1? (ptr_t)(ptr) : (ptr)))
