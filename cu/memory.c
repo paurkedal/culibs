@@ -44,14 +44,6 @@
 #  endif
 #endif
 
-static cu_bool_t memory_init_done = 0;
-#if 0
-#ifdef CUCONF_ENABLE_GC_DISCLAIM
-static int object_kind;
-static void **object_freelist;
-#endif
-#endif
-
 static void
 _out_of_memory(size_t size)
 {
@@ -80,7 +72,6 @@ cu_regh_out_of_memory(void (*f)(size_t))
 
 static ptrdiff_t cuD_gc_base_shift = -1;
 
-#ifdef CUCONF_DEBUG_MEMORY
 void *
 cuD_gc_base(void *ptr)
 {
@@ -95,7 +86,6 @@ cuD_gc_base(void *ptr)
     else
 	return cu_ptr_add(ptr, cuD_gc_base_shift);
 }
-#endif
 
 #define DBG_MAX_ALLOC_SIZE 100000000
 
@@ -108,8 +98,6 @@ cuD_check_size(size_t size, char const *file, int line)
 	cu_debug_unreachable();
     }
 }
-
-#ifdef CUCONF_DEBUG_MEMORY
 
 void *
 cuD_galloc(size_t size, char const *file, int line)
@@ -198,8 +186,6 @@ cuD_ufree_atomic(void *ptr, char const *file, int line)
 #endif
 }
 
-#endif /* CUCONF_DEBUG_MEMORY */
-
 void *
 (cu_gallocz_atomic)(size_t size)
 {
@@ -244,8 +230,7 @@ cuP_memory_init()
 {
     void *ptr;
 
-    cu_debug_assert(!memory_init_done);
-    memory_init_done = 1;
+    cu_debug_assert_once();
 
     /* Determine size of debug header. */
     ptr = cu_galloc(1);

@@ -40,8 +40,11 @@
 #include <stdint.h>
 #endif
 
-#ifdef CU_NDEBUG
-#  define CU_NDEBUG_MEMORY
+/* By default, follow CU_NDEBUG, but let client explicitly switch on or off
+ * memory debugging by defining CU_DEBUG_MEMORY or CU_NDEBUG_MEMORY,
+ * respectively. */
+#if !defined(CU_NDEBUG) && !defined(CU_NDEBUG_MEMORY)
+#  define CU_DEBUG_MEMORY
 #endif
 
 
@@ -77,7 +80,7 @@ void cu_regh_out_of_memory(void (*f)(size_t));
  ** NULL.
  **/
 
-#if defined(CUCONF_DEBUG_MEMORY) && !defined(CU_IN_DOXYGEN)
+#if defined(CU_DEBUG_MEMORY) && !defined(CU_IN_DOXYGEN)
 
 void *cuD_galloc(size_t size, char const *file, int line);
 void *cuD_galloc_atomic(size_t size, char const *file, int line);
@@ -97,7 +100,7 @@ void *cuD_uallocz_atomic(size_t size, char const *file, int line);
 #define cu_uallocz(size)	cuD_ualloc(size, __FILE__, __LINE__)
 #define cu_uallocz_atomic(size)	cuD_uallocz_atomic(size, __FILE__, __LINE__)
 
-#else /* !CUCONF_DEBUG_MEMORY */
+#else /* !CU_DEBUG_MEMORY */
 
 /** Returns \a size bytes of traced an collectable memory.
  ** \c GC_malloc with a check for \c NULL. */
@@ -172,10 +175,10 @@ CU_SINLINE void *cu_uallocz(size_t size) { return cu_ualloc(size); }
 /** Allocate cleared atomic uncollectable memory. */
 void *cu_uallocz_atomic(size_t size);
 
-#endif /* CUCONF_DEBUG_MEMORY */
+#endif /* CU_DEBUG_MEMORY */
 
 
-#if defined(CUCONF_DEBUG_MEMORY) && !defined(CU_IN_DOXYGEN)
+#if defined(CU_DEBUG_MEMORY) && !defined(CU_IN_DOXYGEN)
 
 void cuD_gfree(void *ptr, char const *file, int line);
 void cuD_ufree_atomic(void *ptr, char const *file, int line);
@@ -184,7 +187,7 @@ void cuD_ufree_atomic(void *ptr, char const *file, int line);
 #  define cu_ufree		cu_gfree
 #  define cu_ufree_atomic(ptr)	cuD_ufree_atomic(ptr, __FILE__, __LINE__)
 
-#else /* !CUCONF_DEBUG_MEMORY */
+#else /* !CU_DEBUG_MEMORY */
 
 /** Free traceable collectable memory (optional). */
 #  define cu_gfree GC_free
@@ -267,7 +270,7 @@ typedef struct cu_hidden_ptr *cu_hidden_ptr_t;
 #define cu_reveal_ptr(hptr) \
 	((void*)~(cu_uintptr_t)CU_MARG(cu_hidden_ptr_t, hptr))
 
-#ifdef CUCONF_DEBUG_MEMORY
+#ifdef CU_DEBUG_MEMORY
 void *cuD_gc_base(void *);
 #  define cu_gc_base cuD_gc_base
 #else
@@ -277,7 +280,7 @@ void *cuD_gc_base(void *);
 #define cu_gc_register_finaliser GC_register_finalizer
 #define cu_gc_register_finaliser_no_order GC_register_finalizer_no_order
 
-#ifdef CU_NDEBUG_MEMORY
+#ifndef CU_DEBUG_MEMORY
 #  define cu_gc_ptr_assign(p, q) (*(p) = (q))
 #else
 #  define cu_gc_ptr_assign(p, q) \

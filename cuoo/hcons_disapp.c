@@ -62,7 +62,7 @@ CU_SINLINE void
 _init_disappearing(void **link, void *obj)
 {
     *link = obj;
-#ifdef CUCONF_DEBUG_MEMORY
+#ifdef CU_DEBUG_MEMORY
     obj = GC_base(obj);
 #endif
 #ifdef CU_HCONS_NDEBUG
