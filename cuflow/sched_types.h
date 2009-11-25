@@ -23,8 +23,8 @@
 #include <atomic_ops.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuflow_sched_types_h cuflow/sched_types.h: SMP Parallelization Type Definitions
- *@{\ingroup cuflow_mod */
+/** \addtogroup cuflow_sched_h
+ ** @{ */
 
 /* The number of entries in each thread-local execution queue.  This must be
  * a power of 2. */
@@ -36,6 +36,7 @@ CU_BEGIN_DECLARATIONS
 typedef struct cuflow_exeq *cuflow_exeq_t;
 typedef struct cuflow_exeq_entry *cuflow_exeq_entry_t;
 
+/** A type to hold the priority of scheduled work. */
 typedef enum {
     cuflow_exeqpri_begin	= 0,
     cuflow_exeqpri_normal	= 0,
@@ -45,10 +46,12 @@ typedef enum {
 
 #define cuflow_exeqpri_succ(pri) ((cuflow_exeqpri_t)((pri) + 1))
 
+/** True iff \a pri0 is at least as high a priority as \a pri1. */
 CU_SINLINE cu_bool_t
 cuflow_exeqpri_prioreq(cuflow_exeqpri_t pri0, cuflow_exeqpri_t pri1)
 { return pri0 <= pri1; }
 
+/** True iff \a pri0 is a higher priority than \a pri1. */
 CU_SINLINE cu_bool_t
 cuflow_exeqpri_prior(cuflow_exeqpri_t pri0, cuflow_exeqpri_t pri1)
 { return pri0 < pri1; }
@@ -59,6 +62,10 @@ struct cuflow_exeq_entry
     AO_t *cdisj;
 };
 
+/** An SMP workloading queue.  This is a short queue used to float work between
+ ** threads.  The internal structure is private, you only need to pass it
+ ** around to \ref cuflow_sched_call_on etc. as an optimisation to avoid the
+ ** individual thread-local lookup of \ref cuflow_sched_call etc. */
 struct cuflow_exeq
 {
     pthread_mutex_t pickup_mutex;
@@ -70,7 +77,7 @@ struct cuflow_exeq
 #endif
 };
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

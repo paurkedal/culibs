@@ -27,8 +27,8 @@
 #include <pthread.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuflow_tstate_h cuflow/tstate.h: Thread-Local State
- *@{\ingroup cuflow_mod */
+/** \defgroup cuflow_tstate_h cuflow/tstate.h: Thread-Local State
+ ** @{ \ingroup cuflow_mod */
 
 struct cuflow_tstate
 {
@@ -45,13 +45,14 @@ cuflow_tstate_next(cuflow_tstate_t ts)
     return cu_from(cuflow_tstate, cu_dlink, cu_to(cu_dlink, ts)->next);
 }
 
+/** The current current execution queue on which work will be scheduled. */
 CU_SINLINE cuflow_exeq_t
 cuflow_tstate_exeq(cuflow_tstate_t tstate)
 {
     return &tstate->exeq[tstate->exeqpri];
 }
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

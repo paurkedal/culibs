@@ -140,11 +140,11 @@ main()
     cuflow_workers_spawn(0);
 
     printf("Result: %d\n", r);
-    printf("              %10s %10s\n"
+    printf("              %10s %10s | %10s %10s\n"
 	   "    plain fn: %10.3lg %10.3lg | %10.3lg %10.3lg\n"
 	   "  plain clos: %10.3lg %10.3lg | %10.3lg %10.3lg\n"
 	   "  sched clos: %10.3lg %10.3lg | %10.3lg %10.3lg\n",
-	   "total", "per call",
+	   "CPU total", "per call", "WT total", "per call",
 	   tF/(double)CLOCKS_PER_SEC,
 	   tF/(r*(double)CLOCKS_PER_SEC),
 	   wtF/(double)CUFLOW_WALLTIME_SECOND,

@@ -38,6 +38,9 @@ cuflowP_sched_call(cuflow_exeq_t exeq, cu_clop0(fn, void),
     AO_store_release_write(&exeq->head, (exeq->head + 1) & CUFLOW_EXEQ_MASK);
 
     cuflow_workers_incr_pending();
+#if CUFLOW_PROFILE_SCHED
+    AO_fetch_and_add1(&cuflowP_profile_sched_count);
+#endif
 }
 
 void
@@ -55,14 +58,37 @@ cuflowP_sched_call_sub1(cuflow_exeq_t exeq, cu_clop0(fn, void),
     AO_store_release_write(&exeq->head, (exeq->head + 1) & CUFLOW_EXEQ_MASK);
 
     cuflow_workers_incr_pending();
+#if CUFLOW_PROFILE_SCHED
+    AO_fetch_and_add1(&cuflowP_profile_sched_count);
+#endif
+}
+
+void
+cuflow_sched_call_at(cu_clop0(f, void), AO_t *cdisj, cuflow_exeqpri_t pri)
+{
+    cuflow_tstate_t tstate = cuflow_tstate();
+    cuflow_exeqpri_t old_pri = tstate->exeqpri;
+    tstate->exeqpri = pri;
+    cuflow_sched_call_on(f, cdisj, &tstate->exeq[pri]);
+    tstate->exeqpri = old_pri;
+}
+
+void
+cuflow_sched_call_sub1_at(cu_clop0(f, void), AO_t *cdisj, cuflow_exeqpri_t pri)
+{
+    cuflow_tstate_t tstate = cuflow_tstate();
+    cuflow_exeqpri_t old_pri = tstate->exeqpri;
+    tstate->exeqpri = pri;
+    cuflow_sched_call_sub1_on(f, cdisj, &tstate->exeq[pri]);
+    tstate->exeqpri = old_pri;
 }
 
 cu_clop_edef(cuflowP_schedule, void, cu_bool_t is_global)
 {
     cuflow_tstate_t ts0 = cuflow_tstate();
     cuflow_exeqpri_t pri;
-    cuflow_exeqpri_t min_pri = ts0->exeqpri;
-    for (pri = cuflow_exeqpri_begin; cuflow_exeqpri_prioreq(pri, min_pri);
+    cuflow_exeqpri_t caller_pri = ts0->exeqpri;
+    for (pri = cuflow_exeqpri_begin; cuflow_exeqpri_prioreq(pri, caller_pri);
 	 pri = cuflow_exeqpri_succ(pri)) {
 	cuflow_tstate_t ts = ts0;
 	do {
@@ -91,6 +117,7 @@ cu_clop_edef(cuflowP_schedule, void, cu_bool_t is_global)
 		AO_store_release(&exeq->tail, new_tail);
 		cuflow_workers_decr_pending();
 		cu_mutex_unlock(&exeq->pickup_mutex);
+		ts0->exeqpri = pri;
 		cu_call0(fn);
 		cu_dlogf(_file, "Done job %p, decrementing %p.", fn, cdisj);
 		cuflow_cdisj_sub1_release_write(cdisj);
@@ -102,6 +129,7 @@ cu_clop_edef(cuflowP_schedule, void, cu_bool_t is_global)
 	    ts = cuflow_tstate_next(ts);
 	} while (ts != ts0);
     }
+    ts0->exeqpri = caller_pri;
 }
 
 #if CUFLOW_PROFILE_SCHED
