@@ -51,11 +51,48 @@ CU_BEGIN_DECLARATIONS
  ** NAME, \a PRIVATE_NAME, \a STATIC_NAME).  This code must be run in the main
  ** thread before other threads are created, typically during a global
  ** initialisation phase.
+ **
+ ** For example, in <tt>libfoo/tls.h</tt> put
+ **
+ ** \code
+ ** typedef struct libfoo_tls *libfoo_tls_t;
+ **
+ ** struct libfoo_tls
+ ** {
+ **     // Thread-local variables goes here.
+ ** };
+ **
+ ** // Provide "libfoo_tls_t libfoo_tls(void)"
+ ** CU_THREADLOCAL_DECL(libfoo_tls, libfoopriv_tls);
+ ** \endcode
+ **
+ ** and in <tt>libfoo/init.c</tt>,
+ **
+ ** \code
+ ** ...
+ ** CU_THREADLOCAL_DEF(libfoo_tls, libfoopriv_tls, _tls);
+ ** ...
+ **
+ ** void libfoo_init(void)
+ ** {
+ **     ...
+ **     CU_THREADLOCAL_INIT(libfoo_tls, libfoopriv_tls, _tls);
+ **     ...
+ ** }
+ ** \endcode
  **/
 
-#ifdef CUCONF_HAVE_THREAD_KEYWORD
+#ifdef CU_IN_DOXYGEN
 
-#  define CU_THREADLOCAL_DECL(name, private_name)			\
+# define CU_THREADLOCAL_DECL(name, private_name)			\
+    /** Returns thread-local state. */					\
+    name##_t name(void)
+# define CU_THREADLOCAL_DEF(name, private_name, static_name) ...
+# define CU_THREADLOCAL_INIT(name, private_name, static_name) ...
+
+#elif defined(CUCONF_HAVE_THREAD_KEYWORD)
+
+# define CU_THREADLOCAL_DECL(name, private_name)			\
     extern __thread struct name private_name##_inst;			\
 									\
     /** Returns thread-local state. */					\
@@ -64,7 +101,7 @@ CU_BEGIN_DECLARATIONS
 									\
     CU_END_BOILERPLATE
 
-#  define CU_THREADLOCAL_DEF(name, private_name, static_name)		\
+# define CU_THREADLOCAL_DEF(name, private_name, static_name)		\
     __thread struct name private_name##_inst;				\
 									\
     cu_clop_def0(static_name##_on_thread_entry, void)			\
@@ -83,13 +120,13 @@ CU_BEGIN_DECLARATIONS
 									\
     CU_END_BOILERPLATE
 
-#  define CU_THREADLOCAL_INIT(name, private_name, static_name)		\
+# define CU_THREADLOCAL_INIT(name, private_name, static_name)		\
     cu_register_thread_init(cu_clop_ref(static_name##_on_thread_entry),	\
 			    cu_clop_ref(static_name##_on_thread_exit))
 
 #else /* !CUCONF_HAVE_THREAD_KEYWORD */
 
-#  define CU_THREADLOCAL_DECL(name, private_name)			\
+# define CU_THREADLOCAL_DECL(name, private_name)			\
     extern pthread_key_t private_name##_key;				\
 									\
     /** Returns thread-local state. */					\
@@ -98,7 +135,7 @@ CU_BEGIN_DECLARATIONS
 									\
     CU_END_BOILERPLATE
 
-#  define CU_THREADLOCAL_DEF(name, private_name, static_name)		\
+# define CU_THREADLOCAL_DEF(name, private_name, static_name)		\
     pthread_key_t private_name##_key;					\
 									\
     cu_clop_def0(static_name##_on_thread_entry, void)			\
@@ -119,7 +156,7 @@ CU_BEGIN_DECLARATIONS
 									\
     CU_END_BOILERPLATE
 
-#  define CU_THREADLOCAL_INIT(name, private_name, static_name)		\
+# define CU_THREADLOCAL_INIT(name, private_name, static_name)		\
     do {								\
 	cu_pthread_key_create(&private_name##_key, (void (*)(void *))	\
 		CU_MARG(void (*)(name##_t), static_name##_destruct));	\

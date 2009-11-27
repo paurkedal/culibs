@@ -14,6 +14,8 @@ syn match cComment 'CU_DOXY_ENDFAKED([^()]*)'
 syn match cPreProc /\<cuPP_\w\+/
 syn keyword cStorageClass CU_ATTR_NORETURN CU_ATTR_PURE CU_ATTR_CONST
 syn keyword cStorageClass CU_ATTR_UNUSED CU_ATTR_DEPRECATED CU_ATTR_MALLOC
+syn keyword cPreproc CU_THREADLOCAL_DECL CU_THREADLOCAL_DEF
+syn keyword cPreproc CU_THREADLOCAL_INIT
 
 " Types
 syn match cType '\<cu\(con\|dyn\|ex\|flow\|fo\|gra\|oo\|os\|sto\|text\)\?P\?_\i*_t\>'
