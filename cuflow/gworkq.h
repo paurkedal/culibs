@@ -29,7 +29,11 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuflow_gworkq_h cuflow/gworkq.h Global Work Queue
- * @{\ingroup cuflow_mod
+ * @{\ingroup cuflow_oldsmp_mod
+ *
+ * \deprecated \ref cuflow_sched_h "cuflow/sched.h" provides a simpler and more
+ * efficient alternative.
+ *
  * The global work queue is a way for threads to co-operate to performed
  * scheduled function calls in order of priority and in FIFO order within
  * a given priority.

@@ -24,7 +24,10 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuflow_gflexq_h cuflow/gflexq.h Global Work Queue with Flexible Priority
- * @{\ingroup cuflow_mod
+ * @{\ingroup cuflow_oldsmp_mod
+ *
+ * \deprecated Use \ref cuflow_sched_h "cuflow/sched.h" provides a simpler and
+ * more efficient alternative.
  *
  * This module provides a data structure \ref cuflow_gflexq, a work
  * queue linked to the global work queue at a modifiable priority.

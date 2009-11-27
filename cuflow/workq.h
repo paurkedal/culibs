@@ -23,7 +23,11 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuflow_workq_h cuflow/workq.h: FIFO for Queueing Pending Tasks
- * @{\ingroup cuflow_mod */
+ * @{\ingroup cuflow_oldsmp_mod
+ *
+ * \deprecated \ref cuflow_sched_h "cuflow/sched.h" provides a simpler and more
+ * efficient altenative.
+ */
 
 /*!The type of function which can be queued on work queues. */
 typedef cu_clop0(cuflow_workq_fn_t, void);

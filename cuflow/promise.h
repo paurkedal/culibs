@@ -24,7 +24,11 @@
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuflow_promise_h cuflow/promise.h: Delayed Fulfillment of Computations
- * @{\ingroup cuflow_mod
+ * @{\ingroup cuflow_oldsmp_mod
+ *
+ * \deprecated Similar functionality is provided by \ref cuflow_sched_h
+ * "cuflow/sched.h" using \ref cuflow_cdisj_h "cuflow/cdisj.h" for guarding the
+ * result of a computation.
  *
  * A promise is a handle which contains a task to be performed at a later
  * time, and a state of the computation.  The computation may schedule
