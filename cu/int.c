@@ -318,7 +318,7 @@ cu_uint32_ceil_log2(uint_fast32_t x)
 }
 
 unsigned int
-cu_uint64_ceil_log2(uint_fast32_t x)
+cu_uint64_ceil_log2(uint_fast64_t x)
 {
     cu_check_arg(0, x, x > 0);
     return _uint64_floor_log2(x - UINT64_C(1)) + 1;
