@@ -108,6 +108,9 @@ AC_DEFUN([CUAC_LIB_BDWGC],
     CUAC_WITH_SAVED_ENV([CPPFLAGS, LIBS],
       [ CPPFLAGS="$CPPFLAGS $BDWGC_CFLAGS"
 	LIBS="$LIBS $BDWGC_LIBS"
+	AC_CHECK_FUNC([GC_pthread_create], [],
+	    [AC_MSG_ERROR(
+		[libgc must be configured with multi-thread support.])])
 	AC_CHECK_FUNC([GC_register_disclaim_proc],
 	  [ AC_DEFINE([HAVE_GC_DISCLAIM], 1,
 		      [Define if libgc has disclaim patch.])
