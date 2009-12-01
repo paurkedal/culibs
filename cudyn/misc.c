@@ -16,10 +16,12 @@
  */
 
 #include <cudyn/misc.h>
-#if CUCONF_HAVE_LIBFFI_FFI_H
-#  include <libffi/ffi.h>
-#else
-#  include <ffi.h>
+#ifdef CUCONF_HAVE_LIBFFI
+# if CUCONF_HAVE_LIBFFI_FFI_H
+#   include <libffi/ffi.h>
+# else
+#   include <ffi.h>
+# endif
 #endif
 #include <inttypes.h>
 #include <cuoo/intf.h>

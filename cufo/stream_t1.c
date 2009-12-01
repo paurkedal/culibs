@@ -128,6 +128,7 @@ _show_all_tags(cufo_stream_t fos)
     cufo_newline(fos);
     cufo_puts(fos, "Inline code:");
     _show_tags(fos, code_tags, ARRSIZE(code_tags));
+    cufo_newline(fos);
 }
 
 static void

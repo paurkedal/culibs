@@ -27,20 +27,20 @@
 
 /* == Parsing of Unicode Data == */
 
-typedef struct codepoint_info_s *codepoint_info_t;
-struct codepoint_info_s
+typedef struct _codepoint_info *_codepoint_info_t;
+struct _codepoint_info
 {
     cu_wint_t first_codepoint, last_codepoint;
     cutext_wccat_t wccat;
 };
 
 void
-codepoint_iter(char const *in_path, cu_clop(f, void, codepoint_info_t))
+_codepoint_iter(char const *in_path, cu_clop(f, void, _codepoint_info_t))
 {
 #define BUF_SIZE 1024
     char s0[BUF_SIZE];
     FILE *in;
-    struct codepoint_info_s cpi;
+    struct _codepoint_info cpi;
     cu_bool_t have_first = cu_false;
 
     in = fopen(in_path, "r");
@@ -106,10 +106,10 @@ error:
 
 /* == Make Switch == */
 
-cu_clos_def(make_switch_case, cu_prot(void, codepoint_info_t cpi),
+cu_clos_def(_make_switch_case, cu_prot(void, _codepoint_info_t cpi),
     (FILE *out;))
 {
-    cu_clos_self(make_switch_case);
+    cu_clos_self(_make_switch_case);
     int i;
     for (i = cpi->first_codepoint; i <= cpi->last_codepoint; ++i)
 	fprintf(self->out, "case 0x%x: ", i);
@@ -117,9 +117,9 @@ cu_clos_def(make_switch_case, cu_prot(void, codepoint_info_t cpi),
 }
 
 void
-make_switch(char const *in_path, char const *out_path)
+_make_switch(char const *in_path, char const *out_path)
 {
-    make_switch_case_t cb;
+    _make_switch_case_t cb;
     FILE *out;
 
     out = fopen(out_path, "w");
@@ -133,14 +133,14 @@ make_switch(char const *in_path, char const *out_path)
 	  "switch (ch) {\n",
 	  out);
     cb.out = out;
-    codepoint_iter(in_path, make_switch_case_prep(&cb));
+    _codepoint_iter(in_path, _make_switch_case_prep(&cb));
     fprintf(out, "default: return %d;\n}\n}\n", CUTEXT_WCCAT_NONE);
 }
 
 
 /* == Main == */
 
-struct main_args_s
+struct _main_args
 {
     int mode;
     char const *in_path;
@@ -148,9 +148,9 @@ struct main_args_s
     char const *out_base;
 };
 static error_t
-main_parseopt(int key, char *arg, struct argp_state *state)
+_main_parse_opt(int key, char *arg, struct argp_state *state)
 {
-    struct main_args_s *args = state->input;
+    struct _main_args *args = state->input;
     switch (key) {
 	    char const *s;
 	case 'b':
@@ -184,7 +184,7 @@ main_parseopt(int key, char *arg, struct argp_state *state)
 	    return ARGP_ERR_UNKNOWN;
     }
 }
-static struct argp_option main_opts[] = {
+static struct argp_option _main_opts[] = {
     {NULL, 'o', "OUTPUT", 0,
 	"Path to output file or base directory for multiple outputs."},
     {NULL, 'b', "BASE_DIR", 0,
@@ -192,22 +192,25 @@ static struct argp_option main_opts[] = {
     {NULL}
 };
 static struct argp main_argp = {
-    main_opts, main_parseopt, "MODE INPUT"
+    _main_opts, _main_parse_opt, "MODE INPUT"
 };
 
 int
 main(int argc, char **argv)
 {
-    struct main_args_s args;
+    struct _main_args args;
+
+    cu_init();
+
     memset(&args, 0, sizeof(args));
     argp_parse(&main_argp, argc, argv, 0, NULL, &args);
     switch (args.mode) {
 	case 1:
-	    make_switch(args.in_path, args.out_path);
+	    _make_switch(args.in_path, args.out_path);
 	    break;
 	case 2:
 	    cu_bug_unfinished();
-	    /* make_blocks(args.in_path, args.out_path, args.out_base); */
+	    /* _make_blocks(args.in_path, args.out_path, args.out_base); */
 	    break;
     }
     return 0;
