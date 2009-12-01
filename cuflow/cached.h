@@ -45,8 +45,8 @@ struct cuflowP_cached_node
 #define CUFLOW_CACHED_GRAN_SIZEW 1
 #define CUFLOW_CACHED_GRAN_SIZEB (CU_WORD_SIZE*CUFLOW_CACHED_GRAN_SIZEW)
 #define CUFLOW_CACHED_ARG_SIZEG(NAME)					\
-    ((sizeof(struct NAME##_arg) + CUFLOW_CACHED_GRAN_SIZEB - 1) /	\
-     CUFLOW_CACHED_GRAN_SIZEB)
+    ((sizeof(struct NAME##_arg) + CUFLOW_CACHED_GRAN_SIZEB - 1)		\
+     / CUFLOW_CACHED_GRAN_SIZEB)
 #define CUFLOW_CACHED_ARG_SIZE(NAME)					\
     (CUFLOW_CACHED_ARG_SIZEG(NAME)*CUFLOW_CACHED_GRAN_SIZEB)
 
@@ -76,7 +76,7 @@ struct cuflowP_cached_node
     linkage void NAME##_fn(NAME##_arg_t *arg);				\
 									\
     CU_SINLINE void							\
-    NAME##_cct(NAME##_t *padded_arg)					\
+    NAME##_init(NAME##_t *padded_arg)					\
     {									\
 	memset(padded_arg, 0, CUFLOW_CACHED_ARG_SIZE(NAME));		\
 	padded_arg->arg.fn = NAME##_fn;					\
@@ -139,7 +139,7 @@ void *cuflowP_sched_cached_call(void *arg, size_t, size_t);
 #define cuflow_cached_call(NAME, arg_block, result_out)			\
     do {								\
 	NAME##_t cuL_padded_arg;					\
-	NAME##_cct(&cuL_padded_arg);					\
+	NAME##_init(&cuL_padded_arg);					\
 	NAME##_arg_t *arg = &cuL_padded_arg.arg;			\
 	{ cuPP_splice arg_block }					\
 	{								\
@@ -153,7 +153,7 @@ void *cuflowP_sched_cached_call(void *arg, size_t, size_t);
 #define cuflow_cached_sched_call(NAME, arg_block, promise_out)		\
     do {								\
 	NAME##_t cuL_padded_arg;					\
-	NAME##_cct(&cuL_padded_arg);					\
+	NAME##_init(&cuL_padded_arg);					\
 	NAME##_arg_t *arg = &cuL_padded_arg.arg;			\
 	{ cuPP_splice arg_block }					\
 	*(promise_out) = (NAME##_promise_t)cuflowP_sched_cached_call(	\

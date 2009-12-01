@@ -59,9 +59,9 @@ struct cuflow_cacheconf
  * freed.  Therefore, the client should make sure to destruct associated
  * caches with \ref cuflow_cache_dct in conjuction with a \a cu_false return
  * from \a manager.  */
-void cuflow_cacheconf_cct(cuflow_cacheconf_t conf,
-			  cu_bool_t (*manager)(cuflow_cacheconf_t conf,
-					       struct timespec *t_now));
+void cuflow_cacheconf_init(cuflow_cacheconf_t conf,
+			   cu_bool_t (*manager)(cuflow_cacheconf_t conf,
+						struct timespec *t_now));
 
 /*!A predefined cache configuration.  Note that calling this the first time
  * will spawn one worker thread if there are none running, see \ref

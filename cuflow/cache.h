@@ -90,11 +90,11 @@ struct cuflow_cacheobj
  * lifetime of the program, but if you want to despose of a cache, call \ref
  * cuflow_cache_dct, since \a cache will be linked into \a conf. */
 void
-cuflow_cache_cct(cuflow_cache_t cache, cuflow_cacheconf_t conf,
-		 cuflow_cacheobj_t (**fn_arr)(cuflow_cacheobj_t key));
+cuflow_cache_init(cuflow_cache_t cache, cuflow_cacheconf_t conf,
+		  cuflow_cacheobj_t (**fn_arr)(cuflow_cacheobj_t key));
 
 /*!Unlink \a cache from it's configuration. */
-void cuflow_cache_dct(cuflow_cache_t cache);
+void cuflow_cache_deinit(cuflow_cache_t cache);
 
 /*!Return a pointer into the data area of a newly allocated cache object.  The
  * cache callbacks must use this to allocate objects and must call \ref

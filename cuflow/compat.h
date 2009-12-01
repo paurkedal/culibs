@@ -28,3 +28,8 @@
 #  define cuflow_cache_s	cuflow_cache
 #  define cuflow_cacheobj_s	cuflow_cacheobj
 #endif
+#if CU_COMPAT < 20091201 && !defined(cuflow_cacheconf_cct)
+#  define cuflow_cacheconf_cct	cuflow_cacheconf_init
+#  define cuflow_cache_cct	cuflow_cache_init
+#  define cuflow_cache_dct	cuflow_cache_deinit
+#endif
