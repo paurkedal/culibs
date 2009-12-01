@@ -32,7 +32,7 @@ void cuflowP_workers_broadcast(void);
 void cuflowP_yield(void);
 
 /** \defgroup cuflow_workers_h cuflow/workers.h: Auxiliary Worker Threads
- ** @{\ingroup cuflow_mod
+ ** @{ \ingroup cuflow_smp_mod
  **
  ** This header provides an API to launch one or more worker threads and run
  ** functions within them, either as soon as one is idle or at a given time.

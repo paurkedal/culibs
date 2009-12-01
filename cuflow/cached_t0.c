@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,27 +20,27 @@
 #include <cuflow/workers.h>
 #include <cu/test.h>
 
-cuflow_cached_sdecl(plus, (int x; int y;), (int z;));
+cuflow_cached_sdecl(_plus, (int x; int y;), (int z;));
 
-cuflow_cached_sdef(plus)
+cuflow_cached_sdef(_plus)
 {
-    cuflow_cached_arg_res(plus);
+    cuflow_cached_arg_res(_plus);
     printf("Called plus with arguments %d and %d.\n", arg->x, arg->y);
     res->z = arg->x + arg->y;
-    cuflow_cached_set_gain(plus, 10);
+    cuflow_cached_set_gain(_plus, 10);
 }
 
 void
-test()
+_test()
 {
-    plus_promise_t promise;
-    plus_result_t result;
+    _plus_promise_t promise;
+    _plus_result_t result;
 
-    cuflow_cached_call(plus, (arg->x = 10; arg->y = 20;), &result);
+    cuflow_cached_call(_plus, (arg->x = 10; arg->y = 20;), &result);
     cu_test_assert(result->z == 30);
 
-    cuflow_cached_sched_call(plus, (arg->x = 10; arg->y = 20;), &promise);
-    result = plus_fulfill(promise);
+    cuflow_cached_sched_call(_plus, (arg->x = 10; arg->y = 20;), &promise);
+    result = _plus_fulfill(promise);
     cu_test_assert(result->z == 30);
 }
 
@@ -48,6 +48,6 @@ int main()
 {
     cuflow_init();
     cuflow_workers_spawn(0);
-    test();
+    _test();
     return 2*!!cu_test_bug_count();
 }

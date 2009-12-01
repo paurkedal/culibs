@@ -22,13 +22,13 @@
 #include <atomic_ops.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuflow_cdisj_h cuflow/cdisj.h: Inter-Thread Conditionals
- *@{\ingroup cuflow_mod */
+/** \defgroup cuflow_cdisj_h cuflow/cdisj.h: Inter-Thread Conditionals
+ ** @{ \ingroup cuflow_smp_mod */
 
-/*!Type used to maintain a disjunction of several conditions across threads.
- * This is a simple atomic integer with a special interpretation.  Typically a
- * non-zero value means that work scheduled by the current thread is not yet
- * completed. */
+/** Type used to maintain a disjunction of several conditions across threads.
+ ** This is a simple atomic integer with a special interpretation.  Typically a
+ ** non-zero value means that work scheduled by the current thread is not yet
+ ** completed. */
 typedef AO_t cuflow_cdisj_t;
 
 #ifndef CU_IN_DOXYGEN
@@ -36,8 +36,8 @@ void cuflowP_cdisj_wait_while(cuflow_cdisj_t *, cu_bool_t cond_val);
 void cuflowP_cdisj_broadcast(cuflow_cdisj_t *);
 #endif
 
-/*!Waits while \c *\a cdisj is non-zero, tending to scheduled work if the
- * condition is not fulfilled. */
+/** Waits while \c *\a cdisj is non-zero, tending to scheduled work if the
+ ** condition is not fulfilled. */
 CU_SINLINE void
 cuflow_cdisj_wait_while(cuflow_cdisj_t *cdisj)
 {
@@ -45,8 +45,8 @@ cuflow_cdisj_wait_while(cuflow_cdisj_t *cdisj)
 	cuflowP_cdisj_wait_while(cdisj, cu_false);
 }
 
-/*!Waits until \c *\a cdisj becomes non-zero, tending to scheduled work if the
- * condition is not fulfilled */
+/** Waits until \c *\a cdisj becomes non-zero, tending to scheduled work if the
+ ** condition is not fulfilled */
 CU_SINLINE void
 cuflow_cdisj_wait_until(cuflow_cdisj_t *cdisj)
 {
@@ -54,8 +54,8 @@ cuflow_cdisj_wait_until(cuflow_cdisj_t *cdisj)
 	cuflowP_cdisj_wait_while(cdisj, cu_true);
 }
 
-/*!Decrements \c *\a cdisj and if it becomes zero, broadcasts to other threads
- * possibly waiting for \a cdisj to become zero. */
+/** Decrements \c *\a cdisj and if it becomes zero, broadcasts to other threads
+ ** possibly waiting for \a cdisj to become zero. */
 CU_SINLINE void
 cuflow_cdisj_sub1(cuflow_cdisj_t *cdisj)
 {
@@ -63,8 +63,8 @@ cuflow_cdisj_sub1(cuflow_cdisj_t *cdisj)
 	cuflowP_cdisj_broadcast(cdisj);
 }
 
-/*!A variant of \ref cuflow_cdisj_sub1 which release barrier (cf
- * AO_fetch_and_sub1_release). */
+/** A variant of \ref cuflow_cdisj_sub1 which release barrier (cf
+ ** AO_fetch_and_sub1_release). */
 CU_SINLINE void
 cuflow_cdisj_sub1_release(cuflow_cdisj_t *cdisj)
 {
@@ -72,8 +72,8 @@ cuflow_cdisj_sub1_release(cuflow_cdisj_t *cdisj)
 	cuflowP_cdisj_broadcast(cdisj);
 }
 
-/*!A variant of \ref cuflow_cdisj_sub1 with write-release barrier (cf
- * AO_fetch_and_sub1_release_write). */
+/** A variant of \ref cuflow_cdisj_sub1 with write-release barrier (cf
+ ** AO_fetch_and_sub1_release_write). */
 CU_SINLINE void
 cuflow_cdisj_sub1_release_write(cuflow_cdisj_t *cdisj)
 {
@@ -81,7 +81,7 @@ cuflow_cdisj_sub1_release_write(cuflow_cdisj_t *cdisj)
 	cuflowP_cdisj_broadcast(cdisj);
 }
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

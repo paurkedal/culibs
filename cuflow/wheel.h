@@ -24,8 +24,8 @@
 #include <atomic_ops.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuflow_wheel_h cuflow/wheel.h:
- *@{\ingroup cuflow_mod */
+/** \defgroup cuflow_wheel_h cuflow/wheel.h: Alternate cuflow/sched.h
+ ** @{ \ingroup cuflow_x_mod */
 
 #define CUFLOW_PROF_WHEEL 0
 
@@ -74,7 +74,7 @@ cuflow_wheel_call_sub1(cu_clop0(fn, void), AO_t *cdisj)
     }
 }
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

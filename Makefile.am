@@ -167,6 +167,7 @@ norun_check_programs += \
 
 doxyfiles = doc/main.doxy doc/environ.doxy \
 	$(cu_doxyfiles) \
+	$(cuflow_doxyfiles) \
 	$(cuoo_doxyfiles) \
 	$(cucon_doxyfiles) \
 	$(cuex_doxyfiles)

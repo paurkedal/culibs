@@ -26,8 +26,8 @@
 #include <atomic_ops.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuflow_cached_h cuflow/cached.h: Cached Function Calls
- *@{\ingroup cuflow_mod */
+/** \defgroup cuflow_cached_h cuflow/cached.h: Cached Function Calls
+ ** @{ \ingroup cuflow_x_mod */
 
 typedef unsigned long cuflow_gain_t;
 typedef cu_clop0(cuflow_cached_clop_t, void);
@@ -93,27 +93,29 @@ struct cuflowP_cached_node
 									\
     CU_END_BOILERPLATE
 
-/*!Emits type definitions and declarations for a cached function with
- * external linkage. */
+/** Emits type definitions and declarations for a cached function with external
+ ** linkage. */
 #define cuflow_cached_edecl(NAME, arg_members, res_members)		\
     cuflowP_cached_decls(NAME, arg_members, res_members, extern)
-/*!Emits the prototype of the cached function with external linkage.  This
- * shall be followed by the body of the function. */
+
+/** Emits the prototype of the cached function with external linkage.  This
+ ** shall be followed by the body of the function. */
 #define cuflow_cached_edef(NAME)					\
     extern void NAME##_fn(NAME##_arg_t *arg)
 
-/*!Emits type definitions and declarations for a cached function with
- * static linkage. */
+/** Emits type definitions and declarations for a cached function with static
+ ** linkage. */
 #define cuflow_cached_sdecl(NAME, arg_members, res_members)		\
     cuflowP_cached_decls(NAME, arg_members, res_members, static)
-/*!Emits the prototype of the cached function with static linkage.  This
- * shall be followed by the body of the function. */
+
+/** Emits the prototype of the cached function with static linkage.  This shall
+ ** be followed by the body of the function. */
 #define cuflow_cached_sdef(NAME)					\
     static void NAME##_fn(NAME##_arg_t *arg)
 
-/*!Emits type definitions and declarations for a cached function with static
- * linkage, and the prototype of the function.  Shall be followed by the body
- * of the function. */
+/** Emits type definitions and declarations for a cached function with static
+ ** linkage, and the prototype of the function.  Shall be followed by the body
+ ** of the function. */
 #define cuflow_cached_def(NAME, arg_members, res_members)		\
     cuflow_cached_sdecl(NAME, arg_members, res_members);		\
     cuflow_cached_sdef(NAME)
@@ -122,10 +124,10 @@ struct cuflowP_cached_node
     ((NAME##_node_t *)							\
      ((char *)(arg) - offsetof(struct NAME##_node, padded_arg)))
 
-/*!Used in a cached function definition, inserts declarations and
- * initialisation of two local variables \e arg and \e res.  \e arg is the
- * initialised argument struct from the caller, and \e res is the result
- * struct to be filled out. */
+/** Used in a cached function definition, inserts declarations and
+ ** initialisation of two local variables \e arg and \e res.  \e arg is the
+ ** initialised argument struct from the caller, and \e res is the result
+ ** struct to be filled out. */
 #define cuflow_cached_arg_res(NAME)					\
     NAME##_result_t res = &CUFLOW_CACHED_NODE_FROM_ARG(NAME, arg)->res
 
@@ -161,7 +163,7 @@ void *cuflowP_sched_cached_call(void *arg, size_t, size_t);
 		    sizeof(struct NAME##_node));			\
     } while (0)
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

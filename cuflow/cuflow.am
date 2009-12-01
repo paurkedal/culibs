@@ -37,6 +37,8 @@ cuflow_headers += cuflow/wind_unw.h
 cuflow_sources += cuflow/wind_unw.c
 endif
 
+cuflow_doxyfiles = cuflow/cuflow.doxy
+
 cuflow_check_programs = \
 	cuflow/gworkq_t0 \
 	cuflow/promise_t0 \

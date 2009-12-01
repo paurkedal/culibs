@@ -37,7 +37,7 @@ extern AO_t cuflowP_profile_nonsched_count;
 #endif
 
 /** \defgroup cuflow_sched_h cuflow/sched.h: SMP Parallelization
- ** @{ \ingroup cuflow_mod
+ ** @{ \ingroup cuflow_smp_mod
  **
  ** This provides an efficient mechanism for sharing work across multiple CPUs
  ** or cores on an SMP system.  Before use, start some worker threads with \ref

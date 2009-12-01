@@ -23,40 +23,40 @@
 static AO_t discr = 0;
 #define DISCR AO_fetch_and_add1(&discr)
 
-cuflow_cached_def(jobCC, (int n; int discr;), (int r;))
+cuflow_cached_def(_jobCC, (int n; int discr;), (int r;))
 {
-    cuflow_cached_arg_res(jobCC);
+    cuflow_cached_arg_res(_jobCC);
     int n = arg->n;
-    jobCC_result_t res0, res1;
+    _jobCC_result_t res0, res1;
     if (arg->n == 0) {
 	res->r = 1;
 	goto leave;
     }
-    cuflow_cached_call(jobCC,
+    cuflow_cached_call(_jobCC,
 		       (arg->n = n / 2; arg->discr = DISCR;), &res0);
-    cuflow_cached_call(jobCC,
+    cuflow_cached_call(_jobCC,
 		       (arg->n = (n - 1) / 2; arg->discr = DISCR;), &res1);
     res->r = res0->r + res1->r + 1;
 leave:
-    cuflow_cached_set_gain(jobCC, 4);
+    cuflow_cached_set_gain(_jobCC, 4);
 }
 
-cuflow_cached_def(jobCS, (int n; int discr;), (int r;))
+cuflow_cached_def(_jobCS, (int n; int discr;), (int r;))
 {
-    cuflow_cached_arg_res(jobCS);
+    cuflow_cached_arg_res(_jobCS);
     int n = arg->n;
-    jobCS_promise_t prom0, prom1;
+    _jobCS_promise_t prom0, prom1;
     if (arg->n == 0) {
 	res->r = 1;
 	goto leave;
     }
-    cuflow_cached_sched_call(jobCS,
+    cuflow_cached_sched_call(_jobCS,
 			     (arg->n = n / 2; arg->discr = DISCR;), &prom0);
-    cuflow_cached_sched_call(jobCS,
+    cuflow_cached_sched_call(_jobCS,
 			     (arg->n = (n - 1)/2; arg->discr=DISCR;), &prom1);
-    res->r = jobCS_fulfill(prom0)->r + jobCS_fulfill(prom1)->r;
+    res->r = _jobCS_fulfill(prom0)->r + _jobCS_fulfill(prom1)->r;
 leave:
-    cuflow_cached_set_gain(jobCS, 4);
+    cuflow_cached_set_gain(_jobCS, 4);
 }
 
 void cuflowP_cached_init(void);
@@ -64,8 +64,8 @@ void cuflowP_cached_init(void);
 int
 main()
 {
-    jobCC_result_t jobCC_res;
-    jobCS_result_t jobCS_res;
+    _jobCC_result_t jobCC_res;
+    _jobCS_result_t jobCS_res;
     time_t tCC, tCS;
     cuflow_walltime_t wtCC, wtCS;
     int n = 0x80000;
@@ -76,7 +76,7 @@ main()
 
     tCS = -clock();
     wtCS = -cuflow_walltime();
-    cuflow_cached_call(jobCS, (arg->n = n; arg->discr = DISCR;), &jobCS_res);
+    cuflow_cached_call(_jobCS, (arg->n = n; arg->discr = DISCR;), &jobCS_res);
     tCS += clock();
     wtCS += cuflow_walltime();
     cu_test_assert(r = jobCS_res->r);
@@ -85,7 +85,7 @@ main()
 
     tCC = -clock();
     wtCC = -cuflow_walltime();
-    cuflow_cached_call(jobCC, (arg->n = n; arg->discr = DISCR;), &jobCC_res);
+    cuflow_cached_call(_jobCC, (arg->n = n; arg->discr = DISCR;), &jobCC_res);
     tCC += clock();
     wtCC += cuflow_walltime();
     r = jobCC_res->r;

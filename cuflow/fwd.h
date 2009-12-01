@@ -25,6 +25,9 @@
 
 CU_BEGIN_DECLARATIONS
 
+/** \defgroup cuflow_fwd_h cuflow/fwd.h: Forward Declarations
+ ** @{ \ingroup cuflow_mod */
+
 typedef struct cuflow_continuation *cuflow_continuation_t;
 typedef struct cuflow_tstate	*cuflow_tstate_t;
 
@@ -33,7 +36,11 @@ typedef struct cuflow_gflexq	*cuflow_gflexq_t;	/* gworkq.h */
 typedef struct cuflow_promise	*cuflow_promise_t;	/* promise.h*/
 typedef struct cuflow_workq	*cuflow_workq_t;	/* workq.h */
 
+/** Call this from the main thread to initialise the cuflow module before using
+ ** it. */
 void cuflow_init(void);
+
+/** @} */
 
 CU_END_DECLARATIONS
 
