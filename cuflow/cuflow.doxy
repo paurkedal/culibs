@@ -1,0 +1,12 @@
+/*!
+
+\defgroup cuflow_smp_mod SMP Work Scheduling
+\ingroup cuflow_mod
+
+\defgroup cuflow_oldsmp_mod [deprecated] Old SMP Work Scheduling
+\ingroup cuflow_mod
+
+\defgroup cuflow_x_mod [experimental]
+\ingroup cuflow_mod
+
+*/
