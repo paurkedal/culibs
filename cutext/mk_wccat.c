@@ -116,7 +116,7 @@ cu_clos_def(_make_switch_case, cu_prot(void, _codepoint_info_t cpi),
     fprintf(self->out, "return %d;\n", cpi->wccat);
 }
 
-void
+static void
 _make_switch(char const *in_path, char const *out_path)
 {
     _make_switch_case_t cb;
@@ -147,6 +147,7 @@ struct _main_args
     char const *out_path;
     char const *out_base;
 };
+
 static error_t
 _main_parse_opt(int key, char *arg, struct argp_state *state)
 {
@@ -191,7 +192,7 @@ static struct argp_option _main_opts[] = {
 	"Base directory required for \"blocks\" mode."},
     {NULL}
 };
-static struct argp main_argp = {
+static struct argp _main_argp = {
     _main_opts, _main_parse_opt, "MODE INPUT"
 };
 
@@ -203,7 +204,7 @@ main(int argc, char **argv)
     cu_init();
 
     memset(&args, 0, sizeof(args));
-    argp_parse(&main_argp, argc, argv, 0, NULL, &args);
+    argp_parse(&_main_argp, argc, argv, 0, NULL, &args);
     switch (args.mode) {
 	case 1:
 	    _make_switch(args.in_path, args.out_path);
