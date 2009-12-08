@@ -168,6 +168,9 @@ In the <a href="/download/" target="_top">download directory</a> you will find
   </li>
 </ul>
 
+You can also browse or check out the Git sources at
+<a href="http://github.com/paurkedal/culibs">http://github.com/paurkedal/culibs</a>.
+
 \subsection main_installing Build and Install
 
 After installing the above dependencies, unpack the source tarball, and

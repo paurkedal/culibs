@@ -88,7 +88,7 @@ struct cuflow_cacheobj
 /** Creates a cache with a unique set of callbacks stored in \a fn_arr.
  ** Normally a cache is called at program initialisation and kept for the
  ** lifetime of the program, but if you want to despose of a cache, call \ref
- ** cuflow_cache_dct, since \a cache will be linked into \a conf. */
+ ** cuflow_cache_deinit, since \a cache will be linked into \a conf. */
 void
 cuflow_cache_init(cuflow_cache_t cache, cuflow_cacheconf_t conf,
 		  cuflow_cacheobj_t (**fn_arr)(cuflow_cacheobj_t key));

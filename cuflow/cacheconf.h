@@ -60,7 +60,7 @@ struct cuflow_cacheconf
  ** down the cache configuration, false may be returned.  After that, cache
  ** clock will stop and cached objects will no longer be freed.  Therefore, the
  ** client should make sure to destruct associated caches with \ref
- ** cuflow_cache_dct in conjuction with a false return from \a manager.  */
+ ** cuflow_cache_deinit in conjuction with a false return from \a manager. */
 void cuflow_cacheconf_init(cuflow_cacheconf_t conf,
 			   cu_bool_t (*manager)(cuflow_cacheconf_t conf,
 						struct timespec *t_now));

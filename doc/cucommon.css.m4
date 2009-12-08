@@ -69,4 +69,9 @@ table.normal th {
 	background-color: COL0_LIGHT;
 	text-align: left;
 }
+/* Doxygen 1.6.1 inserts paragraphs within <td> elements, which cause a lot of
+ * unnecessary space. */
+table.normal td p:first-child, table.normal th p:first-child { margin-top: 0; }
+table.normal td p, table.normal th p { margin-bottom: 0; }
+
 dnl vim: filetype=css
