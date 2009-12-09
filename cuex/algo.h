@@ -134,15 +134,6 @@ CU_SINLINE cu_idr_t cuex_leftmost_idr(cuex_t e)
 { return (cu_idr_t)cuex_leftmost_with_meta(e,
 				cuoo_type_to_meta(cu_idr_type())); }
 
-/*!If the toplevel operator of \a ex is not \a opr then 0, else 1
- * plus the recursive call on the leftmost operand.  */
-int cuex_binary_left_depth(cuex_meta_t opr, cuex_t ex);
-
-/*!Given \a opr is a binary operator.
- * If the toplevel operator of \a ex is not \a opr then 0, else 1
- * plus the recursive call on the second operand. */
-int cuex_binary_right_depth(cuex_meta_t opr, cuex_t ex);
-
 /** The rightmost identifier in \a e.
  ** \pre \a e must not contain ACI operators. */
 CU_SINLINE cu_idr_t cuex_rightmost_idr(cuex_t e)
@@ -156,6 +147,18 @@ cuex_var_t cuex_leftmost_var(cuex_t e, cuex_qcset_t qcset);
 /** The rightmost variable in \a e having quantification in \a qcset.
  ** \pre \a e must not contain ACI operators. */
 cuex_var_t cuex_rightmost_var(cuex_t e, cuex_qcset_t qcset);
+
+/** Returns the number of occurrences of \a opr from the top of \a e, following
+ ** operand number \a i. */
+int cuex_opr_depth_at(cuex_meta_t opr, int i, cuex_t e);
+
+/** \deprecated Use \ref cuex_opr_depth_at. */
+CU_SINLINE int cuex_binary_left_depth(cuex_meta_t opr, cuex_t e)
+{ return cuex_opr_depth_at(opr, 0, e); }
+
+/** \deprecated Use \ref cuex_opr_depth_at. */
+CU_SINLINE int cuex_binary_right_depth(cuex_meta_t opr, cuex_t e)
+{ return cuex_opr_depth_at(opr, 1, e); }
 
 cuex_t cuex_binary_left_subex(cuex_meta_t opr, cuex_t e, int depth);
 cuex_t cuex_binary_right_subex(cuex_meta_t opr, cuex_t e, int depth);

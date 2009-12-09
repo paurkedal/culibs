@@ -525,29 +525,16 @@ cuex_rightmost_var(cuex_t ex, cuex_qcset_t qcset)
 }
 
 int
-cuex_binary_left_depth(cuex_meta_t opr, cuex_t ex)
+cuex_opr_depth_at(cuex_meta_t opr, int i, cuex_t e)
 {
-    int cnt = 0;
+    int depth = 0;
     cu_debug_assert(cuex_meta_is_opr(opr));
-    cu_debug_assert(cuex_opr_r(opr) >= 1);
-    while (cuex_meta(ex) == opr) {
-	++cnt;
-	ex = cuex_opn_at(ex, 0);
+    cu_debug_assert(cuex_opr_r(opr) > i);
+    while (cuex_meta(e) == opr) {
+	++depth;
+	e = cuex_opn_at(e, i);
     }
-    return cnt;
-}
-
-int
-cuex_binary_right_depth(cuex_meta_t opr, cuex_t ex)
-{
-    int cnt = 0;
-    cu_debug_assert(cuex_meta_is_opr(opr));
-    cu_debug_assert(cuex_opr_r(opr) == 2);
-    while (cuex_meta(ex) == opr) {
-	++cnt;
-	ex = cuex_opn_at(ex, 1);
-    }
-    return cnt;
+    return depth;
 }
 
 cuex_t
