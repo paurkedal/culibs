@@ -27,7 +27,8 @@ CU_BEGIN_DECLARATIONS
 
 struct cucon_bitarray
 {
-    size_t size;
+    size_t cap;   /* Capacity in bytes. */
+    size_t size;  /* Size in bits. */
     cu_word_t *arr;
 };
 
@@ -48,6 +49,9 @@ void cucon_bitarray_init_copy(cucon_bitarray_t ba, cucon_bitarray_t ba_src);
 
 /** Return a copy of \a ba_src. */
 cucon_bitarray_t cucon_bitarray_new_copy(cucon_bitarray_t ba_src);
+
+/** Swap the contents of \a ba0 and \a ba1. */
+void cucon_bitarray_swap(cucon_bitarray_t ba0, cucon_bitarray_t ba1);
 
 /** Set bits [\a low, \a high) in \a ba to \a val. */
 void cucon_bitarray_fill(cucon_bitarray_t ba, size_t low, size_t high,
@@ -85,6 +89,11 @@ size_t cucon_bitarray_find(cucon_bitarray_t ba, size_t start, cu_bool_t value);
 
 size_t cucon_bitarray_find2(cucon_bitarray_t ba0, cucon_bitarray_t ba1,
 			    size_t start, cu_bool_t val0, cu_bool_t val1);
+
+void cucon_bitarray_resize_gp(cucon_bitarray_t ba, size_t size);
+void cucon_bitarray_resize_gpmax(cucon_bitarray_t ba, size_t size);
+void cucon_bitarray_resize_exact(cucon_bitarray_t ba, size_t size);
+void cucon_bitarray_resize_exactmax(cucon_bitarray_t ba, size_t size);
 
 /** @} */
 CU_END_DECLARATIONS

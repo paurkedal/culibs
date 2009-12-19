@@ -32,6 +32,7 @@ void
 cucon_bitarray_init(cucon_bitarray_t ba, size_t size)
 {
     size_t cap = _capacity_for(size);
+    ba->cap = cap;
     ba->size = size;
     ba->arr = cu_galloc(cap);
 }
@@ -48,6 +49,7 @@ void
 cucon_bitarray_init_fill(cucon_bitarray_t ba, size_t size, cu_bool_t val)
 {
     size_t cap = _capacity_for(size);
+    ba->cap = cap;
     ba->size = size;
     ba->arr = cu_galloc(cap);
     memset(ba->arr, (val? 0xff : 0), cap);
@@ -66,6 +68,7 @@ cucon_bitarray_init_copy(cucon_bitarray_t ba, cucon_bitarray_t ba_src)
 {
     size_t size = ba_src->size;
     size_t cap = _capacity_for(size);
+    ba->cap = cap;
     ba->size = size;
     ba->arr = cu_galloc(cap);
     memcpy(ba->arr, ba_src->arr, cap);
@@ -77,6 +80,14 @@ cucon_bitarray_new_copy(cucon_bitarray_t ba_src)
     cucon_bitarray_t ba = cu_gnew(struct cucon_bitarray);
     cucon_bitarray_init_copy(ba, ba_src);
     return ba;
+}
+
+void
+cucon_bitarray_swap(cucon_bitarray_t ba0, cucon_bitarray_t ba1)
+{
+    CU_SWAP(size_t, ba0->cap, ba1->cap);
+    CU_SWAP(size_t, ba0->size, ba1->size);
+    CU_SWAP(cu_word_t *, ba0->arr, ba1->arr);
 }
 
 void
@@ -178,4 +189,60 @@ cucon_bitarray_find2(cucon_bitarray_t ba0, cucon_bitarray_t ba1, size_t start,
 	}
     }
     return (size_t)-1;
+}
+
+static void
+_bitarray_realloc(cucon_bitarray_t ba, size_t new_cap, size_t new_size)
+{
+    cu_word_t *old_arr = ba->arr;
+    size_t copy_cap = _capacity_for(cu_size_min(new_size, ba->size));
+    cu_debug_assert(new_cap >= copy_cap);
+    ba->cap = new_cap;
+    ba->arr = cu_galloc_atomic(new_cap);
+    memcpy(ba->arr, old_arr, copy_cap);
+    cu_gfree_atomic(old_arr);
+}
+
+void
+cucon_bitarray_resize_gp(cucon_bitarray_t ba, size_t size)
+{
+    size_t min_cap = _capacity_for(size);
+    size_t old_cap = ba->cap;
+    if (min_cap > old_cap) {
+	size_t new_cap = cu_size_max(min_cap, old_cap*2);
+	_bitarray_realloc(ba, new_cap, size);
+    }
+    else if (min_cap*2 < old_cap)
+	_bitarray_realloc(ba, min_cap, size);
+    ba->size = size;
+}
+
+void
+cucon_bitarray_resize_gpmax(cucon_bitarray_t ba, size_t size)
+{
+    size_t min_cap = _capacity_for(size);
+    size_t old_cap = ba->cap;
+    if (min_cap > old_cap) {
+	size_t new_cap = cu_size_max(min_cap, old_cap*2);
+	_bitarray_realloc(ba, new_cap, size);
+    }
+    ba->size = size;
+}
+
+void
+cucon_bitarray_resize_exact(cucon_bitarray_t ba, size_t size)
+{
+    size_t new_cap = _capacity_for(size);
+    if (new_cap != ba->cap)
+	_bitarray_realloc(ba, new_cap, size);
+    ba->size = size;
+}
+
+void
+cucon_bitarray_resize_exactmax(cucon_bitarray_t ba, size_t size)
+{
+    size_t new_cap = _capacity_for(size);
+    if (new_cap > ba->cap)
+	_bitarray_realloc(ba, new_cap, size);
+    ba->size = size;
 }

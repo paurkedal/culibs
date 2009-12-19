@@ -17,11 +17,12 @@
 
 #include <cucon/bitarray.h>
 #include <cu/test.h>
+#include <cu/int.h>
 
 #define SIZE 300
 
 void
-randomise(cucon_bitarray_t bv)
+_randomise(cucon_bitarray_t bv)
 {
     size_t size = cucon_bitarray_size(bv);
     size_t i;
@@ -29,8 +30,8 @@ randomise(cucon_bitarray_t bv)
 	cucon_bitarray_set_at(bv, i, !!(lrand48() % 2));
 }
 
-void
-test(size_t size)
+static void
+_test_get_set_find(size_t size)
 {
     cucon_bitarray_t bv = cucon_bitarray_new_fill(size, cu_false);
     size_t i;
@@ -43,7 +44,7 @@ test(size_t size)
     cucon_bitarray_set_at(bv, i, cu_true);
 
     for (i = 0; i < size; ++i) {
-	randomise(bv);
+	_randomise(bv);
 	cucon_bitarray_fill(bv, 0, i, cu_false);
 	cucon_bitarray_set_at(bv, i, cu_true);
 	cu_test_assert(cucon_bitarray_find(bv, 0, cu_true) == i);
@@ -56,18 +57,51 @@ test(size_t size)
     }
 }
 
+static void
+_test_resize(size_t size)
+{
+    size_t i;
+    struct cucon_bitarray ba;
+    cucon_bitarray_init(&ba, 0);
+
+    for (i = 0; i < size; ++i) {
+	switch (lrand48() % 4) {
+	    case 0: cucon_bitarray_resize_gp(&ba, i + 1); break;
+	    case 1: cucon_bitarray_resize_gpmax(&ba, i + 1); break;
+	    case 2: cucon_bitarray_resize_exact(&ba, i + 1); break;
+	    case 3: cucon_bitarray_resize_exactmax(&ba, i + 1); break;
+	}
+	cucon_bitarray_set_at(&ba, i, cu_uint_bit_count(i) % 2);
+    }
+    for (i = 0; i < size; ++i)
+	cu_test_assert(cucon_bitarray_at(&ba, i) == cu_uint_bit_count(i)%2);
+
+    while (size) {
+	switch (lrand48() % 4) {
+	    case 0: cucon_bitarray_resize_gp(&ba, size); break;
+	    case 1: cucon_bitarray_resize_gpmax(&ba, size); break;
+	    case 2: cucon_bitarray_resize_exact(&ba, size); break;
+	    case 3: cucon_bitarray_resize_exactmax(&ba, size); break;
+	}
+	for (i = 0; i < size; ++i)
+	    cu_test_assert(cucon_bitarray_at(&ba, i) == cu_uint_bit_count(i)%2);
+	size = (int)(size*drand48());
+    }
+}
+
+void
+_test(size_t size)
+{
+    _test_get_set_find(size);
+    _test_resize(size);
+}
+
 int
 main()
 {
+    int i;
     cucon_init();
-    test(300);
-    test(16);
-    test(31);
-    test(32);
-    test(33);
-    test(63);
-    test(64);
-    test(65);
-    test(1);
+    for (i = 1; i < 400; ++i)
+	_test(i);
     return 2*!!cu_test_bug_count();
 }
