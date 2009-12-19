@@ -15,44 +15,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cucon/bitvect.h>
+#include <cucon/bitarray.h>
 #include <cu/test.h>
 
 #define SIZE 300
 
 void
-randomise(cucon_bitvect_t bv)
+randomise(cucon_bitarray_t bv)
 {
-    size_t size = cucon_bitvect_size(bv);
+    size_t size = cucon_bitarray_size(bv);
     size_t i;
     for (i = 0; i < size; ++i)
-	cucon_bitvect_set_at(bv, i, !!(lrand48() % 2));
+	cucon_bitarray_set_at(bv, i, !!(lrand48() % 2));
 }
 
 void
 test(size_t size)
 {
-    cucon_bitvect_t bv = cucon_bitvect_new_fill(size, cu_false);
+    cucon_bitarray_t bv = cucon_bitarray_new_fill(size, cu_false);
     size_t i;
     for (i = 0; i < size - 1; ++i) {
-	cu_test_assert(cucon_bitvect_at(bv, i) == cu_false);
-	cucon_bitvect_set_at(bv, i, cu_true);
-	cu_test_assert(cucon_bitvect_at(bv, i) == cu_true);
-	cu_test_assert(cucon_bitvect_at(bv, i+1) == cu_false);
+	cu_test_assert(cucon_bitarray_at(bv, i) == cu_false);
+	cucon_bitarray_set_at(bv, i, cu_true);
+	cu_test_assert(cucon_bitarray_at(bv, i) == cu_true);
+	cu_test_assert(cucon_bitarray_at(bv, i+1) == cu_false);
     }
-    cucon_bitvect_set_at(bv, i, cu_true);
+    cucon_bitarray_set_at(bv, i, cu_true);
 
     for (i = 0; i < size; ++i) {
 	randomise(bv);
-	cucon_bitvect_fill(bv, 0, i, cu_false);
-	cucon_bitvect_set_at(bv, i, cu_true);
-	cu_test_assert(cucon_bitvect_find(bv, 0, cu_true) == i);
+	cucon_bitarray_fill(bv, 0, i, cu_false);
+	cucon_bitarray_set_at(bv, i, cu_true);
+	cu_test_assert(cucon_bitarray_find(bv, 0, cu_true) == i);
     }
-    cucon_bitvect_fill(bv, 0, size, cu_true);
+    cucon_bitarray_fill(bv, 0, size, cu_true);
     for (i = 0; i < size; ++i) {
-	size_t j = cucon_bitvect_find(bv, 0, cu_true);
+	size_t j = cucon_bitarray_find(bv, 0, cu_true);
 	cu_test_assert(j == i);
-	cucon_bitvect_set_at(bv, j, cu_false);
+	cucon_bitarray_set_at(bv, j, cu_false);
     }
 }
 
