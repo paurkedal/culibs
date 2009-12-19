@@ -32,58 +32,58 @@ struct cucon_bitarray
 };
 
 /** Construct an uninitialised vector which can hold \a size bits. */
-void cucon_bitarray_init(cucon_bitarray_t bv, size_t size);
+void cucon_bitarray_init(cucon_bitarray_t ba, size_t size);
 
 /** Return an uninitialised vector which can hold \a size bits. */
 cucon_bitarray_t cucon_bitarray_new(size_t size);
 
 /** Construct an vector of \a size bits initialised to \a val. */
-void cucon_bitarray_init_fill(cucon_bitarray_t bv, size_t size, cu_bool_t val);
+void cucon_bitarray_init_fill(cucon_bitarray_t ba, size_t size, cu_bool_t val);
 
 /** Return a vector of \a size bits initialised to \a val. */
 cucon_bitarray_t cucon_bitarray_new_fill(size_t size, cu_bool_t val);
 
-/** Construct \a bv as a copy of \a bv_src. */
-void cucon_bitarray_init_copy(cucon_bitarray_t bv, cucon_bitarray_t bv_src);
+/** Construct \a ba as a copy of \a ba_src. */
+void cucon_bitarray_init_copy(cucon_bitarray_t ba, cucon_bitarray_t ba_src);
 
-/** Return a copy of \a bv_src. */
-cucon_bitarray_t cucon_bitarray_new_copy(cucon_bitarray_t bv_src);
+/** Return a copy of \a ba_src. */
+cucon_bitarray_t cucon_bitarray_new_copy(cucon_bitarray_t ba_src);
 
-/** Set bits [\a low, \a high) in \a bv to \a val. */
-void cucon_bitarray_fill(cucon_bitarray_t bv, size_t low, size_t high,
+/** Set bits [\a low, \a high) in \a ba to \a val. */
+void cucon_bitarray_fill(cucon_bitarray_t ba, size_t low, size_t high,
 			 cu_bool_t val);
 
-/** The number of bits in \a bv. */
+/** The number of bits in \a ba. */
 CU_SINLINE size_t
-cucon_bitarray_size(cucon_bitarray_t bv) { return bv->size; }
+cucon_bitarray_size(cucon_bitarray_t ba) { return ba->size; }
 
-/** Set element \a i of \a bv to \a value.
- ** \pre cucon_bitarray_size(\a bv) >= \a i */
+/** Set element \a i of \a ba to \a value.
+ ** \pre cucon_bitarray_size(\a ba) >= \a i */
 CU_SINLINE void
-cucon_bitarray_set_at(cucon_bitarray_t bv, size_t i, cu_bool_t value)
+cucon_bitarray_set_at(cucon_bitarray_t ba, size_t i, cu_bool_t value)
 {
     cu_word_t mask;
     mask = CU_WORD_C(1) << (i % CU_WORD_WIDTH);
     if (value)
-	bv->arr[i / CU_WORD_WIDTH] |= mask;
+	ba->arr[i / CU_WORD_WIDTH] |= mask;
     else
-	bv->arr[i / CU_WORD_WIDTH] &= ~mask;
+	ba->arr[i / CU_WORD_WIDTH] &= ~mask;
 }
 
-/** Return element \a i of \a bv.
- ** \pre cucon_bitarray_size(\a bv) >= \a i */
+/** Return element \a i of \a ba.
+ ** \pre cucon_bitarray_size(\a ba) >= \a i */
 CU_SINLINE cu_bool_t
-cucon_bitarray_at(cucon_bitarray_t bv, size_t i)
+cucon_bitarray_at(cucon_bitarray_t ba, size_t i)
 {
-    return !!(bv->arr[i / CU_WORD_WIDTH] &
+    return !!(ba->arr[i / CU_WORD_WIDTH] &
 	      (CU_WORD_C(1) << (i % CU_WORD_WIDTH)));
 }
 
-/** Return the lowest index greater or equal to \a start where \a bv holds \a
+/** Return the lowest index greater or equal to \a start where \a ba holds \a
  ** value, or \c -1 if not found. */
-size_t cucon_bitarray_find(cucon_bitarray_t bv, size_t start, cu_bool_t value);
+size_t cucon_bitarray_find(cucon_bitarray_t ba, size_t start, cu_bool_t value);
 
-size_t cucon_bitarray_find2(cucon_bitarray_t bv0, cucon_bitarray_t bv1,
+size_t cucon_bitarray_find2(cucon_bitarray_t ba0, cucon_bitarray_t ba1,
 			    size_t start, cu_bool_t val0, cu_bool_t val1);
 
 /** @} */

@@ -29,57 +29,58 @@ _capacity_for(size_t n)
 }
 
 void
-cucon_bitarray_init(cucon_bitarray_t bv, size_t size)
+cucon_bitarray_init(cucon_bitarray_t ba, size_t size)
 {
-    bv->size = size;
-    bv->arr = cu_galloc(_capacity_for(size));
+    size_t cap = _capacity_for(size);
+    ba->size = size;
+    ba->arr = cu_galloc(cap);
 }
 
 cucon_bitarray_t
 cucon_bitarray_new(size_t size)
 {
-    cucon_bitarray_t bv = cu_gnew(struct cucon_bitarray);
-    cucon_bitarray_init(bv, size);
-    return bv;
+    cucon_bitarray_t ba = cu_gnew(struct cucon_bitarray);
+    cucon_bitarray_init(ba, size);
+    return ba;
 }
 
 void
-cucon_bitarray_init_fill(cucon_bitarray_t bv, size_t size, cu_bool_t val)
+cucon_bitarray_init_fill(cucon_bitarray_t ba, size_t size, cu_bool_t val)
 {
-    size_t bsize = _capacity_for(size);
-    bv->size = size;
-    bv->arr = cu_galloc(bsize);
-    memset(bv->arr, (val? 0xff : 0), bsize);
+    size_t cap = _capacity_for(size);
+    ba->size = size;
+    ba->arr = cu_galloc(cap);
+    memset(ba->arr, (val? 0xff : 0), cap);
 }
 
 cucon_bitarray_t
 cucon_bitarray_new_fill(size_t size, cu_bool_t val)
 {
-    cucon_bitarray_t bv = cu_gnew(struct cucon_bitarray);
-    cucon_bitarray_init_fill(bv, size, val);
-    return bv;
+    cucon_bitarray_t ba = cu_gnew(struct cucon_bitarray);
+    cucon_bitarray_init_fill(ba, size, val);
+    return ba;
 }
 
 void
-cucon_bitarray_init_copy(cucon_bitarray_t bv, cucon_bitarray_t bv_src)
+cucon_bitarray_init_copy(cucon_bitarray_t ba, cucon_bitarray_t ba_src)
 {
-    size_t size = bv_src->size;
-    size_t bsize = _capacity_for(size);
-    bv->size = size;
-    bv->arr = cu_galloc(bsize);
-    memcpy(bv->arr, bv_src->arr, bsize);
+    size_t size = ba_src->size;
+    size_t cap = _capacity_for(size);
+    ba->size = size;
+    ba->arr = cu_galloc(cap);
+    memcpy(ba->arr, ba_src->arr, cap);
 }
 
 cucon_bitarray_t
-cucon_bitarray_new_copy(cucon_bitarray_t bv_src)
+cucon_bitarray_new_copy(cucon_bitarray_t ba_src)
 {
-    cucon_bitarray_t bv = cu_gnew(struct cucon_bitarray);
-    cucon_bitarray_init_copy(bv, bv_src);
-    return bv;
+    cucon_bitarray_t ba = cu_gnew(struct cucon_bitarray);
+    cucon_bitarray_init_copy(ba, ba_src);
+    return ba;
 }
 
 void
-cucon_bitarray_fill(cucon_bitarray_t bv, size_t i, size_t j, cu_bool_t val)
+cucon_bitarray_fill(cucon_bitarray_t ba, size_t i, size_t j, cu_bool_t val)
 {
     size_t iword = i/CU_WORD_WIDTH;
     size_t ibit = i%CU_WORD_WIDTH;
@@ -89,41 +90,41 @@ cucon_bitarray_fill(cucon_bitarray_t bv, size_t i, size_t j, cu_bool_t val)
 	if (iword == jword) {
 	    if (ibit == jbit)
 		return; /* in case array is empty */
-	    bv->arr[iword] |= WORD_BIT(jbit) - WORD_BIT(ibit);
+	    ba->arr[iword] |= WORD_BIT(jbit) - WORD_BIT(ibit);
 	}
 	else {
-	    bv->arr[iword] |= ~(WORD_BIT(ibit) - CU_WORD_C(1));
+	    ba->arr[iword] |= ~(WORD_BIT(ibit) - CU_WORD_C(1));
 	    while (++iword < jword)
-		bv->arr[iword] = ~CU_WORD_C(0);
+		ba->arr[iword] = ~CU_WORD_C(0);
 	    if (jbit == 0)
 		return; /* in case it's equal to the size */
-	    bv->arr[iword] |= WORD_BIT(jbit) - CU_WORD_C(1);
+	    ba->arr[iword] |= WORD_BIT(jbit) - CU_WORD_C(1);
 	}
     }
     else {
 	if (iword == jword) {
 	    if (ibit == jbit)
 		return;
-	    bv->arr[iword] &= ~(WORD_BIT(jbit) - WORD_BIT(ibit));
+	    ba->arr[iword] &= ~(WORD_BIT(jbit) - WORD_BIT(ibit));
 	}
 	else {
-	    bv->arr[iword] &= WORD_BIT(ibit) - CU_WORD_C(1);
+	    ba->arr[iword] &= WORD_BIT(ibit) - CU_WORD_C(1);
 	    while (++iword < jword)
-		bv->arr[iword] = 0;
+		ba->arr[iword] = 0;
 	    if (jbit == 0)
 		return;
-	    bv->arr[iword] &= ~(WORD_BIT(jbit) - CU_WORD_C(1));
+	    ba->arr[iword] &= ~(WORD_BIT(jbit) - CU_WORD_C(1));
 	}
     }
 }
 
 size_t
-cucon_bitarray_find(cucon_bitarray_t bv, size_t start, cu_bool_t val)
+cucon_bitarray_find(cucon_bitarray_t ba, size_t start, cu_bool_t val)
 {
-    size_t size = bv->size;
+    size_t size = ba->size;
     size_t i, l, r;
-    size_t n = cu_size_ceil_div(bv->size, CU_WORD_WIDTH);
-    cu_word_t *arr = bv->arr;
+    size_t n = cu_size_ceil_div(ba->size, CU_WORD_WIDTH);
+    cu_word_t *arr = ba->arr;
     i = start / CU_WORD_WIDTH;
     l = start % CU_WORD_WIDTH;
     if (l) {
@@ -150,14 +151,14 @@ cucon_bitarray_find(cucon_bitarray_t bv, size_t start, cu_bool_t val)
 }
 
 size_t
-cucon_bitarray_find2(cucon_bitarray_t bv0, cucon_bitarray_t bv1, size_t start,
+cucon_bitarray_find2(cucon_bitarray_t ba0, cucon_bitarray_t ba1, size_t start,
 		     cu_bool_t val0, cu_bool_t val1)
 {
-    size_t size = cu_size_min(bv0->size, bv1->size);
+    size_t size = cu_size_min(ba0->size, ba1->size);
     size_t i, l, r;
     size_t n = cu_size_ceil_div(size, CU_WORD_WIDTH);
-    cu_word_t *arr0 = bv0->arr;
-    cu_word_t *arr1 = bv1->arr;
+    cu_word_t *arr0 = ba0->arr;
+    cu_word_t *arr1 = ba1->arr;
     cu_word_t x01;
     i = start / CU_WORD_WIDTH;
     l = start % CU_WORD_WIDTH;
