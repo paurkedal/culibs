@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +23,16 @@
 #include <cufo/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuex_ltree_h cuex/ltree.h: Left-Packed Trees (Low-Level API)
- *@{\ingroup cuex_mod
- *
- * This header implements a tree-based hash-consed container of expressions
- * representing an sequence of elements.  It is used to implement \ref
- * cuex_monoid_h "monoid expressions".
- */
+/** \defgroup cuex_ltree_h cuex/ltree.h: Left-Packed Trees (Low-Level API)
+ ** @{ \ingroup cuex_mod
+ **
+ ** This header implements a tree-based hash-consed container of expressions
+ ** representing an sequence of elements.  It is used to implement \ref
+ ** cuex_monoid_h "monoid expressions".
+ **
+ ** \see cuex_monoid_h
+ ** \see cuex_tmonoid_h
+ **/
 
 #define CUEX_LTREE_LOG2_FANOUT 2
 #define CUEX_LTREE_FANOUT (1 << CUEX_LTREE_LOG2_FANOUT)
@@ -38,7 +41,7 @@ CU_BEGIN_DECLARATIONS
     (CUEXP_OR_LTREE(arity) | CUEXP_OA_LTREE_DEPTH(depth))
 #define CUEXP_OA_LTREE_DEPTH_MAXP (1 << CUEXP_OA_LTREE_DEPTH_WIDTH)
 
-/*!Special value to indicate no end limit in slice functions. */
+/** Special value to indicate no end limit in slice functions. */
 #define CUEX_LTREE_END PTRDIFF_MAX
 
 CU_SINLINE cu_bool_t
@@ -53,10 +56,10 @@ struct cuex_ltree_node
     cuex_t sub[CUEX_LTREE_FANOUT];
 };
 
-/*!The empty tree. */
+/** The empty tree. */
 CU_SINLINE cuex_t cuex_ltree_empty() { return NULL; }
 
-/*!True iff \a tree is the empty tree. */
+/** True iff \a tree is the empty tree. */
 CU_SINLINE cu_bool_t cuex_ltree_is_empty(cuex_t tree) { return tree == NULL; }
 
 CU_SINLINE cu_bool_t cuex_ltree_is_singleton(cuex_t tree)
@@ -68,30 +71,30 @@ CU_SINLINE cu_bool_t cuex_ltree_is_composite(cuex_t tree)
 CU_SINLINE cu_bool_t cuexP_is_ltree_node(cuex_t tree)
 { return cuex_is_oR_ltree(cuex_meta(tree)); }
 
-/*!Returns element number \a i of \a tree.
- * \pre \a tree must be non-empty and \a i must be within its range. */
+/** Returns element number \a i of \a tree.
+ ** \pre \a tree must be non-empty and \a i must be within its range. */
 cuex_t cuex_ltree_at(cuex_t tree, ptrdiff_t i);
 
-/*!Returns the last element of \a tree.
- * \pre \a tree must be non-empty. */
+/** Returns the last element of \a tree.
+ ** \pre \a tree must be non-empty. */
 cuex_t cuex_ltree_last(cuex_t tree);
 
-/*!Returns the concatenation of \a tree0 and \a tree1. */
+/** Returns the concatenation of \a tree0 and \a tree1. */
 cuex_t cuex_ltree_concat(cuex_t tree0, cuex_t tree1);
 
-/*!Returns the slice of \a tree for indices [\a start, \a end).  Negative
- * indices are taken to be relative to the end. */
+/** Returns the slice of \a tree for indices [\a start, \a end).  Negative
+ ** indices are taken to be relative to the end. */
 cuex_t cuex_ltree_slice(cuex_t tree, ptrdiff_t start, ptrdiff_t end);
 
-/*!Return the number of elements in \a tree. */
+/** Return the number of elements in \a tree. */
 size_t cuex_ltree_size(cuex_t tree);
 
-/*!Calls \a fn on each element of \a tree sequentially as long as the result is
- * true, and returns true iff \a fn mapped all elements to true. */
-cu_bool_t cuex_ltree_forall(cu_clop(fn, cu_bool_t, cuex_t), cuex_t tree);
+/** Calls \a f on each element of \a tree sequentially as long as the result is
+ ** true, and returns true iff \a f mapped all elements to true. */
+cu_bool_t cuex_ltree_forall(cu_clop(f, cu_bool_t, cuex_t), cuex_t tree);
 
-/*!Opaque iterator type to be initialised with \ref cuex_ltree_itr_init_full or
- * \ref cuex_ltree_itr_init_slice. */
+/** Opaque iterator type to be initialised with \ref cuex_ltree_itr_init_full
+ ** or \ref cuex_ltree_itr_init_slice. */
 struct cuex_ltree_itr
 {
     size_t i_cur;
@@ -100,20 +103,20 @@ struct cuex_ltree_itr
 };
 typedef struct cuex_ltree_itr cuex_ltree_itr_t;
 
-/*!Construct \a itr to iterate over all elements of \a tree. */
+/** Construct \a itr to iterate over all elements of \a tree. */
 void cuex_ltree_itr_init_full(cuex_ltree_itr_t *itr, cuex_t tree);
 
-/*!Construct \a itr to iterate over elements \a start to \a end of \a tree.
- * Relative indices are taken to be relative to the end. */
+/** Construct \a itr to iterate over elements \a start to \a end of \a tree.
+ ** Relative indices are taken to be relative to the end. */
 void cuex_ltree_itr_init_slice(cuex_ltree_itr_t *itr, cuex_t tree,
 			       ptrdiff_t start, ptrdiff_t end);
 
-/*!True iff \a itr is at the end of its range. */
+/** True iff \a itr is at the end of its range. */
 CU_SINLINE cu_bool_t cuex_ltree_itr_is_end(cuex_ltree_itr_t *itr)
 { return itr->i_cur == itr->i_end; }
 
-/*!If \a itr is at its end, returns \c NULL, else returns the next element of
- * the sequence. */
+/** If \a itr is at its end, returns \c NULL, else returns the next element of
+ ** the sequence. */
 cuex_t cuex_ltree_itr_get(cuex_ltree_itr_t *itr);
 
 cu_ptr_source_t cuex_ltree_full_source(cuex_t x);
@@ -136,7 +139,7 @@ void cuex_ltree_fprint(FILE *out, cuex_t ltree,
 void cuex_ltree_foprint(cufo_stream_t fos, cuex_t ltree,
 			char const *fmt_init, char const *fmt_cont);
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif
