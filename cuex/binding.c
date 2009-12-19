@@ -202,26 +202,26 @@ cuex_bfree_into_uset(cuex_t e, int l_top, cucon_uset_t set)
     return cb.l_max;
 }
 
-cu_clos_def(_bfree_into_bitvect_helper, cu_prot(void, int l, int l_top),
+cu_clos_def(_bfree_into_bitarray_helper, cu_prot(void, int l, int l_top),
   ( cucon_bitarray_t seen; int seen_count; ))
 {
-    cu_clos_self(_bfree_into_bitvect_helper);
+    cu_clos_self(_bfree_into_bitarray_helper);
     l -= l_top;
     cu_debug_assert(l >= 0);
-    if (l >= 0 && l < cucon_bitarray_size(self->seen)
-	    && !cucon_bitarray_at(self->seen, l)) {
-	cucon_bitarray_set_at(self->seen, l, cu_true);
+    if (l >= cucon_bitarray_size(self->seen)
+	    || !cucon_bitarray_at(self->seen, l)) {
+	cucon_bitarray_resize_set_at(self->seen, l, cu_false, cu_true);
 	++self->seen_count;
     }
 }
 
 int
-cuex_bfree_into_bitvect(cuex_t e, int l_top, cucon_bitarray_t seen)
+cuex_bfree_into_bitarray(cuex_t e, int l_top, cucon_bitarray_t seen)
 {
-    _bfree_into_bitvect_helper_t helper;
+    _bfree_into_bitarray_helper_t helper;
     helper.seen_count = 0;
     helper.seen = seen;
-    cuex_bfree_iter(e, _bfree_into_bitvect_helper_prep(&helper), l_top);
+    cuex_bfree_iter(e, _bfree_into_bitarray_helper_prep(&helper), l_top);
     return helper.seen_count;
 }
 

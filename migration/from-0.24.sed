@@ -59,3 +59,5 @@ s/\<cucon_bitvect_set_at\>/cucon_bitarray_set_at/g
 s/\<cucon_bitvect_at\>/cucon_bitarray_at/g
 s/\<cucon_bitvect_find\>/cucon_bitarray_find/g
 s/\<cucon_bitvect_find2\>/cucon_bitarray_find2/g
+
+s/\<cuex_bfree_into_bitvect\>/cuex_bfree_into_bitarray/g
