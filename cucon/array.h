@@ -24,9 +24,11 @@
 CU_BEGIN_DECLARATIONS
 /** \defgroup cucon_array_h cucon/array.h: Generic Array
  ** @{ \ingroup cucon_linear_mod
+ **
  ** This header provides generic arrays of inlined elements.  All sizes and
  ** indices are measured in bytes, and must be scaled with the element size.
  **
+ ** \see \ref cucon_bitarray_h
  ** \see \ref cucon_parray_h
  **/
 

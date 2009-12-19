@@ -22,8 +22,16 @@
 #include <cu/conf.h>
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cucon_bitarray cucon/bitarray.h: Compact vectors of bools/bits
- ** @{ \ingroup cucon_linear_mod */
+/** \defgroup cucon_bitarray_h cucon/bitarray.h: Array of Bits
+ ** @{ \ingroup cucon_linear_mod
+ **
+ ** The following implements a compact, mutable, and resizable array of
+ ** booleans with an API similar to that of \ref cucon_array_h "cucon/array.h"
+ ** and \ref cucon_parray_h "cucon/parray.h".
+ **
+ ** \see cucon_array_h
+ ** \see cucon_parray_h
+ **/
 
 struct cucon_bitarray
 {
@@ -90,9 +98,20 @@ size_t cucon_bitarray_find(cucon_bitarray_t ba, size_t start, cu_bool_t value);
 size_t cucon_bitarray_find2(cucon_bitarray_t ba0, cucon_bitarray_t ba1,
 			    size_t start, cu_bool_t val0, cu_bool_t val1);
 
+/** Resize \a ba to \a size, adjusting the capacity in geometric progression as
+ ** needed. */
 void cucon_bitarray_resize_gp(cucon_bitarray_t ba, size_t size);
+
+/** Resize \a ba to \a size, increasing the capacity in geometric progression
+ ** as needed.  This function does not reduce the capacity. */
 void cucon_bitarray_resize_gpmax(cucon_bitarray_t ba, size_t size);
+
+/** Resize \a ba to \a size, adjusting the capacity to the minimum required for
+ ** the new size. */
 void cucon_bitarray_resize_exact(cucon_bitarray_t ba, size_t size);
+
+/** Resize \a ba to \a size, increasing the capacity if required, but only to
+ ** the minimum required.  This function does not reduce the capacity. */
 void cucon_bitarray_resize_exactmax(cucon_bitarray_t ba, size_t size);
 
 /** @} */

@@ -23,12 +23,13 @@
 
 CU_BEGIN_DECLARATIONS
 /** \defgroup cucon_parray_h cucon/parray.h: Array of Pointers
- ** @{\ingroup cucon_linear_mod
+ ** @{ \ingroup cucon_linear_mod
  **
  ** This is mostly a light wrapper around \ref cucon_array_h "cucon/array.h",
  ** with sizes and indices scaled for pointer-typed elements.
  **
  ** \see cucon_array_h
+ ** \see cucon_bitarray_h
  **/
 
 struct cucon_parray

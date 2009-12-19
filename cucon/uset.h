@@ -26,7 +26,7 @@ CU_BEGIN_DECLARATIONS
  ** @{ \ingroup cucon_maps_and_sets_mod
  **
  ** \see cucon_umap_h
- ** \see cucon_bitvect_h
+ ** \see cucon_bitarray_h
  **/
 
 /** A sparse integer-keyed set. */
