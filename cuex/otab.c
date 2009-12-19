@@ -20,7 +20,7 @@
 #include <cu/int.h>
 #include <cu/str.h>
 #include <cu/cstr.h>
-#include <cucon/bitvect.h>
+#include <cucon/bitarray.h>
 #include <inttypes.h>
 #include <ctype.h>
 
@@ -264,9 +264,9 @@ cuex_otab_reserve(cuex_otab_t tab, cu_sref_t sref, cuex_otab_range_t super,
 			  super, rel_min, rel_maxp1))
 	return cu_false;
     rsv->is_full = is_full;
-    cucon_arr_init(&rsv->freemask, cu_false, 0);
-    cucon_bitvect_init_fill(&rsv->all_freemask, rel_maxp1 - rel_min, cu_true);
-    cucon_bitvect_init_fill(&rsv->multi_freemask, rel_maxp1 - rel_min, cu_true);
+    cucon_array_init(&rsv->freemask, cu_false, 0);
+    cucon_bitarray_init_fill(&rsv->all_freemask, rel_maxp1 - rel_min, cu_true);
+    cucon_bitarray_init_fill(&rsv->multi_freemask, rel_maxp1-rel_min, cu_true);
     return cu_true;
 }
 
@@ -277,7 +277,7 @@ cu_clos_def(alloc_in_reservation,
 {
     cu_clos_self(alloc_in_reservation);
     cuex_otab_reservation_t rsv;
-    cucon_bitvect_t bv CU_NOINIT(NULL);
+    cucon_bitarray_t bv CU_NOINIT(NULL);
     cu_rank_t i;
     cuex_meta_t index;
     if (((cuex_otab_def_t)key)->objkind != cuex_otab_reservation_kind)
@@ -295,40 +295,39 @@ cu_clos_def(alloc_in_reservation,
 	return cu_true;
     }
     if (self->r == -1) {
-	index = cucon_bitvect_find(&rsv->all_freemask, 0, cu_true);
+	index = cucon_bitarray_find(&rsv->all_freemask, 0, cu_true);
 	if (index != (size_t)-1) {
-	    cu_debug_assert(cucon_bitvect_at(&rsv->multi_freemask,
-					     index));
-	    cucon_bitvect_set_at(&rsv->multi_freemask, index, cu_false);
-	    i = cucon_arr_size(&rsv->freemask)/sizeof(struct cucon_bitvect);
-	    bv = cucon_arr_ref_at(&rsv->freemask, 0);
+	    cu_debug_assert(cucon_bitarray_at(&rsv->multi_freemask, index));
+	    cucon_bitarray_set_at(&rsv->multi_freemask, index, cu_false);
+	    i = cucon_array_size(&rsv->freemask)/sizeof(struct cucon_bitarray);
+	    bv = cucon_array_ref_at(&rsv->freemask, 0);
 	    while (i--) {
-		cu_debug_assert(cucon_bitvect_at(bv, index));
-		cucon_bitvect_set_at(bv++, index, cu_false);
+		cu_debug_assert(cucon_bitarray_at(bv, index));
+		cucon_bitarray_set_at(bv++, index, cu_false);
 	    }
 	}
     }
     else {
-	i = cucon_arr_size(&rsv->freemask)/sizeof(struct cucon_bitvect);
+	i = cucon_array_size(&rsv->freemask)/sizeof(struct cucon_bitarray);
 	if (i <= self->r) {
-	    bv = cucon_arr_extend_gp(&rsv->freemask,
-				     (self->r + 1 - i)
-				     * sizeof(struct cucon_bitvect));
+	    bv = cucon_array_extend_gp(&rsv->freemask,
+				       (self->r + 1 - i)
+					    * sizeof(struct cucon_bitarray));
 	    cu_dlogf(_file, "RSV %p: Expanding to arity %d", rsv, self->r);
 	    do
-		cucon_bitvect_init_copy(bv++, &rsv->multi_freemask);
+		cucon_bitarray_init_copy(bv++, &rsv->multi_freemask);
 	    while (++i <= self->r);
 	    --bv;
 	}
 	else
-	    bv = cucon_arr_ref_at(&rsv->freemask,
-				  self->r*sizeof(struct cucon_bitvect));
-	index = cucon_bitvect_find(bv, 0, cu_true);
+	    bv = cucon_array_ref_at(&rsv->freemask,
+				    self->r*sizeof(struct cucon_bitarray));
+	index = cucon_bitarray_find(bv, 0, cu_true);
 	if (index != (size_t)-1)
-	    cucon_bitvect_set_at(bv, index, cu_false);
+	    cucon_bitarray_set_at(bv, index, cu_false);
     }
     if (index != (size_t)-1) {
-	cucon_bitvect_set_at(&rsv->all_freemask, index, cu_false);
+	cucon_bitarray_set_at(&rsv->all_freemask, index, cu_false);
 	index <<= cuex_otab_reservation_low_bit(rsv);
 	index += cuex_otab_reservation_min(rsv);
 	cu_dlogf(_file, "RSV %p: Allocated slot %d.", rsv, index);

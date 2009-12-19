@@ -96,7 +96,7 @@ int cuex_bfree_into_uset(cuex_t e, int l_top, cucon_uset_t set);
 
 /*!Inserts free variables of \a e into \a set limited by it's initialised size,
  * and returns the number of unique free variables within the range. */
-int cuex_bfree_into_bitvect(cuex_t e, int l_top, cucon_bitvect_t set);
+int cuex_bfree_into_bitvect(cuex_t e, int l_top, cucon_bitarray_t set);
 
 cuex_t cuex_reindex_by_int_stack(cuex_t e, int stack_top_level,
 				 int stack_span, cucon_stack_t stack);

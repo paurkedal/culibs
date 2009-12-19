@@ -25,7 +25,7 @@
 #include <cucon/pmap.h>
 #include <cucon/stack.h>
 #include <cucon/uset.h>
-#include <cucon/bitvect.h>
+#include <cucon/bitarray.h>
 #include <cu/int.h>
 #include <cu/ptr_seq.h>
 #include <limits.h>
@@ -203,20 +203,20 @@ cuex_bfree_into_uset(cuex_t e, int l_top, cucon_uset_t set)
 }
 
 cu_clos_def(_bfree_into_bitvect_helper, cu_prot(void, int l, int l_top),
-  ( cucon_bitvect_t seen; int seen_count; ))
+  ( cucon_bitarray_t seen; int seen_count; ))
 {
     cu_clos_self(_bfree_into_bitvect_helper);
     l -= l_top;
     cu_debug_assert(l >= 0);
-    if (l >= 0 && l < cucon_bitvect_size(self->seen)
-	    && !cucon_bitvect_at(self->seen, l)) {
-	cucon_bitvect_set_at(self->seen, l, cu_true);
+    if (l >= 0 && l < cucon_bitarray_size(self->seen)
+	    && !cucon_bitarray_at(self->seen, l)) {
+	cucon_bitarray_set_at(self->seen, l, cu_true);
 	++self->seen_count;
     }
 }
 
 int
-cuex_bfree_into_bitvect(cuex_t e, int l_top, cucon_bitvect_t seen)
+cuex_bfree_into_bitvect(cuex_t e, int l_top, cucon_bitarray_t seen)
 {
     _bfree_into_bitvect_helper_t helper;
     helper.seen_count = 0;

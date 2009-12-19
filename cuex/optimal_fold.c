@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cucon/parr.h>
+#include <cucon/parray.h>
 #include <cucon/list.h>
 #include <cucon/slink.h>
 #include <cucon/pset.h>
@@ -49,7 +49,7 @@ struct _state
 {
     cu_inherit (cucon_listnode);
     _block_t block;
-    struct cucon_parr invtran; /* of cucon_slink_t of _state_t */
+    struct cucon_parray invtran; /* of cucon_slink_t of _state_t */
     cuex_t e;
     size_t r;
     _state_t sub[1];
@@ -72,7 +72,7 @@ _state_new(int r, cuex_t e)
     _state_t state;
     state = cu_galloc(sizeof(struct _state) + (r - 1)*sizeof(_state_t));
     cu_debug_assert(e);
-    cucon_parr_init_empty(&state->invtran);
+    cucon_parray_init_empty(&state->invtran);
     state->e = e;
     state->block = NULL;
     state->r = r;
@@ -92,14 +92,13 @@ _state_connect(_state_t state, cu_rank_t a, cu_rank_t b, _state_t substate)
     state->sub[a] = substate;
 
     /* Insert 'state ∈ δ⁻¹(substate, b)' */
-    if (cucon_parr_size(&substate->invtran) <= b)
-	cucon_parr_resize_exactmax_fill(&substate->invtran,
-					b + 1, NULL);
-    invlink = cucon_parr_ref_at(&substate->invtran, b);
+    if (cucon_parray_size(&substate->invtran) <= b)
+	cucon_parray_resize_exactmax_fill(&substate->invtran, b + 1, NULL);
+    invlink = cucon_parray_ref_at(&substate->invtran, b);
     *invlink = cucon_slink_prepend_ptr(*invlink, state);
     cu_dlogf(_file,
 	     "Inserting %p ∈ δ⁻¹(%p, %d) (a = %d, r_max = %d)",
-	     state, substate, b, a, cucon_parr_size(&substate->invtran));
+	     state, substate, b, a, cucon_parray_size(&substate->invtran));
 }
 
 
@@ -169,7 +168,7 @@ _block_reindex(_block_t block)
     cu_rank_t a, r_max = 0;
     _state_t state;
     _for_states_in_block(state, block) {
-	int a = cucon_parr_size(&state->invtran);
+	int a = cucon_parray_size(&state->invtran);
 	if (a > r_max)
 	    r_max = a;
     }
@@ -184,8 +183,8 @@ _block_reindex(_block_t block)
     _for_states_in_block(state, block) {
 	cucon_slink_t *itr_invtran;
 	struct _state_set *itr_selectset;
-	a = cucon_parr_size(&state->invtran);
-	itr_invtran = cucon_parr_ref_at(&state->invtran, a);
+	a = cucon_parray_size(&state->invtran);
+	itr_invtran = cucon_parray_ref_at(&state->invtran, a);
 	itr_selectset = block->occur_set_arr + a;
 	while (a > 0) {
 	    --a;
@@ -517,7 +516,7 @@ _refine_partition(int r_max, struct cucon_pset *pending_arr)
 		 a, block);
 	while (itr_state) {
 	    _state_t state = cucon_slink_ptr(itr_state);
-	    cucon_slink_t itr_invtran = cucon_parr_at(&state->invtran, a);
+	    cucon_slink_t itr_invtran = cucon_parray_at(&state->invtran, a);
 	    while (itr_invtran) {
 		_state_t statep;
 		_block_t block_j, block_k;

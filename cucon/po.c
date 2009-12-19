@@ -1240,11 +1240,11 @@ cucon_po_pairwise_inf_of_list(cucon_list_t L)
     for (it_L = cucon_list_begin(L); it_L != cucon_list_end(L);
 	 it_L = cucon_listnode_next(it_L)) {
 	cucon_poelt_t e = cucon_listnode_ptr(L);
-	cucon_bitvect_t tagvect;
+	cucon_bitarray_t tagvect;
 	if (cucon_pmap_insert_mem(&elt_to_tagvect, e,
-				sizeof(struct cucon_bitvect), &tagvect)) {
-	    cucon_bitvect_init_fill(&tagvect, N);
-	    cucon_bitvect_set_at(&tagvect, i, 1);
+				sizeof(struct cucon_bitarray), &tagvect)) {
+	    cucon_bitarray_init_fill(&tagvect, N);
+	    cucon_bitarray_set_at(&tagvect, i, 1);
 	    cucon_priq_insert(&Q, e);
 	    ++i;
 	}
@@ -1257,10 +1257,10 @@ cucon_po_pairwise_inf_of_list(cucon_list_t L)
 	for (it_P = cucon_po_ipred_begin(e); it_P != cucon_po_ipred_end(e);
 	     it_P = cucon_listnode_next(it_P)) {
 	    cucon_poelt_t e_P = cucon_po_ipred_it_get(it_P);
-	    cucon_bitvect_t tagvect_P;
+	    cucon_bitarray_t tagvect_P;
 	    if (cucon_pmap_insert_mem(&elt_to_tagvect, e_P,
-				    sizeof(struct cucon_bitvect); &tagvect_P)) {
-		cucon_bitvect_init_copy(tagvect_P, tagvect);
+				    sizeof(struct cucon_bitarray); &tagvect_P)) {
+		cucon_bitarray_init_copy(tagvect_P, tagvect);
 		cucon_priq_insert(&Q, e_P);
 	    }
 	    else {

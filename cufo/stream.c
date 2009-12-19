@@ -19,7 +19,7 @@
 #include <cufo/sink.h>
 #include <cufo/tag.h>
 #include <cufo/attr.h>
-#include <cucon/arr.h>
+#include <cucon/array.h>
 #include <cu/wstring.h>
 #include <cu/str.h>
 #include <cu/sref.h>
@@ -385,7 +385,7 @@ cufo_space(cufo_stream_t fos)
 cu_bool_t
 cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
 {
-    struct cucon_arr arr;
+    struct cucon_array arr;
     cufo_attrbind_t attrbinds;
 #ifdef CUCONF_DEBUG_CLIENT
     cufoP_tag_stack_t tag_stack = cu_gnew(struct cufoP_tag_stack);
@@ -393,17 +393,17 @@ cufo_entera_va(cufo_stream_t fos, cufo_tag_t tag, va_list va)
     tag_stack->tag = tag;
     fos->tag_stack = tag_stack;
 #endif
-    cucon_arr_init(&arr, cu_false, 0);
+    cucon_array_init(&arr, cu_false, 0);
     for (;;) {
 	cufo_attr_t attr = va_arg(va, cufo_attr_t);
 	cufo_attrbind_t bind;
-	bind = cucon_arr_extend_gp(&arr, sizeof(struct cufo_attrbind));
+	bind = cucon_array_extend_gp(&arr, sizeof(struct cufo_attrbind));
 	bind->attr = attr;
 	if (attr == NULL)
 	    break;
 	bind->value = va_arg(va, cu_box_t);
     }
-    attrbinds = cucon_arr_detach(&arr);
+    attrbinds = cucon_array_detach(&arr);
     cufoP_flush(fos, CUFOP_FLUSH_MUST_CLEAR);
     return cufo_sink_enter(fos->target, tag, attrbinds);
 }

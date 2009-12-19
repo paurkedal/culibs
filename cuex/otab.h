@@ -22,8 +22,8 @@
 #include <cucon/pmap.h>
 #include <cucon/rbset.h>
 #include <cucon/list.h>
-#include <cucon/arr.h>
-#include <cucon/bitvect.h>
+#include <cucon/array.h>
+#include <cucon/bitarray.h>
 
 CU_BEGIN_DECLARATIONS
 /*!\defgroup cuex_otab_h cuex/otab.h: Operator Definition Support
@@ -196,9 +196,9 @@ struct cuex_otab_reservation
 {
     cu_inherit (cuex_otab_simplerange);
     cu_bool_t is_full; /* always true if we don't own it */
-    struct cucon_bitvect all_freemask;
-    struct cucon_bitvect multi_freemask;
-    struct cucon_arr freemask; /* of cucon_bitvect */
+    struct cucon_bitarray all_freemask;
+    struct cucon_bitarray multi_freemask;
+    struct cucon_array freemask; /* of cucon_bitarray */
 };
 
 CU_SINLINE cuex_otab_reservation_t

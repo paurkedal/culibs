@@ -8,7 +8,6 @@
 #include <cuos/fs.h>
 #include <cucon/pmap.h>
 #include <cucon/list.h>
-#include <cucon/bitvect.h>
 #include <cuex/otab.h>
 
 #include <sys/types.h>
