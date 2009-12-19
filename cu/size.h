@@ -103,6 +103,10 @@ CU_SINLINE unsigned int cu_size_floor_log2(size_t n)
 CU_SINLINE unsigned int cu_size_ceil_log2(size_t n)
 { return CUP_SIZE_NAME(cu_,ceil_log2)(n); }
 
+/** The exponent of the lowermost non-zero bit in \a n. */
+CU_SINLINE unsigned int cu_size_log2_lowbit(size_t n)
+{ return CUP_SIZE_NAME(cu_,log2_lowbit)(n); }
+
 /** Returns the greatest argument. */
 CU_SINLINE ptrdiff_t cu_ptrdiff_min(ptrdiff_t n, ptrdiff_t m)
 { return n < m? n : m; }

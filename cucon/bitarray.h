@@ -19,19 +19,16 @@
 #define CUCON_BITARRAY_H
 
 #include <cucon/fwd.h>
+#include <cu/conf.h>
 
 CU_BEGIN_DECLARATIONS
-
-typedef unsigned int cuconP_bitarray_word_t;
-#define CUCONP_BITARRAY_WORD_WIDTH (sizeof(cuconP_bitarray_word_t)*8)
-
 /** \defgroup cucon_bitarray cucon/bitarray.h: Compact vectors of bools/bits
  ** @{ \ingroup cucon_linear_mod */
 
 struct cucon_bitarray
 {
     size_t size;
-    cuconP_bitarray_word_t *arr;
+    cu_word_t *arr;
 };
 
 /** Construct an uninitialised vector which can hold \a size bits. */
@@ -65,12 +62,12 @@ cucon_bitarray_size(cucon_bitarray_t bv) { return bv->size; }
 CU_SINLINE void
 cucon_bitarray_set_at(cucon_bitarray_t bv, size_t i, cu_bool_t value)
 {
-    cuconP_bitarray_word_t mask;
-    mask = (cuconP_bitarray_word_t)1 << (i % CUCONP_BITARRAY_WORD_WIDTH);
+    cu_word_t mask;
+    mask = CU_WORD_C(1) << (i % CU_WORD_WIDTH);
     if (value)
-	bv->arr[i/CUCONP_BITARRAY_WORD_WIDTH] |= mask;
+	bv->arr[i / CU_WORD_WIDTH] |= mask;
     else
-	bv->arr[i/CUCONP_BITARRAY_WORD_WIDTH] &= ~mask;
+	bv->arr[i / CU_WORD_WIDTH] &= ~mask;
 }
 
 /** Return element \a i of \a bv.
@@ -78,8 +75,8 @@ cucon_bitarray_set_at(cucon_bitarray_t bv, size_t i, cu_bool_t value)
 CU_SINLINE cu_bool_t
 cucon_bitarray_at(cucon_bitarray_t bv, size_t i)
 {
-    return !!(bv->arr[i/CUCONP_BITARRAY_WORD_WIDTH] &
-	      ((cuconP_bitarray_word_t)1 << (i % CUCONP_BITARRAY_WORD_WIDTH)));
+    return !!(bv->arr[i / CU_WORD_WIDTH] &
+	      (CU_WORD_C(1) << (i % CU_WORD_WIDTH)));
 }
 
 /** Return the lowest index greater or equal to \a start where \a bv holds \a
