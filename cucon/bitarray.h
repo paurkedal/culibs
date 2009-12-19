@@ -114,6 +114,22 @@ void cucon_bitarray_resize_exact(cucon_bitarray_t ba, size_t size);
  ** the minimum required.  This function does not reduce the capacity. */
 void cucon_bitarray_resize_exactmax(cucon_bitarray_t ba, size_t size);
 
+/** Call \ref cucon_bitarray_resize_gp and fill any newly allocated elements
+ ** with \a fill_value. */
+void cucon_bitarray_resize_fill_gp(cucon_bitarray_t ba, size_t size,
+				   cu_bool_t fill_value);
+
+/** Call \ref cucon_bitarray_resize_exact and fill any newly allocated elements
+ ** with \a fill_value. */
+void cucon_bitarray_resize_fill_exact(cucon_bitarray_t ba, size_t size,
+				      cu_bool_t fill_value);
+
+/** Set element \a i of \a ba to \a set_value, resizing if necessary and
+ ** filling undefined elements with \a fill_value.  The resize is done in
+ ** geometric progression. */
+void cucon_bitarray_resize_set_at(cucon_bitarray_t ba, size_t i,
+				  cu_bool_t fill_value, cu_bool_t set_value);
+
 /** @} */
 CU_END_DECLARATIONS
 

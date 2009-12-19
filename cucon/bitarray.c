@@ -246,3 +246,34 @@ cucon_bitarray_resize_exactmax(cucon_bitarray_t ba, size_t size)
 	_bitarray_realloc(ba, new_cap, size);
     ba->size = size;
 }
+
+void
+cucon_bitarray_resize_fill_gp(cucon_bitarray_t ba, size_t new_size,
+			      cu_bool_t fill_value)
+{
+    size_t old_size = ba->size;
+    cucon_bitarray_resize_gp(ba, new_size);
+    if (old_size < new_size)
+	cucon_bitarray_fill(ba, old_size, new_size, fill_value);
+}
+
+void
+cucon_bitarray_resize_fill_exact(cucon_bitarray_t ba, size_t new_size,
+				 cu_bool_t fill_value)
+{
+    size_t old_size = ba->size;
+    cucon_bitarray_resize_exact(ba, new_size);
+    if (old_size < new_size)
+	cucon_bitarray_fill(ba, old_size, new_size, fill_value);
+}
+
+void
+cucon_bitarray_resize_set_at(cucon_bitarray_t ba, size_t i,
+			     cu_bool_t fill_value, cu_bool_t set_value)
+{
+    size_t old_size = ba->size;
+    cucon_bitarray_resize_gp(ba, i + 1);
+    if (old_size <= i)
+	cucon_bitarray_fill(ba, old_size, i + 1, fill_value);
+    cucon_bitarray_set_at(ba, i, set_value);
+}
