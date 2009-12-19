@@ -4,6 +4,7 @@ cucon_headers = \
 	cucon/fwd.h \
 	cucon/algo_colour.h \
 	cucon/arr.h \
+	cucon/array.h \
 	cucon/bitvect.h \
 	cucon/compat.h \
 	cucon/digraph.h \
@@ -37,7 +38,7 @@ cucon_headers = \
 cucon_sources = \
 	cucon/init.c \
 	cucon/algo_colour.h \
-	cucon/arr.c \
+	cucon/array.c \
 	cucon/bitvect.c \
 	cucon/digraph.c \
 	cucon/frame.c \

@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,124 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+/* DEPRECATED.  This file is here for backwards compatibility only.  It will be
+ * removed in a future version. */
+
 #ifndef CUCON_ARR_H
 #define CUCON_ARR_H
 
-#include <cucon/fwd.h>
-#include <stdint.h>
+#include <cucon/array.h>
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cucon_arr_h cucon/arr.h: Generic Array
- ** @{ \ingroup cucon_linear_mod
- ** This header provides generic arrays of inlined elements.  All sizes and
- ** indices are measured in bytes, and must be scaled with the element size.
- **
- ** \see \ref cucon_parr_h
- **/
 
-struct cucon_arr
-{
-    size_t size;
-    size_t cap;
-    char *carr;
-};
+#define cucon_arr		cucon_array
+#define cucon_arr_init		cucon_array_init
+#define cucon_arr_new		cucon_array_new
+void cucon_arr_init_empty(cucon_arr_t arr)		CU_ATTR_DEPRECATED;
+cucon_arr_t cucon_arr_new_empty(void)			CU_ATTR_DEPRECATED;
+void cucon_arr_init_size(cucon_arr_t arr, size_t size)	CU_ATTR_DEPRECATED;
+cucon_arr_t cucon_arr_new_size(size_t size)		CU_ATTR_DEPRECATED;
+#define cucon_arr_swap		cucon_array_swap
+#define cucon_arr_size		cucon_array_size
+#define cucon_arr_ref_at	cucon_array_ref_at
+#define cucon_arr_detach	cucon_array_detach
+#define cucon_arr_resize_gp	cucon_array_resize_gp
+#define cucon_arr_resize_gpmax	cucon_array_resize_gpmax
+#define cucon_arr_resize_exact	cucon_array_resize_exact
+#define cucon_arr_resize_exactmax cucon_array_resize_exactmax
+#define cucon_arr_extend_gp	cucon_array_extend_gp
+#define cucon_arr_extend_exact	cucon_array_extend_exact
+#define cucon_arr_begin		cucon_array_begin
+#define cucon_arr_end		cucon_array_end
 
-/** Construct an array of initially \a size bytes.  If true is passed for \a
- ** is_atomic, then atomic allocation will be used for the array data.  */
-void cucon_arr_init(cucon_arr_t arr, cu_bool_t is_atomic, size_t size);
-
-/** Returns an array of initially \a size bytes.  If true is passed for \a
- ** is_atomic, then atomic allocation will be used for the array data. */
-cucon_arr_t cucon_arr_new(cu_bool_t is_atomic, size_t size);
-
-/** \deprecated
- ** This function has been replaced by \ref cucon_arr_init to enforce
- ** specification of atomicity of the array data.  It will be removed in a
- ** future version. */
-void cucon_arr_init_empty(cucon_arr_t arr) CU_ATTR_DEPRECATED;
-
-/** \deprecated
- ** This function has been replaced by \ref cucon_arr_new to enforce
- ** specification of atomicity of the array data.  It will be removed in a
- ** future version. */
-cucon_arr_t cucon_arr_new_empty(void) CU_ATTR_DEPRECATED;
-
-/** \copydoc cucon_arr_init_empty */
-void cucon_arr_init_size(cucon_arr_t arr, size_t size) CU_ATTR_DEPRECATED;
-
-/** \copydoc cucon_arr_new_empty */
-cucon_arr_t cucon_arr_new_size(size_t size) CU_ATTR_DEPRECATED;
-
-/** Swap the values of \a arr0 and \a arr1. */
-void cucon_arr_swap(cucon_arr_t arr0, cucon_arr_t arr1);
-
-/** The size of \a arr. */
-CU_SINLINE size_t
-cucon_arr_size(cucon_arr_t arr) { return arr->size; }
-
-/** Pointer to entry at \a index in \a arr.
- ** \pre \a arr is least \a index + 1 long. */
-CU_SINLINE void *
-cucon_arr_ref_at(cucon_arr_t arr, size_t index) { return arr->carr + index; }
-
-/** Returns a plain memory fragment with the data stored in the array and
- ** invalidates \a arr.  The memory fragment may be reallocated and copied if
- ** the capacity of \a arr is larger than its size. */
-void *cucon_arr_detach(cucon_arr_t arr);
-
-/** Resize \a arr to \a size, changing the capacity in geometric progression if
- ** necessary. */
-void cucon_arr_resize_gp(cucon_arr_t arr, size_t size);
-
-/** Resize \a arr to \a size, increasing capacity geometrically if necessary.
- ** This call never decrease the capacity. */
-void cucon_arr_resize_gpmax(cucon_arr_t arr, size_t size);
-
-/** Resize \a arr to \a size, changing the capacity to match the size.  If you
- ** are growing an array, \ref cucon_arr_resize_gp gives better amortised
- ** time-complexity. */
-void cucon_arr_resize_exact(cucon_arr_t arr, size_t size);
-
-/** Resize \a arr to \a size, increasing capacity to match the size if
- ** necesary.  This call never decrease the capacity.  If you are growing an
- ** array, \ref cucon_arr_resize_gpmax gives better amortised time-complexity.
- **/
-void cucon_arr_resize_exactmax(cucon_arr_t arr, size_t size);
-
-/** Extend \a arr with \a size entries, and return a pointer to the first one.
- ** The array capacity is increased geometrically. */
-CU_SINLINE void *
-cucon_arr_extend_gp(cucon_arr_t arr, size_t size)
-{
-    size_t old_size = arr->size;
-    cucon_arr_resize_gpmax(arr, old_size + size);
-    return arr->carr + old_size;
-}
-
-/** Extend \a arr with \a size entries, and return a pointer to the first one.
- ** The array capacity is increased to exactly match \a size if needed.  If you
- ** are calling this many times, use \ref cucon_arr_extend_gp for better time
- ** complexity. */
-CU_SINLINE void *
-cucon_arr_extend_exact(cucon_arr_t arr, size_t size)
-{
-    size_t old_size = arr->size;
-    cucon_arr_resize_exactmax(arr, old_size + size);
-    return arr->carr + old_size;
-}
-
-/** A pointer to the start of the internal array.  If converted to an
- ** appropriate pointer type, it can be used as an iterator.
- ** \see cucon_arr_end */
-CU_SINLINE void *cucon_arr_begin(cucon_arr_t arr)
-{ return arr->carr; }
-
-/** A pointer past the end of the internal array.
- ** \see cucon_arr_begin */
-CU_SINLINE void *cucon_arr_end(cucon_arr_t arr)
-{ return arr->carr + arr->size; }
-
-/** @} */
 CU_END_DECLARATIONS
 
 #endif

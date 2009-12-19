@@ -24,7 +24,8 @@ CU_BEGIN_DECLARATIONS
 /** \defgroup cucon_fwd_h cucon/fwd.h: Forward Declarations
  ** @{ \ingroup cucon_mod */
 
-typedef struct cucon_arr		*cucon_arr_t;		/* arr.h */
+typedef struct cucon_array		*cucon_arr_t;		/* arr.h */
+typedef struct cucon_array		*cucon_array_t;		/* array.h */
 typedef struct cucon_bitvect		*cucon_bitvect_t;	/* bitvect.h */
 typedef struct cucon_digraph		*cucon_digraph_t;	/* digraph.h */
 typedef struct cucon_digraph_vertex	*cucon_digraph_vertex_t;/* digraph.h */

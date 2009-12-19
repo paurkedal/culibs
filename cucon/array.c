@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2006--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +23,13 @@
 #define ATOMIC_BIT ((size_t)1 << (sizeof(size_t)*8 - 1))
 
 CU_SINLINE size_t
-_arr_cap(cucon_arr_t arr)
+_array_capacity(cucon_array_t arr)
 {
     return arr->cap & ~ATOMIC_BIT;
 }
 
 void
-cucon_arr_init(cucon_arr_t arr, cu_bool_t is_atomic, size_t init_size)
+cucon_array_init(cucon_array_t arr, cu_bool_t is_atomic, size_t init_size)
 {
     arr->size = init_size;
     if (is_atomic) {
@@ -42,48 +42,48 @@ cucon_arr_init(cucon_arr_t arr, cu_bool_t is_atomic, size_t init_size)
     }
 }
 
-cucon_arr_t
-cucon_arr_new(cu_bool_t is_atomic, size_t init_size)
+cucon_array_t
+cucon_array_new(cu_bool_t is_atomic, size_t init_size)
 {
-    cucon_arr_t arr = cu_gnew(struct cucon_arr);
-    cucon_arr_init(arr, is_atomic, init_size);
+    cucon_array_t arr = cu_gnew(struct cucon_array);
+    cucon_array_init(arr, is_atomic, init_size);
     return arr;
 }
 
 void
-cucon_arr_init_empty(cucon_arr_t arr)
+cucon_arr_init_empty(cucon_array_t arr)
 {
     arr->size = 0;
     arr->cap = 0;
     arr->carr = NULL;
 }
 
-cucon_arr_t
+cucon_array_t
 cucon_arr_new_empty(void)
 {
-    cucon_arr_t arr = cu_gnew(struct cucon_arr);
-    cucon_arr_init(arr, cu_false, 0);
+    cucon_array_t arr = cu_gnew(struct cucon_array);
+    cucon_array_init(arr, cu_false, 0);
     return arr;
 }
 
 void
-cucon_arr_init_size(cucon_arr_t arr, size_t size)
+cucon_arr_init_size(cucon_array_t arr, size_t size)
 {
     arr->size = size;
     arr->cap = size;
     arr->carr = cu_galloc(size);
 }
 
-cucon_arr_t
+cucon_array_t
 cucon_arr_new_size(size_t size)
 {
-    cucon_arr_t arr = cu_gnew(struct cucon_arr);
-    cucon_arr_init(arr, cu_false, size);
+    cucon_array_t arr = cu_gnew(struct cucon_array);
+    cucon_array_init(arr, cu_false, size);
     return arr;
 }
 
 void
-cucon_arr_swap(cucon_arr_t arr0, cucon_arr_t arr1)
+cucon_array_swap(cucon_array_t arr0, cucon_array_t arr1)
 {
     CU_SWAP(size_t, arr0->size, arr1->size);
     CU_SWAP(size_t, arr1->cap, arr1->cap);
@@ -91,18 +91,18 @@ cucon_arr_swap(cucon_arr_t arr0, cucon_arr_t arr1)
 }
 
 void *
-cucon_arr_detach(cucon_arr_t arr)
+cucon_array_detach(cucon_array_t arr)
 {
     void *carr;
-    if (_arr_cap(arr) != arr->size)
-	cucon_arr_resize_exact(arr, arr->size);
+    if (_array_capacity(arr) != arr->size)
+	cucon_array_resize_exact(arr, arr->size);
     carr = arr->carr;
     CU_GWIPE(arr->carr);
     return carr;
 }
 
 static void
-_arr_realloc(cucon_arr_t arr, size_t new_cap)
+_array_realloc(cucon_array_t arr, size_t new_cap)
 {
     char *old_carr = arr->carr;
     if (arr->cap & ATOMIC_BIT) {
@@ -117,51 +117,51 @@ _arr_realloc(cucon_arr_t arr, size_t new_cap)
 }
 
 void
-cucon_arr_resize_gp(cucon_arr_t arr, size_t size)
+cucon_array_resize_gp(cucon_array_t arr, size_t size)
 {
-    size_t old_cap = _arr_cap(arr);
+    size_t old_cap = _array_capacity(arr);
     if (size > old_cap) {
 	size_t new_cap;
 	if (size < old_cap*2)
 	    new_cap = old_cap*2;
 	else
 	    new_cap = size;
-	_arr_realloc(arr, new_cap);
+	_array_realloc(arr, new_cap);
     }
     else if (size*2 < old_cap)
-	_arr_realloc(arr, size);
+	_array_realloc(arr, size);
     arr->size = size;
 }
 
 void
-cucon_arr_resize_gpmax(cucon_arr_t arr, size_t size)
+cucon_array_resize_gpmax(cucon_array_t arr, size_t size)
 {
-    size_t old_cap = _arr_cap(arr);
+    size_t old_cap = _array_capacity(arr);
     if (size > old_cap) {
 	size_t new_cap;
 	if (size < old_cap*2)
 	    new_cap = old_cap*2;
 	else
 	    new_cap = size;
-	_arr_realloc(arr, new_cap);
+	_array_realloc(arr, new_cap);
     }
     arr->size = size;
 }
 
 void
-cucon_arr_resize_exact(cucon_arr_t arr, size_t size)
+cucon_array_resize_exact(cucon_array_t arr, size_t size)
 {
-    size_t old_cap = _arr_cap(arr);
+    size_t old_cap = _array_capacity(arr);
     if (size != old_cap)
-	_arr_realloc(arr, size);
+	_array_realloc(arr, size);
     arr->size = size;
 }
 
 void
-cucon_arr_resize_exactmax(cucon_arr_t arr, size_t size)
+cucon_array_resize_exactmax(cucon_array_t arr, size_t size)
 {
-    size_t old_cap = _arr_cap(arr);
+    size_t old_cap = _array_capacity(arr);
     if (size > old_cap)
-	_arr_realloc(arr, size);
+	_array_realloc(arr, size);
     arr->size = size;
 }
