@@ -15,29 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cucon/parr.h>
+#include <cucon/parray.h>
 #include <cu/test.h>
 
 void
-append_n(cucon_parr_t arr, size_t n)
+append_n(cucon_parray_t arr, size_t n)
 {
     while (n--)
-	cucon_parr_append_gp(arr, NULL);
+	cucon_parray_append_gp(arr, NULL);
 }
 
 int main()
 {
-    cucon_parr_t arr;
+    cucon_parray_t arr;
     int x0, x1, x2;
     cucon_init();
-    arr = cucon_parr_new_empty();
-    cucon_parr_append_gp(arr, &x0);
-    cucon_parr_append_gp(arr, &x1);
-    cucon_parr_append_gp(arr, &x2);
-    cu_test_assert_int_eq(cucon_parr_size(arr), 3);
-    cu_test_assert_ptr_eq(*(int **)cucon_parr_ref_at(arr, 1), &x1);
+    arr = cucon_parray_new_empty();
+    cucon_parray_append_gp(arr, &x0);
+    cucon_parray_append_gp(arr, &x1);
+    cucon_parray_append_gp(arr, &x2);
+    cu_test_assert_int_eq(cucon_parray_size(arr), 3);
+    cu_test_assert_ptr_eq(*(int **)cucon_parray_ref_at(arr, 1), &x1);
     append_n(arr, 100);
-    cu_test_assert_int_eq(cucon_parr_size(arr), 103);
-    cu_test_assert_ptr_eq(*(int **)cucon_parr_ref_at(arr, 2), &x2);
+    cu_test_assert_int_eq(cucon_parray_size(arr), 103);
+    cu_test_assert_ptr_eq(*(int **)cucon_parray_ref_at(arr, 2), &x2);
     return 0;
 }

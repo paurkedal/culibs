@@ -46,7 +46,8 @@ typedef struct cucon_list		*cucon_list_t;		/* list.h */
 typedef struct cucon_listnode		*cucon_listnode_t;	/* list.h */
 typedef struct cucon_pcmap		*cucon_pcmap_t;		/* pcmap.h */
 typedef struct cucon_pmap		*cucon_pmap_t;		/* pmap.h */
-typedef struct cucon_parr		*cucon_parr_t;		/* parr.h */
+typedef struct cucon_parray		*cucon_parr_t;		/* parr.h */
+typedef struct cucon_parray		*cucon_parray_t;	/* parray.h */
 typedef struct cucon_poelt		*cucon_poelt_t;		/* po.h */
 typedef struct cucon_po			*cucon_po_t;		/* po.h */
 typedef struct cucon_priq		*cucon_priq_t;		/* priq.h */
