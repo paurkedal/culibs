@@ -70,6 +70,7 @@ cucon_doxyfiles = \
 
 cucon_check_programs = \
 	cucon/bitarray_t0 \
+	cucon/bitarray_b0 \
 	cucon/frame_b0 \
 	cucon/frame_t0 \
 	cucon/hzmap_b0 \
@@ -117,6 +118,8 @@ endif
 
 cucon_bitarray_t0_SOURCES = cucon/bitarray_t0.c
 cucon_bitarray_t0_LDADD = libcubase.la
+cucon_bitarray_b0_SOURCES = cucon/bitarray_b0.c
+cucon_bitarray_b0_LDADD = libcubase.la
 cucon_fibheap_t0_SOURCES = cucon/fibheap_t0.c
 cucon_fibheap_t0_LDADD = libcubase.la
 cucon_fibheap_b0_SOURCES = cucon/fibheap_b0.c
