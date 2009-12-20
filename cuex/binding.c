@@ -202,26 +202,33 @@ cuex_bfree_into_uset(cuex_t e, int l_top, cucon_uset_t set)
     return cb.l_max;
 }
 
-cu_clos_def(_bfree_into_bitarray_helper, cu_prot(void, int l, int l_top),
-  ( cucon_bitarray_t seen; int seen_count; ))
+cu_clos_def(_bfree_into_bitarray_helper, cu_prot(void, int j, int j_top),
+  ( cucon_bitarray_t seen; int seen_count, j_clip; ))
 {
     cu_clos_self(_bfree_into_bitarray_helper);
-    l -= l_top;
-    cu_debug_assert(l >= 0);
-    if (l >= cucon_bitarray_size(self->seen)
-	    || !cucon_bitarray_at(self->seen, l)) {
-	cucon_bitarray_resize_set_at(self->seen, l, cu_false, cu_true);
-	++self->seen_count;
+    j -= j_top;
+    if (j >= self->j_clip)
+	return;
+    cu_debug_assert(j >= 0);
+    if (j < cucon_bitarray_size(self->seen)) {
+	if (cucon_bitarray_at(self->seen, j))
+	    return;
+	cucon_bitarray_set_at(self->seen, j, cu_true);
     }
+    else
+	cucon_bitarray_resize_set_at(self->seen, j, cu_false, cu_true);
+    ++self->seen_count;
 }
 
 int
-cuex_bfree_into_bitarray(cuex_t e, int l_top, cucon_bitarray_t seen)
+cuex_bfree_into_bitarray(cuex_t e, int j_top, int j_clip,
+			 cucon_bitarray_t seen)
 {
     _bfree_into_bitarray_helper_t helper;
     helper.seen_count = 0;
     helper.seen = seen;
-    cuex_bfree_iter(e, _bfree_into_bitarray_helper_prep(&helper), l_top);
+    helper.j_clip = j_clip - j_top;
+    cuex_bfree_iter(e, _bfree_into_bitarray_helper_prep(&helper), j_top);
     return helper.seen_count;
 }
 

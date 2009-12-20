@@ -96,10 +96,14 @@ cu_bool_t cuex_bfree_match(cu_clop(f, cu_bool_t, int, cuex_t, int),
  ** variable is returned, or \c INT_MIN if there were no free variables. */
 int cuex_bfree_into_uset(cuex_t e, int j_top, cucon_uset_t set);
 
-/** Insert de Bruijn indices of free variables of \a e into \a set and return
- ** the number of unique free variables.  The bit-array \a set is interpreted
- ** as a set, and is resized as needed to fit the largest index. */
-int cuex_bfree_into_bitarray(cuex_t e, int j_top, cucon_bitarray_t set);
+/** Insert de Burijn indices of free variables of \a e in the range [\a j_top,
+ ** \a j_clip) into \a set, and return the number of unique free variables in
+ ** the range which were not already present in \a set.  The indices inserted
+ ** into \a set are relative to \a j_top.  Pass \a j_top = \c 0 and \a j_clip =
+ ** \c INT_MAX to consider all free variables of \a e.  The bit-array is
+ ** resized as needed to fit the largest index. */
+int cuex_bfree_into_bitarray(cuex_t e, int j_top, int j_clip,
+			     cucon_bitarray_t set);
 
 cuex_t cuex_reindex_by_int_stack(cuex_t e, int stack_top_level,
 				 int stack_span, cucon_stack_t stack);
