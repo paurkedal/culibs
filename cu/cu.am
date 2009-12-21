@@ -2,6 +2,7 @@ if enable_cu
 
 cu_headers = \
 	cu/algo.h \
+	cu/bool.h \
 	cu/buffer.h \
 	cu/clos.h \
 	cu/compat.h \
@@ -79,6 +80,7 @@ cu_sources = \
 	cu/wstring.c
 
 cu_check_programs = \
+	cu/bool_t0 \
 	cu/clos_b0 \
 	cu/clos_t0 \
 	cu/cstr_t0 \
@@ -103,6 +105,8 @@ cu_doxyfiles = \
 	cu/cu.doxy \
 	cu/clos.doxy
 
+cu_bool_t0_SOURCES = cu/bool_t0.c
+cu_bool_t0_LDADD = libcubase.la
 cu_clos_b0_SOURCES = cu/clos_b0.c
 cu_clos_b0_LDADD = libcubase.la
 cu_clos_t0_SOURCES = cu/clos_t0.c
