@@ -1,4 +1,4 @@
-# Copyright (C) 2007  Petter Urkedal
+# Copyright (C) 2007--2009  Petter Urkedal
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -65,14 +65,20 @@ m4_foreach([_mod], [cu4_list_at([1], [_alias])], [dnl
 	      [ AS_IF([$enable_[]_mod && ! $enable_[]_impl],
 		  [ AC_MSG_NOTICE([Enabeling module _impl due to _mod.])
 		    enable_[]_impl=true
-		  ]) ]) ]) ])
+		  ])
+	      ])
+	  ])
+      ])
     m4_foreach([_eqv], [_CUAC_MODULE_EQV_LIST],
       [ AS_IF([m4_foreach([_mod], [_eqv], [$enable_[]_mod || ])false],
 	  [ m4_foreach([_mod], [_eqv],
 	      [ AS_IF([! $enable_[]_mod],
 		  [ AC_MSG_NOTICE([Enabeling module _mod due to equivalence of {_eqv}])
 		    enable_[]_mod=true
-		  ]) ]) ]) ])
+		  ])
+	      ])
+	  ])
+      ])
 
     # For each dependency of an enabled, assign check_DEP=true to force
     # checking for it's presense.
@@ -80,7 +86,10 @@ m4_foreach([_mod], [cu4_list_at([1], [_alias])], [dnl
       [ m4_if(m4_defn(_mod[_DEPS]), [], [],
 	  [ AS_IF([$enable_[]_mod],
 	      [ m4_foreach([_dep], m4_defn(_mod[_DEPS]),
-		  [ check_[]_dep=true; ]) ]) ]) ])
+		  [ check_[]_dep=true; ])
+	      ])
+	  ])
+      ])
 
     # Collect the lists of built, imported, and unused modules, and define
     # conditionals and substitutions.

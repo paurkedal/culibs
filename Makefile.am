@@ -53,8 +53,6 @@ if enable_cucon
 endif
 EXTRA_DIST		+= cu/cu.am cuoo/cuoo.am cucon/cucon.am
 
-include cufo/cufo.am
-
 include cuflow/cuflow.am
 if enable_cuflow
     lib_LTLIBRARIES	+= libcuflow.la
@@ -99,6 +97,8 @@ if enable_cutext
     pkgconfig_DATA	+= pkgconfig/cutext.pc
     noinst_DATA		+= pkgconfig/cutext-uninstalled.pc
 endif
+
+include cufo/cufo.am
 
 include custo/custo.am
 if enable_custo

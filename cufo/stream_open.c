@@ -110,7 +110,7 @@ cufo_stream_t
 cufo_open_term_fd(char const *encoding, char const *term,
 		  int fd, cu_bool_t close_fd)
 {
-    return cufo_open_text_fd(encoding, NULL, fd);
+    return cufo_open_text_fd(encoding, NULL, fd, close_fd);
 }
 #endif
 
