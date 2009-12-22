@@ -101,7 +101,7 @@ struct cuflow_cache ${prefix}_cache;
 void
 ${prefix}_init(cuflow_cacheconf_t conf)
 {
-    cuflow_cache_cct(\&${prefix}_cache, conf, cachetab);
+    cuflow_cache_init(\&${prefix}_cache, conf, cachetab);
 }
 __end__
 

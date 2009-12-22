@@ -40,8 +40,8 @@
     CUFLOW_FNCODE_KEY_SIZEW(CUFLOW_CACHEOBJ_FNCODE(obj))
 
 void
-cuflow_cache_cct(cuflow_cache_t cache, cuflow_cacheconf_t conf,
-		 cuflow_cacheobj_t (**fn_arr)(cuflow_cacheobj_t key))
+cuflow_cache_init(cuflow_cache_t cache, cuflow_cacheconf_t conf,
+		  cuflow_cacheobj_t (**fn_arr)(cuflow_cacheobj_t key))
 {
     int i;
     cache->conf = conf;
@@ -239,9 +239,9 @@ cu_clos_def(_cacheconf_update,
 }
 
 void
-cuflow_cacheconf_cct(cuflow_cacheconf_t conf,
-		     cu_bool_t (*manager)(cuflow_cacheconf_t conf,
-					  struct timespec *t_now))
+cuflow_cacheconf_init(cuflow_cacheconf_t conf,
+		      cu_bool_t (*manager)(cuflow_cacheconf_t conf,
+					   struct timespec *t_now))
 {
     _cacheconf_update_t *confupdate;
     struct timespec t_now;
@@ -278,7 +278,7 @@ cuflow_default_cacheconf()
 	_default_cacheconf.tick_period.tv_sec = 0;
 	_default_cacheconf.tick_period.tv_nsec = 10000000; /* 10 ms */
 	_default_cacheconf.byte_cost_per_tick = 100;
-	cuflow_cacheconf_cct(&_default_cacheconf, _default_manager);
+	cuflow_cacheconf_init(&_default_cacheconf, _default_manager);
     }
     return &_default_cacheconf;
 }
