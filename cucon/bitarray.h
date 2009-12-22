@@ -69,6 +69,13 @@ void cucon_bitarray_fill(cucon_bitarray_t ba, size_t low, size_t high,
 CU_SINLINE size_t
 cucon_bitarray_size(cucon_bitarray_t ba) { return ba->size; }
 
+/** Returns -1, 0, or 1 if \a ba0 is less, equal, or greater than \a ba1,
+ ** respectively.  The lowest positions counts as most significant. */
+int cucon_bitarray_cmp(cucon_bitarray_t ba0, cucon_bitarray_t ba1);
+
+/** True iff \a ba0 and \a ba1 contain the same bits. */
+cu_bool_t cucon_bitarray_eq(cucon_bitarray_t ba0, cucon_bitarray_t ba1);
+
 /** Set element \a i of \a ba to \a value.
  ** \pre cucon_bitarray_size(\a ba) >= \a i */
 CU_SINLINE void

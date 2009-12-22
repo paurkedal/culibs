@@ -18,9 +18,11 @@
 #include <cucon/bitarray.h>
 #include <cu/memory.h>
 #include <cu/size.h>
+#include <cu/word.h>
 #include <string.h>
 
 #define WORD_BIT(n) (CU_WORD_C(1) << (n))
+#define WORD_MASK(n) (WORD_BIT(n) - CU_WORD_C(1))
 
 CU_SINLINE size_t
 _capacity_for(size_t n)
@@ -127,6 +129,59 @@ cucon_bitarray_fill(cucon_bitarray_t ba, size_t i, size_t j, cu_bool_t val)
 	    ba->arr[iword] &= ~(WORD_BIT(jbit) - CU_WORD_C(1));
 	}
     }
+}
+
+int
+cucon_bitarray_cmp(cucon_bitarray_t ba0, cucon_bitarray_t ba1)
+{
+    int rest;
+    size_t size0 = ba0->size;
+    size_t size1 = ba1->size;
+    size_t size = cu_size_min(size0, size1);
+    size_t sizew = size / CU_WORD_WIDTH;
+    cu_word_t *arr0 = ba0->arr;
+    cu_word_t *arr1 = ba1->arr;
+    while (sizew--) {
+	int cmp = cu_word_rcmp(*arr0++, *arr1++);
+	if (cmp)
+	    return cmp;
+    }
+    rest = size % CU_WORD_WIDTH;
+    if (rest) {
+	int cmp = cu_word_rcmp(*arr0, *arr1);
+	if (cmp)
+	    return cmp;
+    }
+    if (size0 < size1)
+	return -1;
+    if (size0 > size1)
+	return 1;
+    return 0;
+}
+
+cu_bool_t
+cucon_bitarray_eq(cucon_bitarray_t ba0, cucon_bitarray_t ba1)
+{
+    cu_word_t *arr0, *arr1;
+    size_t size0 = ba0->size;
+    size_t size1 = ba1->size;
+    size_t sizew;
+    int rest;
+    if (size0 != size1)
+	return cu_false;
+    arr0 = ba0->arr;
+    arr1 = ba1->arr;
+    sizew = size0 / CU_WORD_WIDTH;
+    while (sizew--)
+	if (*arr0++ != *arr1++)
+	    return cu_false;
+    rest = size0 % CU_WORD_WIDTH;
+    if (rest) {
+	cu_word_t mask = WORD_MASK(rest);
+	if ((*arr0 & mask) != (*arr1 & mask))
+	    return cu_false;
+    }
+    return cu_true;
 }
 
 size_t

@@ -18,16 +18,67 @@
 #include <cucon/bitarray.h>
 #include <cu/test.h>
 #include <cu/int.h>
+#include <cu/size.h>
 
 #define SIZE 300
 
-void
+static void
 _randomise(cucon_bitarray_t bv)
 {
     size_t size = cucon_bitarray_size(bv);
     size_t i;
     for (i = 0; i < size; ++i)
 	cucon_bitarray_set_at(bv, i, !!(lrand48() % 2));
+}
+
+static cucon_bitarray_t
+_new_random(size_t size)
+{
+    cucon_bitarray_t ba = cucon_bitarray_new(size);
+    _randomise(ba);
+    return ba;
+}
+
+static void
+_test_cmp(size_t size)
+{
+    int i, cmp;
+    size_t size1, min_size;
+    cucon_bitarray_t ba0 = _new_random(size);
+    cucon_bitarray_t ba1 = cucon_bitarray_new_copy(ba0);
+    cu_test_assert(cucon_bitarray_eq(ba0, ba1));
+    cu_test_assert(cucon_bitarray_cmp(ba0, ba1) == 0);
+    for (i = 0; i < size; ++i) {
+	cu_bool_t v = cucon_bitarray_at(ba0, i);
+	cucon_bitarray_set_at(ba1, i, !v);
+	cu_test_assert(cucon_bitarray_cmp(ba0, ba1) == (v? 1 : -1));
+	cucon_bitarray_set_at(ba1, i, v);
+    }
+
+    size1 = size/2 + lrand48() % size;
+    ba1 = _new_random(size1);
+    min_size = cu_size_min(size, size1);
+    cmp = cucon_bitarray_cmp(ba0, ba1);
+    for (i = 0; i < min_size; ++i) {
+	cu_bool_t v0 = cucon_bitarray_at(ba0, i);
+	cu_bool_t v1 = cucon_bitarray_at(ba1, i);
+	if (v0 < v1) {
+	    cu_test_assert(cmp == -1);
+	    break;
+	}
+	if (v0 > v1) {
+	    cu_test_assert(cmp == 1);
+	    break;
+	}
+    }
+    if (i == min_size) {
+	if (size < size1)
+	    cu_test_assert(cmp == -1);
+	else if (size > size1)
+	    cu_test_assert(cmp == 1);
+	else
+	    cu_test_assert(cmp == 0);
+    }
 }
 
 static void
@@ -94,6 +145,7 @@ _test(size_t size)
 {
     _test_get_set_find(size);
     _test_resize(size);
+    _test_cmp(size);
 }
 
 int
