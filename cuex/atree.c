@@ -23,7 +23,7 @@
 #include <cuoo/properties.h>
 #include <cuoo/intf.h>
 #include <cuoo/hctem.h>
-#include <cu/int.h>
+#include <cu/word.h>
 #include <cu/algo.h>
 
 static size_t atree_card(cuex_t tree);

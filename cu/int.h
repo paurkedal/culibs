@@ -146,10 +146,6 @@ CU_SINLINE unsigned long cu_ulong_dcover(unsigned long x)
 CU_SINLINE uintptr_t cu_uintptr_dcover(uintptr_t x)
 { return CUP_UINTPTR_NAME(cu_,dcover)(x); }
 
-/** \copydoc cu_uint8_dcover */
-CU_SINLINE cu_word_t cu_word_dcover(cu_word_t x)
-{ return CUP_WORD_NAME(cu_,dcover)(x); }
-
 /** Returns a bitmask from the lowermost non-zero bit in \a x and upwards. */
 CU_SINLINE unsigned int
 cu_uint_ucover(unsigned int x) { return x | ~(x - 1); }
@@ -157,10 +153,6 @@ cu_uint_ucover(unsigned int x) { return x | ~(x - 1); }
 /** \copydoc cu_uint_ucover */
 CU_SINLINE unsigned long
 cu_ulong_ucover(unsigned long x) { return x | ~(x - 1L); }
-
-/** \copydoc cu_uint_ucover */
-CU_SINLINE cu_word_t
-cu_word_ucover(unsigned long x) { return x | ~(x - CU_WORD_C(1)); }
 
 
 /** A bitmask which covers the lowermost continuous zeros of \a x. */
@@ -206,11 +198,6 @@ CU_SINLINE unsigned long
 cu_ulong_exp2_ceil_log2(unsigned long x)
 { return cu_ulong_dcover(x - 1L) + 1L; }
 
-/** \copydoc cu_uint8_exp2_ceil_log2 */
-CU_SINLINE cu_word_t
-cu_word_exp2_ceil_log2(cu_word_t x)
-{ return cu_word_dcover(x - CU_WORD_C(1)) + CU_WORD_C(1); }
-
 
 /** Returns the number of high bits in \a x. */
 unsigned int cu_uint8_bit_count(uint_fast8_t x) CU_ATTR_PURE;
@@ -231,10 +218,6 @@ CU_SINLINE unsigned int cu_uint_bit_count(unsigned int x)
 /** \copydoc cu_uint8_bit_count */
 CU_SINLINE unsigned long cu_ulong_bit_count(unsigned long x)
 { return CUP_ULONG_NAME(cu_,bit_count)(x); }
-
-/** \copydoc cu_uint8_bit_count */
-CU_SINLINE cu_word_t cu_word_bit_count(cu_word_t x)
-{ return CUP_WORD_NAME(cu_,bit_count)(x); }
 
 
 /** Returns the exponent of the uppermost non-zero bit in \a x, that is
@@ -257,10 +240,6 @@ CU_SINLINE unsigned int cu_uint_floor_log2(unsigned int x)
 /** \copydoc cu_uint8_floor_log2*/
 CU_SINLINE unsigned int cu_ulong_floor_log2(unsigned long x)
 { return CUP_ULONG_NAME(cu_,floor_log2)(x); }
-
-/** \copydoc cu_uint8_floor_log2*/
-CU_SINLINE unsigned int cu_word_floor_log2(cu_word_t x)
-{ return CUP_WORD_NAME(cu_,floor_log2)(x); }
 
 /** Returns ⌈log<sub>2</sub> <i>x</i>⌉. */
 unsigned int cu_uint8_ceil_log2(uint_fast8_t x) CU_ATTR_PURE;
@@ -325,11 +304,6 @@ cu_ulong_log2_lowbit(unsigned long x)
 CU_SINLINE unsigned int
 cu_uintptr_log2_lowbit(uintptr_t x)
 { return CUP_UINTPTR_NAME(cu_,log2_lowbit)(x); }
-
-/** \copydoc cu_uint8_log2_lowbit*/
-CU_SINLINE unsigned int
-cu_word_log2_lowbit(cu_word_t x)
-{ return CUP_WORD_NAME(cu_,log2_lowbit)(x); }
 
 
 /* Network Byte Order and Host Byte Order Conversion

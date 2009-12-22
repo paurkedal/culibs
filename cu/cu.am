@@ -38,6 +38,7 @@ cu_headers = \
 	cu/thread.h \
 	cu/tstate.h \
 	cu/wchar.h \
+	cu/word.h \
 	cu/wstring.h \
 	cu/util.h \
 	cu/va_ref.h \

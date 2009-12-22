@@ -17,7 +17,7 @@
 
 #include <cucon/ucset.h>
 #include <cu/memory.h>
-#include <cu/int.h>
+#include <cu/word.h>
 #include <cu/ptr.h>
 #include <cuoo/hctem.h>
 #include <cuoo/intf.h>
