@@ -81,7 +81,7 @@ typedef enum {
 CU_SINLINE cu_bool_t
 cu_bool2f_apply(cu_bool2f_t f, cu_bool_t x, cu_bool_t y)
 {
-    return (f >> (!!x | 2*!!y)) & 1;
+    return (f >> ((!!x) | (2*!!y))) & 1;
 }
 
 /** Return the partial evaluation λ\e y. \a f(\a x, \e y). */
@@ -96,7 +96,7 @@ cu_bool2f_apply_left(cu_bool2f_t f, cu_bool_t x)
 CU_SINLINE cu_bool1f_t
 cu_bool2f_apply_right(cu_bool2f_t f, cu_bool_t y)
 {
-    return (cu_bool1f_t)((f >> 2*!!y) & 3);
+    return (cu_bool1f_t)((f >> (2*!!y)) & 3);
 }
 
 /** Return the function λ(\e x, \e y). ¬\a f(\e x, \e y). */

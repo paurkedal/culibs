@@ -65,9 +65,9 @@ _test2f()
 	cu_test_assert(cu_bool2f_apply(CU_BOOL2F_IFF, x, y) == (x == y));
 	cu_test_assert(cu_bool2f_apply(CU_BOOL2F_OR, x, y) == (x | y));
 	cu_test_assert(cu_bool2f_apply(CU_BOOL2F_AND_NOT, x, y) == (x & !y));
-	cu_test_assert(cu_bool2f_apply(CU_BOOL2F_NOT_AND, x, y) == (!x & y));
+	cu_test_assert(cu_bool2f_apply(CU_BOOL2F_NOT_AND, x, y) == ((!x) & y));
 	cu_test_assert(cu_bool2f_apply(CU_BOOL2F_OR_NOT, x, y) == (x | !y));
-	cu_test_assert(cu_bool2f_apply(CU_BOOL2F_NOT_OR, x, y) == (!x | y));
+	cu_test_assert(cu_bool2f_apply(CU_BOOL2F_NOT_OR, x, y) == ((!x) | y));
     }
 
     for (i = 0; i < 0x40; ++i) {
