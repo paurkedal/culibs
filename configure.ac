@@ -9,10 +9,18 @@ AM_CONFIG_HEADER([config_raw.h])
 CUAC_PACKAGE_VERSION
 
 AM_PROG_CC_C_O
-AC_PROG_CXX
-AM_PROG_LIBTOOL
 AC_PROG_YACC
 PKG_PROG_PKG_CONFIG
+
+AC_ARG_ENABLE([cplusplus],
+   [AC_HELP_STRING([--disable-cplusplus],
+	[Disable test for C++ compatibility.])])
+if "$enable_cplusplus" != "no"; then
+    AC_PROG_CXX
+fi
+AM_CONDITIONAL([enable_cplusplus], [test x"$enable_cplusplus" != xno])
+
+AM_PROG_LIBTOOL
 
 AC_ARG_ENABLE([experimental],
     [AC_HELP_STRING([--enable-experimental], [Include experimental features?])],

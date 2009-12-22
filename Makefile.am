@@ -162,8 +162,11 @@ norun_check_programs += \
 	$(cutext_norun_check_programs) \
 	$(custo_norun_check_programs) \
 	$(cuex_norun_check_programs) \
-	$(cudyn_norun_check_programs) \
-	test_cplusplus
+	$(cudyn_norun_check_programs)
+
+if enable_cplusplus
+norun_check_programs += test_cplusplus
+endif
 
 doxyfiles = doc/main.doxy doc/environ.doxy \
 	$(cu_doxyfiles) \
