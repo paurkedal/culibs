@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include <errno.h>
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cu_thread cu/thread.h: Multi-Threading (Extensions to pthreads)
+/** \defgroup cu_thread_h cu/thread.h: Multi-Threading (Extensions to pthreads)
  ** @{ \ingroup cu_base_mod
  **
  ** These are mostly light wrappers around the pthread functions or from the

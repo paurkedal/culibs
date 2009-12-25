@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2002--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2002--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 /* !! No CU_BEGIN_DECLARATIONS here !!
  * These are only macros, and we don't need to include cu/fwd.h */
 
-/** \defgroup cu_inherit cu/inherit.h: A Framework for Multiple Inheritance
+/** \defgroup cu_inherit_h cu/inherit.h: A Framework for Multiple Inheritance
  ** @{ \ingroup cu_base_mod */
 
 #ifndef CU_MARG

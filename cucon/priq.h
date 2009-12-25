@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2002--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2002--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 #ifndef CUCON_PRIQ_H
 #define CUCON_PRIQ_H
 
-/** \defgroup cucon_priq cucon/priq.h: Array-Based Priority Queue
+/** \defgroup cucon_priq_h cucon/priq.h: Array-Based Priority Queue
  ** @{ \ingroup cucon_misc_mod
  **
  ** This is an implementation of priority queues based on a pyramid-like array.

@@ -24,7 +24,7 @@
 #include <stdio.h>
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cucon_rbtree cucon/rbtree.h: Red-Black Trees
+/** \defgroup cucon_rbtree_h cucon/rbtree.h: Red-Black Trees
  ** @{ \ingroup cucon_maps_and_sets_mod
  **
  ** \note This is a somewhat unstable low-level API used to define more

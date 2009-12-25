@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,44 +23,28 @@
 #include <cu/tstate.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_rarex cu/rarex.h: Read-Write Locks Optimised for Rarely Excluding Cases
- * @{ \ingroup cu_util_mod
- * Rarices are read-write locks implemented with a single word per lock
- * (in addition to some per-thread data).  They are cheap as long
- * as they are read-locked, or write access do not conflict with another
- * read or write, but significantly more expensive than mutices when they
- * clog.
- *
- * In other words, cu_rarex_t should be used only when you have good reason to
- * believe that access to the lock is hardly ever excludes another access, and
- * they can only beat good mutex implementations if the mutices would clog due
- * to exclusion on read access.
- *
- * \remark
- * If each of <i>N</i> threads spends <i>p</i>
- * of its time accessing the lock (exclusive or not),
- * then \f$q = (1 - p)^{N - 1}\f$ is the
- * probabilty for one thread to gain exclusive access.  So, the part spend
- * in a lock jam is \f$(1 - (1 - p)^{N - 1})p_{\mathrm w}\f$.
- * Note that <i>p</i> and <i>p</i><sub>w</sub> depend on the amount of
- * jamming, since handling the jam is more expensive than conflict-free
- * locking.
- *
- * Sometimes you can adapt your code to make this true.  For instance, since
- * the rarex is only a single word, you may put one on each element of the
- * array of a hash map.  If newly inserted elements have quasi-random hashes,
- * the chance of clogging a lock is very small.  On the other hand,
- * simultaneous multiple lookups are read-only and will not clog the locks.
- *
- * In most cases it is probably better to use mutices than adapting the
- * code, since they are fast on modern platforms (I think, I have
- * only tested on Linux x86).
- */
+/** \defgroup cu_rarex_h cu/rarex.h: Read-Write Locks Optimised for Rarely Excluding Cases
+ ** @{ \ingroup cu_util_mod
+ **
+ ** Rarices are read-write locks implemented with a single word per lock (in
+ ** addition to some per-thread data).  They are cheap as long as they are
+ ** read-locked, or write access do not conflict with another read or write,
+ ** but significantly more expensive than mutices when they clog.  In other
+ ** words, use this only when two threads hardly ever compete for the same
+ ** lock.
+ ** 
+ ** If each of <i>N</i> threads spends <i>p</i> of its time accessing the lock
+ ** (exclusive or not), then \f$q = (1 - p)^{N - 1}\f$ is the probability that
+ ** a thread can acquire a write lock without delay.  Note the locking time is
+ ** included in \f$p\f$.  For good efficiency keep \f$p \ll \frac1N\f$.
+ ** 
+ ** If unsure, use \c pthread_mutex_t or similar instead.
+ **/
 
-/*!\ingroup cuP_mod*/
+/** \ingroup cuP_mod */
 #define cuP_RAREX_WRITE_MULTIPLIER 0x10000
 
-/*!Construct the \a rarex lock. */
+/** Construct the \a rarex lock. */
 CU_SINLINE void
 cu_rarex_init(cu_rarex_t *rarex) { AO_store(rarex, 0); }
 
@@ -68,8 +52,8 @@ void cuP_rarex_lock_read(cu_rarex_t *);	/*!<\private*/
 void cuP_rarex_lock_write(cu_rarex_t *);	/*!<\private*/
 void cuP_rarex_wake_up(cu_rarex_t *);	/*!<\private*/
 
-/*!Lock for non-exclusive access.  May be called recursively, and should have
- * matching calls to cu_rarex_unlock_read. */
+/** Lock for non-exclusive access.  May be called recursively, and should have
+ ** matching calls to cu_rarex_unlock_read. */
 CU_SINLINE void
 cu_rarex_lock_read(cu_rarex_t *rarex)
 {
@@ -77,7 +61,7 @@ cu_rarex_lock_read(cu_rarex_t *rarex)
 	cuP_rarex_lock_read(rarex);
 }
 
-/*!Unlock non-exclusive access. */
+/** Unlock non-exclusive access. */
 CU_SINLINE void
 cu_rarex_unlock_read(cu_rarex_t *rarex)
 {
@@ -86,8 +70,8 @@ cu_rarex_unlock_read(cu_rarex_t *rarex)
 	cuP_rarex_wake_up(rarex);
 }
 
-/*!Try to lock for non-exclusive access without blocking.  Returns true iff
- * successful. */
+/** Try to lock for non-exclusive access without blocking.  Returns true iff
+ ** successful. */
 CU_SINLINE cu_bool_t
 cu_rarex_trylock_read(cu_rarex_t *rarex)
 {
@@ -100,8 +84,8 @@ cu_rarex_trylock_read(cu_rarex_t *rarex)
 	return cu_true;
 }
 
-/*!Lock for exclusive access.  Caller must not own any access to any
- * cu_rarex_t locks advance. */
+/** Lock for exclusive access.  Caller must not own any access to any
+ ** cu_rarex_t locks advance. */
 CU_SINLINE void
 cu_rarex_lock_write(cu_rarex_t *rarex)
 {
@@ -109,15 +93,15 @@ cu_rarex_lock_write(cu_rarex_t *rarex)
 	cuP_rarex_lock_write(rarex);
 }
 
-/*!Try to lock for exclusive access without blocking.  Returns true iff
- * successful. */
+/** Try to lock for exclusive access without blocking.  Returns true iff
+ ** successful. */
 CU_SINLINE cu_bool_t
 cu_rarex_trylock_write(cu_rarex_t *rarex)
 {
     return AO_compare_and_swap_acquire(rarex, 0, cuP_RAREX_WRITE_MULTIPLIER);
 }
 
-/*!Release exclusive access. */
+/** Release exclusive access. */
 CU_SINLINE void
 cu_rarex_unlock_write(cu_rarex_t *rarex)
 {
@@ -128,10 +112,10 @@ cu_rarex_unlock_write(cu_rarex_t *rarex)
 	cuP_rarex_wake_up(rarex);
 }
 
-/*!Attempts to promote a read lock to a write lock.  Returns non-zero on
- * success, otherwise the lock remains for read-access.  Note that depending
- * on the outcome, caller must either use cu_rarex_unlock_read or
- * cu_rarex_unlock_write to unlock. */
+/** Attempts to promote a read lock to a write lock.  Returns non-zero on
+ ** success, otherwise the lock remains for read-access.  Note that depending
+ ** on the outcome, caller must either use \ref cu_rarex_unlock_read or \ref
+ ** cu_rarex_unlock_write to unlock. */
 CU_SINLINE cu_bool_t
 cu_rarex_try_promote(cu_rarex_t *rarex)
 {
@@ -141,7 +125,7 @@ cu_rarex_try_promote(cu_rarex_t *rarex)
 /*!\deprecated Use cu_rarex_init. */
 #define cu_rarex_cct cu_rarex_init
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

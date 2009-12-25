@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #include <cu/wchar.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cu_idr cu/idr.h: Identifiers (Strings with Pointer Equality)
+/*!\defgroup cu_idr_h cu/idr.h: Identifiers (Strings with Pointer Equality)
  * @{ \ingroup cu_type_mod */
 
 struct cu_idr

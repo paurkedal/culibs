@@ -74,8 +74,8 @@ struct cuflowP_cacheobjhdr
 };
 
 /** The base struct for both cache keys and cache objects. Typically use is to
- ** \ref cu_inherit this in the cache key, and cu_inherit the cache key in the
- ** full cache object.  This contains one field, \e fncode, which must be
+ ** \ref cu_inherit_h this in the cache key, and cu_inherit the cache key in
+ ** the full cache object.  This contains one field, \e fncode, which must be
  ** assigned an integer obtaind with \ref CUFLOW_FNCODE, which identifies the
  ** callback and key size. */
 struct cuflow_cacheobj

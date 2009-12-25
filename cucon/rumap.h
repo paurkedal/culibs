@@ -23,7 +23,7 @@
 #include <cu/wchar.h>
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cucon_rumap cucon/rumap.h: Recursive Hash Map with Integer Keys
+/** \defgroup cucon_rumap_h cucon/rumap.h: Recursive Hash Map with Integer Keys
  ** @{\ingroup cucon_maps_and_sets_mod */
 
 struct cucon_rumap

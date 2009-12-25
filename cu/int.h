@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include <stdint.h>
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cu_int cu/int.h: Integer Functions
+/** \defgroup cu_int_h cu/int.h: Integer Functions
  ** @{ \ingroup cu_type_mod */
 
 #if CUCONF_SIZEOF_INT == 4

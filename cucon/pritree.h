@@ -23,8 +23,8 @@
 #include <stdio.h>
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cucon_pritree cucon/pritree.h: Priority Queues with Explicit Priority
- ** @{\ingroup cucon_misc_mod */
+/** \defgroup cucon_pritree_h cucon/pritree.h: Priority Queues with Explicit Priority
+ ** @{ \ingroup cucon_misc_mod */
 
 /** The priority tree struct. */
 struct cucon_pritree

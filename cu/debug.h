@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2002--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2002--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include <stdio.h>
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cu_debug cu/debug.h: Utilities for Debugging
+/** \defgroup cu_debug_h cu/debug.h: Utilities for Debugging
  ** @{ \ingroup cu_util_mod */
 
 #if !defined(CU_NDEBUG) || defined(CU_IN_DOXYGEN)

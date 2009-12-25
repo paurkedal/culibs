@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2000--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2000--2009  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ typedef unsigned long cu_uintptr_t;
 void cu_raise_out_of_memory(size_t size) CU_ATTR_NORETURN;
 void cu_regh_out_of_memory(void (*f)(size_t));
 
-/** \defgroup cu_memory cu/memory.h: Memory Allocation
+/** \defgroup cu_memory_h cu/memory.h: Memory Allocation
  ** @{ \ingroup cu_base_mod */
 
 /** \name Stack Allocation
