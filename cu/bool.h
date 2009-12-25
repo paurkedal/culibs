@@ -37,6 +37,11 @@ CU_SINLINE cu_bool_t
 cu_bool1f_apply(cu_bool1f_t f, cu_bool_t x)
 { return (f >> !!x) & 1; }
 
+/** Return the constant function, λ\e y. \a x. */
+CU_SINLINE cu_bool1f_t
+cu_bool1f_konst(cu_bool_t x)
+{ return (cu_bool1f_t)(3*!!x); }
+
 /** Return the function λ\e x. ¬\a f(\e x). */
 CU_SINLINE cu_bool1f_t
 cu_bool1f_not(cu_bool1f_t f)
@@ -99,6 +104,13 @@ cu_bool2f_apply_right(cu_bool2f_t f, cu_bool_t y)
     return (cu_bool1f_t)((f >> (2*!!y)) & 3);
 }
 
+/** The constant function λ(\e x, \e y). \a v. */
+CU_SINLINE cu_bool2f_t
+cu_bool2f_konst(cu_bool_t v)
+{
+    return (cu_bool2f_t)(v? 15 : 0);
+}
+
 /** Return the function λ(\e x, \e y). ¬\a f(\e x, \e y). */
 CU_SINLINE cu_bool2f_t
 cu_bool2f_not(cu_bool2f_t f)
@@ -123,6 +135,36 @@ CU_SINLINE cu_bool2f_t
 cu_bool2f_swap(cu_bool2f_t f)
 {
     return (cu_bool2f_t)((f & 9) | ((f & 2) << 1) | ((f & 4) >> 1));
+}
+
+/** Return the composition \a f ∘ \a g, i.e. the function λ(\e x, \e y). \a f
+ ** (\a g (\e x, \e y)). */
+CU_SINLINE cu_bool2f_t
+cu_bool2f_compose(cu_bool1f_t f, cu_bool2f_t g)
+{
+    return (cu_bool1f_t)((15*(f & 1) & ~g) | (15*((f & 2) >> 1) & g));
+}
+
+/** Return the composition of \a f on the left operand with \a g, λ(\e x, \e
+ ** y). \a f (\a g(\e x), \e y). */
+CU_SINLINE cu_bool2f_t
+cu_bool2f_compose_left(cu_bool2f_t f, cu_bool1f_t g)
+{
+    int gg = g | (g << 2);
+    int fL = f & 5;
+    int fH = (f >> 1) & 5;
+    return (cu_bool2f_t)((3*fL & ~gg) | (3*fH & gg));
+}
+
+/** Return the composition of \a f on the right operand with \a g, λ(\e x, \e
+ ** y). \a f (\e x, \a g(\e y)). */
+CU_SINLINE cu_bool2f_t
+cu_bool2f_compose_right(cu_bool2f_t f, cu_bool1f_t g)
+{
+    int gg = 3*(g + (g & 2));
+    int fL = f & 3;
+    int fH = f >> 2;
+    return (cu_bool2f_t)((5*fL & ~gg) | (5*fH & gg));
 }
 
 /** @} */

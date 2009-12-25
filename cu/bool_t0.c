@@ -28,6 +28,8 @@ _test1f()
 	cu_test_assert(cu_bool1f_apply(CU_BOOL1F_TRUE, x));
 	cu_test_assert(cu_bool1f_apply(CU_BOOL1F_IDENT, x) == x);
 	cu_test_assert(cu_bool1f_apply(CU_BOOL1F_NOT, x) == !x);
+	cu_test_assert(!cu_bool1f_apply(cu_bool1f_konst(cu_false), x));
+	cu_test_assert(cu_bool1f_apply(cu_bool1f_konst(cu_true), x));
     }
 
     cu_test_assert(cu_bool1f_not(CU_BOOL1F_FALSE) == CU_BOOL1F_TRUE);
@@ -69,6 +71,8 @@ _test2f()
 	cu_test_assert(cu_bool2f_apply(CU_BOOL2F_OR_NOT, x, y) == (x | !y));
 	cu_test_assert(cu_bool2f_apply(CU_BOOL2F_NOT_OR, x, y) == ((!x) | y));
     }
+    cu_test_assert(cu_bool2f_konst(cu_true) == CU_BOOL2F_TRUE);
+    cu_test_assert(cu_bool2f_konst(cu_false) == CU_BOOL2F_FALSE);
 
     for (i = 0; i < 0x40; ++i) {
 	cu_bool_t x = i & 1;
@@ -88,6 +92,47 @@ _test2f()
 		       == cu_bool2f_apply(f, x, !y));
 	cu_test_assert(cu_bool2f_apply(cu_bool2f_swap(f), x, y)
 		       == cu_bool2f_apply(f, y, x));
+
+	/* cu_bool2f_compose */
+	cu_test_assert(cu_bool2f_apply(cu_bool2f_compose(CU_BOOL1F_NOT, f),
+				       x, y) == !cu_bool2f_apply(f, x, y));
+
+	/* cu_bool2f_compose_left */
+	cu_test_assert(cu_bool2f_apply(
+		cu_bool2f_compose_left(f, CU_BOOL1F_NOT), x, y)
+	    == cu_bool2f_apply(f, !x, y));
+	cu_test_assert(cu_bool2f_apply(
+		cu_bool2f_compose_left(f, CU_BOOL1F_FALSE), x, y)
+	    == cu_bool2f_apply(f, cu_false, y));
+	cu_test_assert(cu_bool2f_apply(
+		cu_bool2f_compose_left(f, CU_BOOL1F_TRUE), x, y)
+	    == cu_bool2f_apply(f, cu_true, y));
+
+	/* cu_bool2f_compose_right */
+	cu_test_assert(cu_bool2f_apply(
+		cu_bool2f_compose_right(f, CU_BOOL1F_NOT), x, y)
+	    == cu_bool2f_apply(f, x, !y));
+	cu_test_assert(cu_bool2f_apply(
+		cu_bool2f_compose_right(f, CU_BOOL1F_FALSE), x, y)
+	    == cu_bool2f_apply(f, x, cu_false));
+	cu_test_assert(cu_bool2f_apply(
+		cu_bool2f_compose_right(f, CU_BOOL1F_TRUE), x, y)
+	    == cu_bool2f_apply(f, x, cu_true));
+    }
+
+    for (i = 0; i < 4; ++i) {
+	cu_bool2f_t f = (cu_bool2f_t)i;
+
+	/* cu_bool2f_compose */
+	cu_test_assert(cu_bool2f_compose(CU_BOOL1F_FALSE, f)
+		       == CU_BOOL2F_FALSE);
+	cu_test_assert(cu_bool2f_compose(CU_BOOL1F_TRUE, f)
+		       == CU_BOOL2F_TRUE);
+	cu_test_assert(cu_bool2f_compose(CU_BOOL1F_IDENT, f) == f);
+
+	/* cu_bool2f_compose_left, cu_bool2f_compose_right */
+	cu_test_assert(cu_bool2f_compose_left(f, CU_BOOL1F_IDENT) == f);
+	cu_test_assert(cu_bool2f_compose_right(f, CU_BOOL1F_IDENT) == f);
     }
 }
 
