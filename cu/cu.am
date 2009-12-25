@@ -49,6 +49,7 @@ nodist_cu_headers = \
 	cu/conf_ac.h
 
 cu_sources = \
+	cu/bool.c \
 	cu/buffer.c \
 	cu/conf_installdirs.c \
 	cu/cstr.c \

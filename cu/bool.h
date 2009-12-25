@@ -32,6 +32,14 @@ typedef enum {
     CU_BOOL1F_NOT	= 0x1,	/**< λx. ¬x */
 } cu_bool1f_t;
 
+/** Return the enumerated boolean function corresponding to \a f.  \a f will be
+ ** called twice upon construction. */
+cu_bool1f_t cu_bool1f_from_func(cu_bool_t (*f)(cu_bool_t));
+
+/** Return the C function which at \e x returns <code>cu_bool1f_apply(\a f, \e
+ ** x)</code>. */
+cu_bool_t (*cu_bool1f_to_func(cu_bool1f_t f))(cu_bool_t);
+
 /** Evaluate \a f(\a x). */
 CU_SINLINE cu_bool_t
 cu_bool1f_apply(cu_bool1f_t f, cu_bool_t x)
@@ -81,6 +89,13 @@ typedef enum {
     CU_BOOL2F_NOT_OR	= 0xd,	/**< λ(\e x, \e y). ¬\e x ∨ \e y */
 
 } cu_bool2f_t;
+
+/** Return the enumerated boolean function which agrees with \a f on its
+ ** domain.  This samples \a f 4 times. */
+cu_bool2f_t cu_bool2f_from_func(cu_bool_t (*f)(cu_bool_t, cu_bool_t));
+
+/** The C function which agrees with \a f on its domain. */
+cu_bool_t (*cu_bool2f_to_func(cu_bool2f_t f))(cu_bool_t, cu_bool_t);
 
 /** Evaluate \a f(\a x, \a y). */
 CU_SINLINE cu_bool_t
