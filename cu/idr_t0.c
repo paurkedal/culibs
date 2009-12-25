@@ -24,15 +24,18 @@ int
 main()
 {
     int j;
-    char buf[sizeof(int)*2+1];
+    char buf[sizeof(int)*2 + 6];
     cu_idr_t idr_arr[N_IDR];
+
     cu_init();
+
     memset(idr_arr, 0, sizeof(idr_arr));
     for (j = 0; j < 4*N_IDR; ++j) {
 	cu_idr_t idr;
 	int i = lrand48() % N_IDR;
-	sprintf(buf, "%x", i);
+	sprintf(buf, "test-%x", i);
 	idr = cu_idr_by_cstr(buf);
+	cu_test_assert(strcmp(cu_idr_to_cstr(idr), buf) == 0);
 	cu_test_assert(idr == cu_idr_by_charr(buf, strlen(buf)));
 	if (idr_arr[i])
 	    cu_test_assert(idr == idr_arr[i]);
