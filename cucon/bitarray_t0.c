@@ -140,12 +140,51 @@ _test_resize(size_t size)
     }
 }
 
+static void
+_test_img(size_t size)
+{
+    int i_f;
+    size_t i;
+    cucon_bitarray_t ba, ba_src, ba_orig, ba_new;
+
+    for (i_f = 0; i_f < 4; ++i_f) {
+	cu_bool1f_t f = (cu_bool1f_t)i_f;
+	ba = _new_random(size);
+	ba_orig = cucon_bitarray_new_copy(ba);
+	cucon_bitarray_update_img_bool1f(f, ba);
+	for (i = 0; i < size; ++i) {
+	    cu_bool_t arg = cucon_bitarray_at(ba_orig, i);
+	    cu_test_assert(cucon_bitarray_at(ba, i) ==
+			   cu_bool1f_apply(f, arg));
+	}
+	ba_new = cucon_bitarray_img_bool1f(f, ba_orig);
+	cu_test_assert(!cucon_bitarray_cmp(ba_new, ba));
+    }
+
+    for (i_f = 0; i_f < 16; ++i_f) {
+	cu_bool2f_t f = (cu_bool2f_t)i_f;
+	ba = _new_random(size);
+	ba_orig = cucon_bitarray_new_copy(ba);
+	ba_src = _new_random(size);
+	cucon_bitarray_update_img_bool2f(f, ba, ba_src);
+	for (i = 0; i < size; ++i) {
+	    cu_bool_t arg0 = cucon_bitarray_at(ba_orig, i);
+	    cu_bool_t arg1 = cucon_bitarray_at(ba_src, i);
+	    cu_test_assert(cucon_bitarray_at(ba, i) ==
+			   cu_bool2f_apply(f, arg0, arg1));
+	}
+	ba_new = cucon_bitarray_img_bool2f(f, ba_orig, ba_src);
+	cu_test_assert(!cucon_bitarray_cmp(ba_new, ba));
+    }
+}
+
 void
 _test(size_t size)
 {
     _test_get_set_find(size);
     _test_resize(size);
     _test_cmp(size);
+    _test_img(size);
 }
 
 int

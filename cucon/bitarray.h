@@ -19,6 +19,7 @@
 #define CUCON_BITARRAY_H
 
 #include <cucon/fwd.h>
+#include <cu/bool.h>
 #include <cu/conf.h>
 
 CU_BEGIN_DECLARATIONS
@@ -136,6 +137,34 @@ void cucon_bitarray_resize_fill_exact(cucon_bitarray_t ba, size_t size,
  ** geometric progression. */
 void cucon_bitarray_resize_set_at(cucon_bitarray_t ba, size_t i,
 				  cu_bool_t fill_value, cu_bool_t set_value);
+
+/** Initialise \a ba to the image of \a arg under \a f. */
+void cucon_bitarray_init_img_bool1f(cu_bool1f_t f, cucon_bitarray_t ba,
+				    cucon_bitarray_t arg);
+
+/** Initialise \a ba to the image under \a f of the pairs zipped from \a arg0
+ ** and \a arg1. */
+void cucon_bitarray_init_img_bool2f(cu_bool2f_t f, cucon_bitarray_t ba,
+				    cucon_bitarray_t arg0,
+				    cucon_bitarray_t arg1);
+
+/** The image of \a arg under \a f as a newly allocated bit array. */
+cucon_bitarray_t cucon_bitarray_img_bool1f(cu_bool1f_t f,
+					   cucon_bitarray_t arg);
+
+/** The image of pairs zipped from \a arg0 and \a arg1 under \a f as a newly
+ ** allocated bit array. */
+cucon_bitarray_t cucon_bitarray_img_bool2f(cu_bool2f_t f,
+					   cucon_bitarray_t arg0,
+					   cucon_bitarray_t arg1);
+
+/** Update each element of \a ba to its image under \a f. */
+void cucon_bitarray_update_img_bool1f(cu_bool1f_t f, cucon_bitarray_t ba);
+
+/** Update each element of \a ba to the image under \a f of pairs of bits
+ ** formed from corresponding elements of \a ba and \a arg1 */
+void cucon_bitarray_update_img_bool2f(cu_bool2f_t f, cucon_bitarray_t ba,
+				      cucon_bitarray_t arg1);
 
 /** @} */
 CU_END_DECLARATIONS

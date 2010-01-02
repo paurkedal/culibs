@@ -19,6 +19,7 @@
 #include <cu/memory.h>
 #include <cu/size.h>
 #include <cu/word.h>
+#include <cu/wordarr.h>
 #include <string.h>
 
 #define WORD_BIT(n) (CU_WORD_C(1) << (n))
@@ -331,4 +332,56 @@ cucon_bitarray_resize_set_at(cucon_bitarray_t ba, size_t i,
     if (old_size <= i)
 	cucon_bitarray_fill(ba, old_size, i + 1, fill_value);
     cucon_bitarray_set_at(ba, i, set_value);
+}
+
+void
+cucon_bitarray_init_img_bool1f(cu_bool1f_t f, cucon_bitarray_t ba,
+			       cucon_bitarray_t arg)
+{
+    cucon_bitarray_init(ba, cucon_bitarray_size(arg));
+    cu_wordarr_copy_bitimg(f, cu_size_ceil_div(ba->size, CU_WORD_WIDTH),
+			   ba->arr, arg->arr);
+}
+
+void
+cucon_bitarray_init_img_bool2f(cu_bool2f_t f, cucon_bitarray_t ba,
+			       cucon_bitarray_t arg0, cucon_bitarray_t arg1)
+{
+    size_t size = cu_size_min(cucon_bitarray_size(arg0),
+			      cucon_bitarray_size(arg1));
+    cucon_bitarray_init(ba, size);
+    cu_wordarr_copy_bitimg2(f, cu_size_ceil_div(size, CU_WORD_WIDTH),
+			    ba->arr, arg0->arr, arg1->arr);
+}
+
+cucon_bitarray_t
+cucon_bitarray_img_bool1f(cu_bool1f_t f, cucon_bitarray_t arg)
+{
+    cucon_bitarray_t ba = cu_gnew(struct cucon_bitarray);
+    cucon_bitarray_init_img_bool1f(f, ba, arg);
+    return ba;
+}
+
+cucon_bitarray_t
+cucon_bitarray_img_bool2f(cu_bool2f_t f,
+			  cucon_bitarray_t arg0, cucon_bitarray_t arg1)
+{
+    cucon_bitarray_t ba = cu_gnew(struct cucon_bitarray);
+    cucon_bitarray_init_img_bool2f(f, ba, arg0, arg1);
+    return ba;
+}
+
+void
+cucon_bitarray_update_img_bool1f(cu_bool1f_t f, cucon_bitarray_t ba)
+{
+    cu_wordarr_copy_bitimg(f, cu_size_ceil_div(ba->size, CU_WORD_WIDTH),
+			   ba->arr, ba->arr);
+}
+
+void
+cucon_bitarray_update_img_bool2f(cu_bool2f_t f, cucon_bitarray_t ba,
+				 cucon_bitarray_t ba_src)
+{
+    cu_wordarr_copy_bitimg2(f, cu_size_ceil_div(ba->size, CU_WORD_WIDTH),
+			    ba->arr, ba->arr, ba_src->arr);
 }
