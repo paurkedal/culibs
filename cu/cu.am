@@ -2,7 +2,9 @@ if enable_cu
 
 cu_headers = \
 	cu/algo.h \
+	cu/bistptr.h \
 	cu/bool.h \
+	cu/box.h \
 	cu/buffer.h \
 	cu/clos.h \
 	cu/compat.h \
@@ -24,12 +26,10 @@ cu_headers = \
 	cu/installdirs.h \
 	cu/logging.h \
 	cu/memory.h \
-	cu/box.h \
 	cu/ptr.h \
 	cu/ptr_seq.h \
 	cu/rarex.h \
 	cu/scratch.h \
-	cu/bistptr.h \
 	cu/size.h \
 	cu/sref.h \
 	cu/str.h \
@@ -37,13 +37,13 @@ cu_headers = \
 	cu/threadlocal.h \
 	cu/thread.h \
 	cu/tstate.h \
-	cu/wchar.h \
-	cu/word.h \
-	cu/wstring.h \
 	cu/util.h \
 	cu/va_ref.h \
+	cu/wchar.h \
 	cu/weakptr.h \
-	cu/wordarr.h
+	cu/word.h \
+	cu/wordarr.h \
+	cu/wstring.h
 
 nodist_cu_headers = \
 	cu/conf_ac.h
@@ -80,6 +80,7 @@ cu_sources = \
 	cu/tstate.c \
 	cu/wchar.c \
 	cu/word.c \
+	cu/wordarr.c \
 	cu/wstring.c
 
 cu_check_programs = \
@@ -99,6 +100,7 @@ cu_check_programs = \
 	cu/ptr_t0 \
 	cu/thread_t0 \
 	cu/rarex_t0 \
+	cu/wordarr_t0 \
 	cu/wstring_t0
 
 cu_norun_check_programs = \
@@ -142,6 +144,8 @@ cu_thread_t0_SOURCES = cu/thread_t0.c
 cu_thread_t0_LDADD = libcubase.la
 cu_rarex_t0_SOURCES = cu/rarex_t0.c
 cu_rarex_t0_LDADD = libcubase.la
+cu_wordarr_t0_SOURCES = cu/wordarr_t0.c
+cu_wordarr_t0_LDADD = libcubase.la
 cu_wstring_t0_SOURCES = cu/wstring_t0.c
 cu_wstring_t0_LDADD = libcubase.la
 
