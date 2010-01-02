@@ -19,6 +19,7 @@
 #define CU_WORD_H
 
 #include <cu/fwd.h>
+#include <cu/bool.h>
 #include <cu/int.h>
 
 CU_BEGIN_DECLARATIONS
@@ -72,6 +73,19 @@ cu_word_rcmp(cu_word_t w0, cu_word_t w1)
     w0 &= m; w1 &= m;
     return w0 < w1 ? -1 : w0 > w1 ? 1 : 0;
 }
+
+/** The bitwise image of \a x under \a f.  That is, the word where bit number
+ ** \e i is the result of applying \a f to bit number \e i of \a x. */
+CU_SINLINE cu_word_t
+cu_word_bitimg(cu_bool1f_t f, cu_word_t x)
+{
+    return f & 1 ? (f & 2 ? ~CU_WORD_C(0) : ~x)
+		 : (f & 2 ? x : CU_WORD_C(0));
+}
+
+/** The image under \a f of pairs of bits drawn from respective positions of \a
+ ** x and \a y. */
+cu_word_t cu_word_bitimg2(cu_bool2f_t f, cu_word_t x, cu_word_t y);
 
 /** @} */
 CU_END_DECLARATIONS

@@ -79,6 +79,7 @@ cu_sources = \
 	cu/thread.c \
 	cu/tstate.c \
 	cu/wchar.c \
+	cu/word.c \
 	cu/wstring.c
 
 cu_check_programs = \
