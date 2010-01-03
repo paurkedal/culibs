@@ -137,13 +137,10 @@ void cu_debug_trap(void);
 /* Client Debug
  * ============ */
 
-void cu_err_invalid_arg(char const *function, int argnum, char const *argname,
-			char const *msg);
 #ifdef CUCONF_DEBUG_CLIENT
 #  define cu_check_arg(argnum, argname, test)				\
 	((test)? ((void)0)						\
-	       : cu_err_invalid_arg(__FUNCTION__, argnum, #argname,	\
-				    "must fulfil "#test))
+	       : cu_bugf_domain(argnum, #argname, "must fulfil "#test))
 #else
 #  define cu_check_arg(argnum, argname, test) ((void)0)
 #endif

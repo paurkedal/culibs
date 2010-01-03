@@ -84,6 +84,17 @@ void cu_bugf_fl(char const *file, int line,
  ** the unfinished work. */
 #define cu_bug_todo(descr) cu_bugf_fl(__FILE__, __LINE__, "TODO: "descr)
 
+/** Report that argument number \a argno (from 0) with symbolic name \a argname
+ ** is outside the domain for the call to \a funcname, and print the additional
+ ** message using the printf format \a fmt with the remaining arguments, then
+ ** abort. */
+void cu_bugf_domain_in(char const *funcname, int argno, char const *argname,
+		       char const *fmt, ...) CU_ATTR_NORETURN;
+
+/** Convenience macro around \ref cu_bugf_domain_in, where \c __func__ is
+ ** passed as the first argument. */
+#define cu_bugf_domain(...) cu_bugf_domain_in(__func__, __VA_ARGS__)
+
 void cu_handle_syserror(int err_code, char const *proc_name);
 
 void cu_raise_out_of_memory(size_t size);

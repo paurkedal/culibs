@@ -19,6 +19,7 @@
 #include <cu/logging.h>
 #include <cu/sref.h>
 #include <cu/debug.h>
+#include <cu/memory.h>
 #include <atomic_ops.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -190,6 +191,32 @@ cu_fprintf(FILE *file, char const *fmt, ...)
     va_start(va, fmt);
     cu_vfprintf(file, fmt, va);
     va_end(va);
+}
+
+void
+cu_bugf_domain_in(char const *funcname, int argno, char const *argname,
+		  char const *msg, ...)
+{
+    va_list va;
+    int size;
+    int max_size = 120 + strlen(funcname)
+	    + sizeof(int)*3 + (argname? strlen(argname) : 0)
+	    + strlen(msg);
+    char *fmt = cu_salloc(max_size);
+    if (argname)
+	size = snprintf(fmt, max_size,
+		       	"Function %s called with argument # %d (%s) "
+			"outside its domain: %s",
+		       	funcname, argno, argname, msg);
+    else
+	size = snprintf(fmt, max_size,
+		       	"Function %s called with argument # %d "
+			"outside its domain: %s", funcname, argno, msg);
+    cu_debug_assert(size > 0 && size < max_size);
+    va_start(va, msg);
+    cu_vlogf(&_log_facility_arr[FI_BUG], fmt, va);
+    va_end(va);
+    cu_debug_abort();
 }
 
 void

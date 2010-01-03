@@ -249,14 +249,6 @@ cuP_dprintf(char const *file, int line, char const *key, char const *fmt, ...)
     }
 }
 
-void
-cu_err_invalid_arg(char const *function, int argnum, char const *argname,
-		   char const *msg)
-{
-    fprintf(stderr, "%s arg #%d (%s): %s\n", function, argnum, argname, msg);
-    abort();
-}
-
 cu_bool_t
 cuP_debug_facility_enabled(cu_log_facility_t facility)
 {
