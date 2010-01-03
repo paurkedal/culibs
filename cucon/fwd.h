@@ -27,6 +27,7 @@ CU_BEGIN_DECLARATIONS
 typedef struct cucon_array		*cucon_arr_t;		/* arr.h */
 typedef struct cucon_array		*cucon_array_t;		/* array.h */
 typedef struct cucon_bitarray		*cucon_bitarray_t;	/* bitarray.h */
+typedef struct cucon_bitarray_slice	*cucon_bitarray_slice_t;
 typedef struct cucon_bitarray		*cucon_bitvect_t;	/* bitvect.h */
 typedef struct cucon_digraph		*cucon_digraph_t;	/* digraph.h */
 typedef struct cucon_digraph_vertex	*cucon_digraph_vertex_t;/* digraph.h */

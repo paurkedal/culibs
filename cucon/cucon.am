@@ -6,6 +6,7 @@ cucon_headers = \
 	cucon/arr.h \
 	cucon/array.h \
 	cucon/bitarray.h \
+	cucon/bitarray_slice.h \
 	cucon/bitvect.h \
 	cucon/compat.h \
 	cucon/digraph.h \
@@ -42,6 +43,7 @@ cucon_sources = \
 	cucon/algo_colour.h \
 	cucon/array.c \
 	cucon/bitarray.c \
+	cucon/bitarray_slice.c \
 	cucon/digraph.c \
 	cucon/frame.c \
 	cucon/hmap.c \
@@ -70,6 +72,7 @@ cucon_doxyfiles = \
 
 cucon_check_programs = \
 	cucon/bitarray_t0 \
+	cucon/bitarray_slice_t0 \
 	cucon/bitarray_b0 \
 	cucon/frame_b0 \
 	cucon/frame_t0 \
@@ -118,6 +121,8 @@ endif
 
 cucon_bitarray_t0_SOURCES = cucon/bitarray_t0.c
 cucon_bitarray_t0_LDADD = libcubase.la
+cucon_bitarray_slice_t0_SOURCES = cucon/bitarray_slice_t0.c
+cucon_bitarray_slice_t0_LDADD = libcubase.la
 cucon_bitarray_b0_SOURCES = cucon/bitarray_b0.c
 cucon_bitarray_b0_LDADD = libcubase.la
 cucon_fibheap_t0_SOURCES = cucon/fibheap_t0.c
