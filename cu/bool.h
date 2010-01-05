@@ -157,7 +157,7 @@ cu_bool2f_swap(cu_bool2f_t f)
 CU_SINLINE cu_bool2f_t
 cu_bool2f_compose(cu_bool1f_t f, cu_bool2f_t g)
 {
-    return (cu_bool1f_t)((15*(f & 1) & ~g) | (15*((f & 2) >> 1) & g));
+    return (cu_bool2f_t)((15*(f & 1) & ~g) | (15*((f & 2) >> 1) & g));
 }
 
 /** Return the composition of \a f on the left operand with \a g, λ(\e x, \e
