@@ -3,8 +3,18 @@
 " Maintainer: Petter Urkedal
 " URL: http://www.eideticdew.org/culibs/
 
-" == culibs ==
+" This file must be loaded after the main syntax.  In particular, for yacc,
+" loading it from "~/vim/after/syntax/c.vim" will be too early, since this is
+" loaded before the yacc definitions complete.  Instead use something like
 "
+"     au Syntax c,yacc ru! syntax/culibs.vim
+"
+" If these definitions cause any problems, try to disable the greying out of
+" debug statemests with
+"
+"     let c_no_debug = 1
+
+
 " Declarations
 syn keyword cStorageClass CU_SINLINE
 syn keyword cStatement CU_BEGIN_DECLARATIONS CU_END_DECLARATIONS
@@ -46,17 +56,22 @@ syn keyword cType cudyn_hctem_decl
 " Expressions
 syn match cConstant '\<CUEX_O[0-9]M\?_[A-Z0-9_]\+'
 
-" Debugging
-syn cluster cParenGroup add=cDebugParen
-syn cluster cMultiGroup add=cDebugParen
-syn cluster cPreProcGroup add=cDebugParen
-syn match cDebug '\<cu_debug_\i*' nextgroup=cDebugParen
-syn keyword cDebug cu_dlogf cu_dlog_def cu_dlog_edec cu_dlog_edef
-    \ nextgroup=cDebugParen
-syn keyword cDebug assert cu_dprintf nextgroup=cDebugParen
-syn keyword cDebug CU_NOINIT nextgroup=cDebugParen
-syn region cDebugParen contained start='(' end=');' keepend
-hi link cDebugParen cDebug
+" Grey-out debugging statements so one can focus on the essentials.
+if !exists("c_no_debug")
+    syn cluster cParenGroup add=cDebugParen,cDebugString
+    syn cluster cMultiGroup add=cDebugParen,cDebugString
+    syn cluster cPreProcGroup add=cDebugParen,cDebugString
+    syn cluster yaccActionGroup add=cDebugParen,cDebugString
+    syn match cDebug '\<cu_debug_\i*' nextgroup=cDebugParen
+    syn keyword cDebug cu_dlogf cu_dlog_def cu_dlog_edec cu_dlog_edef
+	\ nextgroup=cDebugParen
+    syn keyword cDebug assert cu_dprintf nextgroup=cDebugParen
+    syn keyword cDebug CU_NOINIT nextgroup=cDebugParen
+    syn region cDebugParen contained start='(' end=');' contains=cDebugString
+    syn region cDebugString contained start='"' skip='\\.' end='"'
+endif
+hi def link cDebugParen cDebug
+hi def link cDebugString cDebug
 
 " Obsolete
 syn match cObsolete 'cu_func_\(decl\|init\)\(_e\)\?'
