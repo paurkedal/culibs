@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  */
 
 #include <cutext/ucs4src.h>
+#include <cutext/wctype.h>
 #include <cucon/pmap.h>
 
 cu_clop_def(print_prop, void, void const *key, void *value)
@@ -29,7 +30,9 @@ main()
     cutext_producer_t producer;
     cutext_ucs4src_t ucs4src;
     cucon_pmap_t props;
-    cu_init();
+
+    cutext_init();
+
     producer = cutext_producer_new_read(0);
     ucs4src = cutext_ucs4src_new_detect(producer,
 					cu_str_new_cstr("(stdin)"), 1, 0);
@@ -38,7 +41,10 @@ main()
 	cucon_pmap_iter_ptr(props, print_prop);
     while (!cutext_ucs4src_is_eof(ucs4src)) {
 	cu_wchar_t ch = cutext_ucs4src_peek(ucs4src);
-	cu_errf_at(cutext_ucs4src_sref(ucs4src), "%Uc 0x%x", ch, ch);
+	if (cutext_iswprint(ch))
+	    cu_errf_at(cutext_ucs4src_sref(ucs4src), "%jc 0x%x", ch, ch);
+	else
+	    cu_errf_at(cutext_ucs4src_sref(ucs4src), "? 0x%x", ch, ch);
 	cutext_ucs4src_advance(ucs4src, 1);
     }
     return 0;

@@ -55,9 +55,9 @@ print_page(cufo_stream_t fos)
 			"%(d/sup)%<X%>%(d/sub) = %3d / %-2d = %4.2g = %5.2lf\n",
 			i, cufoT_italic, j, i, j, x, x);
 	}
-    cufo_printf(fos, "%c %lc (alpha) < > &\n", '*', (cu_wint_t)0x3b1);
+    cufo_printf(fos, "%c %jc (alpha) < > &\n", '*', (cu_wint_t)0x3b1);
     for (i = 0x2200; i < 0x2210; ++i)
-	cufo_printf(fos, "%#x '%lc' %s", i, (cu_wint_t)i,
+	cufo_printf(fos, "%#x '%jc' %s", i, (cu_wint_t)i,
 		    i % 4 == 3? "\n" : "| ");
     cufo_leaveln(fos, cufoT_codepre);
 

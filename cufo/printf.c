@@ -429,7 +429,10 @@ break_flags:
 		    }
 		    break;
 		}
-		case CUFO_PRILENGTH_LONG: {
+		case CUFO_PRILENGTH_LONG:
+		    /* TODO. If cu_wint_t is different from wint_t either in
+		     * size or enumeration, deal with wint_t here. */
+		case CUFO_PRILENGTH_INTMAX: {
 		    cu_wchar_t wc = cu_va_ref_arg(va_ref, cu_wint_t);
 		    if (width <= 1)
 			cufo_putwc(fos, wc);

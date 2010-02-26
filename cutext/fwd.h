@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #define CUTEXT_FWD_H
 
 #include <cu/fwd.h>
+#include <cu/conf.h>
 
 CU_BEGIN_DECLARATIONS
 
@@ -57,6 +58,9 @@ typedef enum {
     cutext_status_sync,
     cutext_status_error,
 } cutext_status_t;
+
+/** Initialises the cutext and dependent modules. */
+void cutext_init(void);
 
 CU_END_DECLARATIONS
 

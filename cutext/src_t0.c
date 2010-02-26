@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,8 @@ main()
     cutext_src_t src;
     cutext_encoding_t chenc;
 
-    cu_init();
+    cutext_init();
+
     src = cutext_src_new(cutext_producer_new_read(fd));
     chenc = cutext_src_detect_chenc(src);
     fprintf(stderr, "chenc=%s\n", cutext_encoding_name(chenc));

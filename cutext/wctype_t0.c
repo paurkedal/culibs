@@ -39,6 +39,9 @@ int
 main(int argc, char **argv)
 {
     cu_wint_t ch;
+
+    cutext_init();
+
     if (argc == 3) {
 	cu_wint_t ch_s = strtol(argv[1], NULL, 16);
 	cu_wint_t ch_e = strtol(argv[2], NULL, 16);
