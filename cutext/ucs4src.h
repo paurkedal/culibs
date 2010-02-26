@@ -93,10 +93,12 @@ cutext_ucs4src_indentation(cutext_ucs4src_t ucs4src)
 }
 
 CU_SINLINE cu_bool_t
+cutext_ucs4src_is_ok(cutext_ucs4src_t ucs4src)
+{ return ucs4src->st == cutext_status_ok; }
+
+CU_SINLINE cu_bool_t
 cutext_ucs4src_is_eof(cutext_ucs4src_t ucs4src)
-{
-    return cutext_src_data_size(&ucs4src->src) == 0;
-}
+{ return cutext_src_data_size(&ucs4src->src) == 0; }
 
 /* Have a peek at the next character. */
 CU_SINLINE cu_wchar_t
@@ -123,7 +125,7 @@ cutext_ucs4src_peek_arr(cutext_ucs4src_t ucs4src, size_t size)
 /* Internal */
 void cutextP_ucs4src_terminate(cutext_ucs4src_t ucs4src);
 
-void cutext_ucs4src_advance(cutext_ucs4src_t ucs4src, size_t size);
+cutext_status_t cutext_ucs4src_advance(cutext_ucs4src_t ucs4src, size_t size);
 
 /* Reads one character from ucs4src.  Returns 0 if EOS. */
 CU_SINLINE cu_wchar_t

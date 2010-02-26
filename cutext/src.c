@@ -156,8 +156,7 @@ cu_clos_def(_producer_iconv,
 	    switch (errno) {
 		case EILSEQ:
 		    cu_errf("Invalid multibyte sequence."); /* XX */
-		    status = cutext_status_error;
-		    break;
+		    return cutext_status_error;
 		case EINVAL:
 		    break;
 		case E2BIG:

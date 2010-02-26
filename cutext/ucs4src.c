@@ -234,9 +234,10 @@ cutextP_ucs4src_peek_arr(cutext_ucs4src_t ucs4src, size_t size)
     return ucs4src->src.buf.content_start;
 }
 
-void
+cutext_status_t
 cutext_ucs4src_advance(cutext_ucs4src_t ucs4src, size_t size)
 {
+    cutext_status_t st;
     cu_wchar_t *arr = cutext_ucs4src_peek_arr(ucs4src, size);
     cu_wchar_t *cur = arr;
     cu_wchar_t *end = arr + size;
@@ -259,8 +260,12 @@ cutext_ucs4src_advance(cutext_ucs4src_t ucs4src, size_t size)
 	    break;
 	}
     cutext_src_advance(&ucs4src->src, size*4);
-    if (cutext_src_lookahead(&ucs4src->src, 4) == cutext_status_eos)
+    st = cutext_src_lookahead(&ucs4src->src, 4);
+    if (st != cutext_status_ok) {
 	cutextP_ucs4src_terminate(ucs4src);
+	ucs4src->st = st;
+    }
+    return st;
 }
 
 void
