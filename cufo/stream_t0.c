@@ -37,6 +37,7 @@ print_page(cufo_stream_t fos)
     int i, j;
     cu_wstring_t wstring;
     cu_str_t str;
+    cu_wchar_t *wcarr;
 
     cufo_entera(fos, cufoT_title, cufoA_id("main-title"));
     cufo_puts(fos, "Test Output of libcufo Formatter\n");
@@ -77,6 +78,14 @@ print_page(cufo_stream_t fos)
     cufo_printf(fos, "%%! wstring format:   %!\n", wstring);
     cufo_printf(fos, "%%(str/r) format: %(str/r)\n", str);
     cufo_printf(fos, "%%! str format:   %!\n", str);
+
+    cufo_printf(fos, "\nCharacter array tests:\n");
+    wcarr = cu_wstring_array(CU_WSTRING_C("the string\0"));
+    cufo_printf(fos, "%%js format:    |%js|\n", wcarr);
+    cufo_printf(fos, "%%5js format:   |%5js|\n", wcarr);
+    cufo_printf(fos, "%%-20js format: |%-20js|\n", wcarr);
+    cufo_printf(fos, "%%20js format:  |%20js|\n", wcarr);
+    cufo_putc(fos, '\n');
 }
 
 void

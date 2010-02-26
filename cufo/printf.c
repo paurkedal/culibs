@@ -463,14 +463,33 @@ break_flags:
 		    else if (flags & CUFO_PRIFLAG_MINUS) {
 			cufo_print_charr(fos, arr, len);
 			cufo_fillc(fos, ' ', width - len);
-		    } else {
+		    }
+		    else {
 			cufo_fillc(fos, ' ', width - len);
 			cufo_print_charr(fos, arr, len);
 		    }
 		    break;
 		}
-		case CUFO_PRILENGTH_LONG: {
-		    cu_bug_unfinished();
+		case CUFO_PRILENGTH_LONG:
+		    /* TODO. If cu_wint_t is different from wint_t either in
+		     * size or enumeration, deal with wint_t here. */
+		case CUFO_PRILENGTH_INTMAX: {
+		    cu_wchar_t *arr = cu_va_ref_arg(va_ref, cu_wchar_t *);
+		    size_t len = cu_wcslen(arr);
+		    if (len == 0 && width == 0 && (flags & CUFO_PRIFLAG_SPACE))
+			width = 1;
+		    if (prec != -1 && len > prec)
+			len = prec;
+		    if (len >= width)
+			cufo_print_wcarr(fos, arr, len);
+		    else if (flags & CUFO_PRIFLAG_MINUS) {
+			cufo_print_wcarr(fos, arr, len);
+			cufo_fillwc(fos, ' ', width - len);
+		    }
+		    else {
+			cufo_fillwc(fos, ' ', width - len);
+			cufo_print_wcarr(fos, arr, len);
+		    }
 		    break;
 		}
 		default:
