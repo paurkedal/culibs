@@ -25,6 +25,8 @@
 #include <string.h>
 #include <unistd.h>
 
+cu_dlog_def(_file, "dtag=cutext.src");
+
 size_t cutextP_buffer_limit = 1000000;
 
 void
@@ -175,6 +177,7 @@ cu_clos_def(_producer_iconv,
 static void
 _producer_iconv_cleanup(void *obj, void *cd)
 {
+    cu_dlogf(_file, "Calling finalizer for %p", obj);
     iconv_close(((_producer_iconv_t *)obj)->cd);
 }
 
@@ -192,6 +195,7 @@ cutext_producer_new_iconv(cutext_src_t src,
 		 strerror(errno));
 	abort();
     }
+    cu_dlogf(_file, "Registering finalizer on %p", cb);
     cu_gc_register_finaliser(cb, _producer_iconv_cleanup, NULL, NULL, NULL);
     return _producer_iconv_prep(cb);
 }

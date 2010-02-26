@@ -18,6 +18,7 @@
 #include <cutext/ucs4src.h>
 #include <cutext/wctype.h>
 #include <cucon/pmap.h>
+#include <cu/memory.h>
 
 cu_clop_def(print_prop, void, void const *key, void *value)
 {
@@ -46,6 +47,7 @@ main()
 	else
 	    cu_errf_at(cutext_ucs4src_sref(ucs4src), "? 0x%x", ch, ch);
 	cutext_ucs4src_advance(ucs4src, 1);
+	cu_galloc(1);
     }
     return 0;
 }

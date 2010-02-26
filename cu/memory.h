@@ -273,12 +273,13 @@ typedef struct cu_hidden_ptr *cu_hidden_ptr_t;
 #ifdef CU_DEBUG_MEMORY
 void *cuD_gc_base(void *);
 #  define cu_gc_base cuD_gc_base
+#  define cu_gc_register_finaliser GC_debug_register_finalizer
+#  define cu_gc_register_finaliser_no_order GC_debug_register_finalizer_no_order
 #else
 #  define cu_gc_base GC_base
+#  define cu_gc_register_finaliser GC_register_finalizer
+#  define cu_gc_register_finaliser_no_order GC_register_finalizer_no_order
 #endif
-/* These used to be distinct from libgc due to additional debug headers. */
-#define cu_gc_register_finaliser GC_register_finalizer
-#define cu_gc_register_finaliser_no_order GC_register_finalizer_no_order
 
 #ifndef CU_DEBUG_MEMORY
 #  define cu_gc_ptr_assign(p, q) (*(p) = (q))

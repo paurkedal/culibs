@@ -35,12 +35,15 @@ cutext_check_programs =
 
 cutext_norun_check_programs = \
 	cutext/src_t0 \
+	cutext/src_t1 \
 	cutext/ucs4src_t0 \
 	cutext/wctype_t0
 
 cutext_check_ldadd = libcutext.la libcubase.la
 cutext_src_t0_SOURCES = cutext/src_t0.c
 cutext_src_t0_LDADD = $(cutext_check_ldadd)
+cutext_src_t1_SOURCES = cutext/src_t1.c
+cutext_src_t1_LDADD = $(cutext_check_ldadd)
 cutext_ucs4src_t0_SOURCES = cutext/ucs4src_t0.c
 cutext_ucs4src_t0_LDADD = $(cutext_check_ldadd)
 cutext_wctype_t0_SOURCES = cutext/wctype_t0.c
