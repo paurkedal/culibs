@@ -15,6 +15,7 @@ libcutext_la_SOURCES = \
 	cutext/chenc_conv.c \
 	cutext/conv.c \
 	cutext/conv_dsink.c \
+	cutext/encoding.c \
 	cutext/init.c \
 	cutext/sink.c \
 	cutext/sink_buffer.c \
@@ -63,7 +64,7 @@ cutext_mk_wccat_SOURCES = cutext/mk_wccat.c
 cutext_mk_wccat_LDADD = libcubase.la libcuos.la
 
 cutext/chenc_conv.c: cutext/chenc_conv.tab cutext/mk_str_enum_conv
-	(   echo '#include <cutext/fwd.h>'; \
+	(   echo '#include <cutext/encoding.h>'; \
 	    cutext/mk_str_enum_conv $< \
 		-t cutext_encoding_t \
 		-d CUTEXT_ENCODING_UNKNOWN \

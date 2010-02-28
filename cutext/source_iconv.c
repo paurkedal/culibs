@@ -117,8 +117,14 @@ cutext_source_stack_iconv(char const *encoding, cutext_source_t subsrc)
 {
     struct _iconvsource *isrc;
     char const *sub_encoding = cutext_source_encoding(subsrc);
-    if (!sub_encoding)
-	cu_bugf("Can't recode source at %p with unknown encoding.", subsrc);
+    if (!sub_encoding) {
+	cutext_encoding_t enc = cutext_source_guess_encoding(subsrc);
+	if (enc == CUTEXT_ENCODING_NONE) {
+	    cu_errf("Can't guess coding for source at %p.", subsrc);
+	    return NULL;
+	}
+	sub_encoding = cutext_encoding_name(enc);
+    }
     if (strcmp(encoding, sub_encoding) == 0)
 	return subsrc;
     isrc = cu_gnew(struct _iconvsource);

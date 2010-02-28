@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -197,14 +197,6 @@ cutext_producer_new_iconv(cutext_src_t src,
     return _producer_iconv_prep(cb);
 }
 
-char const *
-cutext_encoding_name(cutext_encoding_t chenc)
-{
-    char const *name = cutextP_encoding_name(chenc);
-    cu_debug_assert(name);
-    return name;
-}
-
 cutext_encoding_t
 cutext_src_detect_chenc(cutext_src_t src)
 {
@@ -213,51 +205,5 @@ cutext_src_detect_chenc(cutext_src_t src)
     cutext_src_lookahead(src, 4);
     n = cutext_src_data_size(src);
     s = cutext_src_data_start(src);
-    if (n == 0)
-	return CUTEXT_ENCODING_NONE;
-    else if (n == 1 || n == 3)
-	return CUTEXT_ENCODING_UTF8;
-    else if (n == 2) {
-	if ((s[0] == 0xfe && s[1] == 0xff) || s[0] == 0)
-	    return CUTEXT_ENCODING_UTF16;
-	if ((s[0] == 0xff && s[1] == 0xfe) || s[1] == 0)
-	    return CUTEXT_ENCODING_UTF16LE;
-	return CUTEXT_ENCODING_UTF8;
-    }
-
-    /* Detect by byte order mark 0x0000feff. */
-
-    /* UTF-8 */
-    if (s[0] == 0xef && s[1] == 0xbb && s[2] == 0xbf)
-	return CUTEXT_ENCODING_UTF8;
-    /* Network byte order */
-    if (s[0] == 0xfe && s[1] == 0xff)
-	return CUTEXT_ENCODING_UTF16;
-    if (s[0] == 0x00 && s[1] == 0x00) {
-	if (s[2] == 0xfe && s[3] == 0xff)
-	    return CUTEXT_ENCODING_UCS4;
-    }
-    /* Little endian */
-    if (s[0] == 0xff && s[1] == 0xfe) {
-	if (s[2] == 0x00 && s[3] == 0x00)
-	    return CUTEXT_ENCODING_UCS4LE;
-	return CUTEXT_ENCODING_UTF16LE;
-    }
-
-    /* Detect by assuming the first character is ASCII */
-
-    /* Network byte order */
-    if (s[0] == 0) { /* UTF-16, UCS-2, UCS-4 */
-	if (s[1] == 0)
-	    return CUTEXT_ENCODING_UCS4;
-	return CUTEXT_ENCODING_UTF16;
-    }
-    /* Little endian */
-    if (s[2] == 0 && s[3] == 0)
-	return CUTEXT_ENCODING_UCS4LE;
-    if (s[1] == 0)
-	return CUTEXT_ENCODING_UTF16LE;
-    if (s[2] != 0)
-	return CUTEXT_ENCODING_UTF8;
-    return CUTEXT_ENCODING_UNKNOWN;
+    return cutext_guess_encoding(s, n);
 }

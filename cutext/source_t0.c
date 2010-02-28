@@ -25,7 +25,7 @@ static cutext_source_t
 _make_cstr_source(size_t n)
 {
     int i;
-    char *buf = cu_galloc(n);
+    char *buf = cu_galloc(n + 1);
     for (i = 0; i < n; ++i)
 	buf[i] = 'a' + i % 26;
     buf[i] = 0;
@@ -43,6 +43,17 @@ _make_wstr_source(size_t n)
     buf[i] = 0;
     wstr = cu_wstring_of_arr(buf, n);
     return cutext_source_new_wstring(wstr);
+}
+
+static cutext_source_t
+_make_wraw_source(size_t n)
+{
+    int i;
+    cu_wchar_t *buf = cu_galloc((n + 1) * sizeof(cu_wchar_t));
+    for (i = 0; i < n; ++i)
+	buf[i] = 'a' + i % 26;
+    buf[i] = 0;
+    return cutext_source_new_mem(NULL, buf, n*sizeof(cu_wchar_t));
 }
 
 static void
@@ -90,6 +101,7 @@ _test_cstr_source(size_t n)
     _verify_read(_make_cstr_source(n), n);
     _verify_look(cutext_source_stack_buffer(_make_cstr_source(n)), n);
     _verify_read(cutext_source_stack_iconv("utf-8", _make_wstr_source(n)), n);
+    _verify_read(cutext_source_stack_iconv("utf-8", _make_wraw_source(n)), n);
 }
 
 int

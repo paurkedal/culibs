@@ -16,6 +16,7 @@
  */
 
 #include <cutext/source.h>
+#include <cutext/encoding.h>
 #include <cu/debug.h>
 
 cu_box_t
@@ -61,4 +62,12 @@ cutext_source_count(cutext_source_t src)
     while ((n = cutext_source_read(src, NULL, 1024)))
 	count += n;
     return count;
+}
+
+cutext_encoding_t
+cutext_source_guess_encoding(cutext_source_t src)
+{
+    size_t n;
+    void const *s = cutext_source_look(src, 4, &n);
+    return cutext_guess_encoding(s, n);
 }

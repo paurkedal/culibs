@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #define CUTEXT_SRC_H
 
 #include <cutext/fwd.h>
+#include <cutext/encoding.h>
 #include <cu/clos.h>
 #include <cu/buffer.h>
 #include <cu/debug.h>
@@ -75,10 +76,6 @@ cutext_producer_t cutext_producer_new_read(int fd);
 cutext_producer_t cutext_producer_new_iconv(cutext_src_t src,
 					    cutext_encoding_t src_chenc,
 					    cutext_encoding_t self_chenc);
-
-char const *cutext_encoding_name(cutext_encoding_t chenc);
-char const *cutextP_encoding_name(cutext_encoding_t chenc);
-cutext_encoding_t cutext_encoding_by_name(char const *cstr);
 
 /* Detect character encoding of 'src', assuming it is one of UTF-8,
  * UTF-16, UTF-16LE, UCS-4, or UCS-4LE, and that the sequence starts

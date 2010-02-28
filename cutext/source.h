@@ -18,7 +18,7 @@
 #ifndef CUTEXT_SOURCE_H
 #define CUTEXT_SOURCE_H
 
-#include <cutext/fwd.h>
+#include <cutext/encoding.h>
 #include <cu/box.h>
 
 CU_BEGIN_DECLARATIONS
@@ -195,6 +195,10 @@ cutext_source_t cutext_source_stack_iconv(char const *newenc,
 
 /** Drain \a src and return the number of bytes which were left. */
 size_t cutext_source_count(cutext_source_t src);
+
+/** Try to guess which Unicode encoding is used in \a src.  This requires that
+ ** \a src supports lookahead. */
+cutext_encoding_t cutext_source_guess_encoding(cutext_source_t src);
 
 /** @}
  ** @} */
