@@ -55,7 +55,6 @@ typedef enum {
     cutext_status_ok,
     cutext_status_buffer_too_small,
     cutext_status_eos,
-    cutext_status_sync,
     cutext_status_error,
 } cutext_status_t;
 

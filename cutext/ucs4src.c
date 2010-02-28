@@ -21,6 +21,8 @@
 #include <cutext/wccat.h>
 #include <string.h>
 
+cu_dlog_def(_file, "dtag=cutext.ucs4src");
+
 void
 cutext_ucs4src_init(cutext_ucs4src_t ucs4src, cutext_producer_t producer,
 		    cu_str_t path, int line, int column)
@@ -261,6 +263,8 @@ cutext_ucs4src_advance(cutext_ucs4src_t ucs4src, size_t size)
 	}
     cutext_src_advance(&ucs4src->src, size*4);
     st = cutext_src_lookahead(&ucs4src->src, 4);
+    cu_dlogf(_file, "Advance %zd, loc = %d:%d, st = %d\n", size,
+	     cu_sref_line(&ucs4src->srf), cu_sref_column(&ucs4src->srf), st);
     if (st != cutext_status_ok) {
 	cutextP_ucs4src_terminate(ucs4src);
 	ucs4src->st = st;

@@ -72,10 +72,8 @@ rec:
 		cu_ptr_diff(ibuf->buf.storage_end, ibuf->buf.content_end));
     if (r == cutext_status_buffer_too_small &&
 	&ibuf->buf.content_end - &ibuf->buf.content_start < size) {
-	if (multiplier > 1 && multiplier*size > cutextP_buffer_limit) {
-	    cu_errf("Buffer limit exceeded.");
-	    abort();
-	}
+	if (multiplier > 1 && multiplier*size > cutextP_buffer_limit)
+	    cu_bugf("Buffer limit exceeded.");
 	multiplier *= 2;
 	goto rec;
     }
@@ -149,6 +147,7 @@ cu_clos_def(_producer_iconv,
 	char *iconv_inbuf, *iconv_outbuf;
 	cutext_src_lookahead(self->src, ICONV_BLOCK_SIZE);
 	avail = cutext_src_data_size(self->src);
+	cu_dlogf(_file, "Iconv, avail = %d", avail);
 	if (avail == 0)
 	    return cutext_status_eos;
 	iconv_inbuf = self->src->buf.content_start;
@@ -177,7 +176,6 @@ cu_clos_def(_producer_iconv,
 static void
 _producer_iconv_cleanup(void *obj, void *cd)
 {
-    cu_dlogf(_file, "Calling finalizer for %p", obj);
     iconv_close(((_producer_iconv_t *)obj)->cd);
 }
 
@@ -195,7 +193,6 @@ cutext_producer_new_iconv(cutext_src_t src,
 		 strerror(errno));
 	abort();
     }
-    cu_dlogf(_file, "Registering finalizer on %p", cb);
     cu_gc_register_finaliser(cb, _producer_iconv_cleanup, NULL, NULL, NULL);
     return _producer_iconv_prep(cb);
 }
