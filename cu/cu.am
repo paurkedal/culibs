@@ -24,6 +24,7 @@ cu_headers = \
 	cu/init.h \
 	cu/int.h \
 	cu/installdirs.h \
+	cu/location.h \
 	cu/logging.h \
 	cu/memory.h \
 	cu/ptr.h \
@@ -67,6 +68,7 @@ cu_sources = \
 	cu/init.c \
 	cu/int.c \
 	cu/installdirs.c \
+	cu/location.c \
 	cu/logging.c \
 	cu/memory.c \
 	cu/box.c \
@@ -85,6 +87,8 @@ cu_sources = \
 
 cu_check_programs = \
 	cu/bool_t0 \
+	cu/box_t0 \
+	cu/box_b0 \
 	cu/clos_b0 \
 	cu/clos_t0 \
 	cu/cstr_t0 \
@@ -95,8 +99,7 @@ cu_check_programs = \
 	cu/hook_t0 \
 	cu/idr_t0 \
 	cu/int_t0 \
-	cu/box_t0 \
-	cu/box_b0 \
+	cu/location_t0 \
 	cu/ptr_t0 \
 	cu/thread_t0 \
 	cu/rarex_t0 \
@@ -112,6 +115,10 @@ cu_doxyfiles = \
 
 cu_bool_t0_SOURCES = cu/bool_t0.c
 cu_bool_t0_LDADD = libcubase.la
+cu_box_t0_SOURCES = cu/box_t0.c
+cu_box_t0_LDADD = libcubase.la
+cu_box_b0_SOURCES = cu/box_b0.c
+cu_box_b0_LDADD = libcubase.la
 cu_clos_b0_SOURCES = cu/clos_b0.c
 cu_clos_b0_LDADD = libcubase.la
 cu_clos_t0_SOURCES = cu/clos_t0.c
@@ -134,10 +141,8 @@ cu_int_b0_SOURCES = cu/int_b0.c
 cu_int_b0_LDADD = libcubase.la
 cu_int_t0_SOURCES = cu/int_t0.c
 cu_int_t0_LDADD = libcubase.la
-cu_box_t0_SOURCES = cu/box_t0.c
-cu_box_t0_LDADD = libcubase.la
-cu_box_b0_SOURCES = cu/box_b0.c
-cu_box_b0_LDADD = libcubase.la
+cu_location_t0_SOURCES = cu/location_t0.c
+cu_location_t0_LDADD = libcubase.la
 cu_ptr_t0_SOURCES = cu/ptr_t0.c
 cu_ptr_t0_LDADD = libcubase.la
 cu_thread_t0_SOURCES = cu/thread_t0.c

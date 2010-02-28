@@ -192,6 +192,9 @@ typedef struct cu_dcountsink	*cu_dcountsink_t;	/* dsink.h */
 typedef struct cu_dsink		*cu_dsink_t;		/* dsink.h */
 typedef struct cu_dsource	*cu_dsource_t;		/* dsource.h */
 typedef struct cu_idr		*cu_idr_t;		/* idr.h */
+typedef struct cu_locbound	*cu_locbound_t;		/* location.h */
+typedef struct cu_locorigin	*cu_locorigin_t;	/* location.h */
+typedef struct cu_location	*cu_location_t;		/* location.h */
 typedef struct cu_log_facility	*cu_log_facility_t;	/* logging.h */
 typedef struct cu_ptr_array_source *cu_ptr_array_source_t; /* ptr_seq.h */
 typedef struct cu_ptr_source	*cu_ptr_source_t;	/* ptr_seq.h */
