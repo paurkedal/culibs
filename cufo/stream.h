@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -268,8 +268,8 @@ void cufo_print_wstring(cufo_stream_t fos, cu_wstring_t ws);
 /** Write the UTF-8 string \a str to \a fos. */
 void cufo_print_str(cufo_stream_t fos, cu_str_t str);
 
-/** Format a source reference to \a fos. */
-void cufo_print_sref(cufo_stream_t fos, cu_sref_t srf);
+/** Print the source reference \a loc to \a fos. */
+void cufo_print_location(cufo_stream_t fos, cu_location_t loc);
 
 /** Print an expression to \a fos. */
 void cufo_print_ex(cufo_stream_t fos, cuex_t e);
@@ -351,7 +351,7 @@ void cufo_vlogf(cufo_stream_t fos, cu_log_facility_t facility,
  ** cufo_init.  Its usually not needed except when defining new \ref
  ** cu_register_log_binder "log binder" logic. */
 void cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
-		   cu_sref_t sref, char const *fmt, va_list va);
+		   cu_location_t loc, char const *fmt, va_list va);
 
 /** @}
  ** \name Program Initialisation

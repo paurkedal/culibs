@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ void cu_set_verbosity(int verbosity);
 void cu_bugf_n(char const *fmt, ...) CU_ATTR_NORETURN;
 
 /** Prints an internal error with reference to source code and aborts. */
-void cu_bugf_at(cu_sref_t, char const *fmt, ...) CU_ATTR_NORETURN;
+void cu_bugf_at(cu_location_t, char const *fmt, ...) CU_ATTR_NORETURN;
 
 /** Prints an internal error with reference to source code and aborts. */
 void cu_bugf_fl(char const *file, int line,
@@ -138,33 +138,33 @@ void cu_vfprintf(FILE *, char const *, va_list va);
  * \deprecated This function is deprecated and does not use the new \ref
  * cu_logging_h "logging" framework.  Use \ref cu_errf with the "%:" format
  * specifier instead. */
-void cu_errf_at(cu_sref_t, char const *fmt, ...);
+void cu_errf_at(cu_location_t loc, char const *fmt, ...);
 
 /*!As \a cu_errf_at, but passing arguments as a \c va_list.
  * \deprecated This function is deprecated and does not use the new \ref
  * cu_logging_h "logging" framework.  Use \ref cu_verrf with the "%:" format
  * specifier instead. */
-void cu_verrf_at(cu_sref_t srf, char const *msg, va_list va);
+void cu_verrf_at(cu_location_t loc, char const *msg, va_list va);
 
 /*!A specialised \ref cu_fprintf for printing warnings with reference
  * to source code.
  * \deprecated This function is deprecated and does not use the new \ref
  * cu_logging_h "logging" framework.  Use \ref cu_warnf with the "%:" format
  * specifier instead. */
-void cu_warnf_at(cu_sref_t, char const *fmt, ...);
+void cu_warnf_at(cu_location_t loc, char const *fmt, ...);
 
 /*!As \a cu_warnf_at, but passing arguments as a \c va_list.
  * \deprecated This function is deprecated and does not use the new \ref
  * cu_logging_h "logging" framework.  Use \ref cu_vwarnf with the "%:" format
  * specifier instead. */
-void cu_vwarnf_at(cu_sref_t srf, char const *msg, va_list va);
+void cu_vwarnf_at(cu_location_t loc, char const *msg, va_list va);
 
 /*!Prints an informative message with reference to source code if verbosity
  * level is at least \a level.
  * \deprecated This function is deprecated and does not use the new \ref
  * cu_logging_h "logging" framework.  Use \ref cu_verbf with the "%:" format
  * specifier instead. */
-void cu_verbf_at(int level, cu_sref_t, char const *fmt, ...);
+void cu_verbf_at(int level, cu_location_t, char const *fmt, ...);
 
 
 /** @} */

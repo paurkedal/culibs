@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2006--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,16 +51,16 @@ struct cuex_otab
     cuex_otab_range_t all;
     int all_width;
     struct cucon_pmap env;
-    void (*error)(cuex_otab_t tab, cu_sref_t sref, char const *msg, ...);
+    void (*error)(cuex_otab_t tab, cu_location_t loc, char const *msg, ...);
     cu_str_t h_prologue, h_epilogue, c_prologue, c_epilogue;
 };
 
 cuex_otab_t cuex_otab_new(int width,
-			  void (*error)(cuex_otab_t tab, cu_sref_t sref,
+			  void (*error)(cuex_otab_t tab, cu_location_t loc,
 					char const *msg, ...));
 
 void cuex_otab_init(cuex_otab_t tab, int width,
-		    void (*error)(cuex_otab_t tab, cu_sref_t sref,
+		    void (*error)(cuex_otab_t tab, cu_location_t loc,
 				  char const *msg, ...));
 
 CU_SINLINE void cuex_otab_set_extern(cuex_otab_t tab, cu_bool_t is_extern)
@@ -97,7 +97,7 @@ struct cuex_otab_def
 {
     cu_bool_t is_extern;
     cu_idr_t idr; /* NULL for reservation */
-    cu_sref_t sref;
+    cu_location_t loc;
     cuex_otab_objkind_t objkind;
 };
 
@@ -107,8 +107,8 @@ CU_SINLINE cuex_otab_objkind_t cuex_otab_def_kind(cuex_otab_def_t def)
 CU_SINLINE cu_idr_t cuex_otab_def_idr(cuex_otab_def_t def)
 { return def->idr; }
 
-CU_SINLINE cu_sref_t cuex_otab_def_sref(cuex_otab_def_t def)
-{ return def->sref; }
+CU_SINLINE cu_location_t cuex_otab_def_loc(cuex_otab_def_t def)
+{ return def->loc; }
 
 struct cuex_otab_simplerange
 {
@@ -140,8 +140,8 @@ CU_SINLINE cuex_otab_range_t cuex_otab_range_super(cuex_otab_range_t range)
 CU_SINLINE cu_idr_t cuex_otab_range_idr(cuex_otab_range_t range)
 { return cuex_otab_def_idr(cuex_otab_range_to_def(range)); }
 
-CU_SINLINE cu_sref_t cuex_otab_range_sref(cuex_otab_range_t range)
-{ return cuex_otab_def_sref(cuex_otab_range_to_def(range)); }
+CU_SINLINE cu_location_t cuex_otab_range_loc(cuex_otab_range_t range)
+{ return cuex_otab_def_loc(cuex_otab_range_to_def(range)); }
 
 CU_SINLINE cuex_meta_t cuex_otab_range_low_bit(cuex_otab_range_t range)
 { return cu_to(cuex_otab_simplerange, range)->range_low_bit; }
@@ -170,8 +170,8 @@ struct cuex_otab_prop
 CU_SINLINE cu_idr_t cuex_otab_prop_idr(cuex_otab_prop_t prop)
 { return cu_to(cuex_otab_def, prop)->idr; }
 
-CU_SINLINE cu_sref_t cuex_otab_prop_sref(cuex_otab_prop_t prop)
-{ return cu_to(cuex_otab_def, prop)->sref; }
+CU_SINLINE cu_location_t cuex_otab_prop_loc(cuex_otab_prop_t prop)
+{ return cu_to(cuex_otab_def, prop)->loc; }
 
 CU_SINLINE int cuex_otab_prop_width(cuex_otab_prop_t prop)
 { return prop->width; }
@@ -183,12 +183,12 @@ CU_SINLINE int cuex_otab_prop_low_bit(cuex_otab_prop_t prop)
 /*!Return a subrange from \a rel_min to \a rel_maxp1 - 1 of the inner range
  * of \a super. */
 cuex_otab_range_t
-cuex_otab_defrange(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
+cuex_otab_defrange(cuex_otab_t tab, cu_idr_t idr, cu_location_t loc,
 		   cuex_otab_range_t super,
 		   cuex_meta_t rel_min, cuex_meta_t rel_maxp1);
 
 cuex_otab_prop_t
-cuex_otab_defprop(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
+cuex_otab_defprop(cuex_otab_t tab, cu_idr_t idr, cu_location_t loc,
 		  cuex_otab_range_t super, int width, char const *type_cstr,
 		  cu_bool_t is_implicit);
 
@@ -246,9 +246,9 @@ CU_SINLINE cu_idr_t
 cuex_otab_opr_idr(cuex_otab_opr_t opr)
 { return cuex_otab_def_idr(cu_to(cuex_otab_def, opr)); }
 
-CU_SINLINE cu_sref_t
-cuex_otab_opr_sref(cuex_otab_opr_t opr)
-{ return cuex_otab_def_sref(cu_to(cuex_otab_def, opr)); }
+CU_SINLINE cu_location_t
+cuex_otab_opr_loc(cuex_otab_opr_t opr)
+{ return cuex_otab_def_loc(cu_to(cuex_otab_def, opr)); }
 
 CU_SINLINE void
 cuex_otab_opr_give_ctor(cuex_otab_opr_t opr)
@@ -257,12 +257,12 @@ cuex_otab_opr_give_ctor(cuex_otab_opr_t opr)
 /*!Reserve \a rel_min to \a rel_maxp1 - 1 of \a super, where \a rel_min and \a
  * rel_maxp1 are measured relative to the inner range of \a super. */
 cu_bool_t
-cuex_otab_reserve(cuex_otab_t tab, cu_sref_t sref, cuex_otab_range_t super,
+cuex_otab_reserve(cuex_otab_t tab, cu_location_t loc, cuex_otab_range_t super,
 		  cuex_meta_t rel_min, cuex_meta_t rel_maxp1,
 		  cu_bool_t is_full);
 
 cuex_otab_opr_t
-cuex_otab_defopr(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
+cuex_otab_defopr(cuex_otab_t tab, cu_idr_t idr, cu_location_t loc,
 		 cuex_otab_range_t super, cu_rank_t r);
 
 cu_bool_t

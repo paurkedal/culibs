@@ -336,7 +336,7 @@ extern int cuC_location_lbcol_offset;
 extern int cuC_location_ubcol_offset;
 
 void
-cufo_print_sref(cufo_stream_t fos, cu_location_t loc)
+cufo_print_location(cufo_stream_t fos, cu_location_t loc)
 {
     /* See note in cu/location.c about 1-based counting of columns. */
 

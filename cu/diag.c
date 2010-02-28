@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 
 #include <cu/diag.h>
 #include <cu/logging.h>
-#include <cu/sref.h>
+#include <cu/location.h>
 #include <cu/debug.h>
 #include <cu/memory.h>
+#include <cu/str.h>
 #include <atomic_ops.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -60,18 +61,18 @@ cu_vfprintf(FILE *file, char const* msg, va_list va)
 }
 
 void
-cu_verrf_at(cu_sref_t srf, char const *msg, va_list va)
+cu_verrf_at(cu_location_t loc, char const *msg, va_list va)
 {
     AO_fetch_and_add1(&_error_count);
-    cu_vlogf_at(&_log_facility_arr[FI_ERR], srf, msg, va);
+    cu_vlogf_at(&_log_facility_arr[FI_ERR], loc, msg, va);
 }
 
 void
-cu_errf_at(cu_sref_t srf, char const *msg, ...)
+cu_errf_at(cu_location_t loc, char const *msg, ...)
 {
     va_list va;
     va_start(va, msg);
-    cu_verrf_at(srf, msg, va);
+    cu_verrf_at(loc, msg, va);
     va_end(va);
 }
 
@@ -92,18 +93,18 @@ cu_errf(char const *msg, ...)
 }
 
 void
-cu_vwarnf_at(cu_sref_t srf, char const *msg, va_list va)
+cu_vwarnf_at(cu_location_t loc, char const *msg, va_list va)
 {
     AO_fetch_and_add1(&_warning_count);
-    cu_vlogf_at(&_log_facility_arr[FI_WARN], srf, msg, va);
+    cu_vlogf_at(&_log_facility_arr[FI_WARN], loc, msg, va);
 }
 
 void
-cu_warnf_at(cu_sref_t srf, char const *msg, ...)
+cu_warnf_at(cu_location_t loc, char const *msg, ...)
 {
     va_list va;
     va_start(va, msg);
-    cu_vwarnf_at(srf, msg, va);
+    cu_vwarnf_at(loc, msg, va);
     va_end(va);
 }
 
@@ -124,11 +125,11 @@ cu_warnf(char const* msg, ...)
 }
 
 void
-cu_bugf_at(cu_sref_t srf, char const* msg, ...)
+cu_bugf_at(cu_location_t loc, char const* msg, ...)
 {
     va_list va;
     va_start(va, msg);
-    cu_vlogf_at(&_log_facility_arr[FI_BUG], srf, msg, va);
+    cu_vlogf_at(&_log_facility_arr[FI_BUG], loc, msg, va);
     va_end(va);
     cu_debug_abort();
 }
@@ -137,9 +138,16 @@ void
 cu_bugf_fl(char const *file, int line, char const *msg, ...)
 {
     va_list va;
-    cu_sref_t srf = cu_sref_new_cstr(file, line, -1);
+    struct cu_str locfile;
+    struct cu_locorigin loco;
+    struct cu_location loc;
+
+    cu_str_init_static_cstr(&locfile, file);
+    cu_locorigin_init(&loco, &locfile, 8);
+    cu_location_init(&loc, &loco, line, -1, line, -1);
+
     va_start(va, msg);
-    cu_vlogf_at(&_log_facility_arr[FI_BUG], srf, msg, va);
+    cu_vlogf_at(&_log_facility_arr[FI_BUG], &loc, msg, va);
     va_end(va);
     cu_debug_abort();
 }
@@ -163,13 +171,13 @@ cu_set_verbosity(int level)
 }
 
 void
-cu_verbf_at(int level, cu_sref_t srf, char const *msg, ...)
+cu_verbf_at(int level, cu_location_t loc, char const *msg, ...)
 {
     va_list va;
     if (level > cuP_verbosity)
 	return;
     va_start(va, msg);
-    cu_vlogf_at(&_log_facility_arr[FI_VERB], srf, msg, va);
+    cu_vlogf_at(&_log_facility_arr[FI_VERB], loc, msg, va);
     va_end(va);
 }
 

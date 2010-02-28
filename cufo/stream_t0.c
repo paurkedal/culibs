@@ -24,7 +24,7 @@
 #include <cu/test.h>
 #include <cu/wstring.h>
 #include <cu/str.h>
-#include <cu/sref.h>
+#include <cu/location.h>
 
 struct cu_log_facility facility = {
     .origin = CU_LOG_USER,
@@ -38,6 +38,7 @@ print_page(cufo_stream_t fos)
     cu_wstring_t wstring;
     cu_str_t str;
     cu_wchar_t const *wcarr;
+    struct cu_location loc;
 
     cufo_entera(fos, cufoT_title, cufoA_id("main-title"));
     cufo_puts(fos, "Test Output of libcufo Formatter\n");
@@ -63,8 +64,10 @@ print_page(cufo_stream_t fos)
     cufo_leaveln(fos, cufoT_codepre);
 
     cufo_logf(fos, &facility, "This is a %s message.", "log");
-    cufo_logf(fos, &facility, "%: This is a log message with a location %d.",
-	      cu_sref_new_cstr("example.csv", 34, -1), 88);
+    cu_location_init(&loc, cu_locorigin_new(cu_str_new_cstr("example.csv"), 8),
+		     34, 10, 35, 1);
+    cufo_logf(fos, &facility,
+	      "%: This is a log message with location. 88=%d.", &loc, 88);
     for (j = 0; j < 4; ++j) {
 	i = (j + 1)*(j + 7)*(j + 1) % 10000;
 	cufo_printf(fos, "Int format test: "

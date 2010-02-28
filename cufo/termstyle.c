@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2009--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 #include <cucon/list.h>
 #include <cu/memory.h>
 #include <cu/thread.h>
-#include <cu/sref.h>
+#include <cu/location.h>
 #include <cu/str.h>
 #include <cu/installdirs.h>
 #include <string.h>
@@ -177,8 +177,9 @@ cufo_termstyle_ref(cufo_termstyle_t style, cufo_tag_t tag)
 static void
 _termstyle_loadinto(cufo_termstyle_t style, cu_str_t path, FILE *in)
 {
-    struct cu_sref loc;
-    cu_sref_init(&loc, path, 0, -1);
+    struct cu_location loc;
+    struct cu_locbound locb;
+    cu_locbound_init(&locb, cu_locorigin_new(path, 8), 0, -1);
     for (;;) {
 	char buf[160];
 	char *s;
@@ -186,7 +187,8 @@ _termstyle_loadinto(cufo_termstyle_t style, cu_str_t path, FILE *in)
 	cufo_tag_t tag;
 	cufo_termface_t face;
 
-	cu_sref_newline(&loc);
+	cu_locbound_put_newline(&locb);
+	cu_location_init_point(&loc, &locb);
 	if (!fgets(buf, sizeof(buf), in))
 	    break;
 	s = buf;

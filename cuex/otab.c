@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2006--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ cu_dlog_def(_file, "dtag=cuex.otab");
 #endif
 
 static cuex_otab_def_t otab_allocdef(cuex_otab_t tab, cu_idr_t idr,
-				     cu_sref_t sref,
+				     cu_location_t loc,
 				     cuex_otab_objkind_t kind, size_t size);
 
 cu_clop_def(simplerange_cmp, int, void *lhs, void *rhs)
@@ -62,7 +62,7 @@ simplerange_init(cuex_otab_t tab, cuex_otab_simplerange_t self,
 
 
 static cuex_otab_def_t
-otab_allocdef(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
+otab_allocdef(cuex_otab_t tab, cu_idr_t idr, cu_location_t loc,
 	      cuex_otab_objkind_t kind, size_t size)
 {
     cuex_otab_def_t def;
@@ -70,14 +70,14 @@ otab_allocdef(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
 	def = cu_galloc(size);
     else if (!cucon_pmap_insert_mem(&tab->env, idr, size, &def)) {
 	if (tab->error) {
-	    (*tab->error)(tab, sref, "Multiple definions of %s.",
+	    (*tab->error)(tab, loc, "Multiple definions of %s.",
 			  cu_idr_to_cstr(idr));
-	    (*tab->error)(tab, def->sref, "First defined here.");
+	    (*tab->error)(tab, def->loc, "First defined here.");
 	}
 	return NULL;
     }
     def->idr = idr;
-    def->sref = sref;
+    def->loc = loc;
     def->objkind = kind;
     def->is_extern = tab->is_extern;
     return def;
@@ -85,7 +85,7 @@ otab_allocdef(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
 
 void
 cuex_otab_init(cuex_otab_t tab, int width,
-	       void (*error)(cuex_otab_t, cu_sref_t, char const *msg, ...))
+	       void (*error)(cuex_otab_t, cu_location_t, char const *msg, ...))
 {
     cuex_otab_range_t all;
     cucon_pmap_init(&tab->env);
@@ -109,7 +109,7 @@ cuex_otab_init(cuex_otab_t tab, int width,
 
 cuex_otab_t
 cuex_otab_new(int width,
-	      void (*error)(cuex_otab_t, cu_sref_t, char const *msg, ...))
+	      void (*error)(cuex_otab_t, cu_location_t, char const *msg, ...))
 {
     cuex_otab_t tab = cu_gnew(struct cuex_otab);
     cuex_otab_init(tab, width, error);
@@ -122,20 +122,20 @@ report_conflict(cuex_otab_t tab,
 		cuex_otab_simplerange_t conflict)
 {
     if (tab->error) {
-	cu_sref_t self_sref = cu_to(cuex_otab_def, self)->sref;
-	cu_sref_t conflict_sref = cu_to(cuex_otab_def, conflict)->sref;
+	cu_location_t self_loc = cu_to(cuex_otab_def, self)->loc;
+	cu_location_t conflict_loc = cu_to(cuex_otab_def, conflict)->loc;
 	if (cu_to(cuex_otab_def, self)->objkind == cuex_otab_reservation_kind)
-	    (*tab->error)(tab, self_sref,
+	    (*tab->error)(tab, self_loc,
 			  "Reservation in %s conflicts with ...",
 			  cu_idr_to_cstr(cuex_otab_range_idr(self->super)));
 	else
-	    (*tab->error)(tab, self_sref, "Range %s conflicts with ...",
+	    (*tab->error)(tab, self_loc, "Range %s conflicts with ...",
 			  cu_idr_to_cstr(cu_to(cuex_otab_def, self)->idr));
 	if (cu_to(cuex_otab_def, self)->objkind == cuex_otab_reservation_kind)
-	    (*tab->error)(tab, conflict_sref, "... reservation in %s.",
+	    (*tab->error)(tab, conflict_loc, "... reservation in %s.",
 			  cu_idr_to_cstr(cuex_otab_range_idr(self->super)));
 	else
-	    (*tab->error)(tab, conflict_sref, "... %s defined here.",
+	    (*tab->error)(tab, conflict_loc, "... %s defined here.",
 			  cu_idr_to_cstr(cu_to(cuex_otab_def, conflict)->idr));
     }
 }
@@ -157,7 +157,7 @@ simplerange_init(cuex_otab_t tab, cuex_otab_simplerange_t self,
     if ((maxp1 << self->range_low_bit) == 0 ||
 	self->range_maxp1 > SIMPLERANGE(super)->range_maxp1) {
 	if (tab->error) {
-	    (*tab->error)(tab, cu_to(cuex_otab_def, self)->sref,
+	    (*tab->error)(tab, cu_to(cuex_otab_def, self)->loc,
 			  "Range does not fit in %s.",
 			  cu_idr_to_cstr(
 				cu_to2(cuex_otab_def, cuex_otab_simplerange,
@@ -187,13 +187,13 @@ simplerange_init(cuex_otab_t tab, cuex_otab_simplerange_t self,
 }
 
 cuex_otab_range_t
-cuex_otab_defrange(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
+cuex_otab_defrange(cuex_otab_t tab, cu_idr_t idr, cu_location_t loc,
 		   cuex_otab_range_t super,
 		   cuex_meta_t rel_min, cuex_meta_t rel_maxp1)
 {
     cuex_otab_def_t def;
     cuex_otab_range_t rng;
-    def = otab_allocdef(tab, idr, sref, cuex_otab_range_kind,
+    def = otab_allocdef(tab, idr, loc, cuex_otab_range_kind,
 			sizeof(struct cuex_otab_range));
     if (!def)
 	return NULL;
@@ -207,7 +207,7 @@ cuex_otab_defrange(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
 }
 
 cuex_otab_prop_t
-cuex_otab_defprop(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
+cuex_otab_defprop(cuex_otab_t tab, cu_idr_t idr, cu_location_t loc,
 		  cuex_otab_range_t super,
 		  int width, char const *type_cstr, cu_bool_t is_implicit)
 {
@@ -216,7 +216,7 @@ cuex_otab_defprop(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
     int alignbit;
     if (!cucon_rbset_is_empty(&SIMPLERANGE(super)->subrange_set)) {
 	if (tab->error)
-	    (*tab->error)(tab, sref,
+	    (*tab->error)(tab, loc,
 			  "Cannot add property to %s which already has "
 			  "subranges.",
 			  cu_idr_to_cstr(
@@ -228,14 +228,14 @@ cuex_otab_defprop(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
 				    SIMPLERANGE(super)->range_maxp1);
     if (width + SIMPLERANGE(super)->range_low_bit > alignbit) {
 	if (tab->error)
-	    (*tab->error)(tab, sref,
+	    (*tab->error)(tab, loc,
 			  "Insufficient number of usable bits for property "
 			  "%s, only %d available.",
 			  cu_idr_to_cstr(idr),
 			  alignbit - SIMPLERANGE(super)->range_low_bit);
 	return NULL;
     }
-    def = otab_allocdef(tab, idr, sref, cuex_otab_prop_kind,
+    def = otab_allocdef(tab, idr, loc, cuex_otab_prop_kind,
 			sizeof(struct cuex_otab_prop));
     if (!def)
 	return NULL;
@@ -250,13 +250,13 @@ cuex_otab_defprop(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
 }
 
 cu_bool_t
-cuex_otab_reserve(cuex_otab_t tab, cu_sref_t sref, cuex_otab_range_t super,
+cuex_otab_reserve(cuex_otab_t tab, cu_location_t loc, cuex_otab_range_t super,
 		  cuex_meta_t rel_min, cuex_meta_t rel_maxp1,
 		  cu_bool_t is_full)
 {
     cuex_otab_def_t def;
     cuex_otab_reservation_t rsv;
-    def = otab_allocdef(tab, NULL, sref, cuex_otab_reservation_kind,
+    def = otab_allocdef(tab, NULL, loc, cuex_otab_reservation_kind,
 			sizeof(struct cuex_otab_reservation));
     rsv = cu_from2(cuex_otab_reservation, cuex_otab_simplerange,
 		   cuex_otab_def, def);
@@ -341,13 +341,13 @@ cu_clos_def(alloc_in_reservation,
 }
 
 cuex_otab_opr_t
-cuex_otab_defopr(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
+cuex_otab_defopr(cuex_otab_t tab, cu_idr_t idr, cu_location_t loc,
 		 cuex_otab_range_t super, cu_rank_t r)
 {
     alloc_in_reservation_t alloc_cb;
     cuex_otab_def_t def;
     cuex_otab_opr_t op;
-    def = otab_allocdef(tab, idr, sref, cuex_otab_opr_kind,
+    def = otab_allocdef(tab, idr, loc, cuex_otab_opr_kind,
 			sizeof(struct cuex_otab_opr));
     if (!def)
 	return NULL;
@@ -356,7 +356,7 @@ cuex_otab_defopr(cuex_otab_t tab, cu_idr_t idr, cu_sref_t sref,
     if (cucon_rbset_conj(&SIMPLERANGE(super)->subrange_set,
 			 alloc_in_reservation_prep(&alloc_cb))) {
 	if (tab->error) {
-	    (*tab->error)(tab, sref,
+	    (*tab->error)(tab, loc,
 			  "Reservations for %s are full or absent.",
 			  cu_idr_to_cstr(cuex_otab_range_idr(super)));
 	    return NULL;

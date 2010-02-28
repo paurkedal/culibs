@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2009--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,4 +52,8 @@
 #  define cu_installdirs_s	cu_installdirs
 #  define cu_hidden_ptr_s	cu_hidden_ptr
 #  define cu_scratch_s		cu_scratch
+#endif
+
+#if CU_COMPAT < 20100228 && !defined(cufo_print_sref)
+#  define cufo_print_sref	cufo_print_location
 #endif

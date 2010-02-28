@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,18 +38,18 @@ cufo_stream_t cufo_stderr, cufo_stdout;
 cufo_stream_t cufoP_stderr_bug;
 
 cu_clos_def(_default_vlogf,
-	    cu_prot(void, cu_log_facility_t facility, cu_sref_t sref,
+	    cu_prot(void, cu_log_facility_t facility, cu_location_t loc,
 		    char const *fmt, va_list va),
     ( cufo_stream_t fos; ))
 {
     cu_clos_self(_default_vlogf);
     cufo_lock(self->fos);
-    cufo_vlogf_at(self->fos, facility, sref, fmt, va);
+    cufo_vlogf_at(self->fos, facility, loc, fmt, va);
     cufo_unlock(self->fos);
 }
 
 cu_clos_def(_default_vlogf_bug,
-	    cu_prot(void, cu_log_facility_t facility, cu_sref_t sref,
+	    cu_prot(void, cu_log_facility_t facility, cu_location_t loc,
 		    char const *fmt, va_list va),
     ( cufo_stream_t fos; ))
 {
@@ -63,7 +63,7 @@ cu_clos_def(_default_vlogf_bug,
      * The ideal solution may be recursive locks.  For now, just revert to
      * fprintf. */
     if (pthread_mutex_trylock(&self->fos->mutex) == 0) {
-	cufo_vlogf_at(self->fos, facility, sref, fmt, va);
+	cufo_vlogf_at(self->fos, facility, loc, fmt, va);
 	cufo_unlock(self->fos);
     } else {
 	fprintf(stderr,

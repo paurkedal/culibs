@@ -1,7 +1,7 @@
 %{
 
 #include <cu/idr.h>
-#include <cu/sref.h>
+#include <cu/location.h>
 #include <cu/str.h>
 #include <cu/clos.h>
 #include <cuos/file.h>
@@ -32,7 +32,7 @@ struct ot_intrange
 struct ot_state
 {
     cuex_otab_t otab;
-    struct cu_sref sref;
+    struct cu_locbound locb;
     FILE *in;
     cu_bool_t is_extern;
     int error_cnt;
@@ -42,32 +42,32 @@ struct ot_state
 
 int ot_parse_file(cuex_otab_t tab, cu_str_t path, cucon_list_t import_paths);
 
-void ot_state_import(ot_state_t state, cu_sref_t sref, cu_str_t path);
+void ot_state_import(ot_state_t state, cu_location_t loc, cu_str_t path);
 
 cuex_otab_range_t
-ot_state_defrange(ot_state_t state, cu_idr_t idr, cu_sref_t sref,
+ot_state_defrange(ot_state_t state, cu_idr_t idr, cu_location_t loc,
 		  cu_idr_t super, ot_intrange_t intrange);
-void ot_state_defopr(ot_state_t state, cu_idr_t idr, cu_sref_t sref,
+void ot_state_defopr(ot_state_t state, cu_idr_t idr, cu_location_t loc,
 		     int r, cu_bool_t has_ctor, cu_idr_t range_idr);
-void ot_state_defprop(ot_state_t state, cu_idr_t idr, cu_sref_t sref,
+void ot_state_defprop(ot_state_t state, cu_idr_t idr, cu_location_t loc,
 		      unsigned int bits, cu_str_t type_str,
 		      cu_bool_t is_implicit);
-void ot_state_reserve(ot_state_t state, cu_sref_t sref, cu_idr_t super_idr,
+void ot_state_reserve(ot_state_t state, cu_location_t loc, cu_idr_t super_idr,
 		      ot_intrange_t r);
-void ot_state_defoption(ot_state_t state, cu_sref_t sref,
+void ot_state_defoption(ot_state_t state, cu_location_t loc,
 			cu_idr_t idr, cu_str_t str);
 
-static int yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state);
-static void yyerror(cu_sref_t loc, ot_state_t state, char const *msg);
+static int yylex(ot_value_t val_out, cu_location_t loc_out, ot_state_t state);
+static void yyerror(cu_location_t loc, ot_state_t state, char const *msg);
 
-#define YYLTYPE struct cu_sref
+#define YYLTYPE struct cu_location
 #define YYLLOC_DEFAULT(lhs, rhs, n)					\
     do {								\
 	if (n)								\
-	    cu_sref_cct_sref_range(&(lhs),				\
+	    cu_location_init_cover(&(lhs),				\
 		&YYRHSLOC(rhs, 1), &YYRHSLOC(rhs, n));			\
 	else								\
-	    cu_sref_cct_sref_last(&(lhs), &YYRHSLOC(rhs, 0));		\
+	    cu_location_init_point_ub(&(lhs), &YYRHSLOC(rhs, 0));	\
     } while (0)
 
 %}
@@ -76,7 +76,7 @@ static void yyerror(cu_sref_t loc, ot_state_t state, char const *msg);
 %pure-parser
 %parse-param {ot_state_t state}
 %lex-param {ot_state_t state}
-%initial-action { cu_sref_cct_copy(&@$, &state->sref); }
+%initial-action { cu_location_init_point(&@$, &state->locb); }
 
 %union ot_value {
     int i;
@@ -188,7 +188,7 @@ intrange:
 %%
 
 cuex_otab_range_t
-ot_state_defrange(ot_state_t state, cu_idr_t idr, cu_sref_t sref,
+ot_state_defrange(ot_state_t state, cu_idr_t idr, cu_location_t loc,
 		  cu_idr_t super_idr, ot_intrange_t intrange)
 {
     cuex_otab_def_t super;
@@ -197,22 +197,22 @@ ot_state_defrange(ot_state_t state, cu_idr_t idr, cu_sref_t sref,
     super = cuex_otab_lookup(state->otab, super_idr);
     if (!super) {
 	++state->error_cnt;
-	cu_errf_at(sref, "Undefined range %s.", cu_idr_to_cstr(super_idr));
+	cu_errf_at(loc, "Undefined range %s.", cu_idr_to_cstr(super_idr));
 	return NULL;
     }
     else if (cuex_otab_def_kind(super) != cuex_otab_range_kind) {
 	++state->error_cnt;
-	cu_errf_at(sref, "%s is not a range.", cu_idr_to_cstr(super_idr));
+	cu_errf_at(loc, "%s is not a range.", cu_idr_to_cstr(super_idr));
 	return NULL;
     }
     else
-	return cuex_otab_defrange(state->otab, idr, cu_sref_new_copy(sref),
+	return cuex_otab_defrange(state->otab, idr, cu_location_new_copy(loc),
 				  cuex_otab_range_from_def(super),
 				  intrange->min, intrange->maxp1);
 }
 
 void
-ot_state_defopr(ot_state_t state, cu_idr_t idr, cu_sref_t sref,
+ot_state_defopr(ot_state_t state, cu_idr_t idr, cu_location_t loc,
 		int r, cu_bool_t has_ctor, cu_idr_t super_idr)
 {
     cuex_otab_def_t super;
@@ -224,15 +224,15 @@ ot_state_defopr(ot_state_t state, cu_idr_t idr, cu_sref_t sref,
     super = cuex_otab_lookup(state->otab, super_idr);
     if (!super) {
 	++state->error_cnt;
-	cu_errf_at(sref, "Undefined range %s.", cu_idr_to_cstr(super_idr));
+	cu_errf_at(loc, "Undefined range %s.", cu_idr_to_cstr(super_idr));
     }
     else if (cuex_otab_def_kind(super) != cuex_otab_range_kind) {
 	++state->error_cnt;
-	cu_errf_at(sref, "%s is not a range.", cu_idr_to_cstr(super_idr));
+	cu_errf_at(loc, "%s is not a range.", cu_idr_to_cstr(super_idr));
     }
     else {
 	cuex_otab_opr_t opr;
-	opr = cuex_otab_defopr(state->otab, idr, cu_sref_new_copy(sref),
+	opr = cuex_otab_defopr(state->otab, idr, cu_location_new_copy(loc),
 			       cuex_otab_range_from_def(super), r);
 	if (has_ctor)
 	    cuex_otab_opr_give_ctor(opr);
@@ -240,19 +240,19 @@ ot_state_defopr(ot_state_t state, cu_idr_t idr, cu_sref_t sref,
 }
 
 void
-ot_state_defprop(ot_state_t state, cu_idr_t idr, cu_sref_t sref,
+ot_state_defprop(ot_state_t state, cu_idr_t idr, cu_location_t loc,
 		 unsigned int width, cu_str_t type_str, cu_bool_t is_implicit)
 {
     cuex_otab_range_t range = state->current_range;
     if (!range)
 	return;
-    cuex_otab_defprop(state->otab, idr, cu_sref_new_copy(sref), range, width,
+    cuex_otab_defprop(state->otab, idr, cu_location_new_copy(loc), range, width,
 		      type_str? cu_str_to_cstr(type_str) : "unsigned int",
 		      is_implicit);
 }
 
 void
-ot_state_reserve(ot_state_t state, cu_sref_t sref, cu_idr_t super_idr,
+ot_state_reserve(ot_state_t state, cu_location_t loc, cu_idr_t super_idr,
 		 ot_intrange_t intrange)
 {
     cuex_otab_def_t super;
@@ -261,20 +261,20 @@ ot_state_reserve(ot_state_t state, cu_sref_t sref, cu_idr_t super_idr,
     super = cuex_otab_lookup(state->otab, super_idr);
     if (!super) {
 	++state->error_cnt;
-	cu_errf_at(sref, "Undefined range %s.", cu_idr_to_cstr(super_idr));
+	cu_errf_at(loc, "Undefined range %s.", cu_idr_to_cstr(super_idr));
     }
     else if (cuex_otab_def_kind(super) != cuex_otab_range_kind) {
 	++state->error_cnt;
-	cu_errf_at(sref, "%s is not a range.", cu_idr_to_cstr(super_idr));
+	cu_errf_at(loc, "%s is not a range.", cu_idr_to_cstr(super_idr));
     }
     else
-	cuex_otab_reserve(state->otab, cu_sref_new_copy(sref),
+	cuex_otab_reserve(state->otab, cu_location_new_copy(loc),
 			  cuex_otab_range_from_def(super),
 			  intrange->min, intrange->maxp1, state->is_extern);
 }
 
 static void
-yyerror(cu_sref_t loc, ot_state_t state, char const *msg)
+yyerror(cu_location_t loc, ot_state_t state, char const *msg)
 {
     ++state->error_cnt;
     cu_errf_at(loc, "%s", msg);
@@ -283,36 +283,37 @@ yyerror(cu_sref_t loc, ot_state_t state, char const *msg)
 static struct cucon_pmap ot_keyword_map;
 
 static int
-yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
+yylex(ot_value_t val_out, cu_location_t loc_out, ot_state_t state)
 {
     int token = ERROR;
     FILE *in = state->in;
     char ch;
-    cu_sref_t sref = &state->sref;
+    struct cu_locbound lb;
+    cu_locbound_t ub = &state->locb;
 
     ch = fgetc(in);
     for (;;) {
 	while (isspace(ch)) {
-	    cu_sref_advance_char(sref, ch);
+	    cu_locbound_put_char(ub, ch);
 	    ch = fgetc(in);
 	}
 	if (ch != '#')
 	    break;
 	do ch = fgetc(in); while (ch != '\n' && ch != EOF);
     }
-    cu_sref_cct_copy(loc_out, sref);
+    cu_locbound_init_copy(&lb, ub);
 
     if (isalpha(ch) || ch == '_') {
 	cu_str_t str = cu_str_new();
 	do {
 	    cu_str_append_char(str, ch);
-	    cu_sref_advance_char(sref, ch);
+	    cu_locbound_put_char(ub, ch);
 	    ch = fgetc(in);
 	} while (isalnum(ch) || ch == '_');
 	if (cu_str_cmp_charr(str, "o", 1) == 0 && ch == '/') {
 	    int len;
 	    if (fscanf(in, "%d%n", &val_out->opr.r, &len) > 0) {
-		cu_sref_advance_columns(sref, len);
+		cu_locbound_skip(ub, len);
 		token = OPERATOR;
 		ch = fgetc(in);
 		if (ch == 'c')
@@ -322,7 +323,8 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 		    ungetc(ch, in);
 		    if (!isspace(ch)) {
 			++state->error_cnt;
-			cu_errf_at(sref, "Invalid operator flag.");
+			cu_location_init_range(loc_out, &lb, ub);
+			cu_errf_at(loc_out, "Invalid operator flag.");
 			token = ERROR;
 		    }
 		}
@@ -350,7 +352,7 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 	int len;
 	ungetc(ch, in);
 	if (fscanf(in, "%i%n", &val_out->i, &len) == 1) {
-	    cu_sref_advance_columns(sref, len);
+	    cu_locbound_skip(ub, len);
 	    token = INT;
 	}
 	else
@@ -360,20 +362,21 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 	case '"': {
 	    cu_str_t str = cu_str_new();
 	    token = STRING;
-	    cu_sref_next(sref);
+	    cu_locbound_skip_1(ub);
 	    for (;;) {
 		char ch_out;
-		cu_sref_advance_char(sref, ch);
+		cu_locbound_put_char(ub, ch);
 		ch = ch_out = fgetc(in);
 		if (ch == EOF) {
 		    ++state->error_cnt;
+		    cu_location_init_point(loc_out, &lb);
 		    cu_errf_at(loc_out, "End of file while parsing string.");
 		    token = ERROR;
 		    break;
 		}
 		else if (ch == '"') {
 		    do {
-			cu_sref_advance_char(sref, ch);
+			cu_locbound_put_char(ub, ch);
 			ch = fgetc(in);
 		    } while (isspace(ch));
 		    if (ch != '"') {
@@ -383,7 +386,7 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 		    continue;
 		}
 		else if (ch == '\\') {
-		    cu_sref_advance_char(sref, ch);
+		    cu_locbound_put_char(ub, ch);
 		    ch = ch_out = fgetc(in);
 		    switch (ch) {
 			case 'n': ch_out = '\n'; break;
@@ -391,13 +394,14 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 			case '"': case '\\': break;
 			default:
 			    ++state->error_cnt;
-			    cu_errf_at(sref, "Invalid character escape.");
+			    cu_location_init_point(loc_out, &lb);
+			    cu_errf_at(loc_out, "Invalid character escape.");
 			    break;
 		    }
 		}
 		cu_str_append_char(str, ch_out);
 	    }
-	    cu_sref_next(sref);
+	    cu_locbound_skip_1(ub);
 	    val_out->str = str;
 	    break;
 	}
@@ -405,13 +409,13 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 	case '[': case ']':
 	case '(': case ')':
 	case '+': case '-': case '*': case '/':
-	    cu_sref_next(sref);
+	    cu_locbound_skip_1(ub);
 	    token = ch;
 	    break;
 	case '.':
-	    cu_sref_next(sref);
+	    cu_locbound_skip_1(ub);
 	    ch = fgetc(in);
-	    cu_sref_advance_char(sref, ch);
+	    cu_locbound_put_char(ub, ch);
 	    switch (ch) {
 		case '.':
 		    token = CTO;
@@ -424,9 +428,9 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 	    }
 	    break;
 	case '!':
-	    cu_sref_next(sref);
+	    cu_locbound_skip_1(ub);
 	    ch = fgetc(in);
-	    cu_sref_advance_char(sref, ch);
+	    cu_locbound_put_char(ub, ch);
 	    switch (ch) {
 		case '.':
 		    token = RTO;
@@ -439,20 +443,20 @@ yylex(ot_value_t val_out, cu_sref_t loc_out, ot_state_t state)
 	    token = 0;
 	    break;
     }
-    cu_sref_set_sref_last(loc_out, sref);
+    cu_location_init_range(loc_out, &lb, ub);
     if (token == ERROR && ch != EOF) {
 	++state->error_cnt;
-	cu_errf_at(sref, "Unexpected character %c.", ch);
+	cu_errf_at(loc_out, "Unexpected character %c.", ch);
     }
     return token;
 }
 
 void
-ot_error_cb(cuex_otab_t tab, cu_sref_t sref, char const *msg, ...)
+ot_error_cb(cuex_otab_t tab, cu_location_t loc, char const *msg, ...)
 {
     va_list va;
     va_start(va, msg);
-    cu_verrf_at(sref, msg, va);
+    cu_verrf_at(loc, msg, va);
     va_end(va);
 }
 
@@ -470,21 +474,21 @@ ot_parse_file(cuex_otab_t tab, cu_str_t path, cucon_list_t import_paths)
 		strerror(errno));
 	return 1;
     }
-    cu_sref_cct(&state.sref, path, 1, 0);
+    cu_locbound_init_file(&state.locb, path);
     state.current_range = NULL;
     yyparse(&state);
     return state.error_cnt;
 }
 
 void
-ot_state_import(ot_state_t state, cu_sref_t sref, cu_str_t rel_path)
+ot_state_import(ot_state_t state, cu_location_t loc, cu_str_t rel_path)
 {
     cu_str_t path;
     cucon_listnode_t incl_node;
     cu_bool_t is_extern;
     if (cu_str_size(rel_path) == 0) {
 	++state->error_cnt;
-	cu_errf_at(sref, "Zero path in include.");
+	cu_errf_at(loc, "Zero path in include.");
 	return;
     }
     if (cu_str_at(rel_path, 0) == '/')
@@ -506,7 +510,7 @@ ot_state_import(ot_state_t state, cu_sref_t sref, cu_str_t rel_path)
 	}
 	if (!found) {
 	    ++state->error_cnt;
-	    cu_errf_at(sref, "Could not find %s in include path.",
+	    cu_errf_at(loc, "Could not find %s in include path.",
 		       cu_str_to_cstr(rel_path));
 	    return;
 	}
@@ -524,7 +528,7 @@ static cu_idr_t idr_c_prologue;
 static cu_idr_t idr_c_epilogue;
 
 void
-ot_state_defoption(ot_state_t state, cu_sref_t sref,
+ot_state_defoption(ot_state_t state, cu_location_t loc,
 		   cu_idr_t idr, cu_str_t str)
 {
     if (idr == idr_h_prologue) {
@@ -545,7 +549,7 @@ ot_state_defoption(ot_state_t state, cu_sref_t sref,
     }
     else {
 	++state->error_cnt;
-	cu_errf_at(sref, "Unknown option %s.", cu_idr_to_cstr(idr));
+	cu_errf_at(loc, "Unknown option %s.", cu_idr_to_cstr(idr));
     }
 }
 

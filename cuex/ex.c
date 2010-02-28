@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 #include <cuex/ex.h>
 #include <cuex/opn.h>
 #include <cuex/oprdefs.h>
-#include <cu/sref.h>
 
 cuex_t cuexP_null;
 cuex_t cuexP_unknown;

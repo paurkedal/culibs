@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,19 +16,19 @@
  */
 
 #include <cu/logging.h>
-#include <cu/sref.h>
+#include <cu/location.h>
 #include <cu/diag.h>
 #include <cu/memory.h>
 #include <stdio.h>
 #include <string.h>
 
 static void
-_log_also(cu_sref_t sref, char const *skind)
+_log_also(cu_location_t loc, char const *skind)
 {
-    if (!sref)
+    if (!loc)
 	return;
-    while ((sref = cu_sref_chain_tail(sref))) {
-	cu_sref_fprint(sref, stderr);
+    while ((loc = loc->chain_tail)) {
+	cu_location_fprint(loc, stderr);
 	if (skind) {
 	    fputs(skind, stderr);
 	    fputs(": ", stderr);
@@ -38,13 +38,13 @@ _log_also(cu_sref_t sref, char const *skind)
 }
 
 cu_clop_def(_noop_vlogf, void,
-	    cu_log_facility_t facility, cu_sref_t loc,
+	    cu_log_facility_t facility, cu_location_t loc,
 	    char const *fmt, va_list va)
 {
 }
 
 cu_clop_def(_default_vlogf, void,
-	    cu_log_facility_t facility, cu_sref_t loc,
+	    cu_log_facility_t facility, cu_location_t loc,
 	    char const *fmt, va_list va)
 {
     cu_bool_t have_debug_loc, have_fmt_loc, have_any_loc;
@@ -99,12 +99,12 @@ cu_clop_def(_default_vlogf, void,
 	fprintf(stderr, "%s:%d: ", file, line);
     }
     if (loc) {
-	cu_sref_fprint(loc, stderr);
+	cu_location_fprint(loc, stderr);
 	fputs(": ", stderr);
     }
     if (have_fmt_loc) {
-	cu_sref_t loc = va_arg(va, cu_sref_t);
-	cu_sref_fprint(loc, stderr);
+	cu_location_t loc = va_arg(va, cu_location_t);
+	cu_location_fprint(loc, stderr);
 	fputs(": ", stderr);
 	fmt += 2;
     }
@@ -203,7 +203,7 @@ cu_vlogf(cu_log_facility_t facility, char const *fmt, va_list va)
 }
 
 void
-cu_vlogf_at(cu_log_facility_t facility, cu_sref_t loc,
+cu_vlogf_at(cu_log_facility_t facility, cu_location_t loc,
 	    char const *fmt, va_list va)
 {
     if (!facility->vlogf)
@@ -221,7 +221,7 @@ cu_logf(cu_log_facility_t facility, char const *fmt, ...)
 }
 
 void
-cu_logf_at(cu_log_facility_t facility, cu_sref_t loc, char const *fmt, ...)
+cu_logf_at(cu_log_facility_t facility, cu_location_t loc, char const *fmt, ...)
 {
     va_list va;
     va_start(va, fmt);

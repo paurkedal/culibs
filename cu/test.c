@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2006--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2006--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,8 @@
 #include <cu/test.h>
 #include <cu/diag.h>
 #include <cu/debug.h>
-#include <cu/sref.h>
+#include <cu/location.h>
+#include <cu/str.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -42,8 +43,11 @@ cu_test_bug_count()
 void
 cuP_test_vbugf(char const *file, int line, char const *msg, va_list va)
 {
+    cu_location_t loc;
     int bug_count = AO_fetch_and_add1(&cuP_test_fail_count) + 1;
-    cu_verrf_at(cu_sref_new_cstr(file, line, -1), msg, va);
+    loc = cu_location_new(cu_locorigin_new(cu_str_new_cstr(file), 8),
+			  line, -1, line, -1);
+    cu_verrf_at(loc, msg, va);
     if (bug_count < cuP_test_max_bug_count)
 	return;
     else if (cuP_test_bugaction == cu_test_bugaction_cont)

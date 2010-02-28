@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ typedef enum {
 } cu_log_origin_t;
 
 typedef cu_clop(cu_vlogf_t, void,
-		cu_log_facility_t facility, cu_sref_t loc,
+		cu_log_facility_t facility, cu_location_t loc,
 		char const *fmt, va_list va);
 
 typedef cu_clop(cu_log_binder_t, cu_bool_t, cu_log_facility_t new_facility);
@@ -121,7 +121,7 @@ void cu_vlogf(cu_log_facility_t facility, char const *fmt, va_list va);
 void cu_logf(cu_log_facility_t facility, char const *fmt, ...);
 
 /** Run the vlogf implementation of \a facility with a source location. */
-void cu_vlogf_at(cu_log_facility_t facility, cu_sref_t loc,
+void cu_vlogf_at(cu_log_facility_t facility, cu_location_t loc,
 		 char const *fmt, va_list va);
 
 /** @} */

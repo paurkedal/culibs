@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -699,7 +699,7 @@ cufo_eprintf(char const *fmt, ...)
 
 void
 cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
-	      cu_sref_t loc, char const *fmt, va_list va)
+	      cu_location_t loc, char const *fmt, va_list va)
 {
     cufo_entera(fos, cufoT_logentry,
 		cufoA_logorigin(cu_log_facility_origin(facility)),
@@ -714,7 +714,7 @@ cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
     }
     if (loc) {
 	cufo_enter(fos, cufoT_location);
-	cufo_print_sref(fos, loc);
+	cufo_print_location(fos, loc);
 	cufo_puts(fos, ": ");
 	cufo_leave(fos, cufoT_location);
     }
@@ -722,7 +722,7 @@ cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
 	fmt += 2;
 	while (isspace(*fmt)) ++fmt;
 	cufo_enter(fos, cufoT_location);
-	cufo_print_sref(fos, va_arg(va, cu_sref_t));
+	cufo_print_location(fos, va_arg(va, cu_location_t));
 	cufo_puts(fos, ": ");
 	cufo_leave(fos, cufoT_location);
     }
