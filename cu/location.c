@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2010  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2010--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,13 @@
 #include <cu/str.h>
 #include <cu/memory.h>
 #include <string.h>
+#include <ctype.h>
+
+/* Added to the lower bound column number of printed locations. */
+int cuC_location_lbcol_offset = 1;
+
+/* Added to the upper bound column number of printed locations. */
+int cuC_location_ubcol_offset = 0;
 
 
 /* cu_locorigin
@@ -65,6 +72,12 @@ cu_locbound_init(cu_locbound_t bound,
 }
 
 void
+cu_locbound_init_file(cu_locbound_t bound, cu_str_t path)
+{
+    cu_locbound_init(bound, cu_locorigin_new(path, 8), 1, 0);
+}
+
+void
 cu_locbound_init_copy(cu_locbound_t bound, cu_locbound_t bound0)
 {
     memcpy(bound, bound0, sizeof(struct cu_locbound));
@@ -75,6 +88,14 @@ cu_locbound_new(cu_locorigin_t origin, int line, int col)
 {
     cu_locbound_t bound = cu_gnew(struct cu_locbound);
     cu_locbound_init(bound, origin, line, col);
+    return bound;
+}
+
+cu_locbound_t
+cu_locbound_new_file(cu_str_t path)
+{
+    cu_locbound_t bound = cu_gnew(struct cu_locbound);
+    cu_locbound_init_file(bound, path);
     return bound;
 }
 
@@ -113,6 +134,25 @@ cu_locbound_put_newline(cu_locbound_t bound)
 	bound->col = 0;
 }
 
+void
+cu_locbound_put_char(cu_locbound_t bound, char ch)
+{
+    if (ch > 127)
+	return;
+    switch (ch) {
+	case '\t':
+	    cu_locbound_put_tab(bound);
+	    break;
+	case '\n': case '\f':
+	    cu_locbound_put_newline(bound);
+	    break;
+	default:
+	    if (!iscntrl(ch))
+		cu_locbound_skip_1(bound);
+	    break;
+    }
+}
+
 
 /* cu_location
  * =========== */
@@ -147,6 +187,12 @@ cu_location_init(cu_location_t loc, cu_locorigin_t origin,
     loc->ubline = ubline;
     loc->ubcol = ubcol;
     loc->chain_tail = NULL;
+}
+
+void
+cu_location_init_copy(cu_location_t loc, cu_location_t loc0)
+{
+    memcpy(loc, loc0, sizeof(struct cu_location));
 }
 
 void
@@ -196,12 +242,41 @@ cu_location_init_cover(cu_location_t loc,
     loc->chain_tail = NULL;
 }
 
+void
+cu_location_init_point(cu_location_t loc, cu_locbound_t bound)
+{
+    cu_location_init(loc, bound->origin,
+		     bound->line, bound->col, bound->line, bound->col);
+}
+
+void
+cu_location_init_point_lb(cu_location_t loc, cu_location_t loc0)
+{
+    cu_location_init(loc, loc0->origin,
+		     loc0->lbline, loc0->lbcol, loc0->lbline, loc0->lbcol);
+}
+
+void
+cu_location_init_point_ub(cu_location_t loc, cu_location_t loc0)
+{
+    cu_location_init(loc, loc0->origin,
+		     loc0->ubline, loc0->ubcol, loc0->ubline, loc0->ubcol);
+}
+
 cu_location_t
 cu_location_new(cu_locorigin_t origin,
 		int lbline, int lbcol, int ubline, int ubcol)
 {
     cu_location_t loc = cu_gnew(struct cu_location);
     cu_location_init(loc, origin, lbline, lbcol, ubline, ubcol);
+    return loc;
+}
+
+cu_location_t
+cu_location_new_copy(cu_location_t loc0)
+{
+    cu_location_t loc = cu_gnew(struct cu_location);
+    cu_location_init_copy(loc, loc0);
     return loc;
 }
 
@@ -279,7 +354,8 @@ cu_location_fprint(cu_location_t loc, FILE *file)
 	fputs("*unknown*", file);
 
     if (loc->lbcol >= 0)
-	fprintf(file, ":%d:%d", loc->lbline, loc->lbcol + 1);
+	fprintf(file, ":%d:%d", loc->lbline,
+		loc->lbcol + cuC_location_lbcol_offset);
     else
 	fprintf(file, ":%d", loc->lbline);
 
@@ -287,9 +363,9 @@ cu_location_fprint(cu_location_t loc, FILE *file)
 	if (cu_location_height(loc) > 0) {
 	    fprintf(file, "-%d", loc->ubline);
 	    if (loc->ubcol >= 0)
-		fprintf(file, ":%d", loc->ubcol + 1);
+		fprintf(file, ":%d", loc->ubcol + cuC_location_ubcol_offset);
 	}
 	else if (loc->ubcol >= 0)
-	    fprintf(file, "-%d", loc->ubcol + 1);
+	    fprintf(file, "-%d", loc->ubcol + cuC_location_ubcol_offset);
     }
 }

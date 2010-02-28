@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2010  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2010--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ main()
     cu_locbound_init(&b1, &origin, 1, 2);
 
     cu_test_assert(cu_locbound_cmp(&b0, &b1) == 0);
-    cu_locbound_skip_columns(&b1, 5);
+    cu_locbound_skip(&b1, 5);
     cu_test_assert(cu_locbound_cmp(&b0, &b1) < 0);
     cu_locbound_put_tab(&b1);
     cu_test_assert(cu_locbound_column(&b1) == 8);

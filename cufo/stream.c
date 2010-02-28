@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -331,6 +331,10 @@ cufo_print_str(cufo_stream_t fos, cu_str_t str)
     cufo_print_charr(fos, cu_str_charr(str), cu_str_size(str));
 }
 
+/* Defined in cu/location.c */
+extern int cuC_location_lbcol_offset;
+extern int cuC_location_ubcol_offset;
+
 void
 cufo_print_sref(cufo_stream_t fos, cu_location_t loc)
 {
@@ -350,7 +354,8 @@ cufo_print_sref(cufo_stream_t fos, cu_location_t loc)
 
     if (cu_location_lb_column(loc) >= 0)
 	cufo_printf(fos, ":%d:%d",
-		    cu_location_lb_line(loc), cu_location_lb_column(loc) + 1);
+		    cu_location_lb_line(loc),
+		    cu_location_lb_column(loc) + cuC_location_lbcol_offset);
     else
 	cufo_printf(fos, ":%d", cu_location_lb_line(loc));
 
@@ -358,10 +363,13 @@ cufo_print_sref(cufo_stream_t fos, cu_location_t loc)
 	if (cu_location_height(loc) > 0) {
 	    cufo_printf(fos, "-%d", cu_location_ub_line(loc));
 	    if (cu_location_ub_column(loc) >= 0)
-		cufo_printf(fos, ":%d", cu_location_ub_column(loc) + 1);
+		cufo_printf(fos, ":%d",
+			    cu_location_ub_column(loc)
+			    + cuC_location_ubcol_offset);
 	}
 	else if (cu_location_ub_column(loc) >= 0)
-	    cufo_printf(fos, "-%d", cu_location_ub_column(loc) + 1);
+	    cufo_printf(fos, "-%d",
+			cu_location_ub_column(loc) + cuC_location_ubcol_offset);
     }
 }
 

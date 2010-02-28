@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2010  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2010--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,6 +75,10 @@ struct cu_locbound
 void cu_locbound_init(cu_locbound_t bound, cu_locorigin_t origin,
 		      int line, int column);
 
+/** Initialize \a bound as the first position of the file at \a path using
+ ** tabstop spaced at 8 columns. */
+void cu_locbound_init_file(cu_locbound_t bound, cu_str_t path);
+
 /** Initialize \a bound as a copy of \a bound0. */
 void cu_locbound_init_copy(cu_locbound_t bound, cu_locbound_t bound0);
 
@@ -82,6 +86,11 @@ void cu_locbound_init_copy(cu_locbound_t bound, cu_locbound_t bound0);
  ** origin. */
 cu_locbound_t cu_locbound_new(cu_locorigin_t origin,
 			      int line, int column);
+
+
+/** Initialize \a bound as the first position of the file at \a path using 8
+ ** column tabstops. */
+cu_locbound_t cu_locbound_new_file(cu_str_t path);
 
 /** Return a copy of \a bound0. */
 cu_locbound_t cu_locbound_new_copy(cu_locbound_t bound0);
@@ -104,17 +113,25 @@ CU_SINLINE int cu_locbound_column(cu_locbound_t bound)
 { return bound->col; }
 
 /** Advance \a bound by \a n columns. */
-CU_SINLINE void cu_locbound_skip_columns(cu_locbound_t bound, int n)
+CU_SINLINE void cu_locbound_skip(cu_locbound_t bound, int n)
 {
     cu_debug_assert(bound->col >= 0);
     bound->col += n;
 }
+
+/** Advance \a bound by 1 column. */
+CU_SINLINE void cu_locbound_skip_1(cu_locbound_t bound)
+{ cu_locbound_skip(bound, 1); }
 
 /** Advance \a bound to the next tabstop. */
 void cu_locbound_put_tab(cu_locbound_t bound);
 
 /** Advance the line number of \a bound and reset the column to 0. */
 void cu_locbound_put_newline(cu_locbound_t bound);
+
+/** Advance \a bound over \a ch.  This works for ASCII characters.  Characters
+ ** above 127 have no effect, which yields a first approximation to UTF-8.  */
+void cu_locbound_put_char(cu_locbound_t bound, char ch);
 
 
 /** @}
@@ -134,6 +151,9 @@ struct cu_location
 void cu_location_init(cu_location_t loc, cu_locorigin_t origin,
 		      int lbline, int lbcol, int ubline, int ubcol);
 
+/** Initialize \a loc as a copy of \a loc0. */
+void cu_location_init_copy(cu_location_t loc, cu_location_t loc0);
+
 /** Initialize \a loc as the range from \a lbound to \a ubound, which must
  ** refer to the same origin. */
 void cu_location_init_range(cu_location_t loc,
@@ -144,10 +164,21 @@ void cu_location_init_range(cu_location_t loc,
 void cu_location_init_cover(cu_location_t loc,
 			    cu_location_t loc0, cu_location_t loc1);
 
+/** Initialize \a loc as the point location at \a bound. */
+void cu_location_init_point(cu_location_t loc, cu_locbound_t bound);
+
+/** Initialize \a loc as the point location at the lower boundary of \a loc0. */
+void cu_location_init_point_lb(cu_location_t loc, cu_location_t loc0);
+
+/** Initialize \a loc as the point location at the upper boundary of \a loc0. */
+void cu_location_init_point_ub(cu_location_t loc, cu_location_t loc0);
 
 /** Return the location for the given range within \a origin. */
 cu_location_t cu_location_new(cu_locorigin_t origin,
 			      int lbline, int lbcol, int ubline, int ubcol);
+
+/** Return a location identical to \a loc0. */
+cu_location_t cu_location_new_copy(cu_location_t loc0);
 
 /** Return the location for the range from \a lbound to \a ubound, which must
  ** refer to the same origin. */
