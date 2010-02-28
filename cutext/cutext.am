@@ -4,6 +4,7 @@ cutext_headers = \
 	cutext/compat.h \
 	cutext/fwd.h \
 	cutext/sink.h \
+	cutext/source.h \
 	cutext/src.h \
 	cutext/conv.h \
 	cutext/wccat.h \
@@ -20,6 +21,11 @@ libcutext_la_SOURCES = \
 	cutext/sink_fd.c \
 	cutext/sink_iconv.c \
 	cutext/sink_str.c \
+	cutext/source.c \
+	cutext/source_buffer.c \
+	cutext/source_fd.c \
+	cutext/source_iconv.c \
+	cutext/source_memory.c \
 	cutext/src.c \
 	cutext/wccat.c \
 	cutext/wctype.c \
@@ -31,7 +37,8 @@ else
 libcutext_la_SOURCES += cutext/wccat_table.c
 endif
 
-cutext_check_programs =
+cutext_check_programs = \
+	cutext/source_t0
 
 cutext_norun_check_programs = \
 	cutext/src_t0 \
@@ -40,6 +47,8 @@ cutext_norun_check_programs = \
 	cutext/wctype_t0
 
 cutext_check_ldadd = libcutext.la libcubase.la
+cutext_source_t0_SOURCES = cutext/source_t0.c
+cutext_source_t0_LDADD = $(cutext_check_ldadd)
 cutext_src_t0_SOURCES = cutext/src_t0.c
 cutext_src_t0_LDADD = $(cutext_check_ldadd)
 cutext_src_t1_SOURCES = cutext/src_t1.c

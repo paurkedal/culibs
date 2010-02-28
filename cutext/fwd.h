@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2010  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,9 @@ typedef enum {
 typedef struct cutext_sink *cutext_sink_t;
 typedef struct cutext_countsink *cutext_countsink_t;
 typedef struct cutext_buffersink *cutext_buffersink_t;
+
+typedef struct cutext_source *cutext_source_t;
+typedef struct cutext_source_descriptor *cutext_source_descriptor_t;
 
 typedef struct cutext_src *cutext_src_t;
 typedef struct cutext_ucs4src *cutext_ucs4src_t;
