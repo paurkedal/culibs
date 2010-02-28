@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ print_page(cufo_stream_t fos)
     int i, j;
     cu_wstring_t wstring;
     cu_str_t str;
-    cu_wchar_t *wcarr;
+    cu_wchar_t const *wcarr;
 
     cufo_entera(fos, cufoT_title, cufoA_id("main-title"));
     cufo_puts(fos, "Test Output of libcufo Formatter\n");

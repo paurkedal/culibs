@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,17 +21,17 @@
 #include <cu/wchar.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cutext_wctype_h cutext/wctype.h: Unicode Character Types
- *@{\ingroup cutext_mod
- *
- * \note
- * These character types are derived from the Unicode general categories, and
- * thus only an approximation to the locale-specific C99 classification.
- *
- * \note
- * The mapping of these functions for non-ASCII characters are subject to
- * revision.
- */
+/** \defgroup cutext_wctype_h cutext/wctype.h: Unicode Character Types
+ ** @{ \ingroup cutext_mod
+ **
+ ** \note
+ ** These character types are derived from the Unicode general categories, and
+ ** thus only an approximation to the locale-specific C99 classification.
+ **
+ ** \note
+ ** The mapping of these functions for non-ASCII characters are subject to
+ ** revision.
+ **/
 
 cu_bool_t cutext_iswalnum(cu_wint_t wc);
 cu_bool_t cutext_iswalpha(cu_wint_t wc);
@@ -50,7 +50,7 @@ cu_bool_t cutext_iswspace(cu_wint_t wc);
 cu_bool_t cutext_iswupper(cu_wint_t wc);
 cu_bool_t cutext_iswxdigit(cu_wint_t wc);
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif
