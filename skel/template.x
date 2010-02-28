@@ -1,5 +1,5 @@
 # Part of the culibs project, <http://www.eideticdew.org/culibs/>.
-# Copyright (C) @YEAR@  Petter Urkedal <urkedal@nbi.dk>
+# Copyright (C) @YEAR@  Petter Urkedal <paurkedal@eideticdew.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
