@@ -18,31 +18,21 @@
 #include <cu/sref.h>
 #include <cu/memory.h>
 #include <cu/str.h>
+#include <string.h>
 
 
 void
 cu_sref_init(cu_sref_t srf, cu_str_t path, int line, int column)
 {
-    srf->chain_tail = NULL;
-    srf->path = path;
-    srf->line = line;
-    srf->column = column;
-    srf->last_line = -1;
-    srf->last_column = -1;
-    srf->tabstop = 8;
+    cu_location_init(srf, cu_locorigin_new(path, 8),
+		     line, column, line, column);
 }
 
 cu_sref_t
 cu_sref_new(cu_str_t path, int line, int column)
 {
     cu_sref_t srf = cu_gnew(struct cu_sref);
-    srf->chain_tail = NULL;
-    srf->path = path;
-    srf->line = line;
-    srf->column = column;
-    srf->last_line = -1;
-    srf->last_column = -1;
-    srf->tabstop = 8;
+    cu_sref_init(srf, path, line, column);
     return srf;
 }
 
@@ -58,13 +48,8 @@ cu_sref_init_range(cu_sref_t srf, cu_str_t path,
 		  int last_line, int last_column)
 {
     cu_debug_assert((first_column >= 0) == (last_column >= 0));
-    srf->chain_tail = NULL;
-    srf->path = path;
-    srf->line = first_line;
-    srf->column = first_column;
-    srf->last_line = last_line;
-    srf->last_column = last_column;
-    srf->tabstop = 8;
+    cu_location_init(srf, cu_locorigin_new(path, 8),
+		     first_line, first_column, last_line, last_column);
 }
 
 cu_sref_t
@@ -81,19 +66,7 @@ cu_sref_new_range(cu_str_t path,
 void
 cu_sref_init_span(cu_sref_t srf, cu_sref_t first, cu_sref_t last)
 {
-    cu_debug_assert(cu_sref_compatible(first, last));
-    srf->chain_tail = NULL;
-    srf->path = first->path;
-    srf->line = first->line;
-    srf->column = first->column;
-    if (cu_sref_is_point(last)) {
-	srf->last_line = last->line;
-	srf->last_column = last->column;
-    } else {
-	srf->last_line = last->last_line;
-	srf->last_column = last->last_column;
-    }
-    srf->tabstop = first->tabstop;
+    cu_location_init_cover(srf, first, last);
 }
 
 cu_sref_t
@@ -107,78 +80,51 @@ cu_sref_new_sref_range(cu_sref_t first, cu_sref_t last)
 void
 cu_sref_init_first(cu_sref_t srf, cu_sref_t range)
 {
-    srf->chain_tail = NULL;
-    srf->path = range->path;
-    srf->line = range->line;
-    srf->column = range->column;
-    srf->last_line = srf->last_column = -1;
-    srf->tabstop = range->tabstop;
+    cu_location_init(srf, cu_location_origin(range),
+		     cu_location_lb_line(range), cu_location_lb_column(range),
+		     cu_location_lb_line(range), cu_location_lb_column(range));
 }
 
 void
 cu_sref_init_last(cu_sref_t srf, cu_sref_t range)
 {
-    srf->chain_tail = NULL;
-    srf->path = range->path;
-    if (cu_sref_is_point(range)) {
-	srf->line = range->line;
-	srf->column = range->column;
-    } else {
-	srf->line = range->last_line;
-	srf->column = range->last_column;
-    }
-    srf->last_line = srf->last_column = -1;
-    srf->tabstop = range->tabstop;
+    cu_location_init(srf, cu_location_origin(range),
+		     cu_location_ub_line(range), cu_location_ub_column(range),
+		     cu_location_ub_line(range), cu_location_ub_column(range));
 }
 
 void
 cu_sref_set_sref_first(cu_sref_t srf, cu_sref_t first)
 {
     cu_debug_assert(cu_sref_compatible(srf, first));
-    srf->line = first->line;
-    srf->column = first->column;
+    srf->lbline = first->lbline;
+    srf->lbcol = first->lbcol;
 }
 
 void
 cu_sref_set_sref_last(cu_sref_t srf, cu_sref_t last)
 {
     cu_debug_assert(cu_sref_compatible(srf, last));
-    if (cu_sref_is_point(last)) {
-	srf->last_line = last->line;
-	srf->last_column = last->column;
-    } else {
-	srf->last_line = last->last_line;
-	srf->last_column = last->last_column;
-    }
+    srf->ubline = last->ubline;
+    srf->ubcol = last->ubcol;
 }
 
 cu_bool_t
 cu_sref_compatible(cu_sref_t srf0, cu_sref_t srf1)
 {
-    if (srf0->tabstop != srf1->tabstop)
-	return cu_false;
-    if (srf0->path)
-	return srf1->path && cu_str_cmp(srf0->path, srf1->path) == 0;
-    else
-	return !srf1->path;
+    return cu_location_origin_cmp(srf0, srf1) == 0;
 }
 
 void
 cu_sref_set_tabstop(cu_sref_t srf, int w)
 {
-    srf->tabstop = w;
+    srf->origin->tabstop = w;
 }
 
 void
 cu_sref_init_copy(cu_sref_t srf, cu_sref_t srf0)
 {
-    srf->chain_tail = srf0->chain_tail;
-    srf->path = srf0->path;
-    srf->line = srf0->line;
-    srf->column = srf0->column;
-    srf->last_line = srf0->last_line;
-    srf->last_column = srf0->last_column;
-    srf->tabstop = srf0->tabstop;
+    memcpy(srf, srf0, sizeof(struct cu_location));
 }
 
 cu_sref_t
@@ -190,46 +136,26 @@ cu_sref_new_copy(cu_sref_t srf0)
 }
 
 void
+cu_sref_advance_columns(cu_sref_t sref, int cnt)
+{
+    cu_debug_assert(cu_sref_is_point(sref));
+    sref->ubcol = sref->lbcol += cnt;
+}
+
+void
 cu_sref_newline(cu_sref_t srf)
 {
-    if (srf->column > 0)
-	srf->column = 0;
-    ++srf->line;
+    cu_debug_assert(cu_sref_is_point(srf));
+    if (srf->lbcol > 0)
+	srf->lbcol = srf->ubcol = 0;
+    ++srf->lbline;
+    ++srf->ubline;
 }
 
 void
 cu_sref_tab(cu_sref_t srf)
 {
-    srf->column = (srf->column/srf->tabstop + 1)*srf->tabstop;
-}
-
-void
-cu_sref_fprint(cu_sref_t srf, FILE* file)
-{
-    if (!cu_sref_is_known(srf)) {
-	fprintf(file, "#[unknown]");
-	return;
-    }
-    if (srf->path)
-	CU_DISCARD(fwrite(cu_str_charr(srf->path), 1, cu_str_size(srf->path),
-			  file));
-    else
-	fputs("#[unknown]", file);
-    if (srf->column >= 0)
-	/* Note. 'vi' starts counting at column 1. 'emacs' starts at 0
-	 * but assumes error messages starts at 1. */
-	fprintf(file, ":%d:%d",
-		cu_sref_line(srf), cu_sref_column(srf) + 1);
-    else
-	fprintf(file, ":%d", cu_sref_line(srf));
-    if (srf->last_line >= 0) {
-	cu_debug_assert((srf->last_column >= 0) == (srf->column >= 0));
-	if (srf->last_line != srf->line) {
-	    fprintf(file, "-%d", srf->last_line);
-	    if (srf->last_column >= 0)
-		fprintf(file, ":%d", srf->last_column);
-	}
-	else if (srf->last_column >= 0)
-	    fprintf(file, "-%d", srf->last_column);
-    }
+    int tabstop = srf->origin->tabstop;
+    cu_debug_assert(srf->lbcol == srf->ubcol);
+    srf->lbcol = srf->ubcol = (srf->lbcol/tabstop + 1)*tabstop;
 }

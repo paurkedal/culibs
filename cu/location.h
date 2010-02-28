@@ -127,6 +127,7 @@ struct cu_location
     cu_locorigin_t origin;
     int   lbline, ubline;
     short lbcol,  ubcol;
+    cu_location_t chain_tail; /* backwards compat */
 };
 
 /** Initialize \a loc as the given range range within \a origin. */

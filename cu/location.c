@@ -146,6 +146,7 @@ cu_location_init(cu_location_t loc, cu_locorigin_t origin,
     loc->lbcol = lbcol;
     loc->ubline = ubline;
     loc->ubcol = ubcol;
+    loc->chain_tail = NULL;
 }
 
 void
@@ -163,6 +164,7 @@ cu_location_init_range(cu_location_t loc,
     loc->lbcol = lbound->col;
     loc->ubline = ubound->line;
     loc->ubcol = ubound->col;
+    loc->chain_tail = NULL;
 }
 
 void
@@ -190,6 +192,8 @@ cu_location_init_cover(cu_location_t loc,
 	loc->ubline = loc0->ubline;
 	loc->ubcol = loc0->ubcol;
     }
+
+    loc->chain_tail = NULL;
 }
 
 cu_location_t

@@ -202,7 +202,7 @@ typedef struct cu_ptr_sink	*cu_ptr_sink_t;		/* ptr_seq.h */
 typedef struct cu_ptr_junction	*cu_ptr_junction_t;	/* ptr_seq.h */
 typedef struct cu_ptr_sinktor	*cu_ptr_sinktor_t;	/* ptr_seq.h */
 typedef struct cu_ptr_junctor	*cu_ptr_junctor_t;	/* ptr_seq.h */
-typedef struct cu_sref		*cu_sref_t;		/* srcref.h */
+typedef struct cu_location	*cu_sref_t;		/* srcref.h */
 typedef struct cu_str		*cu_str_t;		/* str.h */
 typedef struct cu_wstring	*cu_wstring_t;		/* wstring.h */
 

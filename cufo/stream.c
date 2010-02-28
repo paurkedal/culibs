@@ -22,7 +22,7 @@
 #include <cucon/array.h>
 #include <cu/wstring.h>
 #include <cu/str.h>
-#include <cu/sref.h>
+#include <cu/location.h>
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
@@ -332,31 +332,36 @@ cufo_print_str(cufo_stream_t fos, cu_str_t str)
 }
 
 void
-cufo_print_sref(cufo_stream_t fos, cu_sref_t srf)
+cufo_print_sref(cufo_stream_t fos, cu_location_t loc)
 {
-    if (!cu_sref_is_known(srf)) {
+    /* See note in cu/location.c about 1-based counting of columns. */
+
+    cu_str_t path;
+
+    if (loc == NULL) {
 	cufo_puts(fos, "*unknown*");
 	return;
     }
-    if (srf->path)
-	cufo_print_str(fos, srf->path);
+    path = cu_location_path(loc);
+    if (path)
+	cufo_print_str(fos, path);
     else
 	cufo_puts(fos, "*unknown*");
-    if (srf->column >= 0)
-	/* Note. 'vi' starts counting at column 1. 'emacs' starts at 0
-	 * but assumes error messages starts at 1. */
-	cufo_printf(fos, ":%d:%d", cu_sref_line(srf), cu_sref_column(srf) + 1);
+
+    if (cu_location_lb_column(loc) >= 0)
+	cufo_printf(fos, ":%d:%d",
+		    cu_location_lb_line(loc), cu_location_lb_column(loc) + 1);
     else
-	cufo_printf(fos, ":%d", cu_sref_line(srf));
-    if (srf->last_line >= 0) {
-	cu_debug_assert((srf->last_column >= 0) == (srf->column >= 0));
-	if (srf->last_line != srf->line) {
-	    cufo_printf(fos, "-%d", srf->last_line);
-	    if (srf->last_column >= 0)
-		cufo_printf(fos, ":%d", srf->last_column);
+	cufo_printf(fos, ":%d", cu_location_lb_line(loc));
+
+    if (cu_location_length(loc) > 0) {
+	if (cu_location_height(loc) > 0) {
+	    cufo_printf(fos, "-%d", cu_location_ub_line(loc));
+	    if (cu_location_ub_column(loc) >= 0)
+		cufo_printf(fos, ":%d", cu_location_ub_column(loc) + 1);
 	}
-	else if (srf->last_column >= 0)
-	    cufo_printf(fos, "-%d", srf->last_column);
+	else if (cu_location_ub_column(loc) >= 0)
+	    cufo_printf(fos, "-%d", cu_location_ub_column(loc) + 1);
     }
 }
 
