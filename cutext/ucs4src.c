@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -201,8 +201,8 @@ header_ok:
 	    else if (enc != chenc) {
 		/* XX The encoding shall be changed if sensible, else */
 		cu_warnf("Encoding %s does not match autodetected %s.",
-			  cutextP_encoding_name(enc),
-			  cutextP_encoding_name(chenc));
+			  cutext_encoding_name(enc),
+			  cutext_encoding_name(chenc));
 	    }
 	}
     }
