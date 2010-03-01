@@ -16,6 +16,7 @@
  */
 
 #include <cutext/source.h>
+#include <cutext/bufsource.h>
 #include <cu/inherit.h>
 #include <cu/buffer.h>
 #include <cu/memory.h>
@@ -30,10 +31,9 @@ struct _bufsource
     struct cu_buffer buf;
 };
 
-static size_t
-_bufsource_read(cutext_source_t src, void *dst_data, size_t dst_size)
+size_t
+cutext_bufsource_read(cutext_bufsource_t bsrc, void *dst_data, size_t dst_size)
 {
-    struct _bufsource *bsrc = BUFSOURCE(src);
     size_t buf_size = cu_buffer_content_size(&bsrc->buf);
     void *buf_data = cu_buffer_content_start(&bsrc->buf);
     if (buf_size >= dst_size) {
@@ -55,10 +55,10 @@ _bufsource_read(cutext_source_t src, void *dst_data, size_t dst_size)
     }
 }
 
-static void const *
-_bufsource_look(cutext_source_t src, size_t req_size, size_t *act_size)
+void const *
+cutext_bufsource_look(cutext_bufsource_t bsrc,
+		      size_t req_size, size_t *act_size)
 {
-    struct _bufsource *bsrc = BUFSOURCE(src);
     size_t buf_size = cu_buffer_content_size(&bsrc->buf);
     if (buf_size < req_size) {
 	size_t sub_size, add_size = req_size - buf_size;
@@ -94,19 +94,27 @@ _bufsource_info(cutext_source_t src, cutext_source_info_key_t key)
 }
 
 static struct cutext_source_descriptor _bufsource_descr = {
-    .read = _bufsource_read,
-    .look = _bufsource_look,
+    .read = (size_t (*)(cutext_source_t, void *, size_t))
+	    cutext_bufsource_read,
+    .look = (void const *(*)(cutext_source_t, size_t, size_t *))
+	    cutext_bufsource_look,
     .close = _bufsource_close,
     .subsource = _bufsource_subsource,
     .info = _bufsource_info,
 };
 
-cutext_source_t
-cutext_source_stack_buffer(cutext_source_t subsrc)
+void
+cutext_bufsource_init(cutext_bufsource_t bsrc, cutext_source_t subsrc)
 {
-    struct _bufsource *bsrc = cu_gnew(struct _bufsource);
     bsrc->subsrc = subsrc;
     cu_buffer_init(&bsrc->buf, 16);
     cutext_source_init(cu_to(cutext_source, bsrc), &_bufsource_descr);
+}
+
+cutext_source_t
+cutext_source_stack_buffer(cutext_source_t subsrc)
+{
+    cutext_bufsource_t bsrc = cu_gnew(struct cutext_bufsource);
+    cutext_bufsource_init(bsrc, subsrc);
     return cu_to(cutext_source, bsrc);
 }

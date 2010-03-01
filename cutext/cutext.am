@@ -1,6 +1,7 @@
 if enable_cutext
 
 cutext_headers = \
+	cutext/bufsource.h \
 	cutext/compat.h \
 	cutext/fwd.h \
 	cutext/sink.h \

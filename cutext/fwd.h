@@ -29,6 +29,7 @@ typedef struct cutext_buffersink *cutext_buffersink_t;
 
 typedef struct cutext_source *cutext_source_t;
 typedef struct cutext_source_descriptor *cutext_source_descriptor_t;
+typedef struct cutext_bufsource *cutext_bufsource_t;
 
 typedef struct cutext_src *cutext_src_t;
 typedef struct cutext_ucs4src *cutext_ucs4src_t;
