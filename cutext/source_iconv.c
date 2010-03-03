@@ -117,6 +117,8 @@ cutext_source_stack_iconv(char const *encoding, cutext_source_t subsrc)
 {
     struct _iconvsource *isrc;
     char const *sub_encoding = cutext_source_encoding(subsrc);
+    if (!cutext_source_can_look(subsrc))
+	subsrc = cutext_source_stack_buffer(subsrc);
     if (!sub_encoding) {
 	cutext_encoding_t enc = cutext_source_guess_encoding(subsrc);
 	if (enc == CUTEXT_ENCODING_NONE) {
@@ -127,6 +129,8 @@ cutext_source_stack_iconv(char const *encoding, cutext_source_t subsrc)
     }
     if (strcmp(encoding, sub_encoding) == 0)
 	return subsrc;
+    cu_dlogf(_file, "Stacking iconv from %s to %s on source.",
+	     sub_encoding, encoding);
     isrc = cu_gnew(struct _iconvsource);
     isrc->subsrc = subsrc;
     isrc->encoding = encoding;
