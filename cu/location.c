@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2010--2010  Petter Urkedal <paurkedal@eideticdew.org>
+ * Copyright (C) 2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -293,6 +293,30 @@ cu_location_new_cover(cu_location_t loc0, cu_location_t loc1)
 {
     cu_location_t loc = cu_gnew(struct cu_location);
     cu_location_init_cover(loc, loc0, loc1);
+    return loc;
+}
+
+cu_location_t
+cu_location_new_point(cu_locbound_t bound)
+{
+    cu_location_t loc = cu_gnew(struct cu_location);
+    cu_location_init_point(loc, bound);
+    return loc;
+}
+
+cu_location_t
+cu_location_new_point_lb(cu_location_t loc0)
+{
+    cu_location_t loc = cu_gnew(struct cu_location);
+    cu_location_init_point_lb(loc, loc0);
+    return loc;
+}
+
+cu_location_t
+cu_location_new_point_ub(cu_location_t loc0)
+{
+    cu_location_t loc = cu_gnew(struct cu_location);
+    cu_location_init_point_ub(loc, loc0);
     return loc;
 }
 

@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2010--2010  Petter Urkedal <paurkedal@eideticdew.org>
+ * Copyright (C) 2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -187,6 +187,15 @@ cu_location_t cu_location_new_range(cu_locbound_t lbound, cu_locbound_t ubound);
 /** Return the narrowest location which covers \a loc0 and \a loc1, where the
  ** latter two must refer to the same origin. */
 cu_location_t cu_location_new_cover(cu_location_t loc0, cu_location_t loc1);
+
+/** Return the point location at \a bound. */
+cu_location_t cu_location_new_point(cu_locbound_t bound);
+
+/** Return the point location coinciding with the lower bound of \a loc0. */
+cu_location_t cu_location_new_point_lb(cu_location_t loc0);
+
+/** Return the point location coinciding with the upper bound of \a loc0. */
+cu_location_t cu_location_new_point_ub(cu_location_t loc0);
 
 /** The origin of \a loc. */
 CU_SINLINE cu_locorigin_t cu_location_origin(cu_location_t loc)
