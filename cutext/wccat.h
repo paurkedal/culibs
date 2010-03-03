@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,10 @@
 
 CU_BEGIN_DECLARATIONS
 
-/*!\defgroup cutext_wccat_h cutext/wccat.h: Unicode General Categories
- *@{\ingroup cutext_mod */
+/** \defgroup cutext_wccat_h cutext/wccat.h: Unicode General Categories
+ ** @{\ingroup cutext_mod */
 
-/*!Enumeration of the Unicode 5.1.0 character categories. */
+/** Enumeration of the Unicode 5.1.0 character categories. */
 typedef enum {
     CUTEXT_WCCAT_NONE,		/*!< not a category */
     CUTEXT_WCCAT_LU = 8,	/*!< letter, uppercase */
@@ -60,38 +60,38 @@ typedef enum {
     CUTEXT_WCCAT_CN,		/*!< other, not assigned */
 } cutext_wccat_t;
 
-/*!Returns the general category denoted by its two-letter name \a name, or \ref
- * CUTEXT_WCCAT_NONE if \a name is invalid. */
+/** Returns the general category denoted by its two-letter name \a name, or
+ ** \ref CUTEXT_WCCAT_NONE if \a name is invalid. */
 cutext_wccat_t cutext_wccat_by_name(char *name);
 
-/*!Returns the general category of \a ch. */
+/** Returns the general category of \a ch. */
 cutext_wccat_t cutext_wchar_wccat(cu_wint_t ch);
 
-/*!True iff \a ct is in the "letter" ("L*") main category. */
+/** True iff \a ct is in the "letter" ("L*") main category. */
 CU_SINLINE cu_bool_t
 cutext_wccat_is_letter(cutext_wccat_t ct) { return (ct >> 3) == 1; }
 
-/*!True iff \a ct is in the "mark" ("M*") main category. */
+/** True iff \a ct is in the "mark" ("M*") main category. */
 CU_SINLINE cu_bool_t
 cutext_wccat_is_mark(cutext_wccat_t ct) { return (ct >> 3) == 2; }
 
-/*!True iff \a ct is in the "number" ("N*") main category. */
+/** True iff \a ct is in the "number" ("N*") main category. */
 CU_SINLINE cu_bool_t
 cutext_wccat_is_number(cutext_wccat_t ct) { return (ct >> 3) == 3; }
 
-/*!True iff \a ct is in the "punctuation" ("P*") main category. */
+/** True iff \a ct is in the "punctuation" ("P*") main category. */
 CU_SINLINE cu_bool_t
 cutext_wccat_is_punctuation(cutext_wccat_t ct) { return (ct >> 3) == 4; }
 
-/*!True iff \a ct is in the "symbol" ("S*") main category. */
+/** True iff \a ct is in the "symbol" ("S*") main category. */
 CU_SINLINE cu_bool_t
 cutext_wccat_is_symbol(cutext_wccat_t ct) { return (ct >> 3) == 5; }
 
-/*!True iff \a ct is in the "separator" ("Z*") main category. */
+/** True iff \a ct is in the "separator" ("Z*") main category. */
 CU_SINLINE cu_bool_t
 cutext_wccat_is_separator(cutext_wccat_t ct) { return (ct >> 3) == 6; }
 
-/*!True iff \a ct is in the "other" ("C*") main category. */
+/** True iff \a ct is in the "other" ("C*") main category. */
 CU_SINLINE cu_bool_t
 cutext_wccat_is_other(cutext_wccat_t ct) { return (ct >> 3) == 7; }
 
@@ -149,7 +149,7 @@ cutext_wchar_is_print(cu_wchar_t ch)
 	&& !cutext_wchar_is_vertical_space(ch);
 }
 
-/*!@}*/
+/** @} */
 
 CU_END_DECLARATIONS
 
