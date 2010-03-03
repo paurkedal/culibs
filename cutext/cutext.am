@@ -4,6 +4,7 @@ cutext_headers = \
 	cutext/bufsource.h \
 	cutext/compat.h \
 	cutext/fwd.h \
+	cutext/lsource.h \
 	cutext/sink.h \
 	cutext/source.h \
 	cutext/src.h \
@@ -18,6 +19,7 @@ libcutext_la_SOURCES = \
 	cutext/conv_dsink.c \
 	cutext/encoding.c \
 	cutext/init.c \
+	cutext/lsource.c \
 	cutext/sink.c \
 	cutext/sink_buffer.c \
 	cutext/sink_fd.c \
@@ -40,6 +42,7 @@ libcutext_la_SOURCES += cutext/wccat_table.c
 endif
 
 cutext_check_programs = \
+	cutext/lsource_t0 \
 	cutext/source_t0
 
 cutext_norun_check_programs = \
@@ -49,6 +52,8 @@ cutext_norun_check_programs = \
 	cutext/wctype_t0
 
 cutext_check_ldadd = libcutext.la libcubase.la
+cutext_lsource_t0_SOURCES = cutext/lsource_t0.c
+cutext_lsource_t0_LDADD = $(cutext_check_ldadd)
 cutext_source_t0_SOURCES = cutext/source_t0.c
 cutext_source_t0_LDADD = $(cutext_check_ldadd)
 cutext_src_t0_SOURCES = cutext/src_t0.c
@@ -81,15 +86,24 @@ cutext/wccat_blocks.c: $(srcdir)/cutext/UnicodeData.txt cutext/mk_wccat
 $(srcdir)/cutext/UnicodeData.txt:
 	$(srcdir)/cutext/fetch_unicode_data.sh --ask
 
+check-local: cutext/lsource_t0_utf-8.txt cutext/lsource_t0_utf-16.txt \
+	     cutext/lsource_t0_ucs-4.txt
+
+cutext/lsource_t0_%.txt: cutext/lsource_t0.txt COPYING
+	cat $+ | iconv -f utf-8 -t $* >$@.tmp
+	mv $@.tmp $@
+
 endif enable_cutext
 
 EXTRA_DIST += \
 	cutext/cutext.am \
 	cutext/chenc_conv.tab \
+	cutext/lsource_t0.txt \
 	cutext/mk_str_enum_conv.c \
 	cutext/mk_wccat_table.pl \
 	cutext/UnicodeData.txt
 CLEANFILES += \
 	cutext/chenc_conv.c \
+	cutext/lsource_t0_*.txt \
 	cutext/mk_str_enum_conv \
 	cutext/wccat_switch.c
