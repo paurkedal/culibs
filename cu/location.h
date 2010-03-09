@@ -104,6 +104,10 @@ int cu_locbound_cmp(cu_locbound_t bound0, cu_locbound_t bound1);
 CU_SINLINE cu_locorigin_t cu_locbound_origin(cu_locbound_t bound)
 { return bound->origin; }
 
+/** The path of the origin of \a bound. */
+CU_SINLINE cu_str_t cu_locbound_path(cu_locbound_t bound)
+{ return bound->origin->path; }
+
 /** The current line number of \a bound. */
 CU_SINLINE int cu_locbound_line(cu_locbound_t bound)
 { return bound->line; }
