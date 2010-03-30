@@ -474,7 +474,7 @@ ot_parse_file(cuex_otab_t tab, cu_str_t path, cucon_list_t import_paths)
 		strerror(errno));
 	return 1;
     }
-    cu_locbound_init_file(&state.locb, path);
+    cu_locbound_init_file(&state.locb, path, 1, 0);
     state.current_range = NULL;
     yyparse(&state);
     return state.error_cnt;

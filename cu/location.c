@@ -72,9 +72,9 @@ cu_locbound_init(cu_locbound_t bound,
 }
 
 void
-cu_locbound_init_file(cu_locbound_t bound, cu_str_t path)
+cu_locbound_init_file(cu_locbound_t bound, cu_str_t path, int line, int column)
 {
-    cu_locbound_init(bound, cu_locorigin_new(path, 8), 1, 0);
+    cu_locbound_init(bound, cu_locorigin_new(path, 8), line, column);
 }
 
 void
@@ -92,10 +92,10 @@ cu_locbound_new(cu_locorigin_t origin, int line, int col)
 }
 
 cu_locbound_t
-cu_locbound_new_file(cu_str_t path)
+cu_locbound_new_file(cu_str_t path, int line, int column)
 {
     cu_locbound_t bound = cu_gnew(struct cu_locbound);
-    cu_locbound_init_file(bound, path);
+    cu_locbound_init_file(bound, path, line, column);
     return bound;
 }
 

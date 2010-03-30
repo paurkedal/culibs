@@ -75,9 +75,10 @@ struct cu_locbound
 void cu_locbound_init(cu_locbound_t bound, cu_locorigin_t origin,
 		      int line, int column);
 
-/** Initialize \a bound as the first position of the file at \a path using
+/** Initialize \a bound as the given position of the file at \a path using
  ** tabstop spaced at 8 columns. */
-void cu_locbound_init_file(cu_locbound_t bound, cu_str_t path);
+void cu_locbound_init_file(cu_locbound_t bound, cu_str_t path,
+			   int line, int column);
 
 /** Initialize \a bound as a copy of \a bound0. */
 void cu_locbound_init_copy(cu_locbound_t bound, cu_locbound_t bound0);
@@ -88,9 +89,9 @@ cu_locbound_t cu_locbound_new(cu_locorigin_t origin,
 			      int line, int column);
 
 
-/** Initialize \a bound as the first position of the file at \a path using 8
+/** Initialize \a bound as the given position of the file at \a path using 8
  ** column tabstops. */
-cu_locbound_t cu_locbound_new_file(cu_str_t path);
+cu_locbound_t cu_locbound_new_file(cu_str_t path, int line, int column);
 
 /** Return a copy of \a bound0. */
 cu_locbound_t cu_locbound_new_copy(cu_locbound_t bound0);
