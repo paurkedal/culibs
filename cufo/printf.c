@@ -28,6 +28,7 @@
 #include <cu/str.h>
 #include <cu/wstring.h>
 #include <cu/logging.h>
+#include <cu/location.h>
 #include <cu/conf.h>
 #include <string.h>
 #include <ctype.h>
@@ -718,13 +719,24 @@ cufo_vlogf_at(cufo_stream_t fos, cu_log_facility_t facility,
 	cufo_puts(fos, ": ");
 	cufo_leave(fos, cufoT_location);
     }
-    if (fmt[0] == '%' && fmt[1] == ':') {
-	fmt += 2;
-	while (isspace(*fmt)) ++fmt;
-	cufo_enter(fos, cufoT_location);
-	cufo_print_location(fos, va_arg(va, cu_location_t));
-	cufo_puts(fos, ": ");
-	cufo_leave(fos, cufoT_location);
+    if (fmt[0] == '%') {
+	loc = NULL;
+	if (fmt[1] == 'h' && fmt[2] == ':') {
+	    struct cu_location locp;
+	    fmt += 3;
+	    cufo_enter(fos, cufoT_location);
+	    cu_location_init_point(&locp, va_arg(va, cu_locbound_t));
+	    cufo_print_location(fos, &locp);
+	    cufo_putc(fos, ':');
+	    cufo_leave(fos, cufoT_location);
+	}
+	else if (fmt[1] == ':') {
+	    fmt += 2;
+	    cufo_enter(fos, cufoT_location);
+	    cufo_print_location(fos, va_arg(va, cu_location_t));
+	    cufo_putc(fos, ':');
+	    cufo_leave(fos, cufoT_location);
+	}
     }
     cufo_enter(fos, cufoT_message);
     cufo_vprintf(fos, fmt, va);
