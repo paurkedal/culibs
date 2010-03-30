@@ -31,6 +31,12 @@ CU_BEGIN_DECLARATIONS
  ** Directory Specification</a> with a few adjustments.
  **/
 
+typedef enum {
+    CUOS_USER_CONFIG,
+    CUOS_USER_DATA,
+    CUOS_USER_CACHE,
+} cuos_user_dir_usage_t;
+
 /** This functions forces re-probing of the user directories.  The may be
  ** useful if directories where created or the XDG_* environment variables
  ** where changed with \c setenv(3), \c unsetenv(3), etc. */
@@ -55,10 +61,6 @@ cu_str_t cuos_user_config_path(char const *pkg_name, cu_str_t subpath);
 cu_str_t cuos_user_data_path(char const *pkg_name, cu_str_t subpath);
 cu_str_t cuos_user_cache_path(char const *pkg_name, cu_str_t subpath);
 
-#define CUOS_USER_CONFIG	0
-#define CUOS_USER_DATA		1
-#define CUOS_USER_CACHE		2
-
 /** A structure which holds package specific user directories for
  ** configuration, data, and cache, based on various environment variables and
  ** the package installation directories.  Use \ref CUOS_PKG_USER_DIRS_INITZ as
@@ -79,7 +81,10 @@ struct cuos_pkg_user_dirs
  **     = CUOS_PKG_USER_DIRS_INITZ("foo", "FOO", foo_installdirs);
  ** \endcode
  ** after which <tt>cuos_pkg_user_config_dir(&foo_user_dirs)</tt> would give
- ** something like <tt>/home/jdoe/.config/foo</tt>.
+ ** something like <tt>/home/jdoe/.config/foo</tt>.  If you prefer to skip the
+ ** \ref cu_installdirs_h "installdirs" initialisation, you can pass \a NULL as
+ ** the last parameter and instead call \ref cuos_pkg_user_dirs_init on program
+ ** start-up.
  **
  ** This initialises part of the structure.  The rest is initialised on demand
  ** when calling the \c cuos_pkg_* functions.  The on-demand initalisation will
@@ -108,9 +113,11 @@ struct cuos_pkg_user_dirs
 #define CUOS_PKG_USER_DIRS_INITZ(pkg_name, var_prefix, app_installdirs) \
     { pkg_name, var_prefix, app_installdirs, 0, CU_MUTEX_INITIALISER }
 
-#ifndef CU_IN_DOXYGEN
-void cuosP_pkg_user_dirs_ensure_init(cuos_pkg_user_dirs_t udirs);
-#endif
+/** Optionally call this on start-up to initialize \a udirs with the given
+ ** package-specific installation directories.  You only need to do this if you
+ ** want to skip the initialization of a \ref cu_installdirs_t array. */
+void cuos_pkg_user_dirs_init(cuos_pkg_user_dirs_t udirs,
+			     char const *sysconfdir, char const *datadir);
 
 /** Finish initialisation of \a udirs if not already done.  This is called by
  ** the other \c cuos_pkg_* functions, so you normally don't need to call it
@@ -120,7 +127,7 @@ CU_SINLINE void
 cuos_pkg_user_dirs_ensure_init(cuos_pkg_user_dirs_t udirs)
 {
     if (!AO_load_acquire_read(&udirs->init_done))
-	cuosP_pkg_user_dirs_ensure_init(udirs);
+	cuos_pkg_user_dirs_init(udirs, NULL, NULL);
 }
 
 /** The user config path from \a udirs. */
@@ -172,6 +179,12 @@ cu_str_t cuos_pkg_user_config_search(cuos_pkg_user_dirs_t udirs, cu_str_t path);
  **     <tt>/usr/<i>pkg_name</i></tt>.
  **/
 cu_str_t cuos_pkg_user_data_search(cuos_pkg_user_dirs_t udirs, cu_str_t path);
+
+CU_SINLINE cucon_list_t
+cuos_pkg_user_dirs_list(cuos_pkg_user_dirs_t udirs, cuos_user_dir_usage_t which)
+{
+    return &udirs->dirs[which].top_dirs;
+}
 
 /** @} */
 CU_END_DECLARATIONS

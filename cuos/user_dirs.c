@@ -116,7 +116,8 @@ cuos_user_cache_path(char const *pkg_name, cu_str_t file)
 
 
 void
-cuosP_pkg_user_dirs_ensure_init(cuos_pkg_user_dirs_t udirs)
+cuos_pkg_user_dirs_init(cuos_pkg_user_dirs_t udirs,
+			char const *sysconfdir, char const *datadir)
 {
     static char const *dirs_vars[] = {"XDG_CONFIG_DIRS", "XDG_DATA_DIRS"};
     static char const *home_vars[] = {"XDG_CONFIG_HOME", "XDG_DATA_HOME",
@@ -126,6 +127,7 @@ cuosP_pkg_user_dirs_ensure_init(cuos_pkg_user_dirs_t udirs)
 
     cu_mutex_lock(&udirs->init_mutex);
     if (!udirs->init_done) {
+	cu_str_t dir;
 	int i;
 	char const *pkg_name = udirs->pkg_name;
 	size_t var_prefix_length = strlen(udirs->var_prefix);
@@ -181,33 +183,39 @@ cuosP_pkg_user_dirs_ensure_init(cuos_pkg_user_dirs_t udirs)
 	    }
 	}
 
-	/* If installdirs are provided, add package files as fallback. */
+	/* Use cu_installdirs_t array if provided. */
 	if (udirs->installdirs) {
-	    cu_str_t dir;
-	    char const *sysconfdir, *datadir;
-
-	    /* Check ${sysconfdir}/xdg/foo and ${sysconfdir}/foo. */
+	    if (sysconfdir || datadir)
+		cu_warnf("Directories passed to cuos_pkg_user_dirs_init "
+			 "will be ignored since installation directories "
+			 "where statically assigned.");
 	    sysconfdir = cu_installdirs_get(udirs->installdirs,
 					    CU_INSTALLDIR_SYSCONFDIR);
+	    datadir = cu_installdirs_get(udirs->installdirs,
+					 CU_INSTALLDIR_DATADIR);
+	}
+
+	/* Add ${sysconfdir}/xdg/foo and ${sysconfdir}/foo or XDG default. */
+	if (sysconfdir) {
 	    dir = cuos_path_cat3_ccc(sysconfdir, "xdg", pkg_name);
 	    cuos_dirpile_append(&udirs->dirs[CUOS_USER_CONFIG], dir);
 	    dir = cuos_path_cat2_cc(sysconfdir, pkg_name);
 	    cuos_dirpile_append(&udirs->dirs[CUOS_USER_CONFIG], dir);
+	}
+	else {
+	    dir = cuos_path_cat2_cc("/etc/xdg", pkg_name);
+	    cuos_dirpile_append(&udirs->dirs[CUOS_USER_CONFIG], dir);
+	}
 
-	    /* Check ${datadir}/foo. */
-	    datadir = cu_installdirs_get(udirs->installdirs,
-					 CU_INSTALLDIR_DATADIR);
+	/* Add ${datadir}/foo or XDG default. */
+	if (datadir) {
 	    dir = cuos_path_cat2_cc(datadir, pkg_name);
 	    cuos_dirpile_append(&udirs->dirs[CUOS_USER_DATA], dir);
 	}
-	/* If installdirs is NULL, use the XDG standard directories. */
 	else {
-	    cu_str_t dir;
-	    dir = cuos_path_cat2_cc("/etc/xdg", pkg_name);
-	    cuos_dirpile_append(&udirs->dirs[CUOS_USER_CONFIG], dir);
-	    dir = cuos_path_cat2_cc("/usr/local", pkg_name);
+	    dir = cuos_path_cat2_cc("/usr/local/share", pkg_name);
 	    cuos_dirpile_append(&udirs->dirs[CUOS_USER_DATA], dir);
-	    dir = cuos_path_cat2_cc("/usr", pkg_name);
+	    dir = cuos_path_cat2_cc("/usr/share", pkg_name);
 	    cuos_dirpile_append(&udirs->dirs[CUOS_USER_DATA], dir);
 	}
 
@@ -269,5 +277,5 @@ cu_str_t
 cuos_pkg_user_data_search(cuos_pkg_user_dirs_t udirs, cu_str_t path)
 {
     cuos_pkg_user_dirs_ensure_init(udirs);
-    return cuos_dirpile_first_match(&udirs->dirs[CUOS_USER_CONFIG], path);
+    return cuos_dirpile_first_match(&udirs->dirs[CUOS_USER_DATA], path);
 }
