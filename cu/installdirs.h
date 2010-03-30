@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2009--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #define CU_INSTALLDIRS_H
 
 #include <cu/fwd.h>
+#include <atomic_ops.h>
 
 CU_BEGIN_DECLARATIONS
 /** \defgroup cu_installdirs_h cu/installdirs.h: Installation Directories
@@ -37,7 +38,7 @@ CU_BEGIN_DECLARATIONS
  ** \code
  ** #include <cu/installdirs.h>
  **
- ** extern cu_installdirs_t foo_installdirs;
+ ** extern struct cu_installdirs foo_installdirs;
  **
  ** void foo_init(void)
  ** {
@@ -54,7 +55,7 @@ CU_BEGIN_DECLARATIONS
  **/
 
 /** A reference to one of the installation directories in \ref
- ** cu_installdirs_t.  In the following, typecal values for a prefix of \c /usr
+ ** cu_installdirs_t.  In the following, typical values for a prefix of \c /usr
  ** are shown in paretheses. */
 typedef enum {
     /* Note!  These must match cuac_config_installdirs.m4. */
@@ -94,8 +95,14 @@ struct cu_installdir
     char const *dir;
 };
 
+struct cu_installdirs
+{
+    AO_t done_init;
+    struct cu_installdir dirs[CU_INSTALLDIR_NONE + 1];
+};
+
 /** An array describing the installation directories of a package. */
-typedef struct cu_installdir cu_installdirs_t[CU_INSTALLDIR_NONE + 1];
+typedef struct cu_installdirs *cu_installdirs_t;
 
 /** Set the installation directory indicated by \a key to \a dir.  The
  ** directory may be a prefix for other directories, in which case \ref
@@ -118,10 +125,17 @@ cu_bool_t cu_installdirs_set_byname(cu_installdirs_t installdirs, char const *na
  ** function must be called before \ref cu_installdirs_finish. */
 void cu_installdirs_set_byenv(cu_installdirs_t installdirs, char const *var_prefix);
 
+/** Return the directory identified by \a key from \a installdirs. */
+CU_SINLINE char const *
+cu_installdirs_get(cu_installdirs_t installdirs, cu_installdir_key_t key)
+{ return installdirs->dirs[key].dir; }
+
 /** Completes the \c dir fields of the application's installation directory
  ** mapping, assuming the first two components have been initialised.  This
  ** function is typically called during program initialisation. */
 void cu_installdirs_finish(cu_installdirs_t installdirs);
+
+void cu_installdirs_reset(cu_installdirs_t installdirs);
 
 /** Prints out \a installdirs. */
 void cu_installdirs_dump(cu_installdirs_t installdirs);

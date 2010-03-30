@@ -30,9 +30,9 @@ void cufoP_textstyle_default_init(void);
 void cufoP_printf_init(void);
 void cufoP_init_formats(void);
 
-extern cu_installdirs_t cuconfP_installdirs;
+extern struct cu_installdirs cuconfP_installdirs;
 struct cuos_pkg_user_dirs cufoP_user_dirs
-    = CUOS_PKG_USER_DIRS_INITZ("cufo", "CUFO", cuconfP_installdirs);
+    = CUOS_PKG_USER_DIRS_INITZ("cufo", "CUFO", &cuconfP_installdirs);
 
 cufo_stream_t cufo_stderr, cufo_stdout;
 cufo_stream_t cufoP_stderr_bug;

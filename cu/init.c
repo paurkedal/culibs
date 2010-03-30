@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ pthread_mutexattr_t cuP_mutexattr;
 
 char const *cuP_application_name = NULL;
 
-extern cu_installdirs_t cuconfP_installdirs;
+extern struct cu_installdirs cuconfP_installdirs;
 
 cu_bool_t
 cuconf_get_bool(char const *name)
@@ -98,7 +98,7 @@ char const *
 cuconf_get_installdir(cu_installdir_key_t key)
 {
     cu_debug_assert(0 <= key && key < CU_INSTALLDIR_NONE);
-    return cuconfP_installdirs[key].dir;
+    return cuconfP_installdirs.dirs[key].dir;
 }
 
 void
@@ -146,8 +146,8 @@ cu_init(void)
     cuP_debug_init();
 
     /* Installation directories.  After cuP_diag_init(). */
-    cu_installdirs_set_byenv(cuconfP_installdirs, "CULIBS_");
-    cu_installdirs_finish(cuconfP_installdirs);
+    cu_installdirs_set_byenv(&cuconfP_installdirs, "CULIBS_");
+    cu_installdirs_finish(&cuconfP_installdirs);
 
     /* Dynamic */
     cuooP_init();

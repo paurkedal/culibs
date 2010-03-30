@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2009--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,14 +41,14 @@ _show_pile(char const *name, cuos_dirpile_t pile)
     cuos_dirpile_iterA_top(pile, cu_clop_ref(_show_pile_entry));
 }
 
-extern cu_installdirs_t cuconfP_installdirs;
+extern struct cu_installdirs cuconfP_installdirs;
 
 static void
 _show_pkg_user_dirs(cu_bool_t use_instdirs)
 {
     struct cuos_pkg_user_dirs udirs
 	= CUOS_PKG_USER_DIRS_INITZ("libfoo", "LIBFOO",
-				   use_instdirs? cuconfP_installdirs : NULL);
+				   use_instdirs? &cuconfP_installdirs : NULL);
     cuos_pkg_user_dirs_ensure_init(&udirs);
     _show_pile("config_dirs", &udirs.dirs[CUOS_USER_CONFIG]);
     _show_pile("data_dirs", &udirs.dirs[CUOS_USER_DATA]);
@@ -117,12 +117,10 @@ main()
     unsetenv("LIBFOO_CACHE_HOME");
     unsetenv("LIBFOO_CONFIG_DIRS");
     unsetenv("LIBFOO_DATA_DIRS");
-    cu_installdirs_set(cuconfP_installdirs, CU_INSTALLDIR_PREFIX,
+    cu_installdirs_set(&cuconfP_installdirs, CU_INSTALLDIR_PREFIX,
 		       "tmp.user_dirs/usr/local");
-    for (i = 0; i < sizeof(cuconfP_installdirs)/sizeof(cuconfP_installdirs[0]);
-	 ++i)
-	cuconfP_installdirs[i].dir = NULL;
-    cu_installdirs_finish(cuconfP_installdirs);
+    cu_installdirs_reset(&cuconfP_installdirs);
+    cu_installdirs_finish(&cuconfP_installdirs);
     cuos_reset_user_dirs();
 
     /* Finally without variables. */

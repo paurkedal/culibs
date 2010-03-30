@@ -41,7 +41,9 @@ AC_DEFUN([CUAC_CONFIG_INSTALLDIRS],
 
 #include <cu/installdirs.h>
 
-cu_installdirs_t $2 = {
+struct cu_installdirs $2 = {
+    0,
+    {
 __CUAC_END__
 	m4_foreach([dirname], [_cuac_installdir_names],
 	  [ _cuac_dir="$_cuac_installdir_[]dirname"
@@ -57,9 +59,10 @@ __CUAC_END__
 		])
 	    _cuac_tmp="\"dirname\", CU_INSTALLDIR_[]m4_toupper(dirname)"
 	    _cuac_tmp="$_cuac_tmp, $_cuac_prefix, \"$_cuac_suffix\""
-	    echo >>$1 "    {$_cuac_tmp},"
+	    echo >>$1 "	{$_cuac_tmp},"
 	  ])
-	echo >>$1 '    {NULL}'
+	echo >>$1 '	{NULL}'
+	echo >>$1 '    }'
 	echo >>$1 '};'
       ],
       [ m4_foreach([dirname], [_cuac_installdir_names],

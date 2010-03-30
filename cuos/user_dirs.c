@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2009--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -187,14 +187,16 @@ cuosP_pkg_user_dirs_ensure_init(cuos_pkg_user_dirs_t udirs)
 	    char const *sysconfdir, *datadir;
 
 	    /* Check ${sysconfdir}/xdg/foo and ${sysconfdir}/foo. */
-	    sysconfdir = udirs->installdirs[CU_INSTALLDIR_SYSCONFDIR].dir;
+	    sysconfdir = cu_installdirs_get(udirs->installdirs,
+					    CU_INSTALLDIR_SYSCONFDIR);
 	    dir = cuos_path_cat3_ccc(sysconfdir, "xdg", pkg_name);
 	    cuos_dirpile_append(&udirs->dirs[CUOS_USER_CONFIG], dir);
 	    dir = cuos_path_cat2_cc(sysconfdir, pkg_name);
 	    cuos_dirpile_append(&udirs->dirs[CUOS_USER_CONFIG], dir);
 
 	    /* Check ${datadir}/foo. */
-	    datadir = udirs->installdirs[CU_INSTALLDIR_DATADIR].dir;
+	    datadir = cu_installdirs_get(udirs->installdirs,
+					 CU_INSTALLDIR_DATADIR);
 	    dir = cuos_path_cat2_cc(datadir, pkg_name);
 	    cuos_dirpile_append(&udirs->dirs[CUOS_USER_DATA], dir);
 	}

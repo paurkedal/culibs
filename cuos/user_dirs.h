@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2009--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ cu_str_t cuos_user_cache_path(char const *pkg_name, cu_str_t subpath);
 struct cuos_pkg_user_dirs
 {
     char const *pkg_name, *var_prefix;
-    cu_installdir_t installdirs;
+    cu_installdirs_t installdirs;
     AO_t init_done;
     pthread_mutex_t init_mutex;
     struct cuos_dirpile dirs[2];

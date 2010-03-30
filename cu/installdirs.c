@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2009--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 #include <cu/memory.h>
 #include <cu/installdirs.h>
 #include <cu/diag.h>
+#include <cu/thread.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -25,15 +26,15 @@ void
 cu_installdirs_set(cu_installdirs_t installdirs, cu_installdir_key_t key,
 		   char const *dir)
 {
-    installdirs[key].prefix_key = CU_INSTALLDIR_NONE;
-    installdirs[key].suffix = dir;
+    installdirs->dirs[key].prefix_key = CU_INSTALLDIR_NONE;
+    installdirs->dirs[key].suffix = dir;
 }
 
 cu_bool_t
 cu_installdirs_set_byname(cu_installdirs_t installdirs, char const *name,
 			  char const *dir)
 {
-    cu_installdir_t installdir = installdirs;
+    cu_installdir_t installdir = installdirs->dirs;
     while (installdir->name) {
 	if (strcmp(installdir->name, name) == 0) {
 	    installdir->suffix = dir;
@@ -47,7 +48,7 @@ cu_installdirs_set_byname(cu_installdirs_t installdirs, char const *name,
 void
 cu_installdirs_set_byenv(cu_installdirs_t installdirs, char const *prefix)
 {
-    cu_installdir_t installdir = installdirs;
+    cu_installdir_t installdir = installdirs->dirs;
     size_t prefix_len = strlen(prefix);
     while (installdir->name) {
 	char const *envval, *s;
@@ -79,7 +80,8 @@ _installdir_finish(cu_installdirs_t installdirs, cu_installdir_t installdir)
     else {
 	size_t prefix_len;
 	char *dir;
-	cu_installdir_t ref_installdir = &installdirs[installdir->prefix_key];
+	cu_installdir_t ref_installdir;
+	ref_installdir = &installdirs->dirs[installdir->prefix_key];
 	installdir->dir = (char const *)-1;
 	if (!ref_installdir->dir)
 	    _installdir_finish(installdirs, ref_installdir);
@@ -91,21 +93,47 @@ _installdir_finish(cu_installdirs_t installdirs, cu_installdir_t installdir)
     }
 }
 
+static pthread_mutex_t _installdirs_init_mutex = CU_MUTEX_INITIALISER;
+
 void
 cu_installdirs_finish(cu_installdirs_t installdirs)
 {
-    cu_installdir_t installdir = installdirs;
+    cu_installdir_t installdir;
+
+    if (AO_load_acquire_read(&installdirs->done_init) == 1)
+	return;
+    cu_mutex_lock(&_installdirs_init_mutex);
+    installdir = installdirs->dirs;
     while (installdir->name) {
 	if (!installdir->dir)
 	    _installdir_finish(installdirs, installdir);
 	++installdir;
     }
+    AO_store_release_write(&installdirs->done_init, 1);
+    cu_mutex_unlock(&_installdirs_init_mutex);
+}
+
+void
+cu_installdirs_reset(cu_installdirs_t installdirs)
+{
+    cu_installdir_t installdir;
+
+    if (AO_load_acquire_read(&installdirs->done_init) == 0)
+	return;
+    cu_mutex_lock(&_installdirs_init_mutex);
+    installdir = installdirs->dirs;
+    while (installdir->name) {
+	installdir->dir = NULL;
+	++installdir;
+    }
+    AO_store_release_write(&installdirs->done_init, 0);
+    cu_mutex_unlock(&_installdirs_init_mutex);
 }
 
 void
 cu_installdirs_dump(cu_installdirs_t installdirs)
 {
     cu_installdir_t installdir;
-    for (installdir = installdirs; installdir->name; ++installdir)
+    for (installdir = installdirs->dirs; installdir->name; ++installdir)
 	cu_verbf(0, "%s=%s", installdir->name, installdir->dir);
 }
