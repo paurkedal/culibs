@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ CU_BEGIN_DECLARATIONS
  ** booleans with an API similar to that of \ref cucon_array_h "cucon/array.h"
  ** and \ref cucon_parray_h "cucon/parray.h".
  **
+ ** \see cucon_bitarray_slice_h
  ** \see cucon_array_h
  ** \see cucon_parray_h
  **/

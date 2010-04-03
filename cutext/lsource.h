@@ -23,13 +23,15 @@
 #include <cu/wchar.h>
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cutext_lsource_h cutext/lsource.h: Lexical Source
+/** \defgroup cutext_lsource_h cutext/lsource.h: Wide Character Source for Lexical Analysis
  ** @{ \ingroup cutext_mod
  **
  ** This provides a wide character source with lookahead and tracking of source
  ** location and indentation.  As the name suggests, it's indented to provide
  ** input for lexical analyzers, but may be suitable for other textual
- ** processing, as well. */
+ ** processing, as well.
+ **
+ ** \see cutext_source_h */
 
 struct cutext_lsource
 {

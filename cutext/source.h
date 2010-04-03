@@ -22,8 +22,25 @@
 #include <cu/box.h>
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cutext_source_h cutext/source.h: Text Source
- ** @{ \ingroup cutext_mod */
+/** \defgroup cutext_source_h cutext/source.h: Text Source with Optional Lookahead
+ ** @{ \ingroup cutext_mod
+ **
+ ** This provides the API and some implementations of sources with optional
+ ** lookahead, intended for scanning text.  These sources form the initial
+ ** source and stack of conversions used by the more specialized \ref
+ ** cutext_lsource_h "lexical sources".
+ **
+ ** Initial sources are provided for strings and files.  These can be altered
+ ** with the <code>cutext_source_stack_*</code> functions.  In particular,
+ **   - A source may have any encoding, or provide raw data.  As long as it's
+ **     supported by iconv, an encoded source can be transcoded with \ref
+ **     cutext_source_stack_iconv.
+ **   - A particular source implementation may or may not provide lookahead,
+ **     but this can always be added with \ref cutext_source_stack_buffer.
+ **
+ ** \see cutext_lsource_h
+ ** \see cutext_sink_h
+ **/
 
 /** \name Source API
  ** @{ */
@@ -138,7 +155,7 @@ cutext_source_encoding(cutext_source_t src)
 
 /** @}
  ** \name Generic Callbacks
- ** {@ */
+ ** @{ */
 
 /** Always returns 0. */
 size_t cutext_source_null_read(cutext_source_t, void *, size_t);
@@ -172,17 +189,18 @@ cutext_source_t cutext_source_new_str(cu_str_t str);
 cutext_source_t cutext_source_new_wstring(cu_wstring_t wstr);
 
 /** Return a source over the contents read from \a fd encoded as \a enc.  If \a
- ** close_fd is true, then close \a fd when \ref cutext_close is called on the
- ** returned source. */
+ ** close_fd is true, then close \a fd when \ref cutext_source_close is called
+ ** on the returned source. */
 cutext_source_t cutext_source_fdopen(char const *enc,
 				     int fd, cu_bool_t close_fd);
 
-/** Return a source over the contenst of the file at \a path encoded as \a
+/** Return a source over the contents of the file at \a path encoded as \a
  ** encoding. */
 cutext_source_t cutext_source_fopen(char const *encoding, char const *path);
 
 /** Stack a buffer on top of \a subsrc to provide lookahead.  The \ref
- ** cutext_look method is guaranteed to be available on the returned source. */
+ ** cutext_source_look method is guaranteed to be available on the returned
+ ** source. */
 cutext_source_t cutext_source_stack_buffer(cutext_source_t subsrc);
 
 /** Stack an iconv conversion filter on \a subsrc, encoding to \a newenc.  */

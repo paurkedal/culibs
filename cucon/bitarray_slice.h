@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2009--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,10 @@
 
 CU_BEGIN_DECLARATIONS
 /** \defgroup cucon_bitarray_slice_h cucon/bitarray_slice.h: Bitarray Slices
- ** @{ \ingroup cucon_mod */
+ ** @{ \ingroup cucon_linear_mod
+ **
+ ** \see cucon_bitarray_h
+ **/
 
 /** A continuous range of bits of a \ref cucon_bitarray_h "bit-array". */
 struct cucon_bitarray_slice
@@ -48,6 +51,9 @@ cucon_bitarray_slice_at(cucon_bitarray_slice_t sl, size_t i)
     return (sl->arr[i / CU_WORD_WIDTH] >> (i % CU_WORD_WIDTH)) & 1;
 }
 
+/** Return <code>sizeof(cu_word_t)*8</code> bits from \a sl starting at \a i in
+ ** the form of a \ref cu_word_t.  This is mostly useful to implement higher
+ ** level functions like bitwise operations. */
 CU_SINLINE cu_word_t
 cucon_bitarray_slice_word_at(cucon_bitarray_slice_t sl, size_t i)
 {
@@ -97,6 +103,8 @@ void cucon_bitarray_slice_fill(cucon_bitarray_slice_t sl, cu_bool_t v);
 void cucon_bitarray_slice_update_bool1f(cu_bool1f_t f,
 				       	cucon_bitarray_slice_t dst);
 
+/** Replace each bit \e x of \a dst with <code>cu_bool2f_apply(\a f, \a x, \e
+ ** y)</code>, where \e y is the element of \a src1 at respective positions. */
 void cucon_bitarray_slice_update_bool2f(cu_bool2f_t f,
 				       	cucon_bitarray_slice_t dst,
 					cucon_bitarray_slice_t src1);

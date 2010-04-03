@@ -23,8 +23,13 @@
 #include <cu/buffer.h>
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cutext_bufsource_h cutext/bufsource.h:
- ** @{ \ingroup cutext_mod */
+/** \defgroup cutext_bufsource_h cutext/bufsource.h: Buffer Source
+ ** @{ \ingroup cutext_mod
+ **
+ ** For most purposes, \ref cutext_source_stack_buffer should be sufficient,
+ ** but some details of the buffer sources are exposed here to facilitate
+ ** inlining and better control.
+ **/
 
 struct cutext_bufsource
 {
