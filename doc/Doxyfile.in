@@ -181,7 +181,12 @@ TAB_SIZE               = 8
 
 ALIASES = A{1}="<i>\1</i>" \
 	clop="Definition (hidden from the documentation parser): \code" \
-	endclop="\endcode"
+	endclop="\endcode" \
+	svgimage{1}="\htmlonly <object type='image/svg+xml' data='\1'>Image: \1 (broken or SVG not supported)</object>\endhtmlonly" \
+	svgimage{2}="\htmlonly <object type='image/svg+xml' data='\1' width='\2'>Image: \1 (broken or SVG not supported)</object>\endhtmlonly" \
+	svgimage{3}="\htmlonly <object type='image/svg+xml' data='\1' width='\2' height='\3'>Image: \1 (broken or SVG not supported)</object>\endhtmlonly" \
+	figure="\htmlonly<div style='float: right; padding-left: 2mm; font-size: smaller'>\endhtmlonly" \
+	endfigure="\htmlonly</div>\endhtmlonly"
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C 
 # sources only. Doxygen will then generate output that is more tailored for C. 
@@ -559,7 +564,7 @@ EXAMPLE_RECURSIVE      = NO
 # directories that contain image that are included in the documentation (see 
 # the \image command).
 
-IMAGE_PATH             = 
+IMAGE_PATH             = @top_srcdir@/doc
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should 
 # invoke to filter for each input file. Doxygen will invoke the filter program 

@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+         "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="110mm" height="30mm" version="1.1"
+     xmlns="http://www.w3.org/2000/svg">
+  <desc>The structure of a cu_buffer</desc>
+
+  <defs>
+    <marker id="bar"
+	    viewBox="-2 -8 4 16"
+	    markerUnits="strokeWidth"
+	    markerWidth="1" markerHeight="4"
+	    orient="auto">
+      <path d="M -2 -8 L 2 -8 L 2 8 L -2 8 z"/>
+    </marker>
+  </defs>
+
+  <rect x="5mm"  y="4mm" width="101mm" height="11mm"
+    fill="white" stroke="black" stroke-width="0.35mm"/>
+  <rect x="35mm" y="5mm" width="30mm" height="9mm"
+    fill="#aacccc" stroke="black" stroke-width="0.35mm"/>
+  <text x="6mm" y="8mm">storage</text>
+  <text x="36mm" y="9mm">data</text>
+
+  <line x1="65mm" y1="18mm" x2="106mm" y2="18mm"
+    stroke-width="0.5mm" stroke="black"
+    marker-start="url(#bar)" marker-end="url(#bar)"/>
+  <text x="70mm" y="22mm">freecap</text>
+
+  <line x1="35mm" y1="25mm" x2="106mm" y2="25mm"
+    stroke-width="0.5mm" stroke="black"
+    marker-start="url(#bar)" marker-end="url(#bar)"/>
+  <text x="40mm" y="29mm">fullcap</text>
+</svg>

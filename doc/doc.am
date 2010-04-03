@@ -1,22 +1,26 @@
 if enable_doc
+
+# Extra files to store among the Doxygen generated HTML files.
+extra_doc_files = \
+	doc/bdwgc-rn.html \
+	doc/buffer.svg \
+	doc/cucommon.css \
+	doc/cudoxy.css \
+	doc/gplv3-127x51.png
+
 doc_extra_dist = \
 	doc/cucommon.css.m4 \
-	doc/cuhtml.css \
 	doc/cudoxy.css.m4 \
+	doc/cuhtml.css \
 	doc/culibs_footer.html \
 	doc/culibs_header.html \
-	doc/bdwgc-rn.html \
-	doc/gplv3-127x51.png \
 	doc/styledefs.m4
 
 all_doxyfiles = $(built_doxyfiles) $(nobase_culibs_HEADERS) $(doxyfiles)
 
 install-doc-dirs:
 	$(mkinstalldirs) $(DESTDIR)$(htmldir)
-install-doc-css: install-doc-dirs doc/cudoxy.css doc/cucommon.css
-	install -m644 doc/cudoxy.css doc/cucommon.css \
-		$(DESTDIR)$(htmldir)/
-install-doc: install-doc-css install-doc-html install-doc-doxy
+install-doc: install-doc-doxy install-doc-extra
 install-doc-doxy: doc/Doxyfile $(all_doxyfiles) doc/fixed_footer.html
 	@echo "Creating doc/Doxyfile.install"
 	@input=; \
@@ -32,10 +36,13 @@ install-doc-doxy: doc/Doxyfile $(all_doxyfiles) doc/fixed_footer.html
 	cd '$(DESTDIR)$(htmldir)' \
 	    && mv index.html frameset.html \
 	    && sed >index.html -r -e 's;(<!--)?/if-noframe/(-->)?;;g' main.html
-	install -m644 $(srcdir)/doc/gplv3-127x51.png '$(DESTDIR)$(htmldir)/'
 	install -m644 doc/culibs.doxytags '$(DESTDIR)$(docdir)/'
-install-doc-html: install-doc-dirs
-	install -m644 $(srcdir)/doc/bdwgc-rn.html $(DESTDIR)$(htmldir)/
+
+install-doc-extra: install-doc-dirs $(extra_doc_files)
+	for x in $(extra_doc_files); do \
+	    test -e $$x || x=$(srcdir)/$$x; \
+	    install -m644 $$x $(DESTDIR)$(htmldir)/; \
+	done
 
 doc/fixed_footer.html: doc/culibs_footer.html
 	$(mkinstalldirs) doc
@@ -48,7 +55,7 @@ doc/%.css: doc/%.css.m4 $(top_srcdir)/doc/styledefs.m4
 # install-data-local: install-doc
 endif
 
-EXTRA_DIST += $(doxyfiles) $(doc_extra_dist)
+EXTRA_DIST += $(doxyfiles) $(doc_extra_dist) $(extra_doc_files)
 
 .PHONY: install-doc install-doc-dirs
-.PHONY: install-doc-css install-doc-html install-doc-doxy
+.PHONY: install-doc-extra install-doc-html install-doc-doxy

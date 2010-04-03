@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,11 @@ void cuP_buffer_fix_freecap(cu_buffer_t buf, size_t freecap);
 
 /** \defgroup cu_buffer_h cu/buffer.h: Generic Self-Extending Buffer
  ** @{ \ingroup cu_seq_mod
+ **
+ ** \figure \svgimage{buffer.svg,440,120}
+ **   <p>The structure of a buffer, illustrating the terminology used in
+ **   the function names.</p>
+ ** \endfigure
  **
  ** This header defines a buffer for use with any data which can be moved
  ** around.  It has a storage which is dynamically re-allocated as needed.
