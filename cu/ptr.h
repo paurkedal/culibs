@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,13 @@ CU_SINLINE void *cu_ptr_sub(void *ptr, ptrdiff_t diff)
  ** underlying types. */
 CU_SINLINE ptrdiff_t cu_ptr_diff(void const *ptr_lhs, void const *ptr_rhs)
 { return (char const *)ptr_lhs - (char const *)ptr_rhs; }
+
+/** Return -1 if \a ptr0 < \a ptr1, 0 if \a ptr0 = \a ptr1, and 1 otherwise. */
+CU_SINLINE int cu_ptr_cmp(void const *ptr0, void const *ptr1)
+{
+    return (char const *)ptr0 < (char const *)ptr1 ? -1
+	 : (char const *)ptr0 > (char const *)ptr1 ?  1 : 0;
+}
 
 /** The pointer \a ptr rounded down to the nearest multiple of \a m. */
 CU_SINLINE void *cu_ptr_mulfloor(void *ptr, cu_offset_t m)

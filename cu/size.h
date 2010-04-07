@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,10 @@ CU_SINLINE size_t cu_size_min(size_t n, size_t m) { return n < m? n : m; }
 
 /** Returns the smallest argument. */
 CU_SINLINE size_t cu_size_max(size_t n, size_t m) { return n > m? n : m; }
+
+/** Returns -1 if \a n < m, 1 if \a n = \a m, and 0 otherwise. */
+CU_SINLINE int cu_size_cmp(size_t n, size_t m)
+{ return n < m? -1 : n > m? 1 : 0; }
 
 /** Returs a number with the lowest \a b bits set, and the remaining bits
  ** cleared. */

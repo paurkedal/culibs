@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2009--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,11 @@ typedef enum {
     CU_BOOL1F_IDENT	= 0x2,	/**< λx. x */
     CU_BOOL1F_NOT	= 0x1,	/**< λx. ¬x */
 } cu_bool1f_t;
+
+/** Returns -1 if ¬\a x ∧ \a y, 0 if \a x ⇔ \a y, and 1 if \a x ∧ ¬\a y. */
+CU_SINLINE int
+cu_bool_cmp(cu_bool_t x, cu_bool_t y)
+{ return x? (y? 0 : 1) : (y? -1 : 0); }
 
 /** Return the enumerated boolean function corresponding to \a f.  \a f will be
  ** called twice upon construction. */

@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -113,6 +113,26 @@ CU_SINLINE int cu_int_abs(int x) { return x >= 0? x : -x; }
 
 /** The absolute value af \a x. */
 CU_SINLINE long cu_long_abs(long x) { return x >= 0? x : -x; }
+
+/** Returns the signum function of \a x,
+ ** \f[ \operatorname{sgn} x =
+ **     \begin{cases} -1 & \text{if $x < 0$}, \\
+ **                    0 & \text{if $x = 0$}, \\
+ **                    1 & \text{if $x > 0$}. \end{cases} \f]
+ **/
+CU_SINLINE int cu_int_sgn(int x) { return x < 0? -1 : x > 0? 1 : 0; }
+
+/** Returns the signum function of \a x, cf \ref cu_int_sgn. */
+CU_SINLINE int cu_long_sgn(int x) { return x < 0? -1 : x > 0? 1 : 0; }
+
+/** Returns \f$\operatorname{sgn} (x - y)\f$, which may be different from
+ ** <code>cu_long_sgn(x - y)</code> due to overflow. */
+CU_SINLINE int cu_int_cmp(int x, int y) { return x < y? -1 : x > y? 1 : 0; }
+
+/** Returns \f$\operatorname{sgn} (x - y)\f$, which may be different from
+ ** <code>cu_long_sgn(x - y)</code> due to overflow. */
+CU_SINLINE int cu_long_cmp(long x, long y) { return x < y? -1 : x > y? 1 : 0; }
+
 
 /** Returns ⌈\a x/\a y⌉. */
 CU_SINLINE unsigned int cu_uint_ceil_div(unsigned int x, unsigned int y)
