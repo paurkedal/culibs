@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,25 +39,28 @@
 
 CU_BEGIN_DECLARATIONS
 /** \defgroup cucon_ucmap_h cucon/ucmap.h: Constructive Maps from Unsigned Integers to Pointers
- * @{\ingroup cucon_maps_and_sets_mod
- * cucon_ucmap_t implements maps from integers to pointers.
- * It is based on binary trees with a structure based on the bit-pattern
- * of the integer.  The main features are
- * <ul>
- *   <li>O(1) copy since modifications are non-destructive</li>
- *   <li>Search and insert complexity ranges from <i>O</i>(log <i>n</i>)
- *     on avarage for containers of <i>n</i> random numbers,
- *     to <i>O</i>(<i>n</i>) for some patological cases of containers with
- *     <i>n</i> powers of two.  The patological cases are limited by
- *     the range of integers, e.g. <i>n</i> ≤ 32 for 32 bit integers.</li>
- * </ul> 
- * \sa
- * \ref cucon_ucset_h "cucon/ucset.h": Sets with similar implementation
- * \sa
- * \ref cucon_pmap_h "cucon/pmap.h": Hash maps are more efficient for
- * uses which do not require constructive updates.
- */
+ ** @{ \ingroup cucon_maps_and_sets_mod
+ **
+ ** The following implements maps from integers to pointers, represented as
+ ** binary trees with a structure based on the bit-pattern of the integer keys.
+ ** The implementation is more compact than a trie due to the omission of
+ ** single-choice branches.  Some key features are
+ **   - O(1) copy since modifications are non-destructive.
+ **   - O(1) equality and arbitrary ordering due to hash-consing.
+ **   - Search and insert complexity ranges from <i>O</i>(log <i>n</i>)
+ **     on average for containers of <i>n</i> random numbers,
+ **     to <i>O</i>(<i>n</i>) for some pathological cases of containers with
+ **     <i>n</i> powers of two.  The pathological cases are limited by
+ **     the range of integers, e.g. <i>n</i> ≤ 32 for 32 bit integers.
+ **
+ ** \sa \ref cucon_ucset_h "cucon/ucset.h": A wrapper specialising to set.
+ ** \sa \ref cucon_pcmap_h "cucon/pcmap.h": A wrapper specialising to pointer
+ ** keys.
+ ** \sa \ref cucon_pmap_h "cucon/umap.h": Hash maps which are more efficient
+ ** for uses which do not require constructive updates.
+ **/
 
+/** A node of the map, where the root node also represents the whole map. */
 struct cucon_ucmap
 {
 #if cuconP_UCMAP_ENABLE_HCONS
@@ -86,7 +89,9 @@ CU_SINLINE cucon_ucmap_t cucon_ucmap_empty() { return NULL; }
 CU_SINLINE cu_bool_t
 cucon_ucmap_is_empty(cucon_ucmap_t map) { return map == NULL; }
 
+#ifndef CU_IN_DOXYGEN
 cucon_ucmap_t cuconP_ucmap_insert_raw(cucon_ucmap_t, uintptr_t, uintptr_t);
+#endif
 
 /** Return a map which agrees with \a map everywhere, except that \a key maps
  ** to \a val. */

@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,12 @@ CU_BEGIN_DECLARATIONS
 /** \defgroup cucon_pcmap_h cucon/pcmap.h: Constructive Maps from Pointers to Pointers
  ** @{ \ingroup cucon_maps_and_sets_mod
  **
- ** This is a light wrapper over \ref cucon_ucmap_h. */
+ ** This is a light wrapper over \ref cucon_ucmap_h, specialised for pointer
+ ** keys.
+ **
+ ** \see cucon_ucmap_h
+ ** \see cucon_pmap_h
+ **/
 
 /** The empty map.  Due to the constructive nature, this always returns the
  ** same value. */
