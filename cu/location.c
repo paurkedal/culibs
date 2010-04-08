@@ -137,7 +137,7 @@ cu_locbound_put_newline(cu_locbound_t bound)
 void
 cu_locbound_put_char(cu_locbound_t bound, char ch)
 {
-    if (ch > 127)
+    if ((unsigned char)ch > 127)
 	return;
     switch (ch) {
 	case '\t':
