@@ -173,9 +173,14 @@ cucon_ucmap_erase(cucon_ucmap_t node, uintptr_t key)
 
     node_key = _node_key(node);
     if (node_key == key) {
-	if (_node_has_value(node))
+	if (_node_has_value(node)) {
+	    if (!_node_left(node))
+		return _node_right(node);
+	    if (!_node_right(node))
+		return _node_left(node);
 	    return _node_new_noval(node->key,
 				   _node_left(node), _node_right(node));
+	}
 	else
 	    return node;
     }
@@ -183,7 +188,9 @@ cucon_ucmap_erase(cucon_ucmap_t node, uintptr_t key)
 	if (key < node_key) {
 	    cucon_ucmap_t new_left;
 	    new_left = cucon_ucmap_erase(_node_left(node), key);
-	    if (new_left != _node_left(node))
+	    if (!new_left && !_node_has_value(node))
+		return _node_right(node);
+	    else if (new_left != _node_left(node))
 		return _node_new_lr(node, new_left, _node_right(node));
 	    else
 		return node;
@@ -191,7 +198,9 @@ cucon_ucmap_erase(cucon_ucmap_t node, uintptr_t key)
 	else {
 	    cucon_ucmap_t new_right;
 	    new_right = cucon_ucmap_erase(_node_right(node), key);
-	    if (new_right != _node_right(node))
+	    if (!new_right && !_node_has_value(node))
+		return _node_left(node);
+	    else if (new_right != _node_right(node))
 		return _node_new_lr(node, _node_left(node), new_right);
 	    else
 		return node;

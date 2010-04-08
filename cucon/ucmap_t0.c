@@ -122,7 +122,7 @@ _test_ief()
     int i, j;
     printf("Insert, erase, and find tests.\n");
     for (i = 0; i < REPEAT; ++i) {
-	cucon_ucmap_t M = NULL;
+	cucon_ucmap_t M = NULL, Mp, Mpp;
 	cucon_ucset_t S = NULL;
 	uintptr_t key;
 	_iter_cb_t iter_cb;
@@ -130,9 +130,13 @@ _test_ief()
 
 	for (j = 0; j < N_INS; ++j) {
 	    key = lrand48() % MAX_KEY;
-	    if (!cucon_ucset_find(S, key))
+	    Mp = cucon_ucmap_insert_int(M, key, key);
+	    if (!cucon_ucset_find(S, key)) {
 		++count;
-	    M = cucon_ucmap_insert_int(M, key, key);
+		Mpp = cucon_ucmap_erase(Mp, key);
+		cu_test_assert(cucon_ucmap_eq(M, Mpp));
+	    }
+	    M = Mp;
 	    S = cucon_ucset_insert(S, key);
 	}
 	for (key = 0; key < MAX_KEY; ++key) {
@@ -142,7 +146,6 @@ _test_ief()
 		cu_test_assert(cucon_ucmap_erase(M, key) == M);
 	    }
 	    else {
-		cucon_ucmap_t Mp;
 		cu_test_assert(cucon_ucset_find(S, key));
 		cu_test_assert(val == key);
 		Mp = cucon_ucmap_erase(M, key);
@@ -152,7 +155,6 @@ _test_ief()
 	}
 
 	for (j = 0; j < 4; ++j) {
-	    cucon_ucmap_t Mp;
 	    key = lrand48() % MAX_KEY;
 	    Mp = cucon_ucmap_erase(M, key);
 	    if (Mp != M)
