@@ -20,16 +20,12 @@
 
 /* This tuning option has a significant performance hit on insertions, but
  * may be good if client needs quick equality between sets. */
-#define cuconP_UCMAP_ENABLE_HCONS 1
-
-/* When set, pack an existence-bit in the left-pointer, instead of using
- * a special null-value.  */
-#define cuconP_UCMAP_EXIST_IN_LEFT 1
+#define CUCONP_UCMAP_ENABLE_HCONS 1
 
 #include <cucon/fwd.h>
 #include <stdio.h>
 #include <cu/clos.h>
-#if cuconP_UCMAP_ENABLE_HCONS
+#if CUCONP_UCMAP_ENABLE_HCONS
 #  include <cuoo/hcobj.h>
 #else
 #  include <cuoo/fwd.h>
@@ -63,7 +59,7 @@ CU_BEGIN_DECLARATIONS
 /** A node of the map, where the root node also represents the whole map. */
 struct cucon_ucmap
 {
-#if cuconP_UCMAP_ENABLE_HCONS
+#if CUCONP_UCMAP_ENABLE_HCONS
     CUOO_HCOBJ
 #else
     CUOO_OBJ
@@ -74,7 +70,7 @@ struct cucon_ucmap
     uintptr_t value;
 };
 
-#if cuconP_UCMAP_ENABLE_HCONS
+#if CUCONP_UCMAP_ENABLE_HCONS
 extern cuoo_type_t cuconP_ucmap_type;
 CU_SINLINE cuoo_type_t cucon_ucmap_type()
 { return cuconP_ucmap_type; }
@@ -102,13 +98,7 @@ cucon_ucmap_insert_ptr(cucon_ucmap_t map, uintptr_t key, void *val)
 /** \copydoc cucon_ucmap_insert_ptr */
 CU_SINLINE cucon_ucmap_t
 cucon_ucmap_insert_int(cucon_ucmap_t map, uintptr_t key, uintptr_t val)
-{
-#if cuconP_UCMAP_EXIST_IN_LEFT
-    return cuconP_ucmap_insert_raw(map, key, val);
-#else
-    return cuconP_ucmap_insert_raw(map, key, val - cucon_ucmap_int_none);
-#endif
-}
+{ return cuconP_ucmap_insert_raw(map, key, val); }
 
 /** If \a map has a mapping from \a key, returns the result of erasing it,
  ** otherwise returns map. */

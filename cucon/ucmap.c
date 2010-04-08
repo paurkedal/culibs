@@ -22,17 +22,10 @@
 #include <cuoo/intf.h>
 #include <inttypes.h>
 
-#if cuconP_UCMAP_EXIST_IN_LEFT
-#  define _node_left(t) ((cucon_ucmap_t)((uintptr_t)(t)->left & ~(uintptr_t)1))
-#  define _node_has_value(t) ((uintptr_t)(t)->left & 1)
-#  define _node_value_ptr(t) ((void *)(t)->value)
-#  define _node_value_int(t) ((t)->value)
-#else
-#  define _node_left(t) ((t)->left)
-#  define _node_has_value(t) (!!(t)->value)
-#  define _node_value_ptr(t) ((void *)(t)->value)
-#  define _node_value_int(t) ((t)->value + cucon_ucmap_int_none)
-#endif
+#define _node_left(t) ((cucon_ucmap_t)((uintptr_t)(t)->left & ~(uintptr_t)1))
+#define _node_has_value(t) ((uintptr_t)(t)->left & 1)
+#define _node_value_ptr(t) ((void *)(t)->value)
+#define _node_value_int(t) ((t)->value)
 #define _node_right(t) ((t)->right)
 
 CU_SINLINE uintptr_t _node_key(cucon_ucmap_t node) { return node->key; }
@@ -54,10 +47,8 @@ static cucon_ucmap_t
 _node_new_val(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right,
 	      uintptr_t val)
 {
-#if cuconP_UCMAP_EXIST_IN_LEFT
     left = (cucon_ucmap_t)((uintptr_t)left | 1);
-#endif
-#if cuconP_UCMAP_ENABLE_HCONS
+#if CUCONP_UCMAP_ENABLE_HCONS
     cuoo_hctem_decl(cucon_ucmap, tem);
     cuoo_hctem_init(cucon_ucmap, tem);
     cuoo_hctem_get(cucon_ucmap, tem)->key = key;
@@ -78,7 +69,7 @@ _node_new_val(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right,
 static cucon_ucmap_t
 _node_new_noval(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right)
 {
-#if cuconP_UCMAP_ENABLE_HCONS
+#if CUCONP_UCMAP_ENABLE_HCONS
     cuoo_hctem_decl(cucon_ucmap, tem);
     cuoo_hctem_init(cucon_ucmap, tem);
     cuoo_hctem_get(cucon_ucmap, tem)->key = key;
@@ -99,10 +90,8 @@ _node_new_noval(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right)
 static cucon_ucmap_t
 _node_new_lr(cucon_ucmap_t src_node, cucon_ucmap_t left, cucon_ucmap_t right)
 {
-#if cuconP_UCMAP_EXIST_IN_LEFT
     left = (cucon_ucmap_t)((uintptr_t)left | ((uintptr_t)src_node->left & 1));
-#endif
-#if cuconP_UCMAP_ENABLE_HCONS
+#if CUCONP_UCMAP_ENABLE_HCONS
     cuoo_hctem_decl(cucon_ucmap, tem);
     cuoo_hctem_init(cucon_ucmap, tem);
     cuoo_hctem_get(cucon_ucmap, tem)->key = src_node->key;
@@ -221,10 +210,8 @@ tailcall:
 	return NULL;
     node_key = _node_key(node);
     if (key == node_key) {
-#if cuconP_UCMAP_EXIST_IN_LEFT
 	if (!_node_has_value(node))
 	    return NULL;
-#endif
 	return _node_value_ptr(node);
     }
     if (_key_coverseq(node_key, key)) {
@@ -247,10 +234,8 @@ tailcall:
 	return cucon_ucmap_int_none;
     node_key = _node_key(node);
     if (key == node_key) {
-#if cuconP_UCMAP_EXIST_IN_LEFT
 	if (!_node_has_value(node))
 	    return cucon_ucmap_int_none;
-#endif
 	return _node_value_int(node);
     }
     if (_key_coverseq(node_key, key)) {
@@ -399,8 +384,12 @@ cu_bool_t
 cucon_ucmap_eq(cucon_ucmap_t map0, cucon_ucmap_t map1)
 {
 tail_call:
+#if CUCONP_UCMAP_ENABLE_HCONS
     if (map0 == map1) return cu_true;
     if (map0 == NULL) return cu_false;
+#else
+    if (map0 == NULL) return map1 == NULL;
+#endif
     if (map1 == NULL) return cu_false;
     if (_node_key(map0) != _node_key(map1)) return cu_false;
     if (_node_has_value(map0) != _node_has_value(map1)) return cu_false;
@@ -419,8 +408,12 @@ cucon_ucmap_eq_ptr(cu_clop(f, cu_bool_t, void const *, void const *),
 		   cucon_ucmap_t map0, cucon_ucmap_t map1)
 {
 tail_call:
+#if CUCONP_UCMAP_ENABLE_HCONS
     if (map0 == map1) return cu_true;
     if (map0 == NULL) return cu_false;
+#else
+    if (map0 == NULL) return map1 == NULL;
+#endif
     if (map1 == NULL) return cu_false;
     if (_node_key(map0) != _node_key(map1)) return cu_false;
 
@@ -449,8 +442,12 @@ cucon_ucmap_cmp(cucon_ucmap_t map0, cucon_ucmap_t map1)
     int c;
 
 tail_call:
+#if CUCONP_UCMAP_ENABLE_HCONS
     if (map0 == map1) return  0;
     if (map0 == NULL) return -1;
+#else
+    if (map0 == NULL) return map1 == NULL? 0 : -1;
+#endif
     if (map1 == NULL) return  1;
     if (_node_key(map0) < _node_key(map1)) return -1;
     if (_node_key(map0) > _node_key(map1)) return  1;
@@ -481,8 +478,12 @@ cucon_ucmap_cmp_ptr(cu_clop(f, int, void const *, void const *),
     int c;
 
 tail_call:
+#if CUCONP_UCMAP_ENABLE_HCONS
     if (map0 == map1) return  0;
     if (map0 == NULL) return -1;
+#else
+    if (map0 == NULL) return map1 == NULL? 0 : -1;
+#endif
     if (map1 == NULL) return  1;
     if (_node_key(map0) < _node_key(map1)) return -1;
     if (_node_key(map0) > _node_key(map1)) return  1;
@@ -545,14 +546,14 @@ _ucmap_impl(cu_word_t intf_number, ...)
     }
 }
 
-#if cuconP_UCMAP_ENABLE_HCONS
+#if CUCONP_UCMAP_ENABLE_HCONS
 cuoo_type_t cuconP_ucmap_type;
 #endif
 
 void
 cuconP_ucmap_init()
 {
-#if cuconP_UCMAP_ENABLE_HCONS
+#if CUCONP_UCMAP_ENABLE_HCONS
     cuconP_ucmap_type = cuoo_type_new_opaque_hcs(
 	_ucmap_impl, sizeof(struct cucon_ucmap) - CUOO_HCOBJ_SHIFT);
 #endif

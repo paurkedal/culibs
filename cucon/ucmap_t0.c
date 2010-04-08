@@ -84,7 +84,9 @@ _test_cmp()
 
 	M1 = _random_map(j, 0, dist, 0, dist);
 	c0 = cucon_ucmap_cmp(M0, M1);
+#if CUCONP_UCMAP_ENABLE_HCONS
 	cu_test_assert((M0 == M1) == (c0 == 0));
+#endif
 	c2 = cucon_ucmap_cmp_ptr(cu_clop_ref(_intptr_cmp), M0, M1);
 	cu_test_assert(c0 == c2);
 
