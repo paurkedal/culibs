@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008--2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #define CUCON_HZMAP_COMPACT
 
 CU_BEGIN_DECLARATIONS
-/** \defgroup cucon_hzmap_h cucon/hzmap.h: Hash Map of Flat Fixed-Sized Keys
+/** \defgroup cucon_hzmap_h cucon/hzmap.h: Hash Map with Flat Fixed-Sized Keys
  ** @{ \ingroup cucon_maps_and_sets_mod
  **
  ** \see cucon_hzset_h
@@ -42,7 +42,7 @@ struct cucon_hzmap_node
 
 #define CUCON_HZMAP_NODE_INIT {NULL}
 
-/** A hash map of fixed-size keys. */
+/** A hash map with fixed-size keys. */
 struct cucon_hzmap
 {
 #ifdef CUCON_HZMAP_COMPACT
