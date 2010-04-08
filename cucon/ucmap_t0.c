@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +16,93 @@
  */
 
 #include <cucon/ucmap.h>
+#include <cucon/pcmap.h>
 #include <cucon/ucset.h>
 #include <cu/test.h>
+#include <cu/int.h>
 
-#define REPEAT 50
-#define N_INS 0x800
+#define REPEAT 40
+#define N_INS 0x400
 #define MAX_KEY N_INS
+
+static cucon_ucmap_t
+_random_map(size_t size,
+	    uintptr_t min_key, uintptr_t maxp_key,
+	    intptr_t min_val, intptr_t maxp_val)
+{
+    cucon_ucmap_t M = cucon_ucmap_empty();
+    while (size--) {
+	uintptr_t key = lrand48() % (maxp_key - min_key) + min_key;
+	intptr_t val = lrand48() % (maxp_val - min_val) + min_val;
+	M = cucon_ucmap_insert_int(M, key, val);
+    }
+    return M;
+}
+
+cu_clos_def(_rewrite_map_cb, cu_prot(void, uintptr_t key, int val),
+    ( cucon_ucmap_t M; ))
+{
+    cu_clos_self(_rewrite_map_cb);
+    self->M = cucon_ucmap_insert_int(self->M, key, val);
+}
+
+static cucon_ucmap_t
+_rewrite_map(cucon_ucmap_t M)
+{
+    _rewrite_map_cb_t cb;
+    cb.M = cucon_ucmap_empty();
+    cucon_ucmap_iter_int(M, _rewrite_map_cb_prep(&cb));
+    return cb.M;
+}
+
+cu_clop_def(_intptr_cmp, int, void const *ptr0, void const *ptr1)
+{
+    return (intptr_t)ptr0 < (intptr_t)ptr1 ? -1
+	 : (intptr_t)ptr0 > (intptr_t)ptr1 ?  1 : 0;
+}
+cu_clop_def(_intptr_eq, cu_bool_t, void const *ptr0, void const *ptr1)
+{
+    return ptr0 == ptr1;
+}
+
+static void
+_test_cmp()
+{
+    int i, j;
+    printf("Comparison tests.\n");
+    for (j = 0; j < N_INS; ++j)
+    for (i = 0; i < REPEAT/(j + 1) + 1; ++i) {
+	int c0, c1, c2;
+	int k = lrand48() % (j + 1) + 1;
+	intptr_t dist = (j + k - 1)/k;
+	cucon_ucmap_t M0, M1, M2;
+
+	M0 = _random_map(j, 0, dist, 0, dist);
+	M1 = _rewrite_map(M0);
+	c0 = cucon_ucmap_cmp(M0, M1);
+	cu_test_assert(c0 == 0);
+
+	M1 = _random_map(j, 0, dist, 0, dist);
+	c0 = cucon_ucmap_cmp(M0, M1);
+	cu_test_assert((M0 == M1) == (c0 == 0));
+	c2 = cucon_ucmap_cmp_ptr(cu_clop_ref(_intptr_cmp), M0, M1);
+	cu_test_assert(c0 == c2);
+
+	M2 = _random_map(j, 0, dist, 0, dist);
+	c1 = cucon_ucmap_cmp(M1, M2);
+	c2 = cucon_ucmap_cmp(M2, M0);
+	cu_test_assert(cu_int_abs(c0 + c1 + c2) <= 1);
+	cu_test_assert(c0 != 0 || c1 == -c2);
+	cu_test_assert(c1 != 0 || c2 == -c0);
+	cu_test_assert(c2 != 0 || c0 == -c1);
+
+	cu_test_assert(!c0 == cucon_ucmap_eq(M0, M1));
+	cu_test_assert(!c1 == cucon_ucmap_eq(M1, M2));
+	cu_test_assert(!c2 == cucon_ucmap_eq(M2, M0));
+	cu_test_assert(!c0 ==
+		       cucon_ucmap_eq_ptr(cu_clop_ref(_intptr_eq), M0, M1));
+    }
+}
 
 cu_clos_def(_iter_cb, cu_prot(void, uintptr_t key, int val),
     ( cucon_ucset_t S;
@@ -33,10 +114,11 @@ cu_clos_def(_iter_cb, cu_prot(void, uintptr_t key, int val),
     ++self->count;
 }
 
-void
-test()
+static void
+_test_ief()
 {
     int i, j;
+    printf("Insert, erase, and find tests.\n");
     for (i = 0; i < REPEAT; ++i) {
 	cucon_ucmap_t M = NULL;
 	cucon_ucset_t S = NULL;
@@ -88,6 +170,7 @@ int
 main()
 {
     cu_init();
-    test();
+    _test_ief();
+    _test_cmp();
     return 2*!!cu_test_bug_count();
 }

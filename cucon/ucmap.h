@@ -24,7 +24,7 @@
 
 /* When set, pack an existence-bit in the left-pointer, instead of using
  * a special null-value.  */
-#define cuconP_UCMAP_EXIST_IN_LEFT 0
+#define cuconP_UCMAP_EXIST_IN_LEFT 1
 
 #include <cucon/fwd.h>
 #include <stdio.h>
@@ -145,6 +145,25 @@ uintptr_t cucon_ucmap_min_ukey(cucon_ucmap_t map);
 
 /** The maximum key in \a map when keys are interpreted as unsigned. */
 uintptr_t cucon_ucmap_max_ukey(cucon_ucmap_t map);
+
+/** True iff \a map0 and \a map1 are equal, where values are compared as
+ ** integers or by pointer comparison. */
+cu_bool_t cucon_ucmap_eq(cucon_ucmap_t map0, cucon_ucmap_t map1);
+
+/** True iff \a map0 and \a map1 are equal, where \a f compares the values.
+ ** \pre \a f must return true on equal pointers. */
+cu_bool_t cucon_ucmap_eq_ptr(cu_clop(f, cu_bool_t, void const *, void const *),
+			     cucon_ucmap_t map0, cucon_ucmap_t map1);
+
+/** Return -1, 0, or 1 when \a map0 is less, equal, or greater than \a map1,
+ ** where the value slots are compared as integers or by pointer equality. */
+int cucon_ucmap_cmp(cucon_ucmap_t map0, cucon_ucmap_t map1);
+
+/** Return -1, 0, or 1 when \a map0 is less, equal, or greater than \a map1,
+ ** where the value solts are compared according to \a f.
+ ** \pre \a f must return 0 on equal pointers. */
+int cucon_ucmap_cmp_ptr(cu_clop(f, int, void const *, void const *),
+			cucon_ucmap_t map0, cucon_ucmap_t map1);
 
 /** Debug dump of \a map. */
 void cucon_ucmap_dump(cucon_ucmap_t map, FILE *out);

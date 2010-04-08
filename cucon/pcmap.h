@@ -99,10 +99,32 @@ cucon_pcmap_conj_int(cucon_pcmap_t map,
 
 #endif
 
+/** \copydoc cucon_ucmap_eq */
+CU_SINLINE cu_bool_t
+cucon_pcmap_eq(cucon_pcmap_t map0, cucon_pcmap_t map1)
+{ return cucon_ucmap_eq((cucon_ucmap_t)map0, (cucon_ucmap_t)map1); }
+
+/** \copydoc cucon_ucmap_eq_ptr */
+CU_SINLINE cu_bool_t
+cucon_pcmap_eq_ptr(cu_clop(f, cu_bool_t, void const *, void const *),
+		   cucon_pcmap_t map0, cucon_pcmap_t map1)
+{ return cucon_ucmap_eq_ptr(f, (cucon_ucmap_t)map0, (cucon_ucmap_t)map1); }
+
+/** \copydoc cucon_ucmap_cmp */
+CU_SINLINE int
+cucon_pcmap_cmp(cucon_pcmap_t map0, cucon_pcmap_t map1)
+{ return cucon_ucmap_cmp((cucon_ucmap_t)map0, (cucon_ucmap_t)map1); }
+
+/** \copydoc cucon_ucmap_cmp_ptr */
+CU_SINLINE int
+cucon_pcmap_cmp_ptr(cu_clop(f, int, void const *, void const *),
+		   cucon_pcmap_t map0, cucon_pcmap_t map1)
+{ return cucon_ucmap_cmp_ptr(f, (cucon_ucmap_t)map0, (cucon_ucmap_t)map1); }
+
 /** Debug dump. */
 CU_SINLINE void
 cucon_pcmap_dump(cucon_pcmap_t map, FILE *out)
-{ return cucon_ucmap_dump((cucon_ucmap_t)map, out); }
+{ cucon_ucmap_dump((cucon_ucmap_t)map, out); }
 
 /** @} */
 CU_END_DECLARATIONS

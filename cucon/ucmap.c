@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -393,6 +393,117 @@ cucon_ucmap_max_ukey(cucon_ucmap_t map)
 	map = _node_right(map);
     }
     return max;
+}
+
+cu_bool_t
+cucon_ucmap_eq(cucon_ucmap_t map0, cucon_ucmap_t map1)
+{
+tail_call:
+    if (map0 == map1) return cu_true;
+    if (map0 == NULL) return cu_false;
+    if (map1 == NULL) return cu_false;
+    if (_node_key(map0) != _node_key(map1)) return cu_false;
+    if (_node_has_value(map0) != _node_has_value(map1)) return cu_false;
+    if (_node_value_int(map0) != _node_value_int(map1)) return cu_false;
+
+    if (!cucon_ucmap_eq(_node_left(map0), _node_left(map1)))
+	return cu_false;
+
+    map0 = _node_right(map0);
+    map1 = _node_right(map1);
+    goto tail_call;
+}
+
+cu_bool_t
+cucon_ucmap_eq_ptr(cu_clop(f, cu_bool_t, void const *, void const *),
+		   cucon_ucmap_t map0, cucon_ucmap_t map1)
+{
+tail_call:
+    if (map0 == map1) return cu_true;
+    if (map0 == NULL) return cu_false;
+    if (map1 == NULL) return cu_false;
+    if (_node_key(map0) != _node_key(map1)) return cu_false;
+
+    if (!cucon_ucmap_eq_ptr(f, _node_left(map0), _node_left(map1)))
+	return cu_false;
+
+    if (_node_has_value(map0)) {
+	if (_node_has_value(map1)) {
+	    if (!cu_call(f, _node_value_ptr(map0), _node_value_ptr(map1)))
+		return cu_false;
+	}
+	else
+	    return cu_false;
+    }
+    else if (_node_has_value(map1))
+	return cu_false;
+
+    map0 = _node_right(map0);
+    map1 = _node_right(map1);
+    goto tail_call;
+}
+
+int
+cucon_ucmap_cmp(cucon_ucmap_t map0, cucon_ucmap_t map1)
+{
+    int c;
+
+tail_call:
+    if (map0 == map1) return  0;
+    if (map0 == NULL) return -1;
+    if (map1 == NULL) return  1;
+    if (_node_key(map0) < _node_key(map1)) return -1;
+    if (_node_key(map0) > _node_key(map1)) return  1;
+
+    c = cucon_ucmap_cmp(_node_left(map0), _node_left(map1));
+    if (c) return c;
+
+    if (_node_has_value(map0)) {
+	if (_node_has_value(map1)) {
+	    if (_node_value_int(map0) < _node_value_int(map1)) return -1;
+	    if (_node_value_int(map0) > _node_value_int(map1)) return  1;
+	}
+	else
+	    return 1;
+    }
+    else if (_node_has_value(map1))
+	return -1;
+
+    map0 = _node_right(map0);
+    map1 = _node_right(map1);
+    goto tail_call;
+}
+
+int
+cucon_ucmap_cmp_ptr(cu_clop(f, int, void const *, void const *),
+		    cucon_ucmap_t map0, cucon_ucmap_t map1)
+{
+    int c;
+
+tail_call:
+    if (map0 == map1) return  0;
+    if (map0 == NULL) return -1;
+    if (map1 == NULL) return  1;
+    if (_node_key(map0) < _node_key(map1)) return -1;
+    if (_node_key(map0) > _node_key(map1)) return  1;
+
+    c = cucon_ucmap_cmp_ptr(f, _node_left(map0), _node_left(map1));
+    if (c) return c;
+
+    if (_node_has_value(map0)) {
+	if (_node_has_value(map1)) {
+	    c = cu_call(f, _node_value_ptr(map0), _node_value_ptr(map1));
+	    if (c) return c;
+	}
+	else
+	    return 1;
+    }
+    else if (_node_has_value(map1))
+	return -1;
+
+    map0 = _node_right(map0);
+    map1 = _node_right(map1);
+    goto tail_call;
 }
 
 static void
