@@ -110,7 +110,13 @@ _node_new_lr(cucon_ucmap_t src_node, cucon_ucmap_t left, cucon_ucmap_t right)
 }
 
 cucon_ucmap_t
-cuconP_ucmap_insert_raw(cucon_ucmap_t node, uintptr_t key, uintptr_t val)
+cucon_ucmap_singleton(uintptr_t key, uintptr_t val)
+{
+    return _node_new_val(key, NULL, NULL, val);
+}
+
+cucon_ucmap_t
+cucon_ucmap_insert(cucon_ucmap_t node, uintptr_t key, uintptr_t val)
 {
     uintptr_t node_key;
     if (node == NULL)
@@ -127,7 +133,7 @@ cuconP_ucmap_insert_raw(cucon_ucmap_t node, uintptr_t key, uintptr_t val)
     if (_key_covers(node_key, key)) {
 	if (key < node_key) {
 	    cucon_ucmap_t new_left;
-	    new_left = cuconP_ucmap_insert_raw(_node_left(node), key, val);
+	    new_left = cucon_ucmap_insert(_node_left(node), key, val);
 	    if (new_left != _node_left(node))
 		return _node_new_lr(node, new_left, _node_right(node));
 	    else
@@ -135,7 +141,7 @@ cuconP_ucmap_insert_raw(cucon_ucmap_t node, uintptr_t key, uintptr_t val)
 	}
 	else {
 	    cucon_ucmap_t new_right;
-	    new_right = cuconP_ucmap_insert_raw(_node_right(node), key, val);
+	    new_right = cucon_ucmap_insert(_node_right(node), key, val);
 	    if (new_right != _node_right(node))
 		return _node_new_lr(node, _node_left(node), new_right);
 	    else
@@ -208,6 +214,42 @@ cucon_ucmap_erase(cucon_ucmap_t node, uintptr_t key)
     }
     else
 	return node;
+}
+
+cu_bool_t
+cucon_ucmap_contains(cucon_ucmap_t node, uintptr_t key)
+{
+    uintptr_t node_key;
+tailcall:
+    if (!node) return cu_false;
+    node_key = _node_key(node);
+    if (key == node_key) return _node_has_value(node);
+    if (_key_coverseq(node_key, key)) {
+	if (key < node_key) node = _node_left(node);
+	else                node = _node_right(node);
+	goto tailcall;
+    }
+    return cu_false;
+}
+
+cu_bool_t
+cucon_ucmap_find(cucon_ucmap_t node, uintptr_t key, uintptr_t *val_out)
+{
+    uintptr_t node_key;
+tailcall:
+    if (!node) return cu_false;
+    node_key = _node_key(node);
+    if (key == node_key) {
+	if (!_node_has_value(node)) return cu_false;
+	*val_out = _node_value_int(node);
+	return cu_true;
+    }
+    if (_key_coverseq(node_key, key)) {
+	if (key < node_key) node = _node_left(node);
+	else                node = _node_right(node);
+	goto tailcall;
+    }
+    return cu_false;
 }
 
 void *

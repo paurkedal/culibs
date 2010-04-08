@@ -28,12 +28,12 @@
 static cucon_ucmap_t
 _random_map(size_t size,
 	    uintptr_t min_key, uintptr_t maxp_key,
-	    intptr_t min_val, intptr_t maxp_val)
+	    uintptr_t min_val, uintptr_t maxp_val)
 {
     cucon_ucmap_t M = cucon_ucmap_empty();
     while (size--) {
 	uintptr_t key = lrand48() % (maxp_key - min_key) + min_key;
-	intptr_t val = lrand48() % (maxp_val - min_val) + min_val;
+	uintptr_t val = lrand48() % (maxp_val - min_val) + min_val;
 	M = cucon_ucmap_insert_int(M, key, val);
     }
     return M;
@@ -74,7 +74,7 @@ _test_cmp()
     for (i = 0; i < REPEAT/(j + 1) + 1; ++i) {
 	int c0, c1, c2;
 	int k = lrand48() % (j + 1) + 1;
-	intptr_t dist = (j + k - 1)/k;
+	uintptr_t dist = (j + k - 1)/k;
 	cucon_ucmap_t M0, M1, M2;
 
 	M0 = _random_map(j, 0, dist, 0, dist);
@@ -140,12 +140,20 @@ _test_ief()
 	    S = cucon_ucset_insert(S, key);
 	}
 	for (key = 0; key < MAX_KEY; ++key) {
-	    uintptr_t val = cucon_ucmap_find_int(M, key);
+	    cu_bool_t pres;
+	    uintptr_t val, valp;
+
+	    val = cucon_ucmap_find_int(M, key);
+	    pres = val != cucon_ucmap_int_none;
+	    cu_test_assert(pres == cucon_ucmap_contains(M, key));
+	    cu_test_assert(pres == cucon_ucmap_find(M, key, &valp));
+
 	    if (val == cucon_ucmap_int_none) {
 		cu_test_assert(!cucon_ucset_find(S, key));
 		cu_test_assert(cucon_ucmap_erase(M, key) == M);
 	    }
 	    else {
+		cu_test_assert(val == valp);
 		cu_test_assert(cucon_ucset_find(S, key));
 		cu_test_assert(val == key);
 		Mp = cucon_ucmap_erase(M, key);

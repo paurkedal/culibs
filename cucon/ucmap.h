@@ -85,24 +85,43 @@ CU_SINLINE cucon_ucmap_t cucon_ucmap_empty() { return NULL; }
 CU_SINLINE cu_bool_t
 cucon_ucmap_is_empty(cucon_ucmap_t map) { return map == NULL; }
 
-#ifndef CU_IN_DOXYGEN
-cucon_ucmap_t cuconP_ucmap_insert_raw(cucon_ucmap_t, uintptr_t, uintptr_t);
-#endif
+/** Return the map {\a key ↦ \a val}. */
+cucon_ucmap_t cucon_ucmap_singleton(uintptr_t key, uintptr_t val);
+
+/** \copydoc cucon_ucmap_singleton */
+CU_SINLINE cucon_ucmap_t
+cucon_ucmap_singleton_ptr(uintptr_t key, void *val)
+{ return cucon_ucmap_singleton(key, (uintptr_t)val); }
+
+/** True iff the domain of \a map is a singleton. */
+CU_SINLINE cu_bool_t
+cucon_ucmap_is_singleton(cucon_ucmap_t map)
+{ return map != NULL && map->left == NULL && map->right == NULL; }
 
 /** Return a map which agrees with \a map everywhere, except that \a key maps
  ** to \a val. */
+cucon_ucmap_t cucon_ucmap_insert(cucon_ucmap_t, uintptr_t, uintptr_t);
+
+/** \copydoc cucon_ucmap_insert */
 CU_SINLINE cucon_ucmap_t
 cucon_ucmap_insert_ptr(cucon_ucmap_t map, uintptr_t key, void *val)
-{ return cuconP_ucmap_insert_raw(map, key, (uintptr_t)val); }
+{ return cucon_ucmap_insert(map, key, (uintptr_t)val); }
 
-/** \copydoc cucon_ucmap_insert_ptr */
+/** \copydoc cucon_ucmap_insert */
 CU_SINLINE cucon_ucmap_t
-cucon_ucmap_insert_int(cucon_ucmap_t map, uintptr_t key, uintptr_t val)
-{ return cuconP_ucmap_insert_raw(map, key, val); }
+cucon_ucmap_insert_int(cucon_ucmap_t map, uintptr_t key, int val)
+{ return cucon_ucmap_insert(map, key, val); }
 
 /** If \a map has a mapping from \a key, returns the result of erasing it,
  ** otherwise returns map. */
 cucon_ucmap_t cucon_ucmap_erase(cucon_ucmap_t map, uintptr_t key);
+
+/** True iff \a map has a mapping from \a key. */
+cu_bool_t cucon_ucmap_contains(cucon_ucmap_t map, uintptr_t key);
+
+/** If \a key is found in \a map, assign its value to <code>\a v_out</code> and
+ ** return true, else return false. */
+cu_bool_t cucon_ucmap_find(cucon_ucmap_t map, uintptr_t key, uintptr_t *v_out);
 
 /** The mapping for \a key in \a map or \c NULL if none. */
 void *cucon_ucmap_find_ptr(cucon_ucmap_t map, uintptr_t key);

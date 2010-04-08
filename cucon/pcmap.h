@@ -36,10 +36,31 @@ CU_BEGIN_DECLARATIONS
 CU_SINLINE cucon_pcmap_t
 cucon_pcmap_empty() { return NULL; }
 
+/** \copydoc cucon_ucmap_singleton */
+CU_SINLINE cucon_pcmap_t
+cucon_pcmap_singleton(void *key, uintptr_t val)
+{ return (cucon_pcmap_t)cucon_ucmap_singleton((uintptr_t)key, val); }
+
+/** \copydoc cucon_ucmap_singleton_ptr */
+CU_SINLINE cucon_pcmap_t
+cucon_pcmap_singleton_ptr(void *key, void *val)
+{ return (cucon_pcmap_t)cucon_ucmap_singleton_ptr((uintptr_t)key, val); }
+
+/** \copydoc cucon_ucmap_is_singleton */
+CU_SINLINE cu_bool_t
+cucon_pcmap_is_singleton(cucon_pcmap_t map)
+{ return cucon_ucmap_is_singleton((cucon_ucmap_t)map); }
+
 /** True iff \a map is the empty map.  Due to the constructive nature, there is
  ** only one empty map. */
 CU_SINLINE cu_bool_t
 cucon_pcmap_is_empty(cucon_pcmap_t map) { return map == NULL; }
+
+/** \copydoc cucon_ucmap_insert */
+CU_SINLINE cucon_pcmap_t
+cucon_pcmap_insert(cucon_pcmap_t map, void *key, uintptr_t val)
+{ return (cucon_pcmap_t)cucon_ucmap_insert((cucon_ucmap_t)map,
+					   (uintptr_t)key, val); }
 
 /** Return a map which agrees on \a map everywhere, except that \a key maps to
  ** \a val.  That is a mapping for \a key is either inserted or replaced. */
@@ -58,11 +79,21 @@ cucon_pcmap_insert_int(cucon_pcmap_t map, void *key, int val)
 						 (uintptr_t)key, val);
 }
 
+/** \copydoc cucon_ucmap_contains */
+CU_SINLINE cu_bool_t
+cucon_pcmap_contains(cucon_pcmap_t map, void *key)
+{ return cucon_ucmap_contains((cucon_ucmap_t)map, (uintptr_t)key); }
+
+/** \copydoc cucon_ucmap_find */
+CU_SINLINE cu_bool_t
+cucon_pcmap_find(cucon_pcmap_t map, void *key, uintptr_t *val_out)
+{ return cucon_ucmap_find((cucon_ucmap_t)map, (uintptr_t)key, val_out); }
+
 #define cucon_pcmap_int_none cucon_ucmap_int_none
 
 /** Return the mapping of \a key in \a map, or \c NULL if none. */
 CU_SINLINE void *
-cucon_pcmap_find(cucon_pcmap_t map, void *key)
+cucon_pcmap_find_ptr(cucon_pcmap_t map, void *key)
 { return cucon_ucmap_find_ptr((cucon_ucmap_t)map, (uintptr_t)key); }
 
 /** Return the mapping of \a key in \a map, or \c (uintptr_t)-1 of none. */
