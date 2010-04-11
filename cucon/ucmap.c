@@ -492,6 +492,83 @@ cucon_ucmap_max_ukey(cucon_ucmap_t map)
     return max;
 }
 
+static cucon_ucmap_t
+_uclip_upper(cucon_ucmap_t M, uintptr_t k_min)
+{
+    uintptr_t k_M;
+    cucon_ucmap_t M_left;
+
+tail_call:
+    if (M == NULL)
+	return NULL;
+
+    k_M = _node_key(M);
+    if (k_M < k_min) {
+	M = _node_right(M);
+	goto tail_call;
+    }
+
+    M_left = _uclip_upper(_node_left(M), k_min);
+    return _node_new_lr(M, M_left, _node_right(M));
+}
+
+static cucon_ucmap_t
+_uclip_lower(cucon_ucmap_t M, uintptr_t k_max)
+{
+    uintptr_t k_M;
+    cucon_ucmap_t M_right;
+
+tail_call:
+    if (M == NULL)
+	return NULL;
+
+    k_M = _node_key(M);
+    if (k_M > k_max) {
+	M = _node_left(M);
+	goto tail_call;
+    }
+
+    M_right = _uclip_lower(_node_right(M), k_max);
+    return _node_new_lr(M, _node_left(M), M_right);
+}
+
+cucon_ucmap_t
+cucon_ucmap_uclip_corange(cucon_ucmap_t M, uintptr_t k_min, uintptr_t k_max)
+{
+    uintptr_t k_M;
+    cucon_ucmap_t M_left, M_right;
+
+tail_call:
+    if (M == NULL)
+	return NULL;
+
+    k_M = _node_key(M);
+    if (k_M < k_min) {
+	M = _node_right(M);
+	goto tail_call;
+    }
+    if (k_M > k_max) {
+	M = _node_left(M);
+	goto tail_call;
+    }
+
+    M_left = _uclip_upper(_node_left(M), k_min);
+    M_right = _uclip_lower(_node_right(M), k_max);
+    return _node_new_lr(M, M_left, M_right);
+}
+
+cucon_ucmap_t
+cucon_ucmap_clip_corange(cucon_ucmap_t M, uintptr_t k_min, uintptr_t k_max)
+{
+    if (k_min <= k_max)
+	return cucon_ucmap_uclip_corange(M, k_min, k_max);
+    else {
+	cucon_ucmap_t M0 = _uclip_lower(M, k_max);
+	cucon_ucmap_t M1 = _uclip_upper(M, k_min);
+	return cucon_ucmap_left_union(M0, M1);
+    }
+}
+
 cu_bool_t
 cucon_ucmap_eq(cucon_ucmap_t map0, cucon_ucmap_t map1)
 {

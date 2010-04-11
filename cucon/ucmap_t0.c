@@ -20,6 +20,7 @@
 #include <cucon/ucset.h>
 #include <cu/test.h>
 #include <cu/int.h>
+#include <cu/size.h>
 
 #define REPEAT 40
 #define N_INS 0x400
@@ -179,18 +180,26 @@ _test_ief()
 }
 
 cu_clos_def(_check_union_member, cu_prot(cu_bool_t, uintptr_t k, uintptr_t v),
-    ( cucon_ucmap_t M0, M1;
-      size_t card0, card1; ))
+    ( cucon_ucmap_t M0, M1, Mc;
+      size_t card0, card1;
+      uintptr_t clip_min, clip_max; ))
 {
     cu_clos_self(_check_union_member);
-    cu_bool_t pres0, pres1;
-    uintptr_t v0, v1;
+    cu_bool_t pres0, pres1, in_clip;
+    uintptr_t v0, v1, vc;
     pres0 = cucon_ucmap_find(self->M0, k, &v0);
     pres1 = cucon_ucmap_find(self->M1, k, &v1);
     cu_test_assert(pres0 || pres1);
     cu_test_assert(v == (pres0? v0 : v1));
     if (pres0) ++self->card0;
     if (pres1) ++self->card1;
+    if (self->clip_min <= self->clip_max)
+	in_clip = self->clip_min <= k && k <= self->clip_max;
+    else
+	in_clip = k <= self->clip_max || self->clip_min <= k;
+    cu_test_assert(in_clip == cucon_ucmap_find(self->Mc, k, &vc));
+    if (in_clip)
+	cu_test_assert(v == vc);
     return cu_true;
 }
 
@@ -206,11 +215,15 @@ _test_union()
     for (i = 0; i < REPEAT; ++i) {
 	size_t n0 = lrand48() % (1 << (lrand48() % 16));
 	size_t n1 = lrand48() % (1 << (lrand48() % 16));
+	size_t n = cu_size_max(n0, n1);
 	f_ckm.card0 = 0;
 	f_ckm.card1 = 0;
 	f_ckm.M0 = _random_map(n0, 0, n0, 0, n0);
 	f_ckm.M1 = _random_map(n1, 0, n1, 0, n1);
 	M = cucon_ucmap_left_union(f_ckm.M0, f_ckm.M1);
+	f_ckm.clip_min = lrand48() % n;
+	f_ckm.clip_max = lrand48() % n;
+	f_ckm.Mc = cucon_ucmap_clip_corange(M, f_ckm.clip_min, f_ckm.clip_max);
 	cucon_ucmap_iterA(_check_union_member_ref(&f_ckm), M);
 	cu_test_assert(f_ckm.card0 == cucon_ucmap_card(f_ckm.M0));
 	cu_test_assert(f_ckm.card1 == cucon_ucmap_card(f_ckm.M1));
