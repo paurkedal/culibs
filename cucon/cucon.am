@@ -38,6 +38,9 @@ cucon_headers = \
 	cucon/ucmap.h \
 	cucon/ucset.h
 
+noinst_HEADERS += \
+	cucon/ucmap_priv.h
+
 cucon_sources = \
 	cucon/init.c \
 	cucon/algo_colour.h \

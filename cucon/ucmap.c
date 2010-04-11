@@ -16,19 +16,19 @@
  */
 
 #include <cucon/ucmap.h>
+#include <cucon/ucmap_priv.h>
 #include <cu/memory.h>
 #include <cu/int.h>
 #include <cuoo/hctem.h>
 #include <cuoo/intf.h>
 #include <inttypes.h>
 
-#define _node_left(t) ((cucon_ucmap_t)((uintptr_t)(t)->left & ~(uintptr_t)1))
-#define _node_has_value(t) ((uintptr_t)(t)->left & 1)
-#define _node_value_ptr(t) ((void *)(t)->value)
-#define _node_value_int(t) ((t)->value)
-#define _node_right(t) ((t)->right)
-
-CU_SINLINE uintptr_t _node_key(cucon_ucmap_t node) { return node->key; }
+#define _node_left	cucon_ucmap_node_left
+#define _node_right	cucon_ucmap_node_right
+#define _node_key	cucon_ucmap_node_key
+#define _node_has_value	cucon_ucmap_node_has_value
+#define _node_value	cucon_ucmap_node_value
+#define _node_value_ptr	cucon_ucmap_node_value_ptr
 
 CU_SINLINE cu_bool_t
 _key_covers(uintptr_t key0, uintptr_t key1)
@@ -241,7 +241,7 @@ tailcall:
     node_key = _node_key(node);
     if (key == node_key) {
 	if (!_node_has_value(node)) return cu_false;
-	*val_out = _node_value_int(node);
+	*val_out = _node_value(node);
 	return cu_true;
     }
     if (_key_coverseq(node_key, key)) {
@@ -287,7 +287,7 @@ tailcall:
     if (key == node_key) {
 	if (!_node_has_value(node))
 	    return cucon_ucmap_int_none;
-	return _node_value_int(node);
+	return _node_value(node);
     }
     if (_key_coverseq(node_key, key)) {
 	if (key < node_key)
@@ -334,7 +334,7 @@ cucon_ucmap_iter_int(cucon_ucmap_t node,
 	uintptr_t key = _node_key(node);
 	cucon_ucmap_iter_int(_node_left(node), f);
 	if (_node_has_value(node))
-	    cu_call(f, key, _node_value_int(node));
+	    cu_call(f, key, _node_value(node));
 	node = _node_right(node);
     }
 }
@@ -362,7 +362,7 @@ cucon_ucmap_conj_int(cucon_ucmap_t node,
 	uintptr_t key = _node_key(node);
 	if (!cucon_ucmap_conj_int(_node_left(node), cb))
 	    return cu_false;
-	if (_node_has_value(node) && !cu_call(cb, key, _node_value_int(node)))
+	if (_node_has_value(node) && !cu_call(cb, key, _node_value(node)))
 	    return cu_false;
 	node = _node_right(node);
     }
@@ -399,7 +399,7 @@ cucon_pcmap_conj_int(cucon_pcmap_t node,
 	if (!cucon_pcmap_conj_int(_node_left(node), cb))
 	    return cu_false;
 	if (_node_has_value(node))
-	    if (!cu_call(cb, (void *)key, _node_value_int(node)))
+	    if (!cu_call(cb, (void *)key, _node_value(node)))
 		return cu_false;
 #undef node
 	node = _node_right(node);
@@ -444,7 +444,7 @@ tail_call:
     if (map1 == NULL) return cu_false;
     if (_node_key(map0) != _node_key(map1)) return cu_false;
     if (_node_has_value(map0) != _node_has_value(map1)) return cu_false;
-    if (_node_value_int(map0) != _node_value_int(map1)) return cu_false;
+    if (_node_value(map0) != _node_value(map1)) return cu_false;
 
     if (!cucon_ucmap_eq(_node_left(map0), _node_left(map1)))
 	return cu_false;
@@ -508,8 +508,8 @@ tail_call:
 
     if (_node_has_value(map0)) {
 	if (_node_has_value(map1)) {
-	    if (_node_value_int(map0) < _node_value_int(map1)) return -1;
-	    if (_node_value_int(map0) > _node_value_int(map1)) return  1;
+	    if (_node_value(map0) < _node_value(map1)) return -1;
+	    if (_node_value(map0) > _node_value(map1)) return  1;
 	}
 	else
 	    return 1;
