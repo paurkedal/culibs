@@ -73,11 +73,11 @@ for path in $*; do
 	fi
     else
 	case $ext in
-	    pl|sh|cuex-ot)
+	    ac|am|pl|sh|otab)
 		comment='#'
 		subst $skel_dir/template.x $path
 		;;
-	    ac|m4)
+	    m4)
 		comment='dnl'
 		subst $skel_dir/template.x $path
 		;;
