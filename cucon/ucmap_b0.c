@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,48 +27,57 @@
 #define ENABLE_UMAP 0
 #define ENABLE_UCMAP 1
 
+#define SCALE(x, N) ((x)/((double)CLOCKS_PER_SEC*N*REPEAT))
+
 void
 bench(cu_bool_t enable_umap, cu_bool_t enable_ucmap)
 {
     int i, j;
-    clock_t ubt_tins = 0, umap_tins = 0;
-    clock_t ubt_tfind = 0, umap_tfind = 0;
-    for (j = 0; j < REPEAT; ++j) {
-	cucon_ucmap_t tree = NULL;
-	cucon_umap_t umap = cucon_umap_new();
-	for (i = 0; i < NINS; ++i) {
-	    int j = lrand48() % MOD;
-	    if (enable_ucmap) {
-		ubt_tins -= clock();
-		tree = cucon_ucmap_insert_int(tree, j, j);
-		ubt_tins += clock();
-	    }
-	    if (enable_umap) {
+    clock_t ucmap_tins = 0, umap_tins = 0;
+    clock_t ucmap_tfind = 0, umap_tfind = 0;
+    long int seed = lrand48();
+
+    printf("_________insert______find\n");
+    if (enable_umap) {
+	srand48(seed);
+	for (j = 0; j < REPEAT; ++j) {
+	    cucon_umap_t umap = cucon_umap_new();
+	    for (i = 0; i < NINS; ++i) {
+		int j = lrand48() % MOD;
 		umap_tins -= clock();
-		cucon_umap_insert_void(umap, j);
+		cucon_umap_insert_int(umap, j, j);
 		umap_tins += clock();
 	    }
-	}
-	for (i = 0; i < NFIND; ++i) {
-	    int j = lrand48() % MOD;
-	    if (enable_ucmap) {
-		ubt_tfind -= clock();
-		cucon_ucmap_find_ptr(tree, j);
-		ubt_tfind += clock();
-	    }
-	    if (enable_umap) {
+	    for (i = 0; i < NFIND; ++i) {
+		int j = lrand48() % MOD;
 		umap_tfind -= clock();
 		cucon_umap_find_mem(umap, j);
 		umap_tfind += clock();
 	    }
 	}
+	printf(" umap%#10.3lg%#10.3lg\n",
+	       SCALE(umap_tins, NINS), SCALE(umap_tfind, NFIND));
     }
-    printf("ubt_tins  = %lf\numap_tins = %lf\n",
-	   ubt_tins/(double)CLOCKS_PER_SEC,
-	   umap_tins/(double)CLOCKS_PER_SEC);
-    printf("ubt_tfind  = %lf\numap_tfind = %lf\n",
-	   ubt_tfind/(double)CLOCKS_PER_SEC,
-	   umap_tfind/(double)CLOCKS_PER_SEC);
+    if (enable_ucmap) {
+	srand48(seed);
+	for (j = 0; j < REPEAT; ++j) {
+	    cucon_ucmap_t ucmap = NULL;
+	    for (i = 0; i < NINS; ++i) {
+		int j = lrand48() % MOD;
+		ucmap_tins -= clock();
+		ucmap = cucon_ucmap_insert_int(ucmap, j, j);
+		ucmap_tins += clock();
+	    }
+	    for (i = 0; i < NFIND; ++i) {
+		int j = lrand48() % MOD;
+		ucmap_tfind -= clock();
+		cucon_ucmap_find_ptr(ucmap, j);
+		ucmap_tfind += clock();
+	    }
+	}
+	printf("ucmap%#10.3lg%#10.3lg\n",
+	       SCALE(ucmap_tins, NINS), SCALE(ucmap_tfind, NFIND));
+    }
 }
 
 int
