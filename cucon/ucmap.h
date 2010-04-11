@@ -133,6 +133,10 @@ int cucon_ucmap_find_int(cucon_ucmap_t map, uintptr_t key);
 /** Returns the number of elements in \a map. */
 size_t cucon_ucmap_card(cucon_ucmap_t map);
 
+/** Call \a f for each key and value pair in \a M. */
+cu_bool_t cucon_ucmap_iterA(cu_clop(f, cu_bool_t, uintptr_t, uintptr_t),
+			    cucon_ucmap_t M);
+
 /** Call \a f for each key and value pair in \a M, assuming values are
  ** pointers. */
 void cucon_ucmap_iter_ptr(cucon_ucmap_t M, cu_clop(f, void, uintptr_t, void *));
@@ -148,6 +152,11 @@ cu_bool_t cucon_ucmap_conj_ptr(cucon_ucmap_t map,
 /** Sequential conjunction over mappings in order of increasing keys. */
 cu_bool_t cucon_ucmap_conj_int(cucon_ucmap_t map,
 			       cu_clop(cb, cu_bool_t, uintptr_t, int));
+
+/** Return a map with co-range equal to the union of the co-ranges of \a M0 and
+ ** \a M1, and the mappings agree with \a M0 on its co-range and with \a M1
+ ** elsewhere. */
+cucon_ucmap_t cucon_ucmap_left_union(cucon_ucmap_t M0, cucon_ucmap_t M1);
 
 /** The minimum key in \a map when keys are interpreted as unsigned. */
 uintptr_t cucon_ucmap_min_ukey(cucon_ucmap_t map);

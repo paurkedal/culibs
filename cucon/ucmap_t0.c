@@ -178,11 +178,51 @@ _test_ief()
     }
 }
 
+cu_clos_def(_check_union_member, cu_prot(cu_bool_t, uintptr_t k, uintptr_t v),
+    ( cucon_ucmap_t M0, M1;
+      size_t card0, card1; ))
+{
+    cu_clos_self(_check_union_member);
+    cu_bool_t pres0, pres1;
+    uintptr_t v0, v1;
+    pres0 = cucon_ucmap_find(self->M0, k, &v0);
+    pres1 = cucon_ucmap_find(self->M1, k, &v1);
+    cu_test_assert(pres0 || pres1);
+    cu_test_assert(v == (pres0? v0 : v1));
+    if (pres0) ++self->card0;
+    if (pres1) ++self->card1;
+    return cu_true;
+}
+
+static void
+_test_union()
+{
+    int i;
+    cucon_ucmap_t M;
+    _check_union_member_t f_ckm;
+
+    printf("Union tests.\n");
+    _check_union_member_init(&f_ckm);
+    for (i = 0; i < REPEAT; ++i) {
+	size_t n0 = lrand48() % (1 << (lrand48() % 16));
+	size_t n1 = lrand48() % (1 << (lrand48() % 16));
+	f_ckm.card0 = 0;
+	f_ckm.card1 = 0;
+	f_ckm.M0 = _random_map(n0, 0, n0, 0, n0);
+	f_ckm.M1 = _random_map(n1, 0, n1, 0, n1);
+	M = cucon_ucmap_left_union(f_ckm.M0, f_ckm.M1);
+	cucon_ucmap_iterA(_check_union_member_ref(&f_ckm), M);
+	cu_test_assert(f_ckm.card0 == cucon_ucmap_card(f_ckm.M0));
+	cu_test_assert(f_ckm.card1 == cucon_ucmap_card(f_ckm.M1));
+    }
+}
+
 int
 main()
 {
     cu_init();
     _test_ief();
     _test_cmp();
+    _test_union();
     return 2*!!cu_test_bug_count();
 }

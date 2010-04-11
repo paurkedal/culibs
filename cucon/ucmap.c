@@ -313,6 +313,21 @@ cucon_ucmap_card(cucon_ucmap_t node)
     return count;
 }
 
+cu_bool_t
+cucon_ucmap_iterA(cu_clop(f, cu_bool_t, uintptr_t k, uintptr_t v),
+		  cucon_ucmap_t M)
+{
+    while (M) {
+	if (!cucon_ucmap_iterA(f, _node_left(M))) return cu_false;
+	if (_node_has_value(M)) {
+	    if (!cu_call(f, _node_key(M), _node_value(M)))
+		return cu_false;
+	}
+	M = _node_right(M);
+    }
+    return cu_true;
+}
+
 void
 cucon_ucmap_iter_ptr(cucon_ucmap_t node,
 		     cu_clop(f, void, uintptr_t key, void *val))
@@ -408,6 +423,52 @@ cucon_pcmap_conj_int(cucon_pcmap_t node,
 }
 
 #endif
+
+cucon_ucmap_t
+cucon_ucmap_left_union(cucon_ucmap_t M0, cucon_ucmap_t M1)
+{
+    uintptr_t k0, k1;
+    cucon_ucmap_t M_left, M_right;
+
+    if (!M0) return M1;
+    if (!M1) return M0;
+
+    k0 = _node_key(M0);
+    k1 = _node_key(M1);
+    if (k0 == k1) {
+	M_left = cucon_ucmap_left_union(_node_left(M0), _node_left(M1));
+	M_right = cucon_ucmap_left_union(_node_right(M0), _node_right(M1));
+	return _node_new_lr(_node_has_value(M0)? M0 : M1, M_left, M_right);
+    }
+    else if (_key_covers(k0, k1)) {
+	if (k1 < k0) {
+	    M_left = cucon_ucmap_left_union(_node_left(M0), M1);
+	    return _node_new_lr(M0, M_left, _node_right(M0));
+	}
+	else {
+	    M_right = cucon_ucmap_left_union(_node_right(M0), M1);
+	    return _node_new_lr(M0, _node_left(M0), M_right);
+	}
+    }
+    else if (_key_covers(k1, k0)) {
+	if (k0 < k1) {
+	    M_left = cucon_ucmap_left_union(M0, _node_left(M1));
+	    return _node_new_lr(M1, M_left, _node_right(M1));
+	}
+	else {
+	    M_right = cucon_ucmap_left_union(M0, _node_right(M1));
+	    return _node_new_lr(M1, _node_left(M1), M_right);
+	}
+    }
+    else {
+	uintptr_t k = cu_ulong_dcover(k0 ^ k1);
+	k = (k0 & ~k) | ((k + 1) >> 1);
+	if (k0 < k1)
+	    return _node_new_noval(k, M0, M1);
+	else
+	    return _node_new_noval(k, M1, M0);
+    }
+}
 
 uintptr_t
 cucon_ucmap_min_ukey(cucon_ucmap_t map)
