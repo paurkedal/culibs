@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,6 +68,7 @@ typedef struct cucon_stack_itr		*cucon_stack_itr_t;	/* stack.h */
 typedef struct cucon_umap		*cucon_umap_t;		/* umap.h */
 typedef struct cucon_uset		*cucon_uset_t;		/* uset.h */
 typedef struct cucon_ucmap		*cucon_ucmap_t;		/* ucmap.h */
+typedef struct cucon_ucmultimap		*cucon_ucmultimap_t;  /* ucmultimap.h */
 typedef struct cucon_ucset		*cucon_ucset_t;		/* ucset.h */
 typedef struct cucon_ucset_itr		*cucon_ucset_itr_t;	/* ucset.h */
 typedef struct cucon_wmap		*cucon_wmap_t;		/* wmap.h */

@@ -36,6 +36,7 @@ cucon_headers = \
 	cucon/umap.h \
 	cucon/uset.h \
 	cucon/ucmap.h \
+	cucon/ucmultimap.h \
 	cucon/ucset.h
 
 noinst_HEADERS += \
@@ -67,6 +68,7 @@ cucon_sources = \
 	cucon/slink.c \
 	cucon/stack.c \
 	cucon/ucmap.c \
+	cucon/ucmultimap.c \
 	cucon/ucset.c
 
 cucon_doxyfiles = \
@@ -104,6 +106,7 @@ cucon_check_programs = \
 	cucon/stack_t0 \
 	cucon/ucmap_b0 \
 	cucon/ucmap_t0 \
+	cucon/ucmultimap_t0 \
 	cucon/ucset_b0 \
 	cucon/ucset_t0 \
 	cucon/uset_b0 \
@@ -190,6 +193,8 @@ cucon_ucmap_b0_SOURCES = cucon/ucmap_b0.c
 cucon_ucmap_b0_LDADD = libcubase.la
 cucon_ucmap_t0_SOURCES = cucon/ucmap_t0.c
 cucon_ucmap_t0_LDADD = libcubase.la
+cucon_ucmultimap_t0_SOURCES = cucon/ucmultimap_t0.c
+cucon_ucmultimap_t0_LDADD = libcubase.la
 cucon_ucset_b0_SOURCES = cucon/ucset_b0.c
 cucon_ucset_b0_LDADD = libcubase.la
 cucon_ucset_t0_SOURCES = cucon/ucset_t0.c
