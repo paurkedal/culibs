@@ -63,7 +63,6 @@ _show_pkg_user_dirs(cu_bool_t use_instdirs)
 int
 main()
 {
-    int i;
     cuos_init();
 
     SHOW_STR(cuos_user_config_home());

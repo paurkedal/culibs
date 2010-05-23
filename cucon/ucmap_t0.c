@@ -221,8 +221,8 @@ _test_union()
 	f_ckm.M0 = _random_map(n0, 0, n0, 0, n0);
 	f_ckm.M1 = _random_map(n1, 0, n1, 0, n1);
 	M = cucon_ucmap_left_union(f_ckm.M0, f_ckm.M1);
-	f_ckm.clip_min = lrand48() % n;
-	f_ckm.clip_max = lrand48() % n;
+	f_ckm.clip_min = lrand48() % (n + 1);
+	f_ckm.clip_max = lrand48() % (n + 1);
 	f_ckm.Mc = cucon_ucmap_clip_corange(M, f_ckm.clip_min, f_ckm.clip_max);
 	cucon_ucmap_iterA(_check_union_member_ref(&f_ckm), M);
 	cu_test_assert(f_ckm.card0 == cucon_ucmap_card(f_ckm.M0));
