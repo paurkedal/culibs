@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2008--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -138,7 +138,7 @@ typedef void (**cu_clop_generic_t)();
 #define cu_clof_decl0(f, res_t) \
     res_t (*f)cuP_jargl(cuPP_argl0_, (), cu_clos_self_t)
 #define cu_clof_self(name, field) \
-    struct name##_s *self = cu_ptr_context(struct name##_s, field, cuL_self)
+    struct name *self = cu_ptr_context(struct name, field, cuL_self)
 #define cu_clof_init(obj, field, fn) ((obj)->field = (fn))
 #define cu_clof_ref(obj, field) &(obj)->field
 
