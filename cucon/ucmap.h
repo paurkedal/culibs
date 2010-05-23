@@ -137,6 +137,10 @@ size_t cucon_ucmap_card(cucon_ucmap_t map);
 cu_bool_t cucon_ucmap_iterA(cu_clop(f, cu_bool_t, uintptr_t, uintptr_t),
 			    cucon_ucmap_t M);
 
+cu_bool_t cucon_ucmap_iterA_clipped(cu_clop(f, cu_bool_t, uintptr_t, uintptr_t),
+				    cucon_ucmap_t M,
+				    uintptr_t k_min, uintptr_t k_max);
+
 /** Call \a f for each key and value pair in \a M, assuming values are
  ** pointers. */
 void cucon_ucmap_iter_ptr(cucon_ucmap_t M, cu_clop(f, void, uintptr_t, void *));
@@ -164,8 +168,11 @@ uintptr_t cucon_ucmap_min_ukey(cucon_ucmap_t map);
 /** The maximum key in \a map when keys are interpreted as unsigned. */
 uintptr_t cucon_ucmap_max_ukey(cucon_ucmap_t map);
 
-cucon_ucmap_t cucon_ucmap_clip_corange(cucon_ucmap_t map,
-				       uintptr_t k_min, uintptr_t k_max);
+cucon_ucmap_t cucon_ucmap_uclip(cucon_ucmap_t map,
+				uintptr_t k_min, uintptr_t k_max);
+
+cucon_ucmap_t cucon_ucmap_clip(cucon_ucmap_t map,
+			       uintptr_t k_min, uintptr_t k_max);
 
 /** True iff \a map0 and \a map1 are equal, where values are compared as
  ** integers or by pointer comparison. */

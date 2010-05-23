@@ -215,15 +215,25 @@ _test_union()
     for (i = 0; i < REPEAT; ++i) {
 	size_t n0 = lrand48() % (1 << (lrand48() % 16));
 	size_t n1 = lrand48() % (1 << (lrand48() % 16));
+	uintptr_t l0 = lrand48();
+	uintptr_t l1 = i % 2? l0 : lrand48();
+	uintptr_t m = lrand48() % (1 << (lrand48() % (8*sizeof(uintptr_t))));
 	size_t n = cu_size_max(n0, n1);
+
 	f_ckm.card0 = 0;
 	f_ckm.card1 = 0;
-	f_ckm.M0 = _random_map(n0, 0, n0, 0, n0);
-	f_ckm.M1 = _random_map(n1, 0, n1, 0, n1);
+	f_ckm.M0 = _random_map(n0, l0, l0 + m*n0 + 1, 0, n0);
+	f_ckm.M1 = _random_map(n1, l1, l1 + m*n1 + 1, 0, n1);
 	M = cucon_ucmap_left_union(f_ckm.M0, f_ckm.M1);
+
+	if (n == 0) {
+	    cu_test_assert(M == NULL);
+	    continue;
+	}
+
 	f_ckm.clip_min = lrand48() % (n + 1);
 	f_ckm.clip_max = lrand48() % (n + 1);
-	f_ckm.Mc = cucon_ucmap_clip_corange(M, f_ckm.clip_min, f_ckm.clip_max);
+	f_ckm.Mc = cucon_ucmap_clip(M, f_ckm.clip_min, f_ckm.clip_max);
 	cucon_ucmap_iterA(_check_union_member_ref(&f_ckm), M);
 	cu_test_assert(f_ckm.card0 == cucon_ucmap_card(f_ckm.M0));
 	cu_test_assert(f_ckm.card1 == cucon_ucmap_card(f_ckm.M1));

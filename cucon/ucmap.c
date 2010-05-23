@@ -43,6 +43,15 @@ _key_coverseq(uintptr_t key0, uintptr_t key1)
     return (key0 & mask0) == (key1 & mask0);
 }
 
+CU_SINLINE uintptr_t
+_key_join(uintptr_t k0, uintptr_t k1)
+{
+    uintptr_t k = cu_ulong_dcover(k0 ^ k1);
+    cu_debug_assert(k >= 2);
+    k = (k0 & ~k) | ((k >> 1) + (uintptr_t)1);
+    return k;
+}
+
 static cucon_ucmap_t
 _node_new_val(uintptr_t key, cucon_ucmap_t left, cucon_ucmap_t right,
 	      uintptr_t val)
@@ -160,9 +169,7 @@ cucon_ucmap_insert(cucon_ucmap_t node, uintptr_t key, uintptr_t val)
 	cucon_ucmap_t key_node;
 	uintptr_t j;
 	key_node = _node_new_val(key, NULL, NULL, val);
-	j = cu_ulong_dcover(key ^ node_key);
-	cu_debug_assert(j >= 2);
-	j = (key & ~j) | ((j + 1) >> 1);
+	j = _key_join(key, node_key);
 	if (key < node_key)
 	    return _node_new_noval(j, key_node, node);
 	else
@@ -328,6 +335,71 @@ cucon_ucmap_iterA(cu_clop(f, cu_bool_t, uintptr_t k, uintptr_t v),
     return cu_true;
 }
 
+static cu_bool_t
+_iterA_above(cu_clop(f, cu_bool_t, uintptr_t, uintptr_t),
+	     cucon_ucmap_t M, uintptr_t k_min)
+{
+    uintptr_t k_M;
+
+tail_call:
+    if (!M) return cu_true;
+
+    k_M = _node_key(M);
+    if (k_M < k_min) {
+	M = _node_right(M);
+	goto tail_call;
+    }
+
+    return _iterA_above(f, _node_left(M), k_min)
+	&& (!_node_has_value(M) || cu_call(f, _node_key(M), _node_value(M)))
+	&& cucon_ucmap_iterA(f, _node_right(M));
+}
+
+static cu_bool_t
+_iterA_below(cu_clop(f, cu_bool_t, uintptr_t, uintptr_t),
+	     cucon_ucmap_t M, uintptr_t k_max)
+{
+    uintptr_t k_M;
+
+tail_call:
+    if (!M) return cu_true;
+
+    k_M = _node_key(M);
+    if (k_M > k_max) {
+	M = _node_left(M);
+	goto tail_call;
+    }
+
+    return cucon_ucmap_iterA(f, _node_left(M))
+	&& (!_node_has_value(M) || cu_call(f, _node_key(M), _node_value(M)))
+	&& _iterA_below(f, _node_right(M), k_max);
+}
+
+cu_bool_t
+cucon_ucmap_iterA_clipped(cu_clop(f, cu_bool_t, uintptr_t k, uintptr_t v),
+			  cucon_ucmap_t M, uintptr_t k_min, uintptr_t k_max)
+{
+    uintptr_t k_M;
+    if (k_min <= k_max) {
+	while (M) {
+	    k_M = _node_key(M);
+	    if (k_M < k_min)
+		M = _node_right(M);
+	    else if (k_M > k_max)
+		M = _node_left(M);
+	    else
+		return _iterA_above(f, _node_left(M), k_min)
+		    && (!_node_has_value(M)
+			|| cu_call(f, _node_key(M), _node_value(M)))
+		    && _iterA_below(f, _node_right(M), k_max);
+	}
+	return cu_true;
+    }
+    else
+	return _iterA_below(f, M, k_max)
+	    && _iterA_above(f, M, k_min);
+}
+
 void
 cucon_ucmap_iter_ptr(cucon_ucmap_t node,
 		     cu_clop(f, void, uintptr_t key, void *val))
@@ -461,8 +533,7 @@ cucon_ucmap_left_union(cucon_ucmap_t M0, cucon_ucmap_t M1)
 	}
     }
     else {
-	uintptr_t k = cu_ulong_dcover(k0 ^ k1);
-	k = (k0 & ~k) | ((k + 1) >> 1);
+	uintptr_t k = _key_join(k0, k1);
 	if (k0 < k1)
 	    return _node_new_noval(k, M0, M1);
 	else
@@ -533,7 +604,7 @@ tail_call:
 }
 
 cucon_ucmap_t
-cucon_ucmap_uclip_corange(cucon_ucmap_t M, uintptr_t k_min, uintptr_t k_max)
+cucon_ucmap_uclip(cucon_ucmap_t M, uintptr_t k_min, uintptr_t k_max)
 {
     uintptr_t k_M;
     cucon_ucmap_t M_left, M_right;
@@ -558,10 +629,10 @@ tail_call:
 }
 
 cucon_ucmap_t
-cucon_ucmap_clip_corange(cucon_ucmap_t M, uintptr_t k_min, uintptr_t k_max)
+cucon_ucmap_clip(cucon_ucmap_t M, uintptr_t k_min, uintptr_t k_max)
 {
     if (k_min <= k_max)
-	return cucon_ucmap_uclip_corange(M, k_min, k_max);
+	return cucon_ucmap_uclip(M, k_min, k_max);
     else {
 	cucon_ucmap_t M0 = _uclip_lower(M, k_max);
 	cucon_ucmap_t M1 = _uclip_upper(M, k_min);
