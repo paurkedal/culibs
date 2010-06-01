@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -415,7 +415,7 @@ cuexP_halloc_raw(cuex_meta_t meta, size_t key_sizew, void *key)
     mask = hcset->mask;
 
     /* If present, return existing object. */
-    slot = &hcset->arr[hash & hcset->mask];
+    slot = &hcset->arr[hash & mask];
     for (obj = *slot; obj; obj = _hcset_hasheqv_next(obj)) {
 	if (cuex_meta(obj) == meta
 	    && cu_wordarr_eq(key_sizew, key, CUOO_HCOBJ_KEY(obj))) {
@@ -513,9 +513,11 @@ cuooP_hcons_disclaim_proc(void *obj, void *null)
     _hcset_t hcset;
 
     meta = *(cuex_meta_t *)obj - 1;
-    if (cuex_meta_kind(meta) == cuex_meta_kind_ignore)
+    if (cuex_meta_kind(meta) == cuex_meta_kind_ignore) /* If on free-list, */
 	return 0;
     obj = (cuex_meta_t *)obj + 1;
+
+    /* Remove any properties if supported. */
 #ifdef CUOO_ENABLE_KEYED_PROP
     if (_hcobj_has_prop(obj)) {
 	cu_mutex_lock(&_property_mutex);
@@ -523,35 +525,37 @@ cuooP_hcons_disclaim_proc(void *obj, void *null)
 	cu_mutex_unlock(&_property_mutex);
     }
 #endif
+
+    /* Obtain the hash set and lock it. */
 #if CUOO_HCSET_CNT > 1
     hash = cuex_key_hash(obj);
     hcset = _hcset(hash);
-    if (!_hcset_trylock_write(hcset))
-	return 1;
-    else if (_hcobj_is_marked(obj)) {
-	_hcobj_unmark_lck(obj);
-	_hcset_unlock_write(hcset);
-	return 1;
-    }
-    else {
-	_hcset_hasheqv_erase_wlck(hcset, hash, obj);
-	_hcset_unlock_write(hcset);
-    }
 #else
     hcset = _hcset(0);
+#endif
     if (!_hcset_trylock_write(hcset))
 	return 1;
+
+    /* Bail out if the object is marked.  This can only happen if we're not
+     * using the garbage collector's mark function. */
+#if CUOO_HC_USE_GC_MARK
+    cu_debug_assert(!_hcobj_is_marked(obj));
+#else
     if (_hcobj_is_marked(obj)) {
 	_hcobj_unmark_lck(obj);
 	_hcset_unlock_write(hcset);
 	return 1;
     }
-    else {
-	hash = cuex_key_hash(obj);
-	_hcset_hasheqv_erase_wlck(hcset, hash, obj);
-	_hcset_unlock_write(hcset);
-    }
 #endif
+
+    /* Remove the object from the hash set. */
+#if !(CUOO_HCSET_CNT > 1) /* else computed above */
+    hash = cuex_key_hash(obj);
+#endif
+    _hcset_hasheqv_erase_wlck(hcset, hash, obj);
+    _hcset_unlock_write(hcset);
+
+    /* Call finalizer if enabled and present. */
 #ifdef CUOO_INTF_FINALISE
     if (cuex_meta_is_type(meta)) {
 	cuoo_type_t t = cuoo_type_from_meta(meta);
@@ -559,6 +563,7 @@ cuooP_hcons_disclaim_proc(void *obj, void *null)
 	    (*t->impl)(CUOO_INTF_FINALISE, obj);
     }
 #endif
+
     return 0;
 }
 
