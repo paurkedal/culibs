@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,19 @@ cu_wordarr_eq(size_t count, cu_word_t const *arr0, cu_word_t const *arr1)
 	if (*arr0++ != *arr1++)
 	    return cu_false;
     return cu_true;
+}
+
+/** Return -1, 0, or 1 if \a arr0 is less than, equal to, or greater than \a
+ ** arr1 in lexicographical order. */
+CU_SINLINE int
+cu_wordarr_cmp(size_t count, cu_word_t const *arr0, cu_word_t const *arr1)
+{
+    while (count--) {
+	cu_word_t w0 = *arr0++, w1 = *arr1++;
+	if (w0 != w1)
+	    return w0 < w1? -1 : 1;
+    }
+    return 0;
 }
 
 /** Initialise \a count words starting at \a dst to \a val. */
