@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 				    CUCONF_PACKAGE_VERSION_1, \
 				    CUCONF_PACKAGE_VERSION_2)
 
-#ifdef CUCONF_HAVE_GC_REGISTER_RECLAIM_NOTIFIER
+#if !defined(CUCONF_ENABLE_HASHCONS_DISAPP)
 #  define CUCONF_ENABLE_GC_DISCLAIM
 #endif
 

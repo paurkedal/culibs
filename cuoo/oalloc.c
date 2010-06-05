@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #ifdef CUCONF_HAVE_GC_GC_TINY_FL
 #  include <gc/gc_tiny_fl.h>
 #endif
-#if CUCONF_ENABLE_GC_DISCLAIM
+#ifdef CUCONF_ENABLE_GC_DISCLAIM
 #  include <gc/gc_disclaim.h>
 #endif
 

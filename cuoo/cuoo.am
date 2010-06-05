@@ -24,10 +24,14 @@ cuoo_sources = \
 	cuoo/support.c \
 	cuoo/type.c
 
-if enable_gc_disclaim
-    cuoo_sources += cuoo/hcons_disclaim.c
-else
-    cuoo_sources += cuoo/hcons_disapp.c
+if enable_hashcons_disclaim
+    cuoo_sources += cuoo/halloc_disclaim.c
+endif
+if enable_hashcons_disclaim_old
+    cuoo_sources += cuoo/halloc_disclaim_old.c
+endif
+if enable_hashcons_disapp
+    cuoo_sources += cuoo/halloc_disapp.c
 endif
 
 cuoo_doxyfiles =
@@ -37,7 +41,7 @@ cuoo_check_programs = \
 	cuoo/halloc_t1
 
 cuoo_norun_check_programs = \
-	cuoo/hcons_b0 \
+	cuoo/halloc_b0 \
 	cuoo/layout_t0
 
 # Unused tests: cuoo/prop_t0.c
@@ -46,7 +50,7 @@ cuoo_halloc_t0_SOURCES = cuoo/halloc_t0.c
 cuoo_halloc_t0_LDADD = libcubase.la
 cuoo_halloc_t1_SOURCES = cuoo/halloc_t1.c
 cuoo_halloc_t1_LDADD = libcubase.la
-cuoo_hcons_b0_SOURCES = cuoo/hcons_b0.c
-cuoo_hcons_b0_LDADD = libcubase.la
+cuoo_halloc_b0_SOURCES = cuoo/halloc_b0.c
+cuoo_halloc_b0_LDADD = libcubase.la
 cuoo_layout_t0_SOURCES = cuoo/layout_t0.c
 cuoo_layout_t0_LDADD = libcubase.la

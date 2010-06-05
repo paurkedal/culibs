@@ -134,21 +134,33 @@ AC_CHECK_HEADER([atomic_ops.h], [],
 # libgc
 #
 CUAC_LIB_BDWGC
-AC_ARG_ENABLE([gc-disclaim],
-    [AC_HELP_STRING([--disable-gc-disclaim],
-	[Disable use of GC disclaim patch, even if present.])])
-if test x"$enable_gc_disclaim" != xno; then
-    if $have_gc_disclaim; then
-	AC_DEFINE([CUCONF_ENABLE_GC_DISCLAIM], 1,
-		  [Define to enable use of disclaim GC patch.])
-    else
-	enable_gc_disclaim=no
-	AC_MSG_WARN([Hash-consing will we very slow without the disclaim])
-	AC_MSG_WARN([patch for the garbage collector.  The patch is available at])
-	AC_MSG_WARN([http://www.eideticdew.org/culibs/bdwgc-rn.html.])
-    fi
-fi
-AM_CONDITIONAL([enable_gc_disclaim], [test x"$enable_gc_disclaim" != xno])
+
+AC_ARG_ENABLE([hashcons],
+    [AC_HELP_STRING([--enable-hashcons=disclaim|disclaim-old|disapp],
+	[Select hash-consing implementation])],
+    [AS_CASE([$enableval],
+	[disclaim|disclaim-old],
+	    [AS_IF([test $have_gc_disclaim != true],
+		[AC_MSG_ERROR([To use --enable-hashcons=$enableval you must link against a libgc build with the disclaim-patch, available at http://www.eideticdew.org/culibs/bdwgc-rn.html])])],
+	[disapp], [],
+	[AC_MSG_ERROR([Invalid argument to --enable-hashcons.])])],
+    [AS_IF([test $have_gc_disclaim], [enable_hashcons=disclaim],
+	   [enable_hashcons=disapp])])
+AS_CASE([$enable_hashcons],
+    [disclaim],     [AC_DEFINE([CUCONF_ENABLE_HASHCONS_DISCLAIM], [1],
+			       [Use the new disclaim-based hash-consing.])],
+    [disclaim-old], [AC_DEFINE([CUCONF_ENABLE_HASHCONS_DISCLAIM_OLD], [1],
+			       [Use the old disclaim-based hash-consing.])],
+    [disapp],       [AC_DEFINE([CUCONF_ENABLE_HASHCONS_DISAPP], [1],
+			       [Use disappearing links for hash-consing.])])
+AS_IF([$enable_cuex && test $enable_hashcons = disapp],
+      [AC_MSG_WARN([Hash-consing is slow without disclaim support. This is mainly an issue if you use expression trees from the cuex module.])])
+AM_CONDITIONAL([enable_hashcons_disclaim],
+	       [test $enable_hashcons = disclaim])
+AM_CONDITIONAL([enable_hashcons_disclaim_old],
+	       [test $enable_hashcons = disclaim-old])
+AM_CONDITIONAL([enable_hashcons_disapp],
+	       [test $enable_hashcons = disapp])
 
 # other libraries
 #

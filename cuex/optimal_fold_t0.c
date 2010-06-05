@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ cu_dlog_def(_file, "dtag=cuex.optimal_fold");
 #if 1
 #  define REPEAT 10000
 #  define PLOT_BIN_COUNT 20
-#  define PLOT_NODECOUNT_GRAN 10
+#  define PLOT_NODECOUNT_GRAN 20
 #else
 #  define REPEAT 40
 #  define PLOT_BIN_COUNT 10

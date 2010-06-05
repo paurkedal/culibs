@@ -49,7 +49,7 @@ CU_BEGIN_DECLARATIONS
 
 typedef struct cuooP_hcobj *cuooP_hcobj_t;
 
-#ifdef CUCONF_ENABLE_GC_DISCLAIM
+#ifdef CUCONF_ENABLE_HASHCONS_DISCLAIM_OLD
 
 # define CUOO_HC_GENERATION 0
 # define CUOO_HCOBJ_NEEDED 1
@@ -66,13 +66,13 @@ struct cuooP_hcobj
 # endif
 };
 
-#else /* !CUCONF_ENABLE_GC_DISCLAIM */
+#else /* !CUCONF_ENABLE_HASHCONS_DISCLAIM_OLD */
 
 # define CUOO_HCOBJ
 # define CUOO_HCOBJ_SHIFT 0
 # define CUOO_HCOBJ_INIT
 
-#endif /* !CUCONF_ENABLE_GC_DISCLAIM */
+#endif /* !CUCONF_ENABLE_HASHCONS_DISCLAIM_OLD */
 
 #define CUOO_HCOBJ_SHIFTW (CUOO_HCOBJ_SHIFT/CU_WORD_SIZE)
 #define CUOO_HCOBJ_KEY(obj) ((void *)((char *)(obj) + CUOO_HCOBJ_SHIFT))
