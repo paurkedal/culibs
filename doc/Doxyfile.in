@@ -1076,7 +1076,6 @@ INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = \
     CU_IN_DOXYGEN \
     CU_SINLINE= \
-    CUCONF_ENABLE_GC_DISCLAIM \
     CU_DOXY_FAKED="/** \par \"Actual declaration:\" \code" \
     CU_DOXY_ENDFAKED(decl)="\endcode*/decl"
 
