@@ -22,21 +22,36 @@
 #include <cu/diag.h>
 
 #define REPEAT 20
-#define MAX_LOG_NODE_COUNT 18
-#define MAX_ALLOC_COUNT ((size_t)4 << MAX_LOG_NODE_COUNT)
+#define MAX_LOG_NODE_COUNT 20
+#define MAX_ALLOC_COUNT ((size_t)2 << MAX_LOG_NODE_COUNT)
+#define RETAIN_COUNT 1
+#define N_CONST (1 << 10)
 
+typedef struct _const  *_const_t;
 typedef struct _tuple1 *_tuple1_t;
 typedef struct _tuple2 *_tuple2_t;
 typedef struct _tuple3 *_tuple3_t;
 
+struct _const  { CUOO_HCOBJ cu_word_t c; };
 struct _tuple1 { CUOO_HCOBJ void *arr[1]; };
 struct _tuple2 { CUOO_HCOBJ void *arr[2]; };
 struct _tuple3 { CUOO_HCOBJ void *arr[3]; };
 
+static cuoo_type_t _the_const_type;
 static cuoo_type_t _the_tuple1_type, _the_tuple2_type, _the_tuple3_type;
+#define _const_type()  _the_const_type
 #define _tuple1_type() _the_tuple1_type
 #define _tuple2_type() _the_tuple2_type
 #define _tuple3_type() _the_tuple3_type
+
+static _const_t
+_const_new(int c)
+{
+    cuoo_hctem_decl(_const, tem);
+    cuoo_hctem_init(_const, tem);
+    cuoo_hctem_get(_const, tem)->c = c;
+    return cuoo_hctem_new(_const, tem);
+}
 
 static _tuple1_t
 _tuple1_new(void *p0)
@@ -74,7 +89,7 @@ _random_tree(size_t n)
     size_t n0, n1;
 
     if (!n)
-	return NULL;
+	return _const_new(lrand48() % N_CONST);
 
     --n;
     switch (lrand48() % 3 + 1) {
@@ -98,7 +113,7 @@ _random_tree(size_t n)
 static void
 _test()
 {
-    void *trees[MAX_ALLOC_COUNT];
+    void *trees[RETAIN_COUNT];
     int i, j;
     size_t tot_count = 0;
     clock_t t = -clock();
@@ -106,28 +121,32 @@ _test()
     printf("----------------------------\n");
     for (i = 0; i < REPEAT; ++i) {
 	int log_node_count = lrand48() % MAX_LOG_NODE_COUNT;
-	size_t node_count = (size_t)1 << log_node_count;
+	size_t node_count = lrand48() % ((size_t)1 << log_node_count) + 1;
 	size_t n_alloc = MAX_ALLOC_COUNT/node_count;
 	size_t sub_count = 0;
 	clock_t t_sub = -clock();
 	for (j = 0; j < n_alloc; ++j) {
-	    trees[j] = _random_tree(node_count);
+	    trees[j % RETAIN_COUNT] = _random_tree(node_count);
 	    sub_count += node_count;
 	}
 	t_sub += clock();
-	printf("%7zd %7zd  %#6.3lg Hz\n", node_count, n_alloc,
+	printf("%7zd %7zd  %#6.3lg s\n", node_count, n_alloc,
 	       t_sub/((double)CLOCKS_PER_SEC*sub_count));
+	for (j = 0; j < RETAIN_COUNT; ++j)
+	    trees[j] = NULL;
 	tot_count += sub_count;
     }
     t += clock();
     printf("----------------------------\n");
-    printf("%16s %#6.3lg Hz\n", "Avg.", t/((double)CLOCKS_PER_SEC*tot_count));
+    printf("%16s %#6.3lg s\n", "Avg.", t/((double)CLOCKS_PER_SEC*tot_count));
 }
 
 int
 main()
 {
     cu_init();
+    _the_const_type = cuoo_type_new_opaque_hcs(
+	cuoo_impl_none, sizeof(struct _const) - CUOO_HCOBJ_SHIFT);
     _the_tuple1_type = cuoo_type_new_opaque_hcs(
 	cuoo_impl_none, sizeof(struct _tuple1) - CUOO_HCOBJ_SHIFT);
     _the_tuple2_type = cuoo_type_new_opaque_hcs(

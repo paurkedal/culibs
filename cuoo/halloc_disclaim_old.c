@@ -87,7 +87,7 @@
 #endif
 #include <atomic_ops.h>
 
-cu_dlog_def(_file, "cuoo.hcons");
+cu_dlog_def(_file, "dtag=cuoo.halloc");
 
 /* These are used to reallocate the global arrays. */
 #if 1
@@ -283,7 +283,7 @@ _hcset_shrink_wlck(_hcset_t hcset, size_t new_cap, cuooP_hcobj_t *new_arr)
     cuooP_hcobj_t *old_arr_end = old_arr + old_cap;
     cu_debug_assert(0 < new_cap && new_cap < old_cap);
     memset(new_arr, 0, sizeof(void *)*new_cap);
-    cu_dlogf(_file, "New cap = %d\n", new_cap);
+    cu_dlogf(_file, "Reducing capacity from %zd to %zd.", old_cap, new_cap);
     hash = 0;
     while (old_arr != old_arr_end) {
 	cuooP_hcobj_t obj = *old_arr;
@@ -317,7 +317,7 @@ _hcset_grow_wlck(_hcset_t hcset, size_t new_cap, cuooP_hcobj_t *new_arr)
     cuooP_hcobj_t *old_arr_end = old_arr + old_cap;
     cu_debug_assert(new_cap > old_cap);
     memset(new_arr, 0, sizeof(void *)*new_cap);
-    cu_dlogf(_file, "New cap = %d\n", new_cap);
+    cu_dlogf(_file, "Expanding capacity from %zd to %zd.", old_cap, new_cap);
     while (old_arr != old_arr_end) {
 	cuooP_hcobj_t obj = *old_arr;
 	while (obj) {
@@ -586,9 +586,14 @@ _gc_start_callback(void)
 static void
 _collision_stats(void)
 {
+    int i;
+    size_t n_left = 0;
     int_least64_t cnt = _coll_count + _noncoll_count;
-    fprintf(stderr, "Hash cons collisions: %lf of %"PRIi64" inserts\n",
+    fprintf(stderr, "Hash cons collisions: %lf parts of %"PRIi64" inserts\n",
 	    _coll_count/(double)cnt, cnt);
+    for (i = 0; i < CUOO_HCSET_CNT; ++i)
+	 n_left += _g_hcset_arr[i].cnt;
+    fprintf(stderr, "%zd objects left at exit.\n", n_left);
 }
 #endif
 

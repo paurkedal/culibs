@@ -32,14 +32,15 @@
 
 /* The minimum capacity and limits on the load before resizing a hash set. */
 #define MIN_CAPACITY	8
-#define MIN_LOAD_NUMER	1
-#define MIN_LOAD_DENOM	3
-#define MAX_LOAD_NUMER	4
-#define MAX_LOAD_DENOM	3
+#define MIN_LOAD_NUMER	3
+#define MIN_LOAD_DENOM	8
+#define MAX_LOAD_NUMER	3
+#define MAX_LOAD_DENOM	2
 
 /* Don't change these for production builds. */
 #define VALIDATE_HSET	0  /* Very expensive, use only for debugging. */
 #define USE_MALLOC	1  /* Don't use GC for internals due to locking. */
+#define ENABLE_STATS	0
 
 
 cu_dlog_def(_file, "dtag=cuoo.halloc");
@@ -63,6 +64,18 @@ _mallocz(size_t size)
 # define _ufree_atomic		cu_ufree_atomic
 #endif
 
+#if ENABLE_STATS
+# define IF_STATS(stmt) (stmt)
+static size_t _stat_alloc_insert = 0;
+static size_t _stat_alloc_found = 0;
+static size_t _stat_xalloc_insert = 0;
+static size_t _stat_xalloc_found = 0;
+static size_t _stat_erase = 0;
+static size_t _stat_missed_erase = 0;
+#else
+# define IF_STATS(stmt) ((void)0)
+#endif
+
 typedef struct _hset *_hset_t;
 typedef struct _link *_link_t;
 typedef struct _obj  *_obj_t;
@@ -80,7 +93,7 @@ void GC_set_mark_bit(void *);
 CU_SINLINE void
 _obj_mark(void *obj)
 {
-    GC_set_mark_bit(obj);
+    GC_set_mark_bit((cuex_meta_t *)obj - 1);
 }
 
 CU_SINLINE void *
@@ -170,6 +183,9 @@ _hset_validate(_hset_t hset)
     int j;
     size_t size = hset->size;
     size_t mask = hset->mask;
+    cu_debug_assert(size * MIN_LOAD_DENOM >= mask * MIN_LOAD_NUMER ||
+		    mask + 1 == MIN_CAPACITY);
+    cu_debug_assert(size * MAX_LOAD_DENOM <= mask * MAX_LOAD_NUMER);
     for (i = 0; i <= mask; ++i) {
 	_link_t link = hset->arr[i];
 	_obj_t obj;
@@ -703,19 +719,20 @@ next_link:
 inserted:
     cu_debug_assert(hash == cuex_key_hash(ret_obj));
     ++hset->size;
-    _hset_validate(hset);
     if (hset->size * MAX_LOAD_DENOM > mask * MAX_LOAD_NUMER) {
 	size_t new_cap = (mask + 1) * 2;
 	_hset_grow(hset, new_cap);
-	_hset_validate(hset);
     }
+    _hset_validate(hset);
     _hset_unlock(hset);
+    IF_STATS(++_stat_alloc_insert);
     return ret_obj;
 
 found:
+    _hset_unlock(hset);
     _obj_mark(ret_obj);
     cu_debug_assert(hash == cuex_key_hash(ret_obj));
-    _hset_unlock(hset);
+    IF_STATS(++_stat_alloc_found);
     return ret_obj;
 }
 
@@ -796,19 +813,20 @@ inserted:
     cu_call(init_nonkey, ret_obj);
     cu_debug_assert(hash == cuex_key_hash(ret_obj));
     ++hset->size;
-    _hset_validate(hset);
     if (hset->size * MAX_LOAD_DENOM > mask * MAX_LOAD_NUMER) {
 	size_t new_cap = (mask + 1) * 2;
 	_hset_grow(hset, new_cap);
-	_hset_validate(hset);
     }
+    _hset_validate(hset);
     _hset_unlock(hset);
+    IF_STATS(++_stat_xalloc_insert);
     return ret_obj;
 
 found:
+    _hset_unlock(hset);
     _obj_mark(ret_obj);
     cu_debug_assert(hash == cuex_key_hash(ret_obj));
-    _hset_unlock(hset);
+    IF_STATS(++_stat_xalloc_insert);
     return ret_obj;
 }
 
@@ -826,8 +844,11 @@ cuooP_hcons_disclaim_proc(void *obj, void *null)
 
     hash = cuex_key_hash(obj);
     hset = _hset_for_hash(hash);
-    if (!_hset_trylock(hset))
+    if (!_hset_trylock(hset)) {
+	IF_STATS(++_stat_missed_erase);
 	return 1;
+    }
+    IF_STATS(++_stat_erase);
 
     _hset_erase(hset, hash, obj);
     _hset_validate(hset);
@@ -836,10 +857,35 @@ cuooP_hcons_disclaim_proc(void *obj, void *null)
     return 0;
 }
 
+#if ENABLE_STATS
+static void
+_dump_stats(void)
+{
+    int i;
+    size_t obj_count = 0;
+    for (i = 0; i < CUOO_HSET_COUNT; ++i)
+	obj_count += _hset_arr[i].size;
+
+#   define SHOW(var, what) printf("%9zd %s\n", var, what)
+    printf("\nHash-consing statistics:\n");
+    SHOW(_stat_alloc_insert,	"unique  allocations");
+    SHOW(_stat_alloc_found,	"matched allocations");
+    if (_stat_xalloc_insert || _stat_xalloc_found) {
+	SHOW(_stat_xalloc_insert, "unique  allocations with aux data");
+	SHOW(_stat_xalloc_found,  "matched allocations with aux data");
+    }
+    SHOW(_stat_erase,		"disclaims successful");
+    SHOW(_stat_missed_erase,	"disclaims missed due to locking");
+    SHOW(obj_count,		"objects left at exit");
+#   undef SHOW
+}
+#endif
+
 void
 cuooP_hcons_init(void)
 {
     size_t i;
     for (i = 0; i < CUOO_HSET_COUNT; ++i)
 	_hset_init(&_hset_arr[i]);
+    IF_STATS(atexit(_dump_stats));
 }
