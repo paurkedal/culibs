@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,14 @@
 #include <cuoo/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuoo_meta_h cuoo/meta.h: Tree Codes
- *@{\ingroup cuoo_mod */
+/** \defgroup cuoo_meta_h cuoo/meta.h: Opcode and Object Type Union
+ ** \ingroup cuoo_mod
+ **
+ ** A dynamic object contains a descriptor which we here call the metaword, of
+ ** type \ref cuex_meta_t, which is a discriminated union of opcodes and object
+ ** types.  The following provide the detailed layout, as well as more high
+ ** level functions to create and inspect the metaword.
+ ** @{ */
 
 /* Meta Descriptor Format
  *
@@ -46,6 +52,14 @@ CU_BEGIN_DECLARATIONS
 #define CUEX_PRIuMETA PRIuPTR
 #define CUEX_PRIxMETA PRIxPTR
 #define CUEX_PRIXMETA PRIXPTR
+
+/** \name Metaword Layout
+ **
+ ** The following definitions describe the layout of metawords.  Client code
+ ** will normally use the higher level inline functions and the macros
+ ** generated from the operator defititions.  Nevertheless, certain useful
+ ** numeric limits can be derived from the width of the fields.
+ **  @{ */
 
 #define CUEX_META_MASK(shift, width) \
     (((CUEX_META_C(1) << (width)) - CUEX_META_C(1)) << (shift))
@@ -91,12 +105,6 @@ typedef enum {
 
 #define cuex_meta_kind(meta) ((cuex_meta_kind_t)((meta) & 3))
 
-/*!Cast a \ref cuex_meta_t to a \ref cuoo_type "cuoo_type_t", assumig \ref
- * cuex_meta_is_type(\a meta) is true. */
-#define cuoo_type_from_meta(meta) ((cuoo_type_t)(meta))
-/*!Cast a \ref cuoo_type "cuoo_type_t" to a \ref cuex_meta_t. */
-#define cuoo_type_to_meta(ptr) ((cuex_meta_t)(ptr))
-
 /* Meta codes: other.varmeta */
 #define CUEXP_VARMETA_SELECT_WIDTH 3
 #define CUEXP_VARMETA_SELECT_MASK  CUEX_META_C(7)
@@ -108,34 +116,40 @@ typedef enum {
 #define cuexP_varmeta_wsize(meta) \
     ((meta & CUEXP_VARMETA_WSIZE_MASK) >> CUEXP_VARMETA_WSIZE_SHIFT)
 
+/**  @} */
 
-/* Operators
- * ---------
- *
- * Operators are the same type as cuex_meta_t, no need for cast, but before
- * using cuex_opr_r, check that it is really an operator. */
+/** Cast a \ref cuex_meta_t to a \ref cuoo_type "cuoo_type_t", assumig \ref
+ ** cuex_meta_is_type(\a meta) is true. */
+CU_SINLINE cuoo_type_t
+cuoo_type_from_meta(cuex_meta_t meta)
+{ return (cuoo_type_t)meta; }
 
-/*!True iff \a meta is an operator, i.e. it is the meta of an operation. */
+/** Cast a \ref cuoo_type "cuoo_type_t" to a \ref cuex_meta_t. */
+CU_SINLINE cuex_meta_t
+cuoo_type_to_meta(cuex_t type)
+{ return (cuex_meta_t)type; }
+
+/** True iff \a meta is an operator, i.e. it is the meta of an operation. */
 CU_SINLINE cu_bool_t
 cuex_meta_is_opr(cuex_meta_t meta)
 { return cuex_meta_kind(meta) == cuex_meta_kind_opr; }
 
-/*!The arity of the operator \a opr. */
+/** The arity of the operator \a opr. */
 CU_SINLINE cu_rank_t
 cuex_opr_r(cuex_meta_t opr)
 { return ((opr) & CUEX_OPR_ARITY_MASK) >> CUEX_OPR_ARITY_SHIFT; }
 
-/*!True iff \a meta is an operator of rank \a r. */
+/** True iff \a meta is an operator of rank \a r. */
 CU_SINLINE cu_bool_t
 cuex_meta_is_opr_r(cu_rank_t r, cuex_meta_t meta)
 { return cuex_meta_is_opr(meta) && cuex_opr_r(meta) == r; }
 
-/*!The meta of a dynamic object or operation \a obj. */
+/** The meta of a dynamic object or operation \a obj. */
 CU_SINLINE cuex_meta_t
 cuex_meta(void *obj)
 { return *((cuex_meta_t *)obj - 1) - 1; }
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

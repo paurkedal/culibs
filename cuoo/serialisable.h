@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,9 @@
 #include <cuoo/fwd.h>
 
 CU_BEGIN_DECLARATIONS
-/*!\defgroup cuoo_serialisable_h cuoo/serialisable.h: Interface for Serialisable Objects
- *@{\ingroup cuoo_mod */
+/** \defgroup cuoo_serialisable_h cuoo/serialisable.h: Interface for Serialisable Objects
+ ** \ingroup cuoo_mod
+ ** @{ */
 
 struct cuoo_libinfo
 {
@@ -51,7 +52,7 @@ struct cuoo_intf_serialisable
     void *(*read)(FILE *, int revision);
 };
 
-/*!@}*/
+/** @} */
 CU_END_DECLARATIONS
 
 #endif

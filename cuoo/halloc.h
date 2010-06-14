@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,8 +73,8 @@ cuexP_halloc(cuex_meta_t meta, size_t key_size, void *key)
 }
 #endif
 
-/*!General hash-consing allocation, allowing more control than \ref
- * cuoo_hctem_new. */
+/** General hash-consing allocation, allowing more control than \ref
+ ** cuoo_hctem_new. */
 CU_SINLINE void *
 cuoo_halloc(cuoo_type_t type, size_t key_size, void *key)
 {
@@ -83,10 +83,10 @@ cuoo_halloc(cuoo_type_t type, size_t key_size, void *key)
 			    key);
 }
 
-/*!General hash-consing allocation with extra non-keyed memory.  This generally
- * takes more GC cycles to clean up and is therefore more expensive than \ref
- * cuoo_halloc, but it allows caching computations and associating properties
- * to live objects. */
+/** General hash-consing allocation with extra non-keyed memory.  This
+ ** generally takes more GC cycles to clean up and is therefore more expensive
+ ** than \ref cuoo_halloc, but it allows caching computations and associating
+ ** properties to live objects. */
 CU_SINLINE void *
 cuoo_hxalloc_init(cuoo_type_t type, size_t struct_size,
 		  size_t key_size, void *key,
@@ -99,8 +99,8 @@ cuoo_hxalloc_init(cuoo_type_t type, size_t struct_size,
 	key, init_nonkey);
 }
 
-/*!As \ref cuoo_hxalloc_init specialised with initialisation that simply sets
- * an \a AO_t typed field at offset \a oa_offset to \a ao_value. */
+/** As \ref cuoo_hxalloc_init specialised with initialisation that simply sets
+ ** an \a AO_t typed field at offset \a oa_offset to \a ao_value. */
 CU_SINLINE void *
 cuoo_hxalloc_setao(cuoo_type_t type, size_t struct_size,
 		   size_t key_size, void *key,
@@ -113,8 +113,8 @@ cuoo_hxalloc_setao(cuoo_type_t type, size_t struct_size,
 	key, ao_offset, ao_value);
 }
 
-/*!As \ref cuoo_hxalloc_init specialised with initialisation that only clear
- * the non-key data. */
+/** As \ref cuoo_hxalloc_init specialised with initialisation that only clear
+ ** the non-key data. */
 CU_SINLINE void *
 cuoo_hxalloc_clear(cuoo_type_t type, size_t struct_size,
 		   size_t key_size, void *key)
@@ -125,29 +125,28 @@ cuoo_hxalloc_clear(cuoo_type_t type, size_t struct_size,
 	CUOO_HCOBJ_KEY_SIZEW(key_size + CUOO_HCOBJ_SHIFT), key);
 }
 
-/*!Macro to call \ref cuoo_hxalloc_init based on an identifier prefix.  It is
- * assumed that the following are defined:
- * <ul>
- *   <li><tt>struct <i>prefix</i> { CU_HCOBJ ... }</tt> — The struct of the
- *     object, used for size calculation and the return type.</li>
- *   <li><tt>cuoo_type_t <i>prefix</i>_type(void)</tt> — A function or
- *     function-like macro which shall return the dynamic type of the
- *     object.</li>
- * </ul> */
+/** A macro which construct a call to \ref cuoo_hxalloc_init given a prefix to
+ ** identifier names related to the type.  In particular, the following must be
+ ** defined:
+ **   - <code>struct <i>prefix</i> { CU_HCOBJ ... }</code> — The struct of the
+ **     object, used for size calculation and the return type.
+ **   - <code>cuoo_type_t <i>prefix</i>_type(void)</code> — A function or
+ **     function-like macro which shall return the dynamic type of the object.
+ **/
 #define cuoo_hxnew_init(prefix, key_size, key, init_nonkey) \
     ((struct prefix *) \
      cuoo_hxalloc_init(prefix##_type(), sizeof(struct prefix), \
 		       key_size, key, init_nonkey))
 
-/*!Macro to call \ref cuoo_hxalloc_setao based on an indentifier prefix.  See
- * \ref cuoo_hxnew_init for details. */
+/** Macro to call \ref cuoo_hxalloc_setao based on an indentifier prefix.  See
+ ** \ref cuoo_hxnew_init for details. */
 #define cuoo_hxnew_setao(prefix, key_size, key, ao_offset, ao_value) \
     ((struct prefix *) \
      cuoo_hxalloc_setao(prefix##_type(), sizeof(struct prefix), \
 			key_size, key, ao_offset, ao_value))
 
-/*!Macro to call \ref cuoo_hxalloc_clear based on an indentifier prefix.  See
- * \ref cuoo_hxnew_init for details. */
+/** Macro to call \ref cuoo_hxalloc_clear based on an indentifier prefix.  See
+ ** \ref cuoo_hxnew_init for details. */
 #define cuoo_hxnew_clear(prefix, key_size, key) \
     ((struct prefix *) \
      cuoo_hxalloc_clear(prefix##_type(), sizeof(struct prefix), \
