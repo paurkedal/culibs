@@ -117,7 +117,7 @@ _test()
     int i, j;
     size_t tot_count = 0;
     clock_t t = -clock();
-    printf("%7s %7s  %s\n", "size", "repeat", "alloc freq");
+    printf("%7s %7s  %s\n", "size", "repeat", "alloc time");
     printf("----------------------------\n");
     for (i = 0; i < REPEAT; ++i) {
 	int log_node_count = lrand48() % MAX_LOG_NODE_COUNT;

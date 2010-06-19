@@ -21,7 +21,8 @@
 
 CU_BEGIN_DECLARATIONS
 /** \defgroup @header_idr@_h @header_relpath@:
- ** @{ \ingroup @module_idr@_mod */
+ ** \ingroup @module_idr@_mod
+ ** @{ */
 
 @POINT@
 
