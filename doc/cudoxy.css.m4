@@ -118,21 +118,12 @@ div.memproto {
 	margin-left: -3mm;  padding-left: 2mm;
 	margin-right: -3mm; padding-right: 3mm;
 	background-color: COL0_LIGHT;
-}
-table.memname {
-	font-family: monospace;
 	width: 100%;
-}
-td.memname, td.memkey {
-	padding-left: 0; padding-right: 0;
-	margin-left: 0; padding-left: 0;
-	white-space: nowrap;
-}
-td.paramtype {
-	padding-left: 0; padding-right: 0;
-	margin-left: 0; padding-left: 0;
-	white-space: nowrap;
 	font-family: monospace;
+}
+table.memname tr, table.memname td {
+	margin: 0; padding: 0;
+	white-space: nowrap;
 }
 .memdoc {
 	margin-top: 0.6em;
