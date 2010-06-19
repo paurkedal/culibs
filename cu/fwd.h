@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2004--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2004--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -127,6 +127,15 @@ typedef void *cu_ptr_ptr_t;
 /** The type conventionally used for generic function pointers.  This shall be
  ** cast back to the actual function pointer type when used. */
 typedef void (*cu_fnptr_t)();
+
+/** An integer small enough to be stored in a pointer-sized field. */
+#if CUCONF_SIZEOF_VOID_P >= 8
+typedef uint64_t cu_uint_mostptr_t;
+#elif CUCONF_SIZEOF_VOID_P >= 4
+typedef uint32_t cu_uint_mostptr_t;
+#else
+#  error "Missing case for cu_uint_mostptr_t."
+#endif
 
 /* A type which can hold the size of bounded-size objects.  Holds the size of
  * structures, but not necessarily variable sized arrays.  May be 32 bit on 64
