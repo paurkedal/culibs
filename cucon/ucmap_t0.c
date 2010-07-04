@@ -21,6 +21,7 @@
 #include <cu/test.h>
 #include <cu/int.h>
 #include <cu/size.h>
+#include <cu/memory.h>
 
 #define REPEAT 40
 #define N_INS 0x400
@@ -240,10 +241,96 @@ _test_union()
     }
 }
 
+static int
+_ucmap_element_cmp(const void *lhs, const void *rhs)
+{
+    uintptr_t k0 = ((const struct cucon_ucmap_element *)lhs)->key;
+    uintptr_t k1 = ((const struct cucon_ucmap_element *)rhs)->key;
+    return k0 < k1 ? -1 : k1 < k0 ? 1 : 0;
+}
+
+cu_clos_def(_array_check, cu_prot(cu_bool_t, uintptr_t key, uintptr_t val),
+    ( uintptr_t clip_min, clip_max;
+      size_t count, clip_count;
+      struct cucon_ucmap_element *elt; ))
+{
+    cu_clos_self(_array_check);
+    cu_test_assert(self->elt->key == key);
+    cu_test_assert(self->elt->value == val);
+    do ++self->elt; while (self->elt->key == key);
+    ++self->count;
+    if (self->clip_max - key <= self->clip_min - key)
+	++self->clip_count;
+    return cu_true;
+}
+
+static void
+_test_array_ctor()
+{
+    cucon_ucmap_t M;
+    int round;
+    _array_check_t check_cb;
+    static const int n_max_bits = 16;
+    struct cucon_ucmap_element *arr
+	= cu_gnewarr(struct cucon_ucmap_element, 1 << n_max_bits);
+
+    printf("Testing array ctor corner cases.\n");
+
+    arr[0].key = arr[0].value = 0x8100;
+    arr[1].key = arr[1].value = 0x8108;
+    arr[2].key = arr[2].value = 0x8109;
+    M = cucon_ucmap_from_sorted_array(arr, 3);
+    cucon_ucmap_dump(M, stderr);
+    cu_test_assert_size_eq(cucon_ucmap_card(M), 3);
+    cu_test_assert(cucon_ucmap_contains(M, 0x8100));
+    cu_test_assert(cucon_ucmap_contains(M, 0x8108));
+    cu_test_assert(cucon_ucmap_contains(M, 0x8109));
+
+    arr[0].key = arr[0].value = 0;
+    arr[1].key = arr[1].value = INTPTR_MAX;
+    arr[2].key = arr[2].value = UINTPTR_MAX;
+    M = cucon_ucmap_from_sorted_array(arr, 3);
+    cucon_ucmap_dump(M, stderr);
+    cu_test_assert_size_eq(cucon_ucmap_card(M), 3);
+    cu_test_assert(cucon_ucmap_contains(M, 0));
+    cu_test_assert(cucon_ucmap_contains(M, INTPTR_MAX));
+    cu_test_assert(cucon_ucmap_contains(M, UINTPTR_MAX));
+
+    printf("Testing array ctor.\n");
+
+    for (round = 0; round < REPEAT; ++round) {
+	size_t i, n = lrand48() % (1 << (lrand48() % (n_max_bits + 1)));
+	size_t n0, n1;
+	uintptr_t clip_min, clip_max;
+
+	for (i = 0; i < n; ++i) {
+	    arr[i].key = lrand48();
+	    arr[i].value = arr[i].key + 100;
+	}
+	qsort(arr, n, sizeof(struct cucon_ucmap_element), _ucmap_element_cmp);
+	M = cucon_ucmap_from_sorted_array(arr, n);
+
+	for (i = 0; i < n; ++i)
+	    cu_test_assert(cucon_ucmap_contains(M, arr[i].key));
+
+	check_cb.count = 0;
+	check_cb.clip_count = 0;
+	check_cb.elt = arr;
+	check_cb.clip_min = clip_min = lrand48();
+	check_cb.clip_max = clip_max = lrand48();
+	cucon_ucmap_iterA(_array_check_prep(&check_cb), M);
+	n0 = cucon_ucmap_clipped_card(M, clip_min, clip_max);
+	n1 = cucon_ucmap_clipped_card(M, clip_max + 1, clip_min - 1);
+	cu_test_assert(n0 + n1 == check_cb.count);
+	cu_test_assert(n0 == check_cb.clip_count);
+    }
+}
+
 int
 main()
 {
     cu_init();
+    _test_array_ctor();
     _test_ief();
     _test_cmp();
     _test_union();

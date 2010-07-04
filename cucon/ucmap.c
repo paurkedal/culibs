@@ -43,6 +43,8 @@ _key_coverseq(uintptr_t key0, uintptr_t key1)
     return (key0 & mask0) == (key1 & mask0);
 }
 
+/* Find the tightest cover for k0 and k1, provided that neither of these cover
+ * the other. */
 CU_SINLINE uintptr_t
 _key_join(uintptr_t k0, uintptr_t k1)
 {
@@ -122,6 +124,79 @@ cucon_ucmap_t
 cucon_ucmap_singleton(uintptr_t key, uintptr_t val)
 {
     return _node_new_val(key, NULL, NULL, val);
+}
+
+static cucon_ucmap_t
+_ucmap_from_sorted_array(uintptr_t max_key,
+			 struct cucon_ucmap_element (**arr_io), size_t *len_io)
+{
+    uintptr_t cur_key, next_key, cur_max, value;
+    cucon_ucmap_t cur_node, right_node;
+
+    if (*len_io == 0)
+	return NULL;
+
+    cur_key = (*arr_io)->key;
+    if (cur_key > max_key)
+	return NULL;
+
+    /* Create a node for the first element and any subsequent elements which
+     * belong to it's right branch. */
+    value = (*arr_io)->value;
+    do {
+	++*arr_io; --*len_io;
+	if (*len_io == 0)
+	    return _node_new_val(cur_key, NULL, NULL, value);
+    } while ((*arr_io)->key == cur_key);
+
+    next_key = (*arr_io)->key;
+    if (_key_covers(cur_key, next_key)) {
+	cur_max = cur_key | (cur_key - 1);
+	right_node = _ucmap_from_sorted_array(cur_max, arr_io, len_io);
+	cur_node = _node_new_val(cur_key, NULL, right_node, value);
+	if (*len_io == 0)
+	    return cur_node;
+    }
+    else
+	cur_node = _node_new_val(cur_key, NULL, NULL, value);
+
+    /* Move outwards by exiting the left node.  On each iteration the next key
+     * either covers our current node on the left, or we can create such a key
+     * by joining the new key with the current. */
+    do {
+	next_key = (*arr_io)->key;
+	if (next_key > max_key)
+	    break;
+
+	if (_key_covers(next_key, cur_key)) {
+	    value = (*arr_io)->value;
+	    do {
+		++*arr_io; --*len_io;
+		if (*len_io == 0)
+		    return _node_new_val(next_key, cur_node, NULL, value);
+	    } while ((*arr_io)->key == next_key);
+	    cur_key = next_key;
+	    cur_max = cur_key | (cur_key - 1);
+	    right_node = _ucmap_from_sorted_array(cur_max, arr_io, len_io);
+	    cur_node = _node_new_val(cur_key, cur_node, right_node, value);
+	}
+	else {
+	    if (!_key_covers(cur_key, next_key))
+		cur_key = _key_join(cur_key, next_key);
+	    cur_max = cur_key | (cur_key - 1);
+	    right_node = _ucmap_from_sorted_array(cur_max, arr_io, len_io);
+	    cur_node = _node_new_noval(cur_key, cur_node, right_node);
+	}
+    } while (*len_io);
+    return cur_node;
+}
+
+cucon_ucmap_t
+cucon_ucmap_from_sorted_array(struct cucon_ucmap_element *arr, size_t len)
+{
+    cucon_ucmap_t M = _ucmap_from_sorted_array(UINTPTR_MAX, &arr, &len);
+    cu_debug_assert(!len);
+    return M;
 }
 
 cucon_ucmap_t
@@ -333,6 +408,31 @@ cucon_ucmap_iterA(cu_clop(f, cu_bool_t, uintptr_t k, uintptr_t v),
 	M = _node_right(M);
     }
     return cu_true;
+}
+
+size_t
+cucon_ucmap_clipped_card(cucon_ucmap_t M, uintptr_t k_min, uintptr_t k_max)
+{
+    uintptr_t k_M;
+    if (k_min <= k_max) {
+	size_t count = 0;
+	while (M) {
+	    k_M = _node_key(M);
+	    if (k_M < k_min)
+		M = _node_right(M);
+	    else if (k_M > k_max)
+		M = _node_left(M);
+	    else {
+		if (_node_has_value(M)) ++count;
+		count += cucon_ucmap_clipped_card(_node_left(M), k_min, k_max);
+		M = _node_right(M);
+	    }
+	}
+	return count;
+    }
+    else
+	return cucon_ucmap_clipped_card(M, k_min + 1, UINTPTR_MAX)
+	     + cucon_ucmap_clipped_card(M, 0, k_max - 1);
 }
 
 static cu_bool_t

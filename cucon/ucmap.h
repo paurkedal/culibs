@@ -70,6 +70,12 @@ struct cucon_ucmap
     uintptr_t value;
 };
 
+struct cucon_ucmap_element
+{
+    uintptr_t key;
+    uintptr_t value;
+};
+
 #if CUCONP_UCMAP_ENABLE_HCONS
 extern cuoo_type_t cuconP_ucmap_type;
 CU_SINLINE cuoo_type_t cucon_ucmap_type()
@@ -97,6 +103,11 @@ cucon_ucmap_singleton_ptr(uintptr_t key, void *val)
 CU_SINLINE cu_bool_t
 cucon_ucmap_is_singleton(cucon_ucmap_t map)
 { return map != NULL && map->left == NULL && map->right == NULL; }
+
+/** Returns a map of elements given by the array \a arr of \a len (key,
+ ** value)-elements, which must be sorted in ascending key order. */
+cucon_ucmap_t
+cucon_ucmap_from_sorted_array(struct cucon_ucmap_element *arr, size_t len);
 
 /** Return a map which agrees with \a map everywhere, except that \a key maps
  ** to \a val. */
@@ -132,6 +143,9 @@ int cucon_ucmap_find_int(cucon_ucmap_t map, uintptr_t key);
 
 /** Returns the number of elements in \a map. */
 size_t cucon_ucmap_card(cucon_ucmap_t map);
+
+size_t cucon_ucmap_clipped_card(cucon_ucmap_t map,
+				uintptr_t k_min, uintptr_t k_max);
 
 /** Call \a f for each key and value pair in \a M. */
 cu_bool_t cucon_ucmap_iterA(cu_clop(f, cu_bool_t, uintptr_t, uintptr_t),
