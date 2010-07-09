@@ -431,8 +431,8 @@ cucon_ucmap_clipped_card(cucon_ucmap_t M, uintptr_t k_min, uintptr_t k_max)
 	return count;
     }
     else
-	return cucon_ucmap_clipped_card(M, k_min + 1, UINTPTR_MAX)
-	     + cucon_ucmap_clipped_card(M, 0, k_max - 1);
+	return cucon_ucmap_clipped_card(M, k_min, UINTPTR_MAX)
+	     + cucon_ucmap_clipped_card(M, 0, k_max);
 }
 
 static cu_bool_t
