@@ -100,6 +100,8 @@ cu_check_programs = \
 	cu/idr_t0 \
 	cu/int_t0 \
 	cu/location_t0 \
+	cu/memory_t0_debug \
+	cu/memory_t0_ndebug \
 	cu/ptr_t0 \
 	cu/thread_t0 \
 	cu/rarex_t0 \
@@ -143,6 +145,12 @@ cu_int_t0_SOURCES = cu/int_t0.c
 cu_int_t0_LDADD = libcubase.la
 cu_location_t0_SOURCES = cu/location_t0.c
 cu_location_t0_LDADD = libcubase.la
+cu_memory_t0_debug_SOURCES = cu/memory_t0.c
+cu_memory_t0_debug_LDADD = libcubase.la
+cu_memory_t0_debug_CFLAGS = -D CU_DEBUG_MEMORY=1
+cu_memory_t0_ndebug_SOURCES = cu/memory_t0.c
+cu_memory_t0_ndebug_LDADD = libcubase.la
+cu_memory_t0_ndebug_CFLAGS = -D CU_NDEBUG=1
 cu_ptr_t0_SOURCES = cu/ptr_t0.c
 cu_ptr_t0_LDADD = libcubase.la
 cu_thread_t0_SOURCES = cu/thread_t0.c

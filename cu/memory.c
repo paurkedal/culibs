@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2000--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2000--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -233,7 +233,7 @@ cuP_memory_init()
     cu_debug_assert_once();
 
     /* Determine size of debug header. */
-    ptr = cu_galloc(1);
+    ptr = cuD_galloc(1, __FILE__, __LINE__);
     cuD_gc_base_shift = (char *)ptr - (char *)GC_base(ptr);
-    cu_gfree(ptr);
+    cuD_gfree(ptr, __FILE__, __LINE__);
 }

@@ -33,15 +33,20 @@
 
 CU_BEGIN_DECLARATIONS
 /** \defgroup cu_fwd_h cu/fwd.h: Forward Declarations
- ** @{ \ingroup cu_mod */
+ ** \ingroup cu_mod
+ ** @{ */
 
 /* The AC_C_INLINE will defined "inline" to "__inline__" or "__inline", leave
  * it, or define it blank. */
 #define CU_SINLINE static inline
 
 #ifdef NDEBUG
-#  define CU_NDEBUG
-#  define CU_NDEBUG_CLIENT
+#  ifndef CU_NDEBUG
+#    define CU_NDEBUG
+#  endif
+#  ifndef CU_NDEBUG_CLIENT
+#    define CU_NDEBUG_CLIENT
+#  endif
 #endif
 
 #ifndef CU_MARG
