@@ -32,6 +32,18 @@ CU_BEGIN_DECLARATIONS
  **
  ** @{ */
 
+/** Array element type for handling multi-sets in de-constructed from. */
+struct cucon_ucmultimap_element
+{
+    uintptr_t key;
+    uintptr_t value;
+};
+
+/** A callback suitable to pass to qsort to sort an array of
+ ** \ref cucon_ucmultimap_element before passing it to \ref
+ ** cucon_ucmultimap_from_sorted_array. */
+int cucon_ucmultimap_element_cmp(void const *e0, void const *e1);
+
 /** The empty multi-map. */
 CU_SINLINE cucon_ucmultimap_t
 cucon_ucmultimap_empty()
@@ -63,6 +75,13 @@ cucon_ucmultimap_t cucon_ucmultimap_singleton(uintptr_t k, uintptr_t v);
 
 /** True iff \a M is a singleton map. */
 cu_bool_t cucon_ucmultimap_is_singleton(cucon_ucmultimap_t M);
+
+/** Returns a multi-map from the \a len elements starting at \a arr.  The
+ ** elements must be sorted in ascending lexicographical order, where the key
+ ** is the most significant. */
+cucon_ucmultimap_t
+cucon_ucmultimap_from_sorted_array(struct cucon_ucmultimap_element *arr,
+				   size_t len);
 
 /** The multi-map which agrees on \a M everywhere except \a k has an extra
  ** mapping to \a v if not already present.  Other mappings from \a k are

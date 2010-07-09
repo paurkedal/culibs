@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,6 +78,9 @@ cucon_ucset_t cucon_ucset_singleton(uintptr_t key);
 
 /** True iff \a set is a singleton set. */
 cu_bool_t cucon_ucset_is_singleton(cucon_ucset_t set);
+
+/** Constructs a set from an array of elements sorted in ascending order. */
+cucon_ucset_t cucon_ucset_from_sorted_array(uintptr_t *arr, size_t len);
 
 /** Return \a set with \a key inserted. */
 cucon_ucset_t cucon_ucset_insert(cucon_ucset_t set, uintptr_t key);

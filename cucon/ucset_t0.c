@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #include <cu/debug.h>
 #include <cu/test.h>
 #include <cu/int.h>
+#include <cu/memory.h>
 #include <string.h>
 
 #define CHECK_REPEAT	500
@@ -83,11 +84,12 @@ cu_clos_def(_filter_check, cu_prot(cu_bool_t, uintptr_t key),
 	return cu_false;
 }
 
-void
-check()
+static void
+_test_misc()
 {
     int i;
     static cu_word_t bitset[DENSE_MOD/WORD_WIDTH];
+    printf("Running misc tests.\n");
     for (i = 0; i < CHECK_REPEAT; ++i) {
 	cucon_ucset_t U = NULL, Ut, Uc, Uct, Up, Upp;
 	cucon_ucset_t S[3] = {NULL, NULL, NULL}, S01, S12, S1p;
@@ -260,6 +262,36 @@ check()
     }
 }
 
+static int
+_uintptr_cmp(const void *i_, const void *j_)
+{
+    uintptr_t i = *(uintptr_t *)i_;
+    uintptr_t j = *(uintptr_t *)j_;
+    return i < j ? -1 : i > j ? 1 : 0;
+}
+
+static void
+_test_array_ctor(void)
+{
+    int i, j;
+    int log2_maxp_length = 12;
+    uintptr_t *arr = cu_gnewarr(uintptr_t, 1 << log2_maxp_length);
+    printf("Testing construction from array.\n");
+    for (i = 0; i < CHECK_REPEAT; ++i) {
+	cucon_ucset_t S0, S1;
+	size_t len = lrand48() % (1 << (lrand48() % (log2_maxp_length + 1)));
+	cu_debug_assert(len < (1 << log2_maxp_length));
+	S0 = cucon_ucset_empty();
+	for (j = 0; j < len; ++j) {
+	    uintptr_t key = arr[j] = mrand48();
+	    S0 = cucon_ucset_insert(S0, key);
+	}
+	qsort(arr, len, sizeof(uintptr_t), _uintptr_cmp);
+	S1 = cucon_ucset_from_sorted_array(arr, len);
+	cu_test_assert_ptr_eq(S0, S1);
+    }
+}
+
 int
 main()
 {
@@ -278,6 +310,7 @@ main()
     putc('\n', stdout);
     cucon_ucset_dump(tree, stdout);
     printf("card = %zd\n", cucon_ucset_card(tree));
-    check();
+    _test_array_ctor();
+    _test_misc();
     return 2*!!cu_test_bug_count();
 }

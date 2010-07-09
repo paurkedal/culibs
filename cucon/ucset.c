@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,6 +95,16 @@ _key_is_leaflike(uintptr_t key)
     mask = key ^ (key - CU_UINTPTR_C(1));
     return mask < CU_WORD_P2WIDTH*BITSET_SIZEW;
 }
+
+CU_SINLINE uintptr_t
+_key_join(uintptr_t k0, uintptr_t k1)
+{
+    uintptr_t k = cu_uintptr_dcover(k0 ^ k1);
+    return (k0 & ~k) | ((k >> 1) + (uintptr_t)1);
+}
+
+CU_SINLINE uintptr_t _key_min(uintptr_t k) { return k & (k - (uintptr_t)1); }
+CU_SINLINE uintptr_t _key_max(uintptr_t k) { return k | (k - (uintptr_t)1); }
 
 CU_SINLINE uintptr_t
 _ucnode_key(cucon_ucset_t node)
@@ -538,6 +548,75 @@ cucon_ucset_is_singleton(cucon_ucset_t set)
 	return _ucleaf_is_singleton(set);
     else
 	return set->left == NULL && set->right == NULL;
+}
+
+static cucon_ucset_t
+_ucset_leaf_from_sorted_array(uintptr_t **arr_io, size_t *len_io)
+{
+    cucon_ucset_leaf_t leaf;
+    cuoo_hctem_decl(cucon_ucset_leaf, tem);
+    uintptr_t cur_key, cur_key_max;
+    int j;
+
+    if (*len_io == 0)
+	return NULL;
+    cur_key = **arr_io;
+
+    cuoo_hctem_init(cucon_ucset_leaf, tem);
+    leaf = cuoo_hctem_get(cucon_ucset_leaf, tem);
+    cur_key_max = cur_key | BITSET_MASK;
+
+    leaf->key = _leaf_key(cur_key);
+    do {
+	do { ++*arr_io; --*len_io; } while (*len_io && **arr_io == cur_key);
+	j = cur_key & BITSET_MASK;
+	leaf->bitset[j / CU_WORD_WIDTH] |= (uintptr_t)1 << (j % CU_WORD_WIDTH);
+	if (*len_io == 0) break;
+	cur_key = **arr_io;
+    } while (cur_key <= cur_key_max);
+
+    return (cucon_ucset_t)cuoo_hctem_new(cucon_ucset_leaf, tem);
+}
+
+static cucon_ucset_t
+_ucset_from_sorted_array(uintptr_t max_key,
+			 uintptr_t **arr_io, size_t *len_io)
+{
+    uintptr_t cur_key, key, right_max;
+    cucon_ucset_t cur_node, right_node;
+
+    cur_key = **arr_io;
+    if (!*len_io || cur_key > max_key)
+	return NULL;
+
+    if (_key_is_leaflike(cur_key)) {
+	cur_node = _ucset_leaf_from_sorted_array(arr_io, len_io);
+	cur_key = _ucnode_key(cur_node);
+    }
+    else {
+	do { ++*arr_io; --*len_io; } while (*len_io && **arr_io == key);
+	right_node = _ucset_from_sorted_array(_key_max(cur_key), arr_io, len_io);
+	cur_node = _ucnode_new(cur_key | (uintptr_t)1, NULL, right_node);
+    }
+    while (*len_io && **arr_io <= max_key) {
+	cur_key = key = _key_join(cur_key, **arr_io);
+	right_max = _key_max(key);
+	if (**arr_io == key) {
+	    do { ++*arr_io; --*len_io; } while (*len_io && **arr_io == key);
+	    key |= (uintptr_t)1;
+	}
+	right_node = _ucset_from_sorted_array(right_max, arr_io, len_io);
+	cur_node = _ucnode_new(key, cur_node, right_node);
+    }
+    return cur_node;
+}
+
+cucon_ucset_t
+cucon_ucset_from_sorted_array(uintptr_t *arr, size_t len)
+{
+    cucon_ucset_t S = _ucset_from_sorted_array(UINTPTR_MAX, &arr, &len);
+    cu_debug_assert(!len);
+    return S;
 }
 
 cucon_ucset_t

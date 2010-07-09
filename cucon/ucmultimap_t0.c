@@ -36,6 +36,9 @@ _test_simple()
 {
     cucon_ucmultimap_t M0, M1, M2;
     cucon_ucset_t S1, S2;
+
+    printf("Testing simple operations.\n");
+
     M0 = cucon_ucmultimap_empty();
     cu_test_assert(cucon_ucmultimap_is_empty(M0));
     cu_test_assert(cucon_ucmultimap_corange_card(M0) == 0);
@@ -64,6 +67,8 @@ _test_unary()
 {
     cucon_ucmultimap_t M0, M1a, M1b, M2;
     int round, subround;
+
+    printf("Testing unary operations.\n");
     for (round = 0; round < REPEAT; ++round) {
 	int en = lrand48() % 12;
 	int n = 1 << en;
@@ -94,11 +99,38 @@ _test_unary()
     }
 }
 
+#define ARR_LOG2_MAX_LENGTH 12
+
+static void
+_test_array_ctor()
+{
+    cucon_ucmultimap_t M0, M1;
+    int round;
+    struct cucon_ucmultimap_element arr[1 << ARR_LOG2_MAX_LENGTH];
+
+    printf("Testing array construction.\n");
+    for (round = 0; round < REPEAT; ++round) {
+	size_t i, n = lrand48() % (1 << lrand48() % (ARR_LOG2_MAX_LENGTH + 1));
+	M0 = cucon_ucmultimap_empty();
+	for (i = 0; i < n; ++i) {
+	    uintptr_t key = mrand48();
+	    arr[i].key = key;
+	    arr[i].value = ~key;
+	    M0 = cucon_ucmultimap_insert(M0, key, ~key);
+	}
+	qsort(arr, n, sizeof(struct cucon_ucmultimap_element),
+	      cucon_ucmultimap_element_cmp);
+	M1 = cucon_ucmultimap_from_sorted_array(arr, n);
+	cu_test_assert_ptr_eq(M0, M1);
+    }
+}
+
 int
 main()
 {
     cu_init();
     _test_simple();
     _test_unary();
+    _test_array_ctor();
     return 2*!!cu_test_bug_count();
 }

@@ -18,9 +18,23 @@
 #include <cucon/ucmultimap.h>
 #include <cucon/ucset.h>
 #include <cucon/ucmap_priv.h>
+#include <cu/memory.h>
 #include <inttypes.h>
 
 #define UCMAP(M) ((cucon_ucmap_t)(M))
+
+int
+cucon_ucmultimap_element_cmp(void const *e0_, void const *e1_)
+{
+    struct cucon_ucmultimap_element *e0, *e1;
+    e0 = (struct cucon_ucmultimap_element *)e0_;
+    e1 = (struct cucon_ucmultimap_element *)e1_;
+    if (e0->key < e1->key)     return -1;
+    if (e0->key > e1->key)     return  1;
+    if (e0->value < e1->value) return -1;
+    if (e0->value > e1->value) return  1;
+    return 0;
+}
 
 CU_SINLINE cucon_ucmultimap_t _ucmap_node_left(cucon_ucmultimap_t M)
 { return (cucon_ucmultimap_t)cucon_ucmap_node_left((cucon_ucmap_t)M); }
@@ -76,6 +90,34 @@ cucon_ucmultimap_is_singleton(cucon_ucmultimap_t M)
     if (!cucon_ucmap_is_singleton(UCMAP(M)))
 	return cu_false;
     return cucon_ucset_is_singleton((cucon_ucset_t)(UCMAP(M)->value));
+}
+
+cucon_ucmultimap_t
+cucon_ucmultimap_from_sorted_array(struct cucon_ucmultimap_element *arr,
+				   size_t len)
+{
+    struct cucon_ucmap_element *isokey_arr;
+    uintptr_t *sub_arr;
+    uintptr_t key;
+    size_t isokey_len, sub_len;
+
+    isokey_arr = cu_snewarr(struct cucon_ucmap_element, len);
+    sub_arr = cu_snewarr(uintptr_t, len);
+    isokey_len = 0;
+    while (len) {
+	sub_len = 0;
+	key = arr->key;
+	do {
+	    sub_arr[sub_len++] = arr->value;
+	    ++arr; --len;
+	} while (len && arr->key == key);
+	isokey_arr[isokey_len].key = key;
+	isokey_arr[isokey_len].value
+	    = (uintptr_t)cucon_ucset_from_sorted_array(sub_arr, sub_len);
+	++isokey_len;
+    }
+    return (cucon_ucmultimap_t)cucon_ucmap_from_sorted_array(isokey_arr,
+							     isokey_len);
 }
 
 cucon_ucmultimap_t
