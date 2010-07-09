@@ -48,7 +48,7 @@ _key_coverseq(uintptr_t key0, uintptr_t key1)
 CU_SINLINE uintptr_t
 _key_join(uintptr_t k0, uintptr_t k1)
 {
-    uintptr_t k = cu_ulong_dcover(k0 ^ k1);
+    uintptr_t k = cu_uintptr_dcover(k0 ^ k1);
     cu_debug_assert(k >= 2);
     k = (k0 & ~k) | ((k >> 1) + (uintptr_t)1);
     return k;
@@ -629,6 +629,63 @@ cucon_ucmap_left_union(cucon_ucmap_t M0, cucon_ucmap_t M1)
 	}
 	else {
 	    M_right = cucon_ucmap_left_union(M0, _node_right(M1));
+	    return _node_new_lr(M1, _node_left(M1), M_right);
+	}
+    }
+    else {
+	uintptr_t k = _key_join(k0, k1);
+	if (k0 < k1)
+	    return _node_new_noval(k, M0, M1);
+	else
+	    return _node_new_noval(k, M1, M0);
+    }
+}
+
+cucon_ucmap_t
+cucon_ucmap_combined_union(cu_clop(f, uintptr_t, uintptr_t, uintptr_t),
+			   cucon_ucmap_t M0, cucon_ucmap_t M1)
+{
+    uintptr_t k0, k1;
+    cucon_ucmap_t M_left, M_right;
+
+    if (!M0) return M1;
+    if (!M1) return M0;
+
+    k0 = _node_key(M0);
+    k1 = _node_key(M1);
+    if (k0 == k1) {
+	M_left = cucon_ucmap_combined_union(f, _node_left(M0), _node_left(M1));
+	M_right= cucon_ucmap_combined_union(f,_node_right(M0),_node_right(M1));
+	if (!_node_has_value(M0)) {
+	    if (!_node_has_value(M1))
+		return _node_new_noval(k0, M_left, M_right);
+	    else
+		return _node_new_lr(M1, M_left, M_right);
+	}
+	else if (!_node_has_value(M1))
+	    return _node_new_lr(M0, M_left, M_right);
+	else {
+	    uintptr_t val = cu_call(f, _node_value(M0), _node_value(M1));
+	    return _node_new_val(k0, M_left, M_right, val);
+	}
+    }
+    else if (_key_covers(k0, k1)) {
+	if (k1 < k0) {
+	    M_left = cucon_ucmap_combined_union(f, _node_left(M0), M1);
+	    return _node_new_lr(M0, M_left, _node_right(M0));
+	}
+	else {
+	    M_right = cucon_ucmap_combined_union(f, _node_right(M0), M1);
+	    return _node_new_lr(M0, _node_left(M0), M_right);
+	}
+    }
+    else if (_key_covers(k1, k0)) {
+	if (k0 < k1) {
+	    M_left = cucon_ucmap_combined_union(f, M0, _node_left(M1));
+	    return _node_new_lr(M1, M_left, _node_right(M1));
+	}
+	else {
+	    M_right = cucon_ucmap_combined_union(f, M0, _node_right(M1));
 	    return _node_new_lr(M1, _node_left(M1), M_right);
 	}
     }

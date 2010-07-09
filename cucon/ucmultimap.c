@@ -211,6 +211,19 @@ cucon_ucmultimap_eq(cucon_ucmultimap_t M0, cucon_ucmultimap_t M1)
 #endif
 }
 
+cu_clop_def(_union_merge, uintptr_t, uintptr_t S0, uintptr_t S1)
+{
+    return (uintptr_t)cucon_ucset_union((cucon_ucset_t)S0, (cucon_ucset_t)S1);
+}
+
+cucon_ucmultimap_t
+cucon_ucmultimap_union(cucon_ucmultimap_t M0, cucon_ucmultimap_t M1)
+{
+    return (cucon_ucmultimap_t)
+	cucon_ucmap_combined_union(cu_clop_ref(_union_merge),
+				   (cucon_ucmap_t)M0, (cucon_ucmap_t)M1);
+}
+
 cu_clos_def(_fprint_uintptr, cu_prot(cu_bool_t, uintptr_t k, cucon_ucset_t vs),
     ( int i; FILE *fh; ))
 {

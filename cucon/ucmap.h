@@ -176,6 +176,13 @@ cu_bool_t cucon_ucmap_conj_int(cucon_ucmap_t map,
  ** elsewhere. */
 cucon_ucmap_t cucon_ucmap_left_union(cucon_ucmap_t M0, cucon_ucmap_t M1);
 
+/** Returns a map with co-range equal to the union of the co-ranges of \a M0
+ ** and \a M1, and the mappings agree with \a M0 or \a M1 for non-intersecting
+ ** keys, and the mappings is obtained by calling \a f on intersecting keys. */
+cucon_ucmap_t
+cucon_ucmap_combined_union(cu_clop(f, uintptr_t, uintptr_t, uintptr_t),
+			   cucon_ucmap_t M0, cucon_ucmap_t M1);
+
 /** The minimum key in \a map when keys are interpreted as unsigned. */
 uintptr_t cucon_ucmap_min_ukey(cucon_ucmap_t map);
 

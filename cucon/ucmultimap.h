@@ -113,6 +113,9 @@ cu_bool_t cucon_ucmultimap_iterA(cu_clop(f, cu_bool_t, uintptr_t, uintptr_t),
 /** True iff \a M0 and \a M1 are extensionally equal. */
 cu_bool_t cucon_ucmultimap_eq(cucon_ucmultimap_t M0, cucon_ucmultimap_t M1);
 
+cucon_ucmultimap_t
+cucon_ucmultimap_union(cucon_ucmultimap_t M0, cucon_ucmultimap_t M1);
+
 /** A singleton of the iso-key view of a multimap. */
 CU_SINLINE cucon_ucmultimap_t
 cucon_ucmultimap_isokey_singleton(uintptr_t k, cucon_ucset_t V)
