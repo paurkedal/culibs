@@ -594,7 +594,7 @@ _ucset_from_sorted_array(uintptr_t max_key,
 	cur_key = _ucnode_key(cur_node);
     }
     else {
-	do { ++*arr_io; --*len_io; } while (*len_io && **arr_io == key);
+	do { ++*arr_io; --*len_io; } while (*len_io && **arr_io == cur_key);
 	right_node = _ucset_from_sorted_array(_key_max(cur_key), arr_io, len_io);
 	cur_node = _ucnode_new(cur_key | (uintptr_t)1, NULL, right_node);
     }
