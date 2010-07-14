@@ -1628,9 +1628,10 @@ cucon_ucset_itr_get(cucon_ucset_itr_t itr)
     return res;
 }
 
-#ifdef CUCON_UCSET_ENABLE_HCONS
+/* This is also referred from cufo/init_formats.c. */
 cu_box_t cuconP_ucset_foprint = CU_BOX_NULL_FPTR_INIT;
 
+#if CUCON_UCSET_ENABLE_HCONS
 static void
 _ucset_print(cuex_t e, FILE *out)
 { cucon_ucset_dump(e, out); }
