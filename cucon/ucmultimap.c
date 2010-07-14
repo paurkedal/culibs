@@ -193,7 +193,7 @@ cucon_ucmultimap_iterA(cu_clop(f, cu_bool_t, uintptr_t, uintptr_t),
     return cu_true;
 }
 
-cu_clop_def(_ucset_eq, cu_bool_t, uintptr_t V0, uintptr_t V1)
+cu_clop_def(_ucset_eq, cu_bool_t, void const *V0, void const *V1)
 {
     return cucon_ucset_eq((cucon_ucset_t)V0, (cucon_ucset_t)V1);
 }

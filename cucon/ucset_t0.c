@@ -288,7 +288,7 @@ _test_array_ctor(void)
 	}
 	qsort(arr, len, sizeof(uintptr_t), _uintptr_cmp);
 	S1 = cucon_ucset_from_sorted_array(arr, len);
-	cu_test_assert_ptr_eq(S0, S1);
+	cu_test_assert(cucon_ucset_eq(S0, S1));
     }
 }
 

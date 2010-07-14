@@ -948,6 +948,7 @@ cucon_ucmap_dump(cucon_ucmap_t tree, FILE *out)
     _ucmap_dump(tree, 2, out);
 }
 
+#if CUCONP_UCMAP_ENABLE_HCONS
 static void
 _ucmap_print(cuex_t e, FILE *out)
 { cucon_ucmap_dump(e, out); }
@@ -963,7 +964,6 @@ _ucmap_impl(cu_word_t intf_number, ...)
     }
 }
 
-#if CUCONP_UCMAP_ENABLE_HCONS
 cuoo_type_t cuconP_ucmap_type;
 #endif
 

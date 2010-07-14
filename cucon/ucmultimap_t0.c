@@ -31,6 +31,9 @@ _random_ucmultimap(size_t n, int n_k, int n_v)
     return M;
 }
 
+#define _assert_ucmultimap_eq(M0, M1) cu_test_assert(cucon_ucmultimap_eq(M0,M1))
+#define _assert_ucset_eq(S0, S1) cu_test_assert(cucon_ucset_eq(S0, S1))
+
 static void
 _test_simple()
 {
@@ -45,19 +48,19 @@ _test_simple()
 
     S1 = cucon_ucset_singleton(80);
     M1 = cucon_ucmultimap_isokey_singleton(100, S1);
-    cu_test_assert(M1 == cucon_ucmultimap_singleton(100, 80));
+    _assert_ucmultimap_eq(M1, cucon_ucmultimap_singleton(100, 80));
     cu_test_assert(!cucon_ucmultimap_is_empty(M1));
     cu_test_assert(cucon_ucmultimap_corange_card(M1) == 1);
-    cu_test_assert(cucon_ucmultimap_isokey_find(M1, 100) == S1);
-    cu_test_assert(cucon_ucmultimap_isokey_insert(M0, 100, S1) == M1);
-    cu_test_assert(cucon_ucmultimap_isokey_erase(M1, 100) == M0);
+    _assert_ucset_eq(cucon_ucmultimap_isokey_find(M1, 100), S1);
+    _assert_ucmultimap_eq(cucon_ucmultimap_isokey_insert(M0, 100, S1), M1);
+    _assert_ucmultimap_eq(cucon_ucmultimap_isokey_erase(M1, 100), M0);
 
     S2 = cucon_ucset_insert(S1, 81);
     M2 = cucon_ucmultimap_insert(M1, 100, 81);
-    cu_test_assert(M2 == cucon_ucmultimap_isokey_singleton(100, S2));
-    cu_test_assert(cucon_ucmultimap_corange_card(M2) == 1);
-    cu_test_assert(cucon_ucmultimap_card(M2) == 2);
-    cu_test_assert(cucon_ucmultimap_isokey_find(M2, 100) == S2);
+    _assert_ucmultimap_eq(M2, cucon_ucmultimap_isokey_singleton(100, S2));
+    cu_test_assert_size_eq(cucon_ucmultimap_corange_card(M2), 1);
+    cu_test_assert_size_eq(cucon_ucmultimap_card(M2), 2);
+    _assert_ucset_eq(cucon_ucmultimap_isokey_find(M2, 100), S2);
     cu_test_assert(cucon_ucmultimap_contains(M2, 100, 80));
     cu_test_assert(cucon_ucmultimap_contains(M2, 100, 81));
 }
@@ -88,13 +91,15 @@ _test_unary()
 	    M1b = cucon_ucmultimap_insert(M0, kb, vb);
 	    M2 = cucon_ucmultimap_insert(M1a, kb, vb);
 	    cu_test_assert(cucon_ucmultimap_contains(M1a, ka, va));
-	    cu_test_assert(M2 == cucon_ucmultimap_insert(M1b, ka, va));
-	    if (ka == kb && va == vb)
-		cu_test_assert(M1a == M1b && M1a == M2);
+	    _assert_ucmultimap_eq(M2, cucon_ucmultimap_insert(M1b, ka, va));
+	    if (ka == kb && va == vb) {
+		_assert_ucmultimap_eq(M1a, M1b);
+		_assert_ucmultimap_eq(M1a, M2);
+	    }
 	    else if (cucon_ucmultimap_contains(M0, ka, va))
-		cu_test_assert(M1b == M2);
+		_assert_ucmultimap_eq(M1b, M2);
 	    else
-		cu_test_assert(cucon_ucmultimap_erase(M2, ka, va) == M1b);
+		_assert_ucmultimap_eq(cucon_ucmultimap_erase(M2, ka, va), M1b);
 	}
     }
 }
@@ -121,7 +126,7 @@ _test_array_ctor()
 	qsort(arr, n, sizeof(struct cucon_ucmultimap_element),
 	      cucon_ucmultimap_element_cmp);
 	M1 = cucon_ucmultimap_from_sorted_array(arr, n);
-	cu_test_assert_ptr_eq(M0, M1);
+	cu_test_assert(cucon_ucmultimap_eq(M0, M1));
     }
 }
 

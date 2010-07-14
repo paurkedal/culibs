@@ -554,7 +554,9 @@ static cucon_ucset_t
 _ucset_leaf_from_sorted_array(uintptr_t **arr_io, size_t *len_io)
 {
     cucon_ucset_leaf_t leaf;
+#if CUCON_UCSET_ENABLE_HCONS
     cuoo_hctem_decl(cucon_ucset_leaf, tem);
+#endif
     uintptr_t cur_key, cur_key_max;
     int j;
 
@@ -562,8 +564,12 @@ _ucset_leaf_from_sorted_array(uintptr_t **arr_io, size_t *len_io)
 	return NULL;
     cur_key = **arr_io;
 
+#if CUCON_UCSET_ENABLE_HCONS
     cuoo_hctem_init(cucon_ucset_leaf, tem);
     leaf = cuoo_hctem_get(cucon_ucset_leaf, tem);
+#else
+    leaf = cu_gnew(struct cucon_ucset_leaf);
+#endif
     cur_key_max = cur_key | BITSET_MASK;
 
     leaf->key = _leaf_key(cur_key);
@@ -575,7 +581,11 @@ _ucset_leaf_from_sorted_array(uintptr_t **arr_io, size_t *len_io)
 	cur_key = **arr_io;
     } while (cur_key <= cur_key_max);
 
+#if CUCON_UCSET_ENABLE_HCONS
     return (cucon_ucset_t)cuoo_hctem_new(cucon_ucset_leaf, tem);
+#else
+    return (cucon_ucset_t)leaf;
+#endif
 }
 
 static cucon_ucset_t
@@ -1618,6 +1628,7 @@ cucon_ucset_itr_get(cucon_ucset_itr_t itr)
     return res;
 }
 
+#ifdef CUCON_UCSET_ENABLE_HCONS
 cu_box_t cuconP_ucset_foprint = CU_BOX_NULL_FPTR_INIT;
 
 static void
@@ -1636,6 +1647,7 @@ _ucset_impl(cu_word_t intf_number, ...)
 	    return CUOO_IMPL_NONE;
     }
 }
+#endif
 
 void
 cuconP_ucset_init()
