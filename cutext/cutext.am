@@ -87,8 +87,8 @@ cutext/wccat_blocks.c: $(srcdir)/cutext/UnicodeData.txt cutext/mk_wccat
 $(srcdir)/cutext/UnicodeData.txt:
 	$(srcdir)/cutext/fetch_unicode_data.sh --ask
 
-check-local: cutext/lsource_t0_utf-8.txt cutext/lsource_t0_utf-16.txt \
-	     cutext/lsource_t0_ucs-4.txt
+check: cutext/lsource_t0_utf-8.txt cutext/lsource_t0_utf-16.txt \
+       cutext/lsource_t0_ucs-4.txt
 
 cutext/lsource_t0_%.txt: cutext/lsource_t0.txt COPYING
 	cat $+ | iconv -f utf-8 -t $* >$@.tmp
