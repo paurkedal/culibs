@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,16 +23,30 @@
 
 CU_BEGIN_DECLARATIONS
 
-#define CUPRIV_PRIME32A 4212831859U
-#define CUPRIV_PRIME32B 2909797907U
-#define CUPRIV_PRIME16A 493643U
-#define CUPRIV_PRIME16B 382769U
+#define CUP_PRIME16_A UINT16_C(0x4e05)
+#define CUP_PRIME16_B UINT16_C(0xc2b3)
+#define CUP_PRIME16_C UINT16_C(0x483d)
+#define CUP_PRIME16_D UINT16_C(0x58a3)
+#define CUP_PRIME16_E UINT16_C(0x38a7)
+#define CUP_PRIME16_F UINT16_C(0xf72d)
+#define CUP_PRIME16_G UINT16_C(0x4c33)
+#define CUP_PRIME16_H UINT16_C(0xe903)
+
+#define CUP_PRIME32_A UINT32_C(0x5d5692d9)
+#define CUP_PRIME32_B UINT32_C(0x916c5adf)
+#define CUP_PRIME32_C UINT32_C(0xc45d771d)
+#define CUP_PRIME32_D UINT32_C(0x3bb19507)
+#define CUP_PRIME32_E UINT32_C(0x4465360d)
+#define CUP_PRIME32_F UINT32_C(0xad6ffe13)
+#define CUP_PRIME32_G UINT32_C(0xfb1ab673)
+#define CUP_PRIME32_H UINT32_C(0x4c56a673)
+
 #if CUCONF_SIZEOF_CU_HASH_T > 4
-#  define CUPRIV_PRIME_HA CUPRIV_PRIME32A
-#  define CUPRIV_PRIME_HB CUPRIV_PRIME32B
+#  define CUP_PRIME_HA CUP_PRIME32_A
+#  define CUP_PRIME_HB CUP_PRIME32_B
 #else
-#  define CUPRIV_PRIME_HA CUPRIV_PRIME16A
-#  define CUPRIV_PRIME_HB CUPRIV_PRIME16B
+#  define CUP_PRIME_HA CUP_PRIME16_A
+#  define CUP_PRIME_HB CUP_PRIME16_B
 #endif
 
 CU_SINLINE cu_hash_t cu_hash_mix3(cu_hash_t key)
@@ -43,13 +57,13 @@ CU_SINLINE cu_hash_t cu_hash_mix4(cu_hash_t key)
 
 CU_SINLINE cu_hash_t cu_hash_mix5(cu_hash_t key)
 {
-    key *= CUPRIV_PRIME_HA;
+    key *= CUP_PRIME_HA;
     key ^= key >> sizeof(cu_hash_t)*4;
     return key;
 }
 CU_SINLINE cu_hash_t cu_hash_mix6(cu_hash_t key)
 {
-    key *= CUPRIV_PRIME_HA;
+    key *= CUP_PRIME_HA;
     key ^= key >> sizeof(cu_hash_t)*4;
     key ^= key >> sizeof(cu_hash_t)*2;
     return key;
@@ -70,6 +84,11 @@ cu_hash_t cu_2word_hash_bj(cu_word_t d0, cu_word_t d1, cu_hash_t init);
 cu_hash_t cu_wordarr_hash_noinit_bj(size_t count, cu_word_t const *arr);
 cu_hash_t cu_1word_hash_noinit_bj(cu_word_t d0);
 cu_hash_t cu_2word_hash_noinit_bj(cu_word_t d0, cu_word_t d1);
+
+cu_hash_t cu_wordarr_hash_2pm(size_t len, cu_word_t const *arr, cu_hash_t init);
+cu_hash_t cu_wordarr_hash_3pm(size_t len, cu_word_t const *arr, cu_hash_t init);
+extern cu_hash_t (*cu_wordarr_hash_byenv)(size_t, cu_word_t const *, cu_hash_t);
+#define cu_wordarr_hash cu_wordarr_hash_byenv
 
 CU_END_DECLARATIONS
 

@@ -265,3 +265,80 @@ cu_2word_hash_noinit_bj(cu_word_t d0, cu_word_t d1)
 #error Unexpected value of CU_WORD_WIDTH.
 
 #endif
+
+CU_SINLINE cu_word_t
+cu_word_rot(int n, cu_word_t x)
+{
+    n %= sizeof(cu_word_t)*8;
+    return (x << n) | (x >> (sizeof(cu_word_t)*8 - n));
+}
+
+#if CU_WORD_WIDTH > 32
+#  define PRIME_A CUP_PRIME32_A
+#  define PRIME_B CUP_PRIME32_B
+#  define PRIME_C CUP_PRIME32_C
+#else
+#  define PRIME_A CUP_PRIME16_A
+#  define PRIME_B CUP_PRIME16_B
+#  define PRIME_C CUP_PRIME16_C
+#endif
+
+cu_hash_t
+cu_wordarr_hash_2pm(size_t count, cu_word_t const *arr, cu_hash_t x)
+{
+    cu_hash_t a, b;
+
+    a = x;
+    b = cu_word_rot(sizeof(cu_word_t)*4, x);
+    a *= PRIME_A;
+    b *= PRIME_B;
+    a ^= b >> (4*sizeof(cu_word_t) + 3);
+    b ^= a >> (4*sizeof(cu_word_t) - 2);
+    while (count--) {
+	cu_hash_t x = *arr++;
+	a ^= x;
+	b ^= cu_word_rot(sizeof(cu_word_t)*4, x);
+	a *= PRIME_A;
+	b *= PRIME_B;
+	a ^= b >> (4*sizeof(cu_word_t) + 3);
+	b ^= a >> (4*sizeof(cu_word_t) - 2);
+    }
+
+    b ^= a >> 7;
+    b ^= a >> 2;
+    return b;
+}
+
+cu_hash_t
+cu_wordarr_hash_3pm(size_t count, cu_word_t const *arr, cu_hash_t x)
+{
+    cu_hash_t a, b, c;
+
+    a = x;
+    b = cu_word_rot(sizeof(cu_word_t)*3, x);
+    c = cu_word_rot(sizeof(cu_word_t)*6, x);
+    a *= PRIME_A;
+    b *= PRIME_B;
+    c *= PRIME_C;
+    a ^= c >> (4*sizeof(cu_word_t) + 3);
+    b ^= a >> (4*sizeof(cu_word_t) - 1);
+    c ^= b >> (4*sizeof(cu_word_t) - 2);
+    while (count--) {
+	cu_hash_t x = *arr++;
+	a ^= x;
+	b ^= cu_word_rot(sizeof(cu_word_t)*3, x);
+	c ^= cu_word_rot(sizeof(cu_word_t)*6, x);
+	a *= PRIME_A;
+	b *= PRIME_B;
+	c *= PRIME_C;
+	a ^= c >> (4*sizeof(cu_word_t) + 3);
+	b ^= a >> (4*sizeof(cu_word_t) - 1);
+	c ^= b >> (4*sizeof(cu_word_t) - 2);
+    }
+
+    c ^= a >> 7;
+    c ^= a >> 2;
+    c ^= b >> 11;
+    c ^= b >> 3;
+    return c;
+}

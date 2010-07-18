@@ -112,8 +112,6 @@ void cu_wordarr_skewcopy_bitimg2(cu_bool2f_t f, size_t count, cu_word_t *dst,
 				 int offset0, cu_word_t const *src0,
 				 int offset1, cu_word_t const *src1);
 
-#define cu_wordarr_hash cu_wordarr_hash_bj
-
 CU_END_DECLARATIONS
 
 #endif

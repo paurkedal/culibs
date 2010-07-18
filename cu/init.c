@@ -101,9 +101,21 @@ cuconf_get_installdir(cu_installdir_key_t key)
     return cuconfP_installdirs.dirs[key].dir;
 }
 
+static struct {
+    char const *name;
+    cu_hash_t (*func)(size_t, cu_word_t const *, cu_hash_t);
+} _hash_functions[] = {
+    { "Jenkins", cu_wordarr_hash_bj },
+    { "2pm", cu_wordarr_hash_2pm },
+    { "3pm", cu_wordarr_hash_3pm },
+};
+
+cu_hash_t (*cu_wordarr_hash_byenv)(size_t, cu_word_t const *, cu_hash_t);
+
 void
 cu_init(void)
 {
+    cu_bool_t warn_hash_func = cu_false;
     char const *cstr;
     static int done_init = 0;
     if (done_init)
@@ -119,6 +131,19 @@ cu_init(void)
 	cuP_locale_is_utf8 = cu_false;
     else
 	cuP_locale_is_utf8 = cu_true;
+
+    cstr = getenv("CU_HASH_FUNCTION");
+    cu_wordarr_hash_byenv = cu_wordarr_hash_bj;
+    if (cstr) {
+	int i;
+	warn_hash_func = cu_true;
+	for (i = 0; i < sizeof(_hash_functions)/sizeof(_hash_functions[0]); ++i)
+	    if (strcmp(cstr, _hash_functions[i].name) == 0) {
+		cu_wordarr_hash_byenv = _hash_functions[i].func;
+		warn_hash_func = cu_false;
+		break;
+	    }
+    }
 
     pthread_mutexattr_init(&cuP_mutexattr);
 #   if defined(CUCONF_DEBUG_SELF) && defined(CUCONF_MUTEX_ERRORCHECK)
@@ -144,6 +169,10 @@ cu_init(void)
     cuP_memory_init();
     cuP_diag_init();
     cuP_debug_init();
+
+    /* Now, we can emit warnings. */
+    if (warn_hash_func)
+	cu_warnf("Unknown hash function set in CU_HASH_FUNCTION.");
 
     /* Installation directories.  After cuP_diag_init(). */
     cu_installdirs_set_byenv(&cuconfP_installdirs, "CULIBS_");
