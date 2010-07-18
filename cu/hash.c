@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2010  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,11 +51,7 @@ cu_hash_t
 cu_wordarr_hash_bj(size_t count, cu_word_t const *arr, cu_hash_t init)
 {
     uint32_t a, b, c;
-    a = 0xbe5eeded;
-    b = count;
-    c = init;
-    /* The orginigal assigned
-     * a = b = c = INT32_C(0xdeadbeef) + ((uint32_t)count << 2) + init; */
+    a = b = c = INT32_C(0xdeadbeef) + ((uint32_t)count << 2) + init;
     while (count > 3) {
 	a += arr[0];
 	b += arr[1];
