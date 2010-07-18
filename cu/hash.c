@@ -74,9 +74,8 @@ cu_hash_t
 cu_1word_hash_bj(cu_word_t d0, cu_hash_t init)
 {
     uint32_t a, b, c;
-    a = 0xbe5eeded + d0;
-    b = 1;
-    c = init;
+    a = b = c = INT32_C(0xdeadbeef) + ((uint32_t)1 << 2) + init;
+    a += d0;
     CU_HASH_BJMIX32_FINAL(a, b, c);
     return c;
 }
@@ -85,9 +84,9 @@ cu_hash_t
 cu_2word_hash_bj(cu_word_t d0, cu_word_t d1, cu_hash_t init)
 {
     uint32_t a, b, c;
-    a = 0xbe5eeded + d0;
-    b = 2 + d1;
-    c = init;
+    a = b = c = INT32_C(0xdeadbeef) + ((uint32_t)2 << 2) + init;
+    a += d0;
+    b += d1;
     CU_HASH_BJMIX32_FINAL(a, b, c);
     return c;
 }
