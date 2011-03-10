@@ -43,7 +43,7 @@ my $have_spec = 0;
 GetOptions(
     "n|quiet|silent" => sub { push(@sed_opts, "-n"); },
     "e|expression=s" => sub {
-	push(@sed_opts, "-s".shell_quote($_[1]));
+	push(@sed_opts, "-e".shell_quote($_[1]));
 	$have_spec = 1;
     },
     "f|file=s" => sub {
