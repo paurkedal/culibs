@@ -15,9 +15,7 @@ PKG_PROG_PKG_CONFIG
 AC_ARG_ENABLE([cplusplus],
    [AC_HELP_STRING([--disable-cplusplus],
 	[Disable test for C++ compatibility.])])
-if "$enable_cplusplus" != "no"; then
-    AC_PROG_CXX
-fi
+AC_PROG_CXX
 AM_CONDITIONAL([enable_cplusplus], [test x"$enable_cplusplus" != xno])
 
 AM_PROG_LIBTOOL
@@ -72,10 +70,10 @@ AC_C_BIGENDIAN
 
 AC_MSG_CHECKING([if compiler and library supports 64 bit integers])
 AC_COMPILE_IFELSE(
-  [
+  [AC_LANG_SOURCE([[
 #include <stdint.h>
 uint64_t test;
-  ], [
+  ]])], [
     AC_MSG_RESULT([yes])
     AC_DEFINE([HAVE_UINT64_T], 1, [Define if stdint.h provides uint64_t.])
   ], [
@@ -274,13 +272,14 @@ AC_ARG_ENABLE([wind-variant],
 	wind_variant_source=wind_setjmp.c
 	cuflow_wind_variant_macro=CUFLOW_WIND_VARIANT_SETJMP
     ])
-AC_DEFINE_UNQUOTED(WIND_VARIANT, $cuflow_wind_variant_macro, [Wind variant.])
+AC_DEFINE_UNQUOTED([WIND_VARIANT], [$cuflow_wind_variant_macro],
+		   [Wind variant.])
 AM_CONDITIONAL([wind_variant_is_setjmp], [test $wind_variant = setjmp])
 AM_CONDITIONAL([wind_variant_is_unw], [test $wind_variant = unw])
 AC_SUBST(wind_variant)
 
 AM_CFLAGS="-Wall"
-AC_SUBST(AM_CFLAGS)
+AC_SUBST([AM_CFLAGS])
 
 # libcutext
 #

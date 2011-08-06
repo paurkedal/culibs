@@ -63,7 +63,7 @@ AC_DEFUN([_CUAC_LIB_BDWGC_NONPKGCONFIG],
 	do
 	    LIBS="$tmp_saved_libs $BDWGC_LDFLAGS $tmp_libs"
 	    AC_LINK_IFELSE(
-[
+[AC_LANG_SOURCE([[
 #ifdef HAVE_GC_GC_H
 #include <gc/gc.h>
 #else
@@ -73,7 +73,7 @@ int main()
 {
     return !GC_malloc(1);
 }
-],
+]])],
 		[
 		    tmp_found=true
 		    BDWGC_LIBS="$BDWGC_LDFLAGS $tmp_libs"

@@ -7,7 +7,7 @@
 AC_DEFUN([CUAC_C_WIDTHS],
   [ AC_MSG_NOTICE([Determining widths of basic types:])
     AC_RUN_IFELSE(
-      [
+      [AC_LANG_SOURCE([[
 #include <stdio.h>
 #include <wchar.h>
 #include <stdint.h>
@@ -70,7 +70,7 @@ int main()
     fclose(out);
     return 0;
 }
-      ], [
+      ]])], [
 	source ./config.sizeof
 	AC_MSG_NOTICE([  $WIDTHOF_CHAR b char, $WIDTHOF_SHORT b short, $WIDTHOF_INT b int, $WIDTHOF_LONG b long])
 	AC_MSG_NOTICE([  $WIDTHOF_FLOAT b float, $WIDTHOF_DOUBLE b double, $WIDTHOF_LONGDOUBLE b long double])

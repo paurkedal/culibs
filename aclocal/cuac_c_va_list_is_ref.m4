@@ -8,7 +8,7 @@ AC_DEFUN([CUAC_C_VA_LIST_IS_REF],
   [
     AC_MSG_CHECKING([if va_list has reference semantics])
     AC_RUN_IFELSE(
-      [
+      [AC_LANG_SOURCE([[
 #include <stdarg.h>
 int f(va_list va)
 {
@@ -27,13 +27,13 @@ int main()
 {
     g(0, 11, 22);
 }
-      ], [
+      ]])], [
 	AC_MSG_RESULT([yes])
 	AC_DEFINE([VA_LIST_IS_REF], 1,
 	    [Define if va_list has reference semantics])
       ], [
 	AC_RUN_IFELSE(
-	  [
+	  [AC_LANG_SOURCE([[
 #include <stdarg.h>
 typedef va_list *va_list_ref_t;
 int f(va_list_ref_t va)
@@ -53,7 +53,7 @@ int main()
 {
     g(0, 11, 22);
 }
-	  ], [
+	  ]])], [
 	    AC_MSG_RESULT([no])
 	  ], [
 	    AC_MSG_RESULT([error])
