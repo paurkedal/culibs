@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2000--2009  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2000--2011  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,8 @@
 /* By default, follow CU_NDEBUG, but let client explicitly switch on or off
  * memory debugging by defining CU_DEBUG_MEMORY or CU_NDEBUG_MEMORY,
  * respectively. */
-#if !defined(CU_NDEBUG) && !defined(CU_NDEBUG_MEMORY)
+#if !defined(CU_NDEBUG) && !defined(CU_NDEBUG_MEMORY) \
+			&& !defined(CU_DEBUG_MEMORY)
 #  define CU_DEBUG_MEMORY
 #endif
 
