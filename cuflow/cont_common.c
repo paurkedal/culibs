@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2003--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2003--2011  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,9 +39,9 @@ void
 cuflowP_mismatched_flow(char const *where, cuflow_mode_t original_flow)
 {
     cuflowP_fatal("In %s, Mismatched flow set/restore, %s changed to %s.\n",
-	       where,
-	       cuflow_mode_name(original_flow),
-	       cuflow_mode_name(cuflow_current_mode()));
+		  where,
+		  cuflow_mode_name(original_flow),
+		  cuflow_mode_name(cuflow_current_mode()));
 }
 
 
@@ -239,7 +239,7 @@ cu_clos_def(cuflowP_set_cc,
 }
 int
 cuflow_set_cc(cu_clop(*cc_out, void, void *),
-	   void *result_ptr, size_t result_size)
+	      void *result_ptr, size_t result_size)
 {
     cuflowP_set_cc_t set_cc;
     set_cc.cc_out = cc_out;

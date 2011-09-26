@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2002--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2002--2011  Petter Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -170,9 +170,9 @@ void cuflow_call_in_root(cu_clop0(trunk, void), cuflow_mode_t trunk_flow);
 
 /* Same semantics as Scheme's 'dynamic-wind'. */
 void cuflow_dynamic_wind(cu_clop0(on_entry, void),
-		      cu_clop0(trunk, void),
-		      cu_clop0(on_exit, void),
-		      cuflow_mode_t trunk_flow);
+			 cu_clop0(trunk, void),
+			 cu_clop0(on_exit, void),
+			 cuflow_mode_t trunk_flow);
 
 /* Call 'trunk' with the current continuation 'cc'.  This function can
  * return normally or multiple times due to calls to 'cc':
@@ -197,7 +197,7 @@ cuflow_call_with_cc(
  * setjmp that allows jumping back to the caller from any stack frame
  * which a common root as the caller of 'cuflow_set_cc'.  */
 int cuflow_set_cc(cu_clop(*cc_out, void, void *),
-	       void *result_ptr, size_t result_size);
+		  void *result_ptr, size_t result_size);
 
 /* Low-level exception handling.  You'll probably want to implement
  * some kind of polymorphism for the 'xc' objects.  Inside 'trunk',
@@ -260,7 +260,7 @@ extern struct cuflow_tstate _ccf_the_state;
 #define cuflow_tstate_set_current_flow(st, newflow) \
 	((void)(CU_MARG(cuflow_tstate_t, (st))->flow = (newflow)))
 void cuflow_tstate_save_current_flow(cuflow_tstate_t st, cuflow_mode_t newflow,
-				 cuflow_mode_t *oldflow);
+				     cuflow_mode_t *oldflow);
 
 CU_END_DECLARATIONS
 
