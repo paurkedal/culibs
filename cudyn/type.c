@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2005--2011  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -535,6 +535,8 @@ _dispatch_type(cuex_t ex, cu_bool_t have_lock)
 	case CUEX_O2_FARROW_NATIVE:
 	    /* TODO, for now. */
 	    return cudyn_ptrtype_to_type(cudyn_ptrtype_from_ex(ex));
+	case CUEX_O2_FORALL:
+	    return _dispatch_type(cuex_opn_at(ex, 1), have_lock);
 	default:
 #if 0
 	    cu_bugf("Invalid or unimplemented type expression.");
