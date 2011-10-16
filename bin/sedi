@@ -40,6 +40,8 @@ my $pretend = 0;
 my @sed_opts;
 my @diff_opts;
 my $have_spec = 0;
+my $recursive = 0;
+my @find_opts;
 GetOptions(
     "n|quiet|silent" => sub { push(@sed_opts, "-n"); },
     "e|expression=s" => sub {
@@ -67,15 +69,23 @@ GetOptions(
     "no-diff" => \$no_diff,
     "pretend" => \$pretend,
 
+    "R" => \$recursive,
+    "name=s" => sub { push(@find_opts, "-name", $_[1]); },
+    "iname=s" => sub { push(@find_opts, "-iname", $_[1]); },
+    "maxdepth=i" => sub { push(@find_opts, "-maxdepth", $_[1]); },
+    "mindepth=i" => sub { push(@find_opts, "-mindepth", $_[1]); },
+
     "help" => sub { pod2usage(0); }
     # "version"
 ) or pod2usage("Bad options.");
 push(@sed_opts, shell_quote(shift @ARGV)) unless $have_spec;
 
-exit $? unless system("$SED @sed_opts /dev/null /dev/null") == 0;
 $, = ' ';
+exit $? unless system("$SED @sed_opts /dev/null /dev/null") == 0;
+
 my @changed_files;
-foreach my $file (@ARGV) {
+sub process_file($) {
+    my ($file) = @_;
     next unless -r $file;
     my $qfile = shell_quote $file;
     my $cmd = "$SED @sed_opts $qfile | $DIFF @diff_opts -L $qfile $qfile -";
@@ -100,6 +110,24 @@ foreach my $file (@ARGV) {
     close DIFF;
 }
 
+# Collect the list of files to process.
+my @all_files;
+if ($recursive) {
+    open FIND, "find @ARGV @find_opts -type f |";
+    foreach (<FIND>) {
+	chomp;
+	push(@all_files, $_);
+    }
+    close FIND;
+}
+else {
+    @all_files = @ARGV;
+}
+
+# Show diffs and collect the list of changed files.
+process_file($_) foreach (@all_files);
+
+# Ask whether to apply or exit if we didn't find changes.
 exit 0 if $pretend;
 if (not @changed_files) {
     print STDERR "Substitutions have no effect.\n";
@@ -112,6 +140,7 @@ if ($reply ne 'y' and $reply ne 'yes') {
     exit 0;
 }
 
+# Apply the changes.
 foreach (@changed_files) {
     my $cmd = "$SED @sed_opts $flag_i $_";
     if ($verbose) {
@@ -198,6 +227,22 @@ display the changes.
 Passed to diff.
 
 =back
+
+
+=head2 find-Options
+
+If C<-R> is passed then find(1) will be invoked to generate a list of files to
+process.  The following optinos are passed though, after adjusting double to
+single dashes.  C<-type f> will always be passed.
+
+=over 8
+
+=item --name, --iname, --maxdepth, --mindepth
+
+Passed to find(1).
+
+=back
+
 
 =head1 DESCRIPTION
 
