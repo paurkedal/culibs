@@ -95,8 +95,7 @@ int main()
     This package requires Boehm-Demers-Weiser conservative garbage
     collector.  To carry on, you may search your system for "libgc.*",
     "gc.h" or "gc_typed.h" and set the appropriate CPPFLAGS and LDFLAGS.
-    If you don't have it, check out
-    http://www.hpl.hp.com/personal/Hans_Boehm/gc/.])],
+    Otherwise, see http://www.hpl.hp.com/personal/Hans_Boehm/gc/.])],
 	    [$3])
     fi
     AC_SUBST(BDWGC_CFLAGS)
@@ -115,7 +114,20 @@ AC_DEFUN([CUAC_LIB_BDWGC],
 	  [ AC_DEFINE([HAVE_GC_DISCLAIM], 1,
 		      [Define if libgc has disclaim patch.])
 	    have_gc_disclaim=true
-	    AC_MSG_RESULT(yes) ],
+	    AC_MSG_RESULT(yes)
+	    AC_MSG_CHECKING([GC_register_disclaim_proc API])
+	    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <gc/gc_disclaim.h>
+int main()
+{
+    GC_register_disclaim_proc(0, NULL, 0);
+}
+]])],
+	    [AC_MSG_RESULT([new])],
+	    [AC_MSG_RESULT([old])
+	     AC_DEFINE([GC_REGISTER_DISCLAIM_PROC_OLD_API], [],
+		       [Define if GC_register_disclaim_proc has old API.])] )
+	  ],
 	  [ have_gc_disclaim=false
 	    AC_MSG_RESULT(no) ])
 	AC_CHECK_HEADERS([gc/gc.h gc/gc_local_alloc.h gc_local_alloc.h gc/gc_tiny_fl.h gc/gc_rnotify.h gc_rnotify.h])

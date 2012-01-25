@@ -127,7 +127,7 @@ AC_TRY_RUN(
 # libatomic_ops
 #
 AC_CHECK_HEADER([atomic_ops.h], [],
-  [ AC_MSG_ERROR([We'll need libatomic_ops from http://www.hpl.hp.com/research/linux/atomic_ops/index.php4]) ])
+  [ AC_MSG_ERROR([libatomic_ops is required, see http://www.hpl.hp.com/research/linux/atomic_ops/]) ])
 
 # libgc
 #

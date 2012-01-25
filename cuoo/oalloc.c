@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2010  Petter Urkedal <paurkedal@eideticdew.org>
+ * Copyright (C) 2005--2012  Petter Urkedal <paurkedal@eideticdew.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -192,14 +192,22 @@ cuooP_oalloc_init(void)
     /* Create the ordered object kind. */
     cuooP_ord_gfl = GC_new_free_list();
     cuooP_ord_objkind = GC_new_kind(cuooP_ord_gfl, 0 | GC_DS_LENGTH, 1, 1);
+#ifdef CUCONF_GC_REGISTER_DISCLAIM_PROC_OLD_API
     GC_register_disclaim_proc(cuooP_ord_objkind, cuooP_hcons_disclaim_proc,
 			      NULL, 1);
+#else
+    GC_register_disclaim_proc(cuooP_ord_objkind, cuooP_hcons_disclaim_proc, 1);
+#endif
 
     /* Create the unordered object kind. */
     cuooP_unord_gfl = GC_new_free_list();
     cuooP_unord_objkind = GC_new_kind(cuooP_unord_gfl, 0 | GC_DS_LENGTH, 1, 1);
+#ifdef CUCONF_GC_REGISTER_DISCLAIM_PROC_OLD_API
     GC_register_disclaim_proc(cuooP_unord_objkind, cuooP_hcons_disclaim_proc,
 			      NULL, 0);
+#else
+    GC_register_disclaim_proc(cuooP_unord_objkind,cuooP_hcons_disclaim_proc,0);
+#endif
 
     /* Need to trigger some initialisation before using
      * GC_generic_malloc_many. */
