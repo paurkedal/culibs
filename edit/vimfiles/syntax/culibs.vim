@@ -65,7 +65,7 @@ if !exists("c_no_debug")
     syn match cDebug '\<cu_debug_\i*' nextgroup=cDebugParen
     syn keyword cDebug cu_dlogf cu_dlog_def cu_dlog_edec cu_dlog_edef
 	\ nextgroup=cDebugParen
-    syn keyword cDebug assert cu_dprintf nextgroup=cDebugParen
+    syn keyword cDebug cu_dprintf nextgroup=cDebugParen
     syn keyword cDebug CU_NOINIT nextgroup=cDebugParen
     syn region cDebugParen contained start='(' end=');' contains=cDebugString
     syn region cDebugString contained start='"' skip='\\.' end='"'
