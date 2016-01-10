@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2006--2010  Petter Urkedal <paurkedal@eideticdew.org>
+ * Copyright (C) 2006--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -431,7 +431,9 @@ _print_std_range(cuex_otab_t otab, cuex_otab_range_t range,
     char const *range_name = cu_idr_to_cstr(cuex_otab_range_idr(range));
     cuex_meta_t min = cuex_otab_range_min(range);
     cuex_meta_t maxp1 = cuex_otab_range_maxp1(range);
+#if CUEX_OTAB_ENABLE_COMPARISON
     cuex_meta_t prop_mask;
+#endif
     cuex_otab_range_t super = cuex_otab_range_super(range);
     int lbit = cuex_otab_range_low_bit(range);
     int oa_lbit = super? cuex_otab_range_low_bit(super) : 0;
@@ -518,9 +520,11 @@ _print_std_range(cuex_otab_t otab, cuex_otab_range_t range,
 		type_cstr, prop_name, type_cstr, attr_shift,
 		(1 << prop->width) - 1);
     }
+#if CUEX_OTAB_ENABLE_COMPARISON
     prop_mask = (CUEX_META_C(1) << (cuex_otab_range_low_bit(range)
 				    + CUEX_OPR_SELECT_SHIFT))
 	      - (CUEX_META_C(1) << CUEX_OPR_SELECT_SHIFT);
+#endif
 
     /* Operators */
     for (node = cucon_list_begin(&range->opr_list);

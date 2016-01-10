@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2003--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2003--2016  Petter A. Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -112,7 +112,6 @@ cu_str_t
 cuos_path_from_charr(char const *s, size_t len)
 {
     cu_str_t path;
-    size_t i;
     int n_comp;
     struct chib_stringrange_s {
 	char const *beg;
@@ -165,7 +164,6 @@ cuos_path_from_charr(char const *s, size_t len)
 
     /* Extract irreducible components */
     sp = stack;
-    i = 0;
     while (1) {
 	assert(sp < stack + n_comp);
 	assert(s != se);

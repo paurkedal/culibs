@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2005--2012  Petter Urkedal <paurkedal@eideticdew.org>
+ * Copyright (C) 2005--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -166,7 +166,7 @@ cuexP_oalloc_unord_fin_raw(cuex_meta_t meta, size_t sizeg)
 #endif /* !CUCONF_ENABLE_GC_DISCLAIM */
 
 
-int cuooP_hcons_disclaim_proc(void *obj, void *null);
+int cuooP_hcons_disclaim_proc(void *obj);
 
 void
 cuooP_oalloc_init(void)

@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2002--2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2002--2016  Petter A. Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -127,14 +127,11 @@ cucon_list_cmp_mem(cucon_list_t l0, cucon_list_t l1, size_t size)
     cucon_listnode_t n0 = cucon_list_begin(l0);
     cucon_listnode_t n1 = cucon_list_begin(l1);
     for (;;) {
-	void *p0, *p1;
 	int order;
 	int cont0 = n0 != cucon_list_end(l0);
 	int cont1 = n1 != cucon_list_end(l1);
 	if (!cont0 || !cont1)
 	    return cont0 - cont1;
-	p0 = cucon_listnode_ptr(n0);
-	p1 = cucon_listnode_ptr(n1);
 	order = memcmp(cucon_listnode_mem(n0), cucon_listnode_mem(n1), size);
 	if (order != 0)
 	    return order;

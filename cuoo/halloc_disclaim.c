@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2010  Petter Urkedal <paurkedal@eideticdew.org>
+ * Copyright (C) 2010--2016  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -832,7 +832,7 @@ found:
 }
 
 int
-cuooP_hcons_disclaim_proc(void *obj, void *null)
+cuooP_hcons_disclaim_proc(void *obj)
 {
     cuex_meta_t meta;
     cu_hash_t hash;
