@@ -75,35 +75,35 @@ cuflow_check_programs += \
 
 cuflow_cache_t0_SOURCES = cuflow/cache_t0.c
 nodist_cuflow_cache_t0_SOURCES = cuflow/cache_t0_tab.c
-cuflow_cache_t0_LDADD = libcuflow.la
+cuflow_cache_t0_LDADD = libcuflow.la -lm
 cuflow_cache_b0_SOURCES = cuflow/cache_b0.c
 nodist_cuflow_cache_b0_SOURCES = cuflow/cache_b0_tab.c
 cuflow_cache_b0_LDADD = libcuflow.la
 cuflow_cached_t0_SOURCES = cuflow/cached_t0.c
-cuflow_cached_t0_LDADD = libcuflow.la
+cuflow_cached_t0_LDADD = libcuflow.la libcubase.la
 cuflow_cached_b0_SOURCES = cuflow/cached_b0.c
-cuflow_cached_b0_LDADD = libcuflow.la
+cuflow_cached_b0_LDADD = libcuflow.la libcubase.la
 BUILT_SOURCES += \
 	cuflow/cache_t0_tab.h cuflow/cache_t0_tab.c \
 	cuflow/cache_b0_tab.h cuflow/cache_b0_tab.c
 endif
 
 cuflow_cont_t0_SOURCES = cuflow/cont_t0.c
-cuflow_cont_t0_LDADD = libcuflow.la
+cuflow_cont_t0_LDADD = libcuflow.la libcubase.la $(BDWGC_LIBS)
 cuflow_cont_t1_SOURCES = cuflow/cont_t1.c
-cuflow_cont_t1_LDADD = libcuflow.la
+cuflow_cont_t1_LDADD = libcuflow.la $(BDWGC_LIBS)
 cuflow_gworkq_t0_SOURCES = cuflow/gworkq_t0.c
-cuflow_gworkq_t0_LDADD = libcuflow.la
+cuflow_gworkq_t0_LDADD = libcuflow.la libcubase.la $(BDWGC_LIBS)
 cuflow_promise_t0_SOURCES = cuflow/promise_t0.c
-cuflow_promise_t0_LDADD = libcuflow.la
+cuflow_promise_t0_LDADD = libcuflow.la libcubase.la $(BDWGC_LIBS) $(PTHREAD_LIBS)
 cuflow_sched_b0_SOURCES = cuflow/sched_b0.c
-cuflow_sched_b0_LDADD = libcuflow.la
+cuflow_sched_b0_LDADD = libcuflow.la libcubase.la
 cuflow_stack_t0_SOURCES = cuflow/stack_t0.c
-cuflow_stack_t0_LDADD = libcuflow.la
+cuflow_stack_t0_LDADD = libcuflow.la libcubase.la
 cuflow_wind_t0_SOURCES = cuflow/wind_t0.c
-cuflow_wind_t0_LDADD = libcuflow.la
+cuflow_wind_t0_LDADD = libcuflow.la libcubase.la $(BDWGC_LIBS)
 cuflow_workers_t0_SOURCES = cuflow/workers_t0.c
-cuflow_workers_t0_LDADD = libcuflow.la
+cuflow_workers_t0_LDADD = libcuflow.la libcubase.la -lm
 
 cachetab = $(top_srcdir)/bin/cuflow_cachetab
 cuflow/%_tab.c cuflow/%_tab.h: cuflow/%.c $(cachetab)

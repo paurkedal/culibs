@@ -154,9 +154,9 @@ cu_memory_t0_ndebug_CFLAGS = -D CU_NDEBUG=1
 cu_ptr_t0_SOURCES = cu/ptr_t0.c
 cu_ptr_t0_LDADD = libcubase.la
 cu_thread_t0_SOURCES = cu/thread_t0.c
-cu_thread_t0_LDADD = libcubase.la
+cu_thread_t0_LDADD = libcubase.la $(PTHREAD_LIBS)
 cu_rarex_t0_SOURCES = cu/rarex_t0.c
-cu_rarex_t0_LDADD = libcubase.la
+cu_rarex_t0_LDADD = libcubase.la $(PTHREAD_LIBS)
 cu_wordarr_t0_SOURCES = cu/wordarr_t0.c
 cu_wordarr_t0_LDADD = libcubase.la
 cu_wstring_t0_SOURCES = cu/wstring_t0.c

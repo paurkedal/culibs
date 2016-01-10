@@ -27,10 +27,10 @@ cugra_check_programs += cugra/graph_t0
 endif
 
 cugra_graph_t0_SOURCES = cugra/graph_t0.c
-cugra_graph_t0_LDADD = libcugra.la
+cugra_graph_t0_LDADD = libcugra.la libcubase.la
 cugra_graph_t1_SOURCES = cugra/graph_t1.c
-cugra_graph_t1_LDADD = libcugra.la
+cugra_graph_t1_LDADD = libcugra.la libcubase.la
 cugra_algo_SCC_t0_SOURCES = cugra/algo_SCC_t0.c
-cugra_algo_SCC_t0_LDADD = libcugra.la
+cugra_algo_SCC_t0_LDADD = libcugra.la libcubase.la
 
 endif

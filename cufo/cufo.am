@@ -53,9 +53,9 @@ pkgconfig_DATA += pkgconfig/cufo.pc
 noinst_DATA += pkgconfig/cufo-uninstalled.pc
 
 cufo_stream_t0_SOURCES = cufo/stream_t0.c
-cufo_stream_t0_LDADD = libcufo.la libcuos.la
+cufo_stream_t0_LDADD = libcufo.la libcuos.la libcubase.la libcutext.la
 cufo_stream_t1_SOURCES = cufo/stream_t1.c
-cufo_stream_t1_LDADD = libcufo.la libcuos.la
+cufo_stream_t1_LDADD = libcufo.la libcuos.la libcubase.la
 
 endif
 
