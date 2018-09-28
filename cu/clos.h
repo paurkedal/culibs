@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2008--2010  Petter Urkedal <paurkedal@eideticdew.org>
+ * Copyright (C) 2008--2018  Petter A. Urkedal <paurkedal@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ typedef void (**cu_clop_generic_t)();
 #define cuP_clop_def(name, linkage, res_t, alops, xparl)		\
     linkage res_t name##_fn cuP_clos_formal(alops, xparl);		\
     linkage res_t (*name##_data) cuP_clos_formal(alops, xparl) = &name##_fn; \
-    linkage res_t (**name) cuP_clos_formal(alops, xparl) 		\
+    linkage res_t (**name) cuP_clos_formal(alops, xparl)		\
 	    CU_ATTR_UNUSED = &name##_data;				\
     linkage res_t name##_fn cuP_clos_formal(alops, xparl)
 #define cu_clop_ref(name) (&name##_data)

@@ -1,5 +1,5 @@
 /* Part of the culibs project, <http://www.eideticdew.org/culibs/>.
- * Copyright (C) 2007  Petter Urkedal <urkedal@nbi.dk>
+ * Copyright (C) 2007--2018  Petter A. Urkedal <urkedal@nbi.dk>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ cu_clop_def0(_atexit, void)
     cu_test_assert_int_eq(_thread_status[tls->id], 1);
 }
 
-void *
+static void *
 _thread_main(void *targ)
 {
     long i;
