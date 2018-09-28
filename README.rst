@@ -1,6 +1,8 @@
 Garbage Collected C Libraries
 =============================
 
+**Status:** This project is no longer actively maintained by the author.
+
 For elaborate documentation, see http://www.eideticdew.org/culibs/.
 
 This source code contains several C libraries.  It is split into modules, where
